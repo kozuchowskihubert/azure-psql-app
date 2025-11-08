@@ -71,6 +71,55 @@ export DATABASE_URL="postgresql://user:pass@host:5432/dbname"
 - Runs container on port 3000
 - Connects to specified PostgreSQL database
 
+### test-cicd-local.sh
+
+**Local CI/CD pipeline simulation** - Test the entire GitHub Actions workflow on your local machine before pushing.
+
+**Usage:**
+```bash
+# Quick validation (30s)
+./scripts/test-cicd-local.sh validate
+
+# Build without pushing (2-5min)
+./scripts/test-cicd-local.sh build --skip-push
+
+# Full pipeline simulation (15-25min)
+./scripts/test-cicd-local.sh all
+
+# Show all options
+./scripts/test-cicd-local.sh --help
+```
+
+**Available Stages:**
+- `validate` - Code linting, tests, Terraform validation
+- `build` - Docker build and ACR push
+- `infra` - Terraform infrastructure deployment
+- `deploy` - Application deployment to Azure
+- `all` - Complete pipeline (default)
+
+**Options:**
+- `-s, --skip-push` - Skip pushing to ACR (faster testing)
+- `-a, --auto-approve` - Auto-approve Terraform changes
+- `-t TAG, --image-tag TAG` - Custom Docker image tag
+- `-h, --help` - Show help message
+
+**Examples:**
+```bash
+# Pre-commit validation
+./scripts/test-cicd-local.sh validate
+
+# Test Docker build locally
+./scripts/test-cicd-local.sh build -s
+
+# Full pipeline with auto-approve
+./scripts/test-cicd-local.sh all -a
+
+# Custom image tag
+IMAGE_TAG=v1.2.3 ./scripts/test-cicd-local.sh build
+```
+
+**See:** [Local CI/CD Testing Guide](../docs/LOCAL_CICD_TESTING.md) for detailed documentation.
+
 ### permissions.ps1
 
 PowerShell script to assign Azure AD roles to service principals (requires organizational account).
