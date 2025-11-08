@@ -13,7 +13,9 @@ Comprehensive documentation is available in the [`docs/`](./docs) folder:
 
 - **[🏗️ Architecture](./docs/ARCHITECTURE.md)** - System design, components, network architecture, and Mermaid diagrams
 - **[🚀 Deployment Guide](./docs/DEPLOYMENT.md)** - Step-by-step deployment, CI/CD pipeline, and workflows
-- **[🔧 Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions from production deployment
+- **[� Production Deployment](./.github/PRODUCTION_DEPLOYMENT_GUIDE.md)** - Complete production deployment guide with all workflow stages
+- **[�🔧 Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions from production deployment
+- **[🧪 Act Usage Guide](./docs/ACT_USAGE.md)** - Testing GitHub Actions locally before deployment
 
 ## 🎯 Features
 
