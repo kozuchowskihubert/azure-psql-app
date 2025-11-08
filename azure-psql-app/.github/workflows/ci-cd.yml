@@ -60,6 +60,34 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
+        - name: Generate .env from Terraform outputs
+          working-directory: ./infra
+          shell: bash
+          run: |
+            TF_OUTPUT=$(terraform output -json)
+            DB_HOST=$(echo "$TF_OUTPUT" | jq -r '.psql_fqdn.value')
+            DB_USER=$(echo "$TF_OUTPUT" | jq -r '.psql_admin_username.value')
+            DB_PASS=$(echo "$TF_OUTPUT" | jq -r '.psql_admin_password.value')
+            DB_NAME=$(echo "$TF_OUTPUT" | jq -r '.psql_db_name.value')
+            DB_PORT=5432
+            DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+            echo "DATABASE_URL=${DATABASE_URL}" > ../app/.env
+            echo "PORT=3000" >> ../app/.env
+
+        - name: Generate .env from Terraform outputs
+          working-directory: ./infra
+          run: |
+            TF_OUTPUT=$(terraform output -json)
+            DB_HOST=$(echo "$TF_OUTPUT" | jq -r '.psql_fqdn.value')
+            DB_USER=$(echo "$TF_OUTPUT" | jq -r '.psql_admin_username.value')
+            DB_PASS=$(echo "$TF_OUTPUT" | jq -r '.psql_admin_password.value')
+            DB_NAME=$(echo "$TF_OUTPUT" | jq -r '.psql_db_name.value')
+            DB_PORT=5432
+            DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+            echo "DATABASE_URL=${DATABASE_URL}" > ../app/.env
+            echo "PORT=3000" >> ../app/.env
+          shell: bash
+
   verify:
     runs-on: ubuntu-latest
     needs: terraform
