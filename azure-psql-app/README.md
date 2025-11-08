@@ -2,7 +2,7 @@
 
 > A production-ready, containerized Node.js application deployed on Azure with PostgreSQL, featuring Infrastructure as Code, CI/CD automation, and comprehensive documentation.
 
-[![CI/CD Pipeline](https://github.com/kozuchowskihubert/azure-psql-app/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/kozuchowskihubert/azure-psql-app/actions)
+[![CI/CD Pipeline](https://github.com/kozuchowskihubert/azure-psql-app/actions/workflows/deploy-azure-infrastructure.yml/badge.svg)](https://github.com/kozuchowskihubert/azure-psql-app/actions)
 [![Terraform](https://img.shields.io/badge/Terraform-1.5+-purple)](https://www.terraform.io/)
 [![Azure](https://img.shields.io/badge/Azure-Cloud-blue)](https://azure.microsoft.com/)
 [![Node.js](https://img.shields.io/badge/Node.js-18-green)](https://nodejs.org/)
@@ -71,7 +71,7 @@ azure-psql-app/
 │   ├── run-local.sh        # Local development
 │   └── README.md           # Scripts documentation
 ├── .github/workflows/       # CI/CD pipelines
-│   └── ci-cd.yml           # Main deployment workflow
+│   └── deploy-azure-infrastructure.yml  # Main deployment workflow
 ├── Dockerfile              # Container image build
 └── README.md               # This file
 ```
@@ -340,7 +340,7 @@ terraform output
 
 ## 🔄 CI/CD Pipeline
 
-The project uses GitHub Actions for automated deployment. The pipeline is defined in `.github/workflows/ci-cd.yml`.
+The project uses GitHub Actions for automated deployment. The pipeline is defined in `.github/workflows/deploy-azure-infrastructure.yml`.
 
 ### Pipeline Stages
 
@@ -542,5 +542,5 @@ CI/CD pipeline includes:
 
 ### Support
 - Review [MAKEFILE.md](../MAKEFILE.md) for automation details
-- Check `.github/workflows/ci-cd.yml` for pipeline configuration
+- Check `.github/workflows/deploy-azure-infrastructure.yml` for pipeline configuration
 - Verify all prerequisites are installed

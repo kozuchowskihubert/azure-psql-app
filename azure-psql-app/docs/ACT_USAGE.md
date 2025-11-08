@@ -425,10 +425,10 @@ docker exec -it act-... bash
 
 ```bash
 # Run specific workflow
-act -W .github/workflows/ci-cd.yml
+act -W .github/workflows/deploy-azure-infrastructure.yml
 
 # List jobs in specific workflow
-act -W .github/workflows/ci-cd.yml -l
+act -W .github/workflows/deploy-azure-infrastructure.yml -l
 ```
 
 ## Performance Tips

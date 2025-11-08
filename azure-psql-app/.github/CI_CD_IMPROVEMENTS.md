@@ -251,7 +251,7 @@ git push origin feature/new-feature
 
 ```bash
 # Using GitHub CLI
-gh run list --workflow=ci-cd.yml
+gh run list --workflow=deploy-azure-infrastructure.yml
 
 # View latest run
 gh run view

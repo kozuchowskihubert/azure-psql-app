@@ -160,7 +160,7 @@ graph TB
 
 ### Workflow File Structure
 
-The CI/CD workflow is defined in `.github/workflows/ci-cd.yml`:
+The CI/CD workflow is defined in `.github/workflows/deploy-azure-infrastructure.yml`:
 
 ```yaml
 name: CI/CD Pipeline
