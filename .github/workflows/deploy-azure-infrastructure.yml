@@ -257,7 +257,7 @@ jobs:
     outputs:
       app-url: ${{ steps.output.outputs.app-url }}
       db-host: ${{ steps.output.outputs.db-host }}
-      webapp-name: ${{ steps.output.outputs.webapp-name }}
+      rg-name: ${{ steps.output.outputs.rg-name }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -328,22 +328,27 @@ jobs:
           echo "Extracting Terraform outputs..."
           
           APP_URL=$(terraform output -raw app_url 2>/dev/null || echo "")
-          DB_HOST=$(terraform output -raw psql_fqdn 2>/dev/null || echo "")
-          WEBAPP_NAME=$(terraform output -raw webapp_name 2>/dev/null || echo "")
+          DB_HOST=$(terraform output -raw database_fqdn 2>/dev/null || echo "")
+          RG_NAME=$(terraform output -raw resource_group_name 2>/dev/null || echo "notesapp-dev-rg")
           
           echo "app-url=$APP_URL" >> $GITHUB_OUTPUT
           echo "db-host=$DB_HOST" >> $GITHUB_OUTPUT
-          echo "webapp-name=$WEBAPP_NAME" >> $GITHUB_OUTPUT
+          echo "rg-name=$RG_NAME" >> $GITHUB_OUTPUT
           
           echo "### 🏗️ Infrastructure Deployed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Changes:** ${{ steps.plan.outputs.changes }}" >> $GITHUB_STEP_SUMMARY
           echo "**App URL:** $APP_URL" >> $GITHUB_STEP_SUMMARY
           echo "**Database Host:** $DB_HOST" >> $GITHUB_STEP_SUMMARY
-          echo "**Web App Name:** $WEBAPP_NAME" >> $GITHUB_STEP_SUMMARY
           echo "**Region:** ${{ env.AZURE_REGION }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Resource Group:** notesapp-dev-rg" >> $GITHUB_STEP_SUMMARY
+          echo "**Resource Group:** $RG_NAME" >> $GITHUB_STEP_SUMMARY
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_ACCESS_KEY: ${{ secrets.ARM_ACCESS_KEY }}
 
   # ---------------------------------------------------------------------------
   # Stage 4: Deploy Application
