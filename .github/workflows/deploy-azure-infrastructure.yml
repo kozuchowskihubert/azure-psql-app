@@ -37,7 +37,7 @@ on:
   push:
     branches: [ main ]
     paths-ignore:
-      - 'docs/**'
+      - 'azure-psql-app/docs/**'
       - '**.md'
       - '.github/workflows/documentation.yml'
   pull_request:
@@ -91,17 +91,17 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: app/package-lock.json
+          cache-dependency-path: azure-psql-app/app/package-lock.json
 
       - name: 🔧 Install dependencies
-        working-directory: ./app
+        working-directory: ./azure-psql-app/app
         run: |
           echo "Installing npm packages..."
           npm ci
           echo "✅ Dependencies installed successfully"
 
       - name: 🔍 Run linting
-        working-directory: ./app
+        working-directory: ./azure-psql-app/app
         run: |
           if npm run lint 2>/dev/null; then
             echo "✅ Linting passed"
@@ -110,7 +110,7 @@ jobs:
           fi
 
       - name: 🧪 Run tests
-        working-directory: ./app
+        working-directory: ./azure-psql-app/app
         run: |
           if npm test 2>/dev/null; then
             echo "✅ Tests passed"
@@ -124,21 +124,21 @@ jobs:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
 
       - name: 📝 Terraform Format Check
-        working-directory: ./infra
+        working-directory: ./azure-psql-app/infra
         run: |
           echo "Checking Terraform formatting..."
           terraform fmt -check -recursive
           echo "✅ Terraform formatting is correct"
 
       - name: 🔧 Terraform Init (validation only)
-        working-directory: ./infra
+        working-directory: ./azure-psql-app/infra
         run: |
           echo "Initializing Terraform (no backend)..."
           terraform init -backend=false
           echo "✅ Terraform initialized successfully"
 
       - name: ✅ Terraform Validate
-        working-directory: ./infra
+        working-directory: ./azure-psql-app/infra
         run: |
           echo "Validating Terraform configuration..."
           terraform validate
@@ -210,7 +210,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./azure-psql-app
           file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
@@ -274,7 +274,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: 🔧 Terraform Init
-        working-directory: ./infra
+        working-directory: ./azure-psql-app/infra
         run: |
           echo "Initializing Terraform with Azure backend..."
           terraform init
@@ -287,7 +287,7 @@ jobs:
 
       - name: 📋 Terraform Plan
         id: plan
-        working-directory: ./infra
+        working-directory: ./azure-psql-app/infra
         run: |
           echo "Planning infrastructure changes..."
           terraform plan \
@@ -307,7 +307,7 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
       - name: 🚀 Terraform Apply
-        working-directory: ./infra
+        working-directory: ./azure-psql-app/infra
         run: |
           echo "Applying infrastructure changes..."
           terraform apply -auto-approve tfplan
@@ -320,7 +320,7 @@ jobs:
 
       - name: 📤 Get Terraform Outputs
         id: output
-        working-directory: ./infra
+        working-directory: ./azure-psql-app/infra
         run: |
           echo "Extracting Terraform outputs..."
           
