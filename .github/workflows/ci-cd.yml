@@ -24,10 +24,10 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./azure-psql-app
+          file: ./azure-psql-app/Dockerfile
           push: true
-          tags: ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ secrets.ACR_LOGIN_SERVER }}/awareson:latest
         env:
           IMAGE_NAME: azure-psql-app
 
