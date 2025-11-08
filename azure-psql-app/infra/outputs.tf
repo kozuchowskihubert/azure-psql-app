@@ -42,20 +42,22 @@ output "resource_group_name" {
   value       = azurerm_resource_group.rg.name
 }
 
-output "spn_client_id" {
-  description = "Service Principal Client ID"
-  value       = azuread_service_principal.sp.client_id
-  sensitive   = true
-}
+# Service Principal outputs - Managed manually
+# output "spn_client_id" {
+#   description = "Service Principal Client ID"
+#   value       = azuread_service_principal.sp.client_id
+#   sensitive   = true
+# }
 
-output "spn_client_secret" {
-  description = "Service Principal Client Secret"
-  value       = azuread_service_principal_password.sp_pwd.value
-  sensitive   = true
-}
+# output "spn_client_secret" {
+#   description = "Service Principal Client Secret"
+#   value       = azuread_service_principal_password.sp_pwd.value
+#   sensitive   = true
+# }
 
-output "spn_tenant_id" {
-  description = "Service Principal Tenant ID"
-  value       = azuread_service_principal.sp.application_tenant_id
-  sensitive   = true
-}
+# output "spn_tenant_id" {
+#   description = "Service Principal Tenant ID"
+#   value       = azuread_service_principal.sp.application_tenant_id
+#   sensitive   = true
+# }
+

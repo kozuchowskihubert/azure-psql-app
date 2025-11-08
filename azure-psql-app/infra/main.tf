@@ -26,30 +26,30 @@ provider "azurerm" {
 
 data "azurerm_client_config" "current" {}
 
-# Service Principal for CI/CD
-resource "azuread_application" "sp_app" {
-  display_name = "${var.prefix}-sp-app"
-}
+# Service Principal for CI/CD - Managed manually due to permission constraints
+# resource "azuread_application" "sp_app" {
+#   display_name = "${var.prefix}-sp-app"
+# }
 
-resource "azuread_service_principal" "sp" {
-  client_id = azuread_application.sp_app.client_id
-}
+# resource "azuread_service_principal" "sp" {
+#   client_id = azuread_application.sp_app.client_id
+# }
 
-resource "random_password" "sp_pwd" {
-  length  = 32
-  special = true
-}
+# resource "random_password" "sp_pwd" {
+#   length  = 32
+#   special = true
+# }
 
-resource "azuread_service_principal_password" "sp_pwd" {
-  service_principal_id = azuread_service_principal.sp.id
-  end_date             = "2099-01-01T00:00:00Z"
-}
+# resource "azuread_service_principal_password" "sp_pwd" {
+#   service_principal_id = azuread_service_principal.sp.id
+#   end_date             = "2099-01-01T00:00:00Z"
+# }
 
-resource "azurerm_role_assignment" "sp_contrib" {
-  scope                = azurerm_resource_group.rg.id
-  role_definition_name = "Contributor"
-  principal_id         = azuread_service_principal.sp.id
-}
+# resource "azurerm_role_assignment" "sp_contrib" {
+#   scope                = azurerm_resource_group.rg.id
+#   role_definition_name = "Contributor"
+#   principal_id         = azuread_service_principal.sp.id
+# }
 
 # Resource Group
 resource "azurerm_resource_group" "rg" {
