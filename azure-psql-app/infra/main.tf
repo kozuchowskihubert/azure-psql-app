@@ -113,17 +113,17 @@ resource "azurerm_postgresql_flexible_server" "pg" {
   version                       = "14"
   administrator_login           = var.db_admin
   administrator_password        = var.db_password
-  storage_mb                    = 32768  # Minimum 32GB
-  backup_retention_days         = 7      # Minimum to avoid geo-redundancy costs
-  geo_redundant_backup_enabled  = false  # Disable for cost savings
-  auto_grow_enabled             = false  # Prevent automatic storage increase
-  sku_name                      = "B_Standard_B1ms"  # Smallest burstable tier
+  storage_mb                    = 32768             # Minimum 32GB
+  backup_retention_days         = 7                 # Minimum to avoid geo-redundancy costs
+  geo_redundant_backup_enabled  = false             # Disable for cost savings
+  auto_grow_enabled             = false             # Prevent automatic storage increase
+  sku_name                      = "B_Standard_B1ms" # Smallest burstable tier
   public_network_access_enabled = true
-  zone                          = "1"    # Explicitly set zone to match existing server
-  
+  zone                          = "1" # Explicitly set zone to match existing server
+
   lifecycle {
     ignore_changes = [
-      zone,  # Ignore zone changes to prevent replacement
+      zone, # Ignore zone changes to prevent replacement
     ]
   }
 }
@@ -147,10 +147,10 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "azure_services" {
 # Container Registry - Basic tier is the cheapest (~$5/month)
 # Note: No free tier for ACR, but Basic includes 10GB storage
 resource "azurerm_container_registry" "acr" {
-  name                = "${var.prefix}${var.env}acr14363"  # Must be globally unique
+  name                = "${var.prefix}${var.env}acr14363" # Must be globally unique
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  sku                 = "Basic"  # Cheapest tier: $5/month
+  sku                 = "Basic" # Cheapest tier: $5/month
   admin_enabled       = true
 }
 
@@ -160,7 +160,7 @@ resource "azurerm_service_plan" "plan" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   os_type             = "Linux"
-  sku_name            = "F1"  # FREE tier: 1 GB RAM, 60 min/day compute
+  sku_name            = "F1" # FREE tier: 1 GB RAM, 60 min/day compute
 }
 
 # App Service - Using F1 Free tier
@@ -171,7 +171,7 @@ resource "azurerm_linux_web_app" "app" {
   service_plan_id     = azurerm_service_plan.plan.id
 
   site_config {
-    always_on = false  # Required for F1 tier (cannot be true on free tier)
+    always_on = false # Required for F1 tier (cannot be true on free tier)
 
     application_stack {
       docker_image     = "${azurerm_container_registry.acr.login_server}/${var.prefix}"
