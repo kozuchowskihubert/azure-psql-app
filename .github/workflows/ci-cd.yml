@@ -48,11 +48,11 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Terraform Init
-        working-directory: ./infra
+        working-directory: azure-psql-app/infra
         run: terraform init
 
       - name: Terraform Apply
-        working-directory: ./infra
+        working-directory: azure-psql-app/infra
         run: terraform apply -auto-approve -var image_tag=latest
         env:
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
@@ -61,18 +61,18 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
       - name: Generate .env from Terraform outputs
-        working-directory: ./infra
+        working-directory: azure-psql-app/infra
         shell: bash
         run: |
-            TF_OUTPUT=$(terraform output -json)
-            DB_HOST=$(echo "$TF_OUTPUT" | jq -r '.database_fqdn.value')
-            DB_USER=$(echo "$TF_OUTPUT" | jq -r '.db_admin.value')
-            DB_PASS=$(echo "$TF_OUTPUT" | jq -r '.db_password.value')
-            DB_NAME=$(echo "$TF_OUTPUT" | jq -r '.db_name.value')
-            DB_PORT=5432
-            DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require"
-            echo "DATABASE_URL=${DATABASE_URL}" > ../app/.env
-            echo "PORT=3000" >> ../app/.env
+          TF_OUTPUT=$(terraform output -json)
+          DB_HOST=$(echo "$TF_OUTPUT" | jq -r '.database_fqdn.value')
+          DB_USER=$(echo "$TF_OUTPUT" | jq -r '.db_admin.value')
+          DB_PASS=$(echo "$TF_OUTPUT" | jq -r '.db_password.value')
+          DB_NAME=$(echo "$TF_OUTPUT" | jq -r '.db_name.value')
+          DB_PORT=5432
+          DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require"
+          echo "DATABASE_URL=${DATABASE_URL}" > ../app/.env
+          echo "PORT=3000" >> ../app/.env
 
   verify:
     runs-on: ubuntu-latest
