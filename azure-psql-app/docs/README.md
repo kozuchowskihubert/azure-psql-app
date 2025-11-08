@@ -1,6 +1,27 @@
 # Documentation Index
 
-Welcome to the Azure PostgreSQL App documentation! This index provides quick navigation to all available documentation resources.
+Welcome to the Azure PostgreSQL Notes App documentation! This modern web application features a beautiful interface with full CRUD operations, deployed on Azure with automated CI/CD.
+
+## 🌟 Application Features
+
+### **Modern Web Interface**
+- 🎨 Beautiful, responsive SPA with Tailwind CSS
+- 🌓 Dark mode with persistent preferences
+- 📱 Mobile-first design (works on all devices)
+- ⚡ Real-time search and filtering
+- 🏷️ Category organization
+- ⭐ Important notes highlighting
+- 📊 Live statistics dashboard
+
+### **Full Note Management**
+- ✏️ Create, read, update, delete operations
+- 🔍 Advanced search across titles and content
+- 🏷️ Category filtering and tagging
+- 🔄 Multiple sorting options
+- 🕐 Relative timestamps
+- 💾 Automatic schema migration
+
+**Live Application**: https://notesapp-dev-app.azurewebsites.net
 
 ## 📚 Core Documentation
 
@@ -8,23 +29,23 @@ Welcome to the Azure PostgreSQL App documentation! This index provides quick nav
 **Complete system architecture and design documentation**
 
 Topics covered:
-- System architecture overview
-- Component descriptions (App Service, PostgreSQL, ACR, VNet)
-- Infrastructure design and resource hierarchy
+- Modern SPA frontend architecture
+- System components (App Service, PostgreSQL, ACR, Storage)
+- Enhanced database schema with 6 fields
+- Terraform remote state with Azure Storage
 - Network architecture and private networking
 - Security model and authentication
-- Data flow diagrams
-- Cost optimization strategies
-- Disaster recovery procedures
-- Monitoring and observability
+- Complete CI/CD pipeline (6 stages)
+- Cost optimization strategies (~$18/month)
+- Monitoring and health checks
 - Scaling considerations
 
 **Key Diagrams:**
-- System architecture diagram
+- System architecture with Terraform backend
 - Resource hierarchy
 - Network flow
 - Security boundaries
-- CI/CD deployment flow
+- Complete CI/CD deployment flow
 
 **Recommended for:** Architects, DevOps engineers, and technical stakeholders
 
@@ -35,25 +56,23 @@ Topics covered:
 
 Topics covered:
 - Prerequisites and initial setup
+- Azure Storage backend configuration
 - Service Principal creation
-- GitHub Secrets configuration
+- GitHub Secrets configuration (11 secrets)
+- Programmatic secret setup with GitHub CLI
 - Local configuration
-- CI/CD pipeline overview
+- Complete CI/CD pipeline overview
 - Manual deployment procedures
-- Configuration management
-- Deployment workflows
-- Infrastructure recreation
-- Region migration
+- State migration and resource import
+- Region selection (West US 2)
 - Post-deployment verification
 - Rollback procedures
 
-**Key Diagrams:**
-- Service Principal setup flow
-- CI/CD pipeline stages
-- Docker build & push sequence
-- Infrastructure provisioning
-- Deployment workflows
-- Rollback procedures
+**Key Features:**
+- Terraform remote state in Azure Storage
+- Automated health check verification
+- Docker layer caching for fast builds
+- Complete resource import support
 
 **Recommended for:** DevOps engineers, SREs, and deployment teams
 
@@ -64,25 +83,21 @@ Topics covered:
 
 Topics covered:
 - Issue decision trees
-- Azure AD permission errors
+- Terraform output naming issues
+- Remote state configuration
+- Health check timing problems
 - Region and quota issues
-- Terraform state problems
 - Container registry authentication
 - Database connection issues
 - Application deployment failures
-- Network and VNet issues
 - CI/CD pipeline failures
 - Quick reference commands
 
-**Key Diagrams:**
-- Issue decision tree
-- Azure AD permission resolution flow
-- Region quota decision tree
-- State lock resolution
-- ACR authentication flow
-- Database connection troubleshooting
-- Container startup troubleshooting
-- Pipeline failure decision tree
+**Updated for:**
+- Health endpoint verification
+- Remote state troubleshooting
+- ACR naming conflicts
+- Database schema migration
 
 **Recommended for:** Everyone - keep this handy when issues arise!
 
@@ -93,10 +108,116 @@ Topics covered:
 ### By Role
 
 #### **Developers**
-- [Local Development](#local-development-quick-start)
-- [Application Code](../app/)
-- [Environment Variables](./DEPLOYMENT.md#configuration-management)
 - [API Documentation](#api-documentation)
+- [Frontend Code](../app/public/)
+- [Backend Code](../app/index.js)
+- [Database Schema](#database-schema)
+- [Local Development](#local-development-quick-start)
+
+#### **DevOps Engineers**
+- [CI/CD Pipeline](./DEPLOYMENT.md#cicd-pipeline)
+- [Terraform Configuration](../infra/)
+- [Remote State Setup](./DEPLOYMENT.md#terraform-backend-setup)
+- [GitHub Secrets](./DEPLOYMENT.md#github-secrets-configuration)
+
+#### **Architects**
+- [System Architecture](./ARCHITECTURE.md#architecture-diagram)
+- [Network Design](./ARCHITECTURE.md#network-architecture)
+- [Security Model](./ARCHITECTURE.md#security-model)
+- [Cost Analysis](./ARCHITECTURE.md#cost-optimization)
+
+#### **Operations/SRE**
+- [Health Endpoint](#health-check)
+- [Monitoring Setup](./ARCHITECTURE.md#monitoring--observability)
+- [Troubleshooting](./TROUBLESHOOTING.md)
+- [Deployment Verification](./DEPLOYMENT.md#post-deployment-verification)
+
+---
+
+## 🔌 API Documentation
+
+### Health Check
+
+**Endpoint**: `GET /health`
+
+**Response**:
+```json
+{
+  "status": "healthy",
+  "database": "connected",
+  "timestamp": "2025-11-08T13:25:36.201Z"
+}
+```
+
+### Notes API
+
+#### Get All Notes
+**Endpoint**: `GET /notes`
+
+**Response**:
+```json
+[
+  {
+    "id": 1,
+    "title": "My Note",
+    "content": "Note content here",
+    "category": "Personal",
+    "important": false,
+    "created_at": "2025-11-08T12:00:00.000Z",
+    "updated_at": "2025-11-08T12:00:00.000Z"
+  }
+]
+```
+
+#### Get Single Note
+**Endpoint**: `GET /notes/:id`
+
+#### Create Note
+**Endpoint**: `POST /notes`
+
+**Request Body**:
+```json
+{
+  "title": "New Note",
+  "content": "Content here",
+  "category": "Work",
+  "important": true
+}
+```
+
+#### Update Note
+**Endpoint**: `PUT /notes/:id`
+
+**Request Body**:
+```json
+{
+  "title": "Updated Title",
+  "content": "Updated content",
+  "category": "Personal",
+  "important": false
+}
+```
+
+#### Delete Note
+**Endpoint**: `DELETE /notes/:id`
+
+**Response**: 204 No Content
+
+---
+
+## 🗄️ Database Schema
+
+### Notes Table
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | SERIAL | PRIMARY KEY | Auto-incrementing ID |
+| `title` | VARCHAR(255) | NOT NULL | Note title |
+| `content` | TEXT | NOT NULL | Note content |
+| `category` | VARCHAR(100) | NULL | Optional category |
+| `important` | BOOLEAN | DEFAULT FALSE | Important flag |
+| `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Creation time |
+| `updated_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Last update time |
 
 #### **DevOps Engineers**
 - [CI/CD Pipeline](./DEPLOYMENT.md#cicd-pipeline)

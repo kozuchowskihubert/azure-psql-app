@@ -11,14 +11,16 @@
 
 ## Overview
 
-This application is a containerized Node.js notes application deployed on Azure App Service with PostgreSQL Flexible Server as the database backend. The infrastructure is fully managed through Terraform and automated via GitHub Actions CI/CD pipeline.
+This is a modern, full-stack notes application with a beautiful web interface, deployed on Azure App Service with PostgreSQL Flexible Server as the database backend. The infrastructure is fully managed through Terraform with remote state storage in Azure Storage, and automated via GitHub Actions CI/CD pipeline.
 
 ### Key Features
+- **Modern Web Interface**: Responsive SPA with dark mode, real-time search, and advanced filtering
 - **Containerized Application**: Docker-based deployment for consistency
-- **Managed Database**: Azure PostgreSQL Flexible Server with private networking
-- **Infrastructure as Code**: Terraform for reproducible infrastructure
-- **CI/CD Automation**: GitHub Actions for automated deployments
+- **Managed Database**: Azure PostgreSQL Flexible Server with enhanced schema
+- **Infrastructure as Code**: Terraform with Azure Storage backend for state management
+- **CI/CD Automation**: Complete GitHub Actions pipeline with health checks
 - **Private Networking**: VNet integration for secure database access
+- **Remote State Management**: Terraform state persisted in Azure Blob Storage
 
 ## Architecture Diagram
 
@@ -34,16 +36,20 @@ graph TB
         Terraform[Terraform]
     end
 
-    subgraph "Azure Subscription - West Europe"
+    subgraph "Azure Subscription - West US 2"
         subgraph "Resource Group: notesapp-dev-rg"
             
+            subgraph "Terraform State"
+                Storage[Storage Account: tfstatenotesapp<br/>Container: tfstate]
+            end
+            
             subgraph "Container Registry"
-                ACR[Azure Container Registry<br/>notesappdevacr.azurecr.io]
+                ACR[Azure Container Registry<br/>notesappdevacr14363.azurecr.io]
             end
             
             subgraph "Compute"
-                ASP[App Service Plan<br/>B1 Linux]
-                WebApp[Azure Web App<br/>notesapp-dev-app]
+                ASP[App Service Plan<br/>F1 Free Linux]
+                WebApp[Azure Web App<br/>notesapp-dev-app<br/>Modern SPA Frontend]
             end
             
             subgraph "Virtual Network: 10.0.0.0/16"
@@ -90,21 +96,37 @@ graph TB
 ### 1. Application Layer
 
 #### Azure Web App (App Service)
-- **SKU**: B1 (Basic)
+- **SKU**: F1 (Free Tier)
 - **OS**: Linux
 - **Runtime**: Docker Container
-- **Location**: West Europe
+- **Location**: West US 2
 - **Features**:
   - VNet Integration for private database access
   - Container Registry integration
   - Environment variable configuration
-  - Application Insights (optional)
+  - Static file serving for SPA frontend
+  - Health endpoint monitoring
+
+#### Web Application
+- **Frontend**: 
+  - Single Page Application (SPA)
+  - Tailwind CSS for styling
+  - Dark mode support with local storage
+  - Responsive design (mobile, tablet, desktop)
+  - Real-time search and filtering
+  - Toast notifications and animations
+  
+- **Backend**:
+  - Express.js REST API
+  - Full CRUD operations (GET, POST, PUT, DELETE)
+  - Health check endpoint
+  - Static file serving
 
 #### Docker Container
 - **Base Image**: Node.js 18-alpine
 - **Build**: Multi-stage build for optimization
 - **Registry**: Azure Container Registry
-- **Application**: Express.js REST API
+- **Application**: Express.js REST API + Static Frontend
 
 ### 2. Data Layer
 
@@ -112,27 +134,40 @@ graph TB
 - **SKU**: B_Standard_B1ms (Burstable)
 - **Version**: 14
 - **Storage**: 32 GB
+- **Location**: West US 2
 - **Networking**: Private access only (no public endpoint)
 - **Features**:
   - VNet integration via delegated subnet
   - Private DNS zone for name resolution
   - Automatic backups
-  - High availability (configurable)
+  - Zone-redundant high availability (configurable)
 
-#### Database
+#### Database Schema
 - **Name**: notesdb
 - **Charset**: UTF8
 - **Collation**: en_US.utf8
+- **Tables**:
+  - **notes**: Main table with enhanced schema
+    - `id` (SERIAL PRIMARY KEY)
+    - `title` (VARCHAR(255) NOT NULL)
+    - `content` (TEXT NOT NULL)
+    - `category` (VARCHAR(100))
+    - `important` (BOOLEAN DEFAULT FALSE)
+    - `created_at` (TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
+    - `updated_at` (TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
 
 ### 3. Container Registry
 
 #### Azure Container Registry (ACR)
+- **Name**: notesappdevacr14363 (globally unique)
 - **SKU**: Basic
 - **Admin Enabled**: Yes (for CI/CD)
+- **Location**: West US 2
 - **Features**:
-  - Docker image storage
+  - Docker image storage with build cache
   - Automatic image scanning (optional)
   - Geo-replication (upgradeable)
+  - Layer caching for faster builds
 
 ### 4. Networking
 
@@ -150,15 +185,36 @@ graph TB
 ### 5. CI/CD Components
 
 #### GitHub Actions
-- **Workflows**:
-  - Build and push Docker image
-  - Provision infrastructure via Terraform
-  - Deploy application to App Service
+- **Workflows**: Complete 6-stage pipeline
+  1. **Validate**: Code linting, tests, and Terraform validation
+  2. **Deploy Infrastructure**: Terraform plan and apply with remote state
+  3. **Build & Push**: Docker image build with layer caching
+  4. **Deploy Application**: Container deployment to App Service
+  5. **Verify**: Health checks and endpoint testing
+  6. **Notify**: Deployment status reporting
 
 #### Terraform
-- **Backend**: Local state (upgradeable to Azure Storage)
+- **Backend**: Azure Storage (azurerm)
+  - **Storage Account**: tfstatenotesapp
+  - **Container**: tfstate
+  - **State File**: terraform.tfstate
 - **Provider**: azurerm ~> 3.0
-- **Resources Managed**: All infrastructure components
+- **Resources Managed**: 12 infrastructure components
+- **Features**:
+  - Remote state locking
+  - State versioning in blob storage
+  - Team collaboration support
+
+#### Azure Storage Backend
+- **Purpose**: Persistent Terraform state storage
+- **Storage Account**: tfstatenotesapp
+- **SKU**: Standard_LRS
+- **Location**: West US 2
+- **Benefits**:
+  - State persistence across CI/CD runs
+  - State locking for concurrent operations
+  - Version history and backup
+  - Team collaboration enablement
 
 ## Infrastructure Design
 
@@ -195,14 +251,15 @@ graph TD
 
 ### Regional Design
 
-**Primary Region**: West Europe
-- **Rationale**: Selected due to quota restrictions in East US
-- **Components**: All resources deployed in West Europe
+**Primary Region**: West US 2
+- **Rationale**: Selected due to quota availability and reliability
+- **Components**: All resources deployed in West US 2
 
 **High Availability Considerations**:
 - PostgreSQL: Supports zone-redundant HA (upgradeable)
 - App Service: Multiple instances possible (scale up/out)
 - ACR: Geo-replication available (upgradeable)
+- Terraform State: Stored in Azure Storage with redundancy
 
 ## Network Architecture
 

@@ -77,12 +77,66 @@ Navigate to your GitHub repository → Settings → Secrets and variables → Ac
 | `ARM_CLIENT_SECRET` | Service Principal Secret | From JSON: `clientSecret` |
 | `ARM_TENANT_ID` | Azure Tenant ID | From JSON: `tenantId` |
 | `ARM_SUBSCRIPTION_ID` | Azure Subscription ID | From JSON: `subscriptionId` |
+| `ARM_ACCESS_KEY` | Storage Account access key for Terraform state | From Azure Storage account keys |
 | `DB_PASSWORD` | PostgreSQL admin password | Choose a strong password |
 | `ACR_LOGIN_SERVER` | Container Registry URL | Get after first deployment |
 | `ACR_USERNAME` | Container Registry username | Get after first deployment |
 | `ACR_PASSWORD` | Container Registry password | Get after first deployment |
 
-### 3. Local Configuration
+**Note**: All 11 secrets can be set programmatically using GitHub CLI:
+
+```bash
+# Install and authenticate GitHub CLI
+brew install gh
+gh auth login
+
+# Set all secrets
+gh secret set AZURE_CREDENTIALS --body '{...json...}'
+gh secret set ARM_CLIENT_ID --body 'xxx'
+gh secret set ARM_CLIENT_SECRET --body 'xxx'
+gh secret set ARM_TENANT_ID --body 'xxx'
+gh secret set ARM_SUBSCRIPTION_ID --body 'xxx'
+gh secret set ARM_ACCESS_KEY --body 'xxx'
+gh secret set DB_PASSWORD --body 'xxx'
+gh secret set ACR_LOGIN_SERVER --body 'xxx.azurecr.io'
+gh secret set ACR_USERNAME --body 'xxx'
+gh secret set ACR_PASSWORD --body 'xxx'
+```
+
+### 3. Terraform Backend Setup
+
+Before deploying infrastructure, set up Azure Storage for Terraform remote state:
+
+```bash
+# Set variables
+RESOURCE_GROUP="notesapp-dev-rg"
+STORAGE_ACCOUNT="tfstatenotesapp"
+CONTAINER_NAME="tfstate"
+LOCATION="westus2"
+
+# Create storage account
+az storage account create \
+  --name $STORAGE_ACCOUNT \
+  --resource-group $RESOURCE_GROUP \
+  --location $LOCATION \
+  --sku Standard_LRS
+
+# Create blob container
+az storage container create \
+  --name $CONTAINER_NAME \
+  --account-name $STORAGE_ACCOUNT \
+  --auth-mode login
+
+# Get storage account key
+ACCOUNT_KEY=$(az storage account keys list \
+  --account-name $STORAGE_ACCOUNT \
+  --query "[0].value" -o tsv)
+
+# Set as GitHub secret
+gh secret set ARM_ACCESS_KEY --body "$ACCOUNT_KEY"
+```
+
+### 4. Local Configuration
 
 #### terraform.tfvars
 Create `infra/terraform.tfvars` (gitignored):
@@ -90,7 +144,7 @@ Create `infra/terraform.tfvars` (gitignored):
 ```hcl
 prefix      = "notesapp"
 env         = "dev"
-location    = "westeurope"  # Change if needed
+location    = "westus2"  # West US 2 recommended
 db_password = "YourSecurePassword123!"
 ```
 
