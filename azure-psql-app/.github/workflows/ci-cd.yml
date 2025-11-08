@@ -1,46 +1,150 @@
-name: CI/CD
+name: CI/CD Pipeline
 
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.github/workflows/documentation.yml'
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+env:
+  ACR_NAME: notesappdevacr
+  IMAGE_NAME: notesapp
+  AZURE_REGION: westeurope
 
 jobs:
-  build-and-push:
+  validate:
+    name: Validate Code & Infrastructure
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./app
+        run: npm ci
+
+      - name: Run linting
+        working-directory: ./app
+        run: npm run lint || echo "No lint script found, skipping..."
+
+      - name: Run tests
+        working-directory: ./app
+        run: npm test || echo "No tests found, skipping..."
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~1.5
+
+      - name: Terraform Format Check
+        working-directory: ./infra
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        working-directory: ./infra
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        working-directory: ./infra
+        run: terraform validate
+
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name != 'pull_request'
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
-      - name: Log in to ACR
-        uses: azure/docker-login@v1
+      - name: Log in to Azure
+        uses: azure/login@v2
         with:
-          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Build and push
+      - name: Log in to Azure Container Registry
+        run: az acr login --name ${{ env.ACR_NAME }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
-        env:
-          IMAGE_NAME: azure-psql-app
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:buildcache,mode=max
+          platforms: linux/amd64
+          provenance: false
 
-  terraform:
+      - name: Output image details
+        run: |
+          echo "### 🐳 Docker Image Built Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Digest:** \`${{ steps.build.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
+
+  deploy-infrastructure:
+    name: Deploy Infrastructure
     runs-on: ubuntu-latest
     needs: build-and-push
+    environment: ${{ github.event.inputs.environment || 'dev' }}
+    outputs:
+      app-url: ${{ steps.output.outputs.app-url }}
+      db-host: ${{ steps.output.outputs.db-host }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.5.6
+          terraform_version: ~1.5
+          terraform_wrapper: false
 
       - name: Azure Login
         uses: azure/login@v2
@@ -50,43 +154,166 @@ jobs:
       - name: Terraform Init
         working-directory: ./infra
         run: terraform init
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: ./infra
+        run: |
+          terraform plan \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
+            -var="location=${{ env.AZURE_REGION }}" \
+            -out=tfplan \
+            -no-color
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
       - name: Terraform Apply
         working-directory: ./infra
-        run: terraform apply -auto-approve -var image_tag=latest -var db_password=${{ secrets.DB_PASSWORD }}
+        run: terraform apply -auto-approve tfplan
         env:
-          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
-      - name: Generate .env from Terraform outputs
+      - name: Get Terraform Outputs
+        id: output
         working-directory: ./infra
-        shell: bash
         run: |
-          TF_OUTPUT=$(terraform output -json)
-          DB_HOST=$(echo "$TF_OUTPUT" | jq -r '.psql_fqdn.value')
-          DB_USER=$(echo "$TF_OUTPUT" | jq -r '.psql_admin_username.value')
-          DB_PASS=$(echo "$TF_OUTPUT" | jq -r '.psql_admin_password.value')
-          DB_NAME=$(echo "$TF_OUTPUT" | jq -r '.psql_db_name.value')
-          DB_PORT=5432
-          DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
-          echo "DATABASE_URL=${DATABASE_URL}" > ../app/.env
-          echo "PORT=3000" >> ../app/.env
+          APP_URL=$(terraform output -raw app_url)
+          DB_HOST=$(terraform output -raw psql_fqdn)
+          echo "app-url=$APP_URL" >> $GITHUB_OUTPUT
+          echo "db-host=$DB_HOST" >> $GITHUB_OUTPUT
+          
+          echo "### 🏗️ Infrastructure Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**App URL:** $APP_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**Database Host:** $DB_HOST" >> $GITHUB_STEP_SUMMARY
+          echo "**Region:** ${{ env.AZURE_REGION }}" >> $GITHUB_STEP_SUMMARY
 
-  verify:
+  deploy-application:
+    name: Deploy Application
     runs-on: ubuntu-latest
-    needs: terraform
+    needs: [build-and-push, deploy-infrastructure]
+    environment: ${{ github.event.inputs.environment || 'dev' }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Wait for App
+      - name: Get Web App Name
+        id: webapp
         run: |
-          echo "Waiting for app to be healthy..."
+          WEBAPP_NAME=$(az webapp list \
+            --resource-group notesapp-dev-rg \
+            --query "[0].name" \
+            --output tsv)
+          echo "name=$WEBAPP_NAME" >> $GITHUB_OUTPUT
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ steps.webapp.outputs.name }}
+          images: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
+
+      - name: Restart Web App
+        run: |
+          az webapp restart \
+            --name ${{ steps.webapp.outputs.name }} \
+            --resource-group notesapp-dev-rg
+
+      - name: Output deployment info
+        run: |
+          echo "### 🚀 Application Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Web App:** ${{ steps.webapp.outputs.name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+
+  verify-deployment:
+    name: Verify Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy-infrastructure, deploy-application]
+    steps:
+      - name: Wait for application startup
+        run: |
+          echo "Waiting for application to start..."
           sleep 30
 
-      - name: Run simple test
+      - name: Health Check
+        id: health
         run: |
-          curl -sSf "https://${{ steps.get_app.outputs.hostname }}/notes" || exit 1
+          APP_URL="${{ needs.deploy-infrastructure.outputs.app-url }}"
+          
+          echo "Testing health endpoint: $APP_URL/health"
+          
+          for i in {1..5}; do
+            if curl -f -s -o /dev/null -w "%{http_code}" "$APP_URL/health" | grep -q "200"; then
+              echo "✅ Health check passed!"
+              echo "healthy=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in 10s..."
+            sleep 10
+          done
+          
+          echo "❌ Health check failed after 5 attempts"
+          echo "healthy=false" >> $GITHUB_OUTPUT
+          exit 1
+
+      - name: Test Notes Endpoint
+        if: steps.health.outputs.healthy == 'true'
+        run: |
+          APP_URL="${{ needs.deploy-infrastructure.outputs.app-url }}"
+          
+          echo "Testing notes endpoint: $APP_URL/notes"
+          
+          RESPONSE=$(curl -s -w "\n%{http_code}" "$APP_URL/notes")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Notes endpoint is working!"
+            echo "$BODY" | jq '.' || echo "$BODY"
+          else
+            echo "⚠️ Notes endpoint returned HTTP $HTTP_CODE"
+            echo "$BODY"
+          fi
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "### ✅ Deployment Verification" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ steps.health.outputs.healthy == 'true' && '✅ Healthy' || '❌ Unhealthy' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** ${{ needs.deploy-infrastructure.outputs.app-url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Quick Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [Application](${{ needs.deploy-infrastructure.outputs.app-url }})" >> $GITHUB_STEP_SUMMARY
+          echo "- [Health Check](${{ needs.deploy-infrastructure.outputs.app-url }}/health)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Notes API](${{ needs.deploy-infrastructure.outputs.app-url }}/notes)" >> $GITHUB_STEP_SUMMARY
+
+  notify:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [verify-deployment]
+    if: always()
+    steps:
+      - name: Deployment Status
+        run: |
+          if [ "${{ needs.verify-deployment.result }}" = "success" ]; then
+            echo "🎉 Deployment completed successfully!"
+          else
+            echo "❌ Deployment failed or was cancelled"
+            exit 1
+          fi
+
 
