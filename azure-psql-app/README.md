@@ -67,8 +67,9 @@ azure-psql-app/
 │   ├── DEPLOYMENT.md       # Deployment guide
 │   └── TROUBLESHOOTING.md  # Common issues
 ├── scripts/                 # Automation scripts
-│   ├── recreate-infrastructure.sh
-│   └── README.md
+│   ├── deploy.sh           # Unified deployment script
+│   ├── run-local.sh        # Local development
+│   └── README.md           # Scripts documentation
 ├── .github/workflows/       # CI/CD pipelines
 │   └── ci-cd.yml           # Main deployment workflow
 ├── Dockerfile              # Container image build
@@ -327,8 +328,14 @@ az resource list \
 cd infra
 terraform output
 
-# Recreate infrastructure
-./scripts/recreate-infrastructure.sh
+# Deploy or update application
+./scripts/deploy.sh all
+
+# Deploy only infrastructure
+./scripts/deploy.sh infra
+
+# Build and push new image
+./scripts/deploy.sh image
 ```
 
 ## 🔄 CI/CD Pipeline

@@ -544,20 +544,29 @@ az postgres flexible-server restore \
 
 ## Infrastructure Recreation Process
 
-### Automated Recreation Script
+### Automated Deployment Script
 
-The project includes an automated recreation script at `scripts/recreate-infrastructure.sh`:
+The project includes a unified deployment script at `scripts/deploy.sh`:
 
 ```mermaid
 graph TD
-    Run[Run recreate-infrastructure.sh] --> Confirm{User<br/>Confirmation}
-    Confirm -->|No| Cancel[Cancel Operation]
-    Confirm -->|Yes| Destroy[terraform destroy]
+    Run[Run deploy.sh] --> Check[Check Prerequisites]
+    Check --> Auth[Authenticate ACR]
+    Auth --> Choice{Deployment<br/>Type}
     
-    Destroy --> Init[terraform init]
-    Init --> Plan[terraform plan]
-    Plan --> Apply[terraform apply]
-    Apply --> Complete[✓ Infrastructure Recreated]
+    Choice -->|all| Infra[Deploy Infrastructure]
+    Choice -->|infra| Infra
+    Choice -->|image| Build
+    
+    Infra --> Plan[terraform plan]
+    Plan --> Confirm{User<br/>Confirmation}
+    Confirm -->|No| Cancel[Cancel Operation]
+    Confirm -->|Yes| Apply[terraform apply]
+    
+    Apply --> Build[Build Docker Image]
+    Build --> Push[Push to ACR]
+    Push --> Verify[Verify Deployment]
+    Verify --> Complete[✓ Deployment Complete]
     
     style Complete fill:#00aa00,color:#fff
     style Cancel fill:#ff6600
@@ -565,8 +574,14 @@ graph TD
 
 Usage:
 ```bash
-cd /Users/haos/Projects/azure-psql-app
-./scripts/recreate-infrastructure.sh
+# Full deployment
+./scripts/deploy.sh all
+
+# Infrastructure only
+./scripts/deploy.sh infra
+
+# Image build/push only
+./scripts/deploy.sh image
 ```
 
 ### Migration Between Regions

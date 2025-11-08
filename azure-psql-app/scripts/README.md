@@ -1,39 +1,75 @@
-# Infrastructure Recreation Automation
+# Deployment Scripts
 
-This directory contains automation scripts for managing Azure infrastructure.
+This directory contains automation scripts for deploying and managing the Azure PostgreSQL application.
 
 ## Scripts
 
-### recreate-infrastructure.sh
+### deploy.sh
 
-Automates the complete destruction and recreation of Azure infrastructure in the correct region (West Europe).
+**Primary deployment script** - handles infrastructure, Docker image build/push, and verification.
 
 **Usage:**
 ```bash
-cd /Users/haos/Projects/azure-psql-app
-./scripts/recreate-infrastructure.sh
+# Full deployment (infrastructure + image)
+./scripts/deploy.sh all
+
+# Deploy infrastructure only
+./scripts/deploy.sh infra
+
+# Build and push Docker image only
+./scripts/deploy.sh image
+
+# Verify deployment
+./scripts/deploy.sh verify
+
+# Show help
+./scripts/deploy.sh help
 ```
 
 **What it does:**
-1. Prompts for confirmation before proceeding
-2. Destroys all existing Terraform-managed resources
-3. Cleans up state backup files
-4. Re-initializes Terraform with latest providers
-5. Creates a new execution plan for West Europe
-6. Applies the infrastructure changes
-7. Displays outputs (ACR details, App URL, etc.)
+- ✅ Checks all prerequisites (Azure CLI, Terraform, Docker, jq)
+- ✅ Authenticates with Azure Container Registry
+- ✅ Deploys/updates Terraform infrastructure
+- ✅ Builds Docker image with proper tagging
+- ✅ Pushes image to Azure Container Registry
+- ✅ Verifies application health
 
 **Prerequisites:**
 - Azure CLI authenticated (`az login`)
-- Terraform installed
+- Terraform installed (v1.5+)
+- Docker Desktop running
+- `jq` installed (`brew install jq`)
 - Valid `terraform.tfvars` in the `infra/` directory
-- Sufficient Azure subscription quota in West Europe region
 
-**Important Notes:**
-- This script will **destroy all existing resources** before recreating them
-- Any data in the existing PostgreSQL database will be lost
-- Docker images in the existing ACR will be lost (you'll need to rebuild and push)
-- The script uses the `terraform.tfvars` file for configuration
+**Environment Variables:**
+- `IMAGE_TAG` - Docker image tag (default: `latest`)
+
+**Examples:**
+```bash
+# Deploy everything
+./scripts/deploy.sh all
+
+# Deploy only infrastructure changes
+./scripts/deploy.sh infra
+
+# Rebuild and push new image version
+IMAGE_TAG=v1.2.3 ./scripts/deploy.sh image
+```
+
+### run-local.sh
+
+Runs the application locally using Docker for development and testing.
+
+**Usage:**
+```bash
+export DATABASE_URL="postgresql://user:pass@host:5432/dbname"
+./scripts/run-local.sh
+```
+
+**What it does:**
+- Builds Docker image locally
+- Runs container on port 3000
+- Connects to specified PostgreSQL database
 
 ### permissions.ps1
 
@@ -44,17 +80,47 @@ PowerShell script to assign Azure AD roles to service principals (requires organ
 pwsh ./scripts/permissions.ps1
 ```
 
+## Quick Start
+
+### First Time Deployment
+
+```bash
+# 1. Ensure prerequisites
+az login
+open -a Docker  # Start Docker Desktop
+
+# 2. Configure Terraform variables
+cd infra
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your values
+
+# 3. Deploy everything
+cd ..
+./scripts/deploy.sh all
+```
+
+### Update Application
+
+```bash
+# Make your code changes, then:
+./scripts/deploy.sh image
+```
+
+### Update Infrastructure
+
+```bash
+# Update Terraform files, then:
+./scripts/deploy.sh infra
+```
+
 ## Manual Terraform Commands
 
-If you prefer to run Terraform manually:
+If you prefer manual control:
 
 ```bash
 cd infra
 
-# Destroy existing infrastructure
-terraform destroy -auto-approve -var-file=terraform.tfvars
-
-# Reinitialize
+# Initialize
 terraform init -upgrade
 
 # Plan changes
@@ -62,42 +128,54 @@ terraform plan -var-file=terraform.tfvars -out=tfplan
 
 # Apply changes
 terraform apply tfplan
+
+# Destroy (use with caution!)
+terraform destroy -var-file=terraform.tfvars
 ```
 
 ## Troubleshooting
 
-### Azure Region Restrictions
-If you encounter errors about region restrictions or quota limits:
-1. Check your Azure subscription quotas in the Azure Portal
-2. Request quota increases if needed
-3. Try a different region (update `location` in `terraform.tfvars`)
-
-### Authentication Issues
-If Terraform fails to authenticate:
+### Docker Not Running
 ```bash
+# Start Docker Desktop
+open -a Docker
+
+# Verify it's running
+docker ps
+```
+
+### ACR Authentication Failed
+```bash
+# Login to Azure
 az login
+
+# Login to ACR
+az acr login --name notesappdevacr
+```
+
+### Azure Authentication Issues
+```bash
+# Check current account
 az account show
-```
 
-Ensure you're using the correct subscription:
-```bash
+# Switch subscription if needed
 az account set --subscription "86114ec0-54f1-4cf5-85f1-b561b90bbe0b"
+
+# Re-authenticate
+az login
 ```
 
-### State Lock Issues
-If Terraform state is locked:
+### Terraform State Lock
 ```bash
+cd infra
 terraform force-unlock <LOCK_ID>
 ```
 
-## Post-Recreation Steps
+## CI/CD Integration
 
-After successfully recreating infrastructure:
-
-1. **Rebuild and push Docker image:**
-   ```bash
-   cd /Users/haos/Projects/azure-psql-app
-   docker build -t <acr-name>.azurecr.io/notesapp:latest .
+For automated deployments, see:
+- `.github/workflows/deploy.yml` - GitHub Actions deployment workflow
+- `docs/DEPLOYMENT.md` - Comprehensive deployment guide
    az acr login --name <acr-name>
    docker push <acr-name>.azurecr.io/notesapp:latest
    ```
