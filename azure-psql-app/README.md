@@ -534,6 +534,12 @@ CI/CD pipeline includes:
 - [PostgreSQL Flexible Server](https://docs.microsoft.com/azure/postgresql/flexible-server/)
 - [Azure App Service](https://docs.microsoft.com/azure/app-service/)
 
+## Project Attribution
+
+This project was created entirely by **Hubert Kozuchowski**. See [AUTHORS](./AUTHORS) file for details.
+
+**Note**: The AUTHORS file is locked and cannot be modified to preserve the original authorship record.
+
 ## Troubleshooting
 
 ### Common Issues
