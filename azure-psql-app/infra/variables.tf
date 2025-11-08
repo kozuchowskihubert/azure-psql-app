@@ -13,7 +13,7 @@ variable "prefix" {
 variable "location" {
   description = "Azure region"
   type        = string
-  default     = "northeurope"  # Changed from westeurope due to PostgreSQL quota restrictions
+  default     = "northeurope"
 }
 
 variable "db_name" {

@@ -37,6 +37,12 @@ output "acr_admin_username" {
   sensitive   = true
 }
 
+output "acr_admin_password" {
+  description = "Azure Container Registry Admin Password"
+  value       = azurerm_container_registry.acr.admin_password
+  sensitive   = true
+}
+
 output "resource_group_name" {
   description = "Resource Group Name"
   value       = azurerm_resource_group.rg.name

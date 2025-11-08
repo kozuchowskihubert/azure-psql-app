@@ -83,22 +83,12 @@ resource "azurerm_subnet" "db_subnet" {
   }
 }
 
-# App Service Subnet
+# App Service Subnet - removed delegation to avoid quota issues
 resource "azurerm_subnet" "app_subnet" {
   name                 = "${var.prefix}-${var.env}-app-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.2.0/24"]
-
-  delegation {
-    name = "webapp-delegation"
-    service_delegation {
-      name = "Microsoft.Web/serverFarms"
-      actions = [
-        "Microsoft.Network/virtualNetworks/subnets/action",
-      ]
-    }
-  }
 }
 
 # Private DNS Zone for PostgreSQL
@@ -114,7 +104,8 @@ resource "azurerm_private_dns_zone_virtual_network_link" "pg_dns_link" {
   virtual_network_id    = azurerm_virtual_network.vnet.id
 }
 
-# PostgreSQL Flexible Server
+# PostgreSQL Flexible Server - Using smallest burstable tier (lowest cost, not free)
+# Note: Azure doesn't offer free PostgreSQL tier, B_Standard_B1ms is the cheapest option (~$12/month)
 resource "azurerm_postgresql_flexible_server" "pg" {
   name                          = "${var.prefix}-${var.env}-pg"
   resource_group_name           = azurerm_resource_group.rg.name
@@ -122,15 +113,19 @@ resource "azurerm_postgresql_flexible_server" "pg" {
   version                       = "14"
   administrator_login           = var.db_admin
   administrator_password        = var.db_password
-  storage_mb                    = 32768
-  sku_name                      = "B_Standard_B1ms"
-  delegated_subnet_id           = azurerm_subnet.db_subnet.id
-  private_dns_zone_id           = azurerm_private_dns_zone.pg_dns.id
-  public_network_access_enabled = false
-
-  depends_on = [
-    azurerm_private_dns_zone_virtual_network_link.pg_dns_link
-  ]
+  storage_mb                    = 32768  # Minimum 32GB
+  backup_retention_days         = 7      # Minimum to avoid geo-redundancy costs
+  geo_redundant_backup_enabled  = false  # Disable for cost savings
+  auto_grow_enabled             = false  # Prevent automatic storage increase
+  sku_name                      = "B_Standard_B1ms"  # Smallest burstable tier
+  public_network_access_enabled = true
+  zone                          = "1"    # Explicitly set zone to match existing server
+  
+  lifecycle {
+    ignore_changes = [
+      zone,  # Ignore zone changes to prevent replacement
+    ]
+  }
 }
 
 # PostgreSQL Database
@@ -141,34 +136,42 @@ resource "azurerm_postgresql_flexible_server_database" "db" {
   collation = "en_US.utf8"
 }
 
-# Container Registry
+# Allow Azure services to access PostgreSQL
+resource "azurerm_postgresql_flexible_server_firewall_rule" "azure_services" {
+  name             = "AllowAllAzureServices"
+  server_id        = azurerm_postgresql_flexible_server.pg.id
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
+}
+
+# Container Registry - Basic tier is the cheapest (~$5/month)
+# Note: No free tier for ACR, but Basic includes 10GB storage
 resource "azurerm_container_registry" "acr" {
-  name                = "${var.prefix}${var.env}acr"
+  name                = "${var.prefix}${var.env}acr14363"  # Must be globally unique
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  sku                 = "Basic"
+  sku                 = "Basic"  # Cheapest tier: $5/month
   admin_enabled       = true
 }
 
-# App Service Plan
+# App Service Plan - F1 Free tier (10 free apps, 1GB RAM, 60 min/day CPU)
 resource "azurerm_service_plan" "plan" {
   name                = "${var.prefix}-${var.env}-plan"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   os_type             = "Linux"
-  sku_name            = "B1"
+  sku_name            = "F1"  # FREE tier: 1 GB RAM, 60 min/day compute
 }
 
-# App Service
+# App Service - Using F1 Free tier
 resource "azurerm_linux_web_app" "app" {
-  name                      = "${var.prefix}-${var.env}-app"
-  resource_group_name       = azurerm_resource_group.rg.name
-  location                  = azurerm_resource_group.rg.location
-  service_plan_id           = azurerm_service_plan.plan.id
-  virtual_network_subnet_id = azurerm_subnet.app_subnet.id
+  name                = "${var.prefix}-${var.env}-app"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  service_plan_id     = azurerm_service_plan.plan.id
 
   site_config {
-    always_on = false
+    always_on = false  # Required for F1 tier (cannot be true on free tier)
 
     application_stack {
       docker_image     = "${azurerm_container_registry.acr.login_server}/${var.prefix}"
