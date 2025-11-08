@@ -9,6 +9,23 @@ output "database_fqdn" {
   sensitive   = true
 }
 
+output "db_admin" {
+  description = "Database admin username"
+  value       = var.db_admin
+  sensitive   = true
+}
+
+output "db_password" {
+  description = "Database admin password"
+  value       = var.db_password
+  sensitive   = true
+}
+
+output "db_name" {
+  description = "Database name"
+  value       = var.db_name
+}
+
 output "acr_login_server" {
   description = "Azure Container Registry Login Server"
   value       = azurerm_container_registry.acr.login_server
