@@ -53,7 +53,8 @@ jobs:
 
       - name: Terraform Apply
         working-directory: azure-psql-app/infra
-        run: terraform apply -auto-approve -var image_tag=latest
+        timeout-minutes: 30
+        run: terraform apply -auto-approve -input=false -var image_tag=latest
         env:
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
