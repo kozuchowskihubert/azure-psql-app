@@ -22,73 +22,29 @@ async function ensureTable() {
   }
 }
 
-// Serve basic UI
-app.get('/', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Notes App</title>
-        <style>
-          body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
-          h1 { color: #333; }
-          form { margin: 20px 0; }
-          input[type="text"] { padding: 10px; width: 70%; font-size: 16px; }
-          button { padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border: none; cursor: pointer; }
-          button:hover { background-color: #0056b3; }
-          ul { list-style-type: none; padding: 0; }
-          li { padding: 10px; margin: 5px 0; background-color: #f0f0f0; border-radius: 5px; }
-        </style>
-      </head>
-      <body>
-        <h1>📝 Notes App</h1>
-        <p>Store and retrieve notes from PostgreSQL database</p>
-        <form id="noteForm">
-          <input type="text" id="noteText" placeholder="Enter your note..." required />
-          <button type="submit">Add Note</button>
-        </form>
-        <h2>Your Notes:</h2>
-        <ul id="notesList"></ul>
-        <script>
-          async function fetchNotes() {
-            try {
-              const res = await fetch('/notes');
-              const notes = await res.json();
-              const list = document.getElementById('notesList');
-              list.innerHTML = '';
-              if (notes.length === 0) {
-                list.innerHTML = '<li>No notes yet. Add one above!</li>';
-              } else {
-                notes.forEach(n => {
-                  const li = document.createElement('li');
-                  li.textContent = n.text;
-                  list.appendChild(li);
-                });
-              }
-            } catch (err) {
-              console.error('Error fetching notes:', err);
-            }
-          }
-          document.getElementById('noteForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const text = document.getElementById('noteText').value;
-            try {
-              await fetch('/notes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text })
-              });
-              document.getElementById('noteText').value = '';
-              fetchNotes();
-            } catch (err) {
-              console.error('Error adding note:', err);
-            }
-          };
-          fetchNotes();
-        </script>
-      </body>
-    </html>
-  `);
+// Health check endpoint
+app.get('/health', async (req, res) => {
+  try {
+    // Check database connection
+    const client = await pool.connect();
+    try {
+      await client.query('SELECT 1');
+      res.json({ 
+        status: 'healthy',
+        database: 'connected',
+        timestamp: new Date().toISOString()
+      });
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    res.status(503).json({ 
+      status: 'unhealthy',
+      database: 'disconnected',
+      error: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 app.get('/notes', async (req, res) => {
