@@ -1,57 +1,177 @@
-# Azure App Service + PostgreSQL (Private Endpoint) - Technical Assessment
+# Azure PostgreSQL App - Cloud-Native Notes Application
 
-This project demonstrates deploying a Node.js web application to Azure App Service with secure PostgreSQL connectivity via a private endpoint. The solution meets all technical assessment requirements including containerization, Infrastructure as Code, multi-environment support, and CI/CD automation.
+> A production-ready, containerized Node.js application deployed on Azure with PostgreSQL, featuring Infrastructure as Code, CI/CD automation, and comprehensive documentation.
 
-## ✅ Assessment Requirements
+[![CI/CD Pipeline](https://github.com/kozuchowskihubert/azure-psql-app/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/kozuchowskihubert/azure-psql-app/actions)
+[![Terraform](https://img.shields.io/badge/Terraform-1.5+-purple)](https://www.terraform.io/)
+[![Azure](https://img.shields.io/badge/Azure-Cloud-blue)](https://azure.microsoft.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-18-green)](https://nodejs.org/)
 
-### 1. Azure Deployment
-- ✅ Node.js Express app with basic UI for storing/retrieving notes
-- ✅ PostgreSQL Flexible Server with private endpoint (no public access)
-- ✅ Azure App Service (Linux, Docker container)
-- ✅ VNet, Subnets, Private Endpoint for secure connectivity
-- ✅ DB connection test included
+## 📚 Documentation
 
-### 2. Containerization
-- ✅ Docker image with multi-stage build
-- ✅ Dockerfile for local build and run
+Comprehensive documentation is available in the [`docs/`](./docs) folder:
+
+- **[🏗️ Architecture](./docs/ARCHITECTURE.md)** - System design, components, network architecture, and Mermaid diagrams
+- **[🚀 Deployment Guide](./docs/DEPLOYMENT.md)** - Step-by-step deployment, CI/CD pipeline, and workflows
+- **[🔧 Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions from production deployment
+
+## 🎯 Features
+
+### ✅ Assessment Requirements Met
+
+#### 1. Azure Deployment
+- ✅ Node.js Express app with REST API for notes management
+- ✅ PostgreSQL Flexible Server with **private access only** (no public endpoint)
+- ✅ Azure App Service (B1 Linux) with Docker container
+- ✅ VNet integration with dedicated subnets for app and database
+- ✅ Private DNS zone for secure database resolution
+- ✅ Automated database connection testing
+
+#### 2. Containerization
+- ✅ Multi-stage Docker build for optimized images
+- ✅ Alpine-based Node.js 18 runtime
 - ✅ Azure Container Registry (ACR) integration
+- ✅ Automated image building and pushing via CI/CD
+- ✅ Local development support with Docker Compose
 
-### 3. Infrastructure as Code (Terraform)
-- ✅ Multi-environment support (dev, staging, prod) via variables
-- ✅ Provisions: App Service, PostgreSQL, VNet, Subnets, Private Endpoint
-- ✅ Service Principal creation and role assignment
-- ✅ Modular Terraform configuration
+#### 3. Infrastructure as Code (Terraform)
+- ✅ Multi-environment support (dev/staging/prod) via variables
+- ✅ Complete infrastructure provisioning: App Service, PostgreSQL, VNet, Subnets, Private DNS
+- ✅ State management with version control
+- ✅ Modular and reusable Terraform configuration
+- ✅ Automated infrastructure recreation scripts
 
-### 4. CI/CD Pipeline (GitHub Actions)
-- ✅ Build and push Docker image to ACR/Docker Hub
-- ✅ Deploy Terraform infrastructure
-- ✅ Deploy application to Azure App Service
-- ✅ Run tests to verify deployment
+#### 4. CI/CD Pipeline (GitHub Actions)
+- ✅ Automated Docker image build and push to ACR
+- ✅ Terraform-based infrastructure deployment
+- ✅ Application deployment to Azure App Service
+- ✅ Environment variable and secret management
+- ✅ Automated testing and verification
 
-## Project Structure
+## 📁 Project Structure
+
 ```
 azure-psql-app/
-├── app/                    # Node.js application
-│   ├── index.js           # Express app with UI
-│   ├── package.json       # Dependencies
-│   └── test/              # DB connection tests
-├── infra/                 # Terraform configuration
-│   ├── main.tf           # Multi-env infrastructure
-│   ├── variables.tf      # Environment variables
-│   ├── outputs.tf        # Resource outputs
-│   └── .env.local        # Authentication config
-├── Dockerfile            # Container build
-└── run-local.sh         # Local Docker helper
+├── app/                      # Node.js application
+│   ├── index.js             # Express REST API
+│   ├── package.json         # Dependencies
+│   └── test/                # Connection tests
+├── infra/                   # Terraform IaC
+│   ├── main.tf             # Infrastructure resources
+│   ├── variables.tf        # Input variables
+│   ├── outputs.tf          # Resource outputs
+│   ├── terraform.tfvars    # Environment config (gitignored)
+│   └── .env.local          # Local secrets (gitignored)
+├── docs/                    # Documentation
+│   ├── ARCHITECTURE.md     # System architecture
+│   ├── DEPLOYMENT.md       # Deployment guide
+│   └── TROUBLESHOOTING.md  # Common issues
+├── scripts/                 # Automation scripts
+│   ├── recreate-infrastructure.sh
+│   └── README.md
+├── .github/workflows/       # CI/CD pipelines
+│   └── ci-cd.yml           # Main deployment workflow
+├── Dockerfile              # Container image build
+└── README.md               # This file
 ```
 
-## Quick Start
+## 🏗️ Architecture Overview
+
+```mermaid
+graph TB
+    User[Users] --> WebApp[Azure Web App<br/>notesapp-dev-app]
+    
+    subgraph Azure["Azure West Europe"]
+        WebApp --> VNet[Virtual Network<br/>10.0.0.0/16]
+        
+        subgraph Compute["Compute Resources"]
+            WebApp
+            ACR[Container Registry]
+        end
+        
+        subgraph Network["Private Network"]
+            VNet --> AppSubnet[App Subnet<br/>10.0.2.0/24]
+            VNet --> DBSubnet[DB Subnet<br/>10.0.1.0/24]
+            DBSubnet --> PG[PostgreSQL<br/>Private Access Only]
+        end
+        
+        subgraph DNS["Private DNS"]
+            PrivateDNS[Private DNS Zone]
+        end
+    end
+    
+    ACR -.->|Pull Image| WebApp
+    AppSubnet -->|Private Connection| PG
+    PrivateDNS -.->|DNS Resolution| PG
+    
+    style PG fill:#00aa00,color:#fff
+    style WebApp fill:#0078d4,color:#fff
+```
+
+For detailed architecture diagrams and component descriptions, see [**Architecture Documentation**](./docs/ARCHITECTURE.md).
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Azure subscription (free tier works)
-- Docker installed
-- Node.js 20+
-- Terraform CLI
-- PowerShell (for automation scripts)
+
+**Required Tools:**
+- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) (v2.50+)
+- [Terraform](https://www.terraform.io/downloads) (v1.5+)
+- [Docker](https://docs.docker.com/get-docker/) (v20.10+)
+- [Git](https://git-scm.com/)
+- [Node.js](https://nodejs.org/) (v18+) - for local development
+
+**Azure Requirements:**
+- Azure subscription with Contributor access
+- Service Principal for GitHub Actions
+- Sufficient quota in target region (West Europe recommended)
+
+### 30-Second Deployment
+
+```bash
+# 1. Clone repository
+git clone https://github.com/kozuchowskihubert/azure-psql-app.git
+cd azure-psql-app
+
+# 2. Configure Azure credentials
+az login
+
+# 3. Deploy infrastructure
+cd infra
+terraform init
+terraform apply -auto-approve
+
+# 4. Deploy application (via GitHub Actions)
+# Push to main branch triggers automated deployment
+git push origin main
+```
+
+For detailed setup instructions, see [**Deployment Guide**](./docs/DEPLOYMENT.md).
+
+### Local Development
+
+```bash
+# Install dependencies
+cd app
+npm install
+
+# Set environment variables
+export DB_HOST=localhost
+export DB_USER=postgres
+export DB_PASSWORD=postgres
+export DB_NAME=notesdb
+export DB_PORT=5432
+
+# Run locally
+npm start
+
+# Or use Docker
+docker build -t notesapp .
+docker run -p 8080:8080 \
+  -e DB_HOST=host.docker.internal \
+  -e DB_PASSWORD=yourpassword \
+  notesapp
+```
 
 ### Option 1: Automated Setup (Recommended)
 ```bash
@@ -127,56 +247,243 @@ Set in `azure-psql-app/infra/terraform.tfvars`:
 env         = "dev"           # or "staging", "prod"
 db_name     = "notesdb"
 db_admin    = "notesadmin"
-db_password = "ChangeMe123!"
+## 🔐 Security & Configuration
+
+### GitHub Secrets Configuration
+
+Configure the following secrets in your GitHub repository (Settings → Secrets and variables → Actions):
+
+| Secret | Description | How to Obtain |
+|--------|-------------|---------------|
+| `AZURE_CREDENTIALS` | Service Principal JSON | `az ad sp create-for-rbac --sdk-auth` |
+| `ARM_CLIENT_ID` | Service Principal App ID | From AZURE_CREDENTIALS JSON |
+| `ARM_CLIENT_SECRET` | Service Principal Secret | From AZURE_CREDENTIALS JSON |
+| `ARM_TENANT_ID` | Azure Tenant ID | From AZURE_CREDENTIALS JSON |
+| `ARM_SUBSCRIPTION_ID` | Azure Subscription ID | From AZURE_CREDENTIALS JSON |
+| `DB_PASSWORD` | PostgreSQL Password | Choose a strong password |
+| `ACR_LOGIN_SERVER` | Container Registry URL | From Terraform outputs |
+| `ACR_USERNAME` | ACR Admin Username | From Terraform outputs |
+| `ACR_PASSWORD` | ACR Admin Password | From Terraform outputs |
+
+### Local Configuration
+
+Create `infra/terraform.tfvars` (gitignored):
+```hcl
+prefix      = "notesapp"
+env         = "dev"
 location    = "westeurope"
-prefix      = "notesapp-dev"
+db_password = "YourSecurePassword123!"
 ```
 
-### Authentication (.env.local)
-**Interactive Login (Email):**
+### Environment Variables
+
+The application uses the following environment variables:
+
+```env
+DB_HOST=<postgres-fqdn>
+DB_USER=notesadmin
+DB_PASSWORD=<secure-password>
+DB_NAME=notesdb
+DB_PORT=5432
+DB_SSL=true
+PORT=8080
 ```
-<any value>
-<any value>
-awaresonhkproject@gmail.com
-```
 
-**Service Principal (Auto-generated):**
-```
-<spn_password>
-<spn_client_id>
-<spn_tenant_id>
-```
+## 📊 Monitoring & Operations
 
-The `login-azure.ps1` script automatically creates and configures SPN if credentials are missing.
+### Health Checks
 
-## CI/CD Pipeline
-
-### GitHub Actions Workflow
-Located at `.github/workflows/ci-cd.yml`
-
-**Triggers:**
-- Push to `main` branch
-- Pull requests to `main`
-
-**Jobs:**
-1. **build-and-test** - Install deps, run tests, build Docker
-2. **terraform-deploy** - Provision Azure resources
-3. **docker-push** - Push image to registry
-4. **app-deploy** - Deploy to Azure App Service, verify endpoint
-
-**Required Secrets:**
-- `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`
-- `DATABASE_URL`
-- `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` (or ACR credentials)
-- `AZURE_APP_NAME`, `AZURE_PUBLISH_PROFILE`
-
-## Makefile Commands
-
-See [MAKEFILE.md](../MAKEFILE.md) for complete documentation.
-
-**Common commands:**
 ```bash
-make help              # Show all targets
+# Application health
+curl https://notesapp-dev-app.azurewebsites.net/health
+
+# Database connectivity
+curl https://notesapp-dev-app.azurewebsites.net/notes
+```
+
+### Logs
+
+```bash
+# Stream application logs
+az webapp log tail \
+  --resource-group notesapp-dev-rg \
+  --name notesapp-dev-app
+
+# Download logs
+az webapp log download \
+  --resource-group notesapp-dev-rg \
+  --name notesapp-dev-app
+```
+
+### Infrastructure Management
+
+```bash
+# View all resources
+az resource list \
+  --resource-group notesapp-dev-rg \
+  --output table
+
+# Get Terraform outputs
+cd infra
+terraform output
+
+# Recreate infrastructure
+./scripts/recreate-infrastructure.sh
+```
+
+## 🔄 CI/CD Pipeline
+
+The project uses GitHub Actions for automated deployment. The pipeline is defined in `.github/workflows/ci-cd.yml`.
+
+### Pipeline Stages
+
+```mermaid
+graph LR
+    A[Git Push] --> B[Checkout Code]
+    B --> C[Build Docker Image]
+    C --> D[Push to ACR]
+    D --> E[Terraform Init]
+    E --> F[Terraform Apply]
+    F --> G[Deploy to App Service]
+    G --> H[Verify Deployment]
+    
+    style H fill:#00aa00,color:#fff
+```
+
+### Workflow Triggers
+- **Automatic**: Push to `main` branch
+- **Manual**: Workflow dispatch from GitHub Actions tab
+
+### Pipeline Jobs
+
+1. **Docker Build & Push**
+   - Build multi-stage Docker image
+   - Tag with commit SHA and 'latest'
+   - Push to Azure Container Registry
+
+2. **Infrastructure Deployment**
+   - Initialize Terraform
+   - Plan infrastructure changes
+   - Apply changes to Azure
+
+3. **Application Deployment**
+   - Configure App Service environment
+   - Deploy container from ACR
+   - Restart application
+
+4. **Verification**
+   - Test health endpoint
+   - Verify database connectivity
+   - Run automated tests
+
+For detailed pipeline documentation, see [**Deployment Guide**](./docs/DEPLOYMENT.md).
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+#### Container Fails to Start
+```bash
+# Check logs
+az webapp log tail --resource-group notesapp-dev-rg --name notesapp-dev-app
+
+# Verify environment variables
+az webapp config appsettings list \
+  --resource-group notesapp-dev-rg \
+  --name notesapp-dev-app
+```
+
+#### Database Connection Errors
+```bash
+# Verify VNet integration
+az webapp vnet-integration list \
+  --resource-group notesapp-dev-rg \
+  --name notesapp-dev-app
+
+# Check Private DNS
+az network private-dns link vnet list \
+  --resource-group notesapp-dev-rg \
+  --zone-name notesapp-dev.postgres.database.azure.com
+```
+
+#### Terraform State Lock
+```bash
+# Kill stuck processes
+pkill -9 terraform
+
+# Force unlock (use carefully)
+cd infra
+terraform force-unlock <LOCK_ID>
+```
+
+For comprehensive troubleshooting, see [**Troubleshooting Guide**](./docs/TROUBLESHOOTING.md).
+
+## 📈 Cost Estimation
+
+| Resource | SKU | Monthly Cost (USD) |
+|----------|-----|-------------------|
+| App Service Plan | B1 | ~$13 |
+| PostgreSQL Flexible Server | B_Standard_B1ms | ~$12 |
+| Container Registry | Basic | ~$5 |
+| VNet & DNS | Standard | ~$1 |
+| **Total** | | **~$31/month** |
+
+*Costs are approximate and may vary by region and usage.*
+
+## 🎯 Deployment History
+
+### Issues Encountered & Resolved
+
+1. **Azure AD Permissions** (403 Error)
+   - **Issue**: MSA account couldn't create Azure AD resources
+   - **Solution**: Removed Azure AD resources from Terraform, created Service Principal manually
+   - **Documentation**: [TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md#azure-ad-permissions)
+
+2. **Region Quota Restrictions**
+   - **Issue**: East US region had quota limits for PostgreSQL
+   - **Solution**: Migrated infrastructure to West Europe
+   - **Documentation**: [TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md#region-and-quota-issues)
+
+3. **Terraform State Conflicts**
+   - **Issue**: Resources existed but not in Terraform state
+   - **Solution**: Imported existing resources using `terraform import`
+   - **Documentation**: [TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md#terraform-state-issues)
+
+4. **Container Registry Authentication**
+   - **Issue**: GitHub Actions couldn't push to ACR
+   - **Solution**: Updated ACR credentials in GitHub Secrets after infrastructure recreation
+   - **Documentation**: [DEPLOYMENT.md](./docs/DEPLOYMENT.md#configuration-management)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- Built with Azure, Terraform, and Docker
+- Deployed with GitHub Actions
+- Documentation generated with Mermaid diagrams
+- Infrastructure design based on Azure best practices
+
+## 📞 Support
+
+- 📖 **Documentation**: See [`docs/`](./docs) folder
+- 🐛 **Issues**: [GitHub Issues](https://github.com/kozuchowskihubert/azure-psql-app/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/kozuchowskihubert/azure-psql-app/discussions)
+
+---
+
+**Built with ❤️ using Azure Cloud Platform**
 make full-launch       # Complete automation
 make docker-build      # Build container
 make test              # Run tests
