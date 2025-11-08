@@ -54,12 +54,13 @@ jobs:
       - name: Terraform Apply
         working-directory: azure-psql-app/infra
         timeout-minutes: 30
-        run: terraform apply -auto-approve -input=false -var image_tag=latest
         env:
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: terraform apply -auto-approve -input=false -var db_password=$DB_PASSWORD
 
       - name: Generate .env from Terraform outputs
         working-directory: azure-psql-app/infra
