@@ -7,6 +7,8 @@ let notes = [];
 let filteredNotes = [];
 let categories = new Set();
 let darkMode = localStorage.getItem('darkMode') === 'true';
+let userMode = localStorage.getItem('userMode') || 'guest'; // 'guest' or 'authenticated'
+let userProfile = null;
 
 // API Configuration
 const API_BASE = window.location.origin;
@@ -17,10 +19,162 @@ const API_BASE = window.location.origin;
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
+    initializeAuth();
     initializeEventListeners();
     checkHealth();
     loadNotes();
 });
+
+// ============================================================================
+// Authentication Management
+// ============================================================================
+
+async function initializeAuth() {
+    try {
+        // Try to load user profile from localStorage
+        const storedProfile = localStorage.getItem('userProfile');
+        if (storedProfile) {
+            userProfile = JSON.parse(storedProfile);
+        }
+        
+        // Check if user is authenticated via API
+        const response = await fetch(`${API_BASE}/api/auth/me`, {
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            const user = await response.json();
+            if (user && user.email) {
+                userProfile = user;
+                userMode = 'authenticated';
+                localStorage.setItem('userMode', 'authenticated');
+                localStorage.setItem('userProfile', JSON.stringify(user));
+                updateUIForAuthenticatedUser(user);
+                return;
+            }
+        }
+    } catch (error) {
+        console.log('Not authenticated');
+    }
+    
+    // No authentication, check mode
+    if (userMode === 'guest') {
+        updateUIForGuestUser();
+    }
+}
+
+function updateUIForAuthenticatedUser(user) {
+    // Show user profile section
+    const profileSection = document.getElementById('user-profile-section');
+    const loginLink = document.getElementById('login-link');
+    const userDisplayName = document.getElementById('user-display-name');
+    const userModeBadge = document.getElementById('user-mode-badge');
+    const userAvatar = document.getElementById('user-avatar');
+    const logoutBtn = document.getElementById('logout-btn');
+    
+    if (profileSection) {
+        profileSection.classList.remove('hidden');
+        loginLink.classList.add('hidden');
+        
+        userDisplayName.textContent = user.displayName || user.email.split('@')[0];
+        userModeBadge.textContent = 'Logged In';
+        
+        if (user.avatarUrl) {
+            userAvatar.src = user.avatarUrl;
+            userAvatar.classList.remove('hidden');
+        }
+        
+        logoutBtn.classList.remove('hidden');
+        logoutBtn.addEventListener('click', logout);
+    }
+    
+    // Enable create/edit/delete features
+    enableAuthenticatedFeatures();
+}
+
+function updateUIForGuestUser() {
+    // Show login link
+    const profileSection = document.getElementById('user-profile-section');
+    const loginLink = document.getElementById('login-link');
+    
+    if (profileSection) {
+        profileSection.classList.add('hidden');
+        loginLink.classList.remove('hidden');
+    }
+    
+    // Disable create/edit/delete features
+    disableAuthenticatedFeatures();
+    
+    // Show info banner
+    showGuestModeBanner();
+}
+
+function enableAuthenticatedFeatures() {
+    // Note form should be enabled
+    const noteForm = document.getElementById('note-form');
+    if (noteForm) {
+        noteForm.querySelectorAll('input, textarea, button, select').forEach(el => {
+            el.disabled = false;
+        });
+    }
+}
+
+function disableAuthenticatedFeatures() {
+    // Disable note creation form
+    const noteForm = document.getElementById('note-form');
+    if (noteForm) {
+        noteForm.querySelectorAll('input, textarea, button[type="submit"], select').forEach(el => {
+            el.disabled = true;
+        });
+    }
+}
+
+function showGuestModeBanner() {
+    const main = document.querySelector('main');
+    if (main && !document.getElementById('guest-banner')) {
+        const banner = document.createElement('div');
+        banner.id = 'guest-banner';
+        banner.className = 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg';
+        banner.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-info-circle text-blue-500 mr-3"></i>
+                    <div>
+                        <p class="font-medium text-blue-900 dark:text-blue-200">Viewing in Public Mode</p>
+                        <p class="text-sm text-blue-700 dark:text-blue-300">
+                            You can view notes but cannot create or edit.
+                            <a href="/login.html" class="underline font-medium hover:text-blue-900">Sign in</a> to unlock all features.
+                        </p>
+                    </div>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-blue-500 hover:text-blue-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        main.prepend(banner);
+    }
+}
+
+async function logout() {
+    try {
+        await fetch(`${API_BASE}/api/auth/logout`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+    } catch (error) {
+        console.log('Logout error:', error);
+    }
+    
+    // Clear local storage
+    localStorage.removeItem('userMode');
+    localStorage.removeItem('userProfile');
+    userMode = 'guest';
+    userProfile = null;
+    
+    // Redirect to login page
+    window.location.href = '/login.html';
+}
 
 // ============================================================================
 // Theme Management
@@ -147,10 +301,20 @@ async function handleCreateNote(e) {
         }) : null;
     }
     
+    // Check if user is authenticated
+    if (userMode !== 'authenticated') {
+        showToast('Please sign in to create notes', 'error');
+        setTimeout(() => {
+            window.location.href = '/login.html';
+        }, 1500);
+        return;
+    }
+    
     try {
         const response = await fetch(`${API_BASE}/notes`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(noteData)
         });
         
@@ -171,6 +335,13 @@ async function handleCreateNote(e) {
 async function handleEditNote(e) {
     e.preventDefault();
     
+    // Check if user is authenticated
+    if (userMode !== 'authenticated') {
+        showToast('Please sign in to edit notes', 'error');
+        closeEditModal();
+        return;
+    }
+    
     const id = document.getElementById('edit-id').value;
     const noteData = {
         title: document.getElementById('edit-title').value.trim(),
@@ -183,6 +354,7 @@ async function handleEditNote(e) {
         const response = await fetch(`${API_BASE}/notes/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(noteData)
         });
         
@@ -198,11 +370,18 @@ async function handleEditNote(e) {
 }
 
 async function deleteNote(id) {
+    // Check if user is authenticated
+    if (userMode !== 'authenticated') {
+        showToast('Please sign in to delete notes', 'error');
+        return;
+    }
+    
     if (!confirm('Are you sure you want to delete this note?')) return;
     
     try {
         const response = await fetch(`${API_BASE}/notes/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            credentials: 'include'
         });
         
         if (!response.ok) throw new Error('Failed to delete note');
