@@ -20,9 +20,10 @@ const pool = new Pool({ connectionString: databaseUrl, ssl: { rejectUnauthorized
 async function ensureTable() {
   const client = await pool.connect();
   try {
-    // Drop old table if exists and create new one with enhanced schema
+    // Drop old table and create new one with enhanced schema
+    await client.query(`DROP TABLE IF EXISTS notes CASCADE`);
     await client.query(`
-      CREATE TABLE IF NOT EXISTS notes (
+      CREATE TABLE notes (
         id SERIAL PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         content TEXT NOT NULL,
@@ -31,43 +32,6 @@ async function ensureTable() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
-    `);
-    
-    // Add columns if they don't exist (migration support)
-    await client.query(`
-      DO $$ 
-      BEGIN
-        BEGIN
-          ALTER TABLE notes ADD COLUMN IF NOT EXISTS title VARCHAR(255);
-        EXCEPTION
-          WHEN duplicate_column THEN NULL;
-        END;
-        BEGIN
-          ALTER TABLE notes ADD COLUMN IF NOT EXISTS content TEXT;
-        EXCEPTION
-          WHEN duplicate_column THEN NULL;
-        END;
-        BEGIN
-          ALTER TABLE notes ADD COLUMN IF NOT EXISTS category VARCHAR(100);
-        EXCEPTION
-          WHEN duplicate_column THEN NULL;
-        END;
-        BEGIN
-          ALTER TABLE notes ADD COLUMN IF NOT EXISTS important BOOLEAN DEFAULT FALSE;
-        EXCEPTION
-          WHEN duplicate_column THEN NULL;
-        END;
-        BEGIN
-          ALTER TABLE notes ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-        EXCEPTION
-          WHEN duplicate_column THEN NULL;
-        END;
-        BEGIN
-          ALTER TABLE notes ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-        EXCEPTION
-          WHEN duplicate_column THEN NULL;
-        END;
-      END $$;
     `);
     
     console.log('Database schema initialized successfully');
