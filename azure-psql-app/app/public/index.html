@@ -116,6 +116,20 @@
         .dark .mermaid-preview {
             background: #2d3748;
         }
+        .shape-button {
+            transition: all 0.2s;
+        }
+        .shape-button:active {
+            cursor: grabbing !important;
+        }
+        .shape-button.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        .diagram-canvas.drag-over {
+            background-color: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+        }
     </style>
     <script>
         tailwind.config = {
@@ -286,13 +300,16 @@
                     <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
                         <!-- Diagram Toolbar -->
                         <div class="bg-gray-100 dark:bg-gray-700 p-3 border-b border-gray-300 dark:border-gray-600 flex items-center space-x-2">
-                            <button type="button" onclick="addDiagramNode('rect', 'Process')" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
+                            <div class="text-sm text-gray-600 dark:text-gray-300 mr-2">
+                                <i class="fas fa-hand-pointer mr-1"></i> Drag shapes to canvas:
+                            </div>
+                            <button type="button" draggable="true" data-shape="rect" data-label="Process" class="shape-button px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm cursor-grab">
                                 <i class="fas fa-square mr-1"></i> Rectangle
                             </button>
-                            <button type="button" onclick="addDiagramNode('round', 'Start/End')" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm">
+                            <button type="button" draggable="true" data-shape="round" data-label="Start/End" class="shape-button px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm cursor-grab">
                                 <i class="fas fa-circle mr-1"></i> Round
                             </button>
-                            <button type="button" onclick="addDiagramNode('diamond', 'Decision')" class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm">
+                            <button type="button" draggable="true" data-shape="diamond" data-label="Decision" class="shape-button px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm cursor-grab">
                                 <i class="fas fa-diamond mr-1"></i> Diamond
                             </button>
                             <button type="button" onclick="clearDiagram()" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm ml-auto">
@@ -302,7 +319,8 @@
                         <!-- Visual Editor Canvas -->
                         <div id="diagram-canvas" class="diagram-canvas" style="height: 400px; position: relative;">
                             <p class="text-gray-400 dark:text-gray-500 text-center pt-32">
-                                Click buttons above to add nodes, or edit Mermaid code below
+                                <i class="fas fa-mouse-pointer mr-2"></i>
+                                Drag shapes from toolbar above to create diagram nodes
                             </p>
                         </div>
                     </div>

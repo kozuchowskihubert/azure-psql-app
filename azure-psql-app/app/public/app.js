@@ -547,15 +547,92 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize diagram canvas interactions
     initializeDiagramCanvas();
+    
+    // Initialize shape button drag-and-drop
+    initializeShapeButtons();
 });
+
+function initializeShapeButtons() {
+    const shapeButtons = document.querySelectorAll('.shape-button');
+    shapeButtons.forEach(button => {
+        button.addEventListener('dragstart', onShapeDragStart);
+        button.addEventListener('dragend', onShapeDragEnd);
+    });
+}
+
+function onShapeDragStart(e) {
+    const shape = e.target.getAttribute('data-shape');
+    const label = e.target.getAttribute('data-label');
+    
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('text/plain', JSON.stringify({ shape, label }));
+    
+    e.target.classList.add('dragging');
+}
+
+function onShapeDragEnd(e) {
+    e.target.classList.remove('dragging');
+}
 
 function initializeDiagramCanvas() {
     const canvas = document.getElementById('diagram-canvas');
     if (!canvas) return;
     
+    // Mouse events for dragging existing nodes
     canvas.addEventListener('mousedown', onCanvasMouseDown);
     canvas.addEventListener('mousemove', onCanvasMouseMove);
     canvas.addEventListener('mouseup', onCanvasMouseUp);
+    
+    // Drop events for creating new nodes from shape buttons
+    canvas.addEventListener('dragover', onCanvasDragOver);
+    canvas.addEventListener('drop', onCanvasDrop);
+    canvas.addEventListener('dragleave', onCanvasDragLeave);
+}
+
+function onCanvasDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    e.currentTarget.classList.add('drag-over');
+}
+
+function onCanvasDragLeave(e) {
+    if (e.target.id === 'diagram-canvas') {
+        e.currentTarget.classList.remove('drag-over');
+    }
+}
+
+function onCanvasDrop(e) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    
+    try {
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const canvas = document.getElementById('diagram-canvas');
+        const rect = canvas.getBoundingClientRect();
+        
+        // Calculate drop position relative to canvas
+        const x = e.clientX - rect.left - 50; // Center the node (assuming 100px width)
+        const y = e.clientY - rect.top - 20;  // Center the node (assuming 40px height)
+        
+        // Create node at drop position
+        addDiagramNodeAtPosition(data.shape, data.label, x, y);
+    } catch (error) {
+        console.error('Error dropping shape:', error);
+    }
+}
+
+function addDiagramNodeAtPosition(shape, label, x, y) {
+    const node = {
+        id: `node_${Date.now()}`,
+        label: label || 'New Node',
+        shape: shape,
+        x: Math.max(0, x),
+        y: Math.max(0, y)
+    };
+    
+    diagramNodes.push(node);
+    renderDiagramCanvas();
+    updateMermaidCode();
 }
 
 function addDiagramNode(shape, label) {
