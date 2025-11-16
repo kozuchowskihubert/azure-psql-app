@@ -597,9 +597,9 @@ function renderDiagramCanvas() {
         const nodeEl = document.createElement('div');
         nodeEl.className = 'diagram-node';
         nodeEl.setAttribute('data-node-id', node.id);
-        nodeEl.setAttribute('draggable', 'true');
         nodeEl.style.left = `${node.x}px`;
         nodeEl.style.top = `${node.y}px`;
+        nodeEl.style.cursor = 'move';
         
         // Add shape-specific styling
         if (node.shape === 'round') {
@@ -614,10 +614,6 @@ function renderDiagramCanvas() {
         if (node.shape !== 'diamond') {
             nodeEl.textContent = node.label;
         }
-        
-        // HTML5 Drag and Drop Events
-        nodeEl.addEventListener('dragstart', onNodeDragStart);
-        nodeEl.addEventListener('dragend', onNodeDragEnd);
         
         // Double-click to edit label
         nodeEl.addEventListener('dblclick', (e) => {
@@ -644,40 +640,27 @@ function renderDiagramCanvas() {
     });
 }
 
-// HTML5 Drag and Drop Implementation
-function onNodeDragStart(e) {
-    const nodeId = e.target.getAttribute('data-node-id');
-    draggedNode = diagramNodes.find(n => n.id === nodeId);
-    
-    if (draggedNode) {
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', nodeId);
-        
-        // Add visual feedback
-        e.target.style.opacity = '0.5';
-        e.target.classList.add('dragging');
-        
-        // Store initial position
-        const rect = e.target.getBoundingClientRect();
-        const canvas = document.getElementById('diagram-canvas');
-        const canvasRect = canvas.getBoundingClientRect();
-        
-        dragOffset.x = e.clientX - rect.left;
-        dragOffset.y = e.clientY - rect.top;
-    }
-}
-
-function onNodeDragEnd(e) {
-    e.target.style.opacity = '1';
-    e.target.classList.remove('dragging');
-    draggedNode = null;
-    updateMermaidCode();
-}
+// HTML5 Drag and Drop Implementation (removed - using mouse events instead)
+// Mouse-based drag is more reliable and works better with visual feedback
 
 function onCanvasMouseDown(e) {
-    // Keep for backward compatibility but prefer drag events
-    if (e.target.classList.contains('diagram-node')) {
-        return; // Let drag events handle it
+    // Handle node dragging with mouse events (more reliable than HTML5 drag)
+    const nodeEl = e.target.closest('.diagram-node');
+    if (nodeEl) {
+        const nodeId = nodeEl.getAttribute('data-node-id');
+        draggedNode = diagramNodes.find(n => n.id === nodeId);
+        if (draggedNode) {
+            const rect = nodeEl.getBoundingClientRect();
+            const canvas = document.getElementById('diagram-canvas');
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+            
+            // Add visual feedback
+            nodeEl.classList.add('dragging');
+            selectedNode = draggedNode;
+        }
     }
 }
 
@@ -706,6 +689,11 @@ function onCanvasMouseMove(e) {
 
 function onCanvasMouseUp() {
     if (draggedNode) {
+        // Remove visual feedback
+        const nodeEl = document.querySelector(`[data-node-id="${draggedNode.id}"]`);
+        if (nodeEl) {
+            nodeEl.classList.remove('dragging');
+        }
         draggedNode = null;
         updateMermaidCode();
     }
