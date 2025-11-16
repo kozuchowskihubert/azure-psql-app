@@ -29,6 +29,9 @@ async function ensureTable() {
         content TEXT NOT NULL,
         category VARCHAR(100),
         important BOOLEAN DEFAULT FALSE,
+        note_type VARCHAR(50) DEFAULT 'text',
+        mermaid_code TEXT,
+        diagram_data JSONB,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -70,7 +73,7 @@ app.get('/notes', async (req, res) => {
   const client = await pool.connect();
   try {
     const { rows } = await client.query(`
-      SELECT id, title, content, category, important, created_at, updated_at 
+      SELECT id, title, content, category, important, note_type, mermaid_code, diagram_data, created_at, updated_at 
       FROM notes 
       ORDER BY created_at DESC
     `);
@@ -89,7 +92,7 @@ app.get('/notes/:id', async (req, res) => {
   const client = await pool.connect();
   try {
     const { rows } = await client.query(
-      'SELECT id, title, content, category, important, created_at, updated_at FROM notes WHERE id = $1',
+      'SELECT id, title, content, category, important, note_type, mermaid_code, diagram_data, created_at, updated_at FROM notes WHERE id = $1',
       [id]
     );
     if (rows.length === 0) {
@@ -106,7 +109,7 @@ app.get('/notes/:id', async (req, res) => {
 
 // Create new note
 app.post('/notes', async (req, res) => {
-  const { title, content, category, important } = req.body;
+  const { title, content, category, important, note_type, mermaid_code, diagram_data } = req.body;
   
   if (!title || !content) {
     return res.status(400).json({ error: 'title and content are required' });
@@ -115,10 +118,10 @@ app.post('/notes', async (req, res) => {
   const client = await pool.connect();
   try {
     const { rows } = await client.query(
-      `INSERT INTO notes (title, content, category, important) 
-       VALUES ($1, $2, $3, $4) 
-       RETURNING id, title, content, category, important, created_at, updated_at`,
-      [title, content, category || null, important || false]
+      `INSERT INTO notes (title, content, category, important, note_type, mermaid_code, diagram_data) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
+       RETURNING id, title, content, category, important, note_type, mermaid_code, diagram_data, created_at, updated_at`,
+      [title, content, category || null, important || false, note_type || 'text', mermaid_code || null, diagram_data || null]
     );
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -132,7 +135,7 @@ app.post('/notes', async (req, res) => {
 // Update note
 app.put('/notes/:id', async (req, res) => {
   const { id } = req.params;
-  const { title, content, category, important } = req.body;
+  const { title, content, category, important, note_type, mermaid_code, diagram_data } = req.body;
   
   if (!title || !content) {
     return res.status(400).json({ error: 'title and content are required' });
@@ -142,10 +145,10 @@ app.put('/notes/:id', async (req, res) => {
   try {
     const { rows } = await client.query(
       `UPDATE notes 
-       SET title = $1, content = $2, category = $3, important = $4, updated_at = CURRENT_TIMESTAMP 
-       WHERE id = $5 
-       RETURNING id, title, content, category, important, created_at, updated_at`,
-      [title, content, category || null, important || false, id]
+       SET title = $1, content = $2, category = $3, important = $4, note_type = $5, mermaid_code = $6, diagram_data = $7, updated_at = CURRENT_TIMESTAMP 
+       WHERE id = $8 
+       RETURNING id, title, content, category, important, note_type, mermaid_code, diagram_data, created_at, updated_at`,
+      [title, content, category || null, important || false, note_type || 'text', mermaid_code || null, diagram_data || null, id]
     );
     
     if (rows.length === 0) {

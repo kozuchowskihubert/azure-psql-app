@@ -6,6 +6,7 @@
     <title>Notes App - Azure PostgreSQL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(-10px); }
@@ -58,6 +59,56 @@
         }
         .category-badge:hover {
             transform: scale(1.05);
+        }
+        /* Diagram Editor Styles */
+        .diagram-canvas {
+            border: 2px dashed #cbd5e0;
+            min-height: 400px;
+            position: relative;
+            background: #f7fafc;
+            background-image: radial-gradient(circle, #e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .dark .diagram-canvas {
+            background: #1a202c;
+            background-image: radial-gradient(circle, #2d3748 1px, transparent 1px);
+            border-color: #4a5568;
+        }
+        .diagram-node {
+            position: absolute;
+            padding: 12px 20px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            cursor: move;
+            user-select: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .diagram-node:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transform: scale(1.05);
+        }
+        .diagram-node.selected {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245,158,11,0.2);
+        }
+        .dark .diagram-node {
+            background: #2d3748;
+            color: white;
+        }
+        .connection-line {
+            position: absolute;
+            pointer-events: none;
+        }
+        .mermaid-preview {
+            min-height: 300px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+        .dark .mermaid-preview {
+            background: #2d3748;
         }
     </style>
     <script>
@@ -195,6 +246,20 @@
                     >
                 </div>
                 <div>
+                    <label for="note-type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-layer-group mr-1"></i>
+                        Note Type
+                    </label>
+                    <select 
+                        id="note-type" 
+                        name="note_type"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                    >
+                        <option value="text">📝 Text Note</option>
+                        <option value="diagram">📊 Mermaid Diagram</option>
+                    </select>
+                </div>
+                <div id="text-content-section">
                     <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Content <span class="text-red-500">*</span>
                     </label>
@@ -206,6 +271,57 @@
                         class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all resize-none"
                         placeholder="Write your note here..."
                     ></textarea>
+                </div>
+                <div id="diagram-content-section" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-project-diagram mr-1"></i>
+                        Mermaid Diagram Editor
+                    </label>
+                    <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                        <!-- Diagram Toolbar -->
+                        <div class="bg-gray-100 dark:bg-gray-700 p-3 border-b border-gray-300 dark:border-gray-600 flex items-center space-x-2">
+                            <button type="button" onclick="addDiagramNode('rect', 'Process')" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
+                                <i class="fas fa-square mr-1"></i> Rectangle
+                            </button>
+                            <button type="button" onclick="addDiagramNode('round', 'Start/End')" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm">
+                                <i class="fas fa-circle mr-1"></i> Round
+                            </button>
+                            <button type="button" onclick="addDiagramNode('diamond', 'Decision')" class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm">
+                                <i class="fas fa-diamond mr-1"></i> Diamond
+                            </button>
+                            <button type="button" onclick="clearDiagram()" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm ml-auto">
+                                <i class="fas fa-trash mr-1"></i> Clear
+                            </button>
+                        </div>
+                        <!-- Visual Editor Canvas -->
+                        <div id="diagram-canvas" class="diagram-canvas" style="height: 400px; position: relative;">
+                            <p class="text-gray-400 dark:text-gray-500 text-center pt-32">
+                                Click buttons above to add nodes, or edit Mermaid code below
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Mermaid Code Editor -->
+                    <label for="mermaid-code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 mt-4">
+                        <i class="fas fa-code mr-1"></i>
+                        Mermaid Code
+                    </label>
+                    <textarea 
+                        id="mermaid-code" 
+                        name="mermaid_code"
+                        rows="6" 
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all resize-none font-mono text-sm"
+                        placeholder="graph TD&#10;    A[Start] --> B{Decision}&#10;    B -->|Yes| C[Process]&#10;    B -->|No| D[End]"
+                    ></textarea>
+                    <!-- Live Preview -->
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-eye mr-1"></i>
+                            Live Preview
+                        </label>
+                        <div id="mermaid-preview" class="mermaid-preview border border-gray-300 dark:border-gray-600 rounded-lg">
+                            <p class="text-gray-400 dark:text-gray-500 text-center">Preview will appear here...</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>

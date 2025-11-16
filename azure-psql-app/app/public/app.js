@@ -128,12 +128,24 @@ async function handleCreateNote(e) {
     e.preventDefault();
     
     const formData = new FormData(e.target);
+    const noteType = formData.get('note_type') || 'text';
+    
     const noteData = {
         title: formData.get('title').trim(),
-        content: formData.get('content').trim(),
+        content: formData.get('content').trim() || 'Mermaid Diagram',
         category: formData.get('category').trim() || null,
-        important: formData.get('important') === 'on'
+        important: formData.get('important') === 'on',
+        note_type: noteType
     };
+    
+    // Add diagram data if diagram type
+    if (noteType === 'diagram') {
+        noteData.mermaid_code = formData.get('mermaid_code') || null;
+        noteData.diagram_data = diagramNodes.length > 0 ? JSON.stringify({
+            nodes: diagramNodes,
+            connections: diagramConnections
+        }) : null;
+    }
     
     try {
         const response = await fetch(`${API_BASE}/notes`, {
@@ -146,6 +158,9 @@ async function handleCreateNote(e) {
         
         showToast('Note created successfully!', 'success');
         e.target.reset();
+        diagramNodes = [];
+        diagramConnections = [];
+        renderDiagramCanvas();
         await loadNotes();
     } catch (error) {
         console.error('Error creating note:', error);
@@ -228,7 +243,7 @@ function renderNotes() {
             <div class="p-6">
                 <div class="flex items-start justify-between mb-3">
                     <h3 class="text-xl font-bold text-gray-800 dark:text-white flex-1 pr-2">
-                        ${escapeHtml(note.title)}
+                        ${note.note_type === 'diagram' ? '📊 ' : ''}${escapeHtml(note.title)}
                     </h3>
                     <div class="flex space-x-2">
                         <button 
@@ -248,15 +263,26 @@ function renderNotes() {
                     </div>
                 </div>
                 
-                <p class="text-gray-600 dark:text-gray-300 mb-4 whitespace-pre-wrap">
-                    ${escapeHtml(note.content)}
-                </p>
+                ${note.note_type === 'diagram' && note.mermaid_code ? `
+                    <div class="mermaid-container mb-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="mermaid">${note.mermaid_code}</div>
+                    </div>
+                ` : `
+                    <p class="text-gray-600 dark:text-gray-300 mb-4 whitespace-pre-wrap">
+                        ${escapeHtml(note.content)}
+                    </p>
+                `}
                 
                 <div class="flex items-center justify-between text-sm">
                     <div class="flex items-center space-x-2">
                         ${note.category ? `
                             <span class="category-badge px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full font-medium">
                                 <i class="fas fa-tag mr-1"></i>${escapeHtml(note.category)}
+                            </span>
+                        ` : ''}
+                        ${note.note_type === 'diagram' ? `
+                            <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full font-medium">
+                                <i class="fas fa-project-diagram mr-1"></i>Diagram
                             </span>
                         ` : ''}
                     </div>
@@ -275,6 +301,15 @@ function renderNotes() {
             </div>
         </div>
     `).join('');
+    
+    // Render Mermaid diagrams after DOM update
+    setTimeout(() => {
+        if (typeof mermaid !== 'undefined') {
+            mermaid.run({
+                nodes: document.querySelectorAll('.mermaid')
+            });
+        }
+    }, 100);
 }
 
 function updateStats() {
@@ -459,4 +494,226 @@ function formatDate(dateString) {
         hour: '2-digit',
         minute: '2-digit'
     });
+}
+
+// ============================================================================
+// Mermaid Diagram Editor
+// ============================================================================
+
+let diagramNodes = [];
+let diagramConnections = [];
+let selectedNode = null;
+let draggedNode = null;
+let dragOffset = { x: 0, y: 0 };
+
+// Initialize Mermaid
+if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({ 
+        startOnLoad: false,
+        theme: darkMode ? 'dark' : 'default',
+        securityLevel: 'loose'
+    });
+}
+
+// Toggle between text and diagram mode
+document.addEventListener('DOMContentLoaded', () => {
+    const noteTypeSelect = document.getElementById('note-type');
+    const textSection = document.getElementById('text-content-section');
+    const diagramSection = document.getElementById('diagram-content-section');
+    const contentField = document.getElementById('content');
+    const mermaidCodeField = document.getElementById('mermaid-code');
+    
+    if (noteTypeSelect) {
+        noteTypeSelect.addEventListener('change', (e) => {
+            const isDiagram = e.target.value === 'diagram';
+            textSection.classList.toggle('hidden', isDiagram);
+            diagramSection.classList.toggle('hidden', !isDiagram);
+            
+            // Update content requirement
+            if (isDiagram) {
+                contentField.removeAttribute('required');
+                contentField.value = 'Mermaid Diagram';
+            } else {
+                contentField.setAttribute('required', 'required');
+                contentField.value = '';
+            }
+        });
+    }
+    
+    // Live preview of Mermaid code
+    if (mermaidCodeField) {
+        mermaidCodeField.addEventListener('input', debounce(updateMermaidPreview, 500));
+    }
+    
+    // Initialize diagram canvas interactions
+    initializeDiagramCanvas();
+});
+
+function initializeDiagramCanvas() {
+    const canvas = document.getElementById('diagram-canvas');
+    if (!canvas) return;
+    
+    canvas.addEventListener('mousedown', onCanvasMouseDown);
+    canvas.addEventListener('mousemove', onCanvasMouseMove);
+    canvas.addEventListener('mouseup', onCanvasMouseUp);
+}
+
+function addDiagramNode(shape, label) {
+    const canvas = document.getElementById('diagram-canvas');
+    const rect = canvas.getBoundingClientRect();
+    
+    const node = {
+        id: `node_${Date.now()}`,
+        label: label || 'New Node',
+        shape: shape,
+        x: Math.random() * (rect.width - 100) + 50,
+        y: Math.random() * (rect.height - 60) + 30
+    };
+    
+    diagramNodes.push(node);
+    renderDiagramCanvas();
+    updateMermaidCode();
+}
+
+function clearDiagram() {
+    if (confirm('Are you sure you want to clear the diagram?')) {
+        diagramNodes = [];
+        diagramConnections = [];
+        renderDiagramCanvas();
+        updateMermaidCode();
+    }
+}
+
+function renderDiagramCanvas() {
+    const canvas = document.getElementById('diagram-canvas');
+    if (!canvas) return;
+    
+    // Clear existing nodes
+    const existingNodes = canvas.querySelectorAll('.diagram-node');
+    existingNodes.forEach(node => node.remove());
+    
+    // Render nodes
+    diagramNodes.forEach(node => {
+        const nodeEl = document.createElement('div');
+        nodeEl.className = 'diagram-node';
+        nodeEl.setAttribute('data-node-id', node.id);
+        nodeEl.style.left = `${node.x}px`;
+        nodeEl.style.top = `${node.y}px`;
+        
+        // Add shape-specific styling
+        if (node.shape === 'round') {
+            nodeEl.style.borderRadius = '50px';
+        } else if (node.shape === 'diamond') {
+            nodeEl.style.transform = 'rotate(45deg)';
+            nodeEl.innerHTML = `<span style="transform: rotate(-45deg); display: block;">${node.label}</span>`;
+        } else {
+            nodeEl.textContent = node.label;
+        }
+        
+        if (node.shape !== 'diamond') {
+            nodeEl.textContent = node.label;
+        }
+        
+        // Double-click to edit label
+        nodeEl.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            const newLabel = prompt('Enter new label:', node.label);
+            if (newLabel) {
+                node.label = newLabel;
+                renderDiagramCanvas();
+                updateMermaidCode();
+            }
+        });
+        
+        canvas.appendChild(nodeEl);
+    });
+}
+
+function onCanvasMouseDown(e) {
+    const nodeEl = e.target.closest('.diagram-node');
+    if (nodeEl) {
+        const nodeId = nodeEl.getAttribute('data-node-id');
+        draggedNode = diagramNodes.find(n => n.id === nodeId);
+        if (draggedNode) {
+            dragOffset.x = e.offsetX;
+            dragOffset.y = e.offsetY;
+            selectedNode = draggedNode;
+            renderDiagramCanvas();
+        }
+    }
+}
+
+function onCanvasMouseMove(e) {
+    if (draggedNode) {
+        const canvas = document.getElementById('diagram-canvas');
+        const rect = canvas.getBoundingClientRect();
+        draggedNode.x = e.clientX - rect.left - dragOffset.x;
+        draggedNode.y = e.clientY - rect.top - dragOffset.y;
+        renderDiagramCanvas();
+    }
+}
+
+function onCanvasMouseUp() {
+    draggedNode = null;
+}
+
+function updateMermaidCode() {
+    const mermaidCodeField = document.getElementById('mermaid-code');
+    if (!mermaidCodeField) return;
+    
+    // Generate Mermaid code from visual nodes
+    let code = 'graph TD\n';
+    diagramNodes.forEach((node, idx) => {
+        const nodeId = `N${idx + 1}`;
+        let nodeCode = '';
+        
+        if (node.shape === 'round') {
+            nodeCode = `    ${nodeId}((${node.label}))\n`;
+        } else if (node.shape === 'diamond') {
+            nodeCode = `    ${nodeId}{${node.label}}\n`;
+        } else {
+            nodeCode = `    ${nodeId}[${node.label}]\n`;
+        }
+        
+        code += nodeCode;
+    });
+    
+    // Add sample connections if nodes exist
+    if (diagramNodes.length > 1) {
+        code += `    N1 --> N2\n`;
+    }
+    
+    mermaidCodeField.value = code;
+    updateMermaidPreview();
+}
+
+function updateMermaidPreview() {
+    const mermaidCode = document.getElementById('mermaid-code')?.value;
+    const preview = document.getElementById('mermaid-preview');
+    
+    if (!mermaidCode || !preview || typeof mermaid === 'undefined') return;
+    
+    // Clear previous content
+    preview.innerHTML = `<div class="mermaid">${mermaidCode}</div>`;
+    
+    // Render mermaid
+    try {
+        mermaid.run({
+            nodes: preview.querySelectorAll('.mermaid')
+        });
+    } catch (error) {
+        preview.innerHTML = `<p class="text-red-500">Error rendering diagram: ${error.message}</p>`;
+    }
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
