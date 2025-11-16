@@ -597,6 +597,7 @@ function renderDiagramCanvas() {
         const nodeEl = document.createElement('div');
         nodeEl.className = 'diagram-node';
         nodeEl.setAttribute('data-node-id', node.id);
+        nodeEl.setAttribute('draggable', 'true');
         nodeEl.style.left = `${node.x}px`;
         nodeEl.style.top = `${node.y}px`;
         
@@ -614,6 +615,10 @@ function renderDiagramCanvas() {
             nodeEl.textContent = node.label;
         }
         
+        // HTML5 Drag and Drop Events
+        nodeEl.addEventListener('dragstart', onNodeDragStart);
+        nodeEl.addEventListener('dragend', onNodeDragEnd);
+        
         // Double-click to edit label
         nodeEl.addEventListener('dblclick', (e) => {
             e.stopPropagation();
@@ -625,36 +630,85 @@ function renderDiagramCanvas() {
             }
         });
         
+        // Right-click to delete
+        nodeEl.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (confirm(`Delete node "${node.label}"?`)) {
+                diagramNodes = diagramNodes.filter(n => n.id !== node.id);
+                renderDiagramCanvas();
+                updateMermaidCode();
+            }
+        });
+        
         canvas.appendChild(nodeEl);
     });
 }
 
+// HTML5 Drag and Drop Implementation
+function onNodeDragStart(e) {
+    const nodeId = e.target.getAttribute('data-node-id');
+    draggedNode = diagramNodes.find(n => n.id === nodeId);
+    
+    if (draggedNode) {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', nodeId);
+        
+        // Add visual feedback
+        e.target.style.opacity = '0.5';
+        e.target.classList.add('dragging');
+        
+        // Store initial position
+        const rect = e.target.getBoundingClientRect();
+        const canvas = document.getElementById('diagram-canvas');
+        const canvasRect = canvas.getBoundingClientRect();
+        
+        dragOffset.x = e.clientX - rect.left;
+        dragOffset.y = e.clientY - rect.top;
+    }
+}
+
+function onNodeDragEnd(e) {
+    e.target.style.opacity = '1';
+    e.target.classList.remove('dragging');
+    draggedNode = null;
+    updateMermaidCode();
+}
+
 function onCanvasMouseDown(e) {
-    const nodeEl = e.target.closest('.diagram-node');
-    if (nodeEl) {
-        const nodeId = nodeEl.getAttribute('data-node-id');
-        draggedNode = diagramNodes.find(n => n.id === nodeId);
-        if (draggedNode) {
-            dragOffset.x = e.offsetX;
-            dragOffset.y = e.offsetY;
-            selectedNode = draggedNode;
-            renderDiagramCanvas();
-        }
+    // Keep for backward compatibility but prefer drag events
+    if (e.target.classList.contains('diagram-node')) {
+        return; // Let drag events handle it
     }
 }
 
 function onCanvasMouseMove(e) {
-    if (draggedNode) {
+    // Enhanced for real-time dragging
+    if (draggedNode && e.buttons === 1) {
         const canvas = document.getElementById('diagram-canvas');
         const rect = canvas.getBoundingClientRect();
-        draggedNode.x = e.clientX - rect.left - dragOffset.x;
-        draggedNode.y = e.clientY - rect.top - dragOffset.y;
-        renderDiagramCanvas();
+        
+        // Calculate new position
+        const newX = e.clientX - rect.left - dragOffset.x;
+        const newY = e.clientY - rect.top - dragOffset.y;
+        
+        // Constrain within canvas bounds
+        draggedNode.x = Math.max(0, Math.min(newX, rect.width - 100));
+        draggedNode.y = Math.max(0, Math.min(newY, rect.height - 40));
+        
+        // Update position in real-time
+        const nodeEl = document.querySelector(`[data-node-id="${draggedNode.id}"]`);
+        if (nodeEl) {
+            nodeEl.style.left = `${draggedNode.x}px`;
+            nodeEl.style.top = `${draggedNode.y}px`;
+        }
     }
 }
 
 function onCanvasMouseUp() {
-    draggedNode = null;
+    if (draggedNode) {
+        draggedNode = null;
+        updateMermaidCode();
+    }
 }
 
 function updateMermaidCode() {
