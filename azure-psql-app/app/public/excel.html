@@ -212,6 +212,39 @@
             justify-content: space-between;
             width: 100%;
         }
+        
+        /* Conditional Formatting */
+        .data-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            opacity: 0.3;
+            z-index: 0;
+        }
+        
+        .data-bar-blue { background: #3b82f6; }
+        .data-bar-green { background: #10b981; }
+        .data-bar-red { background: #ef4444; }
+        .data-bar-orange { background: #f59e0b; }
+        .data-bar-purple { background: #8b5cf6; }
+        
+        .icon-indicator {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+        
+        .format-type-btn.active {
+            border-color: #ec4899;
+            background: #fdf2f8;
+        }
+        
+        .dark .format-type-btn.active {
+            background: #831843;
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -328,6 +361,9 @@
                     </button>
                     <button id="show-data-types-btn" class="px-3 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition text-sm" title="Show data type badges">
                         <i class="fas fa-tag mr-1"></i>Data Types
+                    </button>
+                    <button id="conditional-format-btn" class="px-3 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition text-sm" title="Apply conditional formatting">
+                        <i class="fas fa-palette mr-1"></i>Formatting
                     </button>
                 </div>
             </div>
@@ -448,6 +484,104 @@
                     </button>
                     <button id="generate-chart-btn" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
                         <i class="fas fa-chart-bar mr-2"></i>Generate Chart
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conditional Formatting Modal -->
+        <div id="conditional-format-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        <i class="fas fa-palette text-pink-500 mr-2"></i>Conditional Formatting
+                    </h3>
+                    <button id="close-format-modal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Format Type Selector -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Format Type</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="selectFormatType('color-scale')" 
+                                class="format-type-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-pink-500 transition text-center">
+                            <i class="fas fa-fill-drip text-2xl text-pink-500 mb-2"></i>
+                            <div class="text-sm font-medium">Color Scale</div>
+                        </button>
+                        <button onclick="selectFormatType('data-bars')"
+                                class="format-type-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition text-center">
+                            <i class="fas fa-chart-bar text-2xl text-blue-500 mb-2"></i>
+                            <div class="text-sm font-medium">Data Bars</div>
+                        </button>
+                        <button onclick="selectFormatType('icon-sets')"
+                                class="format-type-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-green-500 transition text-center">
+                            <i class="fas fa-icons text-2xl text-green-500 mb-2"></i>
+                            <div class="text-sm font-medium">Icon Sets</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Range Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Apply to Range</label>
+                    <input type="text" id="format-range" placeholder="e.g., A1:C10" 
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                </div>
+
+                <!-- Color Scale Options -->
+                <div id="color-scale-options" class="hidden mb-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Color Scale Type</label>
+                    <select id="color-scale-type" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                        <option value="green-yellow-red">Green-Yellow-Red (3-Color)</option>
+                        <option value="red-yellow-green">Red-Yellow-Green (3-Color)</option>
+                        <option value="white-red">White-Red (2-Color)</option>
+                        <option value="white-blue">White-Blue (2-Color)</option>
+                        <option value="white-green">White-Green (2-Color)</option>
+                    </select>
+                </div>
+
+                <!-- Data Bars Options -->
+                <div id="data-bars-options" class="hidden mb-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Bar Color</label>
+                    <select id="data-bar-color" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                        <option value="blue">Blue</option>
+                        <option value="green">Green</option>
+                        <option value="red">Red</option>
+                        <option value="orange">Orange</option>
+                        <option value="purple">Purple</option>
+                    </select>
+                </div>
+
+                <!-- Icon Sets Options -->
+                <div id="icon-sets-options" class="hidden mb-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Icon Set</label>
+                    <select id="icon-set-type" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                        <option value="arrows">Arrows (↑ → ↓)</option>
+                        <option value="traffic-lights">Traffic Lights (🟢 🟡 🔴)</option>
+                        <option value="stars">Stars (⭐ ⭐⭐ ⭐⭐⭐)</option>
+                        <option value="flags">Flags (🚩 ⚠️ ✅)</option>
+                    </select>
+                </div>
+
+                <!-- Preview -->
+                <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Preview</div>
+                    <div id="format-preview" class="text-sm text-gray-600 dark:text-gray-400">
+                        Select a format type and range to see preview
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-3">
+                    <button id="cancel-format-btn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                        Cancel
+                    </button>
+                    <button id="clear-format-btn" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-eraser mr-2"></i>Clear All
+                    </button>
+                    <button id="apply-format-btn" class="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition">
+                        <i class="fas fa-check mr-2"></i>Apply
                     </button>
                 </div>
             </div>

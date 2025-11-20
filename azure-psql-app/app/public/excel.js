@@ -92,6 +92,18 @@ function initializeEventListeners() {
     // Data Quality buttons
     document.getElementById('highlight-duplicates-btn').addEventListener('click', highlightDuplicates);
     document.getElementById('show-data-types-btn').addEventListener('click', toggleDataTypeBadges);
+    
+    // Conditional Formatting
+    document.getElementById('conditional-format-btn').addEventListener('click', openConditionalFormatModal);
+    document.getElementById('close-format-modal').addEventListener('click', closeConditionalFormatModal);
+    document.getElementById('cancel-format-btn').addEventListener('click', closeConditionalFormatModal);
+    document.getElementById('apply-format-btn').addEventListener('click', applyConditionalFormat);
+    document.getElementById('clear-format-btn').addEventListener('click', clearConditionalFormat);
+    
+    // Preview updates for conditional formatting
+    document.getElementById('color-scale-type')?.addEventListener('change', updateFormatPreview);
+    document.getElementById('data-bar-color')?.addEventListener('change', updateFormatPreview);
+    document.getElementById('icon-set-type')?.addEventListener('change', updateFormatPreview);
 }
 
 // ============================================================================
@@ -1433,6 +1445,322 @@ function calculateColumnQuality(colIndex) {
                 typeCounts[a] > typeCounts[b] ? a : b, 'unknown')
         }
     };
+}
+
+// ============================================================================
+// Conditional Formatting
+// ============================================================================
+
+let currentFormatType = null;
+let appliedFormats = [];
+
+function openConditionalFormatModal() {
+    document.getElementById('conditional-format-modal').classList.remove('hidden');
+    document.getElementById('conditional-format-modal').classList.add('flex');
+}
+
+function closeConditionalFormatModal() {
+    document.getElementById('conditional-format-modal').classList.add('hidden');
+    document.getElementById('conditional-format-modal').classList.remove('flex');
+}
+
+function selectFormatType(type) {
+    currentFormatType = type;
+    
+    // Update button states
+    document.querySelectorAll('.format-type-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.closest('.format-type-btn').classList.add('active');
+    
+    // Show/hide relevant options
+    document.getElementById('color-scale-options').classList.toggle('hidden', type !== 'color-scale');
+    document.getElementById('data-bars-options').classList.toggle('hidden', type !== 'data-bars');
+    document.getElementById('icon-sets-options').classList.toggle('hidden', type !== 'icon-sets');
+    
+    updateFormatPreview();
+}
+
+function updateFormatPreview() {
+    const preview = document.getElementById('format-preview');
+    
+    if (!currentFormatType) {
+        preview.textContent = 'Select a format type and range to see preview';
+        return;
+    }
+    
+    switch (currentFormatType) {
+        case 'color-scale':
+            const scaleType = document.getElementById('color-scale-type').value;
+            preview.innerHTML = `
+                <div class="text-sm mb-2">Cells will be colored based on their values:</div>
+                <div class="flex gap-2">
+                    ${getColorScalePreview(scaleType)}
+                </div>
+            `;
+            break;
+        case 'data-bars':
+            const barColor = document.getElementById('data-bar-color').value;
+            preview.innerHTML = `
+                <div class="text-sm mb-2">Horizontal bars proportional to cell values:</div>
+                <div class="space-y-1">
+                    <div class="relative h-6 border dark:border-gray-600">
+                        <div class="data-bar data-bar-${barColor}" style="width: 100%"></div>
+                        <span class="relative z-10 px-2">100</span>
+                    </div>
+                    <div class="relative h-6 border dark:border-gray-600">
+                        <div class="data-bar data-bar-${barColor}" style="width: 60%"></div>
+                        <span class="relative z-10 px-2">60</span>
+                    </div>
+                    <div class="relative h-6 border dark:border-gray-600">
+                        <div class="data-bar data-bar-${barColor}" style="width: 30%"></div>
+                        <span class="relative z-10 px-2">30</span>
+                    </div>
+                </div>
+            `;
+            break;
+        case 'icon-sets':
+            const iconSet = document.getElementById('icon-set-type').value;
+            preview.innerHTML = `
+                <div class="text-sm mb-2">Icons based on value ranges:</div>
+                <div class="space-y-1 text-lg">
+                    ${getIconSetPreview(iconSet)}
+                </div>
+            `;
+            break;
+    }
+}
+
+function getColorScalePreview(type) {
+    const scales = {
+        'green-yellow-red': '<div class="w-20 h-6" style="background: linear-gradient(to right, #10b981, #fbbf24, #ef4444)"></div>',
+        'red-yellow-green': '<div class="w-20 h-6" style="background: linear-gradient(to right, #ef4444, #fbbf24, #10b981)"></div>',
+        'white-red': '<div class="w-20 h-6" style="background: linear-gradient(to right, #ffffff, #ef4444)"></div>',
+        'white-blue': '<div class="w-20 h-6" style="background: linear-gradient(to right, #ffffff, #3b82f6)"></div>',
+        'white-green': '<div class="w-20 h-6" style="background: linear-gradient(to right, #ffffff, #10b981)"></div>'
+    };
+    return scales[type] + '<span class="ml-2 text-xs">Low → High</span>';
+}
+
+function getIconSetPreview(type) {
+    const icons = {
+        'arrows': '↑ High (top 33%) → Moderate (middle 33%) ↓ Low (bottom 33%)',
+        'traffic-lights': '🟢 High → 🟡 Moderate → 🔴 Low',
+        'stars': '⭐⭐⭐ High → ⭐⭐ Moderate → ⭐ Low',
+        'flags': '✅ High → ⚠️ Moderate → 🚩 Low'
+    };
+    return icons[type];
+}
+
+function applyConditionalFormat() {
+    const range = document.getElementById('format-range').value;
+    if (!range || !currentFormatType) {
+        showToast('Please select format type and range', 'error');
+        return;
+    }
+    
+    const rangeMatch = range.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
+    if (!rangeMatch) {
+        showToast('Invalid range format. Use A1:C10', 'error');
+        return;
+    }
+    
+    const [, startCol, startRow, endCol, endRow] = rangeMatch;
+    const startColIndex = columnLabelToIndex(startCol);
+    const endColIndex = columnLabelToIndex(endCol);
+    const startRowIndex = parseInt(startRow) - 1;
+    const endRowIndex = parseInt(endRow) - 1;
+    
+    // Collect values in range
+    const values = [];
+    for (let row = startRowIndex; row <= endRowIndex; row++) {
+        for (let col = startColIndex; col <= endColIndex; col++) {
+            const val = spreadsheetData[row]?.[col];
+            if (val !== undefined && val !== '' && !isNaN(parseFloat(val))) {
+                values.push(parseFloat(val));
+            }
+        }
+    }
+    
+    if (values.length === 0) {
+        showToast('No numeric values in range', 'error');
+        return;
+    }
+    
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    
+    // Apply formatting to each cell
+    for (let row = startRowIndex; row <= endRowIndex; row++) {
+        for (let col = startColIndex; col <= endColIndex; col++) {
+            const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            if (!cell) continue;
+            
+            const val = parseFloat(spreadsheetData[row]?.[col]);
+            if (isNaN(val)) continue;
+            
+            switch (currentFormatType) {
+                case 'color-scale':
+                    applyColorScale(cell, val, min, max);
+                    break;
+                case 'data-bars':
+                    applyDataBar(cell, val, min, max);
+                    break;
+                case 'icon-sets':
+                    applyIconSet(cell, val, min, max);
+                    break;
+            }
+        }
+    }
+    
+    // Store applied format for later clearing
+    appliedFormats.push({ type: currentFormatType, range });
+    
+    showToast(`${currentFormatType.replace('-', ' ')} applied to ${range}`, 'success');
+    closeConditionalFormatModal();
+}
+
+function applyColorScale(cell, value, min, max) {
+    const scaleType = document.getElementById('color-scale-type').value;
+    const normalized = (value - min) / (max - min);
+    
+    let color;
+    switch (scaleType) {
+        case 'green-yellow-red':
+            color = getGradientColor(normalized, ['#10b981', '#fbbf24', '#ef4444']);
+            break;
+        case 'red-yellow-green':
+            color = getGradientColor(normalized, ['#ef4444', '#fbbf24', '#10b981']);
+            break;
+        case 'white-red':
+            color = interpolateColor('#ffffff', '#ef4444', normalized);
+            break;
+        case 'white-blue':
+            color = interpolateColor('#ffffff', '#3b82f6', normalized);
+            break;
+        case 'white-green':
+            color = interpolateColor('#ffffff', '#10b981', normalized);
+            break;
+    }
+    
+    cell.style.backgroundColor = color;
+}
+
+function applyDataBar(cell, value, min, max) {
+    const barColor = document.getElementById('data-bar-color').value;
+    const percentage = ((value - min) / (max - min)) * 100;
+    
+    // Remove existing data bar
+    const existingBar = cell.querySelector('.data-bar');
+    if (existingBar) existingBar.remove();
+    
+    // Add new data bar
+    const bar = document.createElement('div');
+    bar.className = `data-bar data-bar-${barColor}`;
+    bar.style.width = `${percentage}%`;
+    
+    cell.style.position = 'relative';
+    cell.insertBefore(bar, cell.firstChild);
+    
+    // Ensure text is visible
+    if (cell.querySelector('input')) {
+        cell.querySelector('input').style.position = 'relative';
+        cell.querySelector('input').style.zIndex = '1';
+    }
+}
+
+function applyIconSet(cell, value, min, max) {
+    const iconSetType = document.getElementById('icon-set-type').value;
+    const range = max - min;
+    const third = range / 3;
+    
+    let icon;
+    if (value >= min + (2 * third)) {
+        // High
+        switch (iconSetType) {
+            case 'arrows': icon = '↑'; break;
+            case 'traffic-lights': icon = '🟢'; break;
+            case 'stars': icon = '⭐⭐⭐'; break;
+            case 'flags': icon = '✅'; break;
+        }
+    } else if (value >= min + third) {
+        // Medium
+        switch (iconSetType) {
+            case 'arrows': icon = '→'; break;
+            case 'traffic-lights': icon = '🟡'; break;
+            case 'stars': icon = '⭐⭐'; break;
+            case 'flags': icon = '⚠️'; break;
+        }
+    } else {
+        // Low
+        switch (iconSetType) {
+            case 'arrows': icon = '↓'; break;
+            case 'traffic-lights': icon = '🔴'; break;
+            case 'stars': icon = '⭐'; break;
+            case 'flags': icon = '🚩'; break;
+        }
+    }
+    
+    // Remove existing icon
+    const existingIcon = cell.querySelector('.icon-indicator');
+    if (existingIcon) existingIcon.remove();
+    
+    // Add new icon
+    const iconEl = document.createElement('span');
+    iconEl.className = 'icon-indicator';
+    iconEl.textContent = icon;
+    cell.style.position = 'relative';
+    cell.appendChild(iconEl);
+}
+
+function getGradientColor(value, colors) {
+    if (colors.length === 2) {
+        return interpolateColor(colors[0], colors[1], value);
+    } else if (colors.length === 3) {
+        if (value < 0.5) {
+            return interpolateColor(colors[0], colors[1], value * 2);
+        } else {
+            return interpolateColor(colors[1], colors[2], (value - 0.5) * 2);
+        }
+    }
+    return colors[0];
+}
+
+function interpolateColor(color1, color2, factor) {
+    const c1 = hexToRgb(color1);
+    const c2 = hexToRgb(color2);
+    
+    const r = Math.round(c1.r + factor * (c2.r - c1.r));
+    const g = Math.round(c1.g + factor * (c2.g - c1.g));
+    const b = Math.round(c1.b + factor * (c2.b - c1.b));
+    
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : { r: 0, g: 0, b: 0 };
+}
+
+function clearConditionalFormat() {
+    if (confirm('Clear all conditional formatting?')) {
+        // Remove all formatting styles
+        document.querySelectorAll('#spreadsheet td').forEach(cell => {
+            cell.style.backgroundColor = '';
+            const dataBar = cell.querySelector('.data-bar');
+            if (dataBar) dataBar.remove();
+            const icon = cell.querySelector('.icon-indicator');
+            if (icon) icon.remove();
+        });
+        
+        appliedFormats = [];
+        showToast('Conditional formatting cleared', 'success');
+        closeConditionalFormatModal();
+    }
 }
 
 // ============================================================================
