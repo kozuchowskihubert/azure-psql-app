@@ -98,28 +98,28 @@ All documentation is organized by audience in **`azure-psql-app/docs/`**:
 
 ### Business Documentation 💼
 
-| Document | Description | Path |
-|----------|-------------|------|
-| **Executive Summary** | Market opportunity, ROI, competitive analysis | `docs/business/EXECUTIVE_SUMMARY.md` |
-| **Product Roadmap** | 7-phase development plan with KPIs | `docs/business/ROADMAP.md` |
+| Document                  | Description                                | Path                                  |
+|:--------------------------|:-------------------------------------------|:--------------------------------------|
+| **Executive Summary**     | Market opportunity, ROI, competitive analysis | `docs/business/EXECUTIVE_SUMMARY.md` |
+| **Product Roadmap**       | 7-phase development plan with KPIs         | `docs/business/ROADMAP.md`            |
 
 ### Technical Documentation 🔧
 
-| Document | Description | Path |
-|----------|-------------|------|
-| **System Architecture** | Infrastructure design, network diagrams | `docs/technical/ARCHITECTURE.md` |
-| **Deployment Guide** | Infrastructure as Code, CI/CD pipeline | `docs/technical/DEPLOYMENT.md` |
-| **Troubleshooting** | Common issues, debugging guides | `docs/technical/TROUBLESHOOTING.md` |
-| **Implementation Guide** | SSO setup, integrations | `docs/technical/IMPLEMENTATION_GUIDE.md` |
-| **ACT Usage** | Local GitHub Actions testing | `docs/technical/ACT_USAGE.md` |
+| Document                  | Description                                | Path                                     |
+|:--------------------------|:-------------------------------------------|:-----------------------------------------|
+| **System Architecture**   | Infrastructure design, network diagrams    | `docs/technical/ARCHITECTURE.md`         |
+| **Deployment Guide**      | Infrastructure as Code, CI/CD pipeline     | `docs/technical/DEPLOYMENT.md`           |
+| **Troubleshooting**       | Common issues, debugging guides            | `docs/technical/TROUBLESHOOTING.md`      |
+| **Implementation Guide**  | SSO setup, integrations                    | `docs/technical/IMPLEMENTATION_GUIDE.md` |
+| **ACT Usage**             | Local GitHub Actions testing               | `docs/technical/ACT_USAGE.md`            |
 
 ### User Documentation 📖
 
-| Document | Description | Path |
-|----------|-------------|------|
-| **Excel Workspace Guide** | Complete Excel features, formulas, charts | `docs/user-guides/EXCEL_GUIDE.md` |
-| **Features Overview** | All platform capabilities | `docs/user-guides/FEATURES.md` |
-| **Login System** | Authentication, SSO, guest mode | `docs/user-guides/LOGIN_SYSTEM.md` |
+| Document                  | Description                                | Path                                 |
+|:--------------------------|:-------------------------------------------|:-------------------------------------|
+| **Excel Workspace Guide** | Complete Excel features, formulas, charts  | `docs/user-guides/EXCEL_GUIDE.md`    |
+| **Features Overview**     | All platform capabilities                  | `docs/user-guides/FEATURES.md`       |
+| **Login System**          | Authentication, SSO, guest mode            | `docs/user-guides/LOGIN_SYSTEM.md`   |
 
 **Main README**: `azure-psql-app/README.md` - Comprehensive project overview
 
