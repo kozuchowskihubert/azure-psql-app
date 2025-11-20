@@ -101,59 +101,16 @@ function updateUIForGuestUser() {
         profileSection.classList.add('hidden');
         loginLink.classList.remove('hidden');
     }
-    
-    // Disable create/edit/delete features
-    disableAuthenticatedFeatures();
-    
-    // Show info banner
-    showGuestModeBanner();
 }
 
 function enableAuthenticatedFeatures() {
-    // Note form should be enabled
-    const noteForm = document.getElementById('note-form');
-    if (noteForm) {
-        noteForm.querySelectorAll('input, textarea, button, select').forEach(el => {
-            el.disabled = false;
-        });
-    }
+    // Note: All features are available to everyone now
+    // This function kept for future use if needed
 }
 
 function disableAuthenticatedFeatures() {
-    // Disable note creation form
-    const noteForm = document.getElementById('note-form');
-    if (noteForm) {
-        noteForm.querySelectorAll('input, textarea, button[type="submit"], select').forEach(el => {
-            el.disabled = true;
-        });
-    }
-}
-
-function showGuestModeBanner() {
-    const main = document.querySelector('main');
-    if (main && !document.getElementById('guest-banner')) {
-        const banner = document.createElement('div');
-        banner.id = 'guest-banner';
-        banner.className = 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg';
-        banner.innerHTML = `
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <i class="fas fa-info-circle text-blue-500 mr-3"></i>
-                    <div>
-                        <p class="font-medium text-blue-900 dark:text-blue-200">Viewing in Public Mode</p>
-                        <p class="text-sm text-blue-700 dark:text-blue-300">
-                            You can view notes but cannot create or edit.
-                            <a href="/login.html" class="underline font-medium hover:text-blue-900">Sign in</a> to unlock all features.
-                        </p>
-                    </div>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" class="text-blue-500 hover:text-blue-700">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
-        main.prepend(banner);
-    }
+    // Note: All features are available to everyone now
+    // This function kept for future use if needed
 }
 
 async function logout() {
@@ -301,15 +258,6 @@ async function handleCreateNote(e) {
         }) : null;
     }
     
-    // Check if user is authenticated
-    if (userMode !== 'authenticated') {
-        showToast('Please sign in to create notes', 'error');
-        setTimeout(() => {
-            window.location.href = '/login.html';
-        }, 1500);
-        return;
-    }
-    
     try {
         const response = await fetch(`${API_BASE}/notes`, {
             method: 'POST',
@@ -334,13 +282,6 @@ async function handleCreateNote(e) {
 
 async function handleEditNote(e) {
     e.preventDefault();
-    
-    // Check if user is authenticated
-    if (userMode !== 'authenticated') {
-        showToast('Please sign in to edit notes', 'error');
-        closeEditModal();
-        return;
-    }
     
     const id = document.getElementById('edit-id').value;
     const noteData = {
@@ -370,12 +311,6 @@ async function handleEditNote(e) {
 }
 
 async function deleteNote(id) {
-    // Check if user is authenticated
-    if (userMode !== 'authenticated') {
-        showToast('Please sign in to delete notes', 'error');
-        return;
-    }
-    
     if (!confirm('Are you sure you want to delete this note?')) return;
     
     try {
