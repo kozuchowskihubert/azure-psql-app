@@ -1,10 +1,10 @@
 ```
-┌────────────────────────────────────────────────────────────┐
-│                                                            │
-│          🚀 CLOUD-NATIVE PRODUCTIVITY PLATFORM            │
-│             Privacy-First • Offline-Capable • Cost-Efficient              
-│                                                            │
-└────────────────────────────────────────────────────────────┘
++------------------------------------------------------------+
+|                                                            |
+|        🚀 CLOUD-NATIVE PRODUCTIVITY PLATFORM              |
+|          Privacy-First • Offline-Capable • Cost-Efficient |
+|                                                            |
++------------------------------------------------------------+
 ```
 
 ## 📁 Project Overview
@@ -172,35 +172,35 @@ The project uses GitHub Actions for automated deployment:
 ## 📊 Platform Status
 
 ```
-┌────────────────────────────────────────────────────────────┐
-│                                                            │
-│  STATUS: ✅ PRODUCTION READY (v2.1)                       │
-│                                                            │
-│  ✅ Excel Workspace (COMPLETE)                            │
-│     • Client-side processing (privacy guaranteed)         │
-│     • Formula engine (SUM, AVERAGE, COUNT, IF)            │
-│     • Charts (Bar, Line, Pie, Doughnut)                   │
-│     • Export (Excel, CSV, PDF, JSON)                      │
-│                                                            │
-│  ✅ Enterprise Features                                   │
-│     • Azure AD + Google SSO                               │
-│     • Calendar & meeting management                       │
-│     • Notes with Mermaid diagrams                         │
-│                                                            │
-│  ✅ Infrastructure                                        │
-│     • Terraform IaC (multi-environment)                   │
-│     • GitHub Actions CI/CD                                │
-│     • Docker containerization                             │
-│     • Private VNet with PostgreSQL                        │
-│                                                            │
-│  📊 Metrics                                               │
-│     • Uptime: 99.9% (last 30 days)                        │
-│     • Response Time: <200ms (p95)                         │
-│     • Infrastructure Cost: $31/month                      │
-│     • Lines of Code: 15,000+                              │
-│     • Documentation: 25+ pages                            │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
++------------------------------------------------------------+
+|                                                            |
+|  STATUS: ✅ PRODUCTION READY (v2.1)                       |
+|                                                            |
+|  ✅ Excel Workspace (COMPLETE)                            |
+|     • Client-side processing (privacy guaranteed)         |
+|     • Formula engine (SUM, AVERAGE, COUNT, IF)            |
+|     • Charts (Bar, Line, Pie, Doughnut)                   |
+|     • Export (Excel, CSV, PDF, JSON)                      |
+|                                                            |
+|  ✅ Enterprise Features                                   |
+|     • Azure AD + Google SSO                               |
+|     • Calendar & meeting management                       |
+|     • Notes with Mermaid diagrams                         |
+|                                                            |
+|  ✅ Infrastructure                                        |
+|     • Terraform IaC (multi-environment)                   |
+|     • GitHub Actions CI/CD                                |
+|     • Docker containerization                             |
+|     • Private VNet with PostgreSQL                        |
+|                                                            |
+|  📊 Metrics                                               |
+|     • Uptime: 99.9% (last 30 days)                        |
+|     • Response Time: <200ms (p95)                         |
+|     • Infrastructure Cost: $31/month                      |
+|     • Lines of Code: 15,000+                              |
+|     • Documentation: 25+ pages                            |
+|                                                            |
++------------------------------------------------------------+
 ```
 
 ---
