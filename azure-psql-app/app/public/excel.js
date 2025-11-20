@@ -88,6 +88,10 @@ function initializeEventListeners() {
     document.getElementById('close-chart-modal').addEventListener('click', closeChartModal);
     document.getElementById('cancel-chart-btn').addEventListener('click', closeChartModal);
     document.getElementById('generate-chart-btn').addEventListener('click', generateChart);
+    
+    // Data Quality buttons
+    document.getElementById('highlight-duplicates-btn').addEventListener('click', highlightDuplicates);
+    document.getElementById('show-data-types-btn').addEventListener('click', toggleDataTypeBadges);
 }
 
 // ============================================================================
@@ -918,6 +922,225 @@ function loadFromStorage() {
     } catch (error) {
         console.error('Error loading from storage:', error);
     }
+}
+
+// ============================================================================
+// Data Quality & Validation Features
+// ============================================================================
+
+// Track data quality state
+let showingDataTypes = false;
+
+/**
+ * Detect data type of a cell value
+ * @param {*} value - Cell value to analyze
+ * @returns {string} - 'number', 'date', 'boolean', 'text', or 'empty'
+ */
+function detectDataType(value) {
+    if (value === null || value === undefined || value === '') {
+        return 'empty';
+    }
+    
+    // Check for boolean
+    if (typeof value === 'boolean' || value === 'TRUE' || value === 'FALSE' || 
+        value === 'true' || value === 'false') {
+        return 'boolean';
+    }
+    
+    // Check for number
+    if (!isNaN(value) && !isNaN(parseFloat(value)) && typeof value !== 'string') {
+        return 'number';
+    }
+    
+    // Check if string represents a number
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (!isNaN(trimmed) && trimmed !== '') {
+            return 'number';
+        }
+    }
+    
+    // Check for date patterns
+    const datePatterns = [
+        /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/,  // MM/DD/YYYY or DD-MM-YYYY
+        /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/,    // YYYY-MM-DD
+        /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},?\s+\d{4}$/i
+    ];
+    
+    const strValue = String(value);
+    for (const pattern of datePatterns) {
+        if (pattern.test(strValue)) {
+            const date = new Date(strValue);
+            if (!isNaN(date.getTime())) {
+                return 'date';
+            }
+        }
+    }
+    
+    // Default to text
+    return 'text';
+}
+
+/**
+ * Highlight duplicate values in columns
+ */
+function highlightDuplicates() {
+    if (!spreadsheetData || spreadsheetData.length === 0) {
+        showToast('No data to analyze', 'info');
+        return;
+    }
+    
+    // Remove existing duplicate highlighting
+    const existingHighlights = document.querySelectorAll('.cell-duplicate');
+    existingHighlights.forEach(cell => cell.classList.remove('cell-duplicate'));
+    
+    // Analyze each column for duplicates
+    const numCols = spreadsheetData[0].length;
+    let totalDuplicates = 0;
+    
+    for (let col = 0; col < numCols; col++) {
+        const columnValues = {};
+        const duplicateIndices = [];
+        
+        // First pass: count occurrences
+        spreadsheetData.forEach((row, rowIndex) => {
+            const value = row[col];
+            if (value !== null && value !== undefined && value !== '') {
+                const key = String(value).toLowerCase().trim();
+                if (!columnValues[key]) {
+                    columnValues[key] = [];
+                }
+                columnValues[key].push(rowIndex);
+            }
+        });
+        
+        // Second pass: identify duplicates (values that appear more than once)
+        Object.values(columnValues).forEach(indices => {
+            if (indices.length > 1) {
+                duplicateIndices.push(...indices);
+            }
+        });
+        
+        // Highlight duplicate cells
+        duplicateIndices.forEach(rowIndex => {
+            const cell = document.querySelector(`[data-row="${rowIndex}"][data-col="${col}"]`);
+            if (cell) {
+                cell.classList.add('cell-duplicate');
+                totalDuplicates++;
+            }
+        });
+    }
+    
+    if (totalDuplicates > 0) {
+        showToast(`Found ${totalDuplicates} duplicate value${totalDuplicates > 1 ? 's' : ''}`, 'success');
+    } else {
+        showToast('No duplicates found', 'info');
+    }
+}
+
+/**
+ * Toggle data type badges on all cells
+ */
+function toggleDataTypeBadges() {
+    showingDataTypes = !showingDataTypes;
+    
+    if (showingDataTypes) {
+        // Add data type badges to all cells
+        spreadsheetData.forEach((row, rowIndex) => {
+            row.forEach((value, colIndex) => {
+                const cell = document.querySelector(`[data-row="${rowIndex}"][data-col="${colIndex}"]`);
+                if (cell) {
+                    const dataType = detectDataType(value);
+                    
+                    // Remove existing badge if any
+                    const existingBadge = cell.querySelector('.data-type-badge');
+                    if (existingBadge) {
+                        existingBadge.remove();
+                    }
+                    
+                    // Add new badge (skip empty cells)
+                    if (dataType !== 'empty') {
+                        const badge = document.createElement('span');
+                        badge.className = 'data-type-badge';
+                        badge.textContent = dataType.charAt(0).toUpperCase();
+                        badge.title = `Data type: ${dataType}`;
+                        cell.style.position = 'relative';
+                        cell.appendChild(badge);
+                    }
+                }
+            });
+        });
+        
+        showToast('Data types displayed', 'success');
+    } else {
+        // Remove all data type badges
+        const badges = document.querySelectorAll('.data-type-badge');
+        badges.forEach(badge => badge.remove());
+        showToast('Data types hidden', 'info');
+    }
+}
+
+/**
+ * Calculate data quality score for a column
+ * @param {number} colIndex - Column index
+ * @returns {object} - Quality metrics and grade
+ */
+function calculateColumnQuality(colIndex) {
+    if (!spreadsheetData || spreadsheetData.length === 0) {
+        return { grade: 'F', score: 0, metrics: {} };
+    }
+    
+    const totalRows = spreadsheetData.length;
+    let emptyCount = 0;
+    let typeConsistency = 0;
+    const typeCounts = {};
+    
+    // Analyze column
+    spreadsheetData.forEach(row => {
+        const value = row[colIndex];
+        const dataType = detectDataType(value);
+        
+        if (dataType === 'empty') {
+            emptyCount++;
+        } else {
+            typeCounts[dataType] = (typeCounts[dataType] || 0) + 1;
+        }
+    });
+    
+    // Calculate completeness (% non-empty)
+    const completeness = ((totalRows - emptyCount) / totalRows) * 100;
+    
+    // Calculate type consistency (% of most common type)
+    const nonEmptyCount = totalRows - emptyCount;
+    if (nonEmptyCount > 0) {
+        const maxTypeCount = Math.max(...Object.values(typeCounts));
+        typeConsistency = (maxTypeCount / nonEmptyCount) * 100;
+    }
+    
+    // Overall quality score (weighted average)
+    const score = (completeness * 0.6) + (typeConsistency * 0.4);
+    
+    // Assign grade
+    let grade;
+    if (score >= 95) grade = 'A';
+    else if (score >= 85) grade = 'B';
+    else if (score >= 75) grade = 'C';
+    else if (score >= 65) grade = 'D';
+    else if (score >= 50) grade = 'E';
+    else grade = 'F';
+    
+    return {
+        grade,
+        score: Math.round(score),
+        metrics: {
+            completeness: Math.round(completeness),
+            typeConsistency: Math.round(typeConsistency),
+            emptyCount,
+            totalRows,
+            dominantType: Object.keys(typeCounts).reduce((a, b) => 
+                typeCounts[a] > typeCounts[b] ? a : b, 'unknown')
+        }
+    };
 }
 
 // ============================================================================
