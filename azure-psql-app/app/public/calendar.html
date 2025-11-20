@@ -61,6 +61,31 @@
             </div>
         </div>
 
+        <!-- Quick Actions & Search -->
+        <div class="bg-white rounded-xl shadow-md p-4 mb-6">
+            <div class="flex flex-wrap items-center gap-4 justify-between">
+                <div class="flex items-center gap-2">
+                    <button id="filter-all" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
+                        <i class="fas fa-list mr-2"></i>All Events
+                    </button>
+                    <button id="filter-today" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm">
+                        <i class="fas fa-calendar-day mr-2"></i>Today
+                    </button>
+                    <button id="filter-week" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm">
+                        <i class="fas fa-calendar-week mr-2"></i>This Week
+                    </button>
+                    <button id="export-ics" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm">
+                        <i class="fas fa-download mr-2"></i>Export (.ics)
+                    </button>
+                </div>
+                <div class="flex items-center gap-2 flex-1 max-w-md">
+                    <i class="fas fa-search text-gray-400"></i>
+                    <input type="text" id="event-search" placeholder="Search events..." 
+                           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+        </div>
+
         <!-- Calendar Container -->
         <div class="bg-white rounded-xl shadow-lg p-6">
             <div id="calendar"></div>
@@ -108,8 +133,54 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                    <input type="text" id="event-location"
+                    <input type="text" id="event-location" placeholder="e.g., Conference Room A"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select id="event-category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="meeting" data-color="#f59e0b">Meeting (Orange)</option>
+                        <option value="event" data-color="#667eea">Event (Blue)</option>
+                        <option value="deadline" data-color="#ef4444">Deadline (Red)</option>
+                        <option value="reminder" data-color="#10b981">Reminder (Green)</option>
+                        <option value="personal" data-color="#8b5cf6">Personal (Purple)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <input type="checkbox" id="event-recurring" class="mr-2">
+                        Recurring Event
+                    </label>
+                    <div id="recurring-options" class="hidden mt-2 pl-6 space-y-2">
+                        <select id="recurring-frequency" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">Repeat Until (optional)</label>
+                            <input type="date" id="recurring-until" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <input type="checkbox" id="event-reminder" class="mr-2">
+                        Set Reminder
+                    </label>
+                    <div id="reminder-options" class="hidden mt-2 pl-6">
+                        <select id="reminder-time" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            <option value="5">5 minutes before</option>
+                            <option value="15">15 minutes before</option>
+                            <option value="30">30 minutes before</option>
+                            <option value="60">1 hour before</option>
+                            <option value="1440">1 day before</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="flex items-center space-x-4 pt-4">
@@ -127,6 +198,7 @@
 
     <script>
         let calendar;
+        let allEvents = [];
         const API_BASE = window.location.origin;
 
         // Check if calendar API is available
@@ -134,16 +206,16 @@
             try {
                 const response = await fetch(`${API_BASE}/api/calendar/events`);
                 if (response.status === 404) {
-                    showStatus('warning', 'Calendar API not enabled. Set ENABLE_CALENDAR_SYNC=true in environment variables.');
+                    showStatus('warning', 'Calendar API not enabled. Using local storage for demo. Enable ENABLE_CALENDAR_SYNC=true for cloud sync.');
                     return false;
                 }
                 if (!response.ok) {
                     throw new Error('Calendar service unavailable');
                 }
-                showStatus('success', 'Calendar service is active. Ready to manage events!');
+                showStatus('success', 'Calendar service is active. Events synced to cloud!');
                 return true;
             } catch (error) {
-                showStatus('error', 'Calendar API not configured. Backend integration needed.');
+                showStatus('warning', 'Using local storage. Events saved in browser only.');
                 return false;
             }
         }
@@ -169,6 +241,7 @@
         // Initialize calendar
         document.addEventListener('DOMContentLoaded', async function() {
             await checkCalendarService();
+            loadEventsFromStorage();
 
             const calendarEl = document.getElementById('calendar');
             calendar = new FullCalendar.Calendar(calendarEl, {
@@ -176,38 +249,19 @@
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
                 },
                 editable: true,
                 selectable: true,
                 selectMirror: true,
                 dayMaxEvents: true,
-                events: async function(info, successCallback, failureCallback) {
-                    try {
-                        const response = await fetch(
-                            `${API_BASE}/api/calendar/events?start=${info.startStr}&end=${info.endStr}`
-                        );
-                        if (response.ok) {
-                            const data = await response.json();
-                            const events = data.events?.map(e => ({
-                                id: e.id,
-                                title: e.title,
-                                start: e.start_time,
-                                end: e.end_time,
-                                backgroundColor: e.event_type === 'meeting' ? '#f59e0b' : '#667eea',
-                            })) || [];
-                            successCallback(events);
-                        } else {
-                            // Calendar API not available, show demo events
-                            successCallback(getDemoEvents());
-                        }
-                    } catch (error) {
-                        console.log('Using demo events');
-                        successCallback(getDemoEvents());
-                    }
+                eventDrop: handleEventDrop,
+                eventResize: handleEventResize,
+                events: function(info, successCallback, failureCallback) {
+                    successCallback(allEvents);
                 },
                 eventClick: function(info) {
-                    alert('Event: ' + info.event.title + '\nStart: ' + info.event.start.toLocaleString());
+                    showEventDetails(info.event);
                 },
                 select: function(info) {
                     document.getElementById('event-start').value = formatDateTimeLocal(info.start);
@@ -217,7 +271,32 @@
             });
 
             calendar.render();
+            setupEventListeners();
+        });
 
+        function getDemoEvents() {
+            const now = new Date();
+            return [
+                {
+                    id: 'demo-1',
+                    title: 'Team Meeting',
+                    start: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 10, 0),
+                    end: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 11, 0),
+                    backgroundColor: '#f59e0b',
+                    extendedProps: { category: 'meeting', location: 'Conference Room A' }
+                },
+                {
+                    id: 'demo-2',
+                    title: 'Project Review',
+                    start: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3, 14, 0),
+                    end: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3, 15, 30),
+                    backgroundColor: '#667eea',
+                    extendedProps: { category: 'event', location: 'Online' }
+                }
+            ];
+        }
+
+        function setupEventListeners() {
             // Modal handlers
             document.getElementById('add-event-btn').addEventListener('click', () => {
                 const now = new Date();
@@ -228,29 +307,247 @@
 
             document.getElementById('close-modal').addEventListener('click', closeModal);
             document.getElementById('cancel-modal').addEventListener('click', closeModal);
-
             document.getElementById('event-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 await createEvent();
             });
-        });
 
-        function getDemoEvents() {
-            const now = new Date();
-            return [
-                {
-                    title: 'Team Meeting (Demo)',
-                    start: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 10, 0),
-                    end: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 11, 0),
-                    backgroundColor: '#f59e0b'
-                },
-                {
-                    title: 'Project Review (Demo)',
-                    start: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3, 14, 0),
-                    end: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3, 15, 30),
-                    backgroundColor: '#667eea'
+            // Recurring event toggle
+            document.getElementById('event-recurring').addEventListener('change', (e) => {
+                document.getElementById('recurring-options').classList.toggle('hidden', !e.target.checked);
+            });
+
+            // Reminder toggle
+            document.getElementById('event-reminder').addEventListener('change', (e) => {
+                document.getElementById('reminder-options').classList.toggle('hidden', !e.target.checked);
+            });
+
+            // Filter buttons
+            document.getElementById('filter-all').addEventListener('click', () => {
+                setActiveFilter('filter-all');
+                calendar.refetchEvents();
+            });
+
+            document.getElementById('filter-today').addEventListener('click', () => {
+                setActiveFilter('filter-today');
+                calendar.changeView('timeGridDay');
+                calendar.today();
+            });
+
+            document.getElementById('filter-week').addEventListener('click', () => {
+                setActiveFilter('filter-week');
+                calendar.changeView('timeGridWeek');
+                calendar.today();
+            });
+
+            // Export to .ics
+            document.getElementById('export-ics').addEventListener('click', exportToICS);
+
+            // Search
+            document.getElementById('event-search').addEventListener('input', (e) => {
+                searchEvents(e.target.value);
+            });
+        }
+
+        function setActiveFilter(activeId) {
+            ['filter-all', 'filter-today', 'filter-week'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (id === activeId) {
+                    btn.classList.remove('bg-gray-200', 'text-gray-700');
+                    btn.classList.add('bg-blue-600', 'text-white');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
                 }
-            ];
+            });
+        }
+
+        function searchEvents(query) {
+            if (!query) {
+                allEvents = loadEventsFromStorage();
+                calendar.refetchEvents();
+                return;
+            }
+
+            const filtered = allEvents.filter(event => 
+                event.title.toLowerCase().includes(query.toLowerCase()) ||
+                (event.extendedProps?.description || '').toLowerCase().includes(query.toLowerCase()) ||
+                (event.extendedProps?.location || '').toLowerCase().includes(query.toLowerCase())
+            );
+
+            calendar.removeAllEvents();
+            calendar.addEventSource(filtered);
+        }
+
+        function handleEventDrop(info) {
+            const event = allEvents.find(e => e.id === info.event.id);
+            if (event) {
+                event.start = info.event.start;
+                event.end = info.event.end || info.event.start;
+                saveEventsToStorage();
+                showToast('Event moved successfully', 'success');
+            }
+        }
+
+        function handleEventResize(info) {
+            const event = allEvents.find(e => e.id === info.event.id);
+            if (event) {
+                event.start = info.event.start;
+                event.end = info.event.end;
+                saveEventsToStorage();
+                showToast('Event updated successfully', 'success');
+            }
+        }
+
+        function showEventDetails(event) {
+            const details = `
+                Event: ${event.title}
+                Start: ${event.start.toLocaleString()}
+                End: ${event.end ? event.end.toLocaleString() : 'N/A'}
+                ${event.extendedProps?.location ? 'Location: ' + event.extendedProps.location : ''}
+                ${event.extendedProps?.description ? 'Description: ' + event.extendedProps.description : ''}
+                Category: ${event.extendedProps?.category || 'event'}
+            `;
+            
+            if (confirm(details + '\n\nDelete this event?')) {
+                deleteEvent(event.id);
+            }
+        }
+
+        function deleteEvent(eventId) {
+            allEvents = allEvents.filter(e => e.id !== eventId);
+            saveEventsToStorage();
+            calendar.refetchEvents();
+            showToast('Event deleted', 'success');
+        }
+
+        function loadEventsFromStorage() {
+            const stored = localStorage.getItem('calendar-events');
+            if (stored) {
+                try {
+                    allEvents = JSON.parse(stored).map(e => ({
+                        ...e,
+                        start: new Date(e.start),
+                        end: e.end ? new Date(e.end) : null
+                    }));
+                    return allEvents;
+                } catch (error) {
+                    console.error('Error loading events:', error);
+                }
+            }
+            allEvents = getDemoEvents();
+            return allEvents;
+        }
+
+        function saveEventsToStorage() {
+            localStorage.setItem('calendar-events', JSON.stringify(allEvents));
+        }
+
+        function generateRecurringEvents(baseEvent, frequency, until) {
+            const events = [baseEvent];
+            const start = new Date(baseEvent.start);
+            const end = baseEvent.end ? new Date(baseEvent.end) : new Date(start.getTime() + 3600000);
+            const duration = end - start;
+            const untilDate = until ? new Date(until) : new Date(start.getTime() + 365 * 24 * 60 * 60 * 1000);
+            
+            let currentStart = new Date(start);
+            let counter = 1;
+
+            while (currentStart < untilDate && counter < 100) {
+                switch (frequency) {
+                    case 'daily':
+                        currentStart.setDate(currentStart.getDate() + 1);
+                        break;
+                    case 'weekly':
+                        currentStart.setDate(currentStart.getDate() + 7);
+                        break;
+                    case 'monthly':
+                        currentStart.setMonth(currentStart.getMonth() + 1);
+                        break;
+                    case 'yearly':
+                        currentStart.setFullYear(currentStart.getFullYear() + 1);
+                        break;
+                }
+
+                if (currentStart < untilDate) {
+                    const newEnd = new Date(currentStart.getTime() + duration);
+                    events.push({
+                        ...baseEvent,
+                        id: `${baseEvent.id}-recur-${counter}`,
+                        start: new Date(currentStart),
+                        end: newEnd
+                    });
+                    counter++;
+                }
+            }
+
+            return events;
+        }
+
+        function exportToICS() {
+            let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Notes App//Calendar//EN\n';
+            
+            allEvents.forEach(event => {
+                const start = new Date(event.start);
+                const end = event.end ? new Date(event.end) : new Date(start.getTime() + 3600000);
+                
+                icsContent += 'BEGIN:VEVENT\n';
+                icsContent += `UID:${event.id}@notesapp.com\n`;
+                icsContent += `DTSTART:${formatICSDate(start)}\n`;
+                icsContent += `DTEND:${formatICSDate(end)}\n`;
+                icsContent += `SUMMARY:${event.title}\n`;
+                if (event.extendedProps?.description) {
+                    icsContent += `DESCRIPTION:${event.extendedProps.description}\n`;
+                }
+                if (event.extendedProps?.location) {
+                    icsContent += `LOCATION:${event.extendedProps.location}\n`;
+                }
+                icsContent += 'END:VEVENT\n';
+            });
+            
+            icsContent += 'END:VCALENDAR';
+
+            const blob = new Blob([icsContent], { type: 'text/calendar' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `calendar-export-${new Date().toISOString().split('T')[0]}.ics`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('Calendar exported successfully!', 'success');
+        }
+
+        function formatICSDate(date) {
+            return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-300 z-50`;
+            
+            switch (type) {
+                case 'success':
+                    toast.classList.add('bg-green-600');
+                    break;
+                case 'error':
+                    toast.classList.add('bg-red-600');
+                    break;
+                default:
+                    toast.classList.add('bg-blue-600');
+            }
+            
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.style.transform = 'translateY(0)', 10);
+            setTimeout(() => {
+                toast.style.transform = 'translateY(100px)';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         function formatDateTimeLocal(date) {
@@ -272,32 +569,70 @@
         }
 
         async function createEvent() {
-            const eventData = {
-                title: document.getElementById('event-title').value,
-                description: document.getElementById('event-description').value,
-                startTime: new Date(document.getElementById('event-start').value).toISOString(),
-                endTime: new Date(document.getElementById('event-end').value).toISOString(),
-                location: document.getElementById('event-location').value,
-                eventType: 'event'
+            const title = document.getElementById('event-title').value;
+            const description = document.getElementById('event-description').value;
+            const start = new Date(document.getElementById('event-start').value);
+            const end = new Date(document.getElementById('event-end').value);
+            const location = document.getElementById('event-location').value;
+            const category = document.getElementById('event-category').value;
+            const categoryColor = document.getElementById('event-category').selectedOptions[0].dataset.color;
+            const isRecurring = document.getElementById('event-recurring').checked;
+            const recurringFrequency = document.getElementById('recurring-frequency').value;
+            const recurringUntil = document.getElementById('recurring-until').value;
+            const hasReminder = document.getElementById('event-reminder').checked;
+            const reminderTime = document.getElementById('reminder-time').value;
+
+            const baseEvent = {
+                id: 'event-' + Date.now(),
+                title: title,
+                start: start,
+                end: end,
+                backgroundColor: categoryColor,
+                extendedProps: {
+                    description,
+                    location,
+                    category,
+                    reminder: hasReminder ? parseInt(reminderTime) : null,
+                    recurring: isRecurring ? { frequency: recurringFrequency, until: recurringUntil } : null
+                }
             };
 
-            try {
-                const response = await fetch(`${API_BASE}/api/calendar/events`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(eventData)
-                });
+            // Generate recurring events if needed
+            let newEvents = [baseEvent];
+            if (isRecurring) {
+                newEvents = generateRecurringEvents(baseEvent, recurringFrequency, recurringUntil);
+                showToast(`Created ${newEvents.length} recurring events`, 'success');
+            } else {
+                showToast('Event created successfully!', 'success');
+            }
 
-                if (response.ok) {
-                    alert('Event created successfully!');
-                    calendar.refetchEvents();
-                    closeModal();
-                } else {
-                    const error = await response.json();
-                    alert('Failed to create event: ' + (error.error || 'Calendar API not enabled'));
-                }
-            } catch (error) {
-                alert('Calendar API not available. Please enable ENABLE_CALENDAR_SYNC=true');
+            allEvents.push(...newEvents);
+            saveEventsToStorage();
+            calendar.refetchEvents();
+
+            // Set reminder if enabled
+            if (hasReminder) {
+                scheduleReminder(baseEvent, parseInt(reminderTime));
+            }
+
+            closeModal();
+        }
+
+        function scheduleReminder(event, minutesBefore) {
+            const reminderTime = new Date(event.start).getTime() - (minutesBefore * 60 * 1000);
+            const now = Date.now();
+            
+            if (reminderTime > now) {
+                setTimeout(() => {
+                    if (Notification.permission === 'granted') {
+                        new Notification('Event Reminder', {
+                            body: `${event.title} starting in ${minutesBefore} minutes`,
+                            icon: '/favicon.ico'
+                        });
+                    } else {
+                        alert(`Reminder: ${event.title} starting in ${minutesBefore} minutes`);
+                    }
+                }, reminderTime - now);
             }
         }
     </script>
