@@ -2,9 +2,11 @@
 
 ## Overview
 
-The Azure PostgreSQL Notes App is a modern, full-stack web application featuring a beautiful user interface, comprehensive note management, and robust cloud infrastructure.
+The Azure PostgreSQL Notes App is a modern, full-stack web application featuring a comprehensive user interface, advanced note management capabilities, and enterprise-grade cloud infrastructure.
 
-## 🎨 Frontend Features
+---
+
+## Frontend Features
 
 ### User Interface
 
@@ -16,19 +18,19 @@ The Azure PostgreSQL Notes App is a modern, full-stack web application featuring
 - **Browser Support**: All modern browsers
 
 #### Visual Features
-- ✨ Smooth animations and transitions
-- 🎨 Gradient headers and buttons
-- 💫 Hover effects on cards and buttons
-- 📱 Adaptive layouts for all screen sizes
-- 🌈 Color-coded categories and badges
+- Smooth animations and transitions
+- Gradient headers and buttons
+- Hover effects on interactive elements
+- Adaptive layouts for all screen sizes
+- Color-coded categories and status indicators
 
 ### Dark Mode
 
 **Features**:
-- 🌓 Toggle between light and dark themes
-- 💾 Theme preference saved in local storage
-- 🎨 Smooth color transitions
-- 👁️ Optimized for both day and night viewing
+- Toggle between light and dark themes
+- Theme preference saved in local storage
+- Smooth color transitions
+- Optimized for both day and night viewing
 
 **Implementation**:
 ```javascript
@@ -66,7 +68,7 @@ Real-time statistics displayed in card format:
 - **Real-time search** as you type
 - **Multi-field search**: Searches across title, content, and category
 - **Case-insensitive**: Finds matches regardless of case
-- **Icon**: Magnifying glass with input field
+- **Instant results**: Updates immediately
 
 **Example**:
 ```javascript
@@ -126,7 +128,7 @@ const matchesSearch = !searchTerm ||
 
 **Empty State**:
 - Friendly message when no notes exist
-- Inbox icon visualization
+- Visual icon representation
 - Encouragement to create first note
 
 #### Edit Note
@@ -155,21 +157,10 @@ const matchesSearch = !searchTerm ||
 - **Animations**: Slide in/out effects
 
 **Types**:
-1. **Success** (Green)
-   - Note created/updated/deleted
-   - Icon: Check circle
-
-2. **Error** (Red)
-   - Failed operations
-   - Icon: Times circle
-
-3. **Info** (Blue)
-   - Refresh notifications
-   - Icon: Info circle
-
-4. **Warning** (Yellow)
-   - Cautionary messages
-   - Icon: Exclamation triangle
+1. **Success** (Green) - Note created/updated/deleted
+2. **Error** (Red) - Failed operations
+3. **Info** (Blue) - Refresh notifications
+4. **Warning** (Yellow) - Cautionary messages
 
 ### Timestamps
 
@@ -185,7 +176,9 @@ const matchesSearch = !searchTerm ||
 - `updated_at`: When note was last modified
 - Both displayed on note cards
 
-## 🔧 Backend Features
+---
+
+## Backend Features
 
 ### API Endpoints
 
@@ -271,7 +264,9 @@ app/public/
 - Client-side routing support
 - Deep linking enabled
 
-## 🚀 Performance Features
+---
+
+## Performance Features
 
 ### Docker Optimizations
 - **Multi-stage builds**: Smaller final image
@@ -291,7 +286,9 @@ app/public/
 - **Connection Pooling**: pg Pool for connection reuse
 - **Prepared Statements**: SQL injection prevention
 
-## 🔒 Security Features
+---
+
+## Security Features
 
 ### Input Validation
 - **Required Fields**: Server-side validation
@@ -305,7 +302,9 @@ app/public/
 - **ACR**: Registry admin credentials
 - **Private Network**: Database not publicly accessible
 
-## 📊 Monitoring Features
+---
+
+## Monitoring Features
 
 ### Health Endpoints
 ```javascript
@@ -326,7 +325,9 @@ await client.query('SELECT 1');
 - Request/response logging (optional)
 - Azure App Service logs integration
 
-## 🎯 User Experience Features
+---
+
+## User Experience Features
 
 ### Loading States
 - Spinner during data fetch
@@ -353,7 +354,9 @@ await client.query('SELECT 1');
 - Readable font sizes
 - Appropriate spacing
 
-## 🔄 Real-time Features
+---
+
+## Real-time Features
 
 ### Auto-refresh
 - Manual refresh button in header
@@ -367,7 +370,9 @@ await client.query('SELECT 1');
 - No page reload required
 - Optimistic UI updates
 
-## 🎨 Customization Features
+---
+
+## Customization Features
 
 ### Theme Variables
 ```javascript
@@ -390,7 +395,9 @@ tailwind.config = {
 - Modular CSS structure
 - Easy brand customization
 
-## 📱 Progressive Web App Ready
+---
+
+## Progressive Web App Ready
 
 **Current Features**:
 - Responsive design
@@ -404,7 +411,9 @@ tailwind.config = {
 - Install to home screen
 - Push notifications
 
-## 🌐 Accessibility Features
+---
+
+## Accessibility Features
 
 **Current**:
 - Semantic HTML structure
@@ -418,30 +427,34 @@ tailwind.config = {
 - Skip navigation links
 - WCAG 2.1 AA compliance
 
-## 🔮 Future Features Roadmap
+---
+
+## Future Features Roadmap
 
 ### Short-term
-- [ ] Rich text editor
-- [ ] File attachments
-- [ ] Note sharing
-- [ ] Export to PDF/Markdown
+- Rich text editor
+- File attachments
+- Note sharing
+- Export to PDF/Markdown
 
 ### Mid-term
-- [ ] User authentication
-- [ ] Multi-user support
-- [ ] Real-time collaboration
-- [ ] Note versioning
+- User authentication
+- Multi-user support
+- Real-time collaboration
+- Note versioning
 
 ### Long-term
-- [ ] Mobile apps (iOS/Android)
-- [ ] API rate limiting
-- [ ] Advanced search with filters
-- [ ] AI-powered note summarization
+- Mobile apps (iOS/Android)
+- API rate limiting
+- Advanced search with filters
+- AI-powered note summarization
 
-## 📚 Resources
+---
 
-- **Live App**: https://notesapp-dev-app.azurewebsites.net
-- **Repository**: https://github.com/kozuchowskihubert/azure-psql-app
+## Resources
+
+- **Live Demo**: [https://notesapp-dev-app.azurewebsites.net](https://notesapp-dev-app.azurewebsites.net)
+- **Repository**: [https://github.com/kozuchowskihubert/azure-psql-app](https://github.com/kozuchowskihubert/azure-psql-app)
 - **Architecture**: [Technical Architecture](../technical/ARCHITECTURE.md)
 - **Deployment**: [Deployment Guide](../technical/DEPLOYMENT.md)
-- **Roadmap**: [Product Roadmap](../business/ROADMAP.md)
+- **Product Roadmap**: [Business Roadmap](../business/ROADMAP.md)
