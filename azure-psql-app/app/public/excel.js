@@ -189,24 +189,97 @@ function renderSpreadsheet() {
     // Determine number of columns
     const maxCols = Math.max(...spreadsheetData.map(row => row.length), 10);
     
-    // Render header
+    // Render header with column controls
     const headerRow = document.createElement('tr');
-    headerRow.innerHTML = '<th></th>'; // Empty corner cell
+    const cornerCell = document.createElement('th');
+    cornerCell.innerHTML = '<i class="fas fa-table text-gray-400"></i>';
+    headerRow.appendChild(cornerCell);
     
     for (let col = 0; col < maxCols; col++) {
         const th = document.createElement('th');
-        th.textContent = getColumnLabel(col);
+        th.className = 'group relative';
+        
+        const headerContent = document.createElement('div');
+        headerContent.className = 'flex items-center justify-between gap-2';
+        
+        const label = document.createElement('span');
+        label.textContent = getColumnLabel(col);
+        headerContent.appendChild(label);
+        
+        // Column actions (visible on hover)
+        const actions = document.createElement('div');
+        actions.className = 'opacity-0 group-hover:opacity-100 transition-opacity flex gap-1';
+        
+        const insertBtn = document.createElement('button');
+        insertBtn.innerHTML = '<i class="fas fa-plus text-xs"></i>';
+        insertBtn.className = 'px-1 py-0.5 bg-blue-500 text-white rounded text-xs hover:bg-blue-600';
+        insertBtn.title = 'Insert column';
+        insertBtn.onclick = (e) => {
+            e.stopPropagation();
+            insertColumnAt(col);
+        };
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '<i class="fas fa-trash text-xs"></i>';
+        deleteBtn.className = 'px-1 py-0.5 bg-red-500 text-white rounded text-xs hover:bg-red-600';
+        deleteBtn.title = 'Delete column';
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteColumnAt(col);
+        };
+        
+        actions.appendChild(insertBtn);
+        actions.appendChild(deleteBtn);
+        headerContent.appendChild(actions);
+        
+        th.appendChild(headerContent);
         headerRow.appendChild(th);
     }
     headerEl.appendChild(headerRow);
     
-    // Render rows
+    // Render rows with row controls
     spreadsheetData.forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
+        tr.className = 'group';
         
-        // Row number
+        // Row header with controls
         const rowHeader = document.createElement('th');
-        rowHeader.textContent = rowIndex + 1;
+        rowHeader.className = 'relative';
+        
+        const rowHeaderContent = document.createElement('div');
+        rowHeaderContent.className = 'flex items-center justify-between gap-2';
+        
+        const rowNum = document.createElement('span');
+        rowNum.textContent = rowIndex + 1;
+        rowHeaderContent.appendChild(rowNum);
+        
+        // Row actions (visible on hover)
+        const rowActions = document.createElement('div');
+        rowActions.className = 'opacity-0 group-hover:opacity-100 transition-opacity flex gap-1';
+        
+        const insertRowBtn = document.createElement('button');
+        insertRowBtn.innerHTML = '<i class="fas fa-plus text-xs"></i>';
+        insertRowBtn.className = 'px-1 py-0.5 bg-blue-500 text-white rounded text-xs hover:bg-blue-600';
+        insertRowBtn.title = 'Insert row';
+        insertRowBtn.onclick = (e) => {
+            e.stopPropagation();
+            insertRowAt(rowIndex);
+        };
+        
+        const deleteRowBtn = document.createElement('button');
+        deleteRowBtn.innerHTML = '<i class="fas fa-trash text-xs"></i>';
+        deleteRowBtn.className = 'px-1 py-0.5 bg-red-500 text-white rounded text-xs hover:bg-red-600';
+        deleteRowBtn.title = 'Delete row';
+        deleteRowBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteRowAt(rowIndex);
+        };
+        
+        rowActions.appendChild(insertRowBtn);
+        rowActions.appendChild(deleteRowBtn);
+        rowHeaderContent.appendChild(rowActions);
+        
+        rowHeader.appendChild(rowHeaderContent);
         tr.appendChild(rowHeader);
         
         // Cells
@@ -551,6 +624,55 @@ function addColumn() {
     renderSpreadsheet();
     saveToStorage();
     showToast('Column added!', 'success');
+}
+
+function insertRowAt(index) {
+    const maxCols = Math.max(...spreadsheetData.map(row => row.length), 10);
+    spreadsheetData.splice(index + 1, 0, Array(maxCols).fill(''));
+    renderSpreadsheet();
+    saveToStorage();
+    showToast(`Row inserted at ${index + 2}!`, 'success');
+}
+
+function deleteRowAt(index) {
+    if (spreadsheetData.length <= 1) {
+        showToast('Cannot delete the last row!', 'error');
+        return;
+    }
+    
+    if (!confirm(`Delete row ${index + 1}?`)) return;
+    
+    spreadsheetData.splice(index, 1);
+    renderSpreadsheet();
+    saveToStorage();
+    showToast(`Row ${index + 1} deleted!`, 'success');
+}
+
+function insertColumnAt(colIndex) {
+    spreadsheetData.forEach(row => {
+        row.splice(colIndex + 1, 0, '');
+    });
+    renderSpreadsheet();
+    saveToStorage();
+    showToast(`Column inserted at ${getColumnLabel(colIndex + 1)}!`, 'success');
+}
+
+function deleteColumnAt(colIndex) {
+    const maxCols = Math.max(...spreadsheetData.map(row => row.length));
+    
+    if (maxCols <= 1) {
+        showToast('Cannot delete the last column!', 'error');
+        return;
+    }
+    
+    if (!confirm(`Delete column ${getColumnLabel(colIndex)}?`)) return;
+    
+    spreadsheetData.forEach(row => {
+        row.splice(colIndex, 1);
+    });
+    renderSpreadsheet();
+    saveToStorage();
+    showToast(`Column ${getColumnLabel(colIndex)} deleted!`, 'success');
 }
 
 function clearSheet() {

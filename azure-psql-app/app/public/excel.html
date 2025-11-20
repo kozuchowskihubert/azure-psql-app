@@ -36,12 +36,29 @@
             top: 0;
             z-index: 10;
             min-width: 100px;
+            transition: background 0.2s;
+        }
+        
+        .spreadsheet-table th:hover {
+            background: #e5e7eb;
         }
         
         .dark .spreadsheet-table th {
             background: #374151;
             border-color: #4b5563;
             color: #f3f4f6;
+        }
+        
+        .dark .spreadsheet-table th:hover {
+            background: #4b5563;
+        }
+        
+        .spreadsheet-table tr.group:hover th {
+            background: #e5e7eb;
+        }
+        
+        .dark .spreadsheet-table tr.group:hover th {
+            background: #4b5563;
         }
         
         .spreadsheet-table td {
@@ -181,6 +198,19 @@
             </div>
         </div>
 
+        <!-- Live Edit Feature Tip -->
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 border-l-4 border-emerald-500 p-4 mb-6 rounded-r-lg">
+            <div class="flex items-center">
+                <i class="fas fa-magic text-emerald-500 mr-3 text-xl"></i>
+                <div>
+                    <p class="font-medium text-emerald-900 dark:text-emerald-200">Live Row & Column Editing</p>
+                    <p class="text-sm text-emerald-700 dark:text-emerald-300">
+                        <strong>Hover over any row or column header</strong> to see insert/delete buttons. Click to add or remove rows/columns instantly!
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Toolbar -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
             <div class="flex flex-wrap items-center gap-4">
@@ -215,14 +245,14 @@
                 
                 <!-- Data Operations -->
                 <div class="flex items-center gap-2 border-l border-gray-300 dark:border-gray-600 pl-4">
-                    <button id="add-row-btn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm">
-                        <i class="fas fa-plus mr-1"></i>Row
+                    <button id="add-row-btn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm" title="Add row at bottom">
+                        <i class="fas fa-plus mr-1"></i>Row at End
                     </button>
-                    <button id="add-column-btn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm">
-                        <i class="fas fa-plus mr-1"></i>Column
+                    <button id="add-column-btn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm" title="Add column at right">
+                        <i class="fas fa-plus mr-1"></i>Column at End
                     </button>
-                    <button id="clear-btn" class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm">
-                        <i class="fas fa-trash mr-1"></i>Clear
+                    <button id="clear-btn" class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm" title="Clear all data">
+                        <i class="fas fa-trash mr-1"></i>Clear All
                     </button>
                 </div>
                 
