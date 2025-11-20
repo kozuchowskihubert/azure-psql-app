@@ -413,6 +413,41 @@ function evaluateFormula(formula, currentRow, currentCol) {
             return evaluateIF(expression, currentRow, currentCol);
         }
         
+        // Handle VLOOKUP function
+        if (expression.startsWith('VLOOKUP(')) {
+            return evaluateVLOOKUP(expression);
+        }
+        
+        // Handle HLOOKUP function
+        if (expression.startsWith('HLOOKUP(')) {
+            return evaluateHLOOKUP(expression);
+        }
+        
+        // Handle CONCAT function
+        if (expression.startsWith('CONCAT(')) {
+            return evaluateCONCAT(expression);
+        }
+        
+        // Handle TEXT function
+        if (expression.startsWith('TEXT(')) {
+            return evaluateTEXT(expression);
+        }
+        
+        // Handle TODAY function
+        if (expression === 'TODAY()') {
+            return new Date().toLocaleDateString();
+        }
+        
+        // Handle NOW function
+        if (expression === 'NOW()') {
+            return new Date().toLocaleString();
+        }
+        
+        // Handle DATEDIF function
+        if (expression.startsWith('DATEDIF(')) {
+            return evaluateDATEDIF(expression);
+        }
+        
         // Handle simple arithmetic
         return evaluateArithmetic(expression, currentRow, currentCol);
         
@@ -537,6 +572,263 @@ function columnLabelToIndex(label) {
         index = index * 26 + (label.charCodeAt(i) - 64);
     }
     return index - 1;
+}
+
+// ============================================================================
+// Advanced Formula Functions
+// ============================================================================
+
+/**
+ * VLOOKUP - Vertical lookup in a table
+ * Syntax: =VLOOKUP(searchValue, range, columnIndex, exactMatch)
+ * Example: =VLOOKUP(A1, B1:D10, 3, FALSE)
+ */
+function evaluateVLOOKUP(expression) {
+    try {
+        // Extract parameters: VLOOKUP(value, range, colIndex, exactMatch)
+        const match = expression.match(/VLOOKUP\((.*?),\s*([A-Z]+\d+:[A-Z]+\d+),\s*(\d+),?\s*(TRUE|FALSE)?\)/);
+        if (!match) return '#ERROR!';
+        
+        const [, searchExpr, range, colIndexStr, exactMatch] = match;
+        const columnIndex = parseInt(colIndexStr) - 1; // Convert to 0-based
+        const exact = exactMatch !== 'FALSE';
+        
+        // Get search value (could be cell reference or literal)
+        let searchValue = searchExpr.trim();
+        if (searchValue.match(/^[A-Z]+\d+$/)) {
+            const cellRef = searchValue.match(/^([A-Z]+)(\d+)$/);
+            const col = columnLabelToIndex(cellRef[1]);
+            const row = parseInt(cellRef[2]) - 1;
+            searchValue = spreadsheetData[row]?.[col];
+        } else {
+            searchValue = searchValue.replace(/"/g, '');
+        }
+        
+        // Parse range
+        const rangeMatch = range.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
+        if (!rangeMatch) return '#ERROR!';
+        
+        const [, startCol, startRow, endCol, endRow] = rangeMatch;
+        const startColIndex = columnLabelToIndex(startCol);
+        const startRowIndex = parseInt(startRow) - 1;
+        const endRowIndex = parseInt(endRow) - 1;
+        
+        // Search in first column of range
+        for (let row = startRowIndex; row <= endRowIndex; row++) {
+            const cellValue = spreadsheetData[row]?.[startColIndex];
+            
+            if (exact) {
+                // Exact match
+                if (String(cellValue).toLowerCase() === String(searchValue).toLowerCase()) {
+                    return spreadsheetData[row]?.[startColIndex + columnIndex] || '#N/A';
+                }
+            } else {
+                // Approximate match (for sorted data)
+                if (cellValue >= searchValue) {
+                    return spreadsheetData[row]?.[startColIndex + columnIndex] || '#N/A';
+                }
+            }
+        }
+        
+        return '#N/A';
+    } catch (error) {
+        return '#ERROR!';
+    }
+}
+
+/**
+ * HLOOKUP - Horizontal lookup in a table
+ * Syntax: =HLOOKUP(searchValue, range, rowIndex, exactMatch)
+ * Example: =HLOOKUP("Product", A1:E5, 3, FALSE)
+ */
+function evaluateHLOOKUP(expression) {
+    try {
+        const match = expression.match(/HLOOKUP\((.*?),\s*([A-Z]+\d+:[A-Z]+\d+),\s*(\d+),?\s*(TRUE|FALSE)?\)/);
+        if (!match) return '#ERROR!';
+        
+        const [, searchExpr, range, rowIndexStr, exactMatch] = match;
+        const rowIndex = parseInt(rowIndexStr) - 1;
+        const exact = exactMatch !== 'FALSE';
+        
+        // Get search value
+        let searchValue = searchExpr.trim();
+        if (searchValue.match(/^[A-Z]+\d+$/)) {
+            const cellRef = searchValue.match(/^([A-Z]+)(\d+)$/);
+            const col = columnLabelToIndex(cellRef[1]);
+            const row = parseInt(cellRef[2]) - 1;
+            searchValue = spreadsheetData[row]?.[col];
+        } else {
+            searchValue = searchValue.replace(/"/g, '');
+        }
+        
+        // Parse range
+        const rangeMatch = range.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
+        if (!rangeMatch) return '#ERROR!';
+        
+        const [, startCol, startRow, endCol] = rangeMatch;
+        const startColIndex = columnLabelToIndex(startCol);
+        const endColIndex = columnLabelToIndex(endCol);
+        const startRowIndex = parseInt(startRow) - 1;
+        
+        // Search in first row of range
+        for (let col = startColIndex; col <= endColIndex; col++) {
+            const cellValue = spreadsheetData[startRowIndex]?.[col];
+            
+            if (exact) {
+                if (String(cellValue).toLowerCase() === String(searchValue).toLowerCase()) {
+                    return spreadsheetData[startRowIndex + rowIndex]?.[col] || '#N/A';
+                }
+            } else {
+                if (cellValue >= searchValue) {
+                    return spreadsheetData[startRowIndex + rowIndex]?.[col] || '#N/A';
+                }
+            }
+        }
+        
+        return '#N/A';
+    } catch (error) {
+        return '#ERROR!';
+    }
+}
+
+/**
+ * CONCAT - Concatenate text values
+ * Syntax: =CONCAT(text1, text2, ...)
+ * Example: =CONCAT(A1, " - ", B1)
+ */
+function evaluateCONCAT(expression) {
+    try {
+        // Extract all arguments
+        const argsMatch = expression.match(/CONCAT\((.*)\)/);
+        if (!argsMatch) return '#ERROR!';
+        
+        const args = argsMatch[1].split(',').map(arg => arg.trim());
+        let result = '';
+        
+        for (const arg of args) {
+            // Check if it's a cell reference
+            if (arg.match(/^[A-Z]+\d+$/)) {
+                const cellRef = arg.match(/^([A-Z]+)(\d+)$/);
+                const col = columnLabelToIndex(cellRef[1]);
+                const row = parseInt(cellRef[2]) - 1;
+                result += String(spreadsheetData[row]?.[col] || '');
+            } else {
+                // It's a literal string
+                result += arg.replace(/"/g, '');
+            }
+        }
+        
+        return result;
+    } catch (error) {
+        return '#ERROR!';
+    }
+}
+
+/**
+ * TEXT - Format a number as text with specific format
+ * Syntax: =TEXT(value, format)
+ * Example: =TEXT(1234.5, "$#,##0.00")
+ */
+function evaluateTEXT(expression) {
+    try {
+        const match = expression.match(/TEXT\((.*?),\s*"(.*)"\)/);
+        if (!match) return '#ERROR!';
+        
+        const [, valueExpr, format] = match;
+        
+        // Get value
+        let value = valueExpr.trim();
+        if (value.match(/^[A-Z]+\d+$/)) {
+            const cellRef = value.match(/^([A-Z]+)(\d+)$/);
+            const col = columnLabelToIndex(cellRef[1]);
+            const row = parseInt(cellRef[2]) - 1;
+            value = spreadsheetData[row]?.[col];
+        }
+        
+        const num = parseFloat(value);
+        if (isNaN(num)) return '#ERROR!';
+        
+        // Simple format parsing
+        if (format.includes('$')) {
+            // Currency format
+            return '$' + num.toLocaleString('en-US', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            });
+        } else if (format.includes('#,##0')) {
+            // Number with thousands separator
+            const decimals = (format.match(/\.0+/) || [''])[0].length - 1;
+            return num.toLocaleString('en-US', { 
+                minimumFractionDigits: decimals, 
+                maximumFractionDigits: decimals 
+            });
+        } else if (format.includes('%')) {
+            // Percentage
+            return (num * 100).toFixed(2) + '%';
+        }
+        
+        return String(num);
+    } catch (error) {
+        return '#ERROR!';
+    }
+}
+
+/**
+ * DATEDIF - Calculate difference between two dates
+ * Syntax: =DATEDIF(startDate, endDate, unit)
+ * Units: "D" (days), "M" (months), "Y" (years)
+ * Example: =DATEDIF("2024-01-01", "2024-12-31", "D")
+ */
+function evaluateDATEDIF(expression) {
+    try {
+        const match = expression.match(/DATEDIF\((.*?),\s*(.*?),\s*"(.*)"\)/);
+        if (!match) return '#ERROR!';
+        
+        const [, startExpr, endExpr, unit] = match;
+        
+        // Get start date
+        let startDate = startExpr.trim().replace(/"/g, '');
+        if (startDate.match(/^[A-Z]+\d+$/)) {
+            const cellRef = startDate.match(/^([A-Z]+)(\d+)$/);
+            const col = columnLabelToIndex(cellRef[1]);
+            const row = parseInt(cellRef[2]) - 1;
+            startDate = spreadsheetData[row]?.[col];
+        }
+        
+        // Get end date
+        let endDate = endExpr.trim().replace(/"/g, '');
+        if (endDate.match(/^[A-Z]+\d+$/)) {
+            const cellRef = endDate.match(/^([A-Z]+)(\d+)$/);
+            const col = columnLabelToIndex(cellRef[1]);
+            const row = parseInt(cellRef[2]) - 1;
+            endDate = spreadsheetData[row]?.[col];
+        }
+        
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return '#ERROR!';
+        }
+        
+        switch (unit.toUpperCase()) {
+            case 'D': // Days
+                return Math.floor((end - start) / (1000 * 60 * 60 * 24));
+            
+            case 'M': // Months
+                let months = (end.getFullYear() - start.getFullYear()) * 12;
+                months += end.getMonth() - start.getMonth();
+                return months;
+            
+            case 'Y': // Years
+                return end.getFullYear() - start.getFullYear();
+            
+            default:
+                return '#ERROR!';
+        }
+    } catch (error) {
+        return '#ERROR!';
+    }
 }
 
 function applyFormula() {
