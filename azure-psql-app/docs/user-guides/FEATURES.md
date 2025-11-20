@@ -442,5 +442,6 @@ tailwind.config = {
 
 - **Live App**: https://notesapp-dev-app.azurewebsites.net
 - **Repository**: https://github.com/kozuchowskihubert/azure-psql-app
-- **Documentation**: [docs/README.md](./README.md)
-- **Architecture**: [docs/ARCHITECTURE.md](./ARCHITECTURE.md)
+- **Architecture**: [Technical Architecture](../technical/ARCHITECTURE.md)
+- **Deployment**: [Deployment Guide](../technical/DEPLOYMENT.md)
+- **Roadmap**: [Product Roadmap](../business/ROADMAP.md)

@@ -342,7 +342,7 @@ window.location.href = '/excel.html';
 - 🔄 Advanced visualizations
 - 🔄 Mobile apps (Phase 6)
 
-See [ROADMAP.md](../ROADMAP.md) for complete timeline.
+See [Product Roadmap](../business/ROADMAP.md) for complete timeline.
 
 ---
 

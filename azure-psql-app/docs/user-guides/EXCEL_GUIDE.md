@@ -365,7 +365,7 @@ C2:E10          # Multiple columns and rows
 - 📊 Pivot tables
 - 📈 Advanced visualizations
 
-See [ROADMAP.md](../ROADMAP.md) for complete feature timeline.
+See [Product Roadmap](../business/ROADMAP.md) for complete feature timeline.
 
 ---
 
