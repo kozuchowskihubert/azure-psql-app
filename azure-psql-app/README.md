@@ -13,16 +13,54 @@ Comprehensive documentation is available in the [`docs/`](./docs) folder:
 
 - **[🏗️ Architecture](./docs/ARCHITECTURE.md)** - System design, components, network architecture, and Mermaid diagrams
 - **[🚀 Deployment Guide](./docs/DEPLOYMENT.md)** - Step-by-step deployment, CI/CD pipeline, and workflows
-- **[� Production Deployment](./.github/PRODUCTION_DEPLOYMENT_GUIDE.md)** - Complete production deployment guide with all workflow stages
-- **[�🔧 Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions from production deployment
+- **[📋 Production Deployment](./.github/PRODUCTION_DEPLOYMENT_GUIDE.md)** - Complete production deployment guide with all workflow stages
+- **[🔧 Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions from production deployment
 - **[🧪 Act Usage Guide](./docs/ACT_USAGE.md)** - Testing GitHub Actions locally before deployment
+- **[🗺️ Product Roadmap](./ROADMAP.md)** - Future features, development phases, and strategic vision
+- **[🔐 Login System](./docs/LOGIN_SYSTEM.md)** - Authentication system technical documentation
 
 ## 🎯 Features
 
-### ✅ Assessment Requirements Met
+### ✅ Core Features
+
+#### 1. Notes Management
+- ✅ Create, read, update, and delete notes
+- ✅ Category organization and filtering
+- ✅ Text and diagram note types (Mermaid support)
+- ✅ Search and sort functionality
+- ✅ Dark mode support
+- ✅ Responsive UI with Tailwind CSS
+
+#### 2. Excel Data Manipulation (NEW)
+- 🎯 **Client-side Excel processing** - No database required
+- 🎯 Import/export Excel files (.xlsx, .xls, .csv)
+- 🎯 Real-time data editing in spreadsheet view
+- 🎯 Formula calculations and data validation
+- 🎯 Multiple sheet support
+- 🎯 Chart and pivot table generation
+- 🎯 Export to multiple formats (Excel, CSV, PDF, JSON)
+- 🎯 Offline-first architecture with local storage
+- 🎯 Drag-and-drop file upload
+- 🎯 Data filtering, sorting, and search
+
+#### 3. Calendar & Meeting Management
+- ✅ Calendar event synchronization
+- ✅ Meeting room booking system
+- ✅ Availability tracking
+- ✅ Meeting scheduler with participant management
+- ✅ Integration with external calendar providers
+
+#### 4. Authentication & SSO
+- ✅ Azure AD Single Sign-On
+- ✅ Google OAuth integration
+- ✅ Session management with PostgreSQL
+- ✅ Guest mode for public access
+- ✅ Role-based access control ready
+
+### ✅ Technical Excellence
 
 #### 1. Azure Deployment
-- ✅ Node.js Express app with REST API for notes management
+- ✅ Node.js Express app with REST API
 - ✅ PostgreSQL Flexible Server with **private access only** (no public endpoint)
 - ✅ Azure App Service (B1 Linux) with Docker container
 - ✅ VNet integration with dedicated subnets for app and database
@@ -225,14 +263,59 @@ This automated workflow:
 
 ### UI Interface
 Access the web interface at `http://localhost:3000/` (local) or your Azure App Service URL:
-- Add notes via form input
-- View all stored notes in a list
-- Automatic refresh after adding notes
+
+#### Notes Management
+- Create, edit, and delete notes via intuitive form
+- View all stored notes in organized lists
+- Category filtering and search functionality
+- Dark mode toggle for comfortable viewing
+- Support for text notes and Mermaid diagrams
+- Automatic refresh after CRUD operations
+
+#### Excel Data Workspace (NEW)
+- **No database required** - All processing happens in the browser
+- Upload Excel files via drag-and-drop or file picker
+- Edit data in real-time with spreadsheet interface
+- Apply formulas and calculations (SUM, AVERAGE, IF, VLOOKUP, etc.)
+- Create charts and visualizations
+- Filter, sort, and search across datasets
+- Export to Excel, CSV, PDF, or JSON formats
+- Multiple sheet support with tabs
+- Undo/redo functionality
+- Data validation and cell formatting
+- Offline support with localStorage caching
 
 ### API Endpoints
+
+#### Notes API
 - `GET /` - Web UI for notes management
 - `GET /notes` - List all notes (JSON)
 - `POST /notes` - Add a note (JSON body: `{ "text": "your note" }`)
+- `PUT /notes/:id` - Update a note
+- `DELETE /notes/:id` - Delete a note
+
+#### Calendar API
+- `GET /api/calendar/events` - List calendar events
+- `POST /api/calendar/events` - Create event
+- `PUT /api/calendar/events/:id` - Update event
+- `DELETE /api/calendar/events/:id` - Delete event
+
+#### Meeting API
+- `GET /api/meetings/rooms` - List meeting rooms
+- `POST /api/meetings/bookings` - Book a meeting room
+- `GET /api/meetings/availability` - Check room availability
+
+#### Authentication API
+- `GET /api/auth/status` - Check SSO status
+- `GET /api/auth/login/azure` - Azure AD login
+- `GET /api/auth/login/google` - Google OAuth login
+- `GET /api/auth/me` - Get current user
+- `POST /api/auth/logout` - Logout
+
+#### Excel API (Client-Side Only)
+- No server endpoints - All operations handled in browser
+- Uses SheetJS/XLSX library for Excel processing
+- Local storage for session persistence
 
 ### Database Schema
 ```sql
@@ -489,6 +572,35 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - 📖 **Documentation**: See [`docs/`](./docs) folder
 - 🐛 **Issues**: [GitHub Issues](https://github.com/kozuchowskihubert/azure-psql-app/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/kozuchowskihubert/azure-psql-app/discussions)
+- 🗺️ **Roadmap**: See [ROADMAP.md](./ROADMAP.md) for upcoming features
+
+---
+
+## 🔮 What's Next?
+
+### Excel Data Workspace (Coming Q1 2026)
+
+We're building a powerful **client-side Excel manipulation tool** that works entirely in your browser:
+
+- ✨ **No Database Required** - All processing happens locally
+- 📊 **Full Excel Support** - Import/export .xlsx, .xls, and CSV files
+- 🎨 **Rich Editing** - Formulas, formatting, charts, and pivot tables
+- 🚀 **Fast & Offline** - Works without internet after initial load
+- 🔒 **Privacy First** - Your data never leaves your browser
+- 📱 **Mobile Ready** - Responsive design for tablets and phones
+
+**Key Features**:
+- Real-time data editing in spreadsheet view
+- Formula engine (SUM, VLOOKUP, IF, and more)
+- Data visualization with charts
+- Export to Excel, CSV, PDF, or JSON
+- Multi-sheet support
+- Offline storage with auto-save
+- Drag-and-drop file upload
+
+**Why This Matters**: Perfect for quick data analysis, offline work, and scenarios where you don't want to store data in a database. Great for sensitive data processing, temporary calculations, or working in low-connectivity environments.
+
+See our [**Product Roadmap**](./ROADMAP.md) for the complete development plan and timeline.
 
 ---
 
