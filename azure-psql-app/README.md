@@ -43,13 +43,13 @@ Transform your organization's productivity infrastructure with a platform that c
 
 ## 📊 Business Impact
 
-| Metric | Traditional SaaS | Our Platform | Improvement |
-|--------|-----------------|--------------|-------------|
-| **Monthly Cost** (1000 users) | $6,990 | $31 | **99.6% savings** |
-| **Data Privacy** | Cloud upload required | Client-side processing | **100% private** |
-| **Offline Capability** | Limited | Full featured | **Uninterrupted productivity** |
-| **Deployment Time** | Weeks | < 30 minutes | **98% faster** |
-| **Infrastructure Scaling Cost** | Linear with users | Fixed base | **Predictable TCO** |
+| Metric                         | Traditional SaaS        | Our Platform           | Improvement                      |
+|:-------------------------------|:-----------------------|:-----------------------|:---------------------------------|
+| **Monthly Cost** (1000 users)  | $6,990                 | $31                    | **99.6% savings**                |
+| **Data Privacy**               | Cloud upload required  | Client-side processing | **100% private**                 |
+| **Offline Capability**         | Limited                | Full featured          | **Uninterrupted productivity**   |
+| **Deployment Time**            | Weeks                  | < 30 minutes           | **98% faster**                   |
+| **Infrastructure Scaling**     | Linear with users      | Fixed base             | **Predictable TCO**              |
 
 **ROI Example** (1,000-user organization):
 - Annual Platform Cost: **$372**
@@ -138,17 +138,17 @@ Client Browser Processing = Zero Server Uploads = 100% Data Privacy
 
 ### Technology Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Cloud** | Azure App Service, PostgreSQL | Managed services, high availability |
-| **Backend** | Node.js 18, Express.js | RESTful API, business logic |
-| **Auth** | Passport.js, Azure AD, Google OAuth | Enterprise SSO |
-| **Database** | PostgreSQL Flexible Server | Relational data, 16-table schema |
-| **Frontend** | Vanilla JS, Tailwind CSS | Zero framework overhead, fast load |
-| **Excel** | SheetJS, Chart.js, jsPDF | Client-side data processing |
-| **IaC** | Terraform 1.5+ | Reproducible infrastructure |
-| **CI/CD** | GitHub Actions | Automated deployment pipeline |
-| **Container** | Docker, Azure Container Registry | Consistent deployment |
+| Layer         | Technology                                | Purpose                              |
+|:--------------|:------------------------------------------|:-------------------------------------|
+| **Cloud**     | Azure App Service, PostgreSQL            | Managed services, high availability  |
+| **Backend**   | Node.js 18, Express.js                   | RESTful API, business logic          |
+| **Auth**      | Passport.js, Azure AD, Google OAuth      | Enterprise SSO                       |
+| **Database**  | PostgreSQL Flexible Server               | Relational data, 16-table schema     |
+| **Frontend**  | Vanilla JS, Tailwind CSS                 | Zero framework overhead, fast load   |
+| **Excel**     | SheetJS, Chart.js, jsPDF                 | Client-side data processing          |
+| **IaC**       | Terraform 1.5+                           | Reproducible infrastructure          |
+| **CI/CD**     | GitHub Actions                           | Automated deployment pipeline        |
+| **Container** | Docker, Azure Container Registry         | Consistent deployment                |
 
 ### Security Features
 
@@ -172,28 +172,28 @@ Client Browser Processing = Zero Server Uploads = 100% Data Privacy
 
 ### Business Documentation
 
-| Document | Description | Audience |
-|----------|-------------|----------|
-| **[Executive Summary](docs/business/EXECUTIVE_SUMMARY.md)** | Market opportunity, financial projections, ROI analysis | 👔 C-Level, Investors |
-| **[Product Roadmap](docs/business/ROADMAP.md)** | 7-phase development plan, feature timeline, business KPIs | 📊 Product, Stakeholders |
+| Document                                                              | Description                                      | Audience                     |
+|:----------------------------------------------------------------------|:-------------------------------------------------|:-----------------------------|
+| **[Executive Summary](docs/business/EXECUTIVE_SUMMARY.md)**          | Market opportunity, financial projections, ROI   | 👔 C-Level, Investors        |
+| **[Product Roadmap](docs/business/ROADMAP.md)**                      | 7-phase development plan, feature timeline, KPIs | 📊 Product, Stakeholders     |
 
 ### Technical Documentation
 
-| Document | Description |
-|----------|-------------|
-| **[Architecture](docs/technical/ARCHITECTURE.md)** | System design, component diagrams, data flows |
-| **[Deployment Guide](docs/technical/DEPLOYMENT.md)** | Step-by-step deployment, CI/CD pipeline setup |
-| **[Troubleshooting](docs/technical/TROUBLESHOOTING.md)** | Common issues, solutions, debugging guides |
-| **[Implementation Guide](docs/technical/IMPLEMENTATION_GUIDE.md)** | SSO setup, feature enablement, integrations |
-| **[ACT Usage](docs/technical/ACT_USAGE.md)** | Local CI/CD testing with GitHub Actions |
+| Document                                                              | Description                                      |
+|:----------------------------------------------------------------------|:-------------------------------------------------|
+| **[Architecture](docs/technical/ARCHITECTURE.md)**                    | System design, component diagrams, data flows    |
+| **[Deployment Guide](docs/technical/DEPLOYMENT.md)**                  | Step-by-step deployment, CI/CD pipeline setup    |
+| **[Troubleshooting](docs/technical/TROUBLESHOOTING.md)**              | Common issues, solutions, debugging guides       |
+| **[Implementation Guide](docs/technical/IMPLEMENTATION_GUIDE.md)**    | SSO setup, feature enablement, integrations      |
+| **[ACT Usage](docs/technical/ACT_USAGE.md)**                          | Local CI/CD testing with GitHub Actions          |
 
 ### User Documentation
 
-| Document | Description |
-|----------|-------------|
-| **[Excel Workspace Guide](docs/user-guides/EXCEL_GUIDE.md)** | Complete guide to Excel features, formulas, charts |
-| **[Features Overview](docs/user-guides/FEATURES.md)** | All platform capabilities with examples |
-| **[Login System](docs/user-guides/LOGIN_SYSTEM.md)** | Authentication, SSO, guest mode |
+| Document                                                              | Description                                      |
+|:----------------------------------------------------------------------|:-------------------------------------------------|
+| **[Excel Workspace Guide](docs/user-guides/EXCEL_GUIDE.md)**         | Complete guide to Excel features, formulas       |
+| **[Features Overview](docs/user-guides/FEATURES.md)**                 | All platform capabilities with examples          |
+| **[Login System](docs/user-guides/LOGIN_SYSTEM.md)**                  | Authentication, SSO, guest mode                  |
 
 ---
 
@@ -263,13 +263,13 @@ npm start
 
 ### Infrastructure Costs (Monthly)
 
-| Resource | SKU | Cost |
-|----------|-----|------|
-| App Service Plan | B1 (1 core, 1.75 GB) | $13 |
-| PostgreSQL Server | B_Standard_B1ms | $12 |
-| Container Registry | Basic | $5 |
-| VNet & DNS | Standard | $1 |
-| **Total** | | **$31/month** |
+| Resource            | SKU                    | Cost         |
+|:--------------------|:-----------------------|:-------------|
+| App Service Plan    | B1 (1 core, 1.75 GB)  | $13          |
+| PostgreSQL Server   | B_Standard_B1ms        | $12          |
+| Container Registry  | Basic                  | $5           |
+| VNet & DNS          | Standard               | $1           |
+| **Total**           |                        | **$31/month**|
 
 **Cost Per User** (assuming 1,000 active users):
 - **$0.031/user/month** = **$0.37/user/year**
@@ -282,11 +282,11 @@ npm start
 
 ### Scaling Economics
 
-| Users | Monthly Cost | Cost/User | vs. Microsoft 365 Savings |
-|-------|--------------|-----------|---------------------------|
-| 100 | $31 | $0.31 | $569/month (95% savings) |
-| 1,000 | $31 | $0.03 | $5,969/month (99.5% savings) |
-| 10,000 | $150* | $0.015 | $59,850/month (99.7% savings) |
+| Users  | Monthly Cost | Cost/User | vs. Microsoft 365 Savings         |
+|:-------|:-------------|:----------|:----------------------------------|
+| 100    | $31          | $0.31     | $569/month (95% savings)          |
+| 1,000  | $31          | $0.03     | $5,969/month (99.5% savings)      |
+| 10,000 | $150*        | $0.015    | $59,850/month (99.7% savings)     |
 
 *Assumes scale-out to Standard tier at 10K users
 
@@ -433,13 +433,13 @@ See [AUTHORS](AUTHORS) file for complete attribution.
 
 ## 🎉 Success Stories
 
-| Metric | Achievement |
-|--------|-------------|
-| 💰 **Cost Savings** | $83,508 annual savings per 1,000 users vs. Microsoft 365 |
-| 🔒 **Data Privacy** | 100% of Excel processing happens client-side |
-| ⚡ **Deployment** | Complete infrastructure deployed in under 30 minutes |
-| 📡 **Offline Ready** | Field teams maintain full productivity without connectivity |
-| 🏗️ **Infrastructure** | $31/month fixed cost regardless of user count (up to 1K users) |
+| Metric                  | Achievement                                                          |
+|:------------------------|:---------------------------------------------------------------------|
+| 💰 **Cost Savings**     | $83,508 annual savings per 1,000 users vs. Microsoft 365            |
+| 🔒 **Data Privacy**     | 100% of Excel processing happens client-side                        |
+| ⚡ **Deployment**        | Complete infrastructure deployed in under 30 minutes                 |
+| 📡 **Offline Ready**    | Field teams maintain full productivity without connectivity          |
+| 🏗️ **Infrastructure**   | $31/month fixed cost regardless of user count (up to 1K users)      |
 
 ---
 
