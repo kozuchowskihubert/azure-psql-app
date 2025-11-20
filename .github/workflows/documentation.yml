@@ -48,7 +48,15 @@ jobs:
           echo "Validating documentation structure..."
           
           # Check required files exist
-          required_files=("docs/ARCHITECTURE.md" "docs/DEPLOYMENT.md" "docs/TROUBLESHOOTING.md" "README.md")
+          required_files=(
+            "docs/technical/ARCHITECTURE.md" 
+            "docs/technical/DEPLOYMENT.md" 
+            "docs/technical/TROUBLESHOOTING.md" 
+            "docs/business/EXECUTIVE_SUMMARY.md"
+            "docs/business/ROADMAP.md"
+            "docs/user-guides/EXCEL_GUIDE.md"
+            "README.md"
+          )
           
           for file in "${required_files[@]}"; do
             if [ -f "$file" ]; then
