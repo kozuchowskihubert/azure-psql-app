@@ -147,7 +147,40 @@ localStorage Persistence (Zero Server Uploads)
 - Automated conflict detection
 - Utilization analytics and reporting
 
-### 4. Enterprise Authentication
+### 4. Music Production Preview
+
+**Creative Workflow Integration**
+
+**Capabilities**:
+- Browse Ableton Live project folders and recordings
+- Audio file preview directly in browser
+- Project metadata display (BPM, genre, creation date)
+- One-click project opening in Ableton Live
+- CLI automation toolkit for techno music creation
+
+**Business Applications**:
+- Music production workflow management
+- Creative team collaboration and project sharing
+- Audio asset library organization
+- Automated template generation for consistent sound
+
+**Technical Integration**:
+```
+Browser Interface → Node.js API → Python CLI → Ableton Live Automation
+     ↓
+Audio Preview (Web Audio API) + MIDI Generation (midiutil)
+```
+
+**Features**:
+- **Techno Studio CLI**: Professional automation toolkit for creating complete techno tracks
+- **MIDI Pattern Generation**: Create professional techno MIDI patterns instantly
+- **Template Creation**: Generate complete Ableton Live project templates
+- **VST Automation**: Automated VST loading and configuration (macOS)
+- **Project Browser**: Web interface for managing Ableton Live recordings
+
+Learn more: [Music Production Guide](docs/user-guides/MUSIC_PRODUCTION.md)
+
+### 5. Enterprise Authentication
 
 **Single Sign-On Integration**:
 - **Azure AD**: Native Microsoft ecosystem integration
