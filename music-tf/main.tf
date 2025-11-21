@@ -249,23 +249,6 @@ resource "azurerm_linux_virtual_machine" "tracks_vm" {
 }
 
 # =============================================================================
-# Variables
-# =============================================================================
-
-variable "db_password" {
-  description = "Database/VM password (if no SSH key provided)"
-  type        = string
-  sensitive   = true
-}
-
-variable "vm_ssh_public_key" {
-  description = "SSH public key for VM access (optional)"
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-# =============================================================================
 # Outputs
 # =============================================================================
 
