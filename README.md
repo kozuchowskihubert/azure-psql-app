@@ -53,7 +53,7 @@ npm run build
 
 ```bash
 # Copy environment template
-cp .env.template .env
+cp config/.env.template .env
 
 # Edit .env with your configuration
 # Required: DATABASE_URL, SESSION_SECRET
@@ -240,7 +240,7 @@ git clone https://github.com/kozuchowskihubert/azure-psql-app.git
 cd azure-psql-app
 
 # Setup environment
-cp .env.template .env
+cp config/.env.template .env
 
 # Install dependencies
 make install
@@ -305,7 +305,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 👥 Contributors
 
-See [AUTHORS](AUTHORS) file.
+See [AUTHORS](docs/meta/AUTHORS) file.
 
 ---
 

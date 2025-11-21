@@ -8,9 +8,13 @@ azure-psql-app/
 ├── README.md                 # Project overview
 ├── BUILD_SUMMARY.md          # Build status and deployment guide
 ├── CONTRIBUTING.md           # Contribution guidelines
-├── AUTHORS                   # Project contributors
-├── .env.template             # Environment variables template
 ├── .gitignore               # Git ignore patterns
+│
+├── config/                   # Configuration Files
+│   ├── README.md            # Configuration guide
+│   ├── .env.template        # Environment variables template
+│   ├── .secrets.example     # Act secrets template
+│   └── .actrc               # Act configuration
 │
 ├── app/                      # Core Application (Node.js/Express)
 │   ├── server.js            # Main entry point
@@ -19,14 +23,17 @@ azure-psql-app/
 │   ├── auth/                # Authentication (SSO)
 │   ├── routes/              # API endpoints
 │   ├── public/              # Frontend assets
-│   ├── config/              # Configuration
+│   ├── config/              # Application configuration
 │   ├── utils/               # Utilities
 │   ├── test/                # Test suites
 │   └── ableton-cli/         # Music production CLI (side function)
 │
 ├── docs/                     # Documentation
 │   ├── ARCHITECTURE.md      # System architecture
+│   ├── PROJECT_STRUCTURE.md # This file
 │   ├── DIRECTORY_STRUCTURE.md
+│   ├── meta/                # Project metadata
+│   │   └── AUTHORS          # Project contributors
 │   ├── ableton-cli/         # Music CLI documentation
 │   ├── technical/           # Technical specs
 │   └── user-guides/         # User documentation
@@ -41,6 +48,8 @@ azure-psql-app/
 │   ├── deploy.sh            # Deployment script
 │   ├── deploy-pwa.sh        # PWA deployment
 │   ├── run-local.sh         # Local testing
+│   ├── music/               # Music utilities (side function)
+│   │   └── test-midi-preview.py  # MIDI preview utility
 │   ├── midi-demos/          # Music demos (side function)
 │   └── testing/             # Test utilities
 │
@@ -59,12 +68,13 @@ azure-psql-app/
 - **scripts/deploy*.sh** - Deployment automation
 - **.github/workflows/** - CI/CD pipelines
 - **docs/** - Documentation
+- **config/** - Configuration management
 
 ### Side Functions (Optional)
 - **app/ableton-cli/** - Music production tools
 - **music-tf/** - Music VM infrastructure
 - **scripts/midi-demos/** - Music demonstrations
-- **test-midi-preview.py** - MIDI preview utility
+- **scripts/music/test-midi-preview.py** - MIDI preview utility
 - **Dockerfile.music** - Music container
 
 ## Quick Start
@@ -103,14 +113,14 @@ cd app && npm test
 
 # Music production (optional)
 cd app/ableton-cli && pip install -r requirements.txt
-python test-midi-preview.py
+python scripts/music/test-midi-preview.py
 ```
 
 ## Environment Setup
 
 1. Copy environment template:
    ```bash
-   cp .env.template .env
+   cp config/.env.template .env
    ```
 
 2. Configure required variables in `.env`
@@ -136,7 +146,10 @@ python test-midi-preview.py
 | `README.md` | Project overview |
 | `BUILD_SUMMARY.md` | Build and deployment status |
 | `CONTRIBUTING.md` | Development guidelines |
-| `.env.template` | Environment variables reference |
+| `config/.env.template` | Environment variables reference |
+| `config/.actrc` | Act (local CI/CD) configuration |
+| `config/.secrets.example` | Act secrets template |
+| `docs/meta/AUTHORS` | Project contributors |
 | `Dockerfile` | Main application container |
 | `Dockerfile.music` | Music application container |
 

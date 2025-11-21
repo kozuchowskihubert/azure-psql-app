@@ -12,6 +12,26 @@
 help: ## Display this help message
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
+setup-env: ## Copy environment template to .env
+	@echo "⚙️  Setting up environment..."
+	@if [ ! -f .env ]; then \
+		cp config/.env.template .env; \
+		echo "✅ Created .env file - please configure it"; \
+		echo "📝 Edit .env with your database and secret values"; \
+	else \
+		echo "⚠️  .env already exists, skipping..."; \
+	fi
+
+setup-act: ## Setup Act for local GitHub Actions testing
+	@echo "🎭 Setting up Act configuration..."
+	@if [ ! -f .secrets ]; then \
+		cp config/.secrets.example .secrets; \
+		echo "✅ Created .secrets file - please configure it"; \
+		echo "📝 Edit .secrets with your actual secret values"; \
+	else \
+		echo "⚠️  .secrets already exists, skipping..."; \
+	fi
+
 ##@ Core Application
 
 install: ## Install core application dependencies
@@ -125,22 +145,22 @@ infra-bootstrap: ## Bootstrap Terraform backend
 
 music-install: ## Install music production dependencies
 	@echo "🎵 Installing music dependencies..."
-	cd app/ableton-cli && pip install -r requirements.txt
+	cd app/ableton-cli && pip3 install -r requirements.txt
 	@echo "✅ Music dependencies installed"
 
 music-demo: ## Run MIDI demo
 	@echo "🎹 Running MIDI demo..."
-	python test-midi-preview.py
+	python3 scripts/music/test-midi-preview.py
 	@echo "✅ Demo completed"
 
 music-generate-midi: ## Generate MIDI files
 	@echo "🎼 Generating MIDI files..."
-	cd app/ableton-cli && python create_deep_techno_midi.py
+	cd app/ableton-cli && python3 create_deep_techno_midi.py
 	@echo "✅ MIDI files generated"
 
 music-generate-template: ## Generate Ableton template
 	@echo "🎛️  Generating Ableton template..."
-	cd app/ableton-cli && python generate_deep_techno_template.py
+	cd app/ableton-cli && python3 generate_deep_techno_template.py
 	@echo "✅ Template generated"
 
 music-synth2600: ## Launch Synth 2600 CLI
