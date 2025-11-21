@@ -619,5 +619,157 @@ router.get('/cli/download-all-midi', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/music/cli/preview-midi/:filename
+ * Preview MIDI file contents (parse and return note information)
+ */
+router.get('/cli/preview-midi/:filename', async (req, res) => {
+  try {
+    const { filename } = req.params;
+    
+    // Security: Prevent path traversal
+    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid filename',
+      });
+    }
+    
+    // Only allow .mid files
+    if (!filename.endsWith('.mid')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Only MIDI files (.mid) can be previewed',
+      });
+    }
+    
+    // Use Python to parse MIDI and extract note information
+    const outputDir = path.join(CLI_PATH, 'output', 'MIDI-Files');
+    
+    // Create a Python script to parse MIDI
+    const pythonScript = `
+import sys
+import json
+from pathlib import Path
+import os
+
+try:
+    from midiutil import MIDIFile
+    import mido
+except ImportError:
+    # Try using mido if available
+    try:
+        import mido
+    except ImportError:
+        print(json.dumps({"error": "MIDI parsing library not available"}))
+        sys.exit(1)
+
+def find_midi_file(root_dir, target_file):
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        if target_file in filenames:
+            return os.path.join(dirpath, target_file)
+    return None
+
+def parse_midi(filepath):
+    try:
+        mid = mido.MidiFile(filepath)
+        
+        notes = []
+        tempo = 500000  # Default tempo (120 BPM)
+        ticks_per_beat = mid.ticks_per_beat
+        
+        # Note names mapping
+        note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+        
+        for i, track in enumerate(mid.tracks):
+            current_time = 0
+            active_notes = {}
+            
+            for msg in track:
+                current_time += msg.time
+                
+                if msg.type == 'set_tempo':
+                    tempo = msg.tempo
+                elif msg.type == 'note_on' and msg.velocity > 0:
+                    active_notes[msg.note] = {
+                        'start_time': current_time,
+                        'velocity': msg.velocity,
+                        'note': msg.note
+                    }
+                elif msg.type == 'note_off' or (msg.type == 'note_on' and msg.velocity == 0):
+                    if msg.note in active_notes:
+                        note_info = active_notes.pop(msg.note)
+                        duration = current_time - note_info['start_time']
+                        
+                        # Calculate note name
+                        octave = (msg.note // 12) - 1
+                        note_name = note_names[msg.note % 12]
+                        
+                        notes.append({
+                            'track': i,
+                            'note': msg.note,
+                            'note_name': f"{note_name}{octave}",
+                            'velocity': note_info['velocity'],
+                            'start_tick': note_info['start_time'],
+                            'duration_ticks': duration,
+                            'start_time_seconds': (note_info['start_time'] / ticks_per_beat) * (tempo / 1000000),
+                            'duration_seconds': (duration / ticks_per_beat) * (tempo / 1000000)
+                        })
+        
+        # Calculate BPM
+        bpm = 60000000 / tempo
+        
+        return {
+            'success': True,
+            'filename': os.path.basename(filepath),
+            'tracks': len(mid.tracks),
+            'ticks_per_beat': ticks_per_beat,
+            'bpm': round(bpm, 2),
+            'total_notes': len(notes),
+            'notes': notes[:100]  # Limit to first 100 notes for preview
+        }
+    except Exception as e:
+        return {'error': str(e)}
+
+# Find and parse the MIDI file
+root_dir = "${outputDir.replace(/\\/g, '/')}"
+target_file = "${filename}"
+filepath = find_midi_file(root_dir, target_file)
+
+if filepath:
+    result = parse_midi(filepath)
+    print(json.dumps(result))
+else:
+    print(json.dumps({"error": "MIDI file not found"}))
+`;
+    
+    // Execute Python script
+    const { execSync } = require('child_process');
+    const output = execSync(`python3 -c '${pythonScript.replace(/'/g, "'\\''")}'`, {
+      cwd: CLI_PATH,
+      timeout: 10000,
+      encoding: 'utf8'
+    });
+    
+    const result = JSON.parse(output);
+    
+    if (result.error) {
+      return res.status(500).json({
+        success: false,
+        error: result.error
+      });
+    }
+    
+    res.json(result);
+    
+  } catch (error) {
+    console.error('Error previewing MIDI file:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;
 
