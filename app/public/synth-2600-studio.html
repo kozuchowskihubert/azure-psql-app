@@ -820,15 +820,56 @@
                 </div>
             </div>
 
+            <!-- Audio Visualization -->
+            <div class="control-panel">
+                <div class="panel-title">
+                    <i class="fas fa-waveform-lines"></i>
+                    Audio Visualization
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <canvas id="audio-visualizer" width="280" height="120" style="width: 100%; border: 2px solid var(--accent-cyan); border-radius: 8px; background: #000;"></canvas>
+                </div>
+                <div class="waveform-selector">
+                    <button class="waveform-btn active" onclick="setVisualizerMode('waveform')" id="viz-waveform">Waveform</button>
+                    <button class="waveform-btn" onclick="setVisualizerMode('spectrum')" id="viz-spectrum">Spectrum</button>
+                </div>
+            </div>
+
+            <!-- Synthesis Controls -->
+            <div class="control-panel">
+                <div class="panel-title">
+                    <i class="fas fa-volume-up"></i>
+                    Synthesis Engine
+                </div>
+                <div class="knob-control">
+                    <div class="knob-label">
+                        <span>Note</span>
+                        <span class="knob-value" id="note-value">A4 (440 Hz)</span>
+                    </div>
+                    <input type="range" class="slider" id="note-freq" min="110" max="880" value="440" step="1">
+                </div>
+                <div class="knob-control">
+                    <div class="knob-label">
+                        <span>Duration</span>
+                        <span class="knob-value" id="duration-value">2.0s</span>
+                    </div>
+                    <input type="range" class="slider" id="note-duration" min="0.1" max="5" value="2" step="0.1">
+                </div>
+            </div>
+
             <!-- Actions -->
             <div class="control-panel">
+                <button class="action-btn success" onclick="playSynthNote()" id="play-btn">
+                    <i class="fas fa-play"></i>
+                    Play Synthesized Note
+                </button>
+                <button class="action-btn" style="background: linear-gradient(45deg, #ff8800, #cc6600);" onclick="stopSynth()">
+                    <i class="fas fa-stop"></i>
+                    Stop
+                </button>
                 <button class="action-btn" onclick="exportMIDI()">
                     <i class="fas fa-download"></i>
                     Export MIDI
-                </button>
-                <button class="action-btn success" onclick="playSound()">
-                    <i class="fas fa-play"></i>
-                    Play Sound
                 </button>
                 <button class="action-btn danger" onclick="clearAllPatches()">
                     <i class="fas fa-trash"></i>
@@ -868,6 +909,214 @@
         </div>
     </div>
 
+    <script src="js/synthesis-engine.js"></script>
     <script src="js/synth-2600-studio.js"></script>
+    <script>
+        // Initialize synthesis engine and visualizer
+        let synthEngine = null;
+        let audioVisualizer = null;
+        let visualizerMode = 'waveform';
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            synthEngine = new SynthesisEngine();
+            audioVisualizer = new AudioVisualizer('audio-visualizer');
+            
+            console.log('✅ Synthesis engine ready');
+            
+            // Start visualizer
+            audioVisualizer.start(synthEngine, visualizerMode);
+            
+            // Update sliders
+            setupSynthesisControls();
+        });
+        
+        function setupSynthesisControls() {
+            // Note frequency slider
+            const noteSlider = document.getElementById('note-freq');
+            const noteValue = document.getElementById('note-value');
+            
+            noteSlider.addEventListener('input', function(e) {
+                const freq = parseFloat(e.target.value);
+                const note = frequencyToNote(freq);
+                noteValue.textContent = `${note} (${freq} Hz)`;
+            });
+            
+            // Duration slider
+            const durationSlider = document.getElementById('note-duration');
+            const durationValue = document.getElementById('duration-value');
+            
+            durationSlider.addEventListener('input', function(e) {
+                durationValue.textContent = `${e.target.value}s`;
+            });
+            
+            // VCO1 frequency
+            const vco1Slider = document.getElementById('vco1-freq');
+            const vco1Value = document.getElementById('vco1-freq-value');
+            
+            vco1Slider.addEventListener('input', function(e) {
+                const freq = parseFloat(e.target.value);
+                vco1Value.textContent = `${freq} Hz`;
+                if (synthEngine) {
+                    synthEngine.updateParameter('vco1', 'frequency', freq);
+                }
+            });
+            
+            // Filter cutoff
+            const filterSlider = document.getElementById('vcf-cutoff');
+            const filterValue = document.getElementById('vcf-cutoff-value');
+            
+            filterSlider.addEventListener('input', function(e) {
+                const cutoff = parseFloat(e.target.value);
+                filterValue.textContent = `${cutoff} Hz`;
+                if (synthEngine) {
+                    synthEngine.updateParameter('vcf', 'cutoff', cutoff);
+                }
+            });
+            
+            // Filter resonance
+            const resSlider = document.getElementById('vcf-res');
+            const resValue = document.getElementById('vcf-res-value');
+            
+            resSlider.addEventListener('input', function(e) {
+                const res = parseFloat(e.target.value);
+                resValue.textContent = res.toFixed(2);
+                if (synthEngine) {
+                    synthEngine.updateParameter('vcf', 'resonance', res);
+                }
+            });
+            
+            // Waveform buttons
+            document.querySelectorAll('.waveform-btn[data-wave]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const waveform = this.getAttribute('data-wave');
+                    
+                    // Update active state
+                    document.querySelectorAll('.waveform-btn[data-wave]').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Update synthesis engine
+                    if (synthEngine) {
+                        synthEngine.updateParameter('vco1', 'waveform', waveform);
+                        synthEngine.updateParameter('vco2', 'waveform', waveform);
+                    }
+                });
+            });
+        }
+        
+        function playSynthNote() {
+            if (!synthEngine) {
+                synthEngine = new SynthesisEngine();
+            }
+            
+            const freq = parseFloat(document.getElementById('note-freq').value);
+            const duration = parseFloat(document.getElementById('note-duration').value);
+            
+            console.log(`🎵 Playing note: ${freq} Hz for ${duration}s`);
+            
+            synthEngine.playNote(freq, duration);
+            
+            // Update button
+            const playBtn = document.getElementById('play-btn');
+            playBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Playing...';
+            playBtn.disabled = true;
+            
+            setTimeout(() => {
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Play Synthesized Note';
+                playBtn.disabled = false;
+            }, (duration + synthEngine.params.env.release) * 1000);
+        }
+        
+        function stopSynth() {
+            if (synthEngine) {
+                synthEngine.stop();
+                console.log('⏹️ Synthesis stopped');
+            }
+        }
+        
+        function setVisualizerMode(mode) {
+            visualizerMode = mode;
+            
+            // Update button states
+            document.getElementById('viz-waveform').classList.remove('active');
+            document.getElementById('viz-spectrum').classList.remove('active');
+            
+            if (mode === 'waveform') {
+                document.getElementById('viz-waveform').classList.add('active');
+            } else {
+                document.getElementById('viz-spectrum').classList.add('active');
+            }
+            
+            // Restart visualizer with new mode
+            if (audioVisualizer) {
+                audioVisualizer.stop();
+                audioVisualizer.start(synthEngine, mode);
+            }
+        }
+        
+        function frequencyToNote(freq) {
+            const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            
+            // Calculate semitones from A4 (440 Hz)
+            const semitones = 12 * Math.log2(freq / 440.0);
+            const noteNum = Math.round(semitones) + 9; // A is 9th note (0-indexed)
+            
+            const octave = Math.floor(noteNum / 12) + 4;
+            const noteIdx = ((noteNum % 12) + 12) % 12;
+            
+            return `${noteNames[noteIdx]}${octave}`;
+        }
+        
+        // Update playSound to use synthesis engine
+        function playSound() {
+            playSynthNote();
+        }
+        
+        // Override preset loading to use synthesis engine
+        const originalLoadPreset = window.loadPreset;
+        window.loadPreset = function(presetName) {
+            if (originalLoadPreset) {
+                originalLoadPreset(presetName);
+            }
+            
+            // Load preset into synthesis engine
+            fetch(`/api/music/synth2600/preset/${encodeURIComponent(presetName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && synthEngine) {
+                        synthEngine.loadPreset({
+                            name: data.preset,
+                            modules: data.modules,
+                            modulators: data.modulators
+                        });
+                        
+                        // Update UI sliders
+                        if (data.modules && data.modules.VCO1) {
+                            const freq = data.modules.VCO1.parameters.frequency || 440;
+                            document.getElementById('vco1-freq').value = freq;
+                            document.getElementById('vco1-freq-value').textContent = `${freq} Hz`;
+                        }
+                        
+                        if (data.modules && data.modules.VCF) {
+                            const cutoffNorm = data.modules.VCF.parameters.cutoff || 0.5;
+                            const cutoff = 20 + (cutoffNorm * 19980);
+                            document.getElementById('vcf-cutoff').value = cutoff;
+                            document.getElementById('vcf-cutoff-value').textContent = `${Math.round(cutoff)} Hz`;
+                            
+                            const res = data.modules.VCF.parameters.resonance || 0;
+                            document.getElementById('vcf-res').value = res;
+                            document.getElementById('vcf-res-value').textContent = res.toFixed(2);
+                        }
+                        
+                        console.log('✅ Preset loaded into synthesis engine:', presetName);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading preset for synthesis:', error);
+                });
+        };
+    </script>
 </body>
 </html>
