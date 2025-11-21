@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behringer 2600 Preset Browser</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #eee;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #f39c12, #e74c3c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            color: #bbb;
+            font-size: 1.1em;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #f39c12;
+            font-weight: 600;
+        }
+        
+        select, input[type="text"], button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #eee;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        select:hover, input:hover {
+            border-color: rgba(243, 156, 18, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #f39c12;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid rgba(243, 156, 18, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #f39c12;
+        }
+        
+        .stat-label {
+            color: #bbb;
+            margin-top: 5px;
+        }
+        
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .preset-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .preset-card:hover {
+            transform: translateY(-5px);
+            border-color: #f39c12;
+            box-shadow: 0 10px 30px rgba(243, 156, 18, 0.2);
+        }
+        
+        .preset-card.selected {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+        }
+        
+        .preset-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #f39c12;
+        }
+        
+        .preset-category {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(243, 156, 18, 0.2);
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .preset-description {
+            color: #bbb;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .preset-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .tag {
+            padding: 3px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 0.8em;
+            color: #aaa;
+        }
+        
+        .preset-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-play {
+            flex: 1;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-play:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+        
+        .btn-details {
+            flex: 1;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-details:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .keyboard {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .keyboard h3 {
+            margin-bottom: 15px;
+            color: #f39c12;
+        }
+        
+        .keys {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .key {
+            width: 50px;
+            height: 150px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 0 0 5px 5px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.1s;
+        }
+        
+        .key:hover {
+            background: #f0f0f0;
+        }
+        
+        .key:active, .key.playing {
+            background: #f39c12;
+            transform: scale(0.95);
+        }
+        
+        .key-label {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #bbb;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #f39c12;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 2px solid #e74c3c;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #e74c3c;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: #1a1a2e;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid #f39c12;
+        }
+        
+        .modal-close {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎹 Behringer 2600 Preset Browser</h1>
+            <p class="subtitle">Deep Techno Sound Library</p>
+        </header>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>Category Filter</label>
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="bass">Bass</option>
+                    <option value="lead">Lead</option>
+                    <option value="pad">Pad</option>
+                    <option value="percussion">Percussion</option>
+                    <option value="effects">Effects</option>
+                    <option value="sequence">Sequence</option>
+                    <option value="modulation">Modulation</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Search</label>
+                <input type="text" id="searchInput" placeholder="Search presets...">
+            </div>
+            
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button id="initButton">Initialize Factory Presets</button>
+            </div>
+        </div>
+        
+        <div id="stats" class="stats"></div>
+        
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading presets...</p>
+        </div>
+        
+        <div id="presetGrid" class="preset-grid"></div>
+        
+        <div class="keyboard">
+            <h3>🎵 Virtual Keyboard (Click to test preset)</h3>
+            <div class="keys" id="keyboard"></div>
+        </div>
+    </div>
+    
+    <!-- Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="modalClose">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+    
+    <script src="/js/synth-engine.js"></script>
+    <script>
+        // Initialize synthesizer
+        const synth = new Synth2600();
+        let presets = [];
+        let selectedPreset = null;
+        
+        // Load presets on page load
+        async function loadPresets() {
+            showLoading(true);
+            hideError();
+            
+            try {
+                const category = document.getElementById('categoryFilter').value;
+                const search = document.getElementById('searchInput').value;
+                
+                let url = '/api/music/presets?';
+                if (category) url += `category=${category}&`;
+                if (search) url += `search=${encodeURIComponent(search)}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    presets = data.presets;
+                    renderPresets(presets);
+                    await loadStats();
+                } else {
+                    showError(data.error || data.message);
+                }
+            } catch (error) {
+                showError('Failed to load presets: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/music/presets/stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderStats(data.stats);
+                }
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+        
+        // Render statistics
+        function renderStats(stats) {
+            const statsDiv = document.getElementById('stats');
+            statsDiv.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.total_presets}</div>
+                    <div class="stat-label">Total Presets</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${Object.keys(stats.categories).length}</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.total_tags}</div>
+                    <div class="stat-label">Tags</div>
+                </div>
+            `;
+        }
+        
+        // Render presets
+        function renderPresets(presets) {
+            const grid = document.getElementById('presetGrid');
+            
+            if (presets.length === 0) {
+                grid.innerHTML = '<p class="loading">No presets found. Try initializing factory presets.</p>';
+                return;
+            }
+            
+            grid.innerHTML = presets.map(preset => `
+                <div class="preset-card" data-preset='${JSON.stringify(preset).replace(/'/g, "&apos;")}'>
+                    <div class="preset-name">${preset.name}</div>
+                    <div class="preset-category">${preset.category}</div>
+                    <div class="preset-description">${preset.description || ''}</div>
+                    ${preset.tags && preset.tags.length > 0 ? `
+                        <div class="preset-tags">
+                            ${preset.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    ${preset.bpm ? `<p style="color: #888; font-size: 0.9em;">BPM: ${preset.bpm}</p>` : ''}
+                    <div class="preset-actions">
+                        <button class="btn-play" onclick="playPreset('${preset.name}')">▶ Play</button>
+                        <button class="btn-details" onclick="showDetails('${preset.name}')">ℹ Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Play preset
+        async function playPreset(presetName) {
+            try {
+                // Load full preset data
+                const response = await fetch(`/api/music/presets/${encodeURIComponent(presetName)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    synth.loadPreset(data.preset);
+                    selectedPreset = data.preset;
+                    
+                    // Highlight selected preset
+                    document.querySelectorAll('.preset-card').forEach(card => {
+                        card.classList.remove('selected');
+                        if (card.querySelector('.preset-name').textContent === presetName) {
+                            card.classList.add('selected');
+                        }
+                    });
+                    
+                    // Play a test note
+                    synth.playNote(60, 1.0, 100); // Middle C
+                } else {
+                    showError('Failed to load preset: ' + data.error);
+                }
+            } catch (error) {
+                showError('Failed to play preset: ' + error.message);
+            }
+        }
+        
+        // Show preset details
+        async function showDetails(presetName) {
+            try {
+                const response = await fetch(`/api/music/presets/${encodeURIComponent(presetName)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const preset = data.preset;
+                    const modalBody = document.getElementById('modalBody');
+                    
+                    modalBody.innerHTML = `
+                        <h2>${preset.name}</h2>
+                        <p><strong>Category:</strong> ${preset.category}</p>
+                        <p><strong>Description:</strong> ${preset.description}</p>
+                        ${preset.bpm ? `<p><strong>BPM:</strong> ${preset.bpm}</p>` : ''}
+                        ${preset.key ? `<p><strong>Key:</strong> ${preset.key}</p>` : ''}
+                        
+                        <h3>Patch Cables (${preset.patch_cables.length})</h3>
+                        <ul>
+                            ${preset.patch_cables.map(cable => `
+                                <li>${cable.source.module}.${cable.source.output} → 
+                                    ${cable.destination.module}.${cable.destination.input} 
+                                    [${cable.color}]
+                                    ${cable.notes ? `<br><em>${cable.notes}</em>` : ''}
+                                </li>
+                            `).join('')}
+                        </ul>
+                        
+                        ${preset.notes ? `<h3>Notes</h3><p>${preset.notes}</p>` : ''}
+                    `;
+                    
+                    document.getElementById('detailsModal').classList.add('active');
+                }
+            } catch (error) {
+                showError('Failed to load preset details: ' + error.message);
+            }
+        }
+        
+        // Initialize factory presets
+        async function initializePresets() {
+            showLoading(true);
+            hideError();
+            
+            try {
+                const response = await fetch('/api/music/presets/init', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    await loadPresets();
+                } else {
+                    showError('Failed to initialize presets: ' + data.error);
+                }
+            } catch (error) {
+                showError('Failed to initialize presets: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Create virtual keyboard
+        function createKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            const notes = [
+                { note: 60, label: 'C4' },
+                { note: 62, label: 'D4' },
+                { note: 64, label: 'E4' },
+                { note: 65, label: 'F4' },
+                { note: 67, label: 'G4' },
+                { note: 69, label: 'A4' },
+                { note: 71, label: 'B4' },
+                { note: 72, label: 'C5' }
+            ];
+            
+            keyboard.innerHTML = notes.map(n => `
+                <div class="key" data-note="${n.note}" onclick="playNote(${n.note})">
+                    <div class="key-label">${n.label}</div>
+                </div>
+            `).join('');
+        }
+        
+        // Play individual note
+        function playNote(midiNote) {
+            if (!selectedPreset) {
+                showError('Please select a preset first');
+                return;
+            }
+            
+            const key = document.querySelector(`.key[data-note="${midiNote}"]`);
+            if (key) {
+                key.classList.add('playing');
+                setTimeout(() => key.classList.remove('playing'), 300);
+            }
+            
+            synth.playNote(midiNote, 0.5, 100);
+        }
+        
+        // Utility functions
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+        
+        // Event listeners
+        document.getElementById('categoryFilter').addEventListener('change', loadPresets);
+        document.getElementById('searchInput').addEventListener('input', debounce(loadPresets, 500));
+        document.getElementById('initButton').addEventListener('click', initializePresets);
+        document.getElementById('modalClose').addEventListener('click', () => {
+            document.getElementById('detailsModal').classList.remove('active');
+        });
+        
+        // Debounce helper
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, arguments), wait);
+            };
+        }
+        
+        // Initialize
+        createKeyboard();
+        loadPresets();
+    </script>
+</body>
+</html>

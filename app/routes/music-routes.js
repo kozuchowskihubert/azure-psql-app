@@ -1041,4 +1041,214 @@ router.post('/synth2600/params', async (req, res) => {
   }
 });
 
+// ========== PRESET LIBRARY ROUTES ==========
+
+/**
+ * GET /api/music/presets
+ * List all presets from the Behringer 2600 preset library
+ */
+router.get('/presets', async (req, res) => {
+  try {
+    const { category, tags, search } = req.query;
+    const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
+    
+    // Check if library exists
+    try {
+      await fs.access(presetLibPath);
+    } catch (error) {
+      return res.json({
+        success: true,
+        count: 0,
+        presets: [],
+        message: 'Preset library not initialized. Initialize with POST /api/music/presets/init'
+      });
+    }
+    
+    // Read library
+    const libraryData = await fs.readFile(presetLibPath, 'utf8');
+    const library = JSON.parse(libraryData);
+    let presets = library.presets || [];
+    
+    // Filter by category
+    if (category) {
+      presets = presets.filter(p => p.category === category.toLowerCase());
+    }
+    
+    // Filter by tags
+    if (tags) {
+      const tagList = tags.split(',').map(t => t.trim().toLowerCase());
+      presets = presets.filter(p => 
+        tagList.some(tag => p.tags && p.tags.includes(tag))
+      );
+    }
+    
+    // Search by text
+    if (search) {
+      const query = search.toLowerCase();
+      presets = presets.filter(p =>
+        p.name.toLowerCase().includes(query) ||
+        (p.description && p.description.toLowerCase().includes(query)) ||
+        (p.notes && p.notes.toLowerCase().includes(query))
+      );
+    }
+    
+    res.json({
+      success: true,
+      count: presets.length,
+      presets: presets.map(p => ({
+        name: p.name,
+        category: p.category,
+        description: p.description,
+        tags: p.tags,
+        bpm: p.bpm,
+        key: p.key,
+        author: p.author,
+        created_at: p.created_at,
+        modified_at: p.modified_at
+      }))
+    });
+  } catch (error) {
+    console.error('Error listing presets:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/music/presets/:presetName
+ * Get detailed information about a specific preset
+ */
+router.get('/presets/:presetName', async (req, res) => {
+  try {
+    const presetName = decodeURIComponent(req.params.presetName);
+    const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
+    
+    const libraryData = await fs.readFile(presetLibPath, 'utf8');
+    const library = JSON.parse(libraryData);
+    const preset = library.presets.find(p => p.name === presetName);
+    
+    if (!preset) {
+      return res.status(404).json({
+        success: false,
+        error: 'Preset not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      preset
+    });
+  } catch (error) {
+    console.error('Error loading preset:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/music/presets/init
+ * Initialize preset library with factory presets
+ */
+router.post('/presets/init', async (req, res) => {
+  try {
+    const pythonScript = path.join(CLI_PATH, 'src/presets/factory_presets.py');
+    const { stdout, stderr } = await execPromise(
+      `cd ${CLI_PATH} && python3 -m src.presets.factory_presets`,
+      { maxBuffer: 1024 * 1024 * 10 }
+    );
+    
+    res.json({
+      success: true,
+      message: 'Factory presets initialized',
+      output: stdout,
+      errors: stderr || null
+    });
+  } catch (error) {
+    console.error('Error initializing presets:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stderr: error.stderr
+    });
+  }
+});
+
+/**
+ * GET /api/music/presets/stats
+ * Get preset library statistics
+ */
+router.get('/presets/stats', async (req, res) => {
+  try {
+    const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
+    
+    const libraryData = await fs.readFile(presetLibPath, 'utf8');
+    const library = JSON.parse(libraryData);
+    const presets = library.presets || [];
+    
+    // Calculate statistics
+    const categories = {};
+    const allTags = new Set();
+    
+    presets.forEach(preset => {
+      // Count by category
+      const cat = preset.category;
+      categories[cat] = (categories[cat] || 0) + 1;
+      
+      // Collect tags
+      if (preset.tags) {
+        preset.tags.forEach(tag => allTags.add(tag));
+      }
+    });
+    
+    res.json({
+      success: true,
+      stats: {
+        total_presets: presets.length,
+        total_tags: allTags.size,
+        categories,
+        tags: Array.from(allTags).sort(),
+        library_version: library.version,
+        last_updated: library.updated_at
+      }
+    });
+  } catch (error) {
+    console.error('Error getting preset stats:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/music/presets/:presetName/render
+ * Render a preset to MIDI file for playback
+ */
+router.post('/presets/:presetName/render', async (req, res) => {
+  try {
+    const presetName = decodeURIComponent(req.params.presetName);
+    const { note = 60, duration = 2.0, velocity = 100 } = req.body;
+    
+    // TODO: Implement preset rendering to MIDI
+    // This would involve calling a Python script that loads the preset
+    // and generates a MIDI file with the specified note
+    
+    res.json({
+      success: false,
+      error: 'Preset rendering not yet implemented',
+      message: 'Will be implemented in next iteration'
+    });
+  } catch (error) {
+    console.error('Error rendering preset:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
