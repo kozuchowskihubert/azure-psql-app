@@ -1,11 +1,58 @@
+/**
+ * Server Entry Point
+ * 
+ * This is the main entry point for the application.
+ * It creates an HTTP server, initializes WebSocket support for real-time collaboration,
+ * and starts the Express application.
+ * 
+ * Architecture:
+ * - HTTP Server: Created from Express app
+ * - WebSocket Server: Handles real-time collaboration (collaboration.js)
+ * - Database: Initialized before server starts (utils/db-init.js)
+ * 
+ * @module server
+ */
+
+const http = require('http');
 const app = require('./app');
 const ensureTable = require('./utils/db-init');
+const collaborationServer = require('./collaboration');
 
 const port = process.env.PORT || 3000;
 
-ensureTable().then(() => {
-  app.listen(port, () => console.log(`Server listening on ${port}`));
-}).catch((err) => {
-  console.error('Failed to ensure table:', err);
-  process.exit(1);
+// Create HTTP server from Express app
+const server = http.createServer(app);
+
+// Initialize WebSocket server for real-time collaboration
+collaborationServer(server);
+console.log('✓ WebSocket collaboration server initialized');
+
+// Initialize database and start server
+ensureTable()
+  .then(() => {
+    server.listen(port, () => {
+      console.log('┌─────────────────────────────────────────────┐');
+      console.log(`│  🚀 Server running on port ${port}           │`);
+      console.log('│  ✓ Database initialized                    │');
+      console.log('│  ✓ WebSocket server ready                  │');
+      console.log('│  ✓ REST API endpoints active               │');
+      console.log('└─────────────────────────────────────────────┘');
+    });
+  })
+  .catch((err) => {
+    console.error('❌ Failed to initialize database:', err);
+    console.error('Server startup aborted.');
+    process.exit(1);
+  });
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM signal received: closing HTTP server');
+  server.close(() => {
+    console.log('HTTP server closed');
+    process.exit(0);
+  });
 });
+
+// Export for testing
+module.exports = { app, server };
