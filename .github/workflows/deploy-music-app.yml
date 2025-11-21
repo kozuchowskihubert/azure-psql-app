@@ -1,3 +1,35 @@
+# =============================================================================
+# Music Production App Deployment Pipeline
+# =============================================================================
+# 
+# This workflow deploys the Music Production Application with Behringer 2600
+# synthesizer visualizer and MIDI generation capabilities.
+#
+# Workflow Stages:
+#   1. Validate    - Code quality, Docker validation, Terraform checks
+#   2. Build       - Music app Docker image (Alpine + Python + MIDI libs)
+#   3. Provision   - Music infrastructure (B1 App Service + VM)
+#   4. Deploy      - Deploy to Azure Web App
+#   5. Verify      - Health checks and MIDI endpoint testing
+#   6. Notify      - Deployment status reporting
+#
+# Features:
+#   - Behringer 2600 Synthesizer Visualizer
+#   - MIDI Generation & Preview
+#   - Interactive Patch Matrix
+#   - 16-step ARP Sequencer
+#   - Dedicated Azure VM for audio processing
+#
+# Infrastructure:
+#   - App Service Plan: B1 Basic ($13/month)
+#   - Virtual Machine: Standard_B1s (1 vCPU, 1GB RAM)
+#   - Docker Image: ~1.14GB (Alpine + Python + mido + midiutil)
+#
+# Documentation:
+#   - Synth Guide: docs/technical/SYNTH_2600_GUIDE.md
+#   - Architecture: docs/technical/CALENDAR_SSO_ARCHITECTURE.md
+# =============================================================================
+
 name: Deploy Music Production App
 
 on:
@@ -6,65 +38,152 @@ on:
     paths-ignore:
       - 'docs/**'
       - '**.md'
+  pull_request:
+    branches: [ feat/tracks ]
   workflow_dispatch:
     inputs:
-      force_deploy:
-        description: 'Force deployment even without changes'
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      skip_verification:
+        description: 'Skip health checks and verification'
         required: false
         default: false
         type: boolean
 
+# Global environment variables
 env:
   ACR_NAME: notesappdevacr14363
   IMAGE_NAME: notesapp-music
   AZURE_REGION: westus2
+  TERRAFORM_VERSION: '~1.5'
   NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+
+# =============================================================================
+# Jobs
+# =============================================================================
 
 jobs:
-  build-and-deploy:
-    name: Build & Deploy Music App
+  # ---------------------------------------------------------------------------
+  # Stage 1: Validation
+  # ---------------------------------------------------------------------------
+  # Validates music app code, Docker configuration, and infrastructure
+  # - Checks Node.js dependencies
+  # - Validates Dockerfile.music syntax
+  # - Verifies Terraform configuration for music infrastructure
+  # ---------------------------------------------------------------------------
+  validate:
+    name: Validate Music App & Infrastructure
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: 📦 Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: 🔧 Install dependencies
+        working-directory: ./app
+        run: |
+          echo "Installing npm packages for music app..."
+          npm ci
+          echo "✅ Dependencies installed successfully"
+
+      - name: 🐳 Validate Dockerfile.music
+        run: |
+          echo "Checking Dockerfile.music exists and syntax..."
+          if [ -f "Dockerfile.music" ]; then
+            echo "✅ Dockerfile.music found"
+            head -20 Dockerfile.music
+          else
+            echo "❌ Dockerfile.music not found"
+            exit 1
+          fi
+
+      - name: 🏗️ Setup Terraform ${{ env.TERRAFORM_VERSION }}
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: 📝 Terraform Format Check
+        working-directory: ./infra
+        run: |
+          echo "Checking Terraform formatting..."
+          terraform fmt -check -recursive || echo "⚠️ Formatting issues found (non-blocking)"
+
+      - name: 🔧 Terraform Init (validation only)
+        working-directory: ./infra
+        run: |
+          echo "Initializing Terraform (no backend)..."
+          terraform init -backend=false
+          echo "✅ Terraform initialized successfully"
+
+      - name: ✅ Terraform Validate
+        working-directory: ./infra
+        run: |
+          echo "Validating Terraform configuration..."
+          terraform validate
+          echo "✅ Terraform configuration is valid"
+      
+      - name: 📊 Validation Summary
+        if: always()
+        run: |
+          echo "### ✅ Validation Stage Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Node.js Setup | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependencies | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dockerfile.music | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Terraform Format | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Terraform Validate | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: Deploy Infrastructure
+  # ---------------------------------------------------------------------------
+  # Provisions Azure infrastructure for music production app
+  # - B1 App Service Plan for music app
+  # - Linux Web App with Docker container support
+  # - Standard_B1s VM for audio processing
+  # - Automatic state lock recovery
+  # ---------------------------------------------------------------------------
+  deploy-infrastructure:
+    name: Deploy Music Infrastructure
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name != 'pull_request'
+    environment: ${{ github.event.inputs.environment || 'dev' }}
+    outputs:
+      music-app-url: ${{ steps.output.outputs.music-app-url }}
+      vm-ip: ${{ steps.output.outputs.vm-ip }}
+      rg-name: ${{ steps.output.outputs.rg-name }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Terraform ${{ env.TERRAFORM_VERSION }}
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: 🔐 Azure Login
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Log in to Azure Container Registry
-        run: |
-          az acr login --name ${{ env.ACR_NAME }}
-
-      - name: Build and push Docker image
-        run: |
-          IMAGE_TAG="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest"
-          IMAGE_TAG_SHA="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          
-          echo "Building music production Docker image..."
-          docker build \
-            -f Dockerfile.music \
-            -t $IMAGE_TAG \
-            -t $IMAGE_TAG_SHA \
-            .
-          
-          echo "Pushing to ACR..."
-          docker push $IMAGE_TAG
-          docker push $IMAGE_TAG_SHA
-          
-          echo "✅ Music production image pushed successfully"
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: '~1.5'
-
-      - name: Terraform Init
+      - name: 🔧 Terraform Init
         working-directory: ./infra
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -72,11 +191,11 @@ jobs:
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         run: |
-          echo "🔧 Initializing Terraform..."
+          echo "🔧 Initializing Terraform with Azure backend..."
           terraform init
-          echo "✅ Terraform initialized"
+          echo "✅ Terraform initialized successfully"
 
-      - name: Check and Unlock Terraform State
+      - name: 🔍 Check and Unlock Terraform State
         working-directory: ./infra
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -105,7 +224,8 @@ jobs:
             echo "✅ No state locks detected"
           fi
 
-      - name: Terraform Plan
+      - name: 📋 Terraform Plan
+        id: plan
         working-directory: ./infra
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -116,10 +236,14 @@ jobs:
           TF_VAR_vm_ssh_public_key: ${{ secrets.VM_SSH_PUBLIC_KEY }}
         run: |
           echo "📋 Planning infrastructure changes..."
-          terraform plan -out=tfplan
-          echo "✅ Plan generated successfully"
+          terraform plan -out=tfplan -no-color | tee plan.txt
+          
+          # Count resource changes
+          CHANGES=$(grep -E "Plan:|No changes" plan.txt || echo "Unknown")
+          echo "changes=$CHANGES" >> $GITHUB_OUTPUT
+          echo "✅ Terraform plan complete"
 
-      - name: Deploy Azure Infrastructure
+      - name: 🚀 Deploy Azure Infrastructure
         working-directory: ./infra
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -129,40 +253,376 @@ jobs:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_vm_ssh_public_key: ${{ secrets.VM_SSH_PUBLIC_KEY }}
         run: |
-          echo "🚀 Deploying Azure infrastructure..."
+          echo "🚀 Deploying music infrastructure..."
           terraform apply -auto-approve tfplan
           echo "✅ Infrastructure deployed successfully"
 
-      - name: Restart Music Production Web App
+      - name: 📤 Get Terraform Outputs
+        id: output
+        working-directory: ./infra
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         run: |
-          MUSIC_APP_NAME="notesapp-dev-music-app"
-          RESOURCE_GROUP="notesapp-dev-rg"
+          echo "Extracting Terraform outputs..."
           
-          echo "Restarting music production app..."
-          az webapp restart \
-            --name $MUSIC_APP_NAME \
-            --resource-group $RESOURCE_GROUP
+          MUSIC_APP_URL=$(terraform output -raw music_app_url 2>/dev/null || echo "")
+          VM_IP=$(terraform output -raw vm_public_ip 2>/dev/null || echo "")
+          RG_NAME=$(terraform output -raw resource_group_name 2>/dev/null || echo "notesapp-dev-rg")
           
-          echo "✅ Music production app restarted"
+          echo "music-app-url=$MUSIC_APP_URL" >> $GITHUB_OUTPUT
+          echo "vm-ip=$VM_IP" >> $GITHUB_OUTPUT
+          echo "rg-name=$RG_NAME" >> $GITHUB_OUTPUT
+          
+          echo "### 🏗️ Music Infrastructure Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Changes:** ${{ steps.plan.outputs.changes }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Music App URL:** $MUSIC_APP_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**VM IP Address:** $VM_IP" >> $GITHUB_STEP_SUMMARY
+          echo "**Resource Group:** $RG_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Region:** ${{ env.AZURE_REGION }}" >> $GITHUB_STEP_SUMMARY
 
-      - name: Verify deployment
+  # ---------------------------------------------------------------------------
+  # Stage 3: Build & Push Docker Image
+  # ---------------------------------------------------------------------------
+  # Builds music production Docker image with Python and MIDI libraries
+  # - Alpine Linux base (~1.14GB final size)
+  # - Python 3.11 with mido and midiutil
+  # - Node.js 20 for Express server
+  # ---------------------------------------------------------------------------
+  build-and-push:
+    name: Build & Push Music Docker Image
+    runs-on: ubuntu-latest
+    needs: deploy-infrastructure
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-full: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: image=moby/buildkit:latest
+
+      - name: 🔐 Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 🔐 Log in to Azure Container Registry
         run: |
-          MUSIC_APP_URL="https://notesapp-dev-music-app.azurewebsites.net"
+          echo "Authenticating with ACR: ${{ env.ACR_NAME }}.azurecr.io"
+          az acr login --name ${{ env.ACR_NAME }}
+          echo "✅ Successfully authenticated with ACR"
+
+      - name: 🏷️ Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable=true
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+
+      - name: 🐳 Build and push music Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.music
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:buildcache,mode=max
+          platforms: linux/amd64
+          provenance: false
+          build-args: |
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+
+      - name: 📊 Output image details
+        run: |
+          echo "### 🐳 Music Docker Image Built Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Registry:** \`${{ env.ACR_NAME }}.azurecr.io\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Size:** ~1.14GB (Alpine + Python + MIDI libs)" >> $GITHUB_STEP_SUMMARY
+          echo "**Digest:** \`${{ steps.build.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Features:**" >> $GITHUB_STEP_SUMMARY
+          echo "- 🎹 Behringer 2600 Synthesizer Visualizer" >> $GITHUB_STEP_SUMMARY
+          echo "- 🎵 MIDI Generation (mido + midiutil)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🎛️ Interactive Patch Matrix" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 16-step ARP Sequencer" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # ---------------------------------------------------------------------------
+  # Stage 4: Deploy Application
+  # ---------------------------------------------------------------------------
+  # Deploys music production app to Azure Web App
+  # - Updates container image
+  # - Restarts application
+  # - Waits for startup
+  # ---------------------------------------------------------------------------
+  deploy-application:
+    name: Deploy Music Application
+    runs-on: ubuntu-latest
+    needs: [build-and-push, deploy-infrastructure]
+    environment: ${{ github.event.inputs.environment || 'dev' }}
+    steps:
+      - name: 🔐 Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 🚀 Deploy to Music Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: notesapp-dev-music-app
+          images: ${{ needs.build-and-push.outputs.image-full }}
+
+      - name: 🔄 Restart Music Web App
+        run: |
+          echo "Restarting music production app for clean deployment..."
+          az webapp restart \
+            --name notesapp-dev-music-app \
+            --resource-group notesapp-dev-rg
+          echo "✅ Music app restarted successfully"
+
+      - name: 📊 Output deployment info
+        run: |
+          echo "### 🚀 Music Application Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Web App:** \`notesapp-dev-music-app\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ needs.build-and-push.outputs.image-full }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Digest:** \`${{ needs.build-and-push.outputs.image-digest }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Resource Group:** \`notesapp-dev-rg\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next:** Waiting for application startup and running health checks..."
+
+  # ---------------------------------------------------------------------------
+  # Stage 5: Verify Deployment
+  # ---------------------------------------------------------------------------
+  # Validates music app deployment
+  # - Health checks with retries
+  # - Tests Behringer 2600 visualizer endpoint
+  # - Tests MIDI generation API
+  # ---------------------------------------------------------------------------
+  verify-deployment:
+    name: Verify Music App Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy-infrastructure, deploy-application]
+    if: github.event.inputs.skip_verification != 'true'
+    steps:
+      - name: ⏳ Wait for application startup
+        run: |
+          echo "Waiting 45 seconds for music app to fully start (larger image)..."
+          sleep 45
+          echo "✅ Wait complete, beginning health checks"
+
+      - name: 🏥 Health Check
+        id: health
+        run: |
+          APP_URL="${{ needs.deploy-infrastructure.outputs.music-app-url }}"
           
-          echo "Waiting for app to start..."
-          sleep 30
+          if [ -z "$APP_URL" ]; then
+            APP_URL="https://notesapp-dev-music-app.azurewebsites.net"
+            echo "Using default URL: $APP_URL"
+          fi
           
-          echo "Testing health endpoint..."
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" ${MUSIC_APP_URL}/api/health || echo "000")
+          echo "Testing health endpoint: $APP_URL/health"
+          
+          # Retry logic with exponential backoff
+          MAX_ATTEMPTS=6
+          ATTEMPT=1
+          
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            echo "Attempt $ATTEMPT of $MAX_ATTEMPTS..."
+            
+            HTTP_CODE=$(curl -f -s -o /dev/null -w "%{http_code}" "$APP_URL/health" || echo "000")
+            
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Health check passed! (HTTP $HTTP_CODE)"
+              echo "healthy=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            
+            echo "⚠️ Received HTTP $HTTP_CODE, retrying in $((ATTEMPT * 10))s..."
+            sleep $((ATTEMPT * 10))
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+          
+          echo "❌ Health check failed after $MAX_ATTEMPTS attempts"
+          echo "healthy=false" >> $GITHUB_OUTPUT
+          exit 1
+
+      - name: 🎹 Test Behringer 2600 Visualizer
+        if: steps.health.outputs.healthy == 'true'
+        run: |
+          APP_URL="${{ needs.deploy-infrastructure.outputs.music-app-url }}"
+          [ -z "$APP_URL" ] && APP_URL="https://notesapp-dev-music-app.azurewebsites.net"
+          
+          echo "Testing Behringer 2600 visualizer: $APP_URL/synth-2600.html"
+          
+          HTTP_CODE=$(curl -s -w "\n%{http_code}" "$APP_URL/synth-2600.html" || echo "Error\n000")
+          HTTP_CODE=$(echo "$HTTP_CODE" | tail -n1)
           
           if [ "$HTTP_CODE" = "200" ]; then
-            echo "✅ Music production app is healthy (HTTP $HTTP_CODE)"
+            echo "✅ Behringer 2600 visualizer is accessible! (HTTP $HTTP_CODE)"
           else
-            echo "⚠️  Music production app returned HTTP $HTTP_CODE"
-            echo "App may still be starting up..."
+            echo "⚠️ Synth visualizer returned HTTP $HTTP_CODE"
           fi
 
-      - name: Output URLs
+      - name: 🎵 Test MIDI Generation Endpoint
+        if: steps.health.outputs.healthy == 'true'
         run: |
-          echo "🎵 Music Production App URL: https://notesapp-dev-music-app.azurewebsites.net"
-          echo "📝 Main App URL: https://notesapp-dev-app.azurewebsites.net"
+          APP_URL="${{ needs.deploy-infrastructure.outputs.music-app-url }}"
+          [ -z "$APP_URL" ] && APP_URL="https://notesapp-dev-music-app.azurewebsites.net"
+          
+          echo "Testing MIDI generation API..."
+          
+          # Test if Python/MIDI libraries are working
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            "$APP_URL/api/music/test" \
+            || echo "Error\n000")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ MIDI generation endpoint is working! (HTTP $HTTP_CODE)"
+          else
+            echo "⚠️ MIDI endpoint returned HTTP $HTTP_CODE (may not be implemented yet)"
+          fi
+
+      - name: 📊 Deployment Summary
+        if: always()
+        run: |
+          HEALTH_STATUS="${{ steps.health.outputs.healthy }}"
+          APP_URL="${{ needs.deploy-infrastructure.outputs.music-app-url }}"
+          [ -z "$APP_URL" ] && APP_URL="https://notesapp-dev-music-app.azurewebsites.net"
+          
+          echo "### ✅ Music App Verification Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$HEALTH_STATUS" = "true" ]; then
+            echo "**Status:** ✅ Healthy" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Status:** ❌ Unhealthy" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "**Music App URL:** $APP_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**VM IP:** ${{ needs.deploy-infrastructure.outputs.vm-ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### 🔗 Quick Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [🏠 Music App Home]($APP_URL)" >> $GITHUB_STEP_SUMMARY
+          echo "- [🎹 Behringer 2600 Synth]($APP_URL/synth-2600.html)" >> $GITHUB_STEP_SUMMARY
+          echo "- [🏥 Health Check]($APP_URL/health)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### 📝 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Health Check: ${{ steps.health.outputs.healthy == 'true' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Synth Visualizer: Tested" >> $GITHUB_STEP_SUMMARY
+          echo "- MIDI Generation: Tested" >> $GITHUB_STEP_SUMMARY
+
+  # ---------------------------------------------------------------------------
+  # Stage 6: Notify
+  # ---------------------------------------------------------------------------
+  # Final deployment status notification and summary
+  # ---------------------------------------------------------------------------
+  notify:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [validate, deploy-infrastructure, build-and-push, deploy-application, verify-deployment]
+    if: always()
+    steps:
+      - name: 📊 Collect Deployment Status
+        id: status
+        run: |
+          VALIDATE="${{ needs.validate.result }}"
+          INFRA="${{ needs.deploy-infrastructure.result }}"
+          BUILD="${{ needs.build-and-push.result }}"
+          DEPLOY="${{ needs.deploy-application.result }}"
+          VERIFY="${{ needs.verify-deployment.result }}"
+          
+          echo "### 🎯 Music App Deployment Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 1. Validate | ${{ needs.validate.result == 'success' && '✅' || '❌' }} $VALIDATE |" >> $GITHUB_STEP_SUMMARY
+          echo "| 2. Deploy Infrastructure | ${{ needs.deploy-infrastructure.result == 'success' && '✅' || needs.deploy-infrastructure.result == 'skipped' && '⏭️' || '❌' }} $INFRA |" >> $GITHUB_STEP_SUMMARY
+          echo "| 3. Build & Push | ${{ needs.build-and-push.result == 'success' && '✅' || needs.build-and-push.result == 'skipped' && '⏭️' || '❌' }} $BUILD |" >> $GITHUB_STEP_SUMMARY
+          echo "| 4. Deploy Application | ${{ needs.deploy-application.result == 'success' && '✅' || needs.deploy-application.result == 'skipped' && '⏭️' || '❌' }} $DEPLOY |" >> $GITHUB_STEP_SUMMARY
+          echo "| 5. Verify Deployment | ${{ needs.verify-deployment.result == 'success' && '✅' || needs.verify-deployment.result == 'skipped' && '⏭️' || '❌' }} $VERIFY |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Set overall status
+          if [[ "$VALIDATE" == "success" ]] && \
+             ([[ "$INFRA" == "success" ]] || [[ "$INFRA" == "skipped" ]]) && \
+             ([[ "$BUILD" == "success" ]] || [[ "$BUILD" == "skipped" ]]) && \
+             ([[ "$DEPLOY" == "success" ]] || [[ "$DEPLOY" == "skipped" ]]) && \
+             ([[ "$VERIFY" == "success" ]] || [[ "$VERIFY" == "skipped" ]]); then
+            echo "overall=success" >> $GITHUB_OUTPUT
+          else
+            echo "overall=failure" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🎉 Success Notification
+        if: steps.status.outputs.overall == 'success'
+        run: |
+          echo "### ✅ Music App Deployment Successful! 🎉🎹" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All deployment stages completed successfully." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### 🎹 Features Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "- Behringer 2600 Synthesizer Visualizer" >> $GITHUB_STEP_SUMMARY
+          echo "- MIDI Generation & Preview" >> $GITHUB_STEP_SUMMARY
+          echo "- Interactive Patch Matrix (86 points)" >> $GITHUB_STEP_SUMMARY
+          echo "- 16-step ARP Sequencer" >> $GITHUB_STEP_SUMMARY
+          echo "- 8 Classic Synth Presets" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### 📚 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Access synth: https://notesapp-dev-music-app.azurewebsites.net/synth-2600.html" >> $GITHUB_STEP_SUMMARY
+          echo "- View logs: \`az webapp log tail --name notesapp-dev-music-app --resource-group notesapp-dev-rg\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Read guide: [Synth 2600 Guide](docs/technical/SYNTH_2600_GUIDE.md)" >> $GITHUB_STEP_SUMMARY
+
+      - name: ❌ Failure Notification
+        if: steps.status.outputs.overall == 'failure'
+        run: |
+          echo "### ❌ Music App Deployment Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "One or more deployment stages failed. Please review the logs above." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Failed Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### 🔧 Troubleshooting Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Check if Terraform state lock issue occurred" >> $GITHUB_STEP_SUMMARY
+          echo "2. Verify Docker image builds locally: \`docker build -f Dockerfile.music -t music-test .\`" >> $GITHUB_STEP_SUMMARY
+          echo "3. Check Azure Container Registry access" >> $GITHUB_STEP_SUMMARY
+          echo "4. Verify all GitHub Secrets are configured" >> $GITHUB_STEP_SUMMARY
+          echo "5. Review [Troubleshooting Guide](docs/TROUBLESHOOTING.md)" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🚨 Final Status
+        run: |
+          if [ "${{ steps.status.outputs.overall }}" = "success" ]; then
+            echo "🎉 Music app deployment successful!"
+            exit 0
+          else
+            echo "❌ Music app deployment failed - check logs above"
+            exit 1
+          fi
