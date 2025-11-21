@@ -40,7 +40,7 @@ describe('Smoke Tests', () => {
     it('should have valid package.json', () => {
       const packageJson = require('../package.json');
       expect(packageJson.name).toBe('azure-psql-app');
-      expect(packageJson.version).toBe('1.0.0');
+      expect(packageJson.version).toBe('1.1.0');
       expect(packageJson.dependencies).toBeDefined();
     });
 
