@@ -489,5 +489,135 @@ router.post('/cli/automate-vst', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/music/cli/download-midi/:filename
+ * Download a generated MIDI file
+ */
+router.get('/cli/download-midi/:filename', async (req, res) => {
+  try {
+    const { filename } = req.params;
+    
+    // Security: Prevent path traversal
+    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid filename',
+      });
+    }
+    
+    // Only allow .mid files
+    if (!filename.endsWith('.mid')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Only MIDI files (.mid) can be downloaded',
+      });
+    }
+    
+    // Search for the file in all MIDI output directories
+    const outputDir = path.join(CLI_PATH, 'output', 'MIDI-Files');
+    
+    // Try to find the file (could be in subdirectories like Deep, Hard, etc.)
+    const findFile = async (dir, target) => {
+      const entries = await fs.readdir(dir, { withFileTypes: true });
+      
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        
+        if (entry.isDirectory()) {
+          const found = await findFile(fullPath, target);
+          if (found) return found;
+        } else if (entry.name === target) {
+          return fullPath;
+        }
+      }
+      return null;
+    };
+    
+    const filePath = await findFile(outputDir, filename);
+    
+    if (!filePath) {
+      return res.status(404).json({
+        success: false,
+        error: 'MIDI file not found',
+      });
+    }
+    
+    // Check if file exists and is readable
+    await fs.access(filePath, fs.constants.R_OK);
+    
+    // Set headers for file download
+    res.setHeader('Content-Type', 'audio/midi');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    
+    // Stream the file
+    const fileStream = require('fs').createReadStream(filePath);
+    fileStream.pipe(res);
+    
+  } catch (error) {
+    console.error('Error downloading MIDI file:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/music/cli/download-all-midi
+ * Download all generated MIDI files as a zip
+ */
+router.get('/cli/download-all-midi', async (req, res) => {
+  try {
+    const outputDir = path.join(CLI_PATH, 'output', 'MIDI-Files');
+    const archiver = require('archiver');
+    
+    // Create zip archive
+    const archive = archiver('zip', {
+      zlib: { level: 9 } // Maximum compression
+    });
+    
+    // Set headers
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="techno-midi-${Date.now()}.zip"`);
+    
+    // Pipe archive to response
+    archive.pipe(res);
+    
+    // Add all MIDI files from output directory
+    const addMidiFiles = async (dir, zipPath = '') => {
+      try {
+        const entries = await fs.readdir(dir, { withFileTypes: true });
+        
+        for (const entry of entries) {
+          const fullPath = path.join(dir, entry.name);
+          
+          if (entry.isDirectory()) {
+            await addMidiFiles(fullPath, path.join(zipPath, entry.name));
+          } else if (entry.name.endsWith('.mid')) {
+            const fileContent = await fs.readFile(fullPath);
+            archive.append(fileContent, { name: path.join(zipPath, entry.name) });
+          }
+        }
+      } catch (e) {
+        // Directory might not exist
+      }
+    };
+    
+    await addMidiFiles(outputDir);
+    
+    // Finalize the archive
+    await archive.finalize();
+    
+  } catch (error) {
+    console.error('Error creating MIDI zip:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  }
+});
+
 module.exports = router;
 
