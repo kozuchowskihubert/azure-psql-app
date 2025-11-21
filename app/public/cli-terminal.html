@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behringer 2600 - Web CLI Terminal</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #0f0;
+            font-family: 'Courier New', 'Monaco', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            height: 100vh;
+            gap: 0;
+        }
+
+        /* Terminal Section */
+        .terminal-section {
+            background: #000;
+            border-right: 2px solid #00d4ff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0a 100%);
+            padding: 10px 20px;
+            border-bottom: 2px solid #00d4ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            color: #00d4ff;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 2px solid #00d4ff;
+            background: transparent;
+            color: #00d4ff;
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .btn.success {
+            border-color: #0f0;
+            color: #0f0;
+        }
+
+        .btn.success:hover {
+            background: #0f0;
+            color: #000;
+        }
+
+        .btn.danger {
+            border-color: #f00;
+            color: #f00;
+        }
+
+        .btn.danger:hover {
+            background: #f00;
+            color: #000;
+        }
+
+        #terminal {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #000;
+            color: #0f0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .terminal-line {
+            margin-bottom: 5px;
+        }
+
+        .prompt {
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .prompt-current {
+            color: #ff00ff;
+        }
+
+        .success {
+            color: #0f0;
+        }
+
+        .error {
+            color: #f00;
+        }
+
+        .warning {
+            color: #ff0;
+        }
+
+        .info {
+            color: #00d4ff;
+        }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #command-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            outline: none;
+            caret-color: #0f0;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: #0f0;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        /* Documentation Panel */
+        .docs-section {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0a 100%);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .docs-header {
+            background: #0a0a0a;
+            padding: 15px 20px;
+            border-bottom: 2px solid #00d4ff;
+        }
+
+        .docs-title {
+            color: #00d4ff;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .docs-tabs {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            background: transparent;
+            border: 2px solid #00d4ff;
+            color: #00d4ff;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .docs-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .doc-panel {
+            display: none;
+        }
+
+        .doc-panel.active {
+            display: block;
+        }
+
+        .preset-card {
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preset-card:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .preset-name {
+            color: #00d4ff;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .preset-description {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .command-card {
+            background: rgba(0, 255, 0, 0.1);
+            border-left: 4px solid #0f0;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .command-title {
+            color: #0f0;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .command-syntax {
+            color: #00d4ff;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .command-desc {
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        .patch-diagram {
+            background: #000;
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .patch-cable {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 5px;
+        }
+
+        .cable-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+
+        .cable-source {
+            color: #00d4ff;
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .cable-arrow {
+            color: #ff0;
+        }
+
+        .cable-dest {
+            color: #0f0;
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .cable-level {
+            color: #ff00ff;
+            font-size: 0.9em;
+        }
+
+        .quick-actions {
+            background: rgba(255, 255, 0, 0.1);
+            border: 2px solid #ff0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .quick-action-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: transparent;
+            border: 2px solid #ff0;
+            color: #ff0;
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+            background: #ff0;
+            color: #000;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00d4ff;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0099cc;
+        }
+
+        /* Banner */
+        .banner {
+            color: #00d4ff;
+            white-space: pre;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            font-size: 0.8em;
+        }
+
+        .help-section {
+            background: rgba(0, 212, 255, 0.05);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .help-title {
+            color: #00d4ff;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .help-item {
+            color: #888;
+            margin-bottom: 8px;
+            padding-left: 15px;
+        }
+
+        .help-command {
+            color: #0f0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Terminal Section -->
+        <div class="terminal-section">
+            <div class="terminal-header">
+                <div class="terminal-title">
+                    <span>⚡</span>
+                    <span>Behringer 2600 Web Terminal</span>
+                </div>
+                <div class="terminal-controls">
+                    <button class="btn success" onclick="executeCommand('help')">Help</button>
+                    <button class="btn" onclick="executeCommand('presets')">Presets</button>
+                    <button class="btn danger" onclick="clearTerminal()">Clear</button>
+                </div>
+            </div>
+            <div id="terminal">
+                <div class="banner">╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║   ██████╗ ███████╗██╗  ██╗██████╗ ██╗███╗   ██╗ ██████╗   ║
+║   ██╔══██╗██╔════╝██║  ██║██╔══██╗██║████╗  ██║██╔════╝   ║
+║   ██████╔╝█████╗  ███████║██████╔╝██║██╔██╗ ██║██║  ███╗  ║
+║   ██╔══██╗██╔══╝  ██╔══██║██╔══██╗██║██║╚██╗██║██║   ██║  ║
+║   ██████╔╝███████╗██║  ██║██║  ██║██║██║ ╚████║╚██████╔╝  ║
+║   ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝   ║
+║                                                               ║
+║           <span class="warning">Interactive Web Terminal</span>                            ║
+║              <span class="success">Advanced Patching & Sound Design</span>                 ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+</div>
+                <div class="terminal-line warning">Welcome to the Behringer 2600 Web CLI!</div>
+                <div class="terminal-line info">Type 'help' for available commands, or click a preset in the right panel.</div>
+                <div class="terminal-line">&nbsp;</div>
+                <div class="input-line">
+                    <span class="prompt">2600></span>
+                    <input type="text" id="command-input" autofocus autocomplete="off" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentation Panel -->
+        <div class="docs-section">
+            <div class="docs-header">
+                <div class="docs-title">📚 Patching Guide & Reference</div>
+                <div class="docs-tabs">
+                    <button class="tab active" onclick="showTab('presets')">Presets</button>
+                    <button class="tab" onclick="showTab('commands')">Commands</button>
+                    <button class="tab" onclick="showTab('patching')">Patching</button>
+                    <button class="tab" onclick="showTab('quick')">Quick Actions</button>
+                </div>
+            </div>
+            <div class="docs-content">
+                <!-- Presets Tab -->
+                <div id="presets-panel" class="doc-panel active">
+                    <div class="help-section">
+                        <div class="help-title">🎛️ Creative Presets</div>
+                        <div class="help-item">Click any preset to load it instantly</div>
+                    </div>
+
+                    <h3 style="color: #ff0; margin-top: 0;">Soundscape Generators</h3>
+                    <div class="preset-card" onclick="loadPreset('evolving_drone')">
+                        <div class="preset-name">🌊 Evolving Drone</div>
+                        <div class="preset-description">Slowly morphing atmospheric drone with multiple LFO layers</div>
+                    </div>
+                    <div class="preset-card" onclick="loadPreset('generative_sequencer')">
+                        <div class="preset-name">🎲 Generative Sequencer</div>
+                        <div class="preset-description">Self-playing random melody generator with S&H</div>
+                    </div>
+                    <div class="preset-card" onclick="loadPreset('dual_texture_morph')">
+                        <div class="preset-name">🎨 Dual Texture Morph</div>
+                        <div class="preset-description">VCO1 (saw) and VCO2 (pulse) with crossfading</div>
+                    </div>
+
+                    <h3 style="color: #ff0;">Rhythmic Experiments</h3>
+                    <div class="preset-card" onclick="loadPreset('polyrhythmic_chaos')">
+                        <div class="preset-name">🥁 Polyrhythmic Chaos</div>
+                        <div class="preset-description">Multiple clock divisions creating complex patterns</div>
+                    </div>
+                    <div class="preset-card" onclick="loadPreset('gate_controlled_stutter')">
+                        <div class="preset-name">⚡ Gate Controlled Stutter</div>
+                        <div class="preset-description">Envelope retriggering with gate delays</div>
+                    </div>
+
+                    <h3 style="color: #ff0;">Cinematic FX</h3>
+                    <div class="preset-card" onclick="loadPreset('scifi_spaceship')">
+                        <div class="preset-name">🚀 Sci-Fi Spaceship</div>
+                        <div class="preset-description">Ring modulation with noise for metallic textures</div>
+                    </div>
+                    <div class="preset-card" onclick="loadPreset('thunder_lightning')">
+                        <div class="preset-name">⚡ Thunder & Lightning</div>
+                        <div class="preset-description">Noise bursts through low-pass filter</div>
+                    </div>
+
+                    <h3 style="color: #ff0;">Performance</h3>
+                    <div class="preset-card" onclick="loadPreset('expressive_lead')">
+                        <div class="preset-name">🎸 Expressive Lead</div>
+                        <div class="preset-description">Aftertouch controls vibrato depth and rate</div>
+                    </div>
+                    <div class="preset-card" onclick="loadPreset('touch_sensitive_bass')">
+                        <div class="preset-name">🎵 Touch Sensitive Bass</div>
+                        <div class="preset-description">Velocity controls VCF cutoff and VCA level</div>
+                    </div>
+                </div>
+
+                <!-- Commands Tab -->
+                <div id="commands-panel" class="doc-panel">
+                    <div class="command-card">
+                        <div class="command-title">📋 List Presets</div>
+                        <div class="command-syntax">presets | list</div>
+                        <div class="command-desc">Display all available presets organized by category</div>
+                    </div>
+
+                    <div class="command-card">
+                        <div class="command-title">🎛️ Load Preset</div>
+                        <div class="command-syntax">preset &lt;name&gt;</div>
+                        <div class="command-desc">Load a specific preset (e.g., preset evolving_drone)</div>
+                    </div>
+
+                    <div class="command-card">
+                        <div class="command-title">🔌 Show Patch Matrix</div>
+                        <div class="command-syntax">patch | show</div>
+                        <div class="command-desc">Display current patch cable connections</div>
+                    </div>
+
+                    <div class="command-card">
+                        <div class="command-title">➕ Add Patch Cable</div>
+                        <div class="command-syntax">add &lt;source&gt; &lt;dest&gt; [level]</div>
+                        <div class="command-desc">Add a patch cable (e.g., add VCO1/OUT VCF/IN 0.9)</div>
+                    </div>
+
+                    <div class="command-card">
+                        <div class="command-title">🎚️ Set VCO1</div>
+                        <div class="command-syntax">vco1 &lt;freq&gt; [waveform]</div>
+                        <div class="command-desc">Set VCO1 frequency and waveform (e.g., vco1 440 sawtooth)</div>
+                    </div>
+
+                    <div class="command-card">
+                        <div class="command-title">🎚️ Set Filter</div>
+                        <div class="command-syntax">filter &lt;cutoff&gt; [resonance]</div>
+                        <div class="command-desc">Set filter cutoff and resonance (e.g., filter 1200 0.8)</div>
+                    </div>
+
+                    <div class="command-card">
+                        <div class="command-title">💾 Export MIDI</div>
+                        <div class="command-syntax">export &lt;filename&gt; [bars]</div>
+                        <div class="command-desc">Export current patch to MIDI file (e.g., export my_patch.mid 8)</div>
+                    </div>
+
+                    <div class="command-card">
+                        <div class="command-title">❓ Help</div>
+                        <div class="command-syntax">help | ?</div>
+                        <div class="command-desc">Show all available commands</div>
+                    </div>
+
+                    <div class="command-card">
+                        <div class="command-title">🗑️ Clear Screen</div>
+                        <div class="command-syntax">clear | cls</div>
+                        <div class="command-desc">Clear terminal output</div>
+                    </div>
+                </div>
+
+                <!-- Patching Tab -->
+                <div id="patching-panel" class="doc-panel">
+                    <div class="help-section">
+                        <div class="help-title">🔌 Patch Cable Routing</div>
+                        <div class="help-item">Patch cables connect modules together to create signal flow</div>
+                        <div class="help-item">Each cable has a source, destination, signal level, and color</div>
+                    </div>
+
+                    <h3 style="color: #ff0; margin-top: 20px;">Example: Basic Patch</h3>
+                    <div class="patch-diagram">
+                        <div class="patch-cable">
+                            <div class="cable-color" style="background: #f00;"></div>
+                            <div class="cable-source">VCO1/OUT</div>
+                            <div class="cable-arrow">→</div>
+                            <div class="cable-dest">VCF/IN</div>
+                            <div class="cable-level">Level: 1.0</div>
+                        </div>
+                        <div class="patch-cable">
+                            <div class="cable-color" style="background: #00d4ff;"></div>
+                            <div class="cable-source">VCO3/OUT</div>
+                            <div class="cable-arrow">→</div>
+                            <div class="cable-dest">VCO1/FM</div>
+                            <div class="cable-level">Level: 0.3</div>
+                        </div>
+                        <div class="patch-cable">
+                            <div class="cable-color" style="background: #f00;"></div>
+                            <div class="cable-source">VCF/OUT</div>
+                            <div class="cable-arrow">→</div>
+                            <div class="cable-dest">VCA/IN</div>
+                            <div class="cable-level">Level: 1.0</div>
+                        </div>
+                    </div>
+
+                    <h3 style="color: #ff0;">Module Patch Points</h3>
+                    <div class="help-section">
+                        <div class="help-title">🎛️ VCO1/VCO2 (Oscillators)</div>
+                        <div class="help-item"><span class="help-command">Outputs:</span> OUT</div>
+                        <div class="help-item"><span class="help-command">Inputs:</span> FM (frequency modulation), CV (control voltage), PWM (pulse width mod)</div>
+                    </div>
+
+                    <div class="help-section">
+                        <div class="help-title">🔊 VCF (Filter)</div>
+                        <div class="help-item"><span class="help-command">Outputs:</span> OUT, BP (bandpass), HP (highpass)</div>
+                        <div class="help-item"><span class="help-command">Inputs:</span> IN, CUTOFF, RESONANCE</div>
+                    </div>
+
+                    <div class="help-section">
+                        <div class="help-title">📐 VCA (Amplifier)</div>
+                        <div class="help-item"><span class="help-command">Outputs:</span> OUT</div>
+                        <div class="help-item"><span class="help-command">Inputs:</span> IN, CV (control voltage)</div>
+                    </div>
+
+                    <div class="help-section">
+                        <div class="help-title">📊 ENV (Envelope)</div>
+                        <div class="help-item"><span class="help-command">Outputs:</span> OUT</div>
+                        <div class="help-item"><span class="help-command">Inputs:</span> GATE, TRIG</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Tab -->
+                <div id="quick-panel" class="doc-panel">
+                    <div class="help-section">
+                        <div class="help-title">⚡ Quick Actions</div>
+                        <div class="help-item">Execute common commands with one click</div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="executeCommand('presets')">
+                            📋 List All Presets
+                        </button>
+                        <button class="quick-action-btn" onclick="executeCommand('preset evolving_drone')">
+                            🌊 Load Evolving Drone
+                        </button>
+                        <button class="quick-action-btn" onclick="executeCommand('preset scifi_spaceship')">
+                            🚀 Load Sci-Fi Spaceship
+                        </button>
+                        <button class="quick-action-btn" onclick="executeCommand('vco1 440 sawtooth')">
+                            🎚️ Set VCO1 to 440Hz Saw
+                        </button>
+                        <button class="quick-action-btn" onclick="executeCommand('filter 1200 0.8')">
+                            🔊 Set Filter to 1.2kHz Q=0.8
+                        </button>
+                        <button class="quick-action-btn" onclick="executeCommand('patch')">
+                            🔌 Show Patch Matrix
+                        </button>
+                        <button class="quick-action-btn" onclick="executeCommand('export my_patch.mid 8')">
+                            💾 Export 8 Bars to MIDI
+                        </button>
+                        <button class="quick-action-btn" onclick="clearTerminal()">
+                            🗑️ Clear Terminal
+                        </button>
+                    </div>
+
+                    <h3 style="color: #ff0; margin-top: 20px;">🎓 Learning Resources</h3>
+                    <div class="help-section">
+                        <div class="help-item"><a href="/docs/MIDI_VISUAL_GUIDE.md" style="color: #00d4ff;">MIDI Visual Guide</a></div>
+                        <div class="help-item"><a href="/ableton-cli/SYNTH2600_CLI_GUIDE.md" style="color: #00d4ff;">CLI User Guide</a></div>
+                        <div class="help-item"><a href="/synth-2600.html" style="color: #00d4ff;">Visual Synthesizer</a></div>
+                    </div>
+
+                    <h3 style="color: #ff0;">🎹 Tips & Tricks</h3>
+                    <div class="help-section">
+                        <div class="help-item">💡 Use <span class="help-command">Tab</span> to autocomplete commands</div>
+                        <div class="help-item">💡 Press <span class="help-command">↑/↓</span> to browse command history</div>
+                        <div class="help-item">💡 Type <span class="help-command">info</span> to see current configuration</div>
+                        <div class="help-item">💡 Chain commands with <span class="help-command">&&</span></div>
+                        <div class="help-item">💡 Use aliases: <span class="help-command">ls</span>=list, <span class="help-command">p</span>=preset</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/web-cli.js"></script>
+</body>
+</html>
