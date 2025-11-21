@@ -117,20 +117,20 @@ jobs:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
 
       - name: 📝 Terraform Format Check
-        working-directory: ./infra-music
+        working-directory: ./music-tf
         run: |
           echo "Checking Terraform formatting..."
           terraform fmt -check -recursive || echo "⚠️ Formatting issues found (non-blocking)"
 
       - name: 🔧 Terraform Init (validation only)
-        working-directory: ./infra-music
+        working-directory: ./music-tf
         run: |
           echo "Initializing Terraform (no backend)..."
           terraform init -backend=false
           echo "✅ Terraform initialized successfully"
 
       - name: ✅ Terraform Validate
-        working-directory: ./infra-music
+        working-directory: ./music-tf
         run: |
           echo "Validating Terraform configuration..."
           terraform validate
@@ -184,7 +184,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: 🔧 Terraform Init
-        working-directory: ./infra-music
+        working-directory: ./music-tf
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -196,7 +196,7 @@ jobs:
           echo "✅ Terraform initialized successfully"
 
       - name: 🔍 Check and Unlock Terraform State
-        working-directory: ./infra-music
+        working-directory: ./music-tf
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -210,7 +210,7 @@ jobs:
 
       - name: 📋 Terraform Plan
         id: plan
-        working-directory: ./infra-music
+        working-directory: ./music-tf
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -228,7 +228,7 @@ jobs:
           echo "✅ Terraform plan complete"
 
       - name: 🚀 Deploy Azure Infrastructure
-        working-directory: ./infra-music
+        working-directory: ./music-tf
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -243,7 +243,7 @@ jobs:
 
       - name: 📤 Get Terraform Outputs
         id: output
-        working-directory: ./infra-music
+        working-directory: ./music-tf
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}

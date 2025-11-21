@@ -70,7 +70,7 @@ azure-psql-app/
 │   ├── variables.tf
 │   └── outputs.tf
 │
-├── infra-music/                # Music app infrastructure (NEW)
+├── music-tf/                # Music app infrastructure (NEW)
 │   └── main.tf                 # Music-only resources
 │       ├── backend (embedded)  # State: terraform-music.tfstate
 │       ├── data sources        # References shared resources
@@ -128,7 +128,7 @@ data "azurerm_virtual_network" "vnet" {
 ### Music App Deployment
 ```bash
 # Triggered on: push to feat/tracks
-# Working directory: ./infra-music
+# Working directory: ./music-tf
 # State file: terraform-music.tfstate
 # Deploys: Music App, VM (references shared resources)
 ```
@@ -180,7 +180,7 @@ az acr show --name notesappdevacr14363 --resource-group notesapp-dev-rg
 **Solution**: Locks are now isolated per state file:
 ```bash
 # Unlock music state only
-cd infra-music
+cd music-tf
 terraform force-unlock <LOCK_ID>
 
 # Does not affect main state
@@ -189,7 +189,7 @@ terraform force-unlock <LOCK_ID>
 ### Issue: Want to destroy music resources
 **Solution**: 
 1. Remove `prevent_destroy` lifecycle blocks
-2. Run: `cd infra-music && terraform destroy`
+2. Run: `cd music-tf && terraform destroy`
 3. Main app continues running unaffected
 
 ## Security Considerations

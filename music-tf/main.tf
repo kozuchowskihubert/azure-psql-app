@@ -50,15 +50,20 @@ data "azurerm_virtual_network" "vnet" {
   resource_group_name = data.azurerm_resource_group.rg.name
 }
 
-data "azurerm_subnet" "vm_subnet" {
-  name                 = "notesapp-dev-vm-subnet"
-  virtual_network_name = data.azurerm_virtual_network.vnet.name
-  resource_group_name  = data.azurerm_resource_group.rg.name
-}
-
 data "azurerm_container_registry" "acr" {
   name                = "notesappdevacr14363"
   resource_group_name = data.azurerm_resource_group.rg.name
+}
+
+# =============================================================================
+# VM Subnet (Music App Only)
+# =============================================================================
+
+resource "azurerm_subnet" "vm_subnet" {
+  name                 = "notesapp-dev-vm-subnet"
+  resource_group_name  = data.azurerm_resource_group.rg.name
+  virtual_network_name = data.azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.3.0/24"]
 }
 
 # =============================================================================
