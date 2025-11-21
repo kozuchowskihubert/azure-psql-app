@@ -59,6 +59,11 @@ jobs:
           
           echo "✅ Music production image pushed successfully"
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '~1.5'
+
       - name: Deploy infrastructure with Terraform
         working-directory: ./infra
         env:
