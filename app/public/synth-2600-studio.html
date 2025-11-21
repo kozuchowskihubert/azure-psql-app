@@ -663,6 +663,16 @@
             font-size: 1.5em;
             cursor: pointer;
         }
+        
+        /* Recording pulse animation */
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(255, 0, 85, 1.0), 0 0 40px rgba(255, 0, 85, 0.7);
+            }
+        }
     </style>
 </head>
 <body>
@@ -806,6 +816,106 @@
                     </div>
                     <input type="range" class="slider" id="vcf-res" min="0" max="1" value="0.5" step="0.01">
                 </div>
+                <div class="knob-control">
+                    <div class="knob-label">
+                        <span>Filter Mode</span>
+                    </div>
+                    <div class="waveform-selector">
+                        <button class="waveform-btn active" data-filter="lowpass">LP</button>
+                        <button class="waveform-btn" data-filter="bandpass">BP</button>
+                        <button class="waveform-btn" data-filter="highpass">HP</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Envelope Controls -->
+            <div class="control-panel">
+                <div class="panel-title">
+                    <i class="fas fa-chart-line"></i>
+                    ADSR Envelope
+                </div>
+                <div class="knob-control">
+                    <div class="knob-label">
+                        <span>Attack</span>
+                        <span class="knob-value" id="env-attack-value">0.01s</span>
+                    </div>
+                    <input type="range" class="slider" id="env-attack" min="0.001" max="2" value="0.01" step="0.001">
+                </div>
+                <div class="knob-control">
+                    <div class="knob-label">
+                        <span>Decay</span>
+                        <span class="knob-value" id="env-decay-value">0.1s</span>
+                    </div>
+                    <input type="range" class="slider" id="env-decay" min="0.001" max="2" value="0.1" step="0.001">
+                </div>
+                <div class="knob-control">
+                    <div class="knob-label">
+                        <span>Sustain</span>
+                        <span class="knob-value" id="env-sustain-value">0.7</span>
+                    </div>
+                    <input type="range" class="slider" id="env-sustain" min="0" max="1" value="0.7" step="0.01">
+                </div>
+                <div class="knob-control">
+                    <div class="knob-label">
+                        <span>Release</span>
+                        <span class="knob-value" id="env-release-value">0.3s</span>
+                    </div>
+                    <input type="range" class="slider" id="env-release" min="0.01" max="5" value="0.3" step="0.01">
+                </div>
+            </div>
+
+            <!-- LFO Controls -->
+            <div class="control-panel">
+                <div class="panel-title">
+                    <i class="fas fa-wave-square"></i>
+                    LFO - Modulation
+                </div>
+                <div class="knob-control">
+                    <div class="knob-label">
+                        <span>Rate</span>
+                        <span class="knob-value" id="lfo-rate-value">5.0 Hz</span>
+                    </div>
+                    <input type="range" class="slider" id="lfo-rate" min="0.1" max="20" value="5" step="0.1">
+                </div>
+                <div class="knob-control">
+                    <div class="knob-label">
+                        <span>Depth</span>
+                        <span class="knob-value" id="lfo-depth-value">500</span>
+                    </div>
+                    <input type="range" class="slider" id="lfo-depth" min="0" max="2000" value="500" step="10">
+                </div>
+                <div class="knob-control">
+                    <div class="knob-label">
+                        <span>Waveform</span>
+                    </div>
+                    <div class="waveform-selector">
+                        <button class="waveform-btn active" data-lfo-wave="sine">Sine</button>
+                        <button class="waveform-btn" data-lfo-wave="triangle">Tri</button>
+                        <button class="waveform-btn" data-lfo-wave="square">Sqr</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oscillator Mix -->
+            <div class="control-panel">
+                <div class="panel-title">
+                    <i class="fas fa-sliders-h"></i>
+                    Oscillator Mix
+                </div>
+                <div class="knob-control">
+                    <div class="knob-label">
+                        <span>VCO1/VCO2 Balance</span>
+                        <span class="knob-value" id="osc-mix-value">50%</span>
+                    </div>
+                    <input type="range" class="slider" id="osc-mix" min="0" max="100" value="50" step="1">
+                </div>
+                <div class="knob-control">
+                    <div class="knob-label">
+                        <span>VCO2 Detune</span>
+                        <span class="knob-value" id="vco2-detune-value">2 cents</span>
+                    </div>
+                    <input type="range" class="slider" id="vco2-detune" min="-50" max="50" value="2" step="1">
+                </div>
             </div>
 
             <!-- Patch Connections -->
@@ -866,6 +976,10 @@
                 <button class="action-btn" style="background: linear-gradient(45deg, #ff8800, #cc6600);" onclick="stopSynth()">
                     <i class="fas fa-stop"></i>
                     Stop
+                </button>
+                <button class="action-btn" onclick="toggleRecording()" id="record-btn" style="background: linear-gradient(45deg, #ff0055, #cc0044);">
+                    <i class="fas fa-circle"></i>
+                    Record Audio
                 </button>
                 <button class="action-btn" onclick="exportMIDI()">
                     <i class="fas fa-download"></i>
@@ -1004,6 +1118,137 @@
                     }
                 });
             });
+            
+            // Filter mode buttons
+            document.querySelectorAll('.waveform-btn[data-filter]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const filterMode = this.getAttribute('data-filter');
+                    
+                    // Update active state
+                    document.querySelectorAll('.waveform-btn[data-filter]').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Update synthesis engine
+                    if (synthEngine) {
+                        synthEngine.updateParameter('vcf', 'type', filterMode);
+                    }
+                });
+            });
+            
+            // ADSR Envelope controls
+            const attackSlider = document.getElementById('env-attack');
+            const attackValue = document.getElementById('env-attack-value');
+            
+            attackSlider.addEventListener('input', function(e) {
+                const attack = parseFloat(e.target.value);
+                attackValue.textContent = `${attack.toFixed(3)}s`;
+                if (synthEngine) {
+                    synthEngine.updateParameter('env', 'attack', attack);
+                }
+            });
+            
+            const decaySlider = document.getElementById('env-decay');
+            const decayValue = document.getElementById('env-decay-value');
+            
+            decaySlider.addEventListener('input', function(e) {
+                const decay = parseFloat(e.target.value);
+                decayValue.textContent = `${decay.toFixed(3)}s`;
+                if (synthEngine) {
+                    synthEngine.updateParameter('env', 'decay', decay);
+                }
+            });
+            
+            const sustainSlider = document.getElementById('env-sustain');
+            const sustainValue = document.getElementById('env-sustain-value');
+            
+            sustainSlider.addEventListener('input', function(e) {
+                const sustain = parseFloat(e.target.value);
+                sustainValue.textContent = sustain.toFixed(2);
+                if (synthEngine) {
+                    synthEngine.updateParameter('env', 'sustain', sustain);
+                }
+            });
+            
+            const releaseSlider = document.getElementById('env-release');
+            const releaseValue = document.getElementById('env-release-value');
+            
+            releaseSlider.addEventListener('input', function(e) {
+                const release = parseFloat(e.target.value);
+                releaseValue.textContent = `${release.toFixed(2)}s`;
+                if (synthEngine) {
+                    synthEngine.updateParameter('env', 'release', release);
+                }
+            });
+            
+            // LFO controls
+            const lfoRateSlider = document.getElementById('lfo-rate');
+            const lfoRateValue = document.getElementById('lfo-rate-value');
+            
+            lfoRateSlider.addEventListener('input', function(e) {
+                const rate = parseFloat(e.target.value);
+                lfoRateValue.textContent = `${rate.toFixed(1)} Hz`;
+                if (synthEngine) {
+                    synthEngine.updateParameter('lfo', 'frequency', rate);
+                }
+            });
+            
+            const lfoDepthSlider = document.getElementById('lfo-depth');
+            const lfoDepthValue = document.getElementById('lfo-depth-value');
+            
+            lfoDepthSlider.addEventListener('input', function(e) {
+                const depth = parseFloat(e.target.value);
+                lfoDepthValue.textContent = depth.toString();
+                if (synthEngine) {
+                    synthEngine.updateParameter('lfo', 'depth', depth);
+                }
+            });
+            
+            // LFO waveform buttons
+            document.querySelectorAll('.waveform-btn[data-lfo-wave]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const waveform = this.getAttribute('data-lfo-wave');
+                    
+                    // Update active state
+                    document.querySelectorAll('.waveform-btn[data-lfo-wave]').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Update synthesis engine
+                    if (synthEngine) {
+                        synthEngine.updateParameter('lfo', 'waveform', waveform);
+                    }
+                });
+            });
+            
+            // Oscillator mix controls
+            const oscMixSlider = document.getElementById('osc-mix');
+            const oscMixValue = document.getElementById('osc-mix-value');
+            
+            oscMixSlider.addEventListener('input', function(e) {
+                const mix = parseFloat(e.target.value);
+                oscMixValue.textContent = `${mix}%`;
+                if (synthEngine) {
+                    // Convert 0-100 to 0-1 for VCO1, and 1-0 for VCO2
+                    const vco1Gain = mix / 100;
+                    const vco2Gain = (100 - mix) / 100;
+                    synthEngine.updateParameter('vco1', 'gain', vco1Gain);
+                    synthEngine.updateParameter('vco2', 'gain', vco2Gain);
+                }
+            });
+            
+            const vco2DetuneSlider = document.getElementById('vco2-detune');
+            const vco2DetuneValue = document.getElementById('vco2-detune-value');
+            
+            vco2DetuneSlider.addEventListener('input', function(e) {
+                const detune = parseFloat(e.target.value);
+                vco2DetuneValue.textContent = `${detune} cents`;
+                if (synthEngine) {
+                    synthEngine.updateParameter('vco2', 'detune', detune);
+                }
+            });
         }
         
         function playSynthNote() {
@@ -1032,7 +1277,29 @@
         function stopSynth() {
             if (synthEngine) {
                 synthEngine.stop();
+                synthEngine.stopAllVoices(); // Stop polyphonic voices too
                 console.log('⏹️ Synthesis stopped');
+            }
+        }
+        
+        function toggleRecording() {
+            if (!synthEngine) {
+                synthEngine = new SynthesisEngine();
+            }
+            
+            const recordBtn = document.getElementById('record-btn');
+            
+            if (synthEngine.isRecording) {
+                // Stop recording
+                synthEngine.stopRecording();
+                recordBtn.innerHTML = '<i class="fas fa-circle"></i> Record Audio';
+                recordBtn.style.background = 'linear-gradient(45deg, #ff0055, #cc0044)';
+            } else {
+                // Start recording
+                synthEngine.startRecording();
+                recordBtn.innerHTML = '<i class="fas fa-stop-circle"></i> Stop Recording';
+                recordBtn.style.background = 'linear-gradient(45deg, #ff0000, #aa0000)';
+                recordBtn.style.animation = 'pulse 1.5s infinite';
             }
         }
         
@@ -1068,6 +1335,103 @@
             
             return `${noteNames[noteIdx]}${octave}`;
         }
+        
+        // Keyboard input support
+        const keyboardMap = {
+            // Lower row (C3-C4)
+            'z': 130.81,  // C3
+            's': 138.59,  // C#3
+            'x': 146.83,  // D3
+            'd': 155.56,  // D#3
+            'c': 164.81,  // E3
+            'v': 174.61,  // F3
+            'g': 185.00,  // F#3
+            'b': 196.00,  // G3
+            'h': 207.65,  // G#3
+            'n': 220.00,  // A3
+            'j': 233.08,  // A#3
+            'm': 246.94,  // B3
+            ',': 261.63,  // C4
+            
+            // Upper row (C4-C5)
+            'q': 261.63,  // C4
+            '2': 277.18,  // C#4
+            'w': 293.66,  // D4
+            '3': 311.13,  // D#4
+            'e': 329.63,  // E4
+            'r': 349.23,  // F4
+            '5': 369.99,  // F#4
+            't': 392.00,  // G4
+            '6': 415.30,  // G#4
+            'y': 440.00,  // A4
+            '7': 466.16,  // A#4
+            'u': 493.88,  // B4
+            'i': 523.25,  // C5
+            '9': 554.37,  // C#5
+            'o': 587.33,  // D5
+            '0': 622.25,  // D#5
+            'p': 659.25,  // E5
+            '[': 698.46,  // F5
+            '=': 739.99,  // F#5
+            ']': 783.99   // G5
+        };
+        
+        const activeKeys = new Set();
+        const keyVoices = new Map(); // Track which voice belongs to which key
+        
+        // Keyboard event listeners
+        document.addEventListener('keydown', function(e) {
+            // Ignore if typing in input field
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            const key = e.key.toLowerCase();
+            
+            // Prevent key repeat
+            if (activeKeys.has(key)) {
+                return;
+            }
+            
+            if (keyboardMap[key]) {
+                activeKeys.add(key);
+                
+                const freq = keyboardMap[key];
+                
+                if (synthEngine) {
+                    // Use polyphony for keyboard
+                    const voice = synthEngine.playPolyNote(freq);
+                    keyVoices.set(key, voice);
+                    console.log(`🎹 Keyboard: ${frequencyToNote(freq)} (${freq.toFixed(2)} Hz) [Voice ${synthEngine.voices.length}/${synthEngine.maxVoices}]`);
+                }
+                
+                // Visual feedback
+                const activeCount = synthEngine ? synthEngine.voices.length : 0;
+                document.body.style.borderTop = `3px solid var(--accent-cyan)`;
+                document.body.style.borderBottom = `${activeCount * 2}px solid var(--accent-purple)`;
+            }
+        });
+        
+        document.addEventListener('keyup', function(e) {
+            const key = e.key.toLowerCase();
+            
+            // Release the voice for this key
+            if (keyVoices.has(key)) {
+                const voice = keyVoices.get(key);
+                if (synthEngine) {
+                    synthEngine.releasePolyVoice(voice);
+                }
+                keyVoices.delete(key);
+            }
+            
+            activeKeys.delete(key);
+            
+            // Remove visual feedback when all keys released
+            if (activeKeys.size === 0) {
+                document.body.style.borderTop = '';
+                document.body.style.borderBottom = '';
+            }
+        });
         
         // Update playSound to use synthesis engine
         function playSound() {

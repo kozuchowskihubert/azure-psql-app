@@ -9,7 +9,11 @@ class SynthesisEngine {
         this.isPlaying = false;
         this.masterGain = null;
         
-        // Oscillators
+        // Polyphony support
+        this.maxVoices = 4;
+        this.voices = [];
+        
+        // Oscillators (for single voice mode - legacy)
         this.vco1 = null;
         this.vco2 = null;
         this.lfo = null;
@@ -28,12 +32,22 @@ class SynthesisEngine {
         
         // Current parameters
         this.params = {
-            vco1: { frequency: 440, waveform: 'sawtooth', detune: 0 },
-            vco2: { frequency: 440, waveform: 'sawtooth', detune: 5 },
+            vco1: { frequency: 440, waveform: 'sawtooth', detune: 0, gain: 0.5 },
+            vco2: { frequency: 440, waveform: 'sawtooth', detune: 5, gain: 0.5 },
             vcf: { cutoff: 1000, resonance: 0.5, mode: 'lowpass' },
             lfo: { frequency: 0.5, waveform: 'sine', depth: 0 },
             env: { attack: 0.01, decay: 0.2, sustain: 0.6, release: 0.3 }
         };
+        
+        // Store gain nodes for real-time control
+        this.vco1GainNode = null;
+        this.vco2GainNode = null;
+        
+        // Audio recording
+        this.mediaRecorder = null;
+        this.recordedChunks = [];
+        this.isRecording = false;
+        this.mediaStreamDestination = null;
     }
     
     initialize() {
@@ -90,11 +104,11 @@ class SynthesisEngine {
         this.lfo.connect(lfoGain);
         
         // Create mixer (gain nodes for VCO1 and VCO2)
-        const vco1Gain = this.audioContext.createGain();
-        vco1Gain.gain.value = 0.5;
+        this.vco1GainNode = this.audioContext.createGain();
+        this.vco1GainNode.gain.value = this.params.vco1.gain;
         
-        const vco2Gain = this.audioContext.createGain();
-        vco2Gain.gain.value = 0.5;
+        this.vco2GainNode = this.audioContext.createGain();
+        this.vco2GainNode.gain.value = this.params.vco2.gain;
         
         // Create VCF (Filter)
         this.filter = this.audioContext.createBiquadFilter();
@@ -122,11 +136,11 @@ class SynthesisEngine {
         vca.gain.linearRampToValueAtTime(env.sustain, decayTime);
         
         // Connect signal chain: VCO → Mixer → VCF → VCA → Master
-        this.vco1.connect(vco1Gain);
-        this.vco2.connect(vco2Gain);
+        this.vco1.connect(this.vco1GainNode);
+        this.vco2.connect(this.vco2GainNode);
         
-        vco1Gain.connect(this.filter);
-        vco2Gain.connect(this.filter);
+        this.vco1GainNode.connect(this.filter);
+        this.vco2GainNode.connect(this.filter);
         
         this.filter.connect(vca);
         vca.connect(this.masterGain);
@@ -198,6 +212,237 @@ class SynthesisEngine {
         this.isPlaying = false;
     }
     
+    // Polyphony support
+    createPolyVoice(frequency) {
+        const now = this.audioContext.currentTime;
+        
+        // Create oscillators for this voice
+        const vco1 = this.audioContext.createOscillator();
+        vco1.type = this.params.vco1.waveform;
+        vco1.frequency.value = frequency;
+        vco1.detune.value = this.params.vco1.detune;
+        
+        const vco2 = this.audioContext.createOscillator();
+        vco2.type = this.params.vco2.waveform;
+        vco2.frequency.value = frequency;
+        vco2.detune.value = this.params.vco2.detune;
+        
+        // Create LFO
+        const lfo = this.audioContext.createOscillator();
+        lfo.type = this.params.lfo.waveform;
+        lfo.frequency.value = this.params.lfo.frequency;
+        
+        const lfoGain = this.audioContext.createGain();
+        lfoGain.gain.value = this.params.lfo.depth * 500;
+        
+        // Create mixer gains
+        const vco1Gain = this.audioContext.createGain();
+        vco1Gain.gain.value = this.params.vco1.gain;
+        
+        const vco2Gain = this.audioContext.createGain();
+        vco2Gain.gain.value = this.params.vco2.gain;
+        
+        // Create filter
+        const filter = this.audioContext.createBiquadFilter();
+        filter.type = this.params.vcf.mode;
+        filter.frequency.value = this.params.vcf.cutoff;
+        filter.Q.value = this.params.vcf.resonance * 30;
+        
+        // Connect LFO to filter
+        lfo.connect(lfoGain);
+        lfoGain.connect(filter.frequency);
+        
+        // Create VCA
+        const vca = this.audioContext.createGain();
+        vca.gain.value = 0;
+        
+        // Apply ADSR envelope
+        const env = this.params.env;
+        const attackTime = now + env.attack;
+        const decayTime = attackTime + env.decay;
+        
+        vca.gain.setValueAtTime(0, now);
+        vca.gain.linearRampToValueAtTime(0.3, attackTime); // Reduced gain for polyphony
+        vca.gain.linearRampToValueAtTime(env.sustain * 0.3, decayTime);
+        
+        // Connect signal chain
+        vco1.connect(vco1Gain);
+        vco2.connect(vco2Gain);
+        vco1Gain.connect(filter);
+        vco2Gain.connect(filter);
+        filter.connect(vca);
+        vca.connect(this.masterGain);
+        
+        // Start oscillators
+        vco1.start(now);
+        vco2.start(now);
+        lfo.start(now);
+        
+        return {
+            frequency,
+            vco1,
+            vco2,
+            lfo,
+            vca,
+            filter,
+            startTime: now,
+            released: false
+        };
+    }
+    
+    playPolyNote(frequency, duration = null) {
+        if (!this.audioContext) {
+            this.initialize();
+        }
+        
+        if (this.audioContext.state === 'suspended') {
+            this.audioContext.resume();
+        }
+        
+        // Remove old voices (older than 10 seconds)
+        const now = this.audioContext.currentTime;
+        this.voices = this.voices.filter(v => now - v.startTime < 10);
+        
+        // Find existing voice with same frequency
+        let voice = this.voices.find(v => Math.abs(v.frequency - frequency) < 0.1);
+        
+        if (voice) {
+            // Retrigger existing voice
+            voice.vca.gain.cancelScheduledValues(now);
+            voice.vca.gain.setValueAtTime(0, now);
+            voice.vca.gain.linearRampToValueAtTime(0.3, now + this.params.env.attack);
+            voice.vca.gain.linearRampToValueAtTime(this.params.env.sustain * 0.3, now + this.params.env.attack + this.params.env.decay);
+            voice.released = false;
+        } else {
+            // Create new voice
+            if (this.voices.length >= this.maxVoices) {
+                // Voice stealing: remove oldest voice
+                const oldest = this.voices.shift();
+                this.releasePolyVoice(oldest, true);
+            }
+            
+            voice = this.createPolyVoice(frequency);
+            this.voices.push(voice);
+        }
+        
+        // Auto-release if duration specified
+        if (duration) {
+            setTimeout(() => {
+                this.releasePolyVoice(voice);
+            }, duration * 1000);
+        }
+        
+        return voice;
+    }
+    
+    releasePolyVoice(voice, immediate = false) {
+        if (!voice || voice.released) return;
+        
+        voice.released = true;
+        const now = this.audioContext.currentTime;
+        const releaseTime = immediate ? 0.01 : this.params.env.release;
+        
+        voice.vca.gain.cancelScheduledValues(now);
+        voice.vca.gain.setValueAtTime(voice.vca.gain.value, now);
+        voice.vca.gain.linearRampToValueAtTime(0, now + releaseTime);
+        
+        // Stop oscillators after release
+        setTimeout(() => {
+            if (voice.vco1) voice.vco1.stop();
+            if (voice.vco2) voice.vco2.stop();
+            if (voice.lfo) voice.lfo.stop();
+            
+            // Remove from active voices
+            const index = this.voices.indexOf(voice);
+            if (index > -1) {
+                this.voices.splice(index, 1);
+            }
+        }, releaseTime * 1000 + 100);
+    }
+    
+    stopAllVoices() {
+        this.voices.forEach(voice => this.releasePolyVoice(voice));
+        this.voices = [];
+    }
+    
+    // Audio recording
+    startRecording() {
+        if (!this.audioContext) {
+            this.initialize();
+        }
+        
+        if (this.isRecording) {
+            console.warn('Already recording');
+            return;
+        }
+        
+        try {
+            // Create MediaStreamDestination
+            this.mediaStreamDestination = this.audioContext.createMediaStreamDestination();
+            
+            // Connect master gain to both analyzers AND stream destination
+            this.masterGain.connect(this.mediaStreamDestination);
+            
+            // Create MediaRecorder
+            const options = {
+                mimeType: 'audio/webm;codecs=opus',
+                audioBitsPerSecond: 128000
+            };
+            
+            this.mediaRecorder = new MediaRecorder(this.mediaStreamDestination.stream, options);
+            this.recordedChunks = [];
+            
+            this.mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    this.recordedChunks.push(event.data);
+                }
+            };
+            
+            this.mediaRecorder.onstop = () => {
+                const blob = new Blob(this.recordedChunks, { type: 'audio/webm' });
+                const url = URL.createObjectURL(blob);
+                
+                // Create download link
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `synth2600_recording_${Date.now()}.webm`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                console.log('✅ Recording saved');
+                this.recordedChunks = [];
+            };
+            
+            this.mediaRecorder.start();
+            this.isRecording = true;
+            console.log('🔴 Recording started');
+            
+        } catch (error) {
+            console.error('Error starting recording:', error);
+            this.isRecording = false;
+        }
+    }
+    
+    stopRecording() {
+        if (!this.isRecording || !this.mediaRecorder) {
+            console.warn('Not currently recording');
+            return;
+        }
+        
+        this.mediaRecorder.stop();
+        this.isRecording = false;
+        
+        // Disconnect stream destination
+        if (this.mediaStreamDestination) {
+            this.masterGain.disconnect(this.mediaStreamDestination);
+            this.mediaStreamDestination = null;
+        }
+        
+        console.log('⏹️ Recording stopped');
+    }
+    
     updateParameter(module, param, value) {
         if (!this.params[module]) return;
         
@@ -211,18 +456,20 @@ class SynthesisEngine {
                 if (param === 'frequency') this.vco1.frequency.setValueAtTime(value, now);
                 if (param === 'waveform') this.vco1.type = value;
                 if (param === 'detune') this.vco1.detune.setValueAtTime(value, now);
+                if (param === 'gain' && this.vco1GainNode) this.vco1GainNode.gain.setValueAtTime(value, now);
             }
             
             if (module === 'vco2' && this.vco2) {
                 if (param === 'frequency') this.vco2.frequency.setValueAtTime(value, now);
                 if (param === 'waveform') this.vco2.type = value;
                 if (param === 'detune') this.vco2.detune.setValueAtTime(value, now);
+                if (param === 'gain' && this.vco2GainNode) this.vco2GainNode.gain.setValueAtTime(value, now);
             }
             
             if (module === 'vcf' && this.filter) {
                 if (param === 'cutoff') this.filter.frequency.setValueAtTime(value, now);
                 if (param === 'resonance') this.filter.Q.setValueAtTime(value * 30, now);
-                if (param === 'mode') this.filter.type = value;
+                if (param === 'mode' || param === 'type') this.filter.type = value;
             }
             
             if (module === 'lfo' && this.lfo) {
