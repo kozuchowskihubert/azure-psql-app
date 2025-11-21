@@ -134,15 +134,6 @@ const shareRoutes = require('./routes/share-routes')(pool);
 app.use('/api', shareRoutes);
 console.log('✓ Share API enabled');
 
-// Music production routes
-try {
-  const musicRoutes = require('./routes/music-routes');
-  app.use('/api/music', musicRoutes);
-  console.log('✓ Music Production API enabled');
-} catch (error) {
-  console.log('⚠ Music routes not available:', error.message);
-}
-
 // Ensure table exists with enhanced schema
 async function ensureTable() {
   // Skip if no database connection available (e.g., in CI tests)
