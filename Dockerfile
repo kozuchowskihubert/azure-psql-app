@@ -25,13 +25,19 @@ RUN npm ci --production
 # Copy application files
 COPY app/ .
 
+# Verify ableton-cli directory exists and show contents
+RUN ls -la ableton-cli/ || echo "ableton-cli directory not found"
+
 # Install Python dependencies for music production CLI
 RUN if [ -f ableton-cli/requirements.txt ]; then \
-    echo "Installing Python dependencies..." && \
-    pip3 install --no-cache-dir -r ableton-cli/requirements.txt && \
+    echo "Installing Python dependencies from ableton-cli/requirements.txt..." && \
+    cat ableton-cli/requirements.txt && \
+    pip3 install --break-system-packages --no-cache-dir -r ableton-cli/requirements.txt && \
+    echo "✅ Python packages installed:" && \
     pip3 list; \
     else \
-    echo "No requirements.txt found, skipping Python dependencies"; \
+    echo "⚠️  No requirements.txt found at ableton-cli/requirements.txt"; \
+    ls -la ableton-cli/; \
     fi
 
 # Verify Python is available
