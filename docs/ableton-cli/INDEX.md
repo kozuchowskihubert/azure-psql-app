@@ -12,6 +12,7 @@ This directory contains all documentation related to the Ableton CLI tool and MI
 - **QUICK-REFERENCE.md** - Quick command reference
 - **PRESET_PATCH_MAPPING.md** - Complete guide to preset cable routing (NEW)
 - **PRESET_PATCHING_CHEATSHEET.md** - Quick reference for patch mapping (NEW)
+- **PRESET_VARIATIONS_GUIDE.md** - Explore frequency, oscillator, and filter variations (NEW)
 
 ## MIDI Features
 - **MIDI_VISUAL_GUIDE.md** - Visual guide to MIDI generation
