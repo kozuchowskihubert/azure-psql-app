@@ -14,7 +14,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       swRegistration = await navigator.serviceWorker.register('/service-worker.js', {
-        scope: '/'
+        scope: '/',
       });
 
       console.log('✅ Service Worker registered:', swRegistration.scope);
@@ -51,15 +51,15 @@ window.addEventListener('appinstalled', () => {
   console.log('✅ PWA installed successfully');
   deferredPrompt = null;
   hideInstallButton();
-  
+
   // Track installation
   if (typeof gtag !== 'undefined') {
     gtag('event', 'app_install', {
       event_category: 'PWA',
-      event_label: 'Installed'
+      event_label: 'Installed',
     });
   }
-  
+
   showToast('App installed! You can now use it offline 🎉', 'success');
 });
 
@@ -74,7 +74,7 @@ function showInstallButton() {
   banner.id = 'install-banner';
   banner.className = 'fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 shadow-2xl z-50 transform transition-transform duration-300';
   banner.style.transform = 'translateY(100%)';
-  
+
   banner.innerHTML = `
     <div class="container mx-auto flex items-center justify-between flex-wrap gap-4">
       <div class="flex items-center gap-3">
@@ -132,15 +132,15 @@ async function installApp() {
 
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
-  
+
   console.log(`User response to install prompt: ${outcome}`);
-  
+
   if (outcome === 'accepted') {
     console.log('User accepted the install prompt');
   } else {
     console.log('User dismissed the install prompt');
   }
-  
+
   deferredPrompt = null;
   hideInstallButton();
 }
@@ -266,7 +266,7 @@ window.addEventListener('orientationchange', setVH);
 // =============================================================================
 window.addEventListener('online', () => {
   showToast('✅ Back online! Syncing data...', 'success');
-  
+
   // Trigger background sync
   if ('serviceWorker' in navigator && 'sync' in swRegistration) {
     swRegistration.sync.register('sync-notes');
@@ -308,7 +308,7 @@ function handleSharedContent(url) {
     setTimeout(() => {
       // Trigger note creation modal with pre-filled data
       const event = new CustomEvent('create-note', {
-        detail: { title, content: text + (sharedUrl ? '\n\n' + sharedUrl : '') }
+        detail: { title, content: text + (sharedUrl ? '\n\n' + sharedUrl : '') },
       });
       window.dispatchEvent(event);
     }, 500);
@@ -321,7 +321,7 @@ function handleSharedContent(url) {
 function showToast(message, type = 'info') {
   const toast = document.createElement('div');
   toast.className = `fixed bottom-20 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-lg text-white z-50 transition-all duration-300`;
-  
+
   switch (type) {
     case 'success':
       toast.classList.add('bg-green-600');
@@ -335,11 +335,11 @@ function showToast(message, type = 'info') {
     default:
       toast.classList.add('bg-blue-600');
   }
-  
+
   toast.textContent = message;
   toast.style.opacity = '0';
   document.body.appendChild(toast);
-  
+
   setTimeout(() => toast.style.opacity = '1', 10);
   setTimeout(() => {
     toast.style.opacity = '0';
@@ -352,7 +352,7 @@ window.PWAUtils = {
   isPWA,
   installApp,
   showInstallButton,
-  hideInstallButton
+  hideInstallButton,
 };
 
 console.log('📱 PWA installer loaded successfully');

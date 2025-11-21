@@ -47,8 +47,8 @@ describe('Smoke Tests', () => {
     it('should have required dependencies installed', () => {
       const packageJson = require('../package.json');
       const requiredDeps = ['express', 'pg', 'ws', 'yjs', 'dotenv'];
-      
-      requiredDeps.forEach(dep => {
+
+      requiredDeps.forEach((dep) => {
         expect(packageJson.dependencies[dep]).toBeDefined();
       });
     });

@@ -6,14 +6,14 @@ const docs = new Map();
 
 wss.on('connection', (ws, req) => {
   const docName = req.url.slice(1).split('?')[0] || 'default';
-  
+
   // Get or create document
   if (!docs.has(docName)) {
     docs.set(docName, new Y.Doc());
   }
-  
+
   const doc = docs.get(docName);
-  
+
   // Basic WebSocket sync implementation
   ws.on('message', (message) => {
     // Broadcast to all other clients
@@ -23,10 +23,9 @@ wss.on('connection', (ws, req) => {
       }
     });
   });
-  
+
   console.log(`Y-WebSocket connection established for document: ${docName}`);
 });
-
 
 module.exports = (server) => {
   server.on('upgrade', (request, socket, head) => {

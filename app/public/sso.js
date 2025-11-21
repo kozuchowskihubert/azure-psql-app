@@ -17,20 +17,20 @@ const SSO_CONFIG = {
         name: 'Google',
         authUrl: '/api/auth/google',
         icon: 'google',
-        color: '#4285F4'
+        color: '#4285F4',
     },
     microsoft: {
         name: 'Microsoft',
         authUrl: '/api/auth/microsoft',
         icon: 'microsoft',
-        color: '#00A4EF'
+        color: '#00A4EF',
     },
     github: {
         name: 'GitHub',
         authUrl: '/api/auth/github',
         icon: 'github',
-        color: '#333333'
-    }
+        color: '#333333',
+    },
 };
 
 // Check session on page load
@@ -54,13 +54,13 @@ function checkExistingSession() {
  */
 async function handleSSOLogin(provider) {
     showLoading(`Connecting to ${SSO_CONFIG[provider].name}...`);
-    
+
     try {
         // In production, this would redirect to OAuth provider
         const response = await fetch(`${window.location.origin}${SSO_CONFIG[provider].authUrl}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ provider })
+            body: JSON.stringify({ provider }),
         });
 
         if (response.status === 404 || !response.ok) {
@@ -95,12 +95,12 @@ function simulateSuccessfulLogin(provider) {
         email: `demo.user@${provider}.com`,
         name: `Demo User (${SSO_CONFIG[provider].name})`,
         picture: `https://ui-avatars.com/api/?name=Demo+User&background=random`,
-        provider: provider
+        provider,
     };
 
     createSession(demoUser, provider);
     displaySessionPanel({ provider, user: demoUser });
-    
+
     showToast(`✅ Demo login successful! (SSO backend not configured)`, 'success');
 }
 
@@ -109,7 +109,7 @@ function simulateSuccessfulLogin(provider) {
  */
 document.getElementById('email-login-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
@@ -119,7 +119,7 @@ document.getElementById('email-login-form')?.addEventListener('submit', async (e
         const response = await fetch(`${window.location.origin}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email, password }),
         });
 
         if (response.status === 404 || !response.ok) {
@@ -145,15 +145,15 @@ document.getElementById('email-login-form')?.addEventListener('submit', async (e
  */
 function simulateEmailLogin(email) {
     const demoUser = {
-        email: email,
+        email,
         name: email.split('@')[0],
         picture: `https://ui-avatars.com/api/?name=${email.split('@')[0]}&background=random`,
-        provider: 'email'
+        provider: 'email',
     };
 
     createSession(demoUser, 'email');
     displaySessionPanel({ provider: 'email', user: demoUser });
-    
+
     showToast(`✅ Demo login successful! (Auth backend not configured)`, 'success');
 }
 
@@ -162,18 +162,18 @@ function simulateEmailLogin(email) {
  */
 function createSession(user, provider) {
     const session = {
-        user: user,
-        provider: provider,
+        user,
+        provider,
         createdAt: Date.now(),
         expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
-        token: generateDemoToken()
+        token: generateDemoToken(),
     };
 
     localStorage.setItem('user-session', JSON.stringify(session));
-    
+
     // Also store in sessionStorage for current tab
     sessionStorage.setItem('authenticated', 'true');
-    
+
     return session;
 }
 
@@ -209,10 +209,10 @@ function displaySessionPanel(session) {
     const ssoProvider = document.getElementById('sso-provider');
 
     userEmail.textContent = session.user.email;
-    
+
     const daysLeft = Math.ceil((session.expiresAt - Date.now()) / (24 * 60 * 60 * 1000));
     sessionExpiry.textContent = daysLeft > 0 ? `In ${daysLeft} days` : 'Expired';
-    
+
     ssoProvider.textContent = SSO_CONFIG[session.provider]?.name || 'Email';
 
     panel.classList.remove('hidden');
@@ -225,9 +225,9 @@ function handleLogout() {
     if (confirm('Are you sure you want to sign out?')) {
         localStorage.removeItem('user-session');
         sessionStorage.removeItem('authenticated');
-        
+
         showToast('Signed out successfully', 'success');
-        
+
         setTimeout(() => {
             window.location.reload();
         }, 1000);
@@ -239,13 +239,13 @@ function handleLogout() {
  */
 function generateDemoToken() {
     const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-    const payload = btoa(JSON.stringify({ 
+    const payload = btoa(JSON.stringify({
         iat: Date.now(),
         exp: Date.now() + (7 * 24 * 60 * 60 * 1000),
-        demo: true 
+        demo: true,
     }));
     const signature = btoa('demo-signature');
-    
+
     return `${header}.${payload}.${signature}`;
 }
 
@@ -291,7 +291,7 @@ function hideLoading() {
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-300 z-50`;
-    
+
     switch (type) {
         case 'success':
             toast.classList.add('bg-green-600');
@@ -302,10 +302,10 @@ function showToast(message, type = 'info') {
         default:
             toast.classList.add('bg-blue-600');
     }
-    
+
     toast.textContent = message;
     document.body.appendChild(toast);
-    
+
     setTimeout(() => toast.style.transform = 'translateY(0)', 10);
     setTimeout(() => {
         toast.style.transform = 'translateY(100px)';
@@ -367,5 +367,5 @@ window.SSOUtils = {
     isAuthenticated,
     getAuthToken,
     refreshSession,
-    handleLogout
+    handleLogout,
 };

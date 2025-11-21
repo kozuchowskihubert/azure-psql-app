@@ -33,7 +33,7 @@ if (sharp && fs.existsSync(svgPath)) {
         await sharp(svgPath)
           .resize(size, size, {
             fit: 'contain',
-            background: { r: 0, g: 0, b: 0, alpha: 0 }
+            background: { r: 0, g: 0, b: 0, alpha: 0 },
           })
           .png()
           .toFile(outputPath);
@@ -41,7 +41,7 @@ if (sharp && fs.existsSync(svgPath)) {
       } catch (err) {
         console.error(`❌ Failed to generate ${size}x${size}:`, err.message);
       }
-    })
+    }),
   ).then(() => {
     console.log('\n✨ Icon generation complete!');
   }).catch((err) => {
@@ -50,14 +50,14 @@ if (sharp && fs.existsSync(svgPath)) {
 } else {
   // Create placeholder script
   console.log('📝 Creating placeholder icons using data URIs...\n');
-  
+
   // For now, we'll update manifest to use SVG or create minimal placeholders
   console.log('To generate icons, you can:');
   console.log('1. Install sharp: npm install sharp');
   console.log('2. Run this script again: node generate-icons.js');
   console.log('3. Or use an online tool: https://realfavicongenerator.net/');
   console.log('4. Or use ImageMagick (see README.md)');
-  
+
   // Create a simple placeholder HTML file to convert manually
   const placeholderHTML = `<!DOCTYPE html>
 <html>
@@ -124,7 +124,7 @@ if (sharp && fs.existsSync(svgPath)) {
   </script>
 </body>
 </html>`;
-  
+
   fs.writeFileSync(path.join(iconsDir, 'icon-converter.html'), placeholderHTML);
   console.log('\n✅ Created icon-converter.html');
   console.log('   Open this file in a browser to generate icons manually');

@@ -21,7 +21,7 @@ const PRECACHE_ASSETS = [
   '/manifest.json',
   // External CDN resources (cached with network-first strategy)
   'https://cdn.tailwindcss.com',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
 ];
 
 // Routes that should work offline
@@ -29,7 +29,7 @@ const OFFLINE_ROUTES = [
   '/',
   '/excel.html',
   '/calendar.html',
-  '/features.html'
+  '/features.html',
 ];
 
 // =============================================================================
@@ -37,7 +37,7 @@ const OFFLINE_ROUTES = [
 // =============================================================================
 self.addEventListener('install', (event) => {
   console.log('[ServiceWorker] Installing version', CACHE_NAME);
-  
+
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -47,7 +47,7 @@ self.addEventListener('install', (event) => {
       .then(() => {
         console.log('[ServiceWorker] Skip waiting');
         return self.skipWaiting();
-      })
+      }),
   );
 });
 
@@ -56,7 +56,7 @@ self.addEventListener('install', (event) => {
 // =============================================================================
 self.addEventListener('activate', (event) => {
   console.log('[ServiceWorker] Activating version', CACHE_NAME);
-  
+
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
@@ -66,13 +66,13 @@ self.addEventListener('activate', (event) => {
               console.log('[ServiceWorker] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
-          })
+          }),
         );
       })
       .then(() => {
         console.log('[ServiceWorker] Claiming clients');
         return self.clients.claim();
-      })
+      }),
   );
 });
 
@@ -122,28 +122,28 @@ self.addEventListener('fetch', (event) => {
  */
 async function cacheFirst(request) {
   const cachedResponse = await caches.match(request);
-  
+
   if (cachedResponse) {
     return cachedResponse;
   }
 
   try {
     const networkResponse = await fetch(request);
-    
+
     if (networkResponse.ok) {
       const cache = await caches.open(RUNTIME_CACHE);
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   } catch (error) {
     console.error('[ServiceWorker] Fetch failed:', error);
-    
+
     // Return offline page for navigation requests
     if (request.mode === 'navigate') {
       return caches.match('/offline.html');
     }
-    
+
     throw error;
   }
 }
@@ -157,21 +157,21 @@ async function cacheFirst(request) {
 async function networkFirst(request) {
   try {
     const networkResponse = await fetch(request);
-    
+
     if (networkResponse.ok) {
       const cache = await caches.open(RUNTIME_CACHE);
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   } catch (error) {
     console.log('[ServiceWorker] Network failed, trying cache');
     const cachedResponse = await caches.match(request);
-    
+
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     throw error;
   }
 }
@@ -200,11 +200,11 @@ async function staleWhileRevalidate(request) {
 // =============================================================================
 self.addEventListener('sync', (event) => {
   console.log('[ServiceWorker] Background sync:', event.tag);
-  
+
   if (event.tag === 'sync-notes') {
     event.waitUntil(syncNotes());
   }
-  
+
   if (event.tag === 'sync-calendar') {
     event.waitUntil(syncCalendar());
   }
@@ -214,19 +214,19 @@ async function syncNotes() {
   try {
     // Get pending notes from IndexedDB
     const pendingNotes = await getPendingNotes();
-    
+
     for (const note of pendingNotes) {
       const response = await fetch('/api/notes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(note)
+        body: JSON.stringify(note),
       });
-      
+
       if (response.ok) {
         await removePendingNote(note.id);
       }
     }
-    
+
     console.log('[ServiceWorker] Notes synced successfully');
   } catch (error) {
     console.error('[ServiceWorker] Sync failed:', error);
@@ -238,19 +238,19 @@ async function syncCalendar() {
   try {
     // Get pending events from IndexedDB
     const pendingEvents = await getPendingEvents();
-    
+
     for (const event of pendingEvents) {
       const response = await fetch('/api/calendar/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(event)
+        body: JSON.stringify(event),
       });
-      
+
       if (response.ok) {
         await removePendingEvent(event.id);
       }
     }
-    
+
     console.log('[ServiceWorker] Calendar synced successfully');
   } catch (error) {
     console.error('[ServiceWorker] Calendar sync failed:', error);
@@ -263,7 +263,7 @@ async function syncCalendar() {
 // =============================================================================
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
-  
+
   const options = {
     body: data.body || 'You have a new notification',
     icon: '/icons/icon-192x192.png',
@@ -271,22 +271,22 @@ self.addEventListener('push', (event) => {
     vibrate: [200, 100, 200],
     data: {
       dateOfArrival: Date.now(),
-      primaryKey: data.id
+      primaryKey: data.id,
     },
     actions: [
       {
         action: 'open',
-        title: 'Open App'
+        title: 'Open App',
       },
       {
         action: 'close',
-        title: 'Close'
-      }
-    ]
+        title: 'Close',
+      },
+    ],
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title || 'Notes App', options)
+    self.registration.showNotification(data.title || 'Notes App', options),
   );
 });
 
@@ -295,7 +295,7 @@ self.addEventListener('notificationclick', (event) => {
 
   if (event.action === 'open') {
     event.waitUntil(
-      clients.openWindow('/')
+      clients.openWindow('/'),
     );
   }
 });
@@ -337,7 +337,7 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'CACHE_URLS') {
     event.waitUntil(
       caches.open(RUNTIME_CACHE)
-        .then((cache) => cache.addAll(event.data.urls))
+        .then((cache) => cache.addAll(event.data.urls)),
     );
   }
 
@@ -345,8 +345,8 @@ self.addEventListener('message', (event) => {
     event.waitUntil(
       caches.keys()
         .then((cacheNames) => Promise.all(
-          cacheNames.map((cacheName) => caches.delete(cacheName))
-        ))
+          cacheNames.map((cacheName) => caches.delete(cacheName)),
+        )),
     );
   }
 });
