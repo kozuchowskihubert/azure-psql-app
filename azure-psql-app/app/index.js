@@ -274,7 +274,14 @@ app.delete('/notes/:id', async (req, res) => {
 });
 
 // Serve index.html for all other routes (SPA support)
+// But skip requests for files with extensions (static files, PWA files, etc.)
 app.get('*', (req, res) => {
+  // Skip if request is for a file with an extension (except .html routes)
+  const ext = path.extname(req.path);
+  if (ext && ext !== '.html') {
+    // Let the static middleware handle it
+    return res.status(404).send('File not found');
+  }
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
