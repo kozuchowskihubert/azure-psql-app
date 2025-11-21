@@ -40,13 +40,28 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
-  console.error('DATABASE_URL is not set');
+  console.warn('⚠️  DATABASE_URL is not set - database features will be disabled');
 }
 
-const pool = new Pool({ connectionString: databaseUrl, ssl: { rejectUnauthorized: false } });
+// Only create pool if DATABASE_URL is available
+const pool = databaseUrl ? new Pool({ 
+  connectionString: databaseUrl, 
+  ssl: { rejectUnauthorized: false } 
+}) : null;
 
 // Make pool available to routes
 app.locals.db = pool;
+
+// Database connection middleware - ensures database is available for routes that need it
+const requireDatabase = (req, res, next) => {
+  if (!pool) {
+    return res.status(503).json({ 
+      error: 'Database not configured',
+      message: 'DATABASE_URL environment variable is not set'
+    });
+  }
+  next();
+};
 
 // Session configuration
 const sessionConfig = {
@@ -130,8 +145,15 @@ try {
 
 // Ensure table exists with enhanced schema
 async function ensureTable() {
-  const client = await pool.connect();
+  // Skip if no database connection available (e.g., in CI tests)
+  if (!pool) {
+    console.log('⚠️  Skipping database initialization - no DATABASE_URL configured');
+    return;
+  }
+  
+  let client;
   try {
+    client = await pool.connect();
     // Drop old table and create new one with enhanced schema
     await client.query('DROP TABLE IF EXISTS notes CASCADE');
     await client.query(`
@@ -149,39 +171,46 @@ async function ensureTable() {
       )
     `);
 
-    console.log('Database schema initialized successfully');
+    console.log('✅ Database schema initialized successfully');
+  } catch (error) {
+    console.error('❌ Database initialization failed:', error.message);
+    throw error;
   } finally {
-    client.release();
+    if (client) {
+      client.release();
+    }
   }
 }
 
 // Health check endpoint
 app.get('/health', async (req, res) => {
   try {
-    // Check database connection
-    const client = await pool.connect();
-    try {
-      await client.query('SELECT 1');
-      res.json({
-        status: 'healthy',
-        database: 'connected',
-        timestamp: new Date().toISOString(),
+    // Check database connection if pool is available
+    if (pool) {
+      const result = await pool.query('SELECT NOW()');
+      res.json({ 
+        status: 'healthy', 
+        timestamp: result.rows[0].now,
+        database: 'connected'
       });
-    } finally {
-      client.release();
+    } else {
+      res.json({ 
+        status: 'healthy', 
+        timestamp: new Date().toISOString(),
+        database: 'not configured'
+      });
     }
-  } catch (err) {
-    res.status(503).json({
-      status: 'unhealthy',
-      database: 'disconnected',
-      error: err.message,
-      timestamp: new Date().toISOString(),
+  } catch (error) {
+    res.status(503).json({ 
+      status: 'unhealthy', 
+      error: error.message,
+      database: 'connection failed'
     });
   }
 });
 
 // Get all notes
-app.get('/notes', async (req, res) => {
+app.get('/notes', requireDatabase, async (req, res) => {
   const client = await pool.connect();
   try {
     const { rows } = await client.query(`
@@ -199,7 +228,7 @@ app.get('/notes', async (req, res) => {
 });
 
 // Get single note by ID
-app.get('/notes/:id', async (req, res) => {
+app.get('/notes/:id', requireDatabase, async (req, res) => {
   const { id } = req.params;
   const client = await pool.connect();
   try {
@@ -220,7 +249,7 @@ app.get('/notes/:id', async (req, res) => {
 });
 
 // Create new note
-app.post('/notes', async (req, res) => {
+app.post('/notes', requireDatabase, async (req, res) => {
   const {
     title, content, category, important, note_type, mermaid_code, diagram_data,
   } = req.body;
@@ -247,7 +276,7 @@ app.post('/notes', async (req, res) => {
 });
 
 // Update note
-app.put('/notes/:id', async (req, res) => {
+app.put('/notes/:id', requireDatabase, async (req, res) => {
   const { id } = req.params;
   const {
     title, content, category, important, note_type, mermaid_code, diagram_data,
@@ -281,7 +310,7 @@ app.put('/notes/:id', async (req, res) => {
 });
 
 // Delete note
-app.delete('/notes/:id', async (req, res) => {
+app.delete('/notes/:id', requireDatabase, async (req, res) => {
   const { id } = req.params;
   const client = await pool.connect();
   try {
