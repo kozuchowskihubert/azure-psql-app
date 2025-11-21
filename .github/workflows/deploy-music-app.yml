@@ -117,20 +117,20 @@ jobs:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
 
       - name: 📝 Terraform Format Check
-        working-directory: ./infra
+        working-directory: ./infra-music
         run: |
           echo "Checking Terraform formatting..."
           terraform fmt -check -recursive || echo "⚠️ Formatting issues found (non-blocking)"
 
       - name: 🔧 Terraform Init (validation only)
-        working-directory: ./infra
+        working-directory: ./infra-music
         run: |
           echo "Initializing Terraform (no backend)..."
           terraform init -backend=false
           echo "✅ Terraform initialized successfully"
 
       - name: ✅ Terraform Validate
-        working-directory: ./infra
+        working-directory: ./infra-music
         run: |
           echo "Validating Terraform configuration..."
           terraform validate
@@ -184,39 +184,33 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: 🔧 Terraform Init
-        working-directory: ./infra
+        working-directory: ./infra-music
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         run: |
-          echo "🔧 Initializing Terraform with Azure backend..."
+          echo "🔧 Initializing Terraform with separate music state..."
           terraform init
           echo "✅ Terraform initialized successfully"
 
       - name: 🔍 Check and Unlock Terraform State
-        working-directory: ./infra
+        working-directory: ./infra-music
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         run: |
-          echo "🔍 Checking for state locks..."
+          echo "🔍 Checking for state locks in music state..."
           
-          # Known problematic lock ID
-          LOCK_ID="22fe6710-aaaa-1ce1-7418-706dd253a89f"
-          
-          echo "🔓 Force unlocking known lock: $LOCK_ID"
-          terraform force-unlock -force "$LOCK_ID" 2>&1 || echo "Lock may be already released"
-          
-          sleep 3
-          echo "✅ Proceeding with plan..."
+          # No known locks in new state file
+          echo "✅ New isolated state - no locks expected"
 
       - name: 📋 Terraform Plan
         id: plan
-        working-directory: ./infra
+        working-directory: ./infra-music
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -234,7 +228,7 @@ jobs:
           echo "✅ Terraform plan complete"
 
       - name: 🚀 Deploy Azure Infrastructure
-        working-directory: ./infra
+        working-directory: ./infra-music
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -243,13 +237,13 @@ jobs:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_vm_ssh_public_key: ${{ secrets.VM_SSH_PUBLIC_KEY }}
         run: |
-          echo "🚀 Deploying music infrastructure..."
+          echo "🚀 Deploying music infrastructure (isolated state)..."
           terraform apply -auto-approve tfplan
           echo "✅ Infrastructure deployed successfully"
 
       - name: 📤 Get Terraform Outputs
         id: output
-        working-directory: ./infra
+        working-directory: ./infra-music
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
