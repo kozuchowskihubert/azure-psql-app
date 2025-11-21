@@ -902,6 +902,55 @@
         </div>
     </div>
 
+    <!-- CLI Output Panel -->
+    <div class="synth-panel">
+        <div class="section-title">
+            <i class="fas fa-terminal"></i>
+            CLI Output & Presets
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+            <!-- Preset Selector -->
+            <div style="background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 10px;">
+                <h3 style="color: #00d4ff; margin-top: 0;">Load Preset</h3>
+                <select id="preset-selector" style="width: 100%; padding: 10px; background: #1a1a2e; color: #00d4ff; border: 2px solid #00d4ff; border-radius: 5px; font-size: 1em; margin-bottom: 10px;">
+                    <option value="">Select a preset...</option>
+                </select>
+                <button id="load-preset-btn" style="width: 100%; padding: 12px; background: linear-gradient(45deg, #00d4ff, #0099cc); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 1em;">
+                    <i class="fas fa-download"></i> Load Preset
+                </button>
+                
+                <div style="margin-top: 20px;">
+                    <h3 style="color: #00d4ff; margin-top: 0;">Export MIDI</h3>
+                    <input type="text" id="midi-filename" placeholder="output.mid" value="synth2600_export.mid" style="width: 100%; padding: 10px; background: #1a1a2e; color: #00d4ff; border: 2px solid #00d4ff; border-radius: 5px; font-size: 1em; margin-bottom: 10px;">
+                    <label style="display: block; color: #888; margin-bottom: 5px;">Bars: <span id="bars-value">4</span></label>
+                    <input type="range" id="midi-bars" min="1" max="16" value="4" style="width: 100%; margin-bottom: 10px;">
+                    <button id="export-midi-btn" style="width: 100%; padding: 12px; background: linear-gradient(45deg, #ff00ff, #cc00cc); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 1em;">
+                        <i class="fas fa-file-export"></i> Export MIDI
+                    </button>
+                </div>
+            </div>
+            
+            <!-- CLI Output Display -->
+            <div style="background: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px; border: 2px solid #00d4ff;">
+                <h3 style="color: #00d4ff; margin-top: 0;">
+                    <i class="fas fa-terminal"></i> CLI Output
+                </h3>
+                <pre id="cli-output" style="color: #0f0; font-family: 'Courier New', monospace; font-size: 0.9em; overflow-x: auto; max-height: 400px; overflow-y: auto; background: #000; padding: 15px; border-radius: 5px; margin: 0;">Ready. Load a preset or export MIDI to see output...</pre>
+            </div>
+        </div>
+        
+        <!-- Patch Connections Display -->
+        <div id="patch-connections" style="margin-top: 20px; display: none;">
+            <h3 style="color: #00d4ff;">
+                <i class="fas fa-project-diagram"></i> Patch Connections
+            </h3>
+            <div id="connections-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-top: 15px;">
+                <!-- Patch connections will be inserted here -->
+            </div>
+        </div>
+    </div>
+
     <script src="js/synth-2600-audio.js"></script>
     <script src="js/synth-2600.js"></script>
     <script>
@@ -1004,6 +1053,199 @@
         console.log('🎛️ Behringer 2600 Synthesizer Ready!');
         console.log('💡 Click POWER ON to start');
         console.log('🎹 Use your computer keyboard or click the piano keys to play');
+
+        // ============================================
+        // CLI Integration & API Calls
+        // ============================================
+        
+        const cliOutput = document.getElementById('cli-output');
+        const presetSelector = document.getElementById('preset-selector');
+        const loadPresetBtn = document.getElementById('load-preset-btn');
+        const exportMidiBtn = document.getElementById('export-midi-btn');
+        const midiBarsSlider = document.getElementById('midi-bars');
+        const barsValueDisplay = document.getElementById('bars-value');
+        const patchConnectionsDiv = document.getElementById('patch-connections');
+        const connectionsGrid = document.getElementById('connections-grid');
+        
+        // Update bars display
+        midiBarsSlider.addEventListener('input', (e) => {
+            barsValueDisplay.textContent = e.target.value;
+        });
+        
+        // Load available presets on page load
+        async function loadPresetList() {
+            try {
+                cliOutput.textContent = 'Loading presets...';
+                const response = await fetch('/api/music/synth2600/presets');
+                const data = await response.json();
+                
+                if (data.success) {
+                    presetSelector.innerHTML = '<option value="">Select a preset...</option>';
+                    
+                    // Add presets by category
+                    const categories = {
+                        soundscape: 'Soundscape Generators',
+                        rhythmic: 'Rhythmic Experiments',
+                        modulation: 'Modulation Madness',
+                        cinematic: 'Cinematic FX',
+                        psychedelic: 'Psychedelic',
+                        performance: 'Performance',
+                        musical: 'Musical Techniques'
+                    };
+                    
+                    Object.entries(data.categories).forEach(([category, presets]) => {
+                        if (presets.length > 0) {
+                            const optgroup = document.createElement('optgroup');
+                            optgroup.label = categories[category];
+                            presets.forEach(preset => {
+                                const option = document.createElement('option');
+                                option.value = preset;
+                                option.textContent = preset.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                optgroup.appendChild(option);
+                            });
+                            presetSelector.appendChild(optgroup);
+                        }
+                    });
+                    
+                    cliOutput.textContent = 'Ready. Select a preset to load.';
+                } else {
+                    cliOutput.textContent = 'Error loading presets: ' + data.error;
+                }
+            } catch (error) {
+                cliOutput.textContent = 'Error: ' + error.message;
+                console.error('Error loading presets:', error);
+            }
+        }
+        
+        // Load a specific preset
+        loadPresetBtn.addEventListener('click', async () => {
+            const presetName = presetSelector.value;
+            if (!presetName) {
+                alert('Please select a preset first');
+                return;
+            }
+            
+            try {
+                cliOutput.textContent = `Loading preset: ${presetName}...\n`;
+                loadPresetBtn.disabled = true;
+                loadPresetBtn.textContent = 'Loading...';
+                
+                const response = await fetch(`/api/music/synth2600/preset/${presetName}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    cliOutput.textContent = data.rawOutput;
+                    
+                    // Display patch connections visually
+                    if (data.patchConnections && data.patchConnections.length > 0) {
+                        patchConnectionsDiv.style.display = 'block';
+                        connectionsGrid.innerHTML = '';
+                        
+                        data.patchConnections.forEach(conn => {
+                            const connDiv = document.createElement('div');
+                            connDiv.style.cssText = `
+                                background: rgba(0, 212, 255, 0.1);
+                                border: 2px solid ${getConnectionColor(conn.color)};
+                                border-radius: 10px;
+                                padding: 15px;
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
+                            `;
+                            
+                            connDiv.innerHTML = `
+                                <div style="width: 20px; height: 20px; background: ${getConnectionColor(conn.color)}; border-radius: 50%;"></div>
+                                <div style="flex: 1;">
+                                    <div style="color: #00d4ff; font-weight: bold;">${conn.source}</div>
+                                    <div style="color: #888; font-size: 0.9em;">→</div>
+                                    <div style="color: #0f0; font-weight: bold;">${conn.destination}</div>
+                                </div>
+                                <div style="color: #ff00ff; font-weight: bold;">
+                                    ${(conn.level * 100).toFixed(0)}%
+                                </div>
+                            `;
+                            
+                            connectionsGrid.appendChild(connDiv);
+                        });
+                    } else {
+                        patchConnectionsDiv.style.display = 'none';
+                    }
+                } else {
+                    cliOutput.textContent = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                cliOutput.textContent = 'Error: ' + error.message;
+                console.error('Error loading preset:', error);
+            } finally {
+                loadPresetBtn.disabled = false;
+                loadPresetBtn.innerHTML = '<i class="fas fa-download"></i> Load Preset';
+            }
+        });
+        
+        // Export to MIDI
+        exportMidiBtn.addEventListener('click', async () => {
+            const filename = document.getElementById('midi-filename').value;
+            const bars = parseInt(midiBarsSlider.value);
+            
+            if (!filename.endsWith('.mid')) {
+                alert('Filename must end with .mid');
+                return;
+            }
+            
+            try {
+                cliOutput.textContent = `Exporting MIDI: ${filename} (${bars} bars)...\n`;
+                exportMidiBtn.disabled = true;
+                exportMidiBtn.textContent = 'Exporting...';
+                
+                const response = await fetch('/api/music/synth2600/export', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ filename, bars })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    cliOutput.textContent = data.rawOutput + '\n\n✓ MIDI file exported successfully!';
+                    
+                    // Download the MIDI file
+                    const midiBlob = new Blob([Uint8Array.from(atob(data.midiData), c => c.charCodeAt(0))], { type: 'audio/midi' });
+                    const url = URL.createObjectURL(midiBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } else {
+                    cliOutput.textContent = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                cliOutput.textContent = 'Error: ' + error.message;
+                console.error('Error exporting MIDI:', error);
+            } finally {
+                exportMidiBtn.disabled = false;
+                exportMidiBtn.innerHTML = '<i class="fas fa-file-export"></i> Export MIDI';
+            }
+        });
+        
+        // Helper function to get color hex from name
+        function getConnectionColor(colorName) {
+            const colors = {
+                'red': '#ff0000',
+                'blue': '#00d4ff',
+                'green': '#0f0',
+                'yellow': '#ffff00',
+                'white': '#fff',
+                'orange': '#ff8800',
+                'purple': '#ff00ff'
+            };
+            return colors[colorName.toLowerCase()] || '#00d4ff';
+        }
+        
+        // Initialize preset list on load
+        loadPresetList();
     </script>
 </body>
 </html>

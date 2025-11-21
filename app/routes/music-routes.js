@@ -771,5 +771,283 @@ else:
   }
 });
 
+// ============================================
+// BEHRINGER 2600 CLI ROUTES
+// ============================================
+
+const SYNTH2600_CLI = path.join(__dirname, '../ableton-cli/synth2600_cli.py');
+
+/**
+ * GET /api/music/synth2600/presets
+ * List all available Behringer 2600 presets
+ */
+router.get('/synth2600/presets', async (req, res) => {
+  try {
+    const { stdout, stderr } = await execPromise(
+      `python3 "${SYNTH2600_CLI}" preset --list`,
+      {
+        cwd: path.join(__dirname, '../ableton-cli'),
+        timeout: 5000,
+        encoding: 'utf8'
+      }
+    );
+    
+    // Parse the output to extract preset names
+    const presetCategories = {
+      soundscape: [],
+      rhythmic: [],
+      modulation: [],
+      cinematic: [],
+      psychedelic: [],
+      performance: [],
+      musical: []
+    };
+    
+    const lines = stdout.split('\n');
+    let currentCategory = null;
+    
+    lines.forEach(line => {
+      if (line.includes('Soundscape Generators:')) currentCategory = 'soundscape';
+      else if (line.includes('Rhythmic Experiments:')) currentCategory = 'rhythmic';
+      else if (line.includes('Modulation Madness:')) currentCategory = 'modulation';
+      else if (line.includes('Cinematic FX:')) currentCategory = 'cinematic';
+      else if (line.includes('Psychedelic:')) currentCategory = 'psychedelic';
+      else if (line.includes('Performance:')) currentCategory = 'performance';
+      else if (line.includes('Musical Techniques:')) currentCategory = 'musical';
+      else if (line.trim().startsWith('•') && currentCategory) {
+        const presetName = line.trim().substring(1).trim();
+        if (presetName) {
+          presetCategories[currentCategory].push(presetName);
+        }
+      }
+    });
+    
+    res.json({
+      success: true,
+      categories: presetCategories,
+      rawOutput: stdout
+    });
+    
+  } catch (error) {
+    console.error('Error listing synth2600 presets:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stderr: error.stderr
+    });
+  }
+});
+
+/**
+ * GET /api/music/synth2600/preset/:name
+ * Load and display a specific Behringer 2600 preset
+ */
+router.get('/synth2600/preset/:name', async (req, res) => {
+  try {
+    const presetName = req.params.name;
+    
+    const { stdout, stderr } = await execPromise(
+      `python3 "${SYNTH2600_CLI}" preset --load "${presetName}"`,
+      {
+        cwd: path.join(__dirname, '../ableton-cli'),
+        timeout: 5000,
+        encoding: 'utf8'
+      }
+    );
+    
+    // Parse the patch matrix from output
+    const patchConnections = [];
+    const lines = stdout.split('\n');
+    
+    lines.forEach(line => {
+      // Look for patch cable connections like: [RED] VCO1/OUT → MIXER/IN1 (Level: 0.70)
+      const match = line.match(/\[(.*?)\]\s+(.*?)\s+→\s+(.*?)\s+\(Level:\s+([\d.]+)\)/);
+      if (match) {
+        patchConnections.push({
+          color: match[1],
+          source: match[2],
+          destination: match[3],
+          level: parseFloat(match[4])
+        });
+      }
+    });
+    
+    res.json({
+      success: true,
+      preset: presetName,
+      patchConnections,
+      rawOutput: stdout
+    });
+    
+  } catch (error) {
+    console.error('Error loading synth2600 preset:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stderr: error.stderr
+    });
+  }
+});
+
+/**
+ * POST /api/music/synth2600/export
+ * Export current synth configuration to MIDI file
+ */
+router.post('/synth2600/export', async (req, res) => {
+  try {
+    const { filename = 'synth2600_export.mid', bars = 4 } = req.body;
+    const outputPath = path.join(__dirname, '../ableton-cli/output', filename);
+    
+    const { stdout, stderr } = await execPromise(
+      `python3 "${SYNTH2600_CLI}" export --midi "${outputPath}" --bars ${bars}`,
+      {
+        cwd: path.join(__dirname, '../ableton-cli'),
+        timeout: 10000,
+        encoding: 'utf8'
+      }
+    );
+    
+    // Read the generated MIDI file
+    const midiData = await fs.readFile(outputPath);
+    const midiBase64 = midiData.toString('base64');
+    
+    res.json({
+      success: true,
+      filename,
+      path: outputPath,
+      midiData: midiBase64,
+      rawOutput: stdout
+    });
+    
+  } catch (error) {
+    console.error('Error exporting synth2600 MIDI:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stderr: error.stderr
+    });
+  }
+});
+
+/**
+ * POST /api/music/synth2600/patch
+ * Add or remove a patch cable
+ */
+router.post('/synth2600/patch', async (req, res) => {
+  try {
+    const { action, source, destination, level = 0.8, color = 'red' } = req.body;
+    
+    let command;
+    if (action === 'add') {
+      command = `python3 "${SYNTH2600_CLI}" patch --add "${source}" "${destination}" --level ${level} --color ${color}`;
+    } else if (action === 'remove') {
+      command = `python3 "${SYNTH2600_CLI}" patch --remove "${source}" "${destination}"`;
+    } else if (action === 'show') {
+      command = `python3 "${SYNTH2600_CLI}" patch --show`;
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid action. Use "add", "remove", or "show"'
+      });
+    }
+    
+    const { stdout, stderr } = await execPromise(command, {
+      cwd: path.join(__dirname, '../ableton-cli'),
+      timeout: 5000,
+      encoding: 'utf8'
+    });
+    
+    res.json({
+      success: true,
+      action,
+      rawOutput: stdout
+    });
+    
+  } catch (error) {
+    console.error('Error managing synth2600 patch:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stderr: error.stderr
+    });
+  }
+});
+
+/**
+ * POST /api/music/synth2600/sequencer
+ * Program the 16-step sequencer
+ */
+router.post('/synth2600/sequencer', async (req, res) => {
+  try {
+    const { pattern = 'random', steps = 16 } = req.body;
+    
+    const { stdout, stderr } = await execPromise(
+      `python3 "${SYNTH2600_CLI}" sequencer --program "${pattern}" --steps ${steps}`,
+      {
+        cwd: path.join(__dirname, '../ableton-cli'),
+        timeout: 5000,
+        encoding: 'utf8'
+      }
+    );
+    
+    res.json({
+      success: true,
+      pattern,
+      steps,
+      rawOutput: stdout
+    });
+    
+  } catch (error) {
+    console.error('Error programming synth2600 sequencer:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stderr: error.stderr
+    });
+  }
+});
+
+/**
+ * POST /api/music/synth2600/params
+ * Set synthesizer parameters
+ */
+router.post('/synth2600/params', async (req, res) => {
+  try {
+    const { module, parameter, value } = req.body;
+    
+    if (!module || !parameter || value === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required parameters: module, parameter, value'
+      });
+    }
+    
+    const { stdout, stderr } = await execPromise(
+      `python3 "${SYNTH2600_CLI}" params --set "${module}.${parameter}=${value}"`,
+      {
+        cwd: path.join(__dirname, '../ableton-cli'),
+        timeout: 5000,
+        encoding: 'utf8'
+      }
+    );
+    
+    res.json({
+      success: true,
+      module,
+      parameter,
+      value,
+      rawOutput: stdout
+    });
+    
+  } catch (error) {
+    console.error('Error setting synth2600 parameters:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stderr: error.stderr
+    });
+  }
+});
+
 module.exports = router;
 
