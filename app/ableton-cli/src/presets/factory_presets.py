@@ -4,7 +4,7 @@ Curated presets for Behringer 2600 focused on deep techno production
 """
 
 from .library import (
-    Preset, PresetCategory, PresetLibrary,
+    Preset, PresetCategory, PresetLibrary, PresetVariation,
     PatchPoint, PatchCable, ModulatorSettings, SynthModule
 )
 
@@ -79,7 +79,52 @@ def create_deep_techno_presets() -> PresetLibrary:
         release=0.05
     ))
     
-    library.add_preset(sub_bass)
+    # Add variations for Sub Bass
+    # Variation 1: Punchy - Shorter decay for punchier kick
+    punchy_var = PresetVariation(
+        name="Punchy",
+        description="Shorter envelope for punchy kick-style sub bass",
+        notes="Great for tight, punchy kick drums"
+    )
+    punchy_var.patch_cables = [
+        PatchCable(PatchPoint("VCO1", "SINE", 1.0), PatchPoint("VCF", "AUDIO_IN", 1.0), "red"),
+        PatchCable(PatchPoint("VCF", "LP", 1.0), PatchPoint("VCA", "AUDIO_IN", 1.0), "red"),
+        PatchCable(PatchPoint("ENV1", "OUT", 1.0), PatchPoint("VCA", "CV", 1.0), "blue"),
+        PatchCable(PatchPoint("ENV2", "OUT", 0.8), PatchPoint("VCF", "CUTOFF_CV", 0.8), "green"),
+    ]
+    punchy_var.modules = {
+        "VCO1": SynthModule("VCO1", {"frequency": 55.0, "waveform": "sine", "fine_tune": 0.0}),
+        "VCF": SynthModule("VCF", {"cutoff": 0.25, "resonance": 0.15, "mode": "LP"}),
+    }
+    punchy_var.modulators = {
+        "ENV1": ModulatorSettings("ENV", attack=0.001, decay=0.4, sustain=0.0, release=0.05),  # Shorter decay
+        "ENV2": ModulatorSettings("ENV", attack=0.001, decay=0.1, sustain=0.0, release=0.03),  # Quick filter snap
+    }
+    sub_bass.add_variation(punchy_var)
+    
+    # Variation 2: Deep - Maximum decay for deep sub rumble
+    deep_var = PresetVariation(
+        name="Deep",
+        description="Extended decay for deep, rumbling sub bass",
+        notes="Perfect for long sub bass tails and rumbles"
+    )
+    deep_var.patch_cables = [
+        PatchCable(PatchPoint("VCO1", "SINE", 1.0), PatchPoint("VCF", "AUDIO_IN", 1.0), "red"),
+        PatchCable(PatchPoint("VCF", "LP", 1.0), PatchPoint("VCA", "AUDIO_IN", 1.0), "red"),
+        PatchCable(PatchPoint("ENV1", "OUT", 1.0), PatchPoint("VCA", "CV", 1.0), "blue"),
+        PatchCable(PatchPoint("ENV2", "OUT", 0.5), PatchPoint("VCF", "CUTOFF_CV", 0.5), "green"),
+    ]
+    deep_var.modules = {
+        "VCO1": SynthModule("VCO1", {"frequency": 50.0, "waveform": "sine", "fine_tune": 0.0}),  # Even lower
+        "VCF": SynthModule("VCF", {"cutoff": 0.35, "resonance": 0.08, "mode": "LP"}),
+    }
+    deep_var.modulators = {
+        "ENV1": ModulatorSettings("ENV", attack=0.001, decay=1.5, sustain=0.0, release=0.2),  # Very long decay
+        "ENV2": ModulatorSettings("ENV", attack=0.001, decay=0.3, sustain=0.0, release=0.1),
+    }
+    sub_bass.add_variation(deep_var)
+    
+    library.add_preset(sub_bass, overwrite=True)
     
     # 2. Acid Bass - Classic squelchy acid bass
     acid_bass = Preset(
@@ -139,7 +184,76 @@ def create_deep_techno_presets() -> PresetLibrary:
         release=0.1
     ))
     
-    library.add_preset(acid_bass)
+    # Add variations for Acid Bass
+    # Variation 1: Aggressive - Shorter decay, higher resonance
+    aggressive_var = PresetVariation(
+        name="Aggressive",
+        description="Shorter envelope decay with extreme resonance for aggressive acid stabs",
+        notes="Perfect for quick acid stabs and aggressive sequences"
+    )
+    aggressive_var.patch_cables = [
+        PatchCable(PatchPoint("VCO1", "SAW", 1.0), PatchPoint("VCF", "AUDIO_IN", 1.0), "red"),
+        PatchCable(PatchPoint("VCF", "LP", 1.0), PatchPoint("VCA", "AUDIO_IN", 1.0), "red"),
+        PatchCable(PatchPoint("ENV1", "OUT", 1.0), PatchPoint("VCA", "CV", 1.0), "blue"),
+        PatchCable(PatchPoint("ENV2", "OUT", 1.0), PatchPoint("VCF", "CUTOFF_CV", 1.0), "green", notes="Maximum envelope modulation"),
+    ]
+    aggressive_var.modules = {
+        "VCO1": SynthModule("VCO1", {"frequency": 110.0, "waveform": "sawtooth", "fine_tune": -5.0}),
+        "VCF": SynthModule("VCF", {"cutoff": 0.15, "resonance": 0.85, "mode": "LP"}),  # Higher resonance, lower cutoff
+    }
+    aggressive_var.modulators = {
+        "ENV1": ModulatorSettings("ENV", attack=0.001, decay=0.08, sustain=0.0, release=0.05),  # Shorter decay
+        "ENV2": ModulatorSettings("ENV", attack=0.001, decay=0.15, sustain=0.0, release=0.05),  # Snappy filter
+    }
+    acid_bass.add_variation(aggressive_var)
+    
+    # Variation 2: Modulated - Add LFO for filter wobble
+    modulated_var = PresetVariation(
+        name="Modulated",
+        description="LFO modulation on filter cutoff for wobbling acid effect",
+        notes="Slow LFO creates a wobbling, evolving acid sound"
+    )
+    modulated_var.patch_cables = [
+        PatchCable(PatchPoint("VCO1", "SAW", 1.0), PatchPoint("VCF", "AUDIO_IN", 1.0), "red"),
+        PatchCable(PatchPoint("VCF", "LP", 1.0), PatchPoint("VCA", "AUDIO_IN", 1.0), "red"),
+        PatchCable(PatchPoint("ENV1", "OUT", 1.0), PatchPoint("VCA", "CV", 1.0), "blue"),
+        PatchCable(PatchPoint("ENV2", "OUT", 0.7), PatchPoint("VCF", "CUTOFF_CV", 0.7), "green"),
+        PatchCable(PatchPoint("LFO1", "OUT", 0.4), PatchPoint("VCF", "CUTOFF_CV", 0.4), "yellow", notes="LFO wobble"),
+    ]
+    modulated_var.modules = {
+        "VCO1": SynthModule("VCO1", {"frequency": 110.0, "waveform": "sawtooth", "fine_tune": -5.0}),
+        "VCF": SynthModule("VCF", {"cutoff": 0.25, "resonance": 0.65, "mode": "LP"}),
+    }
+    modulated_var.modulators = {
+        "ENV1": ModulatorSettings("ENV", attack=0.001, decay=0.2, sustain=0.5, release=0.15),
+        "ENV2": ModulatorSettings("ENV", attack=0.001, decay=0.3, sustain=0.2, release=0.1),
+        "LFO1": ModulatorSettings("LFO", rate=0.25, waveform="triangle", depth=0.4),  # Slow wobble
+    }
+    acid_bass.add_variation(modulated_var)
+    
+    # Variation 3: Classic - Minimal patching, cleaner sound
+    classic_var = PresetVariation(
+        name="Classic",
+        description="Minimal patching for classic 303-style acid with medium resonance",
+        notes="Clean, traditional acid bass sound without extreme settings"
+    )
+    classic_var.patch_cables = [
+        PatchCable(PatchPoint("VCO1", "SAW", 1.0), PatchPoint("VCF", "AUDIO_IN", 1.0), "red"),
+        PatchCable(PatchPoint("VCF", "LP", 1.0), PatchPoint("VCA", "AUDIO_IN", 1.0), "red"),
+        PatchCable(PatchPoint("ENV1", "OUT", 1.0), PatchPoint("VCA", "CV", 1.0), "blue"),
+        PatchCable(PatchPoint("ENV2", "OUT", 0.8), PatchPoint("VCF", "CUTOFF_CV", 0.8), "green"),
+    ]
+    classic_var.modules = {
+        "VCO1": SynthModule("VCO1", {"frequency": 110.0, "waveform": "sawtooth", "fine_tune": 0.0}),
+        "VCF": SynthModule("VCF", {"cutoff": 0.3, "resonance": 0.6, "mode": "LP"}),  # Medium resonance
+    }
+    classic_var.modulators = {
+        "ENV1": ModulatorSettings("ENV", attack=0.001, decay=0.12, sustain=0.4, release=0.08),
+        "ENV2": ModulatorSettings("ENV", attack=0.001, decay=0.2, sustain=0.25, release=0.1),
+    }
+    acid_bass.add_variation(classic_var)
+    
+    library.add_preset(acid_bass, overwrite=True)
     
     # 3. Reese Bass - Detuned oscillators for thick bass
     reese_bass = Preset(
@@ -214,7 +328,7 @@ def create_deep_techno_presets() -> PresetLibrary:
         release=0.15
     ))
     
-    library.add_preset(reese_bass)
+    library.add_preset(reese_bass, overwrite=True)
     
     # ========== LEAD PRESETS ==========
     
@@ -303,7 +417,7 @@ def create_deep_techno_presets() -> PresetLibrary:
         waveform="triangle"
     ))
     
-    library.add_preset(arp_lead)
+    library.add_preset(arp_lead, overwrite=True)
     
     # ========== PAD PRESETS ==========
     
@@ -395,7 +509,7 @@ def create_deep_techno_presets() -> PresetLibrary:
         waveform="sine"
     ))
     
-    library.add_preset(dark_pad)
+    library.add_preset(dark_pad, overwrite=True)
     
     # ========== PERCUSSION PRESETS ==========
     
@@ -440,7 +554,7 @@ def create_deep_techno_presets() -> PresetLibrary:
         release=0.02
     ))
     
-    library.add_preset(hihat)
+    library.add_preset(hihat, overwrite=True)
     
     # 7. Snare - Punchy snare
     snare = Preset(
@@ -512,7 +626,7 @@ def create_deep_techno_presets() -> PresetLibrary:
         release=0.02
     ))
     
-    library.add_preset(snare)
+    library.add_preset(snare, overwrite=True)
     
     # ========== EFFECTS PRESETS ==========
     
@@ -567,7 +681,7 @@ def create_deep_techno_presets() -> PresetLibrary:
         release=0.2
     ))
     
-    library.add_preset(phaser)
+    library.add_preset(phaser, overwrite=True)
     
     # ========== SEQUENCE/MODULATION PRESETS ==========
     
@@ -640,7 +754,7 @@ def create_deep_techno_presets() -> PresetLibrary:
         release=0.1
     ))
     
-    library.add_preset(random_arp)
+    library.add_preset(random_arp, overwrite=True)
     
     # 10. LFO Wobble Bass - Deep wobble bass
     wobble_bass = Preset(
@@ -699,7 +813,7 @@ def create_deep_techno_presets() -> PresetLibrary:
         release=0.1
     ))
     
-    library.add_preset(wobble_bass)
+    library.add_preset(wobble_bass, overwrite=True)
     
     print(f"✨ Created {len(library.presets)} deep techno presets")
     return library

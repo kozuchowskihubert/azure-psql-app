@@ -240,6 +240,49 @@
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
         }
         
+        /* Variation Selector */
+        .variation-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .variation-btn {
+            padding: 8px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .variation-btn:hover {
+            border-color: rgba(52, 152, 219, 0.8);
+            background: rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .variation-btn.active {
+            border-color: #3498db;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+        
+        .variation-info {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #3498db;
+            margin: 10px 0 20px 0;
+        }
+        
+        .variation-info p {
+            margin: 5px 0;
+        }
+        
         .keyboard {
             margin-top: 30px;
             background: rgba(255, 255, 255, 0.05);
@@ -549,6 +592,9 @@
                     const preset = data.preset;
                     const modalBody = document.getElementById('modalBody');
                     
+                    // Store current preset for variation switching
+                    window.currentPreset = preset;
+                    
                     modalBody.innerHTML = `
                         <h2>${preset.name}</h2>
                         <p><strong>Category:</strong> ${preset.category}</p>
@@ -556,8 +602,30 @@
                         ${preset.bpm ? `<p><strong>BPM:</strong> ${preset.bpm}</p>` : ''}
                         ${preset.key ? `<p><strong>Key:</strong> ${preset.key}</p>` : ''}
                         
-                        <h3>Patch Cables (${preset.patch_cables.length})</h3>
-                        <ul>
+                        ${preset.variations && preset.variations.length > 0 ? `
+                            <h3>Variations (${preset.variations.length})</h3>
+                            <div class="variation-selector">
+                                <button class="variation-btn ${!preset.active_variation ? 'active' : ''}" 
+                                        onclick="selectVariation(null)">
+                                    Base Patch
+                                </button>
+                                ${preset.variations.map(variation => `
+                                    <button class="variation-btn ${preset.active_variation === variation.name ? 'active' : ''}" 
+                                            onclick="selectVariation('${variation.name}')">
+                                        ${variation.name}
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <div id="variation-info" class="variation-info">
+                                ${preset.active_variation ? 
+                                    `<p><strong>Active:</strong> ${preset.active_variation}</p>
+                                     <p>${preset.variations.find(v => v.name === preset.active_variation)?.description || ''}</p>` :
+                                    '<p><em>Showing base patch configuration</em></p>'}
+                            </div>
+                        ` : ''}
+                        
+                        <h3>Patch Cables (<span id="cable-count">${preset.patch_cables.length}</span>)</h3>
+                        <ul id="cable-list">
                             ${preset.patch_cables.map(cable => `
                                 <li>${cable.source.module}.${cable.source.output} → 
                                     ${cable.destination.module}.${cable.destination.input} 
@@ -575,6 +643,58 @@
             } catch (error) {
                 showError('Failed to load preset details: ' + error.message);
             }
+        }
+        
+        // Select a variation and update the display
+        function selectVariation(variationName) {
+            const preset = window.currentPreset;
+            if (!preset) return;
+            
+            // Get patch configuration
+            let patchCables, modules, modulators, description;
+            
+            if (variationName) {
+                const variation = preset.variations.find(v => v.name === variationName);
+                if (!variation) return;
+                
+                patchCables = variation.patch_cables;
+                modules = variation.modules;
+                modulators = variation.modulators;
+                description = variation.description;
+            } else {
+                patchCables = preset.patch_cables;
+                modules = preset.modules;
+                modulators = preset.modulators;
+                description = 'Base patch configuration';
+            }
+            
+            // Update variation info
+            const variationInfo = document.getElementById('variation-info');
+            if (variationInfo) {
+                variationInfo.innerHTML = variationName ?
+                    `<p><strong>Active:</strong> ${variationName}</p><p>${description}</p>` :
+                    '<p><em>Showing base patch configuration</em></p>';
+            }
+            
+            // Update cable list
+            const cableList = document.getElementById('cable-list');
+            const cableCount = document.getElementById('cable-count');
+            if (cableList && cableCount) {
+                cableCount.textContent = patchCables.length;
+                cableList.innerHTML = patchCables.map(cable => `
+                    <li>${cable.source.module}.${cable.source.output} → 
+                        ${cable.destination.module}.${cable.destination.input} 
+                        [${cable.color}]
+                        ${cable.notes ? `<br><em>${cable.notes}</em>` : ''}
+                    </li>
+                `).join('');
+            }
+            
+            // Update active button
+            document.querySelectorAll('.variation-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
         }
         
         // Initialize factory presets

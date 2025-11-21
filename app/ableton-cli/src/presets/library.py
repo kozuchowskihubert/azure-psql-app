@@ -6,7 +6,7 @@ Manages preset storage, categorization, and retrieval for Behringer 2600
 import json
 import os
 from datetime import datetime
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 from dataclasses import dataclass, field, asdict
 from enum import Enum
 from pathlib import Path
@@ -107,6 +107,49 @@ class SynthModule:
 
 
 @dataclass
+class PresetVariation:
+    """A variation of a preset with different patch routing"""
+    name: str
+    description: str = ""
+    patch_cables: List[PatchCable] = field(default_factory=list)
+    modules: Dict[str, SynthModule] = field(default_factory=dict)
+    modulators: Dict[str, ModulatorSettings] = field(default_factory=dict)
+    notes: str = ""
+    
+    def to_dict(self) -> Dict:
+        return {
+            'name': self.name,
+            'description': self.description,
+            'patch_cables': [cable.to_dict() for cable in self.patch_cables],
+            'modules': {k: v.to_dict() for k, v in self.modules.items()},
+            'modulators': {k: v.to_dict() for k, v in self.modulators.items()},
+            'notes': self.notes
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict) -> 'PresetVariation':
+        variation = cls(
+            name=data['name'],
+            description=data.get('description', ''),
+            notes=data.get('notes', '')
+        )
+        
+        # Load patch cables
+        for cable_data in data.get('patch_cables', []):
+            variation.patch_cables.append(PatchCable.from_dict(cable_data))
+        
+        # Load modules
+        for name, module_data in data.get('modules', {}).items():
+            variation.modules[name] = SynthModule.from_dict(module_data)
+        
+        # Load modulators
+        for name, mod_data in data.get('modulators', {}).items():
+            variation.modulators[name] = ModulatorSettings.from_dict(mod_data)
+        
+        return variation
+
+
+@dataclass
 class Preset:
     """Complete synthesizer preset"""
     name: str
@@ -120,6 +163,10 @@ class Preset:
     # Module settings
     modules: Dict[str, SynthModule] = field(default_factory=dict)
     modulators: Dict[str, ModulatorSettings] = field(default_factory=dict)
+    
+    # Variations - alternative patch configurations
+    variations: List[PresetVariation] = field(default_factory=list)
+    active_variation: Optional[str] = None  # Name of active variation
     
     # Metadata
     author: str = "Unknown"
@@ -153,6 +200,32 @@ class Preset:
         """Add or update modulator settings"""
         self.modulators[name] = settings
     
+    def add_variation(self, variation: PresetVariation) -> None:
+        """Add a patch variation to this preset"""
+        self.variations.append(variation)
+    
+    def get_variation(self, name: str) -> Optional[PresetVariation]:
+        """Get a specific variation by name"""
+        for var in self.variations:
+            if var.name == name:
+                return var
+        return None
+    
+    def set_active_variation(self, name: str) -> bool:
+        """Set the active variation"""
+        if self.get_variation(name):
+            self.active_variation = name
+            return True
+        return False
+    
+    def get_active_patch(self) -> Tuple[List[PatchCable], Dict[str, SynthModule], Dict[str, ModulatorSettings]]:
+        """Get the active patch configuration (either base or variation)"""
+        if self.active_variation:
+            variation = self.get_variation(self.active_variation)
+            if variation:
+                return variation.patch_cables, variation.modules, variation.modulators
+        return self.patch_cables, self.modules, self.modulators
+    
     def add_tag(self, tag: str) -> None:
         """Add a tag to this preset"""
         self.tags.add(tag.lower())
@@ -179,6 +252,8 @@ class Preset:
             'patch_cables': [cable.to_dict() for cable in self.patch_cables],
             'modules': {k: v.to_dict() for k, v in self.modules.items()},
             'modulators': {k: v.to_dict() for k, v in self.modulators.items()},
+            'variations': [var.to_dict() for var in self.variations],
+            'active_variation': self.active_variation,
             'author': self.author,
             'created_at': self.created_at,
             'modified_at': self.modified_at,
@@ -216,6 +291,13 @@ class Preset:
         # Load modulators
         for name, mod_data in data.get('modulators', {}).items():
             preset.modulators[name] = ModulatorSettings.from_dict(mod_data)
+        
+        # Load variations
+        for var_data in data.get('variations', []):
+            preset.variations.append(PresetVariation.from_dict(var_data))
+        
+        # Set active variation
+        preset.active_variation = data.get('active_variation')
         
         return preset
 

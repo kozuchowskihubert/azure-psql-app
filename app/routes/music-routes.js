@@ -1251,4 +1251,85 @@ router.post('/presets/:presetName/render', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/music/presets/:presetName/variations
+ * Get all variations for a specific preset
+ */
+router.get('/presets/:presetName/variations', async (req, res) => {
+  try {
+    const presetName = decodeURIComponent(req.params.presetName);
+    const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
+    
+    const libraryData = await fs.readFile(presetLibPath, 'utf8');
+    const library = JSON.parse(libraryData);
+    const preset = library.presets.find(p => p.name === presetName);
+    
+    if (!preset) {
+      return res.status(404).json({
+        success: false,
+        error: 'Preset not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      preset_name: preset.name,
+      active_variation: preset.active_variation || null,
+      variations: preset.variations || [],
+      variation_count: (preset.variations || []).length
+    });
+  } catch (error) {
+    console.error('Error loading preset variations:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/music/presets/:presetName/variations/:variationName
+ * Get a specific variation for a preset
+ */
+router.get('/presets/:presetName/variations/:variationName', async (req, res) => {
+  try {
+    const presetName = decodeURIComponent(req.params.presetName);
+    const variationName = decodeURIComponent(req.params.variationName);
+    const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
+    
+    const libraryData = await fs.readFile(presetLibPath, 'utf8');
+    const library = JSON.parse(libraryData);
+    const preset = library.presets.find(p => p.name === presetName);
+    
+    if (!preset) {
+      return res.status(404).json({
+        success: false,
+        error: 'Preset not found'
+      });
+    }
+    
+    const variation = (preset.variations || []).find(v => v.name === variationName);
+    
+    if (!variation) {
+      return res.status(404).json({
+        success: false,
+        error: 'Variation not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      preset_name: preset.name,
+      variation
+    });
+  } catch (error) {
+    console.error('Error loading variation:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
+
