@@ -28,6 +28,7 @@ collaborationServer(server);
 console.log('✓ WebSocket collaboration server initialized');
 
 // Initialize database and start server
+// Try to connect to database, but don't fail if unavailable
 ensureTable()
   .then(() => {
     server.listen(port, () => {
@@ -36,13 +37,22 @@ ensureTable()
       console.log('│  ✓ Database initialized                    │');
       console.log('│  ✓ WebSocket server ready                  │');
       console.log('│  ✓ REST API endpoints active               │');
+      console.log('│  ✓ Music/Preset routes available           │');
       console.log('└─────────────────────────────────────────────┘');
     });
   })
   .catch((err) => {
-    console.error('❌ Failed to initialize database:', err);
-    console.error('Server startup aborted.');
-    process.exit(1);
+    console.warn('⚠️  Database not available:', err.message);
+    console.warn('Starting server without database features...');
+    server.listen(port, () => {
+      console.log('┌─────────────────────────────────────────────┐');
+      console.log(`│  🚀 Server running on port ${port}           │`);
+      console.log('│  ⚠️  Database features disabled             │');
+      console.log('│  ✓ WebSocket server ready                  │');
+      console.log('│  ✓ Music/Preset routes available           │');
+      console.log('│  ✓ Synth 2600 Studio active                │');
+      console.log('└─────────────────────────────────────────────┘');
+    });
   });
 
 // Graceful shutdown

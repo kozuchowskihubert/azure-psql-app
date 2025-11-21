@@ -775,110 +775,105 @@ const SYNTH2600_CLI = path.join(__dirname, '../ableton-cli/synth2600_cli.py');
 
 /**
  * GET /api/music/synth2600/presets
- * List all available Behringer 2600 presets
+ * List all available Behringer 2600 presets from preset_library.json
  */
 router.get('/synth2600/presets', async (req, res) => {
   try {
-    const { stdout, stderr } = await execPromise(
-      `python3 "${SYNTH2600_CLI}" preset --list`,
-      {
-        cwd: path.join(__dirname, '../ableton-cli'),
-        timeout: 5000,
-        encoding: 'utf8',
-      },
-    );
+    const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
+    
+    // Check if file exists
+    try {
+      await fs.access(presetLibPath);
+    } catch (err) {
+      return res.status(404).json({
+        success: false,
+        error: 'Preset library not found. Try initializing presets first.',
+        hint: 'POST /api/music/presets/init'
+      });
+    }
 
-    // Parse the output to extract preset names
+    // Read and parse preset library
+    const data = await fs.readFile(presetLibPath, 'utf8');
+    const presetLib = JSON.parse(data);
+
+    // Group by category
     const presetCategories = {
-      soundscape: [],
-      rhythmic: [],
+      bass: [],
+      lead: [],
+      pad: [],
+      percussion: [],
+      effects: [],
+      sequence: [],
       modulation: [],
-      cinematic: [],
-      psychedelic: [],
-      performance: [],
-      musical: [],
     };
 
-    const lines = stdout.split('\n');
-    let currentCategory = null;
-
-    lines.forEach((line) => {
-      if (line.includes('Soundscape Generators:')) currentCategory = 'soundscape';
-      else if (line.includes('Rhythmic Experiments:')) currentCategory = 'rhythmic';
-      else if (line.includes('Modulation Madness:')) currentCategory = 'modulation';
-      else if (line.includes('Cinematic FX:')) currentCategory = 'cinematic';
-      else if (line.includes('Psychedelic:')) currentCategory = 'psychedelic';
-      else if (line.includes('Performance:')) currentCategory = 'performance';
-      else if (line.includes('Musical Techniques:')) currentCategory = 'musical';
-      else if (line.trim().startsWith('•') && currentCategory) {
-        const presetName = line.trim().substring(1).trim();
-        if (presetName) {
-          presetCategories[currentCategory].push(presetName);
-        }
+    presetLib.presets.forEach((preset) => {
+      const category = preset.category || 'other';
+      if (presetCategories[category]) {
+        presetCategories[category].push(preset.name);
       }
     });
 
     res.json({
       success: true,
       categories: presetCategories,
-      rawOutput: stdout,
+      total: presetLib.presets.length,
     });
   } catch (error) {
     console.error('Error listing synth2600 presets:', error);
     res.status(500).json({
       success: false,
       error: error.message,
-      stderr: error.stderr,
     });
   }
 });
 
 /**
  * GET /api/music/synth2600/preset/:name
- * Load and display a specific Behringer 2600 preset
+ * Load and display a specific Behringer 2600 preset from preset_library.json
  */
 router.get('/synth2600/preset/:name', async (req, res) => {
   try {
     const presetName = req.params.name;
+    const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
 
-    const { stdout, stderr } = await execPromise(
-      `python3 "${SYNTH2600_CLI}" preset --load "${presetName}"`,
-      {
-        cwd: path.join(__dirname, '../ableton-cli'),
-        timeout: 5000,
-        encoding: 'utf8',
-      },
-    );
+    // Read preset library
+    const data = await fs.readFile(presetLibPath, 'utf8');
+    const presetLib = JSON.parse(data);
 
-    // Parse the patch matrix from output
-    const patchConnections = [];
-    const lines = stdout.split('\n');
+    // Find the preset
+    const preset = presetLib.presets.find(p => p.name === presetName);
 
-    lines.forEach((line) => {
-      // Look for patch cable connections like: [RED] VCO1/OUT → MIXER/IN1 (Level: 0.70)
-      const match = line.match(/\[(.*?)\]\s+(.*?)\s+→\s+(.*?)\s+\(Level:\s+([\d.]+)\)/);
-      if (match) {
-        patchConnections.push({
-          color: match[1],
-          source: match[2],
-          destination: match[3],
-          level: parseFloat(match[4]),
-        });
-      }
-    });
+    if (!preset) {
+      return res.status(404).json({
+        success: false,
+        error: `Preset '${presetName}' not found`
+      });
+    }
+
+    // Convert preset to patch connections format
+    const patchConnections = preset.patch_cables.map(cable => ({
+      color: cable.color,
+      source: `${cable.source.module}/${cable.source.output}`,
+      destination: `${cable.destination.module}/${cable.destination.output}`,
+      level: cable.source.level
+    }));
 
     res.json({
       success: true,
       preset: presetName,
       patchConnections,
-      rawOutput: stdout,
+      modules: preset.modules,
+      modulators: preset.modulators,
+      description: preset.description,
+      category: preset.category,
+      tags: preset.tags
     });
   } catch (error) {
     console.error('Error loading synth2600 preset:', error);
     res.status(500).json({
       success: false,
       error: error.message,
-      stderr: error.stderr,
     });
   }
 });
