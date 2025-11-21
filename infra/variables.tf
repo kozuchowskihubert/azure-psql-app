@@ -60,4 +60,5 @@ variable "vm_ssh_public_key" {
   description = "SSH public key for VM access"
   type        = string
   sensitive   = true
+  default     = "" # Will be generated if not provided
 }

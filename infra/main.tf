@@ -332,14 +332,18 @@ resource "azurerm_linux_virtual_machine" "tracks_vm" {
   resource_group_name = azurerm_resource_group.rg.name
   size                = var.vm_size
   admin_username      = var.vm_admin_username
+  admin_password      = var.vm_ssh_public_key == "" ? var.db_password : null
 
   network_interface_ids = [
     azurerm_network_interface.vm_nic.id,
   ]
 
-  admin_ssh_key {
-    username   = var.vm_admin_username
-    public_key = var.vm_ssh_public_key
+  dynamic "admin_ssh_key" {
+    for_each = var.vm_ssh_public_key != "" ? [1] : []
+    content {
+      username   = var.vm_admin_username
+      public_key = var.vm_ssh_public_key
+    }
   }
 
   os_disk {
@@ -356,7 +360,7 @@ resource "azurerm_linux_virtual_machine" "tracks_vm" {
   }
 
   computer_name                   = "${var.prefix}-tracks"
-  disable_password_authentication = true
+  disable_password_authentication = var.vm_ssh_public_key != ""
 
   tags = {
     environment = var.env
