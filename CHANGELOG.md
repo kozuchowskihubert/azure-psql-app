@@ -7,63 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2025-11-21
 
-### Added - Music Production Features 🎵
+### Changed - Architecture Reorganization
 
-#### MIDI Generator & Visualizer
-- Interactive MIDI generator with piano roll visualization
-- 36-key virtual piano keyboard (C3-B5, 3 octaves)
-- Real-time waveform visualizer (50 animated bars)
-- Spectrum analyzer (32 frequency bars)
-- Genre-specific MIDI pattern generation (Techno, House, Ambient)
-- Velocity-based color visualization
-- Export functionality (JSON and CSV formats)
-- Piano roll preview with note names
+**Music Production Features Moved to Feature Branch**
 
-#### Music Production Page
-- Ableton Live Recordings browser integration
-- CLI Studio interface for music generation
-- Generate MIDI patterns (Deep/Minimal/Hard Techno)
-- Generate Ableton templates
-- Full workflow automation
-- MIDI file download endpoints
-- Preview MIDI files with Python mido parsing
-- Project statistics dashboard
+All music production and MIDI generation functionality has been moved exclusively to the `feat/tracks` branch to maintain a clean separation of concerns. The main branch now focuses on core productivity features.
 
-#### Navigation
-- Cross-navigation between MIDI Generator and Music Projects
-- Music production link in main navigation
-- Improved user flow between music tools
+**Moved to feat/tracks branch:**
+- MIDI Generator with piano roll visualization
+- Music Production Studio interface  
+- Ableton CLI integration
+- Python MIDI libraries (mido, midiutil)
+- Music routes and API endpoints
+- All music-related documentation
 
-#### Backend Improvements
-- MIDI preview endpoint with Python mido library
-- Music routes for CLI automation
-- File download functionality for MIDI files
-- Python script execution for MIDI parsing
-- Genre-specific pattern generation API
+**Why this change?**
+- Keeps main branch focused on enterprise productivity features
+- Reduces Docker image size (from 591MB to ~200MB)
+- Simplifies deployment for users who don't need music features
+- Allows independent development of music features
+- Cleaner separation between business productivity and creative tools
 
-#### Documentation
-- MIDI Visualizer complete guide
-- MIDI Visualizer features documentation
-- Visual guide with ASCII art
-- Executive summary and roadmap
-- Architecture documentation
-- Calendar SSO architecture guide
+**To access music features:**
+```bash
+git checkout feat/tracks
+```
 
-### Fixed
-- pyautogui made optional for server environments
-- Alpine Docker pip install with --break-system-packages flag
-- Database connection handling in tests
-- Process.exit prevention in test environments
+See [BRANCH_COMPARISON.md](docs/technical/BRANCH_COMPARISON.md) for detailed differences.
 
-### Security
-- Python dependencies updated (mido >= 1.3.0, midiutil >= 1.2.1)
-- Path traversal protection in MIDI preview
-- File extension validation (.mid only)
-
-### Performance
-- Optimized MIDI parsing with Python subprocess
-- Efficient piano roll rendering
-- Animated visualizations with CSS keyframes
+### Infrastructure
+- Simplified Dockerfile (removed Python dependencies)
+- Reduced production build size
+- Cleaner dependency management
 
 ## [1.0.0] - 2025-11-20
 
