@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Features & Roadmap - Notes App</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Explore features and roadmap for Notes App">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Features">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .status-implemented {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .status-planned {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .status-not-started {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold flex items-center">
+                        <i class="fas fa-rocket mr-3"></i>
+                        Features & Roadmap
+                    </h1>
+                    <p class="text-blue-100 mt-2">Notes App - Current Status & Future Plans</p>
+                </div>
+                <a href="/" class="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-lg transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to App
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Legend -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Status Legend</h2>
+            <div class="flex flex-wrap gap-4">
+                <div class="flex items-center">
+                    <div class="status-implemented w-4 h-4 rounded-full mr-2"></div>
+                    <span class="text-gray-700"><strong>Implemented</strong> - Live and working</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="status-planned w-4 h-4 rounded-full mr-2"></div>
+                    <span class="text-gray-700"><strong>Planned</strong> - Architecture ready, needs coding</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="status-not-started w-4 h-4 rounded-full mr-2"></div>
+                    <span class="text-gray-700"><strong>Not Started</strong> - Future enhancement</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core Features -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                Core Features (Implemented)
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Notes Management -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-implemented text-white px-3 py-1 rounded-full text-sm">
+                            ✓ Live
+                        </div>
+                        <i class="fas fa-sticky-note text-4xl text-green-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Notes Management</h3>
+                    <p class="text-gray-600 mb-4">Create, edit, delete, and organize notes with categories</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>CRUD operations</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Category filtering</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Search functionality</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Dark mode support</li>
+                    </ul>
+                </div>
+
+                <!-- Mermaid Diagrams -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-implemented text-white px-3 py-1 rounded-full text-sm">
+                            ✓ Live
+                        </div>
+                        <i class="fas fa-project-diagram text-4xl text-green-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Diagram Editor</h3>
+                    <p class="text-gray-600 mb-4">Visual diagram creation with Mermaid.js</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Drag-and-drop shapes</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Live preview</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Auto-generate Mermaid code</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Edit/delete nodes</li>
+                    </ul>
+                </div>
+
+                <!-- Database -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-implemented text-white px-3 py-1 rounded-full text-sm">
+                            ✓ Live
+                        </div>
+                        <i class="fas fa-database text-4xl text-green-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">PostgreSQL Database</h3>
+                    <p class="text-gray-600 mb-4">Azure PostgreSQL integration</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Cloud-hosted database</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Connection pooling</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Health monitoring</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Auto-deployment</li>
+                    </ul>
+                </div>
+
+                <!-- Excel Workspace -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-implemented text-white px-3 py-1 rounded-full text-sm">
+                            ✓ Live
+                        </div>
+                        <i class="fas fa-file-excel text-4xl text-green-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Excel Workspace</h3>
+                    <p class="text-gray-600 mb-4">Enterprise-grade spreadsheet with privacy-first design</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>100% client-side (zero server uploads)</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Advanced formulas (VLOOKUP, HLOOKUP, CONCAT, DATE, TEXT)</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Data quality detection & validation</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Conditional formatting (colors, data bars, icons)</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Live charts (Bar, Line, Pie, Doughnut)</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Multi-format export (Excel, CSV, PDF, JSON)</li>
+                    </ul>
+                    <div class="mt-4">
+                        <a href="/excel.html" class="text-xs text-blue-600 hover:text-blue-800 font-semibold">
+                            <i class="fas fa-external-link-alt mr-1"></i>Try Excel Workspace
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Calendar -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-implemented text-white px-3 py-1 rounded-full text-sm">
+                            ✓ Live
+                        </div>
+                        <i class="fas fa-calendar-alt text-4xl text-green-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Advanced Calendar</h3>
+                    <p class="text-gray-600 mb-4">Full-featured calendar with offline support</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Recurring events (daily, weekly, monthly)</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Drag & drop event scheduling</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Event search & filtering</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>.ics export for external calendars</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Local storage for offline access</li>
+                    </ul>
+                    <div class="mt-4">
+                        <a href="/calendar.html" class="text-xs text-blue-600 hover:text-blue-800 font-semibold">
+                            <i class="fas fa-external-link-alt mr-1"></i>Open Calendar
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Progressive Web App -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-implemented text-white px-3 py-1 rounded-full text-sm">
+                            ✓ Live
+                        </div>
+                        <i class="fas fa-mobile-alt text-4xl text-green-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Progressive Web App</h3>
+                    <p class="text-gray-600 mb-4">Install on mobile & desktop, works offline</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Install on iOS, Android & Desktop</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Offline support with service worker</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Background sync for offline changes</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>App shortcuts (Notes, Excel, Calendar)</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Share target for .xlsx/.csv files</li>
+                    </ul>
+                </div>
+
+                <!-- SSO Login UI -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-implemented text-white px-3 py-1 rounded-full text-sm">
+                            ✓ Live
+                        </div>
+                        <i class="fas fa-shield-alt text-4xl text-green-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">SSO Login UI</h3>
+                    <p class="text-gray-600 mb-4">Multi-provider authentication interface</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Azure AD, Google, Microsoft OAuth</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Session management UI</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>JWT token placeholders</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Profile management interface</li>
+                    </ul>
+                    <div class="mt-4">
+                        <a href="/sso.html" class="text-xs text-blue-600 hover:text-blue-800 font-semibold">
+                            <i class="fas fa-external-link-alt mr-1"></i>View SSO Page
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Excel Features In Progress -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-sparkles text-blue-500 mr-3"></i>
+                Excel Features (Planned)
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <!-- Filter & Sort -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm">
+                            Coming Soon
+                        </div>
+                        <i class="fas fa-filter text-4xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Advanced Filter & Sort</h3>
+                    <p class="text-gray-600 mb-4">Powerful data manipulation</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-circle text-blue-500 mr-2 text-xs"></i>Column filter dropdowns</li>
+                        <li><i class="fas fa-circle text-blue-500 mr-2 text-xs"></i>Multi-column sorting</li>
+                        <li><i class="fas fa-circle text-blue-500 mr-2 text-xs"></i>Text/number/date filters</li>
+                        <li><i class="fas fa-circle text-blue-500 mr-2 text-xs"></i>Natural sort algorithm</li>
+                    </ul>
+                </div>
+
+                <!-- UI Enhancements -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm">
+                            Coming Soon
+                        </div>
+                        <i class="fas fa-th text-4xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">UI Enhancements</h3>
+                    <p class="text-gray-600 mb-4">Professional spreadsheet interface</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-circle text-blue-500 mr-2 text-xs"></i>Freeze panes (rows & columns)</li>
+                        <li><i class="fas fa-circle text-blue-500 mr-2 text-xs"></i>Column resize & auto-fit</li>
+                        <li><i class="fas fa-circle text-blue-500 mr-2 text-xs"></i>Zebra striping</li>
+                        <li><i class="fas fa-circle text-blue-500 mr-2 text-xs"></i>Cell comments & notes</li>
+                    </ul>
+                </div>
+
+                <!-- Performance -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm">
+                            Coming Soon
+                        </div>
+                        <i class="fas fa-tachometer-alt text-4xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Performance Optimization</h3>
+                    <p class="text-gray-600 mb-4">Handle massive datasets</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-circle text-blue-500 mr-2 text-xs"></i>Virtual scrolling</li>
+                        <li><i class="fas fa-circle text-blue-500 mr-2 text-xs"></i>Formula caching</li>
+                        <li><i class="fas fa-circle text-blue-500 mr-2 text-xs"></i>Web Workers (parallel processing)</li>
+                        <li><i class="fas fa-circle text-blue-500 mr-2 text-xs"></i>Large file support (10K+ rows)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backend Integration (Architecture Ready) -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-clock text-yellow-500 mr-3"></i>
+                Backend Integration (Architecture Ready)
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- SSO Backend -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-planned text-white px-3 py-1 rounded-full text-sm pulse">
+                            ⏱ Planned
+                        </div>
+                        <i class="fas fa-shield-alt text-4xl text-yellow-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">SSO Backend</h3>
+                    <p class="text-gray-600 mb-4">Connect OAuth providers to backend</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Azure AD OAuth (code ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Google OAuth (code ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>User sessions (schema ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Role-based access (schema ready)</li>
+                    </ul>
+                    <div class="mt-4 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        See: <code>app/auth/sso-config.js</code>
+                    </div>
+                </div>
+
+                <!-- Calendar Cloud Sync -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-planned text-white px-3 py-1 rounded-full text-sm pulse">
+                            ⏱ Planned
+                        </div>
+                        <i class="fas fa-cloud text-4xl text-yellow-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Calendar Cloud Sync</h3>
+                    <p class="text-gray-600 mb-4">Sync with external calendar providers</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Google Calendar sync (schema ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Outlook sync (schema ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Database storage (API ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Conflict resolution (planned)</li>
+                    </ul>
+                    <div class="mt-4 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        See: <code>app/routes/calendar-routes.js</code>
+                    </div>
+                </div>
+
+                <!-- Meeting Scheduling -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-planned text-white px-3 py-1 rounded-full text-sm pulse">
+                            ⏱ Planned
+                        </div>
+                        <i class="fas fa-handshake text-4xl text-yellow-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Meeting Scheduler</h3>
+                    <p class="text-gray-600 mb-4">Book meetings and rooms</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Meeting booking (API ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Room finder (API ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Availability check (API ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Virtual meetings (schema ready)</li>
+                    </ul>
+                    <div class="mt-4 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        See: <code>app/routes/meeting-routes.js</code>
+                    </div>
+                </div>
+
+                <!-- Room Booking -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-planned text-white px-3 py-1 rounded-full text-sm pulse">
+                            ⏱ Planned
+                        </div>
+                        <i class="fas fa-door-open text-4xl text-yellow-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Room Management</h3>
+                    <p class="text-gray-600 mb-4">Conference room booking system</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-database text-yellow-500 mr-2"></i>Room database (schema ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Capacity filters (API ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Feature search (API ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Conflict detection (API ready)</li>
+                    </ul>
+                    <div class="mt-4 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        See: <code>infra/schema-extensions.sql</code>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-planned text-white px-3 py-1 rounded-full text-sm pulse">
+                            ⏱ Planned
+                        </div>
+                        <i class="fas fa-bell text-4xl text-yellow-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Notifications</h3>
+                    <p class="text-gray-600 mb-4">Email and push notifications</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-database text-yellow-500 mr-2"></i>Notification queue (schema ready)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Email delivery (planned)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Push notifications (planned)</li>
+                        <li><i class="fas fa-file-code text-yellow-500 mr-2"></i>Reminder system (schema ready)</li>
+                    </ul>
+                    <div class="mt-4 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        See: <code>infra/schema-extensions.sql</code>
+                    </div>
+                </div>
+
+                <!-- Note Linking -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-planned text-white px-3 py-1 rounded-full text-sm pulse">
+                            ⏱ Planned
+                        </div>
+                        <i class="fas fa-link text-4xl text-yellow-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Note Integration</h3>
+                    <p class="text-gray-600 mb-4">Link notes to events and meetings</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-database text-yellow-500 mr-2"></i>Event linking (schema ready)</li>
+                        <li><i class="fas fa-database text-yellow-500 mr-2"></i>Meeting linking (schema ready)</li>
+                        <li><i class="fas fa-database text-yellow-500 mr-2"></i>Meeting minutes (schema ready)</li>
+                        <li><i class="fas fa-database text-yellow-500 mr-2"></i>Action items (schema ready)</li>
+                    </ul>
+                    <div class="mt-4 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        See: <code>infra/schema-extensions.sql</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Future Enhancements -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-lightbulb text-gray-500 mr-3"></i>
+                Future Enhancements
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Diagram Persistence -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-gray-400">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-not-started text-white px-3 py-1 rounded-full text-sm">
+                            Not Started
+                        </div>
+                        <i class="fas fa-save text-4xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Diagram Persistence</h3>
+                    <p class="text-gray-600 mb-4">Save and restore diagram layouts</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-circle text-gray-400 mr-2 text-xs"></i>Save node positions</li>
+                        <li><i class="fas fa-circle text-gray-400 mr-2 text-xs"></i>Connection lines</li>
+                        <li><i class="fas fa-circle text-gray-400 mr-2 text-xs"></i>Restore on edit</li>
+                    </ul>
+                </div>
+
+                <!-- Mobile App -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-gray-400">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="bg-green-500 text-white px-3 py-1 rounded-full text-sm">
+                            ✓ PWA Complete
+                        </div>
+                        <i class="fas fa-mobile-alt text-4xl text-green-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Mobile App (PWA)</h3>
+                    <p class="text-gray-600 mb-4">Progressive Web App - installed and working</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>iOS & Android install support</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Offline functionality</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Background sync</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Push notification framework ready</li>
+                    </ul>
+                    <div class="mt-4 text-xs text-green-600">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        <strong>Status:</strong> Deployed and testable
+                    </div>
+                </div>
+
+                <!-- AI Integration -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 border-l-4 border-gray-400">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="status-not-started text-white px-3 py-1 rounded-full text-sm">
+                            Not Started
+                        </div>
+                        <i class="fas fa-robot text-4xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">AI Features</h3>
+                    <p class="text-gray-600 mb-4">Smart suggestions and automation</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-circle text-gray-400 mr-2 text-xs"></i>Meeting summaries</li>
+                        <li><i class="fas fa-circle text-gray-400 mr-2 text-xs"></i>Smart scheduling</li>
+                        <li><i class="fas fa-circle text-gray-400 mr-2 text-xs"></i>Note suggestions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Guide -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-8">
+            <h3 class="text-xl font-bold text-blue-900 mb-3 flex items-center">
+                <i class="fas fa-book-open mr-3"></i>
+                Documentation & Resources
+            </h3>
+            <p class="text-blue-800 mb-4">
+                Comprehensive guides for all features - implementation, architecture, and user documentation.
+            </p>
+            <div class="grid md:grid-cols-2 gap-3">
+                <!-- Excel Documentation -->
+                <a href="/excel.html" class="block bg-white hover:bg-blue-50 text-blue-700 px-4 py-3 rounded-lg transition-all">
+                    <i class="fas fa-file-excel mr-2"></i>
+                    <strong>Excel Workspace</strong> - Try live demo
+                </a>
+                <a href="../docs/user-guides/EXCEL_GUIDE.md" target="_blank" class="block bg-white hover:bg-blue-50 text-blue-700 px-4 py-3 rounded-lg transition-all">
+                    <i class="fas fa-book mr-2"></i>
+                    <strong>Excel User Guide</strong> - How to use features
+                </a>
+                <a href="../docs/user-guides/EXCEL_ADVANCED_FEATURES.md" target="_blank" class="block bg-white hover:bg-blue-50 text-blue-700 px-4 py-3 rounded-lg transition-all">
+                    <i class="fas fa-sparkles mr-2"></i>
+                    <strong>Excel Advanced</strong> - Upcoming enhancements
+                </a>
+                <a href="../docs/user-guides/FEATURES.md" target="_blank" class="block bg-white hover:bg-blue-50 text-blue-700 px-4 py-3 rounded-lg transition-all">
+                    <i class="fas fa-list mr-2"></i>
+                    <strong>All Features</strong> - Complete feature list
+                </a>
+                
+                <!-- Technical Documentation -->
+                <a href="../docs/technical/ARCHITECTURE.md" target="_blank" class="block bg-white hover:bg-blue-50 text-blue-700 px-4 py-3 rounded-lg transition-all">
+                    <i class="fas fa-sitemap mr-2"></i>
+                    <strong>Architecture</strong> - Technical overview
+                </a>
+                <a href="../docs/technical/DEPLOYMENT.md" target="_blank" class="block bg-white hover:bg-blue-50 text-blue-700 px-4 py-3 rounded-lg transition-all">
+                    <i class="fas fa-rocket mr-2"></i>
+                    <strong>Deployment</strong> - Deploy the app
+                </a>
+                <a href="../docs/technical/IMPLEMENTATION_GUIDE.md" target="_blank" class="block bg-white hover:bg-blue-50 text-blue-700 px-4 py-3 rounded-lg transition-all">
+                    <i class="fas fa-file-alt mr-2"></i>
+                    <strong>Implementation</strong> - Activate features
+                </a>
+                <a href="../infra/schema-extensions.sql" target="_blank" class="block bg-white hover:bg-blue-50 text-blue-700 px-4 py-3 rounded-lg transition-all">
+                    <i class="fas fa-database mr-2"></i>
+                    <strong>Database Schema</strong> - SQL extensions
+                </a>
+                
+                <!-- Business Documentation -->
+                <a href="../docs/business/EXECUTIVE_SUMMARY.md" target="_blank" class="block bg-white hover:bg-blue-50 text-blue-700 px-4 py-3 rounded-lg transition-all">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    <strong>Executive Summary</strong> - Business & ROI
+                </a>
+                <a href="../docs/business/ROADMAP.md" target="_blank" class="block bg-white hover:bg-blue-50 text-blue-700 px-4 py-3 rounded-lg transition-all">
+                    <i class="fas fa-map mr-2"></i>
+                    <strong>Roadmap</strong> - Development plan
+                </a>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-green-100 border-l-4 border-green-500 p-6 rounded-lg">
+                <div class="text-green-800 text-4xl font-bold mb-2">4</div>
+                <div class="text-green-700 font-semibold">Core Features Live</div>
+            </div>
+            <div class="bg-blue-100 border-l-4 border-blue-500 p-6 rounded-lg">
+                <div class="text-blue-800 text-4xl font-bold mb-2">6</div>
+                <div class="text-blue-700 font-semibold">Excel Advanced (Soon)</div>
+            </div>
+            <div class="bg-yellow-100 border-l-4 border-yellow-500 p-6 rounded-lg">
+                <div class="text-yellow-800 text-4xl font-bold mb-2">6</div>
+                <div class="text-yellow-700 font-semibold">Calendar/SSO (Planned)</div>
+            </div>
+            <div class="bg-purple-100 border-l-4 border-purple-500 p-6 rounded-lg">
+                <div class="text-purple-800 text-4xl font-bold mb-2">30+</div>
+                <div class="text-purple-700 font-semibold">API Endpoints</div>
+            </div>
+        </div>
+
+        <!-- Deployment Status -->
+        <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl shadow-lg p-8 text-white mb-12">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+                <i class="fas fa-cloud mr-3"></i>
+                Production Deployment Status
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white/10 backdrop-blur rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2">
+                        <i class="fas fa-server mr-2"></i>Azure Web App
+                    </h3>
+                    <p class="text-sm mb-3 text-purple-100">App Service deployment on Azure Cloud</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-300 mr-2"></i>
+                            <span>Status: <strong>Running</strong></span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-300 mr-2"></i>
+                            <span>Database: <strong>Connected</strong></span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-300 mr-2"></i>
+                            <span>Region: <strong>West US 2</strong></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2">
+                        <i class="fas fa-mobile-alt mr-2"></i>PWA Deployment
+                    </h3>
+                    <p class="text-sm mb-3 text-purple-100">Progressive Web App features</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center">
+                            <i class="fas fa-spinner fa-spin text-yellow-300 mr-2"></i>
+                            <span>Service Worker: <strong>Deploying...</strong></span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-spinner fa-spin text-yellow-300 mr-2"></i>
+                            <span>Manifest: <strong>Debugging routes</strong></span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-info-circle text-blue-300 mr-2"></i>
+                            <span>Version: <strong>2.1.0</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-purple-100">Production URL:</p>
+                        <a href="https://notesapp-dev-app.azurewebsites.net" target="_blank" class="text-lg font-mono hover:text-purple-200 transition">
+                            notesapp-dev-app.azurewebsites.net <i class="fas fa-external-link-alt text-sm ml-1"></i>
+                        </a>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-purple-100">Last Deploy:</p>
+                        <p class="text-lg font-semibold">Nov 21, 2025</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="bg-white rounded-xl shadow-md p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-calendar-check mr-3"></i>
+                Implementation Timeline (12 Weeks)
+            </h2>
+            <div class="relative">
+                <!-- Timeline line -->
+                <div class="absolute left-8 top-0 bottom-0 w-1 bg-gray-200"></div>
+                
+                <!-- Phase 1 -->
+                <div class="relative pl-20 pb-8">
+                    <div class="absolute left-5 top-2 w-7 h-7 bg-yellow-500 rounded-full border-4 border-white shadow"></div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+                        <h3 class="font-bold text-gray-800">Phase 1: SSO Authentication (Weeks 1-2)</h3>
+                        <p class="text-gray-600 text-sm mt-1">Setup Azure AD & Google OAuth, implement login flow</p>
+                    </div>
+                </div>
+                
+                <!-- Phase 2 -->
+                <div class="relative pl-20 pb-8">
+                    <div class="absolute left-5 top-2 w-7 h-7 bg-yellow-400 rounded-full border-4 border-white shadow"></div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
+                        <h3 class="font-bold text-gray-800">Phase 2: Calendar Foundation (Weeks 3-4)</h3>
+                        <p class="text-gray-600 text-sm mt-1">Build calendar UI, event CRUD operations</p>
+                    </div>
+                </div>
+                
+                <!-- Phase 3 -->
+                <div class="relative pl-20 pb-8">
+                    <div class="absolute left-5 top-2 w-7 h-7 bg-yellow-300 rounded-full border-4 border-white shadow"></div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-300 p-4 rounded-r-lg">
+                        <h3 class="font-bold text-gray-800">Phase 3: External Calendar Sync (Weeks 5-6)</h3>
+                        <p class="text-gray-600 text-sm mt-1">Google Calendar & Outlook integration</p>
+                    </div>
+                </div>
+                
+                <!-- Phase 4 -->
+                <div class="relative pl-20 pb-8">
+                    <div class="absolute left-5 top-2 w-7 h-7 bg-orange-400 rounded-full border-4 border-white shadow"></div>
+                    <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-lg">
+                        <h3 class="font-bold text-gray-800">Phase 4: Meeting Scheduling (Weeks 7-8)</h3>
+                        <p class="text-gray-600 text-sm mt-1">Room booking, meeting creation, invitations</p>
+                    </div>
+                </div>
+                
+                <!-- Phase 5 -->
+                <div class="relative pl-20 pb-8">
+                    <div class="absolute left-5 top-2 w-7 h-7 bg-orange-300 rounded-full border-4 border-white shadow"></div>
+                    <div class="bg-orange-50 border-l-4 border-orange-300 p-4 rounded-r-lg">
+                        <h3 class="font-bold text-gray-800">Phase 5: Enhancements (Weeks 9-10)</h3>
+                        <p class="text-gray-600 text-sm mt-1">Meeting minutes, check-in, notifications</p>
+                    </div>
+                </div>
+                
+                <!-- Phase 6 -->
+                <div class="relative pl-20">
+                    <div class="absolute left-5 top-2 w-7 h-7 bg-green-500 rounded-full border-4 border-white shadow"></div>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                        <h3 class="font-bold text-gray-800">Phase 6: Polish & Deploy (Weeks 11-12)</h3>
+                        <p class="text-gray-600 text-sm mt-1">Testing, optimization, production launch</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-400">
+                <i class="fas fa-code mr-2"></i>
+                Notes App - Built with Azure PostgreSQL, Node.js & Tailwind CSS
+            </p>
+            <p class="text-gray-500 text-sm mt-2">
+                Last updated: November 20, 2025
+            </p>
+        </div>
+    </footer>
+    
+    <script src="/pwa-installer.js"></script>
+</body>
+</html>
