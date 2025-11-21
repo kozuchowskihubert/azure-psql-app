@@ -273,15 +273,20 @@ app.delete('/notes/:id', async (req, res) => {
   }
 });
 
+// Explicit routes for PWA files with correct MIME types
+app.get('/manifest.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
+app.get('/service-worker.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
+});
+
 // Serve index.html for all other routes (SPA support)
-// But skip requests for files with extensions (static files, PWA files, etc.)
 app.get('*', (req, res) => {
-  // Skip if request is for a file with an extension (except .html routes)
-  const ext = path.extname(req.path);
-  if (ext && ext !== '.html') {
-    // Let the static middleware handle it
-    return res.status(404).send('File not found');
-  }
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
