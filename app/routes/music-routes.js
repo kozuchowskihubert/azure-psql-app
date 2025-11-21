@@ -1151,19 +1151,19 @@ router.get('/presets/:presetName', async (req, res) => {
 
 /**
  * POST /api/music/presets/init
- * Initialize preset library with factory presets
+ * Initialize preset library with factory presets (100 presets)
  */
 router.post('/presets/init', async (req, res) => {
   try {
-    const pythonScript = path.join(CLI_PATH, 'src/presets/factory_presets.py');
+    // Use the 100-preset catalog instead of factory_presets
     const { stdout, stderr } = await execPromise(
-      `cd ${CLI_PATH} && python3 -m src.presets.factory_presets`,
+      `cd ${CLI_PATH} && python3 -m src.presets.preset_catalog_100`,
       { maxBuffer: 1024 * 1024 * 10 }
     );
     
     res.json({
       success: true,
-      message: 'Factory presets initialized',
+      message: '100 factory presets initialized',
       output: stdout,
       errors: stderr || null
     });
