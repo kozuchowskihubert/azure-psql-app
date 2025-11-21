@@ -2,13 +2,21 @@
 """
 Ableton VST3 Plugin Automation
 Automates loading VST3 instruments onto MIDI tracks using GUI automation
+Note: pyautogui is optional - only needed for desktop automation
 """
 
-import pyautogui
 import time
 import subprocess
 from typing import Optional, Dict
 from dataclasses import dataclass
+
+# pyautogui is optional - only works in desktop environments
+try:
+    import pyautogui
+    PYAUTOGUI_AVAILABLE = True
+except ImportError:
+    PYAUTOGUI_AVAILABLE = False
+    print("⚠️  pyautogui not available - VST automation disabled (server mode)")
 
 
 @dataclass
@@ -22,6 +30,10 @@ class PluginConfig:
 
 class AbletonAutomation:
     """Handle Ableton Live GUI automation"""
+    
+    def __init__(self):
+        if not PYAUTOGUI_AVAILABLE:
+            print("⚠️  Warning: pyautogui not available - automation features disabled")
     
     # Plugin configurations
     PLUGINS = {
@@ -90,6 +102,10 @@ class AbletonAutomation:
     
     def setup_view(self) -> None:
         """Switch to Arrangement View and navigate to first track"""
+        if not PYAUTOGUI_AVAILABLE:
+            print("  ⚠️  GUI automation not available (server mode)")
+            return
+            
         print("  → Setting up Arrangement View...")
         pyautogui.hotkey('command', '3')  # Arrangement View
         time.sleep(self.TIMING['view_switch'])
@@ -99,6 +115,10 @@ class AbletonAutomation:
     
     def navigate_to_track(self, track_number: int) -> None:
         """Navigate to a specific track number"""
+        if not PYAUTOGUI_AVAILABLE:
+            print("  ⚠️  GUI automation not available (server mode)")
+            return
+            
         # Always start from home position
         pyautogui.press('home')
         time.sleep(self.TIMING['track_navigation'])
@@ -110,6 +130,10 @@ class AbletonAutomation:
     
     def load_plugin(self, plugin_name: str) -> bool:
         """Load a VST3 plugin onto the current track"""
+        if not PYAUTOGUI_AVAILABLE:
+            print("  ⚠️  GUI automation not available (server mode)")
+            return False
+            
         if plugin_name not in self.PLUGINS:
             print(f"  ⚠️  Unknown plugin: {plugin_name}")
             return False
