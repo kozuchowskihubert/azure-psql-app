@@ -191,15 +191,34 @@ class Synth2600Studio {
 
     async loadPresets() {
         try {
+            console.log('Loading presets from API...');
             const response = await fetch('/api/music/synth2600/presets');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const data = await response.json();
+            console.log('Preset data received:', data);
 
-            if (data.success) {
+            if (data.success && data.categories) {
                 this.presets = data.categories;
+                console.log(`✅ Loaded ${data.total} presets in ${Object.keys(data.categories).length} categories`);
                 this.renderPresets();
+            } else {
+                console.error('Invalid preset data format:', data);
             }
         } catch (error) {
             console.error('Error loading presets:', error);
+            const container = document.getElementById('preset-list');
+            if (container) {
+                container.innerHTML = `
+                    <p style="color: var(--accent-red); padding: 20px; text-align: center;">
+                        ⚠️ Error loading presets<br>
+                        <small>${error.message}</small>
+                    </p>
+                `;
+            }
         }
     }
 
@@ -208,9 +227,16 @@ class Synth2600Studio {
         container.innerHTML = '';
 
         const categoryNames = {
+            bass: 'Bass',
+            lead: 'Lead',
+            pad: 'Pad',
+            effects: 'Effects',
+            percussion: 'Percussion',
+            sequence: 'Sequence',
+            modulation: 'Modulation',
+            // Legacy categories (fallback)
             soundscape: 'Soundscape',
             rhythmic: 'Rhythmic',
-            modulation: 'Modulation',
             cinematic: 'Cinematic FX',
             psychedelic: 'Psychedelic',
             performance: 'Performance',
@@ -218,9 +244,16 @@ class Synth2600Studio {
         };
 
         const categoryIcons = {
+            bass: '🔊',
+            lead: '🎸',
+            pad: '🌊',
+            effects: '✨',
+            percussion: '🥁',
+            sequence: '🎵',
+            modulation: '🎛️',
+            // Legacy icons (fallback)
             soundscape: '🌊',
             rhythmic: '🥁',
-            modulation: '🎛️',
             cinematic: '🎬',
             psychedelic: '🌀',
             performance: '🎸',
@@ -231,14 +264,16 @@ class Synth2600Studio {
             if (presets.length > 0) {
                 const header = document.createElement('div');
                 header.className = 'category-header';
-                header.innerHTML = `${categoryIcons[category]} ${categoryNames[category]}`;
+                const categoryName = categoryNames[category] || category.charAt(0).toUpperCase() + category.slice(1);
+                const categoryIcon = categoryIcons[category] || '🎹';
+                header.innerHTML = `${categoryIcon} ${categoryName}`;
                 container.appendChild(header);
 
                 presets.forEach(preset => {
                     const item = document.createElement('div');
                     item.className = 'preset-item';
                     item.innerHTML = `
-                        <div class="preset-name">${preset.replace(/_/g, ' ').toUpperCase()}</div>
+                        <div class="preset-name">${preset.replace(/_/g, ' ')}</div>
                         <div class="preset-desc">Click to load</div>
                     `;
                     item.onclick = () => this.loadPreset(preset);
@@ -246,6 +281,11 @@ class Synth2600Studio {
                 });
             }
         });
+        
+        // Show message if no presets loaded
+        if (Object.keys(this.presets).length === 0) {
+            container.innerHTML = '<p style="color: var(--text-secondary); padding: 20px; text-align: center;">No presets available</p>';
+        }
     }
 
     async loadPreset(presetName) {
