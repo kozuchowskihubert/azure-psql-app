@@ -1,15 +1,15 @@
 /**
  * Server Entry Point
- * 
+ *
  * This is the main entry point for the application.
  * It creates an HTTP server, initializes WebSocket support for real-time collaboration,
  * and starts the Express application.
- * 
+ *
  * Architecture:
  * - HTTP Server: Created from Express app
  * - WebSocket Server: Handles real-time collaboration (collaboration.js)
  * - Database: Initialized before server starts (utils/db-init.js)
- * 
+ *
  * @module server
  */
 

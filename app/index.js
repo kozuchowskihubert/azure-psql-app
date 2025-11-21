@@ -1,9 +1,9 @@
 /**
  * Legacy Entry Point (Backwards Compatibility)
- * 
+ *
  * This file exists for backwards compatibility only.
  * The actual server entry point is server.js
- * 
+ *
  * @deprecated Use server.js instead
  * @see server.js
  */

@@ -8,14 +8,14 @@ class Synth2600 {
             currentStep: 0,
             steps: Array(16).fill(false),
             tempo: 120,
-            intervalId: null
+            intervalId: null,
         };
-        
+
         this.patchMatrix = {
             connections: [],
-            selectedOutput: null
+            selectedOutput: null,
         };
-        
+
         this.init();
     }
 
@@ -49,8 +49,8 @@ class Synth2600 {
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
 
-        const width = canvas.width;
-        const height = canvas.height;
+        const { width } = canvas;
+        const { height } = canvas;
         const centerY = height / 2;
         const amplitude = height * 0.4;
 
@@ -97,7 +97,7 @@ class Synth2600 {
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
         ctx.lineWidth = 1;
         ctx.shadowBlur = 0;
-        
+
         ctx.beginPath();
         ctx.moveTo(0, centerY);
         ctx.lineTo(width, centerY);
@@ -107,7 +107,7 @@ class Synth2600 {
     animateWaveforms() {
         // Add subtle animation to waveforms
         const offset = Date.now() * 0.001;
-        
+
         ['vco1-wave', 'vco2-wave', 'vco3-wave'].forEach((id, index) => {
             const canvas = document.getElementById(id);
             if (canvas) {
@@ -122,7 +122,7 @@ class Synth2600 {
     // ========================================
     setupKnobs() {
         const knobs = document.querySelectorAll('.knob-visual');
-        
+
         knobs.forEach(knob => {
             let isDragging = false;
             let startY = 0;
@@ -132,7 +132,7 @@ class Synth2600 {
                 isDragging = true;
                 startY = e.clientY;
                 const indicator = knob.querySelector('.knob-indicator');
-                const transform = indicator.style.transform;
+                const { transform } = indicator.style;
                 const match = transform.match(/rotate\((-?\d+)deg\)/);
                 startRotation = match ? parseInt(match[1]) : 0;
             });
@@ -142,7 +142,7 @@ class Synth2600 {
 
                 const deltaY = startY - e.clientY;
                 let newRotation = startRotation + deltaY;
-                
+
                 // Clamp rotation between -140 and 140 degrees
                 newRotation = Math.max(-140, Math.min(140, newRotation));
 
@@ -152,7 +152,7 @@ class Synth2600 {
                 // Update value display
                 const valueElement = knob.parentElement.querySelector('.knob-value');
                 const label = knob.parentElement.querySelector('.knob-label').textContent;
-                
+
                 this.updateKnobValue(label, newRotation, valueElement);
             });
 
@@ -164,7 +164,7 @@ class Synth2600 {
 
     updateKnobValue(label, rotation, valueElement) {
         const normalized = (rotation + 140) / 280; // 0 to 1
-        
+
         switch (label) {
             case 'Frequency':
                 const freq = Math.round(50 + normalized * 2000);
@@ -228,18 +228,18 @@ class Synth2600 {
                     // Create connection
                     const connection = {
                         from: this.patchMatrix.selectedOutput.dataset.signal,
-                        to: input.dataset.signal
+                        to: input.dataset.signal,
                     };
 
                     // Check if connection already exists
                     const exists = this.patchMatrix.connections.some(
-                        c => c.from === connection.from && c.to === connection.to
+                        c => c.from === connection.from && c.to === connection.to,
                     );
 
                     if (exists) {
                         // Remove connection
                         this.patchMatrix.connections = this.patchMatrix.connections.filter(
-                            c => !(c.from === connection.from && c.to === connection.to)
+                            c => !(c.from === connection.from && c.to === connection.to),
                         );
                         input.querySelector('.patch-jack').classList.remove('connected');
                     } else {
@@ -326,7 +326,7 @@ class Synth2600 {
 
     advanceArpStep() {
         const steps = document.querySelectorAll('.arp-step');
-        
+
         // Remove previous step highlight
         steps.forEach((step, index) => {
             if (index === this.arpSequencer.currentStep) {
@@ -365,12 +365,12 @@ class Synth2600 {
     // ========================================
     setupPresets() {
         const presetButtons = document.querySelectorAll('.preset-btn');
-        
+
         presetButtons.forEach(btn => {
             btn.addEventListener('click', () => {
-                const preset = btn.dataset.preset;
+                const { preset } = btn.dataset;
                 this.loadPreset(preset);
-                
+
                 // Visual feedback
                 presetButtons.forEach(b => b.style.transform = 'scale(1)');
                 btn.style.transform = 'scale(0.95)';
@@ -383,40 +383,40 @@ class Synth2600 {
 
     loadPreset(preset) {
         console.log(`Loading preset: ${preset}`);
-        
+
         const presets = {
             bass: {
                 vco1Freq: 110,
                 vco2Freq: 109,
                 lpfCutoff: 400,
                 resonance: 7.5,
-                arpPattern: [1,0,0,1, 0,1,0,0, 1,0,0,1, 0,1,0,0]
+                arpPattern: [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0],
             },
             lead: {
                 vco1Freq: 440,
                 vco2Freq: 440,
                 lpfCutoff: 2000,
                 resonance: 9.5,
-                arpPattern: [1,1,1,1, 1,0,1,0, 1,1,0,1, 1,0,0,0]
+                arpPattern: [1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0],
             },
             pad: {
                 vco1Freq: 220,
                 vco2Freq: 219,
                 lpfCutoff: 1200,
                 resonance: 3.0,
-                arpPattern: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0]
+                arpPattern: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
             },
             seq: {
                 vco1Freq: 110,
                 vco2Freq: 330,
                 lpfCutoff: 800,
                 resonance: 6.0,
-                arpPattern: [1,1,0,0, 1,0,1,0, 0,1,1,0, 1,0,0,1]
-            }
+                arpPattern: [1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1],
+            },
         };
 
         const config = presets[preset] || presets.bass;
-        
+
         // Apply preset (in a real implementation, this would update all parameters)
         if (config.arpPattern) {
             this.arpSequencer.steps = config.arpPattern.map(v => v === 1);

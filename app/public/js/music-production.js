@@ -15,7 +15,7 @@ async function checkCLIStatus() {
     try {
         const response = await fetch('/api/music/cli/status');
         const data = await response.json();
-        
+
         if (!data.success || !data.cli.available) {
             console.warn('CLI not available');
         } else {
@@ -31,7 +31,7 @@ async function loadStats() {
     try {
         const response = await fetch('/api/music/stats');
         const data = await response.json();
-        
+
         if (data.success) {
             displayStats(data.stats);
         }
@@ -91,9 +91,9 @@ async function loadProjects() {
     try {
         const response = await fetch('/api/music/projects');
         const data = await response.json();
-        
+
         document.getElementById('loading').classList.add('hidden');
-        
+
         if (data.success && data.projects.length > 0) {
             allProjects = data.projects;
             displayProjects(allProjects);
@@ -111,11 +111,11 @@ async function loadProjects() {
 function displayProjects(projects) {
     const grid = document.getElementById('projects-grid');
     grid.classList.remove('hidden');
-    
+
     grid.innerHTML = projects.map(project => {
         const date = new Date(project.modified);
-        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        
+        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
         return `
             <div class="project-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer"
                  onclick="openProject('${encodeURIComponent(project.name)}')">
@@ -157,8 +157,8 @@ function displayProjects(projects) {
 // Filter projects
 function filterProjects() {
     const searchTerm = document.getElementById('search-input').value.toLowerCase();
-    const filtered = allProjects.filter(project => 
-        project.name.toLowerCase().includes(searchTerm)
+    const filtered = allProjects.filter(project =>
+        project.name.toLowerCase().includes(searchTerm),
     );
     displayProjects(filtered);
 }
@@ -166,9 +166,9 @@ function filterProjects() {
 // Sort projects
 function sortProjects() {
     const sortBy = document.getElementById('sort-select').value;
-    let sorted = [...allProjects];
-    
-    switch(sortBy) {
+    const sorted = [...allProjects];
+
+    switch (sortBy) {
         case 'newest':
             sorted.sort((a, b) => new Date(b.modified) - new Date(a.modified));
             break;
@@ -179,7 +179,7 @@ function sortProjects() {
             sorted.sort((a, b) => a.name.localeCompare(b.name));
             break;
     }
-    
+
     allProjects = sorted;
     displayProjects(allProjects);
 }
@@ -198,7 +198,7 @@ async function openProject(projectName) {
     try {
         const response = await fetch(`/api/music/projects/${projectName}`);
         const data = await response.json();
-        
+
         if (data.success) {
             currentProject = data;
             displayProjectModal(data);
@@ -211,13 +211,13 @@ async function openProject(projectName) {
 
 // Display project modal
 function displayProjectModal(data) {
-    const project = data.project;
-    const contents = data.contents;
-    
+    const { project } = data;
+    const { contents } = data;
+
     document.getElementById('modal-title').textContent = project.name;
-    document.getElementById('modal-subtitle').textContent = 
+    document.getElementById('modal-subtitle').textContent =
         `${project.files} files • ${project.audioFiles} audio • ${project.projectFiles} Ableton projects`;
-    
+
     // Project info
     document.getElementById('project-info').innerHTML = `
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -239,7 +239,7 @@ function displayProjectModal(data) {
             </div>
         </div>
     `;
-    
+
     // Audio files
     if (contents.audio.length > 0) {
         document.getElementById('audio-list').innerHTML = contents.audio.map(file => `
@@ -263,7 +263,7 @@ function displayProjectModal(data) {
     } else {
         document.getElementById('audio-list').innerHTML = '<p class="text-gray-500 text-center py-4">No audio files found</p>';
     }
-    
+
     // Ableton files
     if (contents.projectFiles.length > 0) {
         document.getElementById('als-files').innerHTML = contents.projectFiles.map(file => `
@@ -286,7 +286,7 @@ function displayProjectModal(data) {
     } else {
         document.getElementById('als-files').innerHTML = '<p class="text-gray-500 text-center py-4">No Ableton project files found</p>';
     }
-    
+
     // All files
     document.getElementById('all-files').innerHTML = `
         <div class="bg-gray-50 rounded-lg p-4 max-h-64 overflow-y-auto">
@@ -301,7 +301,7 @@ function displayProjectModal(data) {
             `).join('')}
         </div>
     `;
-    
+
     document.getElementById('project-modal').classList.remove('hidden');
 }
 
@@ -312,7 +312,7 @@ function playAudio(projectName, fileName) {
         currentAudio.pause();
         currentAudio.currentTime = 0;
     }
-    
+
     const audioElement = document.getElementById(`audio-${fileName}`);
     audioElement.src = `/api/music/audio/${projectName}/${fileName}`;
     audioElement.classList.remove('hidden');
@@ -324,10 +324,10 @@ function playAudio(projectName, fileName) {
 async function openInAbleton(projectName) {
     try {
         const response = await fetch(`/api/music/open/${projectName}`, {
-            method: 'POST'
+            method: 'POST',
         });
         const data = await response.json();
-        
+
         if (data.success) {
             alert(`Opening ${data.file} in Ableton Live`);
         } else {
@@ -343,7 +343,7 @@ async function openInAbleton(projectName) {
 function toggleAllFiles() {
     const allFiles = document.getElementById('all-files');
     const toggleText = document.getElementById('toggle-files-text');
-    
+
     if (allFiles.classList.contains('hidden')) {
         allFiles.classList.remove('hidden');
         toggleText.textContent = 'Hide All Files';
@@ -393,13 +393,13 @@ function toggleCLIPanel() {
 function showCLIOutput(text, isError = false) {
     const output = document.getElementById('cli-output');
     const outputText = document.getElementById('cli-output-text');
-    
+
     output.classList.remove('hidden');
-    
+
     const timestamp = new Date().toLocaleTimeString();
     const prefix = isError ? '❌ ERROR' : '✅ SUCCESS';
     const message = `[${timestamp}] ${prefix}\n${text}\n\n`;
-    
+
     outputText.textContent += message;
     outputText.scrollTop = outputText.scrollHeight;
 }
@@ -416,18 +416,18 @@ async function generateMIDI() {
     const genre = document.getElementById('midi-genre').value;
     const bpm = parseInt(document.getElementById('midi-bpm').value);
     const bars = parseInt(document.getElementById('midi-bars').value);
-    
+
     try {
         showCLIOutput(`Generating ${genre} MIDI patterns at ${bpm} BPM, ${bars} bars...`);
-        
+
         const response = await fetch('/api/music/cli/generate-midi', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ genre, bpm, bars })
+            body: JSON.stringify({ genre, bpm, bars }),
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showCLIOutput(data.message + '\n\n' + data.output);
         } else {
@@ -442,18 +442,18 @@ async function generateMIDI() {
 async function generateTemplate() {
     const name = document.getElementById('template-name').value;
     const tempo = parseInt(document.getElementById('template-tempo').value);
-    
+
     try {
         showCLIOutput(`Generating Ableton template "${name}" at ${tempo} BPM...`);
-        
+
         const response = await fetch('/api/music/cli/generate-template', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, tempo })
+            body: JSON.stringify({ name, tempo }),
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showCLIOutput(data.message + '\n\n' + data.output);
         } else {
@@ -469,21 +469,21 @@ async function createFullProject() {
     const genre = document.getElementById('project-genre').value;
     const bpm = parseInt(document.getElementById('project-bpm').value);
     const bars = parseInt(document.getElementById('project-bars').value);
-    
+
     try {
         showCLIOutput(`Creating complete ${genre} techno project...\nThis may take a moment...`);
-        
+
         const response = await fetch('/api/music/cli/create-project', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ genre, bpm, bars })
+            body: JSON.stringify({ genre, bpm, bars }),
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showCLIOutput(data.message + '\n\n' + data.output);
-            
+
             // Refresh projects list after creation
             setTimeout(() => {
                 refreshProjects();
@@ -495,4 +495,3 @@ async function createFullProject() {
         showCLIOutput('Error: ' + error.message, true);
     }
 }
-

@@ -1,21 +1,21 @@
 /**
  * Real-Time Collaboration Server
- * 
+ *
  * WebSocket server for real-time collaborative editing using Y.js CRDT.
  * Handles multiple concurrent users editing the same document with automatic
  * conflict resolution and state synchronization.
- * 
+ *
  * Features:
  * - Real-time document synchronization
  * - Multiple simultaneous editors
  * - Automatic conflict resolution via CRDT
  * - Per-document state management
- * 
+ *
  * Protocol:
  * - Uses WebSocket for bidirectional communication
  * - URL format: ws://server/document-id
  * - Y.js handles CRDT synchronization automatically
- * 
+ *
  * @module collaboration
  * @requires ws
  * @requires yjs
@@ -72,10 +72,10 @@ wss.on('connection', (ws, req) => {
 /**
  * Initialize collaboration server
  * Attaches WebSocket server to HTTP server's upgrade event
- * 
+ *
  * @param {http.Server} server - HTTP server instance
  * @returns {WebSocketServer} WebSocket server instance
- * 
+ *
  * @example
  * const server = http.createServer(app);
  * collaborationServer(server);

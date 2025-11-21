@@ -11,11 +11,11 @@ class WebCLI {
         this.commandHistory = [];
         this.historyIndex = -1;
         this.patchMatrix = [];
-        
+
         this.initializeEventListeners();
         this.loadCommandHistory();
     }
-    
+
     initializeEventListeners() {
         this.commandInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
@@ -31,66 +31,66 @@ class WebCLI {
                 this.autocomplete();
             }
         });
-        
+
         // Keep input focused
         this.terminal.addEventListener('click', () => {
             this.commandInput.focus();
         });
     }
-    
+
     handleCommand() {
         const command = this.commandInput.value.trim();
         if (!command) return;
-        
+
         // Add to history
         this.commandHistory.push(command);
         this.historyIndex = this.commandHistory.length;
         this.saveCommandHistory();
-        
+
         // Display command in terminal
         this.addTerminalLine(`<span class="prompt">2600${this.currentPreset ? ' [<span class="prompt-current">' + this.currentPreset + '</span>]' : ''}></span> ${command}`);
-        
+
         // Clear input
         this.commandInput.value = '';
-        
+
         // Execute command
         this.executeCommand(command);
-        
+
         // Scroll to bottom
         this.terminal.scrollTop = this.terminal.scrollHeight;
     }
-    
+
     async executeCommand(command) {
         const parts = command.trim().split(/\s+/);
         const cmd = parts[0].toLowerCase();
         const args = parts.slice(1);
-        
+
         // Command aliases
         const aliases = {
-            'ls': 'list',
-            'l': 'list',
-            'p': 'preset',
-            'load': 'preset',
-            'show': 'patch',
-            's': 'patch',
-            'cls': 'clear',
+            ls: 'list',
+            l: 'list',
+            p: 'preset',
+            load: 'preset',
+            show: 'patch',
+            s: 'patch',
+            cls: 'clear',
             '?': 'help',
-            'q': 'quit'
+            q: 'quit',
         };
-        
+
         const actualCmd = aliases[cmd] || cmd;
-        
+
         try {
             switch (actualCmd) {
                 case 'help':
                     this.showHelp();
                     break;
-                    
+
                 case 'presets':
                 case 'list':
                     await this.listPresets();
                     break;
-                    
+
                 case 'preset':
                     if (args.length === 0) {
                         this.addErrorLine('Usage: preset <name>');
@@ -98,15 +98,15 @@ class WebCLI {
                         await this.loadPreset(args[0]);
                     }
                     break;
-                    
+
                 case 'info':
                     this.showInfo();
                     break;
-                    
+
                 case 'patch':
                     this.showPatchMatrix();
                     break;
-                    
+
                 case 'add':
                     if (args.length < 2) {
                         this.addErrorLine('Usage: add <source> <destination> [level]');
@@ -114,7 +114,7 @@ class WebCLI {
                         this.addPatchCable(args[0], args[1], args[2] || '1.0');
                     }
                     break;
-                    
+
                 case 'remove':
                     if (args.length < 2) {
                         this.addErrorLine('Usage: remove <source> <destination>');
@@ -122,7 +122,7 @@ class WebCLI {
                         this.removePatchCable(args[0], args[1]);
                     }
                     break;
-                    
+
                 case 'vco1':
                 case 'vco2':
                     if (args.length === 0) {
@@ -131,7 +131,7 @@ class WebCLI {
                         this.setOscillator(actualCmd, args[0], args[1] || 'sawtooth');
                     }
                     break;
-                    
+
                 case 'lfo':
                     if (args.length === 0) {
                         this.addErrorLine('Usage: lfo <rate>');
@@ -139,7 +139,7 @@ class WebCLI {
                         this.setLFO(args[0]);
                     }
                     break;
-                    
+
                 case 'filter':
                     if (args.length === 0) {
                         this.addErrorLine('Usage: filter <cutoff> [resonance]');
@@ -147,7 +147,7 @@ class WebCLI {
                         this.setFilter(args[0], args[1] || '0.5');
                     }
                     break;
-                    
+
                 case 'envelope':
                     if (args.length < 4) {
                         this.addErrorLine('Usage: envelope <attack> <decay> <sustain> <release>');
@@ -155,7 +155,7 @@ class WebCLI {
                         this.setEnvelope(args[0], args[1], args[2], args[3]);
                     }
                     break;
-                    
+
                 case 'export':
                     if (args.length === 0) {
                         this.addErrorLine('Usage: export <filename> [bars]');
@@ -163,20 +163,20 @@ class WebCLI {
                         await this.exportMIDI(args[0], args[1] || '4');
                     }
                     break;
-                    
+
                 case 'clear':
                     this.clearTerminal();
                     break;
-                    
+
                 case 'history':
                     this.showHistory();
                     break;
-                    
+
                 case 'quit':
                 case 'exit':
                     this.addWarningLine('👋 To exit, close this browser tab or window.');
                     break;
-                    
+
                 default:
                     this.addErrorLine(`Unknown command: ${cmd}`);
                     this.addInfoLine('Type \'help\' for available commands');
@@ -186,34 +186,34 @@ class WebCLI {
             console.error('Command execution error:', error);
         }
     }
-    
+
     // Terminal Output Methods
     addTerminalLine(html, className = '') {
         const line = document.createElement('div');
         line.className = 'terminal-line ' + className;
         line.innerHTML = html;
-        
+
         // Insert before input line
         const inputLine = this.terminal.querySelector('.input-line');
         this.terminal.insertBefore(line, inputLine);
     }
-    
+
     addSuccessLine(text) {
         this.addTerminalLine(`<span class="success">✓ ${text}</span>`);
     }
-    
+
     addErrorLine(text) {
         this.addTerminalLine(`<span class="error">✗ ${text}</span>`);
     }
-    
+
     addWarningLine(text) {
         this.addTerminalLine(`<span class="warning">⚠ ${text}</span>`);
     }
-    
+
     addInfoLine(text) {
         this.addTerminalLine(`<span class="info">${text}</span>`);
     }
-    
+
     // Command Implementations
     showHelp() {
         const help = `
@@ -257,27 +257,27 @@ class WebCLI {
 `;
         this.addTerminalLine(help);
     }
-    
+
     async listPresets() {
         try {
             const response = await fetch('/api/music/synth2600/presets');
             const data = await response.json();
-            
+
             if (data.success) {
                 this.addInfoLine('\n╔════════════════════════════════════════════════════════════╗');
                 this.addInfoLine('║                   AVAILABLE PRESETS                        ║');
                 this.addInfoLine('╚════════════════════════════════════════════════════════════╝\n');
-                
+
                 const categoryNames = {
-                    'soundscape': '<span class="warning">Soundscape Generators:</span>',
-                    'rhythmic': '<span class="warning">Rhythmic Experiments:</span>',
-                    'modulation': '<span class="warning">Modulation Madness:</span>',
-                    'cinematic': '<span class="warning">Cinematic FX:</span>',
-                    'psychedelic': '<span class="warning">Psychedelic:</span>',
-                    'performance': '<span class="warning">Performance:</span>',
-                    'musical': '<span class="warning">Musical Techniques:</span>'
+                    soundscape: '<span class="warning">Soundscape Generators:</span>',
+                    rhythmic: '<span class="warning">Rhythmic Experiments:</span>',
+                    modulation: '<span class="warning">Modulation Madness:</span>',
+                    cinematic: '<span class="warning">Cinematic FX:</span>',
+                    psychedelic: '<span class="warning">Psychedelic:</span>',
+                    performance: '<span class="warning">Performance:</span>',
+                    musical: '<span class="warning">Musical Techniques:</span>',
                 };
-                
+
                 Object.entries(data.categories).forEach(([category, presets]) => {
                     if (presets.length > 0) {
                         this.addTerminalLine(categoryNames[category]);
@@ -294,16 +294,16 @@ class WebCLI {
             this.addErrorLine(`Error loading presets: ${error.message}`);
         }
     }
-    
+
     async loadPreset(presetName) {
         try {
             const response = await fetch(`/api/music/synth2600/preset/${presetName}`);
             const data = await response.json();
-            
+
             if (data.success) {
                 this.currentPreset = presetName;
                 this.patchMatrix = data.patchConnections;
-                
+
                 this.addSuccessLine(`Loaded preset: ${presetName}`);
                 this.addTerminalLine('');
                 this.showPatchMatrix();
@@ -315,7 +315,7 @@ class WebCLI {
             this.addErrorLine(`Error loading preset: ${error.message}`);
         }
     }
-    
+
     showInfo() {
         if (this.currentPreset) {
             this.addInfoLine(`\nCurrent Preset: <span class="warning">${this.currentPreset}</span>`);
@@ -325,17 +325,17 @@ class WebCLI {
             this.addInfoLine('Use \'preset <name>\' to load a preset');
         }
     }
-    
+
     showPatchMatrix() {
         if (this.patchMatrix.length === 0) {
             this.addWarningLine('No patch cables connected');
             return;
         }
-        
+
         this.addInfoLine('\n╔════════════════════════════════════════════════════════════╗');
         this.addInfoLine('║              BEHRINGER 2600 PATCH MATRIX                   ║');
         this.addInfoLine('╚════════════════════════════════════════════════════════════╝\n');
-        
+
         this.patchMatrix.forEach(conn => {
             const colorName = conn.color.toUpperCase();
             const level = (conn.level * 100).toFixed(0);
@@ -343,71 +343,71 @@ class WebCLI {
                 `  [<span style="color: ${this.getCableColor(conn.color)}">${colorName}</span>] ` +
                 `<span class="info">${conn.source}</span> → ` +
                 `<span class="success">${conn.destination}</span> ` +
-                `<span class="warning">(Level: ${level}%)</span>`
+                `<span class="warning">(Level: ${level}%)</span>`,
             );
         });
         this.addTerminalLine('');
     }
-    
+
     addPatchCable(source, dest, level) {
         const cable = {
             color: 'red',
-            source: source,
+            source,
             destination: dest,
-            level: parseFloat(level)
+            level: parseFloat(level),
         };
         this.patchMatrix.push(cable);
         this.addSuccessLine(`Added patch: ${source} → ${dest} (Level: ${level})`);
     }
-    
+
     removePatchCable(source, dest) {
         const initialLength = this.patchMatrix.length;
         this.patchMatrix = this.patchMatrix.filter(
-            c => !(c.source === source && c.destination === dest)
+            c => !(c.source === source && c.destination === dest),
         );
-        
+
         if (this.patchMatrix.length < initialLength) {
             this.addSuccessLine(`Removed patch: ${source} → ${dest}`);
         } else {
             this.addWarningLine('No matching patch found');
         }
     }
-    
+
     setOscillator(osc, freq, waveform) {
         this.addSuccessLine(`${osc.toUpperCase()}: ${freq}Hz, ${waveform}`);
     }
-    
+
     setLFO(rate) {
         this.addSuccessLine(`LFO: ${rate}Hz`);
     }
-    
+
     setFilter(cutoff, resonance) {
         this.addSuccessLine(`Filter: ${cutoff}Hz, Q=${resonance}`);
     }
-    
+
     setEnvelope(attack, decay, sustain, release) {
         this.addSuccessLine(`Envelope: A=${attack}s D=${decay}s S=${sustain} R=${release}s`);
     }
-    
+
     async exportMIDI(filename, bars) {
         try {
             const response = await fetch('/api/music/synth2600/export', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ filename, bars: parseInt(bars) })
+                body: JSON.stringify({ filename, bars: parseInt(bars) }),
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 this.addSuccessLine(`Exported MIDI to: ${filename}`);
-                
+
                 // Download the file
                 const midiBlob = new Blob(
                     [Uint8Array.from(atob(data.midiData), c => c.charCodeAt(0))],
-                    { type: 'audio/midi' }
+                    { type: 'audio/midi' },
                 );
                 const url = URL.createObjectURL(midiBlob);
                 const a = document.createElement('a');
@@ -415,7 +415,7 @@ class WebCLI {
                 a.download = filename;
                 a.click();
                 URL.revokeObjectURL(url);
-                
+
                 this.addInfoLine('File downloaded to your browser\'s download folder');
             } else {
                 this.addErrorLine('Export failed');
@@ -424,7 +424,7 @@ class WebCLI {
             this.addErrorLine(`Export error: ${error.message}`);
         }
     }
-    
+
     showHistory() {
         this.addInfoLine('\n<span class="warning">Command History:</span>');
         this.commandHistory.slice(-20).forEach((cmd, i) => {
@@ -432,18 +432,18 @@ class WebCLI {
         });
         this.addTerminalLine('');
     }
-    
+
     clearTerminal() {
         // Remove all lines except banner and input
         const lines = this.terminal.querySelectorAll('.terminal-line');
         lines.forEach(line => {
-            if (!line.classList.contains('banner') && 
+            if (!line.classList.contains('banner') &&
                 !line.classList.contains('input-line')) {
                 line.remove();
             }
         });
     }
-    
+
     // History Navigation
     navigateHistory(direction) {
         const newIndex = this.historyIndex + direction;
@@ -452,16 +452,16 @@ class WebCLI {
             this.commandInput.value = this.commandHistory[newIndex] || '';
         }
     }
-    
+
     autocomplete() {
         const commands = [
             'help', 'presets', 'preset', 'info', 'patch', 'add', 'remove',
-            'vco1', 'vco2', 'lfo', 'filter', 'envelope', 'export', 'clear', 'history'
+            'vco1', 'vco2', 'lfo', 'filter', 'envelope', 'export', 'clear', 'history',
         ];
-        
+
         const input = this.commandInput.value.toLowerCase();
         const matches = commands.filter(cmd => cmd.startsWith(input));
-        
+
         if (matches.length === 1) {
             this.commandInput.value = matches[0] + ' ';
         } else if (matches.length > 1) {
@@ -472,25 +472,25 @@ class WebCLI {
             this.addTerminalLine('');
         }
     }
-    
+
     // Utility Methods
     getCableColor(colorName) {
         const colors = {
-            'red': '#ff0000',
-            'blue': '#00d4ff',
-            'green': '#0f0',
-            'yellow': '#ffff00',
-            'white': '#fff',
-            'orange': '#ff8800',
-            'purple': '#ff00ff'
+            red: '#ff0000',
+            blue: '#00d4ff',
+            green: '#0f0',
+            yellow: '#ffff00',
+            white: '#fff',
+            orange: '#ff8800',
+            purple: '#ff00ff',
         };
         return colors[colorName.toLowerCase()] || '#00d4ff';
     }
-    
+
     saveCommandHistory() {
         localStorage.setItem('cli_history', JSON.stringify(this.commandHistory));
     }
-    
+
     loadCommandHistory() {
         const saved = localStorage.getItem('cli_history');
         if (saved) {
@@ -506,7 +506,7 @@ function showTab(tabName) {
     const tabs = document.querySelectorAll('.tab');
     tabs.forEach(tab => tab.classList.remove('active'));
     event.target.classList.add('active');
-    
+
     // Update panels
     const panels = document.querySelectorAll('.doc-panel');
     panels.forEach(panel => panel.classList.remove('active'));

@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router = express.Router();
 const fs = require('fs').promises;
 const path = require('path');
@@ -19,14 +20,14 @@ const CLI_SCRIPT = path.join(CLI_PATH, 'techno_studio.py');
 router.get('/projects', async (req, res) => {
   try {
     const entries = await fs.readdir(ABLETON_PATH, { withFileTypes: true });
-    
+
     const projects = await Promise.all(
       entries
-        .filter(entry => entry.isDirectory())
+        .filter((entry) => entry.isDirectory())
         .map(async (entry) => {
           const projectPath = path.join(ABLETON_PATH, entry.name);
           const stats = await fs.stat(projectPath);
-          
+
           // Check for project info
           const infoPath = path.join(projectPath, 'Ableton Project Info');
           let hasInfo = false;
@@ -36,7 +37,7 @@ router.get('/projects', async (req, res) => {
           } catch (e) {
             // No info file
           }
-          
+
           return {
             name: entry.name,
             path: projectPath,
@@ -44,12 +45,12 @@ router.get('/projects', async (req, res) => {
             modified: stats.mtime,
             hasProjectInfo: hasInfo,
           };
-        })
+        }),
     );
-    
+
     // Sort by modification date (newest first)
     projects.sort((a, b) => b.modified - a.modified);
-    
+
     res.json({
       success: true,
       count: projects.length,
@@ -72,7 +73,7 @@ router.get('/projects/:projectName', async (req, res) => {
   try {
     const projectName = decodeURIComponent(req.params.projectName);
     const projectPath = path.join(ABLETON_PATH, projectName);
-    
+
     // Verify project exists
     const stats = await fs.stat(projectPath);
     if (!stats.isDirectory()) {
@@ -81,15 +82,15 @@ router.get('/projects/:projectName', async (req, res) => {
         error: 'Project not found',
       });
     }
-    
+
     // Read project contents
     const entries = await fs.readdir(projectPath, { withFileTypes: true });
-    
+
     const files = await Promise.all(
       entries.map(async (entry) => {
         const filePath = path.join(projectPath, entry.name);
         const fileStats = await fs.stat(filePath);
-        
+
         return {
           name: entry.name,
           type: entry.isDirectory() ? 'directory' : 'file',
@@ -97,17 +98,16 @@ router.get('/projects/:projectName', async (req, res) => {
           modified: fileStats.mtime,
           extension: path.extname(entry.name),
         };
-      })
+      }),
     );
-    
+
     // Find audio files
-    const audioFiles = files.filter(f => 
-      ['.wav', '.mp3', '.aif', '.aiff', '.flac', '.m4a'].includes(f.extension.toLowerCase())
+    const audioFiles = files.filter((f) => ['.wav', '.mp3', '.aif', '.aiff', '.flac', '.m4a'].includes(f.extension.toLowerCase()),
     );
-    
+
     // Find Ableton project files
-    const abletonFiles = files.filter(f => f.extension === '.als');
-    
+    const abletonFiles = files.filter((f) => f.extension === '.als');
+
     res.json({
       success: true,
       project: {
@@ -143,7 +143,7 @@ router.get('/audio/:projectName/:fileName', async (req, res) => {
     const projectName = decodeURIComponent(req.params.projectName);
     const fileName = decodeURIComponent(req.params.fileName);
     const filePath = path.join(ABLETON_PATH, projectName, fileName);
-    
+
     // Security check - ensure file is within Ableton path
     const realPath = await fs.realpath(filePath);
     if (!realPath.startsWith(ABLETON_PATH)) {
@@ -152,10 +152,10 @@ router.get('/audio/:projectName/:fileName', async (req, res) => {
         error: 'Access denied',
       });
     }
-    
+
     // Check file exists and get stats
     const stats = await fs.stat(realPath);
-    
+
     // Set appropriate content type
     const ext = path.extname(fileName).toLowerCase();
     const contentTypes = {
@@ -166,15 +166,14 @@ router.get('/audio/:projectName/:fileName', async (req, res) => {
       '.flac': 'audio/flac',
       '.m4a': 'audio/mp4',
     };
-    
+
     res.setHeader('Content-Type', contentTypes[ext] || 'application/octet-stream');
     res.setHeader('Content-Length', stats.size);
     res.setHeader('Accept-Ranges', 'bytes');
-    
+
     // Stream the file
     const fileStream = require('fs').createReadStream(realPath);
     fileStream.pipe(res);
-    
   } catch (error) {
     console.error('Error streaming audio:', error);
     res.status(500).json({
@@ -191,21 +190,21 @@ router.get('/audio/:projectName/:fileName', async (req, res) => {
 router.get('/stats', async (req, res) => {
   try {
     const entries = await fs.readdir(ABLETON_PATH, { withFileTypes: true });
-    const projects = entries.filter(entry => entry.isDirectory());
-    
+    const projects = entries.filter((entry) => entry.isDirectory());
+
     let totalAudioFiles = 0;
     let totalProjectFiles = 0;
     let totalSize = 0;
-    
+
     for (const project of projects) {
       try {
         const projectPath = path.join(ABLETON_PATH, project.name);
         const files = await fs.readdir(projectPath);
-        
+
         for (const file of files) {
           const filePath = path.join(projectPath, file);
           const stats = await fs.stat(filePath);
-          
+
           if (stats.isFile()) {
             const ext = path.extname(file).toLowerCase();
             if (['.wav', '.mp3', '.aif', '.aiff', '.flac', '.m4a'].includes(ext)) {
@@ -221,7 +220,7 @@ router.get('/stats', async (req, res) => {
         // Skip problematic projects
       }
     }
-    
+
     res.json({
       success: true,
       stats: {
@@ -248,23 +247,23 @@ router.post('/open/:projectName', async (req, res) => {
   try {
     const projectName = decodeURIComponent(req.params.projectName);
     const projectPath = path.join(ABLETON_PATH, projectName);
-    
+
     // Find .als file in project
     const entries = await fs.readdir(projectPath);
-    const alsFile = entries.find(file => path.extname(file) === '.als');
-    
+    const alsFile = entries.find((file) => path.extname(file) === '.als');
+
     if (!alsFile) {
       return res.status(404).json({
         success: false,
         error: 'No Ableton project file (.als) found',
       });
     }
-    
+
     const alsPath = path.join(projectPath, alsFile);
-    
+
     // Open in Ableton Live on macOS
     await execPromise(`open "${alsPath}"`);
-    
+
     res.json({
       success: true,
       message: `Opening ${alsFile} in Ableton Live`,
@@ -292,7 +291,7 @@ router.get('/cli/status', async (req, res) => {
     const cliExists = await fs.access(CLI_SCRIPT).then(() => true).catch(() => false);
     const outputDir = path.join(CLI_PATH, 'output');
     const outputExists = await fs.access(outputDir).then(() => true).catch(() => false);
-    
+
     res.json({
       success: true,
       cli: {
@@ -316,10 +315,10 @@ router.get('/cli/status', async (req, res) => {
 router.post('/cli/generate-midi', async (req, res) => {
   try {
     const { genre = 'deep', bpm = 124, bars = 136 } = req.body;
-    
+
     const cmd = `cd "${CLI_PATH}" && python3 "${CLI_SCRIPT}" midi --genre ${genre} --bpm ${bpm} --bars ${bars}`;
     const { stdout, stderr } = await execPromise(cmd);
-    
+
     res.json({
       success: true,
       message: `Generated ${genre} MIDI patterns at ${bpm} BPM`,
@@ -345,10 +344,10 @@ router.post('/cli/generate-midi', async (req, res) => {
 router.post('/cli/generate-template', async (req, res) => {
   try {
     const { name = 'Deep-Techno', tempo = 124 } = req.body;
-    
+
     const cmd = `cd "${CLI_PATH}" && python3 "${CLI_SCRIPT}" template --tempo ${tempo}`;
     const { stdout, stderr } = await execPromise(cmd);
-    
+
     res.json({
       success: true,
       message: `Generated Ableton template at ${tempo} BPM`,
@@ -373,10 +372,10 @@ router.post('/cli/generate-template', async (req, res) => {
 router.post('/cli/create-project', async (req, res) => {
   try {
     const { genre = 'deep', bpm = 124, bars = 136 } = req.body;
-    
+
     const cmd = `cd "${CLI_PATH}" && python3 "${CLI_SCRIPT}" create --genre ${genre} --bpm ${bpm} --bars ${bars}`;
     const { stdout, stderr } = await execPromise(cmd, { timeout: 30000 });
-    
+
     res.json({
       success: true,
       message: `Created complete ${genre} techno project`,
@@ -404,12 +403,12 @@ router.get('/cli/generated-files', async (req, res) => {
     const outputDir = path.join(CLI_PATH, 'output');
     const midiDir = path.join(outputDir, 'MIDI-Files');
     const projectsDir = path.join(outputDir, 'Projects');
-    
+
     const files = {
       midi: [],
       projects: [],
     };
-    
+
     // Read MIDI files
     try {
       const midiEntries = await fs.readdir(midiDir, { withFileTypes: true, recursive: true });
@@ -428,7 +427,7 @@ router.get('/cli/generated-files', async (req, res) => {
     } catch (e) {
       // MIDI dir might not exist
     }
-    
+
     // Read project files
     try {
       const projectEntries = await fs.readdir(projectsDir, { withFileTypes: true });
@@ -447,7 +446,7 @@ router.get('/cli/generated-files', async (req, res) => {
     } catch (e) {
       // Projects dir might not exist
     }
-    
+
     res.json({
       success: true,
       files,
@@ -473,7 +472,7 @@ router.post('/cli/automate-vst', async (req, res) => {
   try {
     const cmd = `cd "${CLI_PATH}" && python3 "${CLI_SCRIPT}" automate`;
     const { stdout, stderr } = await execPromise(cmd, { timeout: 60000 });
-    
+
     res.json({
       success: true,
       message: 'VST automation completed',
@@ -496,7 +495,7 @@ router.post('/cli/automate-vst', async (req, res) => {
 router.get('/cli/download-midi/:filename', async (req, res) => {
   try {
     const { filename } = req.params;
-    
+
     // Security: Prevent path traversal
     if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
       return res.status(400).json({
@@ -504,7 +503,7 @@ router.get('/cli/download-midi/:filename', async (req, res) => {
         error: 'Invalid filename',
       });
     }
-    
+
     // Only allow .mid files
     if (!filename.endsWith('.mid')) {
       return res.status(400).json({
@@ -512,17 +511,17 @@ router.get('/cli/download-midi/:filename', async (req, res) => {
         error: 'Only MIDI files (.mid) can be downloaded',
       });
     }
-    
+
     // Search for the file in all MIDI output directories
     const outputDir = path.join(CLI_PATH, 'output', 'MIDI-Files');
-    
+
     // Try to find the file (could be in subdirectories like Deep, Hard, etc.)
     const findFile = async (dir, target) => {
       const entries = await fs.readdir(dir, { withFileTypes: true });
-      
+
       for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
-        
+
         if (entry.isDirectory()) {
           const found = await findFile(fullPath, target);
           if (found) return found;
@@ -532,27 +531,26 @@ router.get('/cli/download-midi/:filename', async (req, res) => {
       }
       return null;
     };
-    
+
     const filePath = await findFile(outputDir, filename);
-    
+
     if (!filePath) {
       return res.status(404).json({
         success: false,
         error: 'MIDI file not found',
       });
     }
-    
+
     // Check if file exists and is readable
     await fs.access(filePath, fs.constants.R_OK);
-    
+
     // Set headers for file download
     res.setHeader('Content-Type', 'audio/midi');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    
+
     // Stream the file
     const fileStream = require('fs').createReadStream(filePath);
     fileStream.pipe(res);
-    
   } catch (error) {
     console.error('Error downloading MIDI file:', error);
     res.status(500).json({
@@ -570,27 +568,27 @@ router.get('/cli/download-all-midi', async (req, res) => {
   try {
     const outputDir = path.join(CLI_PATH, 'output', 'MIDI-Files');
     const archiver = require('archiver');
-    
+
     // Create zip archive
     const archive = archiver('zip', {
-      zlib: { level: 9 } // Maximum compression
+      zlib: { level: 9 }, // Maximum compression
     });
-    
+
     // Set headers
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="techno-midi-${Date.now()}.zip"`);
-    
+
     // Pipe archive to response
     archive.pipe(res);
-    
+
     // Add all MIDI files from output directory
     const addMidiFiles = async (dir, zipPath = '') => {
       try {
         const entries = await fs.readdir(dir, { withFileTypes: true });
-        
+
         for (const entry of entries) {
           const fullPath = path.join(dir, entry.name);
-          
+
           if (entry.isDirectory()) {
             await addMidiFiles(fullPath, path.join(zipPath, entry.name));
           } else if (entry.name.endsWith('.mid')) {
@@ -602,12 +600,11 @@ router.get('/cli/download-all-midi', async (req, res) => {
         // Directory might not exist
       }
     };
-    
+
     await addMidiFiles(outputDir);
-    
+
     // Finalize the archive
     await archive.finalize();
-    
   } catch (error) {
     console.error('Error creating MIDI zip:', error);
     if (!res.headersSent) {
@@ -626,7 +623,7 @@ router.get('/cli/download-all-midi', async (req, res) => {
 router.get('/cli/preview-midi/:filename', async (req, res) => {
   try {
     const { filename } = req.params;
-    
+
     // Security: Prevent path traversal
     if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
       return res.status(400).json({
@@ -634,7 +631,7 @@ router.get('/cli/preview-midi/:filename', async (req, res) => {
         error: 'Invalid filename',
       });
     }
-    
+
     // Only allow .mid files
     if (!filename.endsWith('.mid')) {
       return res.status(400).json({
@@ -642,10 +639,10 @@ router.get('/cli/preview-midi/:filename', async (req, res) => {
         error: 'Only MIDI files (.mid) can be previewed',
       });
     }
-    
+
     // Use Python to parse MIDI and extract note information
     const outputDir = path.join(CLI_PATH, 'output', 'MIDI-Files');
-    
+
     // Create a Python script to parse MIDI
     const pythonScript = `
 import sys
@@ -742,26 +739,25 @@ if filepath:
 else:
     print(json.dumps({"error": "MIDI file not found"}))
 `;
-    
+
     // Execute Python script
     const { execSync } = require('child_process');
     const output = execSync(`python3 -c '${pythonScript.replace(/'/g, "'\\''")}'`, {
       cwd: CLI_PATH,
       timeout: 10000,
-      encoding: 'utf8'
+      encoding: 'utf8',
     });
-    
+
     const result = JSON.parse(output);
-    
+
     if (result.error) {
       return res.status(500).json({
         success: false,
-        error: result.error
+        error: result.error,
       });
     }
-    
+
     res.json(result);
-    
   } catch (error) {
     console.error('Error previewing MIDI file:', error);
     res.status(500).json({
@@ -788,10 +784,10 @@ router.get('/synth2600/presets', async (req, res) => {
       {
         cwd: path.join(__dirname, '../ableton-cli'),
         timeout: 5000,
-        encoding: 'utf8'
-      }
+        encoding: 'utf8',
+      },
     );
-    
+
     // Parse the output to extract preset names
     const presetCategories = {
       soundscape: [],
@@ -800,13 +796,13 @@ router.get('/synth2600/presets', async (req, res) => {
       cinematic: [],
       psychedelic: [],
       performance: [],
-      musical: []
+      musical: [],
     };
-    
+
     const lines = stdout.split('\n');
     let currentCategory = null;
-    
-    lines.forEach(line => {
+
+    lines.forEach((line) => {
       if (line.includes('Soundscape Generators:')) currentCategory = 'soundscape';
       else if (line.includes('Rhythmic Experiments:')) currentCategory = 'rhythmic';
       else if (line.includes('Modulation Madness:')) currentCategory = 'modulation';
@@ -821,19 +817,18 @@ router.get('/synth2600/presets', async (req, res) => {
         }
       }
     });
-    
+
     res.json({
       success: true,
       categories: presetCategories,
-      rawOutput: stdout
+      rawOutput: stdout,
     });
-    
   } catch (error) {
     console.error('Error listing synth2600 presets:', error);
     res.status(500).json({
       success: false,
       error: error.message,
-      stderr: error.stderr
+      stderr: error.stderr,
     });
   }
 });
@@ -845,21 +840,21 @@ router.get('/synth2600/presets', async (req, res) => {
 router.get('/synth2600/preset/:name', async (req, res) => {
   try {
     const presetName = req.params.name;
-    
+
     const { stdout, stderr } = await execPromise(
       `python3 "${SYNTH2600_CLI}" preset --load "${presetName}"`,
       {
         cwd: path.join(__dirname, '../ableton-cli'),
         timeout: 5000,
-        encoding: 'utf8'
-      }
+        encoding: 'utf8',
+      },
     );
-    
+
     // Parse the patch matrix from output
     const patchConnections = [];
     const lines = stdout.split('\n');
-    
-    lines.forEach(line => {
+
+    lines.forEach((line) => {
       // Look for patch cable connections like: [RED] VCO1/OUT → MIXER/IN1 (Level: 0.70)
       const match = line.match(/\[(.*?)\]\s+(.*?)\s+→\s+(.*?)\s+\(Level:\s+([\d.]+)\)/);
       if (match) {
@@ -867,24 +862,23 @@ router.get('/synth2600/preset/:name', async (req, res) => {
           color: match[1],
           source: match[2],
           destination: match[3],
-          level: parseFloat(match[4])
+          level: parseFloat(match[4]),
         });
       }
     });
-    
+
     res.json({
       success: true,
       preset: presetName,
       patchConnections,
-      rawOutput: stdout
+      rawOutput: stdout,
     });
-    
   } catch (error) {
     console.error('Error loading synth2600 preset:', error);
     res.status(500).json({
       success: false,
       error: error.message,
-      stderr: error.stderr
+      stderr: error.stderr,
     });
   }
 });
@@ -897,34 +891,33 @@ router.post('/synth2600/export', async (req, res) => {
   try {
     const { filename = 'synth2600_export.mid', bars = 4 } = req.body;
     const outputPath = path.join(__dirname, '../ableton-cli/output', filename);
-    
+
     const { stdout, stderr } = await execPromise(
       `python3 "${SYNTH2600_CLI}" export --midi "${outputPath}" --bars ${bars}`,
       {
         cwd: path.join(__dirname, '../ableton-cli'),
         timeout: 10000,
-        encoding: 'utf8'
-      }
+        encoding: 'utf8',
+      },
     );
-    
+
     // Read the generated MIDI file
     const midiData = await fs.readFile(outputPath);
     const midiBase64 = midiData.toString('base64');
-    
+
     res.json({
       success: true,
       filename,
       path: outputPath,
       midiData: midiBase64,
-      rawOutput: stdout
+      rawOutput: stdout,
     });
-    
   } catch (error) {
     console.error('Error exporting synth2600 MIDI:', error);
     res.status(500).json({
       success: false,
       error: error.message,
-      stderr: error.stderr
+      stderr: error.stderr,
     });
   }
 });
@@ -935,8 +928,10 @@ router.post('/synth2600/export', async (req, res) => {
  */
 router.post('/synth2600/patch', async (req, res) => {
   try {
-    const { action, source, destination, level = 0.8, color = 'red' } = req.body;
-    
+    const {
+      action, source, destination, level = 0.8, color = 'red',
+    } = req.body;
+
     let command;
     if (action === 'add') {
       command = `python3 "${SYNTH2600_CLI}" patch --add "${source}" "${destination}" --level ${level} --color ${color}`;
@@ -947,28 +942,27 @@ router.post('/synth2600/patch', async (req, res) => {
     } else {
       return res.status(400).json({
         success: false,
-        error: 'Invalid action. Use "add", "remove", or "show"'
+        error: 'Invalid action. Use "add", "remove", or "show"',
       });
     }
-    
+
     const { stdout, stderr } = await execPromise(command, {
       cwd: path.join(__dirname, '../ableton-cli'),
       timeout: 5000,
-      encoding: 'utf8'
+      encoding: 'utf8',
     });
-    
+
     res.json({
       success: true,
       action,
-      rawOutput: stdout
+      rawOutput: stdout,
     });
-    
   } catch (error) {
     console.error('Error managing synth2600 patch:', error);
     res.status(500).json({
       success: false,
       error: error.message,
-      stderr: error.stderr
+      stderr: error.stderr,
     });
   }
 });
@@ -980,29 +974,28 @@ router.post('/synth2600/patch', async (req, res) => {
 router.post('/synth2600/sequencer', async (req, res) => {
   try {
     const { pattern = 'random', steps = 16 } = req.body;
-    
+
     const { stdout, stderr } = await execPromise(
       `python3 "${SYNTH2600_CLI}" sequencer --program "${pattern}" --steps ${steps}`,
       {
         cwd: path.join(__dirname, '../ableton-cli'),
         timeout: 5000,
-        encoding: 'utf8'
-      }
+        encoding: 'utf8',
+      },
     );
-    
+
     res.json({
       success: true,
       pattern,
       steps,
-      rawOutput: stdout
+      rawOutput: stdout,
     });
-    
   } catch (error) {
     console.error('Error programming synth2600 sequencer:', error);
     res.status(500).json({
       success: false,
       error: error.message,
-      stderr: error.stderr
+      stderr: error.stderr,
     });
   }
 });
@@ -1014,40 +1007,38 @@ router.post('/synth2600/sequencer', async (req, res) => {
 router.post('/synth2600/params', async (req, res) => {
   try {
     const { module, parameter, value } = req.body;
-    
+
     if (!module || !parameter || value === undefined) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required parameters: module, parameter, value'
+        error: 'Missing required parameters: module, parameter, value',
       });
     }
-    
+
     const { stdout, stderr } = await execPromise(
       `python3 "${SYNTH2600_CLI}" params --set "${module}.${parameter}=${value}"`,
       {
         cwd: path.join(__dirname, '../ableton-cli'),
         timeout: 5000,
-        encoding: 'utf8'
-      }
+        encoding: 'utf8',
+      },
     );
-    
+
     res.json({
       success: true,
       module,
       parameter,
       value,
-      rawOutput: stdout
+      rawOutput: stdout,
     });
-    
   } catch (error) {
     console.error('Error setting synth2600 parameters:', error);
     res.status(500).json({
       success: false,
       error: error.message,
-      stderr: error.stderr
+      stderr: error.stderr,
     });
   }
 });
 
 module.exports = router;
-

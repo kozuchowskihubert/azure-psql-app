@@ -1,16 +1,16 @@
 /**
  * Express Application Configuration
- * 
+ *
  * This module configures and exports the Express application with all middleware,
  * security settings, routes, and session management.
- * 
+ *
  * Features:
  * - Security middleware (Helmet, CORS, Rate Limiting)
  * - Session management (in-memory for dev, PostgreSQL for production)
  * - SSO authentication (Passport.js with Azure AD and Google OAuth)
  * - Optional features (Calendar sync, Meeting rooms)
  * - Static file serving and SPA routing
- * 
+ *
  * @module app
  */
 
