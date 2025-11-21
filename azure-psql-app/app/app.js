@@ -20,7 +20,7 @@ app.use(cors());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 100, // limit each IP to 100 requests per windowMs
 });
 app.use('/api/', limiter);
 
@@ -52,8 +52,8 @@ const sessionConfig = {
 if (process.env.NODE_ENV === 'production') {
   const pgSession = require('connect-pg-simple')(session);
   sessionConfig.store = new pgSession({
-    pool: pool,
-    tableName: 'session'
+    pool,
+    tableName: 'session',
   });
 }
 
@@ -68,7 +68,7 @@ if (enableSSO) {
     app.use(passport.session());
     initializePassport(pool);
     console.log('✓ SSO authentication enabled');
-    
+
     // Auth routes
     const authRoutes = require('./auth/auth-routes');
     app.use('/api/auth', authRoutes);

@@ -40,7 +40,7 @@ describe('Database Integration Tests', () => {
         `INSERT INTO notes (title, content, category, important)
          VALUES ($1, $2, $3, $4)
          RETURNING id, title, content, category, important`,
-        ['TEST_Note', 'TEST_Content', 'test', false]
+        ['TEST_Note', 'TEST_Content', 'test', false],
       );
 
       expect(result.rows).toHaveLength(1);
@@ -57,12 +57,12 @@ describe('Database Integration Tests', () => {
       await pool.query(
         `INSERT INTO notes (title, content)
          VALUES ($1, $2)`,
-        ['TEST_Select', 'TEST_Content']
+        ['TEST_Select', 'TEST_Content'],
       );
 
       const result = await pool.query(
         'SELECT * FROM notes WHERE title = $1',
-        ['TEST_Select']
+        ['TEST_Select'],
       );
 
       expect(result.rows).toHaveLength(1);
@@ -75,7 +75,7 @@ describe('Database Integration Tests', () => {
         `INSERT INTO notes (title, content)
          VALUES ($1, $2)
          RETURNING id`,
-        ['TEST_Update', 'Original Content']
+        ['TEST_Update', 'Original Content'],
       );
 
       const noteId = insertResult.rows[0].id;
@@ -86,7 +86,7 @@ describe('Database Integration Tests', () => {
          SET content = $1, updated_at = CURRENT_TIMESTAMP
          WHERE id = $2
          RETURNING id, content`,
-        ['Updated Content', noteId]
+        ['Updated Content', noteId],
       );
 
       expect(updateResult.rows[0].content).toBe('Updated Content');
@@ -98,7 +98,7 @@ describe('Database Integration Tests', () => {
         `INSERT INTO notes (title, content)
          VALUES ($1, $2)
          RETURNING id`,
-        ['TEST_Delete', 'Content']
+        ['TEST_Delete', 'Content'],
       );
 
       const noteId = insertResult.rows[0].id;
@@ -106,7 +106,7 @@ describe('Database Integration Tests', () => {
       // Delete the note
       const deleteResult = await pool.query(
         'DELETE FROM notes WHERE id = $1',
-        [noteId]
+        [noteId],
       );
 
       expect(deleteResult.rowCount).toBe(1);
@@ -114,7 +114,7 @@ describe('Database Integration Tests', () => {
       // Verify deletion
       const selectResult = await pool.query(
         'SELECT * FROM notes WHERE id = $1',
-        [noteId]
+        [noteId],
       );
 
       expect(selectResult.rows).toHaveLength(0);
@@ -130,8 +130,8 @@ describe('Database Integration Tests', () => {
         ORDER BY ordinal_position
       `);
 
-      const columns = result.rows.map(row => row.column_name);
-      
+      const columns = result.rows.map((row) => row.column_name);
+
       expect(columns).toContain('id');
       expect(columns).toContain('title');
       expect(columns).toContain('content');

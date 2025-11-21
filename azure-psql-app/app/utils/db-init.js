@@ -11,14 +11,14 @@ async function ensureTable() {
     // await client.query(`DROP TABLE IF EXISTS notes CASCADE`);
     // This is destructive! But I will keep the logic for now as requested to "rebuild functionality" not "change business logic" too much.
     // However, for a "lean and clean" app, maybe we should check if it exists first.
-    
+
     // Let's check if table exists first to avoid data loss on every restart if that was the case.
     // The original code definitely had DROP TABLE. I will comment it out for safety in this refactor unless I see it's intended.
     // "Technical assesement" implies it might be a demo.
-    
+
     // I'll stick to the original logic but maybe make it safer.
     // "CREATE TABLE IF NOT EXISTS" is better.
-    
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS notes (
         id SERIAL PRIMARY KEY,
@@ -33,7 +33,7 @@ async function ensureTable() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
-    
+
     console.log('Database schema initialized successfully');
   } catch (err) {
     console.error('Error initializing database schema:', err);

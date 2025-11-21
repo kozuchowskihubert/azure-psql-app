@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router = express.Router();
 
 // Middleware to check for authentication
@@ -47,14 +48,14 @@ module.exports = (pool) => {
          VALUES ($1, $2, $3, $4)
          ON CONFLICT (note_id, shared_with_user_id) DO UPDATE SET permission_level = EXCLUDED.permission_level, shared_at = NOW()
          RETURNING *`,
-        [noteId, sharedWithUserId, sharerId, permissionLevel]
+        [noteId, sharedWithUserId, sharerId, permissionLevel],
       );
 
       // Log the activity
       await client.query(
         `INSERT INTO note_activity (note_id, user_id, activity_type, details)
          VALUES ($1, $2, 'shared', $3)`,
-        [noteId, sharerId, JSON.stringify({ sharedWith: email, permission: permissionLevel })]
+        [noteId, sharerId, JSON.stringify({ sharedWith: email, permission: permissionLevel })],
       );
 
       await client.query('COMMIT');
@@ -80,7 +81,7 @@ module.exports = (pool) => {
         `SELECT 1 FROM notes n
          LEFT JOIN note_shares ns ON n.id = ns.note_id
          WHERE n.id = $1 AND (n.user_id = $2 OR ns.shared_with_user_id = $2)`,
-        [noteId, requesterId]
+        [noteId, requesterId],
       );
 
       if (noteAccess.rows.length === 0) {
@@ -92,7 +93,7 @@ module.exports = (pool) => {
          FROM note_shares ns
          JOIN users u ON ns.shared_with_user_id = u.id
          WHERE ns.note_id = $1`,
-        [noteId]
+        [noteId],
       );
       res.json(rows);
     } catch (err) {
@@ -110,45 +111,45 @@ module.exports = (pool) => {
 
     const client = await pool.connect();
     try {
-        await client.query('BEGIN');
+      await client.query('BEGIN');
 
-        const shareInfo = await client.query('SELECT note_id, shared_with_user_id FROM note_shares WHERE id = $1', [shareId]);
-        if (shareInfo.rows.length === 0) {
-            return res.status(404).json({ error: 'Share record not found' });
-        }
-        const { note_id: noteId, shared_with_user_id: sharedWithUserId } = shareInfo.rows[0];
+      const shareInfo = await client.query('SELECT note_id, shared_with_user_id FROM note_shares WHERE id = $1', [shareId]);
+      if (shareInfo.rows.length === 0) {
+        return res.status(404).json({ error: 'Share record not found' });
+      }
+      const { note_id: noteId, shared_with_user_id: sharedWithUserId } = shareInfo.rows[0];
 
-        const noteOwner = await client.query('SELECT user_id FROM notes WHERE id = $1', [noteId]);
-        if (noteOwner.rows.length === 0) {
-            return res.status(404).json({ error: 'Note not found' });
-        }
+      const noteOwner = await client.query('SELECT user_id FROM notes WHERE id = $1', [noteId]);
+      if (noteOwner.rows.length === 0) {
+        return res.status(404).json({ error: 'Note not found' });
+      }
 
-        // Only owner or the person themselves can remove the share
-        if (noteOwner.rows[0].user_id !== requesterId && sharedWithUserId !== requesterId) {
-            return res.status(403).json({ error: 'You do not have permission to remove this share' });
-        }
+      // Only owner or the person themselves can remove the share
+      if (noteOwner.rows[0].user_id !== requesterId && sharedWithUserId !== requesterId) {
+        return res.status(403).json({ error: 'You do not have permission to remove this share' });
+      }
 
-        const { rowCount } = await client.query('DELETE FROM note_shares WHERE id = $1', [shareId]);
-        if (rowCount === 0) {
-            return res.status(404).json({ error: 'Share record not found' });
-        }
+      const { rowCount } = await client.query('DELETE FROM note_shares WHERE id = $1', [shareId]);
+      if (rowCount === 0) {
+        return res.status(404).json({ error: 'Share record not found' });
+      }
 
-        // Log activity
-        const sharedWithUser = await client.query('SELECT email FROM users WHERE id = $1', [sharedWithUserId]);
-        await client.query(
-            `INSERT INTO note_activity (note_id, user_id, activity_type, details)
+      // Log activity
+      const sharedWithUser = await client.query('SELECT email FROM users WHERE id = $1', [sharedWithUserId]);
+      await client.query(
+        `INSERT INTO note_activity (note_id, user_id, activity_type, details)
              VALUES ($1, $2, 'unshared', $3)`,
-            [noteId, requesterId, JSON.stringify({ unsharedWith: sharedWithUser.rows[0].email })]
-        );
+        [noteId, requesterId, JSON.stringify({ unsharedWith: sharedWithUser.rows[0].email })],
+      );
 
-        await client.query('COMMIT');
-        res.status(204).send();
+      await client.query('COMMIT');
+      res.status(204).send();
     } catch (err) {
-        await client.query('ROLLBACK');
-        console.error('Error removing share:', err);
-        res.status(500).json({ error: 'Failed to remove share' });
+      await client.query('ROLLBACK');
+      console.error('Error removing share:', err);
+      res.status(500).json({ error: 'Failed to remove share' });
     } finally {
-        client.release();
+      client.release();
     }
   });
 

@@ -50,7 +50,7 @@ function initializePassport(db) {
     try {
       const result = await db.query(
         'SELECT * FROM users WHERE id = $1 AND is_active = true',
-        [id]
+        [id],
       );
       done(null, result.rows[0] || null);
     } catch (error) {
@@ -94,8 +94,8 @@ function initializePassport(db) {
         } catch (error) {
           return done(error, null);
         }
-      }
-    )
+      },
+    ),
   );
 
   // =========================================================================
@@ -130,8 +130,8 @@ function initializePassport(db) {
         } catch (error) {
           return done(error, null);
         }
-      }
-    )
+      },
+    ),
   );
 }
 
@@ -157,7 +157,7 @@ async function findOrCreateUser(userData, db) {
     // Check if user exists
     let result = await db.query(
       'SELECT * FROM users WHERE sso_provider = $1 AND sso_provider_id = $2',
-      [provider, providerId]
+      [provider, providerId],
     );
 
     let user;
@@ -165,7 +165,7 @@ async function findOrCreateUser(userData, db) {
     if (result.rows.length > 0) {
       // Update existing user
       user = result.rows[0];
-      
+
       result = await db.query(
         `UPDATE users SET
           display_name = $1,
@@ -176,9 +176,9 @@ async function findOrCreateUser(userData, db) {
           updated_at = NOW()
         WHERE id = $5
         RETURNING *`,
-        [displayName, firstName, lastName, avatarUrl, user.id]
+        [displayName, firstName, lastName, avatarUrl, user.id],
       );
-      
+
       user = result.rows[0];
     } else {
       // Create new user
@@ -198,9 +198,9 @@ async function findOrCreateUser(userData, db) {
           provider,
           providerId,
           tenantId,
-        ]
+        ],
       );
-      
+
       user = result.rows[0];
 
       // Assign default 'user' role
@@ -208,7 +208,7 @@ async function findOrCreateUser(userData, db) {
         `INSERT INTO user_role_assignments (user_id, role_id)
         SELECT $1, id FROM user_roles WHERE role_name = 'user'
         ON CONFLICT DO NOTHING`,
-        [user.id]
+        [user.id],
       );
     }
 
@@ -227,11 +227,13 @@ async function findOrCreateUser(userData, db) {
 }
 
 async function createUserSession(sessionData, db) {
-  const { userId, accessToken, refreshToken, ipAddress, userAgent } = sessionData;
-  
+  const {
+    userId, accessToken, refreshToken, ipAddress, userAgent,
+  } = sessionData;
+
   // Generate secure session token
   const sessionToken = crypto.randomBytes(32).toString('hex');
-  
+
   // Token expires in 7 days
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7);
@@ -257,7 +259,7 @@ async function createUserSession(sessionData, db) {
       ipAddress,
       userAgent,
       expiresAt,
-    ]
+    ],
   );
 
   return sessionToken;
@@ -269,32 +271,32 @@ async function createUserSession(sessionData, db) {
 
 function encryptToken(token) {
   if (!token) return null;
-  
+
   const algorithm = 'aes-256-cbc';
   const key = Buffer.from(process.env.ENCRYPTION_KEY, 'hex'); // 32 bytes
   const iv = crypto.randomBytes(16);
-  
+
   const cipher = crypto.createCipheriv(algorithm, key, iv);
   let encrypted = cipher.update(token, 'utf8', 'hex');
   encrypted += cipher.final('hex');
-  
+
   return `${iv.toString('hex')}:${encrypted}`;
 }
 
 function decryptToken(encryptedToken) {
   if (!encryptedToken) return null;
-  
+
   const algorithm = 'aes-256-cbc';
   const key = Buffer.from(process.env.ENCRYPTION_KEY, 'hex');
-  
+
   const parts = encryptedToken.split(':');
   const iv = Buffer.from(parts[0], 'hex');
   const encrypted = parts[1];
-  
+
   const decipher = crypto.createDecipheriv(algorithm, key, iv);
   let decrypted = decipher.update(encrypted, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
-  
+
   return decrypted;
 }
 
@@ -321,17 +323,17 @@ function requireRole(...roles) {
         FROM user_role_assignments ura
         JOIN user_roles r ON ura.role_id = r.id
         WHERE ura.user_id = $1`,
-        [req.user.id]
+        [req.user.id],
       );
 
-      const userRoles = result.rows.map(row => row.role_name);
-      const hasRole = roles.some(role => userRoles.includes(role));
+      const userRoles = result.rows.map((row) => row.role_name);
+      const hasRole = roles.some((role) => userRoles.includes(role));
 
       if (!hasRole) {
-        return res.status(403).json({ 
+        return res.status(403).json({
           error: 'Forbidden. Insufficient permissions.',
           required: roles,
-          current: userRoles
+          current: userRoles,
         });
       }
 

@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router = express.Router();
 const pool = require('../config/database');
 
@@ -8,20 +9,20 @@ router.get('/', async (req, res) => {
     const client = await pool.connect();
     try {
       await client.query('SELECT 1');
-      res.json({ 
+      res.json({
         status: 'healthy',
         database: 'connected',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     } finally {
       client.release();
     }
   } catch (err) {
-    res.status(503).json({ 
+    res.status(503).json({
       status: 'unhealthy',
       database: 'disconnected',
       error: err.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });

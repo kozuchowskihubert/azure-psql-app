@@ -4,6 +4,7 @@
 
 const express = require('express');
 const passport = require('passport');
+
 const router = express.Router();
 const { requireAuth } = require('./sso-config');
 
@@ -12,22 +13,24 @@ const { requireAuth } = require('./sso-config');
 // ============================================================================
 
 // Initiate Azure AD login
-router.get('/login/azure', 
+router.get(
+  '/login/azure',
   passport.authenticate('azure-ad', {
     failureRedirect: '/login',
     failureMessage: true,
-  })
+  }),
 );
 
 // Azure AD callback
-router.post('/callback/azure',
+router.post(
+  '/callback/azure',
   passport.authenticate('azure-ad', {
     failureRedirect: '/login?error=azure_auth_failed',
   }),
   (req, res) => {
     // Successful authentication
     res.redirect('/dashboard');
-  }
+  },
 );
 
 // ============================================================================
@@ -35,7 +38,8 @@ router.post('/callback/azure',
 // ============================================================================
 
 // Initiate Google login
-router.get('/login/google',
+router.get(
+  '/login/google',
   passport.authenticate('google', {
     scope: [
       'openid',
@@ -45,18 +49,19 @@ router.get('/login/google',
     ],
     accessType: 'offline',
     prompt: 'consent',
-  })
+  }),
 );
 
 // Google callback
-router.get('/callback/google',
+router.get(
+  '/callback/google',
   passport.authenticate('google', {
     failureRedirect: '/login?error=google_auth_failed',
   }),
   (req, res) => {
     // Successful authentication
     res.redirect('/dashboard');
-  }
+  },
 );
 
 // ============================================================================
@@ -66,8 +71,8 @@ router.get('/callback/google',
 // Get current authenticated user
 router.get('/me', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
-    
+    const { db } = req.app.locals;
+
     // Get user with roles
     const userResult = await db.query(
       `SELECT 
@@ -83,7 +88,7 @@ router.get('/me', requireAuth, async (req, res) => {
       LEFT JOIN user_roles r ON ura.role_id = r.id
       WHERE u.id = $1
       GROUP BY u.id`,
-      [req.user.id]
+      [req.user.id],
     );
 
     if (userResult.rows.length === 0) {
@@ -91,7 +96,7 @@ router.get('/me', requireAuth, async (req, res) => {
     }
 
     const user = userResult.rows[0];
-    
+
     // Remove sensitive fields
     delete user.sso_provider_id;
     delete user.sso_tenant_id;
@@ -106,7 +111,7 @@ router.get('/me', requireAuth, async (req, res) => {
 // Logout
 router.post('/logout', (req, res) => {
   const userId = req.user?.id;
-  
+
   req.logout((err) => {
     if (err) {
       console.error('Logout error:', err);
@@ -117,7 +122,7 @@ router.post('/logout', (req, res) => {
     if (userId) {
       req.app.locals.db.query(
         'DELETE FROM user_sessions WHERE user_id = $1',
-        [userId]
+        [userId],
       ).catch(console.error);
     }
 
@@ -134,15 +139,15 @@ router.post('/logout', (req, res) => {
 // Refresh token
 router.post('/refresh', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
-    
+    const { db } = req.app.locals;
+
     // Get current session
     const sessionResult = await db.query(
       `SELECT * FROM user_sessions 
       WHERE user_id = $1 
       ORDER BY created_at DESC 
       LIMIT 1`,
-      [req.user.id]
+      [req.user.id],
     );
 
     if (sessionResult.rows.length === 0) {
@@ -150,16 +155,16 @@ router.post('/refresh', requireAuth, async (req, res) => {
     }
 
     const session = sessionResult.rows[0];
-    
+
     // Check if token needs refresh (within 5 minutes of expiry)
     const now = new Date();
     const tokenExpiry = new Date(session.token_expires_at);
     const minutesUntilExpiry = (tokenExpiry - now) / (1000 * 60);
 
     if (minutesUntilExpiry > 5) {
-      return res.json({ 
+      return res.json({
         message: 'Token still valid',
-        expiresIn: minutesUntilExpiry 
+        expiresIn: minutesUntilExpiry,
       });
     }
 

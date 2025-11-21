@@ -3,6 +3,7 @@
 // ============================================================================
 
 const express = require('express');
+
 const router = express.Router();
 const { requireAuth } = require('../auth/sso-config');
 
@@ -13,7 +14,7 @@ const { requireAuth } = require('../auth/sso-config');
 // Get all meetings for user
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const { db } = req.app.locals;
     const { status, upcoming, past } = req.query;
 
     let query = `
@@ -45,11 +46,11 @@ router.get('/', requireAuth, async (req, res) => {
     }
 
     if (upcoming) {
-      query += ` AND mb.start_time > NOW()`;
+      query += ' AND mb.start_time > NOW()';
     }
 
     if (past) {
-      query += ` AND mb.end_time < NOW()`;
+      query += ' AND mb.end_time < NOW()';
     }
 
     query += ` GROUP BY mb.id, mr.name, mr.location, u.display_name, u.email
@@ -66,7 +67,7 @@ router.get('/', requireAuth, async (req, res) => {
 // Schedule a meeting
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const { db } = req.app.locals;
     const {
       title,
       description,
@@ -84,8 +85,8 @@ router.post('/', requireAuth, async (req, res) => {
 
     // Validate
     if (!title || !startTime || !endTime) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: title, startTime, endTime' 
+      return res.status(400).json({
+        error: 'Missing required fields: title, startTime, endTime',
       });
     }
 
@@ -100,12 +101,12 @@ router.post('/', requireAuth, async (req, res) => {
             (start_time < $3 AND end_time >= $3) OR
             (start_time >= $2 AND end_time <= $3)
           )`,
-        [roomId, startTime, endTime]
+        [roomId, startTime, endTime],
       );
 
       if (conflict.rows.length > 0) {
-        return res.status(409).json({ 
-          error: 'Room is not available for the selected time slot' 
+        return res.status(409).json({
+          error: 'Room is not available for the selected time slot',
         });
       }
     }
@@ -124,8 +125,8 @@ router.post('/', requireAuth, async (req, res) => {
         [
           title, description, agenda, startTime, endTime, timezone || 'UTC',
           roomId, req.user.id, meetingType || 'in-person', virtualMeetingUrl,
-          sendReminder !== false, reminderMinutesBefore || 15
-        ]
+          sendReminder !== false, reminderMinutesBefore || 15,
+        ],
       );
 
       const meeting = meetingResult.rows[0];
@@ -135,7 +136,7 @@ router.post('/', requireAuth, async (req, res) => {
         `INSERT INTO meeting_participants (
           meeting_id, user_id, email, display_name, status, is_required
         ) VALUES ($1, $2, $3, $4, 'accepted', true)`,
-        [meeting.id, req.user.id, req.user.email, req.user.display_name]
+        [meeting.id, req.user.id, req.user.email, req.user.display_name],
       );
 
       // Add other participants
@@ -145,7 +146,7 @@ router.post('/', requireAuth, async (req, res) => {
             `INSERT INTO meeting_participants (
               meeting_id, email, display_name, is_required
             ) VALUES ($1, $2, $3, $4)`,
-            [meeting.id, participant.email, participant.name, participant.required !== false]
+            [meeting.id, participant.email, participant.name, participant.required !== false],
           );
         }
       }
@@ -160,21 +161,21 @@ router.post('/', requireAuth, async (req, res) => {
         [
           req.user.id, title, description,
           roomId ? 'Room Booking' : 'Virtual Meeting',
-          startTime, endTime, timezone || 'UTC'
-        ]
+          startTime, endTime, timezone || 'UTC',
+        ],
       );
 
       // Link meeting to calendar event
       await db.query(
         'UPDATE meeting_bookings SET calendar_event_id = $1 WHERE id = $2',
-        [calendarResult.rows[0].id, meeting.id]
+        [calendarResult.rows[0].id, meeting.id],
       );
 
       await db.query('COMMIT');
 
-      res.status(201).json({ 
+      res.status(201).json({
         meeting,
-        message: 'Meeting scheduled successfully' 
+        message: 'Meeting scheduled successfully',
       });
     } catch (error) {
       await db.query('ROLLBACK');
@@ -189,8 +190,8 @@ router.post('/', requireAuth, async (req, res) => {
 // Get meeting details
 router.get('/:id', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
-    
+    const { db } = req.app.locals;
+
     const result = await db.query(
       `SELECT 
         mb.*,
@@ -216,7 +217,7 @@ router.get('/:id', requireAuth, async (req, res) => {
       LEFT JOIN meeting_participants mp ON mb.id = mp.meeting_id
       WHERE mb.id = $1
       GROUP BY mb.id, mr.name, mr.location, mr.capacity, mr.features, u.display_name, u.email`,
-      [req.params.id]
+      [req.params.id],
     );
 
     if (result.rows.length === 0) {
@@ -233,9 +234,9 @@ router.get('/:id', requireAuth, async (req, res) => {
 // Cancel meeting
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const { db } = req.app.locals;
     const { cancellationReason } = req.body;
-    
+
     const result = await db.query(
       `UPDATE meeting_bookings 
       SET status = 'cancelled', 
@@ -243,7 +244,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
           cancelled_at = NOW()
       WHERE id = $2 AND organizer_id = $3
       RETURNING id`,
-      [cancellationReason, req.params.id, req.user.id]
+      [cancellationReason, req.params.id, req.user.id],
     );
 
     if (result.rows.length === 0) {
@@ -262,14 +263,14 @@ router.delete('/:id', requireAuth, async (req, res) => {
 // Check in to meeting
 router.post('/:id/checkin', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
-    
+    const { db } = req.app.locals;
+
     const result = await db.query(
       `UPDATE meeting_participants
       SET checked_in = true, checked_in_at = NOW()
       WHERE meeting_id = $1 AND user_id = $2
       RETURNING id`,
-      [req.params.id, req.user.id]
+      [req.params.id, req.user.id],
     );
 
     if (result.rows.length === 0) {
@@ -290,9 +291,9 @@ router.post('/:id/checkin', requireAuth, async (req, res) => {
 // Get all rooms
 router.get('/rooms', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const { db } = req.app.locals;
     const { active } = req.query;
-    
+
     let query = 'SELECT * FROM meeting_rooms';
     const params = [];
 
@@ -313,12 +314,14 @@ router.get('/rooms', requireAuth, async (req, res) => {
 // Find available rooms
 router.get('/rooms/available', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
-    const { startTime, endTime, capacity, features } = req.query;
+    const { db } = req.app.locals;
+    const {
+      startTime, endTime, capacity, features,
+    } = req.query;
 
     if (!startTime || !endTime) {
-      return res.status(400).json({ 
-        error: 'Missing required parameters: startTime, endTime' 
+      return res.status(400).json({
+        error: 'Missing required parameters: startTime, endTime',
       });
     }
 
@@ -371,7 +374,7 @@ router.get('/rooms/available', requireAuth, async (req, res) => {
 // Get room schedule
 router.get('/rooms/:id/schedule', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const { db } = req.app.locals;
     const { date } = req.query;
 
     const startOfDay = date ? `${date} 00:00:00` : 'CURRENT_DATE';
@@ -388,7 +391,7 @@ router.get('/rooms/:id/schedule', requireAuth, async (req, res) => {
         AND mb.start_time >= ${startOfDay}
         AND mb.end_time <= ${endOfDay}
       ORDER BY mb.start_time ASC`,
-      [req.params.id]
+      [req.params.id],
     );
 
     res.json({ bookings: result.rows });

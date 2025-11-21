@@ -10,7 +10,7 @@ beforeAll(() => {
   process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/testdb';
   process.env.SESSION_SECRET = 'test-secret';
   process.env.NODE_ENV = 'test';
-  
+
   pool = new Pool();
 });
 
@@ -113,18 +113,18 @@ describe('Share Routes', () => {
 describe('Permission Validation', () => {
   it('should validate permission levels', () => {
     const validLevels = ['viewer', 'commenter', 'editor', 'owner'];
-    
-    validLevels.forEach(level => {
+
+    validLevels.forEach((level) => {
       expect(validLevels).toContain(level);
     });
   });
 
   it('should enforce permission hierarchy', () => {
     const levels = ['viewer', 'commenter', 'editor', 'owner'];
-    
+
     const viewerIndex = levels.indexOf('viewer');
     const editorIndex = levels.indexOf('editor');
-    
+
     expect(editorIndex).toBeGreaterThan(viewerIndex);
   });
 });

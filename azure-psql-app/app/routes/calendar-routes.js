@@ -3,6 +3,7 @@
 // ============================================================================
 
 const express = require('express');
+
 const router = express.Router();
 const { requireAuth } = require('../auth/sso-config');
 
@@ -13,7 +14,7 @@ const { requireAuth } = require('../auth/sso-config');
 // Get all events for authenticated user
 router.get('/events', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const { db } = req.app.locals;
     const { start, end, type } = req.query;
 
     let query = `
@@ -32,7 +33,7 @@ router.get('/events', requireAuth, async (req, res) => {
       LEFT JOIN event_attendees a ON e.id = a.event_id
       WHERE e.user_id = $1
     `;
-    
+
     const params = [req.user.id];
     let paramIndex = 2;
 
@@ -50,7 +51,7 @@ router.get('/events', requireAuth, async (req, res) => {
       paramIndex++;
     }
 
-    query += ` GROUP BY e.id ORDER BY e.start_time ASC`;
+    query += ' GROUP BY e.id ORDER BY e.start_time ASC';
 
     const result = await db.query(query, params);
     res.json({ events: result.rows });
@@ -63,8 +64,8 @@ router.get('/events', requireAuth, async (req, res) => {
 // Get single event
 router.get('/events/:id', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
-    
+    const { db } = req.app.locals;
+
     const result = await db.query(
       `SELECT 
         e.*,
@@ -82,7 +83,7 @@ router.get('/events/:id', requireAuth, async (req, res) => {
       LEFT JOIN event_attendees a ON e.id = a.event_id
       WHERE e.id = $1 AND e.user_id = $2
       GROUP BY e.id`,
-      [req.params.id, req.user.id]
+      [req.params.id, req.user.id],
     );
 
     if (result.rows.length === 0) {
@@ -99,7 +100,7 @@ router.get('/events/:id', requireAuth, async (req, res) => {
 // Create new event
 router.post('/events', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const { db } = req.app.locals;
     const {
       title,
       description,
@@ -116,8 +117,8 @@ router.post('/events', requireAuth, async (req, res) => {
 
     // Validate required fields
     if (!title || !startTime || !endTime) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: title, startTime, endTime' 
+      return res.status(400).json({
+        error: 'Missing required fields: title, startTime, endTime',
       });
     }
 
@@ -145,7 +146,7 @@ router.post('/events', requireAuth, async (req, res) => {
           eventType || 'event',
           visibility || 'private',
           recurrenceRule,
-        ]
+        ],
       );
 
       const event = eventResult.rows[0];
@@ -161,7 +162,7 @@ router.post('/events', requireAuth, async (req, res) => {
           req.user.id,
           req.user.email,
           req.user.display_name,
-        ]
+        ],
       );
 
       // Add other attendees
@@ -171,16 +172,16 @@ router.post('/events', requireAuth, async (req, res) => {
             `INSERT INTO event_attendees (
               event_id, email, display_name, is_required
             ) VALUES ($1, $2, $3, $4)`,
-            [event.id, attendee.email, attendee.name, attendee.required !== false]
+            [event.id, attendee.email, attendee.name, attendee.required !== false],
           );
         }
       }
 
       await db.query('COMMIT');
 
-      res.status(201).json({ 
+      res.status(201).json({
         event,
-        message: 'Event created successfully' 
+        message: 'Event created successfully',
       });
     } catch (error) {
       await db.query('ROLLBACK');
@@ -195,14 +196,14 @@ router.post('/events', requireAuth, async (req, res) => {
 // Update event
 router.put('/events/:id', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const { db } = req.app.locals;
     const eventId = req.params.id;
     const updates = req.body;
 
     // Verify ownership
     const ownerCheck = await db.query(
       'SELECT id FROM calendar_events WHERE id = $1 AND user_id = $2',
-      [eventId, req.user.id]
+      [eventId, req.user.id],
     );
 
     if (ownerCheck.rows.length === 0) {
@@ -212,7 +213,7 @@ router.put('/events/:id', requireAuth, async (req, res) => {
     // Build update query dynamically
     const allowedFields = [
       'title', 'description', 'location', 'start_time', 'end_time',
-      'timezone', 'is_all_day', 'status', 'visibility', 'recurrence_rule'
+      'timezone', 'is_all_day', 'status', 'visibility', 'recurrence_rule',
     ];
 
     const updateFields = [];
@@ -241,9 +242,9 @@ router.put('/events/:id', requireAuth, async (req, res) => {
     `;
 
     const result = await db.query(query, values);
-    res.json({ 
+    res.json({
       event: result.rows[0],
-      message: 'Event updated successfully' 
+      message: 'Event updated successfully',
     });
   } catch (error) {
     console.error('Error updating event:', error);
@@ -254,11 +255,11 @@ router.put('/events/:id', requireAuth, async (req, res) => {
 // Delete event
 router.delete('/events/:id', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
-    
+    const { db } = req.app.locals;
+
     const result = await db.query(
       'DELETE FROM calendar_events WHERE id = $1 AND user_id = $2 RETURNING id',
-      [req.params.id, req.user.id]
+      [req.params.id, req.user.id],
     );
 
     if (result.rows.length === 0) {
@@ -279,8 +280,8 @@ router.delete('/events/:id', requireAuth, async (req, res) => {
 // Get connected calendar providers
 router.get('/providers', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
-    
+    const { db } = req.app.locals;
+
     const result = await db.query(
       `SELECT 
         id, provider_type, provider_account_id,
@@ -289,7 +290,7 @@ router.get('/providers', requireAuth, async (req, res) => {
       FROM calendar_providers
       WHERE user_id = $1
       ORDER BY is_primary DESC, created_at DESC`,
-      [req.user.id]
+      [req.user.id],
     );
 
     res.json({ providers: result.rows });
@@ -302,12 +303,14 @@ router.get('/providers', requireAuth, async (req, res) => {
 // Connect calendar provider
 router.post('/providers', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
-    const { providerType, accessToken, refreshToken, accountId } = req.body;
+    const { db } = req.app.locals;
+    const {
+      providerType, accessToken, refreshToken, accountId,
+    } = req.body;
 
     if (!providerType || !accessToken) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: providerType, accessToken' 
+      return res.status(400).json({
+        error: 'Missing required fields: providerType, accessToken',
       });
     }
 
@@ -317,12 +320,12 @@ router.post('/providers', requireAuth, async (req, res) => {
         access_token, refresh_token, sync_enabled
       ) VALUES ($1, $2, $3, $4, $5, true)
       RETURNING id, provider_type, provider_account_id, sync_enabled, created_at`,
-      [req.user.id, providerType, accountId, accessToken, refreshToken]
+      [req.user.id, providerType, accountId, accessToken, refreshToken],
     );
 
-    res.status(201).json({ 
+    res.status(201).json({
       provider: result.rows[0],
-      message: 'Calendar provider connected successfully' 
+      message: 'Calendar provider connected successfully',
     });
   } catch (error) {
     console.error('Error connecting provider:', error);
@@ -333,11 +336,11 @@ router.post('/providers', requireAuth, async (req, res) => {
 // Disconnect calendar provider
 router.delete('/providers/:id', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
-    
+    const { db } = req.app.locals;
+
     const result = await db.query(
       'DELETE FROM calendar_providers WHERE id = $1 AND user_id = $2 RETURNING id',
-      [req.params.id, req.user.id]
+      [req.params.id, req.user.id],
     );
 
     if (result.rows.length === 0) {
@@ -354,7 +357,7 @@ router.delete('/providers/:id', requireAuth, async (req, res) => {
 // Trigger manual sync
 router.post('/sync', requireAuth, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const { db } = req.app.locals;
     const { providerId } = req.body;
 
     // TODO: Implement actual sync logic with external calendar API
@@ -364,12 +367,12 @@ router.post('/sync', requireAuth, async (req, res) => {
       `UPDATE calendar_providers 
       SET last_sync_at = NOW() 
       WHERE id = $1 AND user_id = $2`,
-      [providerId, req.user.id]
+      [providerId, req.user.id],
     );
 
-    res.json({ 
+    res.json({
       message: 'Calendar sync initiated',
-      status: 'syncing' 
+      status: 'syncing',
     });
   } catch (error) {
     console.error('Error syncing calendar:', error);

@@ -18,7 +18,7 @@ beforeAll(() => {
   process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/testdb';
   process.env.SESSION_SECRET = 'test-secret';
   process.env.NODE_ENV = 'test';
-  
+
   pool = new Pool();
   app = require('../index').app;
 });
@@ -121,7 +121,7 @@ describe('Notes API Endpoints', () => {
       expect(response.body).toEqual(mockNote);
       expect(mockClient.query).toHaveBeenCalledWith(
         expect.any(String),
-        ['1']
+        ['1'],
       );
     });
 
@@ -251,7 +251,7 @@ describe('Notes API Endpoints', () => {
       expect(response.status).toBe(204);
       expect(mockClient.query).toHaveBeenCalledWith(
         expect.any(String),
-        ['1']
+        ['1'],
       );
     });
 

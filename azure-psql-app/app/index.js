@@ -15,6 +15,7 @@ const server = http.createServer(app);
 
 // Initialize collaboration server
 const collaborationServer = require('./collaboration');
+
 collaborationServer(server);
 
 // Security middleware
@@ -26,7 +27,7 @@ app.use(cors());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 100, // limit each IP to 100 requests per windowMs
 });
 app.use('/api/', limiter);
 
@@ -65,8 +66,8 @@ const sessionConfig = {
 if (process.env.NODE_ENV === 'production') {
   const pgSession = require('connect-pg-simple')(session);
   sessionConfig.store = new pgSession({
-    pool: pool,
-    tableName: 'session'
+    pool,
+    tableName: 'session',
   });
 }
 
@@ -81,7 +82,7 @@ if (enableSSO) {
     app.use(passport.session());
     initializePassport(pool);
     console.log('✓ SSO authentication enabled');
-    
+
     // Auth routes
     const authRoutes = require('./auth/auth-routes');
     app.use('/api/auth', authRoutes);
@@ -114,6 +115,7 @@ if (process.env.ENABLE_MEETING_ROOMS === 'true') {
 
 // Share routes
 const shareRoutes = require('./routes/share-routes')(pool);
+
 app.use('/api', shareRoutes);
 console.log('✓ Share API enabled');
 
@@ -122,7 +124,7 @@ async function ensureTable() {
   const client = await pool.connect();
   try {
     // Drop old table and create new one with enhanced schema
-    await client.query(`DROP TABLE IF EXISTS notes CASCADE`);
+    await client.query('DROP TABLE IF EXISTS notes CASCADE');
     await client.query(`
       CREATE TABLE notes (
         id SERIAL PRIMARY KEY,
@@ -137,7 +139,7 @@ async function ensureTable() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
-    
+
     console.log('Database schema initialized successfully');
   } finally {
     client.release();
@@ -151,20 +153,20 @@ app.get('/health', async (req, res) => {
     const client = await pool.connect();
     try {
       await client.query('SELECT 1');
-      res.json({ 
+      res.json({
         status: 'healthy',
         database: 'connected',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     } finally {
       client.release();
     }
   } catch (err) {
-    res.status(503).json({ 
+    res.status(503).json({
       status: 'unhealthy',
       database: 'disconnected',
       error: err.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -194,7 +196,7 @@ app.get('/notes/:id', async (req, res) => {
   try {
     const { rows } = await client.query(
       'SELECT id, title, content, category, important, note_type, mermaid_code, diagram_data, created_at, updated_at FROM notes WHERE id = $1',
-      [id]
+      [id],
     );
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Note not found' });
@@ -210,19 +212,21 @@ app.get('/notes/:id', async (req, res) => {
 
 // Create new note
 app.post('/notes', async (req, res) => {
-  const { title, content, category, important, note_type, mermaid_code, diagram_data } = req.body;
-  
+  const {
+    title, content, category, important, note_type, mermaid_code, diagram_data,
+  } = req.body;
+
   if (!title || !content) {
     return res.status(400).json({ error: 'title and content are required' });
   }
-  
+
   const client = await pool.connect();
   try {
     const { rows } = await client.query(
       `INSERT INTO notes (title, content, category, important, note_type, mermaid_code, diagram_data) 
        VALUES ($1, $2, $3, $4, $5, $6, $7) 
        RETURNING id, title, content, category, important, note_type, mermaid_code, diagram_data, created_at, updated_at`,
-      [title, content, category || null, important || false, note_type || 'text', mermaid_code || null, diagram_data || null]
+      [title, content, category || null, important || false, note_type || 'text', mermaid_code || null, diagram_data || null],
     );
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -236,12 +240,14 @@ app.post('/notes', async (req, res) => {
 // Update note
 app.put('/notes/:id', async (req, res) => {
   const { id } = req.params;
-  const { title, content, category, important, note_type, mermaid_code, diagram_data } = req.body;
-  
+  const {
+    title, content, category, important, note_type, mermaid_code, diagram_data,
+  } = req.body;
+
   if (!title || !content) {
     return res.status(400).json({ error: 'title and content are required' });
   }
-  
+
   const client = await pool.connect();
   try {
     const { rows } = await client.query(
@@ -249,13 +255,13 @@ app.put('/notes/:id', async (req, res) => {
        SET title = $1, content = $2, category = $3, important = $4, note_type = $5, mermaid_code = $6, diagram_data = $7, updated_at = CURRENT_TIMESTAMP 
        WHERE id = $8 
        RETURNING id, title, content, category, important, note_type, mermaid_code, diagram_data, created_at, updated_at`,
-      [title, content, category || null, important || false, note_type || 'text', mermaid_code || null, diagram_data || null, id]
+      [title, content, category || null, important || false, note_type || 'text', mermaid_code || null, diagram_data || null, id],
     );
-    
+
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Note not found' });
     }
-    
+
     res.json(rows[0]);
   } catch (err) {
     console.error('Error updating note:', err);
@@ -271,11 +277,11 @@ app.delete('/notes/:id', async (req, res) => {
   const client = await pool.connect();
   try {
     const { rowCount } = await client.query('DELETE FROM notes WHERE id = $1', [id]);
-    
+
     if (rowCount === 0) {
       return res.status(404).json({ error: 'Note not found' });
     }
-    
+
     res.status(204).send();
   } catch (err) {
     console.error('Error deleting note:', err);
@@ -305,6 +311,6 @@ app.get('*', (req, res) => {
 const port = process.env.PORT || 3000;
 ensureTable().then(() => {
   server.listen(port, () => console.log(`Server with WebSocket listening on ${port}`));
-}).catch(err => { console.error('Failed to ensure table:', err); process.exit(1); });
+}).catch((err) => { console.error('Failed to ensure table:', err); process.exit(1); });
 
 module.exports = { app, server };
