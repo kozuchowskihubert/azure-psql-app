@@ -7,9 +7,9 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18-green)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **Privacy-first productivity platform combining Excel data processing, intelligent collaboration tools, and enterprise authentication—delivering 99.6% cost savings compared to traditional SaaS solutions.**
+> **Privacy-first productivity platform combining Excel data processing, intelligent collaboration tools, music production workflow, and enterprise authentication—delivering 99.6% cost savings compared to traditional SaaS solutions.**
 
-**🌐 Live Application**: [https://notesapp-dev-app.azurewebsites.net](https://notesapp-dev-app.azurewebsites.net) | **Version**: 2.1 | **Status**: Production
+**🌐 Live Application**: [https://notesapp-dev-app.azurewebsites.net](https://notesapp-dev-app.azurewebsites.net) | **Version**: 2.2 | **Status**: Production
 
 ---
 

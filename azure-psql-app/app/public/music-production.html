@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Production Preview - Ableton Integration</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .project-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+        .audio-player {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .waveform {
+            height: 80px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .waveform-bar {
+            position: absolute;
+            bottom: 0;
+            width: 3px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 2px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg border-b border-white border-opacity-20">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-music text-white text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">Music Production Preview</h1>
+                        <p class="text-white text-opacity-80 text-sm">Ableton Live Recordings Browser</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleCLIPanel()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2 rounded-lg transition font-semibold">
+                        <i class="fas fa-terminal mr-2"></i>CLI Studio
+                    </button>
+                    <button onclick="refreshProjects()" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                    <a href="/" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- CLI Studio Panel (Hidden by default) -->
+        <div id="cli-panel" class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl p-6 mb-8 border border-white border-opacity-20 hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-white flex items-center">
+                    <i class="fas fa-terminal text-green-400 mr-3"></i>
+                    Techno Studio CLI
+                </h2>
+                <button onclick="toggleCLIPanel()" class="text-white hover:text-gray-300">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Generate MIDI -->
+                <div class="bg-white bg-opacity-10 rounded-lg p-4">
+                    <h3 class="text-white font-bold mb-3 flex items-center">
+                        <i class="fas fa-music text-blue-400 mr-2"></i>
+                        Generate MIDI
+                    </h3>
+                    <div class="space-y-3">
+                        <select id="midi-genre" class="w-full px-3 py-2 rounded bg-white bg-opacity-20 text-white border border-white border-opacity-30">
+                            <option value="deep">Deep Techno</option>
+                            <option value="minimal">Minimal Techno</option>
+                            <option value="hard">Hard Techno</option>
+                        </select>
+                        <input type="number" id="midi-bpm" value="124" min="100" max="150" 
+                               class="w-full px-3 py-2 rounded bg-white bg-opacity-20 text-white border border-white border-opacity-30"
+                               placeholder="BPM">
+                        <input type="number" id="midi-bars" value="136" min="32" max="256" 
+                               class="w-full px-3 py-2 rounded bg-white bg-opacity-20 text-white border border-white border-opacity-30"
+                               placeholder="Bars">
+                        <button onclick="generateMIDI()" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition">
+                            <i class="fas fa-file-audio mr-2"></i>Generate
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Generate Template -->
+                <div class="bg-white bg-opacity-10 rounded-lg p-4">
+                    <h3 class="text-white font-bold mb-3 flex items-center">
+                        <i class="fas fa-project-diagram text-purple-400 mr-2"></i>
+                        Generate Template
+                    </h3>
+                    <div class="space-y-3">
+                        <input type="text" id="template-name" value="Deep-Techno" 
+                               class="w-full px-3 py-2 rounded bg-white bg-opacity-20 text-white border border-white border-opacity-30"
+                               placeholder="Template Name">
+                        <input type="number" id="template-tempo" value="124" min="100" max="150" 
+                               class="w-full px-3 py-2 rounded bg-white bg-opacity-20 text-white border border-white border-opacity-30"
+                               placeholder="Tempo">
+                        <button onclick="generateTemplate()" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition mt-11">
+                            <i class="fas fa-folder-plus mr-2"></i>Generate
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Full Workflow -->
+                <div class="bg-white bg-opacity-10 rounded-lg p-4">
+                    <h3 class="text-white font-bold mb-3 flex items-center">
+                        <i class="fas fa-rocket text-green-400 mr-2"></i>
+                        Full Workflow
+                    </h3>
+                    <div class="space-y-3">
+                        <select id="project-genre" class="w-full px-3 py-2 rounded bg-white bg-opacity-20 text-white border border-white border-opacity-30">
+                            <option value="deep">Deep Techno</option>
+                            <option value="minimal">Minimal Techno</option>
+                            <option value="hard">Hard Techno</option>
+                        </select>
+                        <input type="number" id="project-bpm" value="124" min="100" max="150" 
+                               class="w-full px-3 py-2 rounded bg-white bg-opacity-20 text-white border border-white border-opacity-30"
+                               placeholder="BPM">
+                        <input type="number" id="project-bars" value="136" min="32" max="256" 
+                               class="w-full px-3 py-2 rounded bg-white bg-opacity-20 text-white border border-white border-opacity-30"
+                               placeholder="Bars">
+                        <button onclick="createFullProject()" class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition font-bold">
+                            <i class="fas fa-magic mr-2"></i>Create Project
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CLI Output -->
+            <div id="cli-output" class="mt-6 bg-black bg-opacity-50 rounded-lg p-4 hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-green-400 font-mono text-sm">$ CLI Output</span>
+                    <button onclick="clearCLIOutput()" class="text-white hover:text-gray-300 text-xs">
+                        <i class="fas fa-times mr-1"></i>Clear
+                    </button>
+                </div>
+                <pre id="cli-output-text" class="text-white font-mono text-xs overflow-auto max-h-64"></pre>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div id="stats-container" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- Stats will be loaded here -->
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl p-6 mb-8 border border-white border-opacity-20">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <input type="text" id="search-input" placeholder="Search projects..." 
+                           class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-white placeholder-opacity-60 border border-white border-opacity-30 focus:outline-none focus:border-opacity-60"
+                           onkeyup="filterProjects()">
+                </div>
+                <div>
+                    <select id="sort-select" class="px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30 focus:outline-none"
+                            onchange="sortProjects()">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="name">Name A-Z</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-12">
+            <i class="fas fa-circle-notch fa-spin text-white text-4xl mb-4"></i>
+            <p class="text-white text-lg">Loading Ableton projects...</p>
+        </div>
+
+        <!-- Projects Grid -->
+        <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+            <!-- Projects will be loaded here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="text-center py-12 hidden">
+            <i class="fas fa-folder-open text-white text-6xl mb-4 opacity-50"></i>
+            <p class="text-white text-xl mb-2">No projects found</p>
+            <p class="text-white text-opacity-70">Create some music in Ableton Live to see it here!</p>
+        </div>
+    </div>
+
+    <!-- Project Detail Modal -->
+    <div id="project-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50" onclick="closeModal(event)">
+        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-screen overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="sticky top-0 bg-gradient-to-r from-purple-600 to-indigo-600 p-6 rounded-t-2xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 id="modal-title" class="text-2xl font-bold text-white"></h2>
+                        <p id="modal-subtitle" class="text-white text-opacity-80 text-sm mt-1"></p>
+                    </div>
+                    <button onclick="closeModal()" class="text-white hover:text-gray-200 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <!-- Project Info -->
+                <div id="project-info" class="mb-6">
+                    <!-- Info will be loaded here -->
+                </div>
+
+                <!-- Audio Files -->
+                <div id="audio-files" class="mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-headphones text-purple-600 mr-2"></i>
+                        Audio Files
+                    </h3>
+                    <div id="audio-list">
+                        <!-- Audio files will be listed here -->
+                    </div>
+                </div>
+
+                <!-- Project Files -->
+                <div id="project-files">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-file-audio text-indigo-600 mr-2"></i>
+                        Ableton Project Files
+                    </h3>
+                    <div id="als-files">
+                        <!-- .als files will be listed here -->
+                    </div>
+                </div>
+
+                <!-- All Files -->
+                <div class="mt-6">
+                    <button onclick="toggleAllFiles()" class="text-purple-600 hover:text-purple-800 font-semibold">
+                        <i class="fas fa-folder mr-2"></i>
+                        <span id="toggle-files-text">Show All Files</span>
+                    </button>
+                    <div id="all-files" class="mt-4 hidden">
+                        <!-- All files will be listed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/music-production.js"></script>
+</body>
+</html>
