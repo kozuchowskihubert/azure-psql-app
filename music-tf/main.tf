@@ -114,7 +114,7 @@ resource "azurerm_linux_web_app" "music_app" {
     "NODE_ENV"                            = "production"
     "PORT"                                = "3000"
     "WEBSITES_PORT"                       = "3000"
-    "DATABASE_URL"                        = "postgresql://notesappuser:${var.db_password}@notesapp-dev-pg.postgres.database.azure.com:5432/notesappdb?sslmode=require"
+    "DATABASE_URL"                        = "postgresql://notesappuser:${var.db_password}@notesapp-dev-pg.postgres.database.azure.com:5432/notesdb?sslmode=require"
   }
 
   https_only = true
