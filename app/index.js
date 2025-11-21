@@ -349,6 +349,16 @@ app.get('*', (req, res) => {
 const port = process.env.PORT || 3000;
 ensureTable().then(() => {
   server.listen(port, () => console.log(`Server with WebSocket listening on ${port}`));
-}).catch((err) => { console.error('Failed to ensure table:', err); process.exit(1); });
+}).catch((err) => { 
+  console.error('Failed to ensure table:', err);
+  // Only exit if we actually have a database configured (production)
+  // In CI/test environments without DATABASE_URL, continue anyway
+  if (pool) {
+    process.exit(1);
+  } else {
+    // Start server anyway for test environments
+    server.listen(port, () => console.log(`Server listening on ${port} (no database)`));
+  }
+});
 
 module.exports = { app, server };
