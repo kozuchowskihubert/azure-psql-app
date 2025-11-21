@@ -108,6 +108,8 @@ resource "azurerm_linux_web_app" "music_app" {
   app_settings = {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
     "DOCKER_REGISTRY_SERVER_URL"          = "https://${data.azurerm_container_registry.acr.login_server}"
+    "DOCKER_REGISTRY_SERVER_USERNAME"     = data.azurerm_container_registry.acr.admin_username
+    "DOCKER_REGISTRY_SERVER_PASSWORD"     = data.azurerm_container_registry.acr.admin_password
     "DOCKER_ENABLE_CI"                    = "true"
     "NODE_ENV"                            = "production"
     "PORT"                                = "3000"
