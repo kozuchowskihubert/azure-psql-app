@@ -1,15 +1,23 @@
 # Multi-stage build for Music Production App
 FROM node:20-alpine AS base
 
-# Install Python and build dependencies
+# Install system dependencies and Python packages available via apk
 RUN apk add --no-cache \
     python3 \
     py3-pip \
-    python3-dev \
+    py3-numpy \
+    py3-setuptools \
     build-base \
     gcc \
+    g++ \
     musl-dev \
-    linux-headers
+    linux-headers \
+    libsndfile \
+    ffmpeg \
+    portaudio \
+    alsa-lib \
+    flac \
+    lame
 
 # Set working directory
 WORKDIR /app
@@ -23,16 +31,10 @@ RUN npm ci --only=production
 # Copy application code
 COPY app/ .
 
-# Install Python dependencies for music production
+# Install only essential MIDI Python packages (avoid heavy audio processing libs)
 RUN pip3 install --no-cache-dir --break-system-packages \
     mido==1.3.3 \
-    midiutil==1.2.1 \
-    python-rtmidi \
-    librosa \
-    soundfile \
-    pydub \
-    pretty-midi \
-    music21
+    midiutil==1.2.1
 
 # Expose port
 EXPOSE 3000
