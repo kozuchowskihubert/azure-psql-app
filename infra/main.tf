@@ -91,6 +91,14 @@ resource "azurerm_subnet" "app_subnet" {
   address_prefixes     = ["10.0.2.0/24"]
 }
 
+# VM Subnet for tracks feature
+resource "azurerm_subnet" "vm_subnet" {
+  name                 = "${var.prefix}-${var.env}-vm-subnet"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.3.0/24"]
+}
+
 # Private DNS Zone for PostgreSQL
 resource "azurerm_private_dns_zone" "pg_dns" {
   name                = "${var.prefix}-${var.env}.postgres.database.azure.com"
@@ -185,5 +193,153 @@ resource "azurerm_linux_web_app" "app" {
     "DOCKER_REGISTRY_SERVER_USERNAME" = azurerm_container_registry.acr.admin_username
     "DOCKER_REGISTRY_SERVER_PASSWORD" = azurerm_container_registry.acr.admin_password
     "WEBSITES_PORT"                   = "3000"
+  }
+}
+
+# ====================================================================
+# Virtual Machine Configuration for feat/tracks branch
+# ====================================================================
+
+# Network Security Group for VM
+resource "azurerm_network_security_group" "vm_nsg" {
+  name                = "${var.prefix}-${var.env}-vm-nsg"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  security_rule {
+    name                       = "SSH"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "HTTP"
+    priority                   = 1002
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "HTTPS"
+    priority                   = 1003
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "AppPort"
+    priority                   = 1004
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3000"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+
+# Associate NSG with VM Subnet
+resource "azurerm_subnet_network_security_group_association" "vm_nsg_assoc" {
+  subnet_id                 = azurerm_subnet.vm_subnet.id
+  network_security_group_id = azurerm_network_security_group.vm_nsg.id
+}
+
+# Public IP for VM
+resource "azurerm_public_ip" "vm_pip" {
+  name                = "${var.prefix}-${var.env}-vm-pip"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Dynamic"
+  sku                 = "Basic"
+}
+
+# Network Interface for VM
+resource "azurerm_network_interface" "vm_nic" {
+  name                = "${var.prefix}-${var.env}-vm-nic"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.vm_subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.vm_pip.id
+  }
+}
+
+# Virtual Machine for Tracks Processing
+# Using B1s (cheapest VM tier: ~$7.50/month, 1 vCPU, 1GB RAM)
+resource "azurerm_linux_virtual_machine" "tracks_vm" {
+  name                = "${var.prefix}-${var.env}-tracks-vm"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  size                = var.vm_size
+  admin_username      = var.vm_admin_username
+
+  network_interface_ids = [
+    azurerm_network_interface.vm_nic.id,
+  ]
+
+  admin_ssh_key {
+    username   = var.vm_admin_username
+    public_key = var.vm_ssh_public_key
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+    disk_size_gb         = 30
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
+
+  computer_name                   = "${var.prefix}-tracks"
+  disable_password_authentication = true
+
+  tags = {
+    environment = var.env
+    purpose     = "tracks-processing"
+    branch      = "feat/tracks"
+  }
+}
+
+# VM Extension for initial setup (install Docker, Node.js, etc.)
+resource "azurerm_virtual_machine_extension" "vm_init" {
+  name                 = "${var.prefix}-${var.env}-vm-init"
+  virtual_machine_id   = azurerm_linux_virtual_machine.tracks_vm.id
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.1"
+
+  settings = <<SETTINGS
+    {
+        "script": "${base64encode(file("${path.module}/vm-init.sh"))}"
+    }
+SETTINGS
+
+  tags = {
+    environment = var.env
   }
 }
