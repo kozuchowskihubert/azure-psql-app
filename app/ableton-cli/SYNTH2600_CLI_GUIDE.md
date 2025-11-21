@@ -2,7 +2,12 @@
 
 ## Overview
 
-The `synth2600_cli.py` is a comprehensive command-line interface for the Behringer 2600 synthesizer, featuring 17 creative presets, full parameter mapping, MIDI export, and real-time control.
+The `synth2600_cli.py` is a comprehensive command-line interface for the Behringer 2600 synthesizer, featuring:
+- **Interactive REPL Mode** - Real-time command shell with history and tab completion
+- **17 Creative Presets** - Pre-configured patches for various sound design scenarios
+- **Full Parameter Mapping** - Control all oscillators, filters, and envelopes
+- **MIDI Export** - Generate MIDI files from patches
+- **Web API Integration** - Accessible via REST endpoints
 
 ## Installation
 
@@ -13,6 +18,106 @@ pip install mido midiutil
 # Make executable
 chmod +x synth2600_cli.py
 ```
+
+## Interactive Mode (RECOMMENDED)
+
+### Starting Interactive Shell
+
+```bash
+# Run without arguments or with -i flag
+python3 synth2600_cli.py
+# or
+python3 synth2600_cli.py -i
+# or
+python3 synth2600_cli.py --interactive
+```
+
+### Interactive Shell Features
+
+- **Command History** - Use arrow keys to navigate previous commands
+- **Current Preset Display** - Shows loaded preset in prompt: `2600 [evolving_drone]>`
+- **Command Aliases** - Short commands (e.g., `ls`, `p`, `q`)
+- **Real-time Feedback** - Immediate visual confirmation of changes
+- **Help System** - Type `help` for command reference
+
+### Interactive Commands
+
+```bash
+# Basic usage
+2600> help                          # Show all commands
+2600> presets                       # List available presets
+2600> preset evolving_drone         # Load a preset
+2600> info                          # Show current configuration
+2600> patch                         # Display patch matrix
+
+# Oscillator control
+2600> vco1 440 sawtooth            # Set VCO1 to 440Hz sawtooth
+2600> vco2 220 square              # Set VCO2 to 220Hz square
+2600> lfo 0.5                      # Set LFO to 0.5Hz
+
+# Filter and envelope
+2600> filter 1200 0.8              # Cutoff 1200Hz, resonance 0.8
+2600> envelope 0.01 0.1 0.7 0.3    # ADSR envelope
+
+# Patch cables
+2600> add VCO1/OUT VCF/IN 0.9      # Add patch cable
+2600> remove VCO1/OUT VCF/IN       # Remove patch cable
+
+# Sequencer
+2600> seq random 16                # Random 16-step pattern
+2600> seq notes C4 E4 G4 C5        # Custom note pattern
+2600> seq tempo 120                # Set tempo to 120 BPM
+
+# Export
+2600> export midi my_patch.mid 8   # Export 8 bars to MIDI
+2600> export preset my_patch.json  # Save current preset
+
+# Navigation
+2600> history                      # Show command history
+2600> exit                         # Quit (or 'quit', 'q')
+```
+
+### Interactive Example Session
+
+```bash
+$ python3 synth2600_cli.py
+
+╔═══════════════════════════════════════════════════════════════╗
+║   Interactive Command-Line Interface                          ║
+╚═══════════════════════════════════════════════════════════════╝
+
+2600> presets
+Available Presets:
+  Soundscape Generators:
+    • evolving_drone
+    • generative_sequencer
+  ...
+
+2600> preset evolving_drone
+✓ Loaded preset: evolving_drone
+
+╔═══════════════════════════════════════════════════════╗
+║        BEHRINGER 2600 PATCH MATRIX                   ║
+╚═══════════════════════════════════════════════════════╝
+  [RED] VCO1/OUT → MIXER/IN1 (Level: 0.70)
+  ...
+
+2600 [evolving_drone]> vco1 880 square
+✓ VCO1: 880.0Hz, square
+
+2600 [evolving_drone]> filter 2400 0.9
+✓ Filter: 2400.0Hz, Q=0.9
+
+2600 [evolving_drone]> export midi my_evolving.mid 16
+✓ Exported MIDI to: my_evolving.mid
+
+2600 [evolving_drone]> exit
+👋 Goodbye! Keep patching!
+```
+
+## Command-Line Mode
+
+For scripting and automation, use traditional command-line arguments:
 
 ## Quick Start
 

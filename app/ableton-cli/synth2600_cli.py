@@ -890,5 +890,338 @@ Examples:
     else:
         parser.print_help()
 
+
+def interactive_mode():
+    """Run interactive REPL mode"""
+    import readline  # Enable arrow keys and history
+    
+    # ASCII Art Banner
+    banner = f"""
+{Colors.CYAN}╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║   {Colors.BOLD}██████╗ ███████╗██╗  ██╗██████╗ ██╗███╗   ██╗ ██████╗{Colors.END}{Colors.CYAN}   ║
+║   {Colors.BOLD}██╔══██╗██╔════╝██║  ██║██╔══██╗██║████╗  ██║██╔════╝{Colors.END}{Colors.CYAN}   ║
+║   {Colors.BOLD}██████╔╝█████╗  ███████║██████╔╝██║██╔██╗ ██║██║  ███╗{Colors.END}{Colors.CYAN}  ║
+║   {Colors.BOLD}██╔══██╗██╔══╝  ██╔══██║██╔══██╗██║██║╚██╗██║██║   ██║{Colors.END}{Colors.CYAN}  ║
+║   {Colors.BOLD}██████╔╝███████╗██║  ██║██║  ██║██║██║ ╚████║╚██████╔╝{Colors.END}{Colors.CYAN}  ║
+║   {Colors.BOLD}╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝{Colors.END}{Colors.CYAN}   ║
+║                                                               ║
+║           {Colors.YELLOW}Interactive Command-Line Interface{Colors.END}{Colors.CYAN}                  ║
+║              {Colors.GREEN}Advanced Patching & Sequencing{Colors.END}{Colors.CYAN}                   ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝{Colors.END}
+
+{Colors.YELLOW}Welcome to the Behringer 2600 Interactive Shell!{Colors.END}
+
+Type {Colors.CYAN}'help'{Colors.END} for available commands, {Colors.CYAN}'exit'{Colors.END} to quit.
+Type {Colors.CYAN}'presets'{Colors.END} to see all available presets.
+
+"""
+    print(banner)
+    
+    synth = Synth2600()
+    current_preset = None
+    history = []
+    
+    # Command shortcuts
+    aliases = {
+        'ls': 'list',
+        'l': 'list',
+        'p': 'preset',
+        'load': 'preset',
+        'show': 'patch',
+        's': 'patch',
+        'seq': 'sequencer',
+        'param': 'params',
+        'set': 'params',
+        'exp': 'export',
+        'save': 'export',
+        'q': 'exit',
+        'quit': 'exit',
+        '?': 'help',
+    }
+    
+    def print_help():
+        help_text = f"""
+{Colors.BOLD}{Colors.CYAN}Available Commands:{Colors.END}
+
+{Colors.YELLOW}Preset Management:{Colors.END}
+  {Colors.GREEN}presets{Colors.END} | {Colors.GREEN}list{Colors.END}              List all available presets
+  {Colors.GREEN}preset <name>{Colors.END}              Load a specific preset
+  {Colors.GREEN}info{Colors.END}                       Show current preset info
+  {Colors.GREEN}clear{Colors.END}                      Clear all patches
+
+{Colors.YELLOW}Patch Matrix:{Colors.END}
+  {Colors.GREEN}patch{Colors.END} | {Colors.GREEN}show{Colors.END}              Show current patch matrix
+  {Colors.GREEN}add <src> <dst> [lvl]{Colors.END}      Add patch cable (level 0.0-1.0)
+  {Colors.GREEN}remove <src> <dst>{Colors.END}         Remove patch cable
+  {Colors.GREEN}color <src> <dst> <col>{Colors.END}    Change cable color
+
+{Colors.YELLOW}Oscillators:{Colors.END}
+  {Colors.GREEN}vco1 <freq> [wave]{Colors.END}         Set VCO1 frequency & waveform
+  {Colors.GREEN}vco2 <freq> [wave]{Colors.END}         Set VCO2 frequency & waveform
+  {Colors.GREEN}lfo <rate>{Colors.END}                 Set LFO rate (VCO3)
+
+{Colors.YELLOW}Filter & Envelope:{Colors.END}
+  {Colors.GREEN}filter <cutoff> [res]{Colors.END}      Set filter cutoff & resonance
+  {Colors.GREEN}envelope <a> <d> <s> <r>{Colors.END}   Set ADSR envelope
+
+{Colors.YELLOW}Sequencer:{Colors.END}
+  {Colors.GREEN}seq random [steps]{Colors.END}         Generate random pattern
+  {Colors.GREEN}seq notes <pattern>{Colors.END}        Set note pattern (e.g., "C4 E4 G4")
+  {Colors.GREEN}seq tempo <bpm>{Colors.END}            Set sequencer tempo
+
+{Colors.YELLOW}Export:{Colors.END}
+  {Colors.GREEN}export midi <file> [bars]{Colors.END}  Export to MIDI file
+  {Colors.GREEN}export preset <file>{Colors.END}       Save current preset
+
+{Colors.YELLOW}System:{Colors.END}
+  {Colors.GREEN}help{Colors.END} | {Colors.GREEN}?{Colors.END}                  Show this help
+  {Colors.GREEN}history{Colors.END}                    Show command history
+  {Colors.GREEN}exit{Colors.END} | {Colors.GREEN}quit{Colors.END} | {Colors.GREEN}q{Colors.END}           Exit interactive mode
+
+{Colors.YELLOW}Quick Examples:{Colors.END}
+  > preset evolving_drone
+  > vco1 440 sawtooth
+  > filter 1200 0.8
+  > add VCO1/OUT VCF/IN 0.9
+  > export midi my_patch.mid 8
+"""
+        print(help_text)
+    
+    def list_presets():
+        print(f"\n{Colors.BOLD}{Colors.CYAN}Available Presets:{Colors.END}\n")
+        
+        categories = {
+            'Soundscape Generators': ['evolving_drone', 'generative_sequencer', 'dual_texture_morph'],
+            'Rhythmic Experiments': ['polyrhythmic_chaos', 'gate_controlled_stutter'],
+            'Modulation Madness': ['triple_lfo', 'frequency_cascade'],
+            'Cinematic FX': ['scifi_spaceship', 'thunder_lightning', 'analog_glitch'],
+            'Psychedelic': ['self_playing', 'karplus_strong', 'ring_mod_sim'],
+            'Performance': ['expressive_lead', 'touch_sensitive_bass'],
+            'Musical Techniques': ['auto_harmonizing', 'barber_pole_phaser']
+        }
+        
+        for category, presets in categories.items():
+            print(f"{Colors.YELLOW}{category}:{Colors.END}")
+            for preset in presets:
+                print(f"  {Colors.GREEN}•{Colors.END} {preset}")
+            print()
+    
+    def parse_command(cmd_line):
+        """Parse interactive command"""
+        parts = cmd_line.strip().split()
+        if not parts:
+            return None, []
+        
+        cmd = parts[0].lower()
+        # Check for aliases
+        cmd = aliases.get(cmd, cmd)
+        args = parts[1:]
+        
+        return cmd, args
+    
+    while True:
+        try:
+            # Prompt with current preset indicator
+            if current_preset:
+                prompt = f"{Colors.CYAN}2600{Colors.END} [{Colors.YELLOW}{current_preset}{Colors.END}]> "
+            else:
+                prompt = f"{Colors.CYAN}2600{Colors.END}> "
+            
+            cmd_line = input(prompt).strip()
+            
+            if not cmd_line:
+                continue
+            
+            # Add to history
+            history.append(cmd_line)
+            
+            cmd, args = parse_command(cmd_line)
+            
+            if cmd is None:
+                continue
+            
+            # Handle commands
+            if cmd == 'exit':
+                print(f"\n{Colors.YELLOW}👋 Goodbye! Keep patching!{Colors.END}\n")
+                break
+            
+            elif cmd == 'help':
+                print_help()
+            
+            elif cmd in ['presets', 'list']:
+                list_presets()
+            
+            elif cmd == 'preset':
+                if not args:
+                    print(f"{Colors.RED}✗ Usage: preset <name>{Colors.END}")
+                    continue
+                preset_name = args[0]
+                try:
+                    synth.load_preset(preset_name)
+                    current_preset = preset_name
+                    print(f"\n{Colors.GREEN}✓ Loaded preset: {preset_name}{Colors.END}")
+                    # Description will be shown in load_preset method
+                    print(synth.get_patch_diagram())
+                except KeyError:
+                    print(f"{Colors.RED}✗ Unknown preset: {preset_name}{Colors.END}")
+                    print(f"{Colors.YELLOW}Type 'presets' to see available options{Colors.END}")
+            
+            elif cmd == 'info':
+                if current_preset:
+                    print(f"\n{Colors.CYAN}Current Preset: {Colors.YELLOW}{current_preset}{Colors.END}")
+                    print(synth.get_patch_diagram())
+                else:
+                    print(f"{Colors.YELLOW}No preset loaded{Colors.END}")
+            
+            elif cmd == 'clear':
+                synth.patch_cables.clear()
+                current_preset = None
+                print(f"{Colors.GREEN}✓ All patches cleared{Colors.END}")
+            
+            elif cmd == 'patch':
+                print(synth.get_patch_diagram())
+            
+            elif cmd == 'add':
+                if len(args) < 2:
+                    print(f"{Colors.RED}✗ Usage: add <source> <destination> [level]{Colors.END}")
+                    continue
+                source = args[0]
+                dest = args[1]
+                level = float(args[2]) if len(args) > 2 else 1.0
+                
+                src_point = PatchPoint(source.split('/')[0], source.split('/')[1], level)
+                dst_point = PatchPoint(dest.split('/')[0], dest.split('/')[1])
+                cable = PatchCable(src_point, dst_point, 'red')
+                synth.patch_cables.append(cable)
+                print(f"{Colors.GREEN}✓ Added patch: {source} → {dest} (Level: {level}){Colors.END}")
+            
+            elif cmd == 'remove':
+                if len(args) < 2:
+                    print(f"{Colors.RED}✗ Usage: remove <source> <destination>{Colors.END}")
+                    continue
+                # Remove matching cable
+                source = args[0]
+                dest = args[1]
+                initial_count = len(synth.patch_cables)
+                synth.patch_cables = [c for c in synth.patch_cables 
+                                     if not (f"{c.source.module}/{c.source.output}" == source 
+                                           and f"{c.destination.module}/{c.destination.output}" == dest)]
+                if len(synth.patch_cables) < initial_count:
+                    print(f"{Colors.GREEN}✓ Removed patch: {source} → {dest}{Colors.END}")
+                else:
+                    print(f"{Colors.YELLOW}⚠ No matching patch found{Colors.END}")
+            
+            elif cmd == 'vco1':
+                if not args:
+                    print(f"{Colors.RED}✗ Usage: vco1 <frequency> [waveform]{Colors.END}")
+                    continue
+                synth.vco1.frequency = float(args[0])
+                if len(args) > 1:
+                    synth.vco1.waveform = args[1]
+                print(f"{Colors.GREEN}✓ VCO1: {synth.vco1.frequency}Hz, {synth.vco1.waveform}{Colors.END}")
+            
+            elif cmd == 'vco2':
+                if not args:
+                    print(f"{Colors.RED}✗ Usage: vco2 <frequency> [waveform]{Colors.END}")
+                    continue
+                synth.vco2.frequency = float(args[0])
+                if len(args) > 1:
+                    synth.vco2.waveform = args[1]
+                print(f"{Colors.GREEN}✓ VCO2: {synth.vco2.frequency}Hz, {synth.vco2.waveform}{Colors.END}")
+            
+            elif cmd == 'lfo':
+                if not args:
+                    print(f"{Colors.RED}✗ Usage: lfo <rate>{Colors.END}")
+                    continue
+                synth.vco3.frequency = float(args[0])
+                print(f"{Colors.GREEN}✓ LFO: {synth.vco3.frequency}Hz{Colors.END}")
+            
+            elif cmd == 'filter':
+                if not args:
+                    print(f"{Colors.RED}✗ Usage: filter <cutoff> [resonance]{Colors.END}")
+                    continue
+                synth.vcf.cutoff = float(args[0])
+                if len(args) > 1:
+                    synth.vcf.resonance = float(args[1])
+                print(f"{Colors.GREEN}✓ Filter: {synth.vcf.cutoff}Hz, Q={synth.vcf.resonance}{Colors.END}")
+            
+            elif cmd == 'envelope':
+                if len(args) < 4:
+                    print(f"{Colors.RED}✗ Usage: envelope <attack> <decay> <sustain> <release>{Colors.END}")
+                    continue
+                synth.envelope.attack = float(args[0])
+                synth.envelope.decay = float(args[1])
+                synth.envelope.sustain = float(args[2])
+                synth.envelope.release = float(args[3])
+                print(f"{Colors.GREEN}✓ Envelope: A={synth.envelope.attack}s D={synth.envelope.decay}s S={synth.envelope.sustain} R={synth.envelope.release}s{Colors.END}")
+            
+            elif cmd == 'seq':
+                if not args:
+                    print(f"{Colors.RED}✗ Usage: seq <random|notes|tempo> ...{Colors.END}")
+                    continue
+                subcmd = args[0]
+                if subcmd == 'random':
+                    steps = int(args[1]) if len(args) > 1 else 16
+                    synth.program_sequencer('random', steps)
+                    print(f"{Colors.GREEN}✓ Programmed random pattern ({steps} steps){Colors.END}")
+                elif subcmd == 'notes':
+                    pattern = ' '.join(args[1:])
+                    synth.program_sequencer(pattern)
+                    print(f"{Colors.GREEN}✓ Programmed pattern: {pattern}{Colors.END}")
+                elif subcmd == 'tempo':
+                    if len(args) < 2:
+                        print(f"{Colors.RED}✗ Usage: seq tempo <bpm>{Colors.END}")
+                        continue
+                    synth.sequencer_tempo = int(args[1])
+                    print(f"{Colors.GREEN}✓ Tempo: {synth.sequencer_tempo} BPM{Colors.END}")
+            
+            elif cmd == 'export':
+                if not args:
+                    print(f"{Colors.RED}✗ Usage: export <midi|preset> <filename>{Colors.END}")
+                    continue
+                export_type = args[0]
+                if export_type == 'midi':
+                    if len(args) < 2:
+                        print(f"{Colors.RED}✗ Usage: export midi <filename> [bars]{Colors.END}")
+                        continue
+                    filename = args[1]
+                    bars = int(args[2]) if len(args) > 2 else 4
+                    result = synth.export_to_midi(filename, bars)
+                    print(f"{Colors.GREEN}✓ Exported MIDI to: {result}{Colors.END}")
+                elif export_type == 'preset':
+                    if len(args) < 2:
+                        print(f"{Colors.RED}✗ Usage: export preset <filename>{Colors.END}")
+                        continue
+                    filename = args[1]
+                    result = synth.export_preset(filename)
+                    print(f"{Colors.GREEN}✓ Exported preset to: {result}{Colors.END}")
+            
+            elif cmd == 'history':
+                print(f"\n{Colors.CYAN}Command History:{Colors.END}")
+                for i, h in enumerate(history[-20:], 1):  # Show last 20 commands
+                    print(f"  {Colors.YELLOW}{i:2d}{Colors.END}. {h}")
+                print()
+            
+            else:
+                print(f"{Colors.RED}✗ Unknown command: {cmd}{Colors.END}")
+                print(f"{Colors.YELLOW}Type 'help' for available commands{Colors.END}")
+        
+        except KeyboardInterrupt:
+            print(f"\n{Colors.YELLOW}Use 'exit' to quit{Colors.END}")
+            continue
+        except EOFError:
+            print(f"\n{Colors.YELLOW}👋 Goodbye!{Colors.END}\n")
+            break
+        except Exception as e:
+            print(f"{Colors.RED}✗ Error: {e}{Colors.END}")
+            continue
+
+
 if __name__ == '__main__':
-    main()
+    # Check if interactive mode is requested
+    if len(sys.argv) == 1 or (len(sys.argv) == 2 and sys.argv[1] in ['-i', '--interactive', 'interactive']):
+        interactive_mode()
+    else:
+        main()
