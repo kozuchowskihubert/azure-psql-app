@@ -1,6 +1,8 @@
 # Enterprise Productivity Suite
 
-[![CI/CD Pipeline](https://github.com/kozuchowskihubert/azure-psql-app/actions/workflows/deploy-azure-infrastructure.yml/badge.svg)](https://github.com/kozuchowskihubert/azure-psql-app/actions)
+[![CI Tests](https://github.com/kozuchowskihubert/azure-psql-app/workflows/CI%20Tests/badge.svg)](https://github.com/kozuchowskihubert/azure-psql-app/actions)
+[![Code Quality](https://github.com/kozuchowskihubert/azure-psql-app/workflows/Code%20Quality/badge.svg)](https://github.com/kozuchowskihubert/azure-psql-app/actions)
+[![Deploy](https://github.com/kozuchowskihubert/azure-psql-app/workflows/Deploy%20to%20Azure/badge.svg)](https://github.com/kozuchowskihubert/azure-psql-app/actions)
 [![Azure](https://img.shields.io/badge/Azure-Production-blue)](https://azure.microsoft.com/)
 [![Node.js](https://img.shields.io/badge/Node.js-18-green)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
