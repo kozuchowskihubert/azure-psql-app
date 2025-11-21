@@ -151,8 +151,7 @@ app/public/
 docs/
 ├── ARCHITECTURE.md     # Complete system architecture (500+ lines)
 ├── user-guides/        # User documentation
-├── technical/          # Technical specifications
-└── business/           # Business requirements
+└── technical/          # Technical specifications
 ```
 
 ---

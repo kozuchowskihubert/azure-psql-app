@@ -274,7 +274,6 @@ The Excel Workspace includes enterprise-grade features rarely found in browser-b
 | Data quality scoring | 🔄 Planned | ❌ | ❌ | ❌ |
 | Export to PDF with charts | ✅ | ✅ | ✅ | ✅ |
 | Formula support | ✅ Basic | ✅ Advanced | ✅ Advanced | ✅ Advanced |
-| Cost | FREE | FREE | $6/user/month | FREE |
 
 **Legend**: ✅ Available | 🔄 Planned | ❌ Not available
 
@@ -290,7 +289,7 @@ The Excel Workspace includes enterprise-grade features rarely found in browser-b
 - Share with stakeholders
 
 ### Financial Modeling
-- Build budget spreadsheets
+- Spreadsheet calculations
 - Forecast calculations
 - Scenario planning
 - Privacy-sensitive data (no server uploads)

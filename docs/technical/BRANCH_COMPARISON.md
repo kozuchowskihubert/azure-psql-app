@@ -11,7 +11,6 @@ The `feat/tracks` branch includes dedicated Azure Virtual Machine infrastructure
 - **Container Registry**: Basic tier
 - **PostgreSQL**: B_Standard_B1ms (smallest tier)
 - **Networking**: VNet with App + DB subnets
-- **Cost**: ~$17/month (PostgreSQL + ACR)
 
 ### feat/tracks Branch Infrastructure
 **All of the above PLUS:**
@@ -20,8 +19,6 @@ The `feat/tracks` branch includes dedicated Azure Virtual Machine infrastructure
 - **Network Security Group**: SSH, HTTP, HTTPS, App port
 - **Public IP**: Dynamic allocation
 - **VM Extensions**: Automated initialization script
-- **Additional Cost**: ~$13.40/month
-- **Total Cost**: ~$30.40/month
 
 ## Terraform Resources Unique to feat/tracks
 
@@ -72,7 +69,6 @@ Best for:
 - Standard web application hosting
 - Development and testing
 - Minimal infrastructure
-- Cost-sensitive deployments
 
 ### feat/tracks Branch
 Best for:

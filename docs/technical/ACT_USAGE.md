@@ -7,7 +7,6 @@ This guide shows you how to use **act** to run your GitHub Actions workflows loc
 Act runs your GitHub Actions locally using Docker containers. It's perfect for:
 - Testing workflows before pushing to GitHub
 - Debugging workflow issues
-- Saving GitHub Actions minutes
 - Faster iteration during development
 
 ## Quick Start

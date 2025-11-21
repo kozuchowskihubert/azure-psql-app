@@ -15,7 +15,6 @@ The Excel Data Workspace is a powerful browser-based tool for manipulating sprea
 - **🔒 Privacy First** - Your data never leaves your browser
 - **⚡ Lightning Fast** - No network latency, instant processing
 - **📴 Works Offline** - After initial page load, no internet required
-- **💰 Zero Cost** - No storage fees, unlimited usage
 - **🎨 Modern UI** - Beautiful interface with dark mode support
 
 ---
