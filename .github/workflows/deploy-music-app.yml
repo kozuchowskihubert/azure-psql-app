@@ -85,13 +85,21 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         run: |
           echo "🔍 Checking for state locks..."
-          if ! terraform plan -detailed-exitcode > /dev/null 2>&1; then
-            if terraform plan 2>&1 | grep -q "state blob is already locked"; then
-              echo "⚠️ State is locked from previous run"
-              LOCK_ID=$(terraform plan 2>&1 | grep "ID:" | awk '{print $2}')
+          
+          # Attempt a plan to check for locks
+          PLAN_OUTPUT=$(terraform plan -lock=false -input=false 2>&1 || true)
+          
+          if echo "$PLAN_OUTPUT" | grep -q "state blob is already locked"; then
+            echo "⚠️ State is locked from previous run"
+            LOCK_ID=$(echo "$PLAN_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | head -1 | awk '{print $2}')
+            
+            if [ -n "$LOCK_ID" ]; then
               echo "Lock ID: $LOCK_ID"
-              echo "🔓 Attempting force unlock..."
-              terraform force-unlock -force "$LOCK_ID" || echo "⚠️ Failed to unlock, will retry..."
+              echo "🔓 Forcing unlock..."
+              terraform force-unlock -force "$LOCK_ID"
+              echo "✅ State unlocked successfully"
+            else
+              echo "⚠️ Could not extract lock ID, will attempt to continue..."
             fi
           else
             echo "✅ No state locks detected"
