@@ -1,0 +1,45 @@
+# Multi-stage build for Music Production App
+FROM node:20-alpine AS base
+
+# Install Python and build dependencies
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    python3-dev \
+    build-base \
+    gcc \
+    musl-dev \
+    linux-headers
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY app/package*.json ./
+
+# Install Node.js dependencies
+RUN npm ci --only=production
+
+# Copy application code
+COPY app/ .
+
+# Install Python dependencies for music production
+RUN pip3 install --no-cache-dir --break-system-packages \
+    mido==1.3.3 \
+    midiutil==1.2.1 \
+    python-rtmidi \
+    librosa \
+    soundfile \
+    pydub \
+    pretty-midi \
+    music21
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Start the application
+CMD ["node", "server.js"]

@@ -197,6 +197,46 @@ resource "azurerm_linux_web_app" "app" {
 }
 
 # ====================================================================
+# Music Production App Service (feat/tracks branch only)
+# ====================================================================
+
+# App Service Plan for Music Production - B1 tier (required for always-on and more resources)
+resource "azurerm_service_plan" "music_plan" {
+  name                = "${var.prefix}-${var.env}-music-plan"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  os_type             = "Linux"
+  sku_name            = "B1" # Basic tier: 1.75 GB RAM, always-on support (~$13/month)
+}
+
+# Music Production App Service
+resource "azurerm_linux_web_app" "music_app" {
+  name                = "${var.prefix}-${var.env}-music-app"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  service_plan_id     = azurerm_service_plan.music_plan.id
+
+  site_config {
+    always_on = true # Enabled on B1 tier for better performance
+
+    application_stack {
+      docker_image     = "${azurerm_container_registry.acr.login_server}/${var.prefix}-music"
+      docker_image_tag = "latest"
+    }
+  }
+
+  app_settings = {
+    "DATABASE_URL"                    = "postgresql://${var.db_admin}:${var.db_password}@${azurerm_postgresql_flexible_server.pg.fqdn}:5432/${var.db_name}?sslmode=require"
+    "DOCKER_REGISTRY_SERVER_URL"      = "https://${azurerm_container_registry.acr.login_server}"
+    "DOCKER_REGISTRY_SERVER_USERNAME" = azurerm_container_registry.acr.admin_username
+    "DOCKER_REGISTRY_SERVER_PASSWORD" = azurerm_container_registry.acr.admin_password
+    "WEBSITES_PORT"                   = "3000"
+    "NODE_ENV"                        = "production"
+    "PYTHON_ENABLED"                  = "true"
+  }
+}
+
+# ====================================================================
 # Virtual Machine Configuration for feat/tracks branch
 # ====================================================================
 

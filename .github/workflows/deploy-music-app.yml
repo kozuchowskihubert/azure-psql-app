@@ -1,0 +1,113 @@
+name: Deploy Music Production App
+
+on:
+  push:
+    branches: [ feat/tracks ]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even without changes'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  ACR_NAME: notesappdevacr14363
+  IMAGE_NAME: notesapp-music
+  AZURE_REGION: westus2
+  NODE_VERSION: '20'
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy Music App
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to Azure Container Registry
+        run: |
+          az acr login --name ${{ env.ACR_NAME }}
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE_TAG="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest"
+          IMAGE_TAG_SHA="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          
+          echo "Building music production Docker image..."
+          docker build \
+            -f Dockerfile.music \
+            -t $IMAGE_TAG \
+            -t $IMAGE_TAG_SHA \
+            .
+          
+          echo "Pushing to ACR..."
+          docker push $IMAGE_TAG
+          docker push $IMAGE_TAG_SHA
+          
+          echo "✅ Music production image pushed successfully"
+
+      - name: Deploy infrastructure with Terraform
+        working-directory: ./infra
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        run: |
+          echo "Initializing Terraform..."
+          terraform init
+          
+          echo "Planning infrastructure changes..."
+          terraform plan -out=tfplan
+          
+          echo "Applying infrastructure changes..."
+          terraform apply -auto-approve tfplan
+          
+          echo "✅ Infrastructure deployed successfully"
+
+      - name: Restart Music Production Web App
+        run: |
+          MUSIC_APP_NAME="notesapp-dev-music-app"
+          RESOURCE_GROUP="notesapp-dev-rg"
+          
+          echo "Restarting music production app..."
+          az webapp restart \
+            --name $MUSIC_APP_NAME \
+            --resource-group $RESOURCE_GROUP
+          
+          echo "✅ Music production app restarted"
+
+      - name: Verify deployment
+        run: |
+          MUSIC_APP_URL="https://notesapp-dev-music-app.azurewebsites.net"
+          
+          echo "Waiting for app to start..."
+          sleep 30
+          
+          echo "Testing health endpoint..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" ${MUSIC_APP_URL}/api/health || echo "000")
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Music production app is healthy (HTTP $HTTP_CODE)"
+          else
+            echo "⚠️  Music production app returned HTTP $HTTP_CODE"
+            echo "App may still be starting up..."
+          fi
+
+      - name: Output URLs
+        run: |
+          echo "🎵 Music Production App URL: https://notesapp-dev-music-app.azurewebsites.net"
+          echo "📝 Main App URL: https://notesapp-dev-app.azurewebsites.net"

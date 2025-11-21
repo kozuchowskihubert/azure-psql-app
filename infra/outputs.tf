@@ -3,6 +3,11 @@ output "app_url" {
   value       = "https://${azurerm_linux_web_app.app.default_hostname}"
 }
 
+output "music_app_url" {
+  description = "Music Production App Service URL"
+  value       = "https://${azurerm_linux_web_app.music_app.default_hostname}"
+}
+
 output "database_fqdn" {
   description = "PostgreSQL Server FQDN"
   value       = azurerm_postgresql_flexible_server.pg.fqdn
