@@ -77,6 +77,17 @@ jobs:
           echo "Initializing Terraform..."
           terraform init
           
+          # Handle potential state lock from previous failed run
+          echo "Checking for state locks..."
+          if ! terraform plan -detailed-exitcode > /dev/null 2>&1; then
+            if terraform plan 2>&1 | grep -q "state blob is already locked"; then
+              echo "⚠️ State is locked, attempting force unlock..."
+              LOCK_ID=$(terraform plan 2>&1 | grep "ID:" | awk '{print $2}')
+              echo "Lock ID: $LOCK_ID"
+              terraform force-unlock -force "$LOCK_ID" || echo "Failed to unlock, will retry plan..."
+            fi
+          fi
+          
           echo "Planning infrastructure changes..."
           terraform plan -out=tfplan
           
