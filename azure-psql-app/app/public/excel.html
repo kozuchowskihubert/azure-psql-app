@@ -2,8 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Excel Workspace - Notes App</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Excel workspace with formulas, charts, and data analysis - works offline!">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Excel Workspace">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SheetJS for Excel processing -->
@@ -365,6 +386,9 @@
                     <button id="conditional-format-btn" class="px-3 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition text-sm" title="Apply conditional formatting">
                         <i class="fas fa-palette mr-1"></i>Formatting
                     </button>
+                    <button id="toggle-filters-btn" class="px-3 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition text-sm" title="Show/hide column filters">
+                        <i class="fas fa-filter mr-1"></i>Filters
+                    </button>
                 </div>
             </div>
         </div>
@@ -589,5 +613,6 @@
     </main>
 
     <script src="excel.js"></script>
+    <script src="/pwa-installer.js"></script>
 </body>
 </html>

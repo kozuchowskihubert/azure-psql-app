@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Icon Converter</title>
+  <style>
+    body { font-family: system-ui; max-width: 800px; margin: 40px auto; padding: 20px; }
+    canvas { border: 1px solid #ccc; margin: 10px; }
+    button { background: #667eea; color: white; border: none; padding: 10px 20px; 
+             border-radius: 5px; cursor: pointer; margin: 5px; }
+    button:hover { background: #764ba2; }
+  </style>
+</head>
+<body>
+  <h1>Manual Icon Generator</h1>
+  <p>This page helps you generate PNG icons from the SVG if you don't have sharp installed.</p>
+  
+  <div id="canvases"></div>
+  <button onclick="downloadAll()">Download All Icons</button>
+  
+  <script>
+    const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+    const svgData = `<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient Background -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="110" fill="url(#gradient)"/>
+  
+  <!-- Note Icon -->
+  <g transform="translate(106, 90)" filter="url(#shadow)">
+    <!-- Paper -->
+    <rect x="0" y="0" width="300" height="340" rx="20" fill="white" opacity="0.95"/>
+    
+    <!-- Lines -->
+    <line x1="40" y1="80" x2="260" y2="80" stroke="#667eea" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
+    <line x1="40" y1="140" x2="260" y2="140" stroke="#667eea" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
+    <line x1="40" y1="200" x2="200" y2="200" stroke="#667eea" stroke-width="8" stroke-linecap="round" opacity="0.5"/>
+    
+    <!-- Pen/Edit Icon -->
+    <g transform="translate(200, 240)">
+      <path d="M 0 50 L 0 70 L 20 70 L 80 10 L 60 -10 Z" fill="#764ba2"/>
+      <circle cx="70" cy="0" r="15" fill="#f59e0b"/>
+    </g>
+  </g>
+</svg>
+`;
+    
+    const img = new Image();
+    const blob = new Blob([svgData], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    
+    img.onload = function() {
+      sizes.forEach(size => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, size, size);
+        
+        const container = document.createElement('div');
+        container.innerHTML = `<h3>${size}x${size}</h3>`;
+        container.appendChild(canvas);
+        
+        const btn = document.createElement('button');
+        btn.textContent = 'Download';
+        btn.onclick = () => {
+          canvas.toBlob(blob => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `icon-${size}x${size}.png`;
+            a.click();
+          });
+        };
+        container.appendChild(btn);
+        document.getElementById('canvases').appendChild(container);
+      });
+    };
+    
+    img.src = url;
+    
+    function downloadAll() {
+      document.querySelectorAll('button').forEach((btn, i) => {
+        if (i > 0) setTimeout(() => btn.click(), i * 500);
+      });
+    }
+  </script>
+</body>
+</html>
