@@ -180,6 +180,23 @@ Audio Preview (Web Audio API) + MIDI Generation (midiutil)
 
 Learn more: [Music Production Guide](docs/user-guides/MUSIC_PRODUCTION.md)
 
+**🎹 Interactive Synthesizer Features**:
+
+<div align="center">
+
+| 🎛️ **Behringer 2600 Synthesizer** | 🎵 **Music Production Tools** | 📊 **Technical Guides** |
+|:---:|:---:|:---:|
+| [![Behringer 2600](https://img.shields.io/badge/🎛️_Behringer_2600-Interactive_Synth-ff00ff?style=for-the-badge&logo=audio-technica&logoColor=white)](https://notesapp-dev-music-app.azurewebsites.net/synth-2600.html) | [![MIDI Generator](https://img.shields.io/badge/🎹_MIDI-Pattern_Generator-00d4ff?style=for-the-badge&logo=apple&logoColor=white)](https://notesapp-dev-music-app.azurewebsites.net/music.html) | [![Patching Guide](https://img.shields.io/badge/📖_Patching-17_Creative_Ideas-00ff88?style=for-the-badge&logo=readthedocs&logoColor=white)](docs/technical/SYNTH_2600_PATCHING_GUIDE.md) |
+| Semi-modular patch matrix with 86 patch points | Techno MIDI patterns & Ableton templates | Complete signal flow diagrams & recipes |
+
+</div>
+
+**🔊 Live Synthesizer Demo**:
+- **[Launch Behringer 2600 →](https://notesapp-dev-music-app.azurewebsites.net/synth-2600.html)** - Full-featured virtual analog synthesizer
+- **Features**: 3 VCOs, 24dB/12dB filters, 16-step sequencer, patch matrix, 8 presets
+- **Creative Patches**: Evolving drones, FM bells, sci-fi FX, polyrhythmic chaos
+- **Documentation**: [Complete Patching Guide](docs/technical/SYNTH_2600_PATCHING_GUIDE.md) with 17 experimental ideas
+
 ### 5. Enterprise Authentication
 
 **Single Sign-On Integration**:
