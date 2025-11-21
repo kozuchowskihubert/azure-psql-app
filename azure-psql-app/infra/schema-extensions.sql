@@ -409,6 +409,8 @@ BEGIN
 END $$;
 
 -- Add sharing and permissions
+CREATE TYPE note_permission_level AS ENUM ('viewer', 'commenter', 'editor', 'owner');
+
 CREATE TABLE IF NOT EXISTS note_shares (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     note_id INTEGER NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
@@ -416,9 +418,7 @@ CREATE TABLE IF NOT EXISTS note_shares (
     shared_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     
     -- Permissions
-    can_view BOOLEAN DEFAULT TRUE,
-    can_edit BOOLEAN DEFAULT FALSE,
-    can_share BOOLEAN DEFAULT FALSE,
+    permission_level note_permission_level NOT NULL DEFAULT 'viewer',
     
     -- Timestamps
     shared_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -429,6 +429,48 @@ CREATE TABLE IF NOT EXISTS note_shares (
 
 CREATE INDEX idx_note_shares_user ON note_shares(shared_with_user_id);
 CREATE INDEX idx_note_shares_note ON note_shares(note_id);
+
+-- Comments on notes
+CREATE TABLE IF NOT EXISTS note_comments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    note_id INTEGER NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    parent_comment_id UUID REFERENCES note_comments(id) ON DELETE CASCADE, -- For threaded comments
+    
+    content TEXT NOT NULL,
+    
+    -- Status
+    is_deleted BOOLEAN DEFAULT FALSE,
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    
+    -- Timestamps
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_note_comments_note ON note_comments(note_id);
+CREATE INDEX idx_note_comments_user ON note_comments(user_id);
+
+-- Activity log for notes
+CREATE TYPE note_activity_type AS ENUM (
+    'created', 'updated', 'deleted', 
+    'shared', 'unshared', 'permissions_changed',
+    'comment_added', 'comment_deleted'
+);
+
+CREATE TABLE IF NOT EXISTS note_activity (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    note_id INTEGER NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    
+    activity_type note_activity_type NOT NULL,
+    details JSONB, -- e.g., {"old_title": "...", "new_title": "..."} or {"shared_with": "..."}
+    
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_note_activity_note ON note_activity(note_id);
+CREATE INDEX idx_note_activity_user ON note_activity(user_id);
 
 -- ============================================================================
 -- VIEWS FOR COMMON QUERIES

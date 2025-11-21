@@ -1,3 +1,5 @@
+const http = require('http');
+const { WebSocketServer } = require('ws');
 require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
@@ -9,6 +11,11 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 
 const app = express();
+const server = http.createServer(app);
+
+// Initialize collaboration server
+const collaborationServer = require('./collaboration');
+collaborationServer(server);
 
 // Security middleware
 app.use(helmet({
@@ -104,6 +111,11 @@ if (process.env.ENABLE_MEETING_ROOMS === 'true') {
     console.log('⚠ Meeting routes not available:', error.message);
   }
 }
+
+// Share routes
+const shareRoutes = require('./routes/share-routes')(pool);
+app.use('/api', shareRoutes);
+console.log('✓ Share API enabled');
 
 // Ensure table exists with enhanced schema
 async function ensureTable() {
@@ -292,7 +304,7 @@ app.get('*', (req, res) => {
 
 const port = process.env.PORT || 3000;
 ensureTable().then(() => {
-  app.listen(port, () => console.log(`Server listening on ${port}`));
+  server.listen(port, () => console.log(`Server with WebSocket listening on ${port}`));
 }).catch(err => { console.error('Failed to ensure table:', err); process.exit(1); });
 
-module.exports = app;
+module.exports = { app, server };

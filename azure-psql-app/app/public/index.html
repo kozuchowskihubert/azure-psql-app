@@ -548,6 +548,38 @@
         </div>
     </div>
 
+    <!-- Share Modal -->
+    <div id="share-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Share Note</h2>
+        <form id="share-form" onsubmit="handleShareNote(event)">
+          <input type="hidden" id="share-note-id">
+          <div class="mb-4">
+            <label for="share-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">User Email</label>
+            <input type="email" id="share-email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          </div>
+          <div class="mb-6">
+            <label for="share-permission" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Permission</label>
+            <select id="share-permission" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option value="viewer">Viewer</option>
+              <option value="commenter">Commenter</option>
+              <option value="editor">Editor</option>
+            </select>
+          </div>
+          <div class="flex justify-end space-x-4">
+            <button type="button" onclick="closeShareModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">Cancel</button>
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">Share</button>
+          </div>
+        </form>
+        <div class="mt-6">
+            <h3 class="text-lg font-bold mb-2 text-gray-800 dark:text-white">Shared With</h3>
+            <ul id="shared-users-list" class="list-disc list-inside text-gray-600 dark:text-gray-300">
+                <!-- Shared users will be populated here -->
+            </ul>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12">
         <div class="container mx-auto px-4 py-6 text-center text-gray-600 dark:text-gray-400">

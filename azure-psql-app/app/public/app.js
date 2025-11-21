@@ -361,6 +361,13 @@ function renderNotes() {
                     </h3>
                     <div class="flex space-x-2">
                         <button 
+                            onclick="openShareModal(${note.id})"
+                            class="text-green-500 hover:text-green-700 transition-colors"
+                            title="Share note"
+                        >
+                            <i class="fas fa-share-alt text-lg"></i>
+                        </button>
+                        <button 
                             onclick="openEditModal(${note.id})" 
                             class="text-blue-500 hover:text-blue-700 transition-colors"
                             title="Edit note"
@@ -521,6 +528,100 @@ function closeEditModal() {
     document.getElementById('edit-modal').classList.add('hidden');
     document.getElementById('edit-modal').classList.remove('flex');
     document.getElementById('edit-form').reset();
+}
+
+function openShareModal(noteId) {
+    const modal = document.getElementById('share-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.getElementById('share-note-id').value = noteId;
+    loadSharedUsers(noteId);
+
+    // Close modal on background click
+    modal.addEventListener('click', (e) => {
+        if (e.target.id === 'share-modal') closeShareModal();
+    });
+}
+
+function closeShareModal() {
+    const modal = document.getElementById('share-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+async function handleShareNote(e) {
+    e.preventDefault();
+    const noteId = document.getElementById('share-note-id').value;
+    const email = document.getElementById('share-email').value;
+    const permissionLevel = document.getElementById('share-permission').value;
+
+    try {
+        const response = await fetch(`${API_BASE}/api/notes/${noteId}/shares`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ email, permissionLevel })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to share note');
+        }
+
+        showToast('Note shared successfully!', 'success');
+        document.getElementById('share-email').value = '';
+        loadSharedUsers(noteId);
+    } catch (error) {
+        console.error('Error sharing note:', error);
+        showToast(error.message, 'error');
+    }
+}
+
+async function loadSharedUsers(noteId) {
+    const container = document.getElementById('shared-users-list');
+    container.innerHTML = '<li>Loading...</li>';
+
+    try {
+        const response = await fetch(`${API_BASE}/api/notes/${noteId}/shares`, { credentials: 'include' });
+        if (!response.ok) throw new Error('Failed to load shared users');
+
+        const sharedUsers = await response.json();
+        if (sharedUsers.length === 0) {
+            container.innerHTML = '<li>Not shared with anyone.</li>';
+            return;
+        }
+
+        container.innerHTML = sharedUsers.map(user => `
+            <li class="flex items-center justify-between py-2">
+                <span>${escapeHtml(user.display_name || user.email)} - <strong>${user.permission_level}</strong></span>
+                <button onclick="removeShare('${user.id}', ${noteId})" class="text-red-500 hover:text-red-700">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </li>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading shared users:', error);
+        container.innerHTML = '<li>Error loading users.</li>';
+    }
+}
+
+async function removeShare(shareId, noteId) {
+    if (!confirm('Are you sure you want to remove this share?')) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/api/shares/${shareId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+
+        if (!response.ok) throw new Error('Failed to remove share');
+
+        showToast('Share removed successfully', 'success');
+        loadSharedUsers(noteId);
+    } catch (error) {
+        console.error('Error removing share:', error);
+        showToast('Failed to remove share', 'error');
+    }
 }
 
 function showLoading(show) {
@@ -949,4 +1050,33 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+// ============================================================================
+// Real-time Collaboration Code
+// ============================================================================
+
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
+import { MonacoBinding } from 'y-monaco';
+import * as monaco from 'monaco-editor';
+
+// This would be dynamically set based on the note being edited
+const noteId = 'some-note-id'; 
+
+const doc = new Y.Doc();
+const provider = new WebsocketProvider('ws://localhost:3000', noteId, doc);
+const type = doc.getText('monaco');
+
+const editorElement = document.getElementById('edit-content');
+
+// Make sure you have a container for the editor
+if (editorElement) {
+    const editor = monaco.editor.create(editorElement, {
+        value: '',
+        language: 'markdown',
+        theme: 'vs-dark'
+    });
+
+    const monacoBinding = new MonacoBinding(type, editor.getModel(), new Set([editor]), provider.awareness);
 }
