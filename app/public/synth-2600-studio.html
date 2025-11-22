@@ -2100,17 +2100,17 @@
                         <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 15px;">
                             <div>
                                 <span style="color: #9900ff; font-weight: bold;">Octave:</span>
-                                <button class="waveform-btn" onclick="keyboard.setOctave(keyboard.octave - 1)" style="border-color: #9900ff; color: #9900ff; padding: 5px 15px;">
+                                <button class="waveform-btn" id="octave-down-btn" style="border-color: #9900ff; color: #9900ff; padding: 5px 15px;">
                                     <i class="fas fa-minus"></i>
                                 </button>
                                 <span id="keyboard-octave" style="color: white; font-size: 1.2em; padding: 0 10px;">4</span>
-                                <button class="waveform-btn" onclick="keyboard.setOctave(keyboard.octave + 1)" style="border-color: #9900ff; color: #9900ff; padding: 5px 15px;">
+                                <button class="waveform-btn" id="octave-up-btn" style="border-color: #9900ff; color: #9900ff; padding: 5px 15px;">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
                             <div>
                                 <span style="color: #9900ff; font-weight: bold;">Velocity:</span>
-                                <input type="range" id="keyboard-velocity" min="1" max="127" value="100" style="width: 150px; vertical-align: middle;" oninput="keyboard.velocity = parseInt(this.value); document.getElementById('keyboard-velocity-value').textContent = this.value">
+                                <input type="range" id="keyboard-velocity" min="1" max="127" value="100" style="width: 150px; vertical-align: middle;" oninput="if(keyboard) keyboard.velocity = parseInt(this.value); document.getElementById('keyboard-velocity-value').textContent = this.value">
                                 <span id="keyboard-velocity-value" style="color: white; padding-left: 10px;">100</span>
                             </div>
                         </div>
@@ -3435,6 +3435,28 @@
                     document.getElementById('keyboard-octave').textContent = data.octave;
                 }
             });
+            
+            // Octave button event listeners
+            const octaveDownBtn = document.getElementById('octave-down-btn');
+            const octaveUpBtn = document.getElementById('octave-up-btn');
+            
+            if (octaveDownBtn) {
+                octaveDownBtn.addEventListener('click', () => {
+                    if (keyboard) {
+                        keyboard.setOctave(keyboard.octave - 1);
+                        console.log(`🎹 Octave decreased to ${keyboard.octave}`);
+                    }
+                });
+            }
+            
+            if (octaveUpBtn) {
+                octaveUpBtn.addEventListener('click', () => {
+                    if (keyboard) {
+                        keyboard.setOctave(keyboard.octave + 1);
+                        console.log(`🎹 Octave increased to ${keyboard.octave}`);
+                    }
+                });
+            }
             
             // Computer keyboard events
             document.addEventListener('keydown', (e) => {
