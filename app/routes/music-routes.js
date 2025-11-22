@@ -1326,5 +1326,144 @@ router.get('/presets/:presetName/variations/:variationName', async (req, res) =>
   }
 });
 
+// ============================================
+// PRESET BROWSER ROUTES (Alias to synth2600)
+// ============================================
+
+/**
+ * GET /api/music/presets/stats
+ * Get preset statistics for the preset browser
+ */
+router.get('/presets/stats', async (req, res) => {
+  try {
+    const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
+    
+    // Check if file exists
+    try {
+      await fs.access(presetLibPath);
+    } catch (err) {
+      return res.json({
+        success: true,
+        stats: {
+          total_presets: 0,
+          categories: {},
+          initialized: false,
+        }
+      });
+    }
+
+    // Read and parse preset library
+    const data = await fs.readFile(presetLibPath, 'utf8');
+    const presetLib = JSON.parse(data);
+
+    // Calculate stats
+    const categories = {};
+    presetLib.presets.forEach((preset) => {
+      const category = preset.category || 'other';
+      if (!categories[category]) {
+        categories[category] = 0;
+      }
+      categories[category]++;
+    });
+
+    res.json({
+      success: true,
+      stats: {
+        total_presets: presetLib.presets.length,
+        categories: categories,
+        initialized: true,
+        last_updated: presetLib.updated || new Date().toISOString(),
+      }
+    });
+  } catch (error) {
+    console.error('Error getting preset stats:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/music/presets/:name
+ * Get a specific preset by name (alias to synth2600/preset/:name)
+ */
+router.get('/presets/:name', async (req, res) => {
+  try {
+    const presetName = req.params.name;
+    const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
+
+    // Read preset library
+    const data = await fs.readFile(presetLibPath, 'utf8');
+    const presetLib = JSON.parse(data);
+
+    // Find the preset
+    const preset = presetLib.presets.find(p => p.name === presetName);
+
+    if (!preset) {
+      return res.status(404).json({
+        success: false,
+        error: `Preset '${presetName}' not found`
+      });
+    }
+
+    res.json({
+      success: true,
+      preset: preset,
+    });
+  } catch (error) {
+    console.error('Error loading preset:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/music/presets/init
+ * Initialize preset library (run CLI to generate presets)
+ */
+router.post('/presets/init', async (req, res) => {
+  try {
+    const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
+    
+    // Check if already exists
+    try {
+      await fs.access(presetLibPath);
+      return res.json({
+        success: true,
+        message: 'Preset library already exists',
+        action: 'skipped'
+      });
+    } catch (err) {
+      // Library doesn't exist, initialize it
+    }
+
+    // Run CLI to generate presets
+    const { stdout, stderr } = await execPromise(
+      `cd "${CLI_PATH}" && python3 synth2600_cli.py --list`,
+      { timeout: 30000 }
+    );
+
+    if (stderr && !stderr.includes('UserWarning')) {
+      console.error('CLI stderr:', stderr);
+    }
+
+    res.json({
+      success: true,
+      message: 'Preset library initialized successfully',
+      action: 'created',
+      output: stdout
+    });
+  } catch (error) {
+    console.error('Error initializing presets:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;
 
