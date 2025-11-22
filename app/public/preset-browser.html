@@ -495,11 +495,22 @@
         // Load statistics
         async function loadStats() {
             try {
-                const response = await fetch('/api/music/presets/stats');
+                const response = await fetch('/api/music/synth2600/presets');
                 const data = await response.json();
                 
                 if (data.success) {
-                    renderStats(data.stats);
+                    // Convert synth2600 API response to stats format
+                    const stats = {
+                        total_presets: data.total,
+                        categories: {}
+                    };
+                    
+                    // Count presets per category
+                    Object.entries(data.categories).forEach(([category, presets]) => {
+                        stats.categories[category] = presets.length;
+                    });
+                    
+                    renderStats(stats);
                 }
             } catch (error) {
                 console.error('Failed to load stats:', error);
@@ -557,7 +568,7 @@
         async function playPreset(presetName) {
             try {
                 // Load full preset data
-                const response = await fetch(`/api/music/presets/${encodeURIComponent(presetName)}`);
+                const response = await fetch(`/api/music/synth2600/preset/${encodeURIComponent(presetName)}`);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -585,7 +596,7 @@
         // Show preset details
         async function showDetails(presetName) {
             try {
-                const response = await fetch(`/api/music/presets/${encodeURIComponent(presetName)}`);
+                const response = await fetch(`/api/music/synth2600/preset/${encodeURIComponent(presetName)}`);
                 const data = await response.json();
                 
                 if (data.success) {
