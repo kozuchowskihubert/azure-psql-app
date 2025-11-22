@@ -1474,6 +1474,31 @@
                             document.getElementById('vcf-res-value').textContent = res.toFixed(2);
                         }
                         
+                        // Update ADSR envelope settings from ENV1 modulator
+                        if (data.modulators && data.modulators.ENV1) {
+                            const env = data.modulators.ENV1;
+                            
+                            if (env.attack !== undefined) {
+                                document.getElementById('env-attack').value = env.attack;
+                                document.getElementById('env-attack-value').textContent = `${env.attack.toFixed(3)}s`;
+                            }
+                            
+                            if (env.decay !== undefined) {
+                                document.getElementById('env-decay').value = env.decay;
+                                document.getElementById('env-decay-value').textContent = `${env.decay.toFixed(3)}s`;
+                            }
+                            
+                            if (env.sustain !== undefined) {
+                                document.getElementById('env-sustain').value = env.sustain;
+                                document.getElementById('env-sustain-value').textContent = env.sustain.toFixed(2);
+                            }
+                            
+                            if (env.release !== undefined) {
+                                document.getElementById('env-release').value = env.release;
+                                document.getElementById('env-release-value').textContent = `${env.release.toFixed(2)}s`;
+                            }
+                        }
+                        
                         console.log('✅ Preset loaded into synthesis engine:', presetName);
                     }
                 })
