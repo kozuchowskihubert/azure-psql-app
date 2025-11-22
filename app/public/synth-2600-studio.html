@@ -15,6 +15,7 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
+            touch-action: manipulation; /* Prevent double-tap zoom */
         }
 
         :root {
@@ -30,6 +31,11 @@
             --text-secondary: #888;
         }
 
+        html {
+            height: 100%;
+            width: 100%;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
@@ -37,6 +43,13 @@
             overflow: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
 
         /* Top Menu Bar */
@@ -135,7 +148,10 @@
             display: grid;
             grid-template-columns: 280px 1fr 320px;
             height: calc(100vh - 60px);
+            height: calc(100dvh - 60px); /* Dynamic viewport height for mobile */
             gap: 0;
+            width: 100%;
+            overflow: hidden;
         }
 
         /* Left Sidebar */
@@ -801,11 +817,13 @@
         @media screen and (max-width: 768px) {
             body {
                 overflow: auto;
+                position: relative;
             }
 
             .top-menu {
                 height: 60px;
-                padding: 0 10px;
+                padding: 0 15px;
+                flex-wrap: nowrap;
             }
 
             .logo-icon {
@@ -813,15 +831,20 @@
             }
 
             .logo-text h1 {
-                font-size: 1em;
+                font-size: 1.1em;
             }
 
             .logo-text p {
-                display: none;
+                font-size: 0.7em;
             }
 
             .top-nav {
-                display: none;
+                gap: 5px;
+            }
+
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 0.85em;
             }
 
             .mobile-nav-toggle {
@@ -832,6 +855,7 @@
                 grid-template-columns: 1fr;
                 height: auto;
                 min-height: calc(100vh - 60px);
+                min-height: calc(100dvh - 60px);
             }
 
             .left-sidebar,
@@ -966,17 +990,31 @@
 
         /* Mobile Portrait: < 568px */
         @media screen and (max-width: 568px) {
+            body {
+                position: relative;
+            }
+
             .top-menu {
                 height: 50px;
-                padding: 0 8px;
+                padding: 0 10px;
             }
 
             .logo-icon {
-                font-size: 1.2em;
+                font-size: 1.3em;
             }
 
             .logo-text h1 {
-                font-size: 0.9em;
+                font-size: 0.95em;
+            }
+
+            .logo-text p {
+                font-size: 0.65em;
+            }
+
+            .nav-btn {
+                padding: 6px 10px;
+                font-size: 0.8em;
+                gap: 4px;
             }
 
             .mobile-nav-toggle {
@@ -987,50 +1025,63 @@
             .main-container {
                 height: auto;
                 min-height: calc(100vh - 50px);
+                min-height: calc(100dvh - 50px);
             }
 
             .left-sidebar,
             .right-sidebar {
                 top: 50px;
-                height: calc(100vh - 50px - 70px);
+                height: calc(100vh - 50px);
+                height: calc(100dvh - 50px);
+                overflow-y: auto;
             }
 
             .center-content {
-                min-height: calc(100vh - 50px - 70px);
-                padding-bottom: 70px;
+                min-height: calc(100vh - 50px);
+                min-height: calc(100dvh - 50px);
+                padding-bottom: 20px;
             }
 
             .content-panel {
-                padding: 10px;
+                padding: 12px;
             }
 
             .content-panel h2 {
-                font-size: 1.2em;
+                font-size: 1.3em;
                 margin-bottom: 15px;
+                color: var(--accent-cyan);
+                text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
             }
 
             .module-rack {
-                gap: 10px;
+                gap: 12px;
             }
 
             .patch-canvas {
-                min-height: 300px;
-                padding: 10px;
+                min-height: 350px;
+                padding: 12px;
+                background-size: 15px 15px;
             }
 
             .module {
-                padding: 10px;
+                padding: 12px;
+                border-width: 2px;
+            }
+
+            .module-header {
+                font-size: 1em;
+                margin-bottom: 12px;
             }
 
             .sidebar-section {
-                padding: 10px;
+                padding: 12px;
             }
 
             .control-panel {
-                padding: 10px;
+                padding: 12px;
             }
 
-            /* MOBILE SEQUENCER OPTIMIZATIONS */
+            /* MOBILE SEQUENCER OPTIMIZATIONS - Enhanced Visibility */
             #sequencer-grid {
                 grid-template-columns: repeat(8, 1fr) !important;
                 gap: 8px !important;
@@ -1041,62 +1092,113 @@
                 min-height: 60px !important;
                 padding: 8px 4px !important;
                 font-size: 0.85em !important;
+                border-width: 2px !important;
+                box-shadow: 0 2px 8px rgba(0, 212, 255, 0.2) !important;
+            }
+
+            .sequencer-step.active {
+                border-color: var(--accent-cyan) !important;
+                box-shadow: 0 0 15px rgba(0, 212, 255, 0.8) !important;
+                background: rgba(0, 212, 255, 0.15) !important;
+            }
+
+            .sequencer-step.current {
+                border-color: var(--accent-purple) !important;
+                box-shadow: 0 0 20px rgba(255, 0, 255, 1) !important;
+                background: rgba(255, 0, 255, 0.2) !important;
             }
 
             .step-number {
                 font-size: 0.9em !important;
                 margin-bottom: 3px !important;
+                font-weight: bold !important;
+                text-shadow: 0 0 5px rgba(0, 212, 255, 0.5) !important;
             }
 
             .step-indicator {
                 width: 24px !important;
                 height: 24px !important;
+                border-width: 2px !important;
+            }
+
+            .step-indicator.active {
+                background: var(--accent-cyan) !important;
+                box-shadow: 0 0 10px rgba(0, 212, 255, 0.8) !important;
             }
 
             #step-editor {
-                padding: 12px !important;
+                padding: 15px !important;
                 margin-top: 10px !important;
+                background: rgba(0, 212, 255, 0.05) !important;
+                border: 2px solid var(--accent-cyan) !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3) !important;
             }
 
             #step-editor > div:first-child {
-                font-size: 1em !important;
+                font-size: 1.1em !important;
                 margin-bottom: 12px !important;
+                color: var(--accent-cyan) !important;
+                text-shadow: 0 0 8px rgba(0, 212, 255, 0.6) !important;
             }
 
             #step-editor input[type="range"] {
-                height: 8px !important;
+                height: 10px !important;
                 margin: 8px 0 !important;
             }
 
             #step-editor label {
-                font-size: 0.9em !important;
+                font-size: 0.95em !important;
+                font-weight: bold !important;
+                color: var(--accent-cyan) !important;
             }
 
-            /* MOBILE PATCH CANVAS OPTIMIZATIONS */
+            #step-editor button {
+                box-shadow: 0 0 10px rgba(0, 212, 255, 0.5) !important;
+            }
+
+            /* MOBILE PATCH CANVAS OPTIMIZATIONS - Enhanced Visibility */
             .patch-socket {
                 width: 36px !important;
                 height: 36px !important;
-                font-size: 0.7em !important;
+                font-size: 0.75em !important;
+                border-width: 2px !important;
+                box-shadow: 0 0 8px rgba(0, 212, 255, 0.4) !important;
+            }
+
+            .patch-socket.connected {
+                box-shadow: 0 0 12px rgba(255, 0, 255, 0.8) !important;
+                border-color: var(--accent-purple) !important;
             }
 
             .patch-point {
                 padding: 10px 8px !important;
                 font-size: 0.85em !important;
                 min-height: 48px !important;
+                border-width: 2px !important;
             }
 
             .patch-label {
                 font-size: 0.8em !important;
+                font-weight: bold !important;
+                text-shadow: 0 0 5px rgba(0, 212, 255, 0.5) !important;
             }
 
-            /* MOBILE KEYBOARD OPTIMIZATIONS */
+            /* MOBILE KEYBOARD OPTIMIZATIONS - Enhanced Touch Response */
             .piano-key {
                 min-width: 40px !important;
                 height: 120px !important;
+                border-width: 2px !important;
             }
 
             .piano-key.white {
                 width: 40px !important;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+            }
+
+            .piano-key.white.active {
+                background: var(--accent-cyan) !important;
+                box-shadow: 0 0 15px rgba(0, 212, 255, 0.8) !important;
             }
 
             .piano-key.black {
@@ -1104,8 +1206,14 @@
                 height: 75px !important;
             }
 
+            .piano-key.black.active {
+                background: var(--accent-purple) !important;
+                box-shadow: 0 0 15px rgba(255, 0, 255, 0.8) !important;
+            }
+
             .key-label {
                 font-size: 0.7em !important;
+                font-weight: bold !important;
             }
         }
 
