@@ -733,10 +733,20 @@ function showPanel(panelName) {
     });
     document.getElementById(panelName + '-panel').classList.add('active');
 
+    // Update desktop nav buttons
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    document.getElementById('btn-' + panelName).classList.add('active');
+    const desktopBtn = document.getElementById('btn-' + panelName);
+    if (desktopBtn) {
+        desktopBtn.classList.add('active');
+    }
+
+    // Update mobile nav buttons
+    const mobileBtn = document.getElementById('mobile-btn-' + panelName);
+    if (mobileBtn) {
+        mobileBtn.classList.add('active');
+    }
 }
 
 // Export functions

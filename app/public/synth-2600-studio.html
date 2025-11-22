@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Behringer 2600 Studio - Interactive Patching & Sound Design</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -10,6 +13,8 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
         }
 
         :root {
@@ -30,6 +35,8 @@
             background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
             color: var(--text-primary);
             overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Top Menu Bar */
@@ -673,6 +680,427 @@
                 box-shadow: 0 0 25px rgba(255, 0, 85, 1.0), 0 0 40px rgba(255, 0, 85, 0.7);
             }
         }
+
+        /* Mobile Navigation Toggle */
+        .mobile-nav-toggle {
+            display: none;
+            background: var(--accent-cyan);
+            border: none;
+            color: var(--bg-primary);
+            font-size: 1.5em;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--accent-cyan);
+            z-index: 999;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .mobile-menu-items {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            gap: 10px;
+        }
+
+        .mobile-menu .nav-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Mobile Panel Tabs */
+        .mobile-panel-tabs {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--bg-secondary);
+            border-top: 2px solid var(--accent-cyan);
+            z-index: 998;
+            padding: 10px;
+        }
+
+        .mobile-panel-tabs.active {
+            display: flex;
+            justify-content: space-around;
+            gap: 5px;
+        }
+
+        .mobile-tab-btn {
+            flex: 1;
+            padding: 12px 8px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .mobile-tab-btn.active {
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+        }
+
+        .mobile-tab-btn i {
+            font-size: 1.2em;
+        }
+
+        /* RESPONSIVE BREAKPOINTS */
+        
+        /* Tablet: 768px - 1024px */
+        @media screen and (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 220px 1fr 280px;
+            }
+
+            .logo-text h1 {
+                font-size: 1.2em;
+            }
+
+            .logo-text p {
+                font-size: 0.7em;
+            }
+
+            .nav-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+
+            .sidebar-section {
+                padding: 15px;
+            }
+
+            .control-panel {
+                padding: 15px;
+            }
+        }
+
+        /* Mobile Landscape: 568px - 768px */
+        @media screen and (max-width: 768px) {
+            body {
+                overflow: auto;
+            }
+
+            .top-menu {
+                height: 60px;
+                padding: 0 10px;
+            }
+
+            .logo-icon {
+                font-size: 1.5em;
+            }
+
+            .logo-text h1 {
+                font-size: 1em;
+            }
+
+            .logo-text p {
+                display: none;
+            }
+
+            .top-nav {
+                display: none;
+            }
+
+            .mobile-nav-toggle {
+                display: block;
+            }
+
+            .main-container {
+                grid-template-columns: 1fr;
+                height: auto;
+                min-height: calc(100vh - 60px);
+            }
+
+            .left-sidebar,
+            .right-sidebar {
+                display: none;
+                position: fixed;
+                top: 60px;
+                width: 100%;
+                height: calc(100vh - 60px - 80px);
+                z-index: 997;
+                border: none;
+                border-bottom: 2px solid var(--accent-cyan);
+            }
+
+            .left-sidebar.mobile-active,
+            .right-sidebar.mobile-active {
+                display: block;
+            }
+
+            .center-content {
+                min-height: calc(100vh - 60px - 80px);
+                padding-bottom: 80px;
+            }
+
+            .content-panel {
+                padding: 15px;
+            }
+
+            .module-rack {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .patch-canvas {
+                min-height: 400px;
+                padding: 15px;
+            }
+
+            .module {
+                padding: 12px;
+            }
+
+            .module-header {
+                font-size: 1em;
+            }
+
+            .mobile-panel-tabs {
+                display: flex;
+            }
+
+            /* Larger touch targets for mobile */
+            .patch-socket {
+                width: 32px;
+                height: 32px;
+            }
+
+            .patch-point {
+                padding: 12px;
+                font-size: 0.95em;
+            }
+
+            .slider {
+                height: 8px;
+            }
+
+            .slider::-webkit-slider-thumb {
+                width: 28px;
+                height: 28px;
+            }
+
+            .slider::-moz-range-thumb {
+                width: 28px;
+                height: 28px;
+            }
+
+            .action-btn {
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            .waveform-btn {
+                padding: 12px;
+                font-size: 0.9em;
+            }
+
+            .pattern-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+                max-height: 85vh;
+            }
+
+            .modal-title {
+                font-size: 1.2em;
+            }
+        }
+
+        /* Mobile Portrait: < 568px */
+        @media screen and (max-width: 568px) {
+            .top-menu {
+                height: 50px;
+                padding: 0 8px;
+            }
+
+            .logo-icon {
+                font-size: 1.2em;
+            }
+
+            .logo-text h1 {
+                font-size: 0.9em;
+            }
+
+            .mobile-nav-toggle {
+                font-size: 1.2em;
+                padding: 8px 12px;
+            }
+
+            .main-container {
+                height: auto;
+                min-height: calc(100vh - 50px);
+            }
+
+            .left-sidebar,
+            .right-sidebar {
+                top: 50px;
+                height: calc(100vh - 50px - 70px);
+            }
+
+            .center-content {
+                min-height: calc(100vh - 50px - 70px);
+                padding-bottom: 70px;
+            }
+
+            .content-panel {
+                padding: 10px;
+            }
+
+            .content-panel h2 {
+                font-size: 1.2em;
+                margin-bottom: 15px;
+            }
+
+            .module-rack {
+                gap: 10px;
+            }
+
+            .patch-canvas {
+                min-height: 300px;
+                padding: 10px;
+            }
+
+            .module {
+                padding: 10px;
+            }
+
+            .sidebar-section {
+                padding: 10px;
+            }
+
+            .control-panel {
+                padding: 10px;
+            }
+
+            .sidebar-title,
+            .panel-title {
+                font-size: 1em;
+            }
+
+            .preset-item {
+                padding: 10px;
+            }
+
+            .preset-name {
+                font-size: 0.9em;
+            }
+
+            .preset-desc {
+                font-size: 0.8em;
+            }
+
+            .knob-control {
+                margin-bottom: 15px;
+            }
+
+            .knob-label {
+                font-size: 0.85em;
+            }
+
+            .mobile-panel-tabs {
+                padding: 8px;
+            }
+
+            .mobile-tab-btn {
+                padding: 10px 5px;
+                font-size: 0.75em;
+            }
+
+            .mobile-tab-btn i {
+                font-size: 1em;
+            }
+
+            .pattern-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .pattern-card {
+                padding: 15px;
+            }
+
+            .pattern-icon {
+                font-size: 1.5em;
+            }
+
+            .pattern-name {
+                font-size: 0.85em;
+            }
+
+            .waveform-selector {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .action-btn {
+                padding: 12px;
+                font-size: 0.95em;
+            }
+
+            .modal-content {
+                padding: 15px;
+                width: 98%;
+            }
+        }
+
+        /* Extra Small: < 375px */
+        @media screen and (max-width: 375px) {
+            .logo-text h1 {
+                font-size: 0.8em;
+            }
+
+            .mobile-nav-toggle {
+                font-size: 1em;
+                padding: 6px 10px;
+            }
+
+            .mobile-tab-btn {
+                padding: 8px 3px;
+                font-size: 0.7em;
+                gap: 3px;
+            }
+
+            .patch-socket {
+                width: 28px;
+                height: 28px;
+            }
+
+            .slider::-webkit-slider-thumb {
+                width: 24px;
+                height: 24px;
+            }
+
+            .slider::-moz-range-thumb {
+                width: 24px;
+                height: 24px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -706,6 +1134,36 @@
             </button>
             <button class="nav-btn" onclick="window.location.href='/'">
                 <i class="fas fa-home"></i>
+            </button>
+        </div>
+        <!-- Mobile Navigation Toggle -->
+        <button class="mobile-nav-toggle" onclick="toggleMobileMenu()" id="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Menu Dropdown -->
+    <div class="mobile-menu" id="mobile-menu">
+        <div class="mobile-menu-items">
+            <button class="nav-btn active" onclick="showPanel('synth'); closeMobileMenu();" id="mobile-btn-synth">
+                <i class="fas fa-sliders-h"></i>
+                Synthesizer
+            </button>
+            <button class="nav-btn purple" onclick="showPanel('patterns'); closeMobileMenu();" id="mobile-btn-patterns">
+                <i class="fas fa-project-diagram"></i>
+                Patterns
+            </button>
+            <button class="nav-btn green" onclick="showPanel('midi'); closeMobileMenu();" id="mobile-btn-midi">
+                <i class="fas fa-music"></i>
+                MIDI Generator
+            </button>
+            <button class="nav-btn" onclick="window.location.href='/cli-terminal.html'">
+                <i class="fas fa-terminal"></i>
+                CLI
+            </button>
+            <button class="nav-btn" onclick="window.location.href='/'">
+                <i class="fas fa-home"></i>
+                Home
             </button>
         </div>
     </div>
@@ -998,6 +1456,22 @@
         </div>
     </div>
 
+    <!-- Mobile Panel Tabs (Bottom Navigation) -->
+    <div class="mobile-panel-tabs" id="mobile-panel-tabs">
+        <button class="mobile-tab-btn" onclick="toggleMobilePanel('canvas')" id="tab-canvas">
+            <i class="fas fa-th"></i>
+            <span>Canvas</span>
+        </button>
+        <button class="mobile-tab-btn active" onclick="toggleMobilePanel('controls')" id="tab-controls">
+            <i class="fas fa-sliders-h"></i>
+            <span>Controls</span>
+        </button>
+        <button class="mobile-tab-btn" onclick="toggleMobilePanel('presets')" id="tab-presets">
+            <i class="fas fa-star"></i>
+            <span>Presets</span>
+        </button>
+    </div>
+
     <!-- Export Modal -->
     <div class="modal" id="export-modal">
         <div class="modal-content">
@@ -1031,6 +1505,60 @@
     <script src="js/synthesis-engine.js"></script>
     <script src="js/synth-2600-studio.js"></script>
     <script>
+        // Mobile Navigation Functions
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            
+            mobileMenu.classList.toggle('active');
+            
+            // Update icon
+            const icon = menuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        }
+
+        function closeMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            
+            mobileMenu.classList.remove('active');
+            
+            // Reset icon
+            const icon = menuBtn.querySelector('i');
+            icon.className = 'fas fa-bars';
+        }
+
+        function toggleMobilePanel(panel) {
+            const leftSidebar = document.querySelector('.left-sidebar');
+            const rightSidebar = document.querySelector('.right-sidebar');
+            const centerContent = document.querySelector('.center-content');
+            
+            // Remove all active states
+            leftSidebar.classList.remove('mobile-active');
+            rightSidebar.classList.remove('mobile-active');
+            
+            // Update tab buttons
+            document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected panel
+            if (panel === 'presets') {
+                leftSidebar.classList.add('mobile-active');
+                document.getElementById('tab-presets').classList.add('active');
+            } else if (panel === 'controls') {
+                rightSidebar.classList.add('mobile-active');
+                document.getElementById('tab-controls').classList.add('active');
+            } else if (panel === 'canvas') {
+                // Canvas is the default center content
+                document.getElementById('tab-canvas').classList.add('active');
+            }
+        }
+
         // Initialize synthesis engine and visualizer
         let synthEngine = null;
         let audioVisualizer = null;
@@ -1048,6 +1576,27 @@
             
             // Update sliders
             setupSynthesisControls();
+
+            // Initialize mobile view - show controls by default
+            if (window.innerWidth <= 768) {
+                toggleMobilePanel('controls');
+            }
+
+            // Handle orientation changes on mobile
+            window.addEventListener('orientationchange', function() {
+                setTimeout(function() {
+                    if (audioVisualizer) {
+                        audioVisualizer.resize();
+                    }
+                }, 100);
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (audioVisualizer) {
+                    audioVisualizer.resize();
+                }
+            });
         });
         
         function setupSynthesisControls() {
