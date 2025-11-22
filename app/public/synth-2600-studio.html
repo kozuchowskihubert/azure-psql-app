@@ -719,6 +719,11 @@
                     <i class="fas fa-star"></i>
                     Preset Library
                 </div>
+                <div style="padding: 10px; margin-bottom: 10px;">
+                    <button class="randomize-btn" onclick="randomizePreset()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink)); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);">
+                        <i class="fas fa-random"></i> Randomize Patch
+                    </button>
+                </div>
                 <div id="preset-list" class="preset-list">
                     <!-- Presets will be loaded here -->
                 </div>
@@ -1506,6 +1511,93 @@
                     console.error('Error loading preset for synthesis:', error);
                 });
         };
+        
+        // Randomize preset function
+        function randomizePreset() {
+            console.log('🎲 Randomizing preset...');
+            
+            // Random VCO1 frequency (55Hz to 880Hz)
+            const freq = Math.floor(Math.random() * 825) + 55;
+            document.getElementById('vco1-freq').value = freq;
+            document.getElementById('vco1-freq-value').textContent = `${freq} Hz`;
+            
+            // Random filter cutoff (20Hz to 20kHz)
+            const cutoff = Math.floor(Math.random() * 19980) + 20;
+            document.getElementById('vcf-cutoff').value = cutoff;
+            document.getElementById('vcf-cutoff-value').textContent = `${cutoff} Hz`;
+            
+            // Random filter resonance (0 to 1)
+            const res = Math.random();
+            document.getElementById('vcf-res').value = res;
+            document.getElementById('vcf-res-value').textContent = res.toFixed(2);
+            
+            // Random ADSR envelope
+            const attack = Math.random() * 1; // 0-1s
+            const decay = Math.random() * 2; // 0-2s
+            const sustain = Math.random(); // 0-1
+            const release = Math.random() * 3; // 0-3s
+            
+            document.getElementById('env-attack').value = attack;
+            document.getElementById('env-attack-value').textContent = `${attack.toFixed(3)}s`;
+            
+            document.getElementById('env-decay').value = decay;
+            document.getElementById('env-decay-value').textContent = `${decay.toFixed(3)}s`;
+            
+            document.getElementById('env-sustain').value = sustain;
+            document.getElementById('env-sustain-value').textContent = sustain.toFixed(2);
+            
+            document.getElementById('env-release').value = release;
+            document.getElementById('env-release-value').textContent = `${release.toFixed(2)}s`;
+            
+            // Random LFO
+            const lfoRate = Math.random() * 20; // 0-20 Hz
+            const lfoDepth = Math.floor(Math.random() * 2000); // 0-2000
+            
+            document.getElementById('lfo-rate').value = lfoRate;
+            document.getElementById('lfo-rate-value').textContent = `${lfoRate.toFixed(1)} Hz`;
+            
+            document.getElementById('lfo-depth').value = lfoDepth;
+            document.getElementById('lfo-depth-value').textContent = lfoDepth;
+            
+            // Apply to synthesis engine if available
+            if (typeof synthEngine !== 'undefined' && synthEngine) {
+                synthEngine.loadPreset({
+                    name: 'Random Patch',
+                    modules: {
+                        VCO1: {
+                            parameters: {
+                                frequency: freq,
+                                waveform: 'saw'
+                            }
+                        },
+                        VCF: {
+                            parameters: {
+                                cutoff: cutoff / 20000,
+                                resonance: res,
+                                mode: 'LP'
+                            }
+                        }
+                    },
+                    modulators: {
+                        ENV1: {
+                            attack: attack,
+                            decay: decay,
+                            sustain: sustain,
+                            release: release
+                        }
+                    }
+                });
+            }
+            
+            console.log('✅ Random preset applied!');
+            
+            // Visual feedback
+            const btn = event.target.closest('button');
+            if (btn) {
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => btn.style.transform = 'scale(1)', 150);
+            }
+        }
     </script>
 </body>
 </html>
