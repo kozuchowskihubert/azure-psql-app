@@ -213,7 +213,7 @@ class SynthesisEngine {
     }
     
     // Polyphony support
-    createPolyVoice(frequency) {
+    createPolyVoice(frequency, velocity = 0.8) {
         const now = this.audioContext.currentTime;
         
         // Create oscillators for this voice
@@ -252,18 +252,19 @@ class SynthesisEngine {
         lfo.connect(lfoGain);
         lfoGain.connect(filter.frequency);
         
-        // Create VCA
+        // Create VCA with velocity control
         const vca = this.audioContext.createGain();
         vca.gain.value = 0;
         
-        // Apply ADSR envelope
+        // Apply ADSR envelope with velocity scaling
         const env = this.params.env;
+        const peakGain = velocity * 0.5; // Scale velocity to gain (reduced for polyphony)
         const attackTime = now + env.attack;
         const decayTime = attackTime + env.decay;
         
         vca.gain.setValueAtTime(0, now);
-        vca.gain.linearRampToValueAtTime(0.3, attackTime); // Reduced gain for polyphony
-        vca.gain.linearRampToValueAtTime(env.sustain * 0.3, decayTime);
+        vca.gain.linearRampToValueAtTime(peakGain, attackTime);
+        vca.gain.linearRampToValueAtTime(env.sustain * peakGain, decayTime);
         
         // Connect signal chain
         vco1.connect(vco1Gain);
@@ -290,7 +291,7 @@ class SynthesisEngine {
         };
     }
     
-    playPolyNote(frequency, duration = null) {
+    playPolyNote(frequency, velocity = 0.8, duration = null) {
         if (!this.audioContext) {
             this.initialize();
         }
@@ -307,11 +308,12 @@ class SynthesisEngine {
         let voice = this.voices.find(v => Math.abs(v.frequency - frequency) < 0.1);
         
         if (voice) {
-            // Retrigger existing voice
+            // Retrigger existing voice with velocity
+            const peakGain = velocity * 0.5; // Scale velocity to gain
             voice.vca.gain.cancelScheduledValues(now);
             voice.vca.gain.setValueAtTime(0, now);
-            voice.vca.gain.linearRampToValueAtTime(0.3, now + this.params.env.attack);
-            voice.vca.gain.linearRampToValueAtTime(this.params.env.sustain * 0.3, now + this.params.env.attack + this.params.env.decay);
+            voice.vca.gain.linearRampToValueAtTime(peakGain, now + this.params.env.attack);
+            voice.vca.gain.linearRampToValueAtTime(this.params.env.sustain * peakGain, now + this.params.env.attack + this.params.env.decay);
             voice.released = false;
         } else {
             // Create new voice
@@ -321,7 +323,7 @@ class SynthesisEngine {
                 this.releasePolyVoice(oldest, true);
             }
             
-            voice = this.createPolyVoice(frequency);
+            voice = this.createPolyVoice(frequency, velocity);
             this.voices.push(voice);
         }
         

@@ -2517,6 +2517,25 @@
                         el.classList.toggle('current', i === data.index);
                     });
                     
+                    // 🎵 PLAY NOTE THROUGH SYNTHESIS ENGINE
+                    if (data.gate > 0 && synthEngine) {
+                        // Convert MIDI pitch to frequency
+                        const frequency = 440 * Math.pow(2, (data.pitch - 69) / 12);
+                        
+                        // Play note with current synthesis parameters
+                        const noteDuration = (60 / sequencer.tempo) * 0.8; // 80% of step duration
+                        
+                        // Initialize engine if needed
+                        if (!synthEngine.audioContext) {
+                            synthEngine.initialize();
+                        }
+                        
+                        // Play polyphonic note with velocity
+                        synthEngine.playPolyNote(frequency, data.velocity, noteDuration);
+                        
+                        console.log(`🎹 Playing: ${data.pitch} (${frequency.toFixed(2)} Hz) @ vel=${data.velocity.toFixed(2)}, dur=${noteDuration.toFixed(2)}s`);
+                    }
+                    
                     console.log(`Step ${data.index}: CV=${data.cv.toFixed(2)}V, Gate=${data.gate}, Vel=${data.velocity.toFixed(2)}`);
                 }
                 
@@ -2532,12 +2551,30 @@
                     const keyEl = document.getElementById(`piano-key-${data.note}`);
                     if (keyEl) keyEl.classList.add('active');
                     
-                    console.log(`Note ON: ${data.note} (${data.frequency.toFixed(2)} Hz), CV=${data.cv.toFixed(2)}V`);
+                    // 🎹 PLAY NOTE THROUGH SYNTHESIS ENGINE
+                    if (synthEngine) {
+                        // Initialize engine if needed
+                        if (!synthEngine.audioContext) {
+                            synthEngine.initialize();
+                        }
+                        
+                        // Play polyphonic note
+                        const duration = 2.0; // Sustain until noteOff
+                        synthEngine.playPolyNote(data.frequency, data.velocity, duration);
+                        
+                        console.log(`🎹 Keyboard: ${data.note} (${data.frequency.toFixed(2)} Hz), CV=${data.cv.toFixed(2)}V, Vel=${data.velocity.toFixed(2)}`);
+                    }
                 }
                 
                 if (event === 'noteOff') {
                     const keyEl = document.getElementById(`piano-key-${data.note}`);
                     if (keyEl) keyEl.classList.remove('active');
+                    
+                    // 🎹 STOP NOTE (Release envelope)
+                    if (synthEngine) {
+                        // Note: For full implementation, we'd track active voices and release the specific note
+                        // For now, the polyphonic engine handles note duration automatically
+                    }
                 }
                 
                 if (event === 'octaveChange') {
