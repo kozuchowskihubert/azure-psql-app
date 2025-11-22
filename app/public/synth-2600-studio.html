@@ -2,10 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    
+    <!-- PWA Meta Tags -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="2600 Studio">
+    <meta name="application-name" content="2600 Studio">
+    <meta name="theme-color" content="#00d4ff">
+    <meta name="msapplication-TileColor" content="#0a0a0a">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Interactive modular synthesizer with patch matrix, step sequencer, and virtual keyboard. Create and save patches on mobile and desktop.">
+    <meta name="keywords" content="synthesizer, modular synth, patch matrix, sequencer, music, audio, web audio, behringer 2600">
+    <meta name="author" content="Behringer 2600 Studio">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/synth-manifest.json">
+    
+    <!-- Icons for iOS -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-128x128.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/icons/icon-96x96.png">
+    
+    <!-- Icons for Android/Desktop -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96x96.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-96x96.png">
+    
+    <!-- Splash Screens for iOS -->
+    <link rel="apple-touch-startup-image" href="/icons/splash-640x1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="/icons/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="/icons/splash-1242x2208.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)">
+    
     <title>Behringer 2600 Studio - Interactive Patching & Sound Design</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -720,6 +754,128 @@
             font-size: 1.5em;
             cursor: pointer;
         }
+
+        /* Preset Browser Styles */
+        .preset-browser-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .preset-card {
+            background: rgba(0, 212, 255, 0.05);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preset-card:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 212, 255, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .preset-card-title {
+            color: var(--accent-cyan);
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .preset-card-category {
+            color: var(--accent-yellow);
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        .preset-card-date {
+            color: var(--text-secondary);
+            font-size: 0.75em;
+        }
+
+        .preset-card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .preset-card-btn {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid;
+            border-radius: 6px;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+        }
+
+        .preset-card-btn.load {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .preset-card-btn.load:hover {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .preset-card-btn.delete {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .preset-card-btn.delete:hover {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .save-patch-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            color: var(--accent-cyan);
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1em;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
         
         /* Recording pulse animation */
         @keyframes pulse {
@@ -1321,7 +1477,314 @@
             }
         }
 
-        /* Extra Small: < 375px */
+        /* Extra Small: < 375px (Small phones - iPhone SE, etc.) */
+        @media screen and (max-width: 375px) {
+            body {
+                font-size: 14px;
+            }
+
+            .top-menu {
+                height: 48px;
+                padding: 0 8px;
+            }
+
+            .logo-text h1 {
+                font-size: 0.85em;
+            }
+
+            .logo-text p {
+                display: none;
+            }
+
+            .nav-btn {
+                padding: 5px 8px;
+                font-size: 0.75em;
+            }
+
+            /* ULTRA-MOBILE SEQUENCER - Maximum Compactness */
+            #sequencer-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 6px !important;
+                margin-bottom: 10px !important;
+            }
+
+            .sequencer-step {
+                min-height: 50px !important;
+                padding: 6px 2px !important;
+                font-size: 0.75em !important;
+                border-radius: 6px !important;
+            }
+
+            .step-number {
+                font-size: 0.8em !important;
+                margin-bottom: 2px !important;
+            }
+
+            .step-indicator {
+                width: 20px !important;
+                height: 20px !important;
+            }
+
+            #step-editor {
+                padding: 10px !important;
+                margin-top: 8px !important;
+            }
+
+            #step-editor > div:first-child {
+                font-size: 1em !important;
+                margin-bottom: 10px !important;
+            }
+
+            #step-editor input[type="range"] {
+                height: 8px !important;
+                margin: 6px 0 !important;
+            }
+
+            #step-editor label {
+                font-size: 0.85em !important;
+            }
+
+            /* ULTRA-MOBILE PATCH CANVAS */
+            .patch-socket {
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 0.7em !important;
+            }
+
+            .patch-point {
+                padding: 8px 6px !important;
+                font-size: 0.8em !important;
+                min-height: 44px !important;
+            }
+
+            .patch-label {
+                font-size: 0.75em !important;
+            }
+
+            /* ULTRA-MOBILE KEYBOARD */
+            .piano-key.white {
+                width: 35px !important;
+                height: 110px !important;
+            }
+
+            .piano-key.black {
+                width: 22px !important;
+                height: 70px !important;
+            }
+
+            .key-label {
+                font-size: 0.65em !important;
+            }
+
+            /* Compact controls */
+            .control-panel {
+                padding: 10px;
+            }
+
+            .knob-control {
+                margin-bottom: 10px;
+            }
+
+            .knob-label {
+                font-size: 0.8em;
+            }
+
+            .slider {
+                height: 6px !important;
+            }
+
+            .action-btn {
+                padding: 10px;
+                font-size: 0.85em;
+            }
+
+            .waveform-btn {
+                padding: 8px;
+                font-size: 0.75em;
+            }
+        }
+
+        /* Landscape mode optimization for phones */
+        @media screen and (max-height: 500px) and (orientation: landscape) {
+            .top-menu {
+                height: 45px;
+            }
+
+            .main-container {
+                height: calc(100vh - 45px);
+                height: calc(100dvh - 45px);
+            }
+
+            .left-sidebar,
+            .right-sidebar {
+                display: none; /* Hide sidebars in phone landscape */
+            }
+
+            .center-content {
+                padding: 10px;
+            }
+
+            #sequencer-grid {
+                grid-template-columns: repeat(16, 1fr) !important;
+                gap: 4px !important;
+            }
+
+            .sequencer-step {
+                min-height: 45px !important;
+                padding: 4px 2px !important;
+                font-size: 0.7em !important;
+            }
+
+            .step-number {
+                font-size: 0.75em !important;
+            }
+
+            .step-indicator {
+                width: 18px !important;
+                height: 18px !important;
+            }
+
+            .piano-key.white {
+                height: 90px !important;
+            }
+
+            .piano-key.black {
+                height: 60px !important;
+            }
+        }
+
+        /* PWA Install Banner Styles */
+        .pwa-install-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: white;
+            padding: 15px 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10000;
+            box-shadow: 0 -4px 20px rgba(0, 212, 255, 0.5);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .pwa-install-banner.show {
+            display: flex;
+        }
+
+        .pwa-banner-content {
+            flex: 1;
+        }
+
+        .pwa-banner-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .pwa-banner-text {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .pwa-banner-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pwa-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pwa-btn-install {
+            background: white;
+            color: var(--accent-purple);
+        }
+
+        .pwa-btn-install:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        }
+
+        .pwa-btn-dismiss {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .pwa-btn-dismiss:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Loading Splash Screen */
+        .loading-splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-splash.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-logo {
+            font-size: 5em;
+            background: linear-gradient(45deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .splash-text {
+            color: var(--accent-cyan);
+            font-size: 1.5em;
+            margin-top: 20px;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .splash-loader {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 212, 255, 0.2);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-top: 30px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
         @media screen and (max-width: 375px) {
             .logo-text h1 {
                 font-size: 0.8em;
@@ -1356,6 +1819,35 @@
     </style>
 </head>
 <body>
+    <!-- Loading Splash Screen -->
+    <div class="loading-splash" id="loading-splash">
+        <div class="splash-logo">
+            <i class="fas fa-sliders-h"></i>
+        </div>
+        <div class="splash-text">2600 Studio</div>
+        <div class="splash-loader"></div>
+    </div>
+
+    <!-- PWA Install Banner -->
+    <div class="pwa-install-banner" id="pwa-install-banner">
+        <div class="pwa-banner-content">
+            <div class="pwa-banner-title">
+                <i class="fas fa-download"></i> Install App
+            </div>
+            <div class="pwa-banner-text">
+                Add to home screen for the best experience
+            </div>
+        </div>
+        <div class="pwa-banner-buttons">
+            <button class="pwa-btn pwa-btn-install" id="pwa-install-btn">
+                <i class="fas fa-plus"></i> Install
+            </button>
+            <button class="pwa-btn pwa-btn-dismiss" id="pwa-dismiss-btn">
+                <i class="fas fa-times"></i> Later
+            </button>
+        </div>
+    </div>
+
     <!-- Top Menu -->
     <div class="top-menu">
         <div class="logo">
@@ -1814,6 +2306,31 @@
                 </div>
             </div>
 
+            <!-- Patch Management -->
+            <div class="control-panel">
+                <div class="panel-title">
+                    <i class="fas fa-save"></i>
+                    Patch Manager
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                    <button class="action-btn" onclick="savePatch()" style="padding: 12px; background: linear-gradient(135deg, var(--accent-green), #00aa00); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 255, 0, 0.4);">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button class="action-btn" onclick="openPatchBrowser()" style="padding: 12px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);">
+                        <i class="fas fa-folder-open"></i> Load
+                    </button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="action-btn" onclick="exportPatchJSON()" style="padding: 10px; background: rgba(0, 212, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 8px; color: var(--accent-cyan); font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.85em;">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="action-btn" onclick="importPatchJSON()" style="padding: 10px; background: rgba(255, 0, 255, 0.1); border: 2px solid var(--accent-purple); border-radius: 8px; color: var(--accent-purple); font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.85em;">
+                        <i class="fas fa-upload"></i> Import
+                    </button>
+                </div>
+                <input type="file" id="patch-file-input" accept=".json" style="display: none;" onchange="handlePatchImport(event)">
+            </div>
+
             <!-- Audio Visualization -->
             <div class="control-panel">
                 <div class="panel-title">
@@ -1920,6 +2437,75 @@
                 <i class="fas fa-file-download"></i>
                 Download MIDI File
             </button>
+        </div>
+    </div>
+
+    <!-- Save Patch Modal -->
+    <div class="modal" id="save-patch-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-save"></i> Save Patch</h2>
+                <button class="close-modal" onclick="closeModal('save-patch-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="save-patch-form">
+                <div class="form-group">
+                    <label class="form-label">Patch Name</label>
+                    <input type="text" id="patch-name-input" class="form-input" placeholder="My Awesome Patch" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="patch-category-input" class="form-select">
+                        <option value="bass">🔊 Bass</option>
+                        <option value="lead">🎸 Lead</option>
+                        <option value="pad">🌊 Pad</option>
+                        <option value="arp">🔄 Arpeggio</option>
+                        <option value="fx">✨ FX</option>
+                        <option value="drums">🥁 Drums</option>
+                        <option value="other">📦 Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description (Optional)</label>
+                    <textarea id="patch-description-input" class="form-textarea" placeholder="Describe your patch..."></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="action-btn" onclick="closeModal('save-patch-modal')" style="flex: 1; background: rgba(255,0,0,0.2); border: 2px solid var(--accent-red); color: var(--accent-red);">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="action-btn" onclick="confirmSavePatch()" style="flex: 2; background: linear-gradient(135deg, var(--accent-green), #00aa00);">
+                        <i class="fas fa-check"></i> Save Patch
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preset Browser Modal -->
+    <div class="modal" id="preset-browser-modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-folder-open"></i> Load Patch</h2>
+                <button class="close-modal" onclick="closeModal('preset-browser-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="preset-search-input" class="form-input" placeholder="🔍 Search patches..." onkeyup="filterPresets()">
+            </div>
+            <div style="margin-bottom: 15px; display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="waveform-btn" onclick="filterByCategory('all')" data-category="all">All</button>
+                <button class="waveform-btn" onclick="filterByCategory('bass')" data-category="bass">🔊 Bass</button>
+                <button class="waveform-btn" onclick="filterByCategory('lead')" data-category="lead">🎸 Lead</button>
+                <button class="waveform-btn" onclick="filterByCategory('pad')" data-category="pad">🌊 Pad</button>
+                <button class="waveform-btn" onclick="filterByCategory('arp')" data-category="arp">🔄 Arp</button>
+                <button class="waveform-btn" onclick="filterByCategory('fx')" data-category="fx">✨ FX</button>
+                <button class="waveform-btn" onclick="filterByCategory('drums')" data-category="drums">🥁 Drums</button>
+            </div>
+            <div id="preset-browser-grid" class="preset-browser-grid">
+                <p style="color: var(--text-secondary); text-align: center; padding: 40px;">No saved patches yet. Create your first patch!</p>
+            </div>
         </div>
     </div>
 
@@ -2948,6 +3534,413 @@
             }
         }
 
+        // ============================================================================
+        // PATCH MANAGEMENT SYSTEM
+        // ============================================================================
+
+        const PATCH_STORAGE_KEY = 'synth2600_patches';
+        let currentFilterCategory = 'all';
+
+        /**
+         * Get current patch state - serializes everything
+         */
+        function getCurrentPatchData() {
+            const patchData = {
+                version: '1.0',
+                timestamp: new Date().toISOString(),
+                
+                // Synthesis parameters
+                synthesis: {
+                    vco1Freq: parseFloat(document.getElementById('vco1-freq')?.value || 440),
+                    vcfCutoff: parseFloat(document.getElementById('vcf-cutoff')?.value || 1000),
+                    vcfRes: parseFloat(document.getElementById('vcf-res')?.value || 0.5),
+                    envAttack: parseFloat(document.getElementById('env-attack')?.value || 0.01),
+                    envDecay: parseFloat(document.getElementById('env-decay')?.value || 0.1),
+                    envSustain: parseFloat(document.getElementById('env-sustain')?.value || 0.7),
+                    envRelease: parseFloat(document.getElementById('env-release')?.value || 0.3),
+                    lfoRate: parseFloat(document.getElementById('lfo-rate')?.value || 5),
+                    lfoDepth: parseFloat(document.getElementById('lfo-depth')?.value || 500),
+                    oscMix: parseFloat(document.getElementById('osc-mix')?.value || 50),
+                    vco2Detune: parseFloat(document.getElementById('vco2-detune')?.value || 2),
+                },
+                
+                // Sequencer data
+                sequencer: {
+                    bpm: sequencer ? sequencer.tempo : 120,
+                    steps: []
+                },
+                
+                // Patch cables (will be implemented when patch matrix exists)
+                connections: []
+            };
+            
+            // Get sequencer steps if sequencer exists
+            if (typeof sequencer !== 'undefined') {
+                for (let i = 0; i < 16; i++) {
+                    const step = sequencer.getStep(i);
+                    patchData.sequencer.steps.push({
+                        pitch: step.pitch,
+                        velocity: step.velocity,
+                        active: step.active,
+                        gate: step.gate
+                    });
+                }
+            }
+            
+            // Get patch cables
+            const cables = document.querySelectorAll('.cable-line');
+            cables.forEach(cable => {
+                const from = cable.getAttribute('data-from');
+                const to = cable.getAttribute('data-to');
+                if (from && to) {
+                    patchData.connections.push({ from, to });
+                }
+            });
+            
+            return patchData;
+        }
+
+        /**
+         * Load patch data into the synth
+         */
+        function loadPatchData(patchData) {
+            try {
+                // Load synthesis parameters
+                if (patchData.synthesis) {
+                    const s = patchData.synthesis;
+                    
+                    // Update all controls
+                    if (document.getElementById('vco1-freq')) document.getElementById('vco1-freq').value = s.vco1Freq;
+                    if (document.getElementById('vcf-cutoff')) document.getElementById('vcf-cutoff').value = s.vcfCutoff;
+                    if (document.getElementById('vcf-res')) document.getElementById('vcf-res').value = s.vcfRes;
+                    if (document.getElementById('env-attack')) document.getElementById('env-attack').value = s.envAttack;
+                    if (document.getElementById('env-decay')) document.getElementById('env-decay').value = s.envDecay;
+                    if (document.getElementById('env-sustain')) document.getElementById('env-sustain').value = s.envSustain;
+                    if (document.getElementById('env-release')) document.getElementById('env-release').value = s.envRelease;
+                    if (document.getElementById('lfo-rate')) document.getElementById('lfo-rate').value = s.lfoRate;
+                    if (document.getElementById('lfo-depth')) document.getElementById('lfo-depth').value = s.lfoDepth;
+                    if (document.getElementById('osc-mix')) document.getElementById('osc-mix').value = s.oscMix;
+                    if (document.getElementById('vco2-detune')) document.getElementById('vco2-detune').value = s.vco2Detune;
+                    
+                    // Trigger input events to update displays and synth engine
+                    document.querySelectorAll('input[type="range"]').forEach(input => {
+                        input.dispatchEvent(new Event('input'));
+                    });
+                }
+                
+                // Load sequencer data
+                if (patchData.sequencer && typeof sequencer !== 'undefined') {
+                    if (patchData.sequencer.bpm) {
+                        sequencer.setBPM(patchData.sequencer.bpm);
+                        document.getElementById('seq-bpm').value = patchData.sequencer.bpm;
+                    }
+                    
+                    if (patchData.sequencer.steps) {
+                        patchData.sequencer.steps.forEach((step, index) => {
+                            sequencer.setStep(index, step);
+                        });
+                        updateSequencerSteps();
+                    }
+                }
+                
+                // Load patch connections
+                // TODO: Implement when patch matrix cable drawing is available
+                
+                console.log('✅ Patch loaded successfully');
+                return true;
+            } catch (error) {
+                console.error('❌ Error loading patch:', error);
+                alert('Error loading patch: ' + error.message);
+                return false;
+            }
+        }
+
+        /**
+         * Get all saved patches from localStorage
+         */
+        function getSavedPatches() {
+            try {
+                const stored = localStorage.getItem(PATCH_STORAGE_KEY);
+                return stored ? JSON.parse(stored) : [];
+            } catch (error) {
+                console.error('Error reading patches:', error);
+                return [];
+            }
+        }
+
+        /**
+         * Save patches to localStorage
+         */
+        function savePatchesToStorage(patches) {
+            try {
+                localStorage.setItem(PATCH_STORAGE_KEY, JSON.stringify(patches));
+                return true;
+            } catch (error) {
+                console.error('Error saving patches:', error);
+                alert('Error saving to localStorage. Your browser storage may be full.');
+                return false;
+            }
+        }
+
+        /**
+         * Open save patch modal
+         */
+        function savePatch() {
+            document.getElementById('save-patch-modal').classList.add('active');
+            document.getElementById('patch-name-input').value = '';
+            document.getElementById('patch-description-input').value = '';
+            document.getElementById('patch-category-input').value = 'bass';
+            document.getElementById('patch-name-input').focus();
+        }
+
+        /**
+         * Confirm and save the patch
+         */
+        function confirmSavePatch() {
+            const name = document.getElementById('patch-name-input').value.trim();
+            const category = document.getElementById('patch-category-input').value;
+            const description = document.getElementById('patch-description-input').value.trim();
+            
+            if (!name) {
+                alert('Please enter a patch name');
+                document.getElementById('patch-name-input').focus();
+                return;
+            }
+            
+            const patchData = getCurrentPatchData();
+            const patches = getSavedPatches();
+            
+            const newPatch = {
+                id: Date.now().toString(),
+                name: name,
+                category: category,
+                description: description,
+                data: patchData,
+                createdAt: new Date().toISOString()
+            };
+            
+            patches.push(newPatch);
+            
+            if (savePatchesToStorage(patches)) {
+                console.log(`💾 Saved patch: "${name}" (${category})`);
+                closeModal('save-patch-modal');
+                alert(`✅ Patch "${name}" saved successfully!`);
+            }
+        }
+
+        /**
+         * Open preset browser
+         */
+        function openPatchBrowser() {
+            document.getElementById('preset-browser-modal').classList.add('active');
+            currentFilterCategory = 'all';
+            renderPresetBrowser();
+        }
+
+        /**
+         * Render preset browser grid
+         */
+        function renderPresetBrowser() {
+            const patches = getSavedPatches();
+            const grid = document.getElementById('preset-browser-grid');
+            const searchTerm = document.getElementById('preset-search-input').value.toLowerCase();
+            
+            // Filter patches
+            let filteredPatches = patches.filter(patch => {
+                const matchesCategory = currentFilterCategory === 'all' || patch.category === currentFilterCategory;
+                const matchesSearch = !searchTerm || 
+                    patch.name.toLowerCase().includes(searchTerm) ||
+                    (patch.description && patch.description.toLowerCase().includes(searchTerm));
+                return matchesCategory && matchesSearch;
+            });
+            
+            // Update category button states
+            document.querySelectorAll('[data-category]').forEach(btn => {
+                if (btn.getAttribute('data-category') === currentFilterCategory) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Render
+            if (filteredPatches.length === 0) {
+                grid.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">No patches found</p>';
+                return;
+            }
+            
+            grid.innerHTML = filteredPatches.map(patch => {
+                const date = new Date(patch.createdAt).toLocaleDateString();
+                const categoryIcons = {
+                    bass: '🔊', lead: '🎸', pad: '🌊', arp: '🔄', 
+                    fx: '✨', drums: '🥁', other: '📦'
+                };
+                const icon = categoryIcons[patch.category] || '📦';
+                
+                return `
+                    <div class="preset-card">
+                        <div class="preset-card-title">${patch.name}</div>
+                        <div class="preset-card-category">${icon} ${patch.category.charAt(0).toUpperCase() + patch.category.slice(1)}</div>
+                        ${patch.description ? `<p style="color: var(--text-secondary); font-size: 0.85em; margin: 8px 0;">${patch.description}</p>` : ''}
+                        <div class="preset-card-date">Saved: ${date}</div>
+                        <div class="preset-card-actions">
+                            <button class="preset-card-btn load" onclick="loadPreset('${patch.id}')">
+                                <i class="fas fa-play"></i> Load
+                            </button>
+                            <button class="preset-card-btn delete" onclick="deletePreset('${patch.id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /**
+         * Load a preset by ID
+         */
+        function loadPreset(id) {
+            const patches = getSavedPatches();
+            const patch = patches.find(p => p.id === id);
+            
+            if (!patch) {
+                alert('Patch not found');
+                return;
+            }
+            
+            if (confirm(`Load patch "${patch.name}"?`)) {
+                if (loadPatchData(patch.data)) {
+                    closeModal('preset-browser-modal');
+                    console.log(`🎵 Loaded patch: "${patch.name}"`);
+                }
+            }
+        }
+
+        /**
+         * Delete a preset by ID
+         */
+        function deletePreset(id) {
+            const patches = getSavedPatches();
+            const patch = patches.find(p => p.id === id);
+            
+            if (!patch) return;
+            
+            if (confirm(`Delete patch "${patch.name}"? This cannot be undone.`)) {
+                const newPatches = patches.filter(p => p.id !== id);
+                if (savePatchesToStorage(newPatches)) {
+                    console.log(`🗑️ Deleted patch: "${patch.name}"`);
+                    renderPresetBrowser();
+                }
+            }
+        }
+
+        /**
+         * Filter presets by category
+         */
+        function filterByCategory(category) {
+            currentFilterCategory = category;
+            renderPresetBrowser();
+        }
+
+        /**
+         * Filter presets by search term
+         */
+        function filterPresets() {
+            renderPresetBrowser();
+        }
+
+        /**
+         * Export current patch as JSON file
+         */
+        function exportPatchJSON() {
+            const name = prompt('Enter a name for this patch:', 'My Patch');
+            if (!name) return;
+            
+            const patchData = getCurrentPatchData();
+            const exportData = {
+                name: name,
+                category: 'exported',
+                description: 'Exported patch',
+                data: patchData,
+                exportedAt: new Date().toISOString()
+            };
+            
+            const json = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${name.replace(/[^a-z0-9]/gi, '_')}_patch.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            console.log(`📥 Exported patch: "${name}"`);
+        }
+
+        /**
+         * Import patch JSON file
+         */
+        function importPatchJSON() {
+            document.getElementById('patch-file-input').click();
+        }
+
+        /**
+         * Handle imported patch file
+         */
+        function handlePatchImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedPatch = JSON.parse(e.target.result);
+                    
+                    if (!importedPatch.data) {
+                        throw new Error('Invalid patch file format');
+                    }
+                    
+                    const action = confirm(`Import patch "${importedPatch.name}"?\n\nClick OK to load immediately, or Cancel to save to library.`);
+                    
+                    if (action) {
+                        // Load immediately
+                        loadPatchData(importedPatch.data);
+                        console.log(`✅ Imported and loaded: "${importedPatch.name}"`);
+                    } else {
+                        // Save to library
+                        const patches = getSavedPatches();
+                        const newPatch = {
+                            id: Date.now().toString(),
+                            name: importedPatch.name,
+                            category: importedPatch.category || 'other',
+                            description: importedPatch.description || 'Imported patch',
+                            data: importedPatch.data,
+                            createdAt: new Date().toISOString()
+                        };
+                        patches.push(newPatch);
+                        savePatchesToStorage(patches);
+                        console.log(`💾 Imported to library: "${importedPatch.name}"`);
+                        alert(`Patch "${importedPatch.name}" saved to library!`);
+                    }
+                } catch (error) {
+                    console.error('Import error:', error);
+                    alert('Error importing patch: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        /**
+         * Close modal helper
+         */
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
         function updateSequencerSteps() {
             for (let i = 0; i < 16; i++) {
                 const step = sequencer.getStep(i);
@@ -2965,6 +3958,236 @@
                 }
             }
         }
+
+        // ============================================================================
+        // PWA FUNCTIONALITY
+        // ============================================================================
+
+        let deferredPrompt;
+        let isStandalone = false;
+
+        // Check if app is running in standalone mode
+        function checkStandaloneMode() {
+            isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                          window.navigator.standalone ||
+                          document.referrer.includes('android-app://');
+            
+            console.log('🔍 Standalone mode:', isStandalone);
+            return isStandalone;
+        }
+
+        // Register Service Worker
+        async function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register('/synth-sw.js');
+                    console.log('✅ Service Worker registered:', registration.scope);
+
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        console.log('🔄 Service Worker update found');
+
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('✨ New version available! Reload to update.');
+                                showUpdateNotification();
+                            }
+                        });
+                    });
+
+                    return registration;
+                } catch (error) {
+                    console.error('❌ Service Worker registration failed:', error);
+                }
+            } else {
+                console.log('⚠️  Service Workers not supported');
+            }
+        }
+
+        // Show update notification
+        function showUpdateNotification() {
+            const banner = document.getElementById('pwa-install-banner');
+            const content = banner.querySelector('.pwa-banner-content');
+            const buttons = banner.querySelector('.pwa-banner-buttons');
+
+            content.innerHTML = `
+                <div class="pwa-banner-title">
+                    <i class="fas fa-sync-alt"></i> Update Available
+                </div>
+                <div class="pwa-banner-text">
+                    New version available. Reload to update.
+                </div>
+            `;
+
+            buttons.innerHTML = `
+                <button class="pwa-btn pwa-btn-install" onclick="location.reload()">
+                    <i class="fas fa-redo"></i> Reload
+                </button>
+                <button class="pwa-btn pwa-btn-dismiss" onclick="dismissPWABanner()">
+                    <i class="fas fa-times"></i> Later
+                </button>
+            `;
+
+            banner.classList.add('show');
+        }
+
+        // Handle install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('📲 Install prompt available');
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Show install banner if not in standalone mode and not dismissed
+            if (!checkStandaloneMode() && !localStorage.getItem('pwa-install-dismissed')) {
+                setTimeout(() => {
+                    document.getElementById('pwa-install-banner').classList.add('show');
+                }, 3000); // Show after 3 seconds
+            }
+        });
+
+        // Install button handler
+        document.getElementById('pwa-install-btn')?.addEventListener('click', async () => {
+            if (!deferredPrompt) {
+                console.log('❌ Install prompt not available');
+                return;
+            }
+
+            console.log('📲 Showing install prompt');
+            deferredPrompt.prompt();
+
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`👤 User response: ${outcome}`);
+
+            if (outcome === 'accepted') {
+                console.log('✅ App installed');
+            }
+
+            deferredPrompt = null;
+            dismissPWABanner();
+        });
+
+        // Dismiss button handler
+        document.getElementById('pwa-dismiss-btn')?.addEventListener('click', dismissPWABanner);
+
+        function dismissPWABanner() {
+            document.getElementById('pwa-install-banner').classList.remove('show');
+            localStorage.setItem('pwa-install-dismissed', 'true');
+        }
+
+        // App installed event
+        window.addEventListener('appinstalled', () => {
+            console.log('🎉 App successfully installed');
+            dismissPWABanner();
+            
+            // Show success message
+            setTimeout(() => {
+                alert('🎉 2600 Studio installed! Find it on your home screen.');
+            }, 500);
+        });
+
+        // Hide splash screen when loaded
+        function hideSplashScreen() {
+            const splash = document.getElementById('loading-splash');
+            if (splash) {
+                setTimeout(() => {
+                    splash.classList.add('hidden');
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                    }, 500);
+                }, 1500); // Show splash for at least 1.5s
+            }
+        }
+
+        // Initialize PWA features
+        async function initPWA() {
+            console.log('🚀 Initializing PWA features...');
+            
+            checkStandaloneMode();
+            await registerServiceWorker();
+            
+            // Hide splash screen after everything loads
+            if (document.readyState === 'complete') {
+                hideSplashScreen();
+            } else {
+                window.addEventListener('load', hideSplashScreen);
+            }
+
+            // Request persistent storage
+            if (navigator.storage && navigator.storage.persist) {
+                const isPersisted = await navigator.storage.persist();
+                console.log(`💾 Persistent storage: ${isPersisted ? 'granted' : 'denied'}`);
+            }
+
+            // Log storage usage
+            if (navigator.storage && navigator.storage.estimate) {
+                const estimate = await navigator.storage.estimate();
+                const usage = (estimate.usage / 1024 / 1024).toFixed(2);
+                const quota = (estimate.quota / 1024 / 1024).toFixed(2);
+                console.log(`💾 Storage: ${usage} MB / ${quota} MB`);
+            }
+        }
+
+        // Enhanced touch gestures for mobile
+        function initTouchGestures() {
+            const canvas = document.getElementById('patch-canvas');
+            if (!canvas) return;
+
+            let touchStartDistance = 0;
+            let isPinching = false;
+            let currentScale = 1;
+
+            canvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 2) {
+                    isPinching = true;
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    touchStartDistance = Math.sqrt(dx * dx + dy * dy);
+                }
+            }, { passive: true });
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (isPinching && e.touches.length === 2) {
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    const scale = distance / touchStartDistance;
+                    currentScale = Math.min(Math.max(0.5, currentScale * scale), 3);
+                    
+                    canvas.style.transform = `scale(${currentScale})`;
+                    canvas.style.transformOrigin = 'center';
+                    
+                    touchStartDistance = distance;
+                }
+            }, { passive: true });
+
+            canvas.addEventListener('touchend', () => {
+                isPinching = false;
+            }, { passive: true });
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            initPWA();
+            initTouchGestures();
+            
+            console.log('✨ 2600 Studio initialized');
+            console.log('📱 Device:', navigator.userAgent);
+            console.log('🌐 Online:', navigator.onLine);
+        });
+
+        // Handle online/offline events
+        window.addEventListener('online', () => {
+            console.log('✅ Back online');
+            document.body.classList.remove('offline');
+        });
+
+        window.addEventListener('offline', () => {
+            console.log('⚠️  Offline mode');
+            document.body.classList.add('offline');
+        });
+
     </script>
 </body>
 </html>
