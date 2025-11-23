@@ -1,37 +1,39 @@
 # Deployment Configuration
 
-This directory contains all deployment configuration files for the haos.fm platform.
+This directory contains deployment configuration files for the haos.fm platform.
 
 ## 📁 Directory Structure
 
 ```
 deployment/
 ├── .env.production.example    # Production environment template
-├── docker/                    # Docker configurations
-│   ├── Dockerfile.dev        # Development container
-│   ├── Dockerfile.music      # Music processing container
-│   └── Dockerfile.production # Production container
 └── vercel/                   # Vercel deployment
     └── vercel.json          # Vercel configuration
 ```
+
+**Note:** Docker files are located in the project root for CI/CD compatibility:
+- `Dockerfile` - Main production container
+- `Dockerfile.dev` - Development container
+- `Dockerfile.music` - Music processing container
+- `Dockerfile.production` - Production variant
 
 ## 🐳 Docker Deployments
 
 ### Development
 ```bash
-docker build -f docker/Dockerfile.dev -t haos-fm:dev .
+docker build -f Dockerfile.dev -t haos-fm:dev .
 docker run -p 3000:3000 haos-fm:dev
 ```
 
 ### Production
 ```bash
-docker build -f docker/Dockerfile.production -t haos-fm:latest .
+docker build -f Dockerfile.production -t haos-fm:latest .
 docker run -p 3000:3000 -e NODE_ENV=production haos-fm:latest
 ```
 
 ### Music Processing
 ```bash
-docker build -f docker/Dockerfile.music -t haos-fm:music .
+docker build -f Dockerfile.music -t haos-fm:music .
 ```
 
 ## ☁️ Vercel Deployment
