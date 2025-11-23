@@ -363,6 +363,269 @@
             animation: slideIn 0.5s ease-out;
         }
 
+        /* ============================================
+           LIVE GUIDANCE SYSTEM (Techno Theme)
+           ============================================ */
+        
+        .guidance-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            max-height: 500px;
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.98), rgba(26, 26, 26, 0.98));
+            border: 2px solid var(--accent-primary);
+            border-radius: 5px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+            z-index: 1000;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .guidance-panel.minimized {
+            width: 60px;
+            height: 60px;
+        }
+
+        .guidance-header {
+            background: linear-gradient(135deg, var(--accent-primary), #00cc00);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .guidance-header h3 {
+            margin: 0;
+            font-size: 1em;
+            color: #000;
+        }
+
+        .guidance-content {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .guidance-panel.minimized .guidance-content {
+            display: none;
+        }
+
+        .guidance-tip {
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-cyan);
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 3px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .guidance-tip-title {
+            font-weight: bold;
+            color: var(--accent-primary);
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        .guidance-tip-text {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        .guidance-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 3px;
+            border: 1px solid var(--border);
+        }
+
+        .guidance-step-number {
+            background: var(--accent-primary);
+            color: #000;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-right: 12px;
+        }
+
+        .guidance-step-text {
+            font-size: 0.9em;
+            color: var(--text-primary);
+        }
+
+        /* Enhanced Tooltips */
+        .info-tooltip {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+            border-radius: 3px;
+            text-align: center;
+            line-height: 18px;
+            font-size: 0.75em;
+            font-weight: bold;
+            cursor: help;
+            margin-left: 5px;
+            position: relative;
+        }
+
+        .info-tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 10px 15px;
+            border-radius: 3px;
+            border: 2px solid var(--accent-cyan);
+            width: max-content;
+            max-width: 250px;
+            font-size: 0.85rem;
+            font-weight: normal;
+            z-index: 1000;
+            white-space: normal;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .info-tooltip:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: var(--accent-cyan);
+        }
+
+        /* Live Feedback Indicators */
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: var(--success);
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse-indicator 2s infinite;
+        }
+
+        @keyframes pulse-indicator {
+            0%, 100% { opacity: 1; box-shadow: 0 0 5px var(--success); }
+            50% { opacity: 0.5; box-shadow: 0 0 15px var(--success); }
+        }
+
+        .value-display {
+            display: inline-block;
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid var(--accent-primary);
+            padding: 4px 12px;
+            border-radius: 3px;
+            font-weight: bold;
+            color: var(--accent-cyan);
+            margin-left: 10px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .control-label-enhanced {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .control-description {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        /* Section Headers with Icons */
+        .section-header-enhanced {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-icon {
+            font-size: 2.5em;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .section-info {
+            flex: 1;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: var(--accent-primary);
+            margin: 0;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            margin-top: 5px;
+        }
+
+        /* Quick Action Buttons */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .quick-action-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 20px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 3px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .quick-action-btn.active {
+            border-color: var(--accent-primary);
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header h1 {
@@ -376,6 +639,11 @@
             .tool-section {
                 padding: 20px;
             }
+            
+            .guidance-panel {
+                width: 90%;
+                right: 5%;
+            }
         }
     </style>
 </head>
@@ -383,6 +651,66 @@
     <div class="header">
         <h1>⚡ TECHNO PRODUCTION STUDIO ⚡</h1>
         <p>[ HARD • ACID • MINIMAL • INDUSTRIAL • DETROIT • DUB ]</p>
+    </div>
+
+    <!-- Live Guidance Panel -->
+    <div class="guidance-panel" id="guidancePanel">
+        <div class="guidance-header" onclick="toggleGuidance()">
+            <h3>⚡ TECHNO GUIDE</h3>
+            <span id="guidanceToggle">−</span>
+        </div>
+        <div class="guidance-content" id="guidanceContent">
+            <div class="guidance-tip">
+                <div class="guidance-tip-title">🎯 TECHNO WORKFLOW</div>
+                <div class="guidance-tip-text">Build hypnotic sequences and driving rhythms</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">1</div>
+                <div class="guidance-step-text">Choose a <strong>techno style</strong> (Acid, Minimal, Industrial)</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">2</div>
+                <div class="guidance-step-text">Generate a <strong>bassline</strong> or melodic sequence</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">3</div>
+                <div class="guidance-step-text">Add <strong>drum patterns</strong> - kick on every beat</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">4</div>
+                <div class="guidance-step-text">Set <strong>BPM</strong> (120-140 for techno)</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">5</div>
+                <div class="guidance-step-text">Tweak <strong>synthesis</strong> for movement and texture</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">6</div>
+                <div class="guidance-step-text">Click <strong>"Play Loop"</strong> to hear the groove</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">7</div>
+                <div class="guidance-step-text">Use <strong>"Send to Radio"</strong> to broadcast your techno!</div>
+            </div>
+            
+            <div class="guidance-tip" style="background: rgba(0, 255, 255, 0.1); border-left-color: var(--accent-cyan);">
+                <div class="guidance-tip-title">⚡ TECHNO TIPS</div>
+                <div class="guidance-tip-text">
+                    • 4/4 kick pattern = foundation<br>
+                    • Acid = TB-303 style squelch<br>
+                    • Minimal = less is more<br>
+                    • Industrial = harsh textures<br>
+                    • Filter automation = movement
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="container">
@@ -856,6 +1184,80 @@
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
             return audioContext;
+        }
+
+        // ============================================
+        // LIVE GUIDANCE SYSTEM (Techno)
+        // ============================================
+        
+        function toggleGuidance() {
+            const panel = document.getElementById('guidancePanel');
+            const toggle = document.getElementById('guidanceToggle');
+            panel.classList.toggle('minimized');
+            toggle.textContent = panel.classList.contains('minimized') ? '+' : '−';
+        }
+
+        function updateGuidance(type, value) {
+            const content = document.getElementById('guidanceContent');
+            let tip = '';
+            
+            switch(type) {
+                case 'bpm':
+                    const bpmNum = parseInt(value);
+                    let bpmStyle = '';
+                    if (bpmNum < 120) bpmStyle = 'Slow/Dub Techno';
+                    else if (bpmNum < 130) bpmStyle = 'Classic Techno';
+                    else if (bpmNum < 140) bpmStyle = 'Acid/Hard Techno';
+                    else if (bpmNum < 150) bpmStyle = 'Hard Techno';
+                    else bpmStyle = 'Hardcore/Gabber';
+                    
+                    if (document.getElementById('bpmStyle')) {
+                        document.getElementById('bpmStyle').textContent = bpmStyle;
+                    }
+                    
+                    tip = `
+                        <div class="guidance-tip" style="background: rgba(0, 255, 0, 0.15); border-left-color: var(--accent-primary);">
+                            <div class="guidance-tip-title">⚡ BPM: ${value} - ${bpmStyle}</div>
+                            <div class="guidance-tip-text">
+                                ${bpmNum < 120 ? '🌊 Deep, atmospheric dub techno territory' :
+                                  bpmNum < 130 ? '🎵 Classic Detroit/Berlin techno tempo' :
+                                  bpmNum < 140 ? '🔥 Peak time energy - acid and hard techno' :
+                                  bpmNum < 150 ? '⚡ Hard techno - industrial power' :
+                                  '💀 Hardcore/gabber - extreme intensity'}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'pattern':
+                    tip = `
+                        <div class="guidance-tip" style="background: rgba(0, 255, 255, 0.15); border-left-color: var(--accent-cyan);">
+                            <div class="guidance-tip-title">🎵 Pattern: ${value}</div>
+                            <div class="guidance-tip-text">
+                                ${value === 'acid_techno' ? '🧪 TB-303 style squelchy basslines' :
+                                  value === 'minimal_techno' ? '✨ Less is more - subtle variations' :
+                                  value === 'hard_techno' ? '⚡ Aggressive, driving energy' :
+                                  value === 'industrial' ? '🏭 Harsh, metallic textures' :
+                                  value === 'detroit' ? '🚗 Soulful, futuristic grooves' :
+                                  value === 'dub_techno' ? '🌊 Deep, spacious atmospheres' : 
+                                  'Experimental techno style'}
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            if (tip) {
+                // Add tip at the top of guidance content
+                const existingContent = content.innerHTML;
+                content.innerHTML = tip + existingContent;
+                
+                // Keep only last 5 tips
+                const tips = content.querySelectorAll('.guidance-tip');
+                if (tips.length > 5) {
+                    tips[tips.length - 1].remove();
+                }
+            }
         }
 
         // Techno Music Theory

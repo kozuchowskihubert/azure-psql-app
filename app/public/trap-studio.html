@@ -519,6 +519,306 @@
         .export-btn:hover {
             box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
         }
+
+        /* ============================================
+           LIVE GUIDANCE SYSTEM
+           ============================================ */
+        
+        .guidance-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            max-height: 500px;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.98), rgba(22, 33, 62, 0.98));
+            border: 2px solid var(--accent-primary);
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(255, 46, 99, 0.4);
+            z-index: 1000;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .guidance-panel.minimized {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+        }
+
+        .guidance-header {
+            background: linear-gradient(135deg, var(--accent-primary), #d91e4e);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .guidance-header h3 {
+            margin: 0;
+            font-size: 1em;
+            color: white;
+        }
+
+        .guidance-content {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .guidance-panel.minimized .guidance-content {
+            display: none;
+        }
+
+        .guidance-tip {
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-secondary);
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .guidance-tip-title {
+            font-weight: bold;
+            color: var(--accent-gold);
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        .guidance-tip-text {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        .guidance-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 46, 99, 0.1);
+            border-radius: 8px;
+        }
+
+        .guidance-step-number {
+            background: var(--accent-primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-right: 12px;
+        }
+
+        .guidance-step-text {
+            font-size: 0.9em;
+            color: var(--text-primary);
+        }
+
+        /* Enhanced Tooltips */
+        .info-tooltip {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-secondary);
+            color: var(--bg-primary);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-size: 0.75em;
+            font-weight: bold;
+            cursor: help;
+            margin-left: 5px;
+            position: relative;
+        }
+
+        .info-tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid var(--accent-secondary);
+            width: max-content;
+            max-width: 250px;
+            font-size: 0.85rem;
+            font-weight: normal;
+            z-index: 1000;
+            white-space: normal;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .info-tooltip:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: var(--accent-secondary);
+        }
+
+        /* Live Feedback Indicators */
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: var(--success);
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse-indicator 2s infinite;
+        }
+
+        @keyframes pulse-indicator {
+            0%, 100% { opacity: 1; box-shadow: 0 0 5px var(--success); }
+            50% { opacity: 0.5; box-shadow: 0 0 15px var(--success); }
+        }
+
+        .value-display {
+            display: inline-block;
+            background: rgba(255, 46, 99, 0.2);
+            border: 1px solid var(--accent-primary);
+            padding: 4px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: var(--accent-gold);
+            margin-left: 10px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .control-label-enhanced {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .control-description {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        /* Section Headers with Icons */
+        .section-header-enhanced {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-icon {
+            font-size: 2.5em;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .section-info {
+            flex: 1;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: var(--accent-primary);
+            margin: 0;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            margin-top: 5px;
+        }
+
+        /* Quick Action Buttons */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .quick-action-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 20px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--accent-secondary);
+            background: rgba(8, 217, 214, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .quick-action-btn.active {
+            border-color: var(--accent-primary);
+            background: rgba(255, 46, 99, 0.2);
+        }
+
+        /* Progress Indicators */
+        .progress-tracker {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .progress-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--accent-secondary);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .progress-checkbox.completed {
+            background: var(--success);
+            color: var(--bg-primary);
+        }
+
+        .progress-label {
+            flex: 1;
+            color: var(--text-primary);
+        }
+
+        .progress-label.completed {
+            color: var(--text-secondary);
+            text-decoration: line-through;
+        }
     </style>
 </head>
 <body>
@@ -537,21 +837,108 @@
             <a href="/techno-creator" style="color: var(--text-primary); text-decoration: none; padding: 8px 16px; background: var(--bg-tertiary); border: 1px solid var(--accent-secondary); border-radius: 5px; transition: all 0.3s;">
                 ⚡ Techno Creator
             </a>
+            <a href="/radio.html" style="color: var(--text-primary); text-decoration: none; padding: 8px 16px; background: linear-gradient(135deg, #ff00ff, #00ff00); color: #000; font-weight: bold; border-radius: 5px; transition: all 0.3s;">
+                📻 Radio 24/7
+            </a>
+        </div>
+    </div>
+
+    <!-- Live Guidance Panel -->
+    <div class="guidance-panel" id="guidancePanel">
+        <div class="guidance-header" onclick="toggleGuidance()">
+            <h3>💡 Live Guide</h3>
+            <span id="guidanceToggle">−</span>
+        </div>
+        <div class="guidance-content" id="guidanceContent">
+            <div class="guidance-tip">
+                <div class="guidance-tip-title">🎯 Getting Started</div>
+                <div class="guidance-tip-text">Follow these steps to create your first trap beat!</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">1</div>
+                <div class="guidance-step-text">Choose a <strong>key</strong> and <strong>progression type</strong> to match your mood</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">2</div>
+                <div class="guidance-step-text">Click <strong>"Generate Progression"</strong> to create chords</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">3</div>
+                <div class="guidance-step-text">Add <strong>drum patterns</strong> by clicking grid cells</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">4</div>
+                <div class="guidance-step-text">Adjust <strong>BPM</strong> to set the tempo (slower = chill, faster = hype)</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">5</div>
+                <div class="guidance-step-text">Customize <strong>808 bass</strong> for that signature trap sound</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">6</div>
+                <div class="guidance-step-text">Click <strong>"Play Beat"</strong> to hear your creation!</div>
+            </div>
+            
+            <div class="guidance-step">
+                <div class="guidance-step-number">7</div>
+                <div class="guidance-step-text">Use <strong>"Send to Radio"</strong> to broadcast your beat instantly!</div>
+            </div>
+            
+            <div class="guidance-tip" style="background: rgba(255, 215, 0, 0.1); border-left-color: var(--accent-gold);">
+                <div class="guidance-tip-title">⚡ Pro Tips</div>
+                <div class="guidance-tip-text">
+                    • Minor keys = Dark trap vibes<br>
+                    • 140 BPM = Classic trap speed<br>
+                    • Kick on 1 & 3, snare on 2 & 4<br>
+                    • Hi-hats on every step for rolls<br>
+                    • 808 glide = smooth bass slides
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="container">
         <!-- Chord Progression Generator -->
         <div class="tool-section animated">
-            <h2>🎹 Chord Progression Generator</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 20px;">
-                Generate professional trap and hip-hop chord progressions in any key
-            </p>
+            <div class="section-header-enhanced">
+                <div class="section-icon">🎹</div>
+                <div class="section-info">
+                    <h2 class="section-title">Chord Progression Generator</h2>
+                    <p class="section-subtitle">Generate professional trap and hip-hop chord progressions in any key</p>
+                </div>
+            </div>
+
+            <!-- Quick Presets -->
+            <div class="quick-actions">
+                <div class="quick-action-btn" onclick="loadChordPreset('dark-trap')">
+                    🌑 Dark Trap
+                </div>
+                <div class="quick-action-btn" onclick="loadChordPreset('melodic')">
+                    🎵 Melodic
+                </div>
+                <div class="quick-action-btn" onclick="loadChordPreset('drill')">
+                    🔫 Drill
+                </div>
+                <div class="quick-action-btn" onclick="randomizeChordProgression()">
+                    🎲 Random
+                </div>
+            </div>
 
             <div class="tool-grid">
                 <div class="control-group">
-                    <label for="chordKey">🎼 Key</label>
-                    <select id="chordKey">
+                    <div class="control-label-enhanced">
+                        <span>
+                            🎼 Key
+                            <span class="info-tooltip" data-tip="Sets the musical key. Minor keys sound darker and more aggressive (perfect for trap). Major keys are brighter and more melodic. Popular trap keys: F# minor, A minor, D minor">ℹ</span>
+                        </span>
+                    </div>
+                    <select id="chordKey" onchange="updateGuidance('key', this.value)">
                         <option value="C">C Major / A Minor</option>
                         <option value="Db">C# Major / Bb Minor</option>
                         <option value="D">D Major / B Minor</option>
@@ -568,16 +955,26 @@
                 </div>
 
                 <div class="control-group">
-                    <label for="chordMode">🎭 Mode</label>
-                    <select id="chordMode">
+                    <div class="control-label-enhanced">
+                        <span>
+                            🎭 Mode
+                            <span class="info-tooltip" data-tip="Minor = Dark, aggressive, emotional (classic trap sound). Major = Bright, uplifting, melodic (modern melodic trap)">ℹ</span>
+                        </span>
+                    </div>
+                    <select id="chordMode" onchange="updateGuidance('mode', this.value)">
                         <option value="minor" selected>Minor (Dark Trap)</option>
                         <option value="major">Major (Melodic Trap)</option>
                     </select>
                 </div>
 
                 <div class="control-group">
-                    <label for="progressionType">🎵 Progression Type</label>
-                    <select id="progressionType">
+                    <div class="control-label-enhanced">
+                        <span>
+                            🎵 Progression Type
+                            <span class="info-tooltip" data-tip="Different chord progressions create different moods. Dark Trap = aggressive, Melodic = emotional, Drill = hard-hitting, Cloud Rap = dreamy">ℹ</span>
+                        </span>
+                    </div>
+                    <select id="progressionType" onchange="updateGuidance('progression', this.value)">
                         <option value="dark_trap" selected>Dark Trap (i-VI-III-VII)</option>
                         <option value="melodic_trap">Melodic Trap (i-iv-VII-VI)</option>
                         <option value="drill">Drill (i-III-VII-VI)</option>
@@ -948,15 +1345,41 @@
 
         <!-- Beat Pattern Sequencer -->
         <div class="tool-section animated">
-            <h2>🥁 Trap Beat Sequencer</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 20px;">
-                Create trap drum patterns with 808s, kicks, snares, and hi-hats
-            </p>
+            <div class="section-header-enhanced">
+                <div class="section-icon">🥁</div>
+                <div class="section-info">
+                    <h2 class="section-title">Trap Beat Sequencer</h2>
+                    <p class="section-subtitle">Create professional drum patterns with 808s, kicks, snares, and hi-hats</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="quick-action-btn" onclick="loadPresetPattern('classic-trap'); this.classList.add('active');">
+                    🔥 Classic Trap
+                </div>
+                <div class="quick-action-btn" onclick="loadPresetPattern('drill'); this.classList.add('active');">
+                    🔫 UK Drill
+                </div>
+                <div class="quick-action-btn" onclick="loadPresetPattern('boom-bap'); this.classList.add('active');">
+                    💿 Boom Bap
+                </div>
+            </div>
 
             <div class="control-group">
-                <label for="bpmControl">BPM: <span class="bpm-display" id="bpmValue">140</span></label>
+                <div class="control-label-enhanced">
+                    <span>
+                        <span class="live-indicator"></span>
+                        BPM (Tempo)
+                        <span class="info-tooltip" data-tip="Controls the speed of your beat. Lower = slower/chill, Higher = faster/energetic. Trap: 130-150 | Boom Bap: 80-95 | Drill: 140-165">ℹ</span>
+                    </span>
+                    <span class="value-display" id="bpmValue">140</span>
+                </div>
                 <input type="range" id="bpmControl" min="60" max="200" value="140" 
-                       oninput="updateBPM(this.value)">
+                       oninput="updateBPM(this.value); updateGuidance('bpm', this.value)">
+                <div class="control-description">
+                    💡 Current style: <strong id="bpmStyle">Classic Trap</strong>
+                </div>
             </div>
 
             <h3>🎛️ Pattern Grid (16 Steps)</h3>
@@ -1026,46 +1449,119 @@
 
         <!-- 808 Bass Designer -->
         <div class="tool-section animated">
-            <h2>🔊 808 Bass Designer</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 20px;">
-                Design your perfect 808 sub-bass sound
-            </p>
+            <div class="section-header-enhanced">
+                <div class="section-icon">🔊</div>
+                <div class="section-info">
+                    <h2 class="section-title">808 Bass Designer</h2>
+                    <p class="section-subtitle">Design your perfect 808 sub-bass sound - the foundation of trap music</p>
+                </div>
+            </div>
+
+            <!-- 808 Presets -->
+            <div class="quick-actions">
+                <div class="quick-action-btn" onclick="load808Preset('classic')">
+                    🎵 Classic
+                </div>
+                <div class="quick-action-btn" onclick="load808Preset('punchy')">
+                    👊 Punchy
+                </div>
+                <div class="quick-action-btn" onclick="load808Preset('deep')">
+                    🌊 Deep
+                </div>
+                <div class="quick-action-btn" onclick="load808Preset('distorted')">
+                    🔥 Distorted
+                </div>
+            </div>
 
             <div class="tool-grid">
                 <div class="control-group">
-                    <label for="bass808Freq">Frequency: <span id="freq808Value">55</span> Hz</label>
+                    <div class="control-label-enhanced">
+                        <span>
+                            Frequency
+                            <span class="info-tooltip" data-tip="Sets the pitch of your 808. Lower = deeper bass. A1 (55Hz) is classic trap. G#1 (52Hz) for drill. Can be changed per pattern step.">ℹ</span>
+                        </span>
+                        <span class="value-display" id="freq808Value">55</span>
+                    </div>
                     <input type="range" id="bass808Freq" min="30" max="100" value="55" 
-                           oninput="update808Param('freq', this.value)">
+                           oninput="update808Param('freq', this.value); updateGuidance('808freq', this.value)">
+                    <div class="control-description">
+                        💡 <strong id="freq808Note">A1 (Classic Trap)</strong>
+                    </div>
                 </div>
 
                 <div class="control-group">
-                    <label for="bass808Decay">Decay: <span id="decay808Value">0.8</span>s</label>
+                    <div class="control-label-enhanced">
+                        <span>
+                            Decay
+                            <span class="info-tooltip" data-tip="How long the 808 sustains. Short (0.1-0.4s) = punchy kicks. Long (0.8-2s) = rolling bass. Match to your tempo!">ℹ</span>
+                        </span>
+                        <span class="value-display" id="decay808Value">0.8</span>
+                    </div>
                     <input type="range" id="bass808Decay" min="0.1" max="2.0" step="0.1" value="0.8" 
-                           oninput="update808Param('decay', this.value)">
+                           oninput="update808Param('decay', this.value); updateGuidance('808decay', this.value)">
+                    <div class="control-description">
+                        💡 <strong id="decay808Style">Rolling Bass</strong>
+                    </div>
                 </div>
 
                 <div class="control-group">
-                    <label for="bass808Cutoff">Filter Cutoff: <span id="cutoff808Value">180</span> Hz</label>
+                    <div class="control-label-enhanced">
+                        <span>
+                            Filter Cutoff
+                            <span class="info-tooltip" data-tip="Controls brightness. Low = pure sub-bass (club sound). Higher = more harmonics (bedroom sound). 180Hz is classic.">ℹ</span>
+                        </span>
+                        <span class="value-display" id="cutoff808Value">180</span>
+                    </div>
                     <input type="range" id="bass808Cutoff" min="80" max="500" value="180" 
-                           oninput="update808Param('cutoff', this.value)">
+                           oninput="update808Param('cutoff', this.value); updateGuidance('808cutoff', this.value)">
+                    <div class="control-description">
+                        💡 <strong id="cutoff808Style">Club Sub-Bass</strong>
+                    </div>
                 </div>
 
                 <div class="control-group">
-                    <label for="bass808Resonance">Resonance: <span id="res808Value">0.4</span></label>
+                    <div class="control-label-enhanced">
+                        <span>
+                            Resonance
+                            <span class="info-tooltip" data-tip="Emphasizes the filter frequency. 0 = smooth. 0.4-0.7 = punchy. 1.0 = screaming (distorted). Use carefully!">ℹ</span>
+                        </span>
+                        <span class="value-display" id="res808Value">0.4</span>
+                    </div>
                     <input type="range" id="bass808Resonance" min="0" max="1" step="0.1" value="0.4" 
-                           oninput="update808Param('resonance', this.value)">
+                           oninput="update808Param('resonance', this.value); updateGuidance('808res', this.value)">
+                    <div class="control-description">
+                        💡 <strong id="res808Style">Punchy</strong>
+                    </div>
                 </div>
 
                 <div class="control-group">
-                    <label for="bass808Distortion">Distortion: <span id="dist808Value">0</span>%</label>
+                    <div class="control-label-enhanced">
+                        <span>
+                            Distortion
+                            <span class="info-tooltip" data-tip="Adds harmonics and grit. 0% = clean. 20-40% = warm saturation. 60%+ = aggressive distortion. Great for cutting through the mix!">ℹ</span>
+                        </span>
+                        <span class="value-display" id="dist808Value">0</span>
+                    </div>
                     <input type="range" id="bass808Distortion" min="0" max="100" value="0" 
-                           oninput="update808Param('distortion', this.value)">
+                           oninput="update808Param('distortion', this.value); updateGuidance('808dist', this.value)">
+                    <div class="control-description">
+                        💡 <strong id="dist808Style">Clean</strong>
+                    </div>
                 </div>
 
                 <div class="control-group">
-                    <label for="bass808Glide">Pitch Glide: <span id="glide808Value">0</span>ms</label>
+                    <div class="control-label-enhanced">
+                        <span>
+                            Pitch Glide
+                            <span class="info-tooltip" data-tip="Smooth pitch slides between notes. 0ms = no glide. 50-100ms = subtle. 150-200ms = dramatic slides. Signature trap sound!">ℹ</span>
+                        </span>
+                        <span class="value-display" id="glide808Value">0</span>
+                    </div>
                     <input type="range" id="bass808Glide" min="0" max="200" value="0" 
-                           oninput="update808Param('glide', this.value)">
+                           oninput="update808Param('glide', this.value); updateGuidance('808glide', this.value)">
+                    <div class="control-description">
+                        💡 <strong id="glide808Style">No Glide</strong>
+                    </div>
                 </div>
             </div>
 
@@ -1223,6 +1719,204 @@ Pads:                200-800 Hz  [Atmosphere]
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
             return audioContext;
+        }
+
+        // ============================================
+        // LIVE GUIDANCE SYSTEM
+        // ============================================
+        
+        function toggleGuidance() {
+            const panel = document.getElementById('guidancePanel');
+            const toggle = document.getElementById('guidanceToggle');
+            panel.classList.toggle('minimized');
+            toggle.textContent = panel.classList.contains('minimized') ? '+' : '−';
+        }
+
+        function updateGuidance(type, value) {
+            const content = document.getElementById('guidanceContent');
+            let tip = '';
+            
+            switch(type) {
+                case 'bpm':
+                    const bpmNum = parseInt(value);
+                    let bpmStyle = '';
+                    if (bpmNum < 90) bpmStyle = 'Slow Boom-Bap';
+                    else if (bpmNum < 130) bpmStyle = 'Mid-Tempo Hip-Hop';
+                    else if (bpmNum < 150) bpmStyle = 'Classic Trap';
+                    else if (bpmNum < 165) bpmStyle = 'Fast Drill';
+                    else bpmStyle = 'Hypercore';
+                    
+                    document.getElementById('bpmStyle').textContent = bpmStyle;
+                    
+                    tip = `
+                        <div class="guidance-tip" style="background: rgba(255, 46, 99, 0.15); border-left-color: var(--accent-primary);">
+                            <div class="guidance-tip-title">🎵 BPM: ${value} - ${bpmStyle}</div>
+                            <div class="guidance-tip-text">
+                                ${bpmNum < 90 ? '💿 Perfect for boom-bap and lo-fi beats' :
+                                  bpmNum < 130 ? '🎤 Classic hip-hop tempo - great for rap vocals' :
+                                  bpmNum < 150 ? '🔥 Classic trap speed - modern trap standard' :
+                                  bpmNum < 165 ? '🔫 UK/NY Drill territory - aggressive and hard' :
+                                  '⚡ Hypercore/speedcore - experimental and intense'}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case '808freq':
+                    const freq = parseInt(value);
+                    let note = '';
+                    if (freq >= 49 && freq <= 52) note = 'G#1 (Drill)';
+                    else if (freq >= 53 && freq <= 58) note = 'A1 (Classic Trap)';
+                    else if (freq >= 59 && freq <= 62) note = 'B♭1';
+                    else if (freq >= 63 && freq <= 70) note = 'C2';
+                    else note = freq < 49 ? 'Sub-Bass Territory' : 'Upper Bass';
+                    
+                    document.getElementById('freq808Note').textContent = note;
+                    break;
+                    
+                case '808decay':
+                    const decay = parseFloat(value);
+                    let decayStyle = decay < 0.3 ? 'Kick-like (Punchy)' :
+                                    decay < 0.6 ? 'Short Bass' :
+                                    decay < 1.2 ? 'Rolling Bass' :
+                                    'Long Sustain';
+                    document.getElementById('decay808Style').textContent = decayStyle;
+                    break;
+                    
+                case '808cutoff':
+                    const cutoff = parseInt(value);
+                    let cutoffStyle = cutoff < 120 ? 'Pure Sub-Bass (Club)' :
+                                     cutoff < 250 ? 'Club Sub-Bass' :
+                                     cutoff < 350 ? 'Bedroom Bass' :
+                                     'Bright/Harmonics';
+                    document.getElementById('cutoff808Style').textContent = cutoffStyle;
+                    break;
+                    
+                case '808res':
+                    const res = parseFloat(value);
+                    let resStyle = res < 0.3 ? 'Smooth' :
+                                  res < 0.7 ? 'Punchy' :
+                                  'Resonant/Screaming';
+                    document.getElementById('res808Style').textContent = resStyle;
+                    break;
+                    
+                case '808dist':
+                    const dist = parseInt(value);
+                    let distStyle = dist === 0 ? 'Clean' :
+                                   dist < 30 ? 'Warm Saturation' :
+                                   dist < 60 ? 'Gritty' :
+                                   'Heavy Distortion';
+                    document.getElementById('dist808Style').textContent = distStyle;
+                    break;
+                    
+                case '808glide':
+                    const glide = parseInt(value);
+                    let glideStyle = glide === 0 ? 'No Glide' :
+                                    glide < 80 ? 'Subtle Slides' :
+                                    glide < 150 ? 'Moderate Glide' :
+                                    'Dramatic Slides';
+                    document.getElementById('glide808Style').textContent = glideStyle;
+                    break;
+                    
+                case 'key':
+                    tip = `
+                        <div class="guidance-tip" style="background: rgba(8, 217, 214, 0.15); border-left-color: var(--accent-secondary);">
+                            <div class="guidance-tip-title">🎼 Key Changed</div>
+                            <div class="guidance-tip-text">
+                                Popular trap keys: F# Minor (dark), A Minor (balanced), D Minor (emotional)
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'mode':
+                    tip = `
+                        <div class="guidance-tip" style="background: rgba(8, 217, 214, 0.15); border-left-color: var(--accent-secondary);">
+                            <div class="guidance-tip-title">🎭 ${value === 'minor' ? 'Minor Mode' : 'Major Mode'}</div>
+                            <div class="guidance-tip-text">
+                                ${value === 'minor' ? 
+                                  '🌑 Dark, aggressive, emotional - the classic trap sound' :
+                                  '☀️ Bright, uplifting, melodic - modern melodic trap'}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'progression':
+                    const progNames = {
+                        dark_trap: 'Dark Trap',
+                        melodic_trap: 'Melodic Trap',
+                        drill: 'UK/NY Drill',
+                        cloud_rap: 'Cloud Rap',
+                        boom_bap: 'Boom-Bap',
+                        emotional: 'Emotional'
+                    };
+                    tip = `
+                        <div class="guidance-tip" style="background: rgba(8, 217, 214, 0.15); border-left-color: var(--accent-secondary);">
+                            <div class="guidance-tip-title">🎵 ${progNames[value] || 'Custom'} Progression</div>
+                            <div class="guidance-tip-text">
+                                Each progression creates a unique mood. Try them all to find your sound!
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            if (tip) {
+                // Add tip at the top of guidance content
+                const existingContent = content.innerHTML;
+                content.innerHTML = tip + existingContent;
+                
+                // Keep only last 5 tips
+                const tips = content.querySelectorAll('.guidance-tip');
+                if (tips.length > 5) {
+                    tips[tips.length - 1].remove();
+                }
+            }
+        }
+
+        // Quick preset loaders
+        function loadChordPreset(type) {
+            const presets = {
+                'dark-trap': { key: 'F#', mode: 'minor', progression: 'dark_trap' },
+                'melodic': { key: 'A', mode: 'minor', progression: 'melodic_trap' },
+                'drill': { key: 'F#', mode: 'minor', progression: 'drill' }
+            };
+            
+            if (presets[type]) {
+                document.getElementById('chordKey').value = presets[type].key;
+                document.getElementById('chordMode').value = presets[type].mode;
+                document.getElementById('progressionType').value = presets[type].progression;
+                generateChordProgression();
+            }
+        }
+
+        function load808Preset(type) {
+            const presets = {
+                'classic': { freq: 55, decay: 0.8, cutoff: 180, res: 0.4, dist: 0, glide: 0 },
+                'punchy': { freq: 55, decay: 0.3, cutoff: 150, res: 0.6, dist: 20, glide: 0 },
+                'deep': { freq: 45, decay: 1.2, cutoff: 100, res: 0.3, dist: 0, glide: 50 },
+                'distorted': { freq: 55, decay: 0.6, cutoff: 250, res: 0.7, dist: 60, glide: 30 }
+            };
+            
+            if (presets[type]) {
+                const p = presets[type];
+                document.getElementById('bass808Freq').value = p.freq;
+                document.getElementById('bass808Decay').value = p.decay;
+                document.getElementById('bass808Cutoff').value = p.cutoff;
+                document.getElementById('bass808Resonance').value = p.res;
+                document.getElementById('bass808Distortion').value = p.dist;
+                document.getElementById('bass808Glide').value = p.glide;
+                
+                update808Param('freq', p.freq);
+                update808Param('decay', p.decay);
+                update808Param('cutoff', p.cutoff);
+                update808Param('resonance', p.res);
+                update808Param('distortion', p.dist);
+                update808Param('glide', p.glide);
+                
+                play808Preview();
+            }
         }
 
         // Chord Theory Data
