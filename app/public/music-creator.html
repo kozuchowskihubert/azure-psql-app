@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>haos.fm - Music Creator Studio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d4ff;
+            --secondary: #ff00ff;
+            --accent: #ffdd00;
+            --dark: #0a0a0f;
+            --dark-light: #1a1a2e;
+            --dark-lighter: #2a2a3e;
+            --text: #e4e4e4;
+            --text-dim: #888;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before,
+        .bg-animation::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-animation::before {
+            background: var(--primary);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-animation::after {
+            background: var(--secondary);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        /* Header */
+        .header {
+            padding: 30px 20px;
+            text-align: center;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+        }
+
+        /* Experience Level Selector */
+        .experience-selector {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .experience-title {
+            text-align: center;
+            font-size: 1.5em;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .experience-levels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .experience-card {
+            background: linear-gradient(135deg, var(--dark-light), var(--dark-lighter));
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .experience-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .experience-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .experience-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .experience-card.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .experience-card.active::before {
+            opacity: 0.15;
+        }
+
+        .experience-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .experience-card[data-level="beginner"] .experience-icon { color: #00ff88; }
+        .experience-card[data-level="intermediate"] .experience-icon { color: var(--primary); }
+        .experience-card[data-level="advanced"] .experience-icon { color: var(--secondary); }
+
+        .experience-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .experience-desc {
+            font-size: 0.9em;
+            color: var(--text-dim);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Mode Selection */
+        .modes-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .modes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .mode-card {
+            background: linear-gradient(135deg, var(--dark-light), var(--dark-lighter));
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .mode-card:hover::before {
+            opacity: 0.05;
+        }
+
+        .mode-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4);
+        }
+
+        .mode-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mode-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+        }
+
+        .mode-info h3 {
+            font-size: 1.8em;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .mode-info .genre {
+            font-size: 0.9em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .mode-description {
+            color: var(--text-dim);
+            margin-bottom: 20px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mode-features {
+            list-style: none;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mode-features li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: var(--text-dim);
+        }
+
+        .mode-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .mode-difficulty {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .difficulty-label {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .difficulty-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .difficulty-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+
+        .mode-action {
+            position: relative;
+            z-index: 1;
+        }
+
+        .mode-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 10px;
+            color: var(--dark);
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mode-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .mode-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Hidden modes based on experience */
+        .mode-card.hidden {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .mode-card.hidden .mode-button {
+            background: #333;
+            color: #666;
+        }
+
+        .locked-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid #ff0044;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.8em;
+            color: #ff0044;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--dark-lighter), var(--dark-light));
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 2em;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .modes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .experience-levels {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            background-color: var(--dark-lighter);
+            color: var(--text);
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--primary);
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 15, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0, 212, 255, 0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.2em;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading Studio...</div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <h1><i class="fas fa-music"></i> haos.fm</h1>
+        <p>Professional Music Creator Studio - Choose Your Path</p>
+    </header>
+
+    <!-- Experience Level Selector -->
+    <section class="experience-selector">
+        <h2 class="experience-title">Select Your Experience Level</h2>
+        <div class="experience-levels">
+            <div class="experience-card active" data-level="beginner" onclick="setExperienceLevel('beginner')">
+                <div class="experience-icon"><i class="fas fa-seedling"></i></div>
+                <div class="experience-name">Beginner</div>
+                <div class="experience-desc">Simple, guided interface with essential features</div>
+            </div>
+            <div class="experience-card" data-level="intermediate" onclick="setExperienceLevel('intermediate')">
+                <div class="experience-icon"><i class="fas fa-rocket"></i></div>
+                <div class="experience-name">Intermediate</div>
+                <div class="experience-desc">More controls and creative flexibility</div>
+            </div>
+            <div class="experience-card" data-level="advanced" onclick="setExperienceLevel('advanced')">
+                <div class="experience-icon"><i class="fas fa-fire"></i></div>
+                <div class="experience-name">Advanced</div>
+                <div class="experience-desc">Full modular system with all features</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="quick-stats">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-drum"></i></div>
+            <div class="stat-value">9</div>
+            <div class="stat-label">Synthesis Modules</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-sliders-h"></i></div>
+            <div class="stat-value">15+</div>
+            <div class="stat-label">Preset Patterns</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-wave-square"></i></div>
+            <div class="stat-value">6</div>
+            <div class="stat-label">Effect Units</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-microphone"></i></div>
+            <div class="stat-value">∞</div>
+            <div class="stat-label">Possibilities</div>
+        </div>
+    </section>
+
+    <!-- Modes Container -->
+    <section class="modes-container">
+        <div class="modes-grid">
+            <!-- Trap Studio -->
+            <div class="mode-card" data-mode="trap" data-min-level="beginner" onclick="launchMode('trap-studio.html')">
+                <div class="mode-header">
+                    <div class="mode-icon"><i class="fas fa-fire"></i></div>
+                    <div class="mode-info">
+                        <h3>Trap Studio</h3>
+                        <div class="genre">Trap / Hip-Hop</div>
+                    </div>
+                </div>
+                <div class="mode-description">
+                    Create hard-hitting trap beats with 808 bass, crispy hi-hats, and powerful drums. Perfect for beginners and pros alike.
+                </div>
+                <ul class="mode-features">
+                    <li>808 Bass Synthesis</li>
+                    <li>Trap Drum Patterns</li>
+                    <li>Beat Roll Effects</li>
+                    <li>BPM: 100-180</li>
+                    <li>Built-in Presets</li>
+                </ul>
+                <div class="mode-difficulty">
+                    <span class="difficulty-label">Difficulty:</span>
+                    <div class="difficulty-bar">
+                        <div class="difficulty-fill" style="width: 30%"></div>
+                    </div>
+                </div>
+                <div class="mode-action">
+                    <button class="mode-button">Launch Trap Studio</button>
+                </div>
+            </div>
+
+            <!-- Techno Creator -->
+            <div class="mode-card" data-mode="techno" data-min-level="beginner" onclick="launchMode('techno-creator.html')">
+                <div class="mode-header">
+                    <div class="mode-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="mode-info">
+                        <h3>Techno Creator</h3>
+                        <div class="genre">Techno / Acid</div>
+                    </div>
+                </div>
+                <div class="mode-description">
+                    Build driving techno tracks with TB-303 acid bass, four-on-the-floor beats, and hypnotic patterns.
+                </div>
+                <ul class="mode-features">
+                    <li>TB-303 Acid Bass</li>
+                    <li>Four-on-the-Floor Drums</li>
+                    <li>Acid Pattern Generator</li>
+                    <li>BPM: 120-140</li>
+                    <li>Filter Automation</li>
+                </ul>
+                <div class="mode-difficulty">
+                    <span class="difficulty-label">Difficulty:</span>
+                    <div class="difficulty-bar">
+                        <div class="difficulty-fill" style="width: 40%"></div>
+                    </div>
+                </div>
+                <div class="mode-action">
+                    <button class="mode-button">Launch Techno Creator</button>
+                </div>
+            </div>
+
+            <!-- Modular Synthesis -->
+            <div class="mode-card" data-mode="modular" data-min-level="intermediate" onclick="launchMode('modular-demo.html')">
+                <div class="mode-header">
+                    <div class="mode-icon"><i class="fas fa-project-diagram"></i></div>
+                    <div class="mode-info">
+                        <h3>Modular System</h3>
+                        <div class="genre">Experimental / Custom</div>
+                    </div>
+                </div>
+                <div class="mode-description">
+                    Advanced modular synthesis with complete routing control. Connect modules, create custom patches, and explore sound design.
+                </div>
+                <ul class="mode-features">
+                    <li>9 Synthesis Modules</li>
+                    <li>Virtual Patch Bay</li>
+                    <li>Custom Routing</li>
+                    <li>Pattern Library</li>
+                    <li>Save/Load Patches</li>
+                </ul>
+                <div class="mode-difficulty">
+                    <span class="difficulty-label">Difficulty:</span>
+                    <div class="difficulty-bar">
+                        <div class="difficulty-fill" style="width: 70%"></div>
+                    </div>
+                </div>
+                <div class="mode-action">
+                    <button class="mode-button">Launch Modular System</button>
+                </div>
+            </div>
+
+            <!-- Synth 2600 Studio -->
+            <div class="mode-card" data-mode="synth2600" data-min-level="intermediate" onclick="launchMode('synth-2600-studio.html')">
+                <div class="mode-header">
+                    <div class="mode-icon"><i class="fas fa-wave-square"></i></div>
+                    <div class="mode-info">
+                        <h3>Synth 2600 Studio</h3>
+                        <div class="genre">Classic Synthesis</div>
+                    </div>
+                </div>
+                <div class="mode-description">
+                    Classic ARP 2600-inspired synthesizer with dual oscillators, filters, and patch matrix. For vintage synth lovers.
+                </div>
+                <ul class="mode-features">
+                    <li>Dual VCO Design</li>
+                    <li>Ladder Filter</li>
+                    <li>Patch Matrix</li>
+                    <li>LFO & Envelopes</li>
+                    <li>Classic Sound</li>
+                </ul>
+                <div class="mode-difficulty">
+                    <span class="difficulty-label">Difficulty:</span>
+                    <div class="difficulty-bar">
+                        <div class="difficulty-fill" style="width: 60%"></div>
+                    </div>
+                </div>
+                <div class="mode-action">
+                    <button class="mode-button">Launch Synth Studio</button>
+                </div>
+            </div>
+
+            <!-- 24/7 Radio -->
+            <div class="mode-card" data-mode="radio" data-min-level="beginner" onclick="launchMode('radio.html')">
+                <div class="mode-header">
+                    <div class="mode-icon"><i class="fas fa-broadcast-tower"></i></div>
+                    <div class="mode-info">
+                        <h3>24/7 Radio</h3>
+                        <div class="genre">Ambient / Lofi</div>
+                    </div>
+                </div>
+                <div class="mode-description">
+                    Continuous generative music stream. Perfect for background listening, study sessions, or relaxation.
+                </div>
+                <ul class="mode-features">
+                    <li>Auto-Generated Music</li>
+                    <li>Multiple Genres</li>
+                    <li>Non-Stop Streaming</li>
+                    <li>Adjustable Mood</li>
+                    <li>No User Input Needed</li>
+                </ul>
+                <div class="mode-difficulty">
+                    <span class="difficulty-label">Difficulty:</span>
+                    <div class="difficulty-bar">
+                        <div class="difficulty-fill" style="width: 10%"></div>
+                    </div>
+                </div>
+                <div class="mode-action">
+                    <button class="mode-button">Launch Radio</button>
+                </div>
+            </div>
+
+            <!-- Advanced Modular (Pro Mode) -->
+            <div class="mode-card" data-mode="modular-pro" data-min-level="advanced" onclick="launchMode('modular-demo.html?mode=pro')">
+                <div class="mode-header">
+                    <div class="mode-icon"><i class="fas fa-cog"></i></div>
+                    <div class="mode-info">
+                        <h3>Modular Pro</h3>
+                        <div class="genre">Professional / Advanced</div>
+                    </div>
+                </div>
+                <div class="mode-description">
+                    Full professional modular system with all controls unlocked. Complete creative freedom for advanced users.
+                </div>
+                <ul class="mode-features">
+                    <li>All 9 Modules Unlocked</li>
+                    <li>Advanced Routing Matrix</li>
+                    <li>Parameter Automation</li>
+                    <li>MIDI Export/Import</li>
+                    <li>Professional Tools</li>
+                </ul>
+                <div class="mode-difficulty">
+                    <span class="difficulty-label">Difficulty:</span>
+                    <div class="difficulty-bar">
+                        <div class="difficulty-fill" style="width: 90%"></div>
+                    </div>
+                </div>
+                <div class="mode-action">
+                    <button class="mode-button">Launch Pro Mode</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let currentExperienceLevel = 'beginner';
+
+        // Set experience level
+        function setExperienceLevel(level) {
+            currentExperienceLevel = level;
+            
+            // Update active state
+            document.querySelectorAll('.experience-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-level="${level}"]`).classList.add('active');
+
+            // Update mode cards visibility
+            updateModeVisibility();
+
+            // Save to localStorage
+            localStorage.setItem('haos-experience-level', level);
+        }
+
+        // Update mode card visibility based on experience level
+        function updateModeVisibility() {
+            const levelOrder = { beginner: 0, intermediate: 1, advanced: 2 };
+            const currentLevelIndex = levelOrder[currentExperienceLevel];
+
+            document.querySelectorAll('.mode-card').forEach(card => {
+                const minLevel = card.dataset.minLevel || 'beginner';
+                const minLevelIndex = levelOrder[minLevel];
+                
+                if (currentLevelIndex >= minLevelIndex) {
+                    card.classList.remove('hidden');
+                    // Remove locked badge if exists
+                    const badge = card.querySelector('.locked-badge');
+                    if (badge) badge.remove();
+                } else {
+                    card.classList.add('hidden');
+                    // Add locked badge if not exists
+                    if (!card.querySelector('.locked-badge')) {
+                        const badge = document.createElement('div');
+                        badge.className = 'locked-badge';
+                        badge.innerHTML = '<i class="fas fa-lock"></i> Locked';
+                        card.appendChild(badge);
+                    }
+                }
+            });
+        }
+
+        // Launch mode
+        function launchMode(url) {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.add('active');
+            
+            // Add experience level to URL
+            const separator = url.includes('?') ? '&' : '?';
+            const fullUrl = `${url}${separator}level=${currentExperienceLevel}`;
+            
+            // Simulate loading
+            setTimeout(() => {
+                window.location.href = fullUrl;
+            }, 1000);
+        }
+
+        // Load saved experience level
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLevel = localStorage.getItem('haos-experience-level');
+            if (savedLevel) {
+                setExperienceLevel(savedLevel);
+            } else {
+                updateModeVisibility();
+            }
+        });
+
+        // Add hover effects
+        document.querySelectorAll('.mode-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                if (!this.classList.contains('hidden')) {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                }
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const overlay = document.getElementById('loadingOverlay');
+                overlay.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
