@@ -19,17 +19,45 @@ This directory contains user-facing guides for features and functionality.
 
 ## ⚡ Techno Creator Documentation
 
+### Quick Start
 - **[TECHNO_CREATOR_QUICK_REFERENCE.md](./TECHNO_CREATOR_QUICK_REFERENCE.md)** - 🆕 Quick reference guide (lean & clean)
+
+### Deep Dive
+- **[TECHNO_SYNTHESIS_MODULES.md](./TECHNO_SYNTHESIS_MODULES.md)** - 🔬 **Advanced synthesis modules & device groups**
+  - TB-303 acid bass emulation
+  - Drum synthesizers (kick, snare, hi-hat)
+  - Lead & pad synthesizers
+  - Effects processing (phaser, flanger, reverb)
+  - 7 genre-specific modules (acid, hard, minimal, industrial, detroit, progressive, dub)
+  - Advanced synthesis techniques
+
+### Complete Reference
 - **[TECHNO_CREATOR_PRESET_BUTTON_MAP.md](./TECHNO_CREATOR_PRESET_BUTTON_MAP.md)** - Complete preset and button mapping (detailed)
 - **[TECHNO_BUTTON_TEST_CHECKLIST.md](./TECHNO_BUTTON_TEST_CHECKLIST.md)** - Manual testing checklist
 - **[TECHNO_VERIFICATION_SUMMARY.md](./TECHNO_VERIFICATION_SUMMARY.md)** - Verification results and production readiness
 
+---
+
 ## 🔥 Trap Studio Documentation
 
+### Quick Start
 - **[TRAP_STUDIO_QUICK_REFERENCE.md](./TRAP_STUDIO_QUICK_REFERENCE.md)** - 🆕 Quick reference guide (lean & clean)
+
+### Deep Dive
+- **[TRAP_SYNTHESIS_MODULES.md](./TRAP_SYNTHESIS_MODULES.md)** - 🔬 **Advanced synthesis modules & device groups**
+  - 808 bass synthesis engine (sub-bass foundation)
+  - Drum machine modules (kick, snare, hi-hat)
+  - Melodic synthesizers (7 instruments)
+  - Effects rack (reverb, delay, distortion)
+  - 7 genre-specific modules (trap, drill, boom-bap, lo-fi, hyperpop, phonk, jersey club)
+  - Advanced synthesis techniques
+
+### Complete Reference
 - **[TRAP_STUDIO_GUIDE.md](../TRAP_STUDIO_GUIDE.md)** - Comprehensive feature guide (detailed)
 - **[TRAP_STUDIO_SYNTHESIS.md](../TRAP_STUDIO_SYNTHESIS.md)** - Deep dive into 808 synthesis and sound design
 - **[TRAP_STUDIO_PREVIEW.md](../TRAP_STUDIO_PREVIEW.md)** - Feature preview and overview
+
+---
 
 ## 🎼 Music Theory
 
