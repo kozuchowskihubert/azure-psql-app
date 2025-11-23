@@ -1068,6 +1068,179 @@
             50% { transform: translateY(-10px); }
         }
 
+        /* Toast Notifications */
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast {
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Shortcuts Panel */
+        .shortcuts-panel {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 2px solid var(--accent-secondary);
+            border-radius: 12px;
+            padding: 15px;
+            max-width: 300px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+
+        .shortcuts-panel.minimized {
+            height: 50px;
+            overflow: hidden;
+        }
+
+        .shortcuts-panel h3 {
+            color: var(--accent-secondary);
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .shortcuts-panel .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.9em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .shortcuts-panel .shortcut-key {
+            background: var(--bg-primary);
+            color: var(--accent-gold);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .shortcuts-panel .shortcut-desc {
+            color: var(--text-secondary);
+        }
+
+        /* Preset Manager Panel */
+        .preset-manager {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent-primary);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.8);
+            z-index: 10001;
+            display: none;
+        }
+
+        .preset-manager.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .preset-slot {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .preset-slot:hover {
+            border-color: var(--accent-secondary);
+            transform: translateX(5px);
+        }
+
+        .preset-slot.has-preset {
+            border-color: var(--accent-gold);
+            background: linear-gradient(135deg, var(--bg-tertiary), rgba(255, 215, 0, 0.1));
+        }
+
+        .preset-slot-info {
+            flex-grow: 1;
+        }
+
+        .preset-slot-name {
+            color: var(--accent-gold);
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .preset-slot-time {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+
+        .preset-slot-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .preset-slot-buttons button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .preset-slot-buttons .load-btn {
+            background: var(--accent-secondary);
+            color: #000;
+        }
+
+        .preset-slot-buttons .load-btn:hover {
+            background: var(--accent-gold);
+            transform: scale(1.05);
+        }
+
+        .preset-slot-buttons .delete-btn {
+            background: var(--accent-primary);
+            color: #fff;
+        }
+
+        .preset-slot-buttons .delete-btn:hover {
+            background: #ff0040;
+            transform: scale(1.05);
+        }
+
         /* Live Feedback Visualizer */
         .live-visualizer {
             position: relative;
@@ -4875,6 +5048,489 @@ Pads:                200-800 Hz  [Atmosphere]
         };
 
         // ============================================
+        // SMART PRESET SYSTEM with AUTO-SAVE
+        // ============================================
+        
+        let userPresets = {};
+        const PRESET_SLOTS = 9;
+
+        function saveCurrentAsPreset(slot) {
+            if (slot < 1 || slot > PRESET_SLOTS) return;
+            
+            const presetName = prompt(`💾 Name your preset (Slot ${slot}):`, `My Preset ${slot}`);
+            if (!presetName) return;
+            
+            // Capture current state
+            const preset = {
+                name: presetName,
+                timestamp: new Date().toISOString(),
+                parameters: {
+                    key: document.getElementById('keySelect')?.value,
+                    scale: document.getElementById('scaleSelect')?.value,
+                    bpm: parseInt(document.getElementById('bpmControl')?.value || 140),
+                    bass808Freq: parseInt(document.getElementById('bass808Freq')?.value || 55),
+                    bass808Decay: parseFloat(document.getElementById('bass808Decay')?.value || 0.6),
+                    bass808Gain: parseFloat(document.getElementById('bass808Gain')?.value || 0.8),
+                    // Add more parameters as needed
+                }
+            };
+            
+            userPresets[`slot${slot}`] = preset;
+            localStorage.setItem('trap-user-presets', JSON.stringify(userPresets));
+            
+            showToast(`✅ Preset "${presetName}" saved to slot ${slot}!`, 'success');
+            updatePresetButtons();
+        }
+
+        function loadUserPreset(slot) {
+            const preset = userPresets[`slot${slot}`];
+            if (!preset) {
+                showToast(`❌ No preset in slot ${slot}`, 'error');
+                return;
+            }
+            
+            // Load parameters
+            const params = preset.parameters;
+            if (document.getElementById('keySelect')) document.getElementById('keySelect').value = params.key || 'C';
+            if (document.getElementById('scaleSelect')) document.getElementById('scaleSelect').value = params.scale || 'minor';
+            if (document.getElementById('bpmControl')) {
+                document.getElementById('bpmControl').value = params.bpm || 140;
+                updateBPM(params.bpm || 140);
+            }
+            if (document.getElementById('bass808Freq')) {
+                document.getElementById('bass808Freq').value = params.bass808Freq || 55;
+                update808Param('freq', params.bass808Freq || 55);
+            }
+            if (document.getElementById('bass808Decay')) {
+                document.getElementById('bass808Decay').value = params.bass808Decay || 0.6;
+                update808Param('decay', params.bass808Decay || 0.6);
+            }
+            if (document.getElementById('bass808Gain')) {
+                document.getElementById('bass808Gain').value = params.bass808Gain || 0.8;
+                update808Param('gain', params.bass808Gain || 0.8);
+            }
+            
+            showToast(`✅ Loaded preset "${preset.name}"`, 'success');
+            checkAchievement('firstPreset');
+        }
+
+        function deleteUserPreset(slot) {
+            const preset = userPresets[`slot${slot}`];
+            if (!preset) return;
+            
+            if (confirm(`Delete preset "${preset.name}"?`)) {
+                delete userPresets[`slot${slot}`];
+                localStorage.setItem('trap-user-presets', JSON.stringify(userPresets));
+                showToast(`🗑️ Preset deleted`, 'info');
+                updatePresetButtons();
+            }
+        }
+
+        function exportUserPresets() {
+            const dataStr = JSON.stringify(userPresets, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `trap-studio-presets-${Date.now()}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            showToast('📦 Presets exported!', 'success');
+        }
+
+        function importUserPresets() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const imported = JSON.parse(event.target.result);
+                        userPresets = { ...userPresets, ...imported };
+                        localStorage.setItem('trap-user-presets', JSON.stringify(userPresets));
+                        updatePresetButtons();
+                        showToast('📥 Presets imported!', 'success');
+                    } catch (err) {
+                        showToast('❌ Invalid preset file', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function updatePresetButtons() {
+            // Update UI to show which slots have presets
+            for (let i = 1; i <= PRESET_SLOTS; i++) {
+                const preset = userPresets[`slot${i}`];
+                const btn = document.querySelector(`[data-preset-slot="${i}"]`);
+                if (btn) {
+                    btn.textContent = preset ? `${i}: ${preset.name}` : `${i}: Empty`;
+                    btn.classList.toggle('has-preset', !!preset);
+                }
+            }
+        }
+
+        function renderPresetSlots() {
+            const container = document.getElementById('presetSlotsList');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= PRESET_SLOTS; i++) {
+                const preset = userPresets[`slot${i}`];
+                const slot = document.createElement('div');
+                slot.className = `preset-slot ${preset ? 'has-preset' : ''}`;
+                
+                if (preset) {
+                    const date = new Date(preset.timestamp);
+                    slot.innerHTML = `
+                        <div class="preset-slot-info">
+                            <div class="preset-slot-name">🎵 Slot ${i}: ${preset.name}</div>
+                            <div class="preset-slot-time">Saved: ${date.toLocaleString()}</div>
+                            <div class="preset-slot-time" style="margin-top: 5px;">
+                                BPM: ${preset.parameters.bpm} | Key: ${preset.parameters.key} ${preset.parameters.scale}
+                            </div>
+                        </div>
+                        <div class="preset-slot-buttons">
+                            <button class="load-btn" onclick="loadUserPreset(${i}); document.getElementById('presetManager').classList.remove('active');">
+                                ▶ Load
+                            </button>
+                            <button class="delete-btn" onclick="deleteUserPreset(${i}); renderPresetSlots();">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    slot.innerHTML = `
+                        <div class="preset-slot-info">
+                            <div class="preset-slot-name" style="color: var(--text-secondary);">📭 Slot ${i}: Empty</div>
+                            <div class="preset-slot-time">No preset saved</div>
+                        </div>
+                        <div class="preset-slot-buttons">
+                            <button class="load-btn" onclick="saveCurrentAsPreset(${i}); renderPresetSlots();" 
+                                    style="background: var(--accent-gold);">
+                                💾 Save Here
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                container.appendChild(slot);
+            }
+        }
+
+        // Load user presets from localStorage
+        const savedUserPresets = localStorage.getItem('trap-user-presets');
+        if (savedUserPresets) {
+            userPresets = JSON.parse(savedUserPresets);
+        }
+
+        // ============================================
+        // KEYBOARD SHORTCUTS SYSTEM
+        // ============================================
+        
+        const shortcuts = {
+            ' ': () => { // Space - Play/Pause
+                const playBtn = document.querySelector('button[onclick*="playBeat"]');
+                if (playBtn) playBtn.click();
+            },
+            's': (e) => { // S - Save preset
+                if (e.ctrlKey || e.metaKey) return; // Don't interfere with Cmd+S
+                const slot = prompt('Save to slot (1-9):', '1');
+                if (slot && /^[1-9]$/.test(slot)) {
+                    saveCurrentAsPreset(parseInt(slot));
+                }
+            },
+            'r': () => { // R - Randomize
+                randomizeParameters();
+            },
+            'l': () => { // L - Load random quick preset
+                const presets = ['classic-trap', 'uk-drill', 'boom-bap', 'triplet-trap'];
+                const random = presets[Math.floor(Math.random() * presets.length)];
+                loadPresetPattern(random);
+            },
+            'h': () => { // H - Show shortcuts help
+                showShortcutsHelp();
+            },
+            'Escape': () => { // ESC - Close any modal/tutorial
+                if (currentTutorialStep >= 0) {
+                    document.getElementById('tutorialOverlay')?.remove();
+                    currentTutorialStep = -1;
+                }
+            }
+        };
+
+        // Number keys 1-9 for quick preset recall
+        for (let i = 1; i <= 9; i++) {
+            shortcuts[i.toString()] = () => loadUserPreset(i);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            // Ignore if typing in input field
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            const handler = shortcuts[e.key];
+            if (handler) {
+                e.preventDefault();
+                handler(e);
+            }
+            
+            // Ctrl/Cmd + Z for undo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                undoLastChange();
+            }
+            
+            // Ctrl/Cmd + Y for redo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                e.preventDefault();
+                redoChange();
+            }
+        });
+
+        function showShortcutsHelp() {
+            const helpText = `
+🎹 Keyboard Shortcuts:
+
+SPACE     - Play/Pause beat
+S         - Save current preset
+R         - Randomize parameters
+L         - Load random preset
+H         - Show this help
+ESC       - Close tutorial/modals
+1-9       - Load user preset (slots 1-9)
+Cmd+Z     - Undo last change
+Cmd+Y     - Redo change
+
+💡 Tip: These shortcuts work when not typing in input fields!
+            `;
+            alert(helpText.trim());
+        }
+
+        // ============================================
+        // UNDO/REDO HISTORY SYSTEM
+        // ============================================
+        
+        const historyStack = [];
+        const redoStack = [];
+        const MAX_HISTORY = 50;
+        
+        let lastState = null;
+
+        function captureState() {
+            return {
+                timestamp: Date.now(),
+                parameters: {
+                    key: document.getElementById('keySelect')?.value,
+                    scale: document.getElementById('scaleSelect')?.value,
+                    bpm: parseInt(document.getElementById('bpmControl')?.value || 140),
+                    bass808Freq: parseInt(document.getElementById('bass808Freq')?.value || 55),
+                    bass808Decay: parseFloat(document.getElementById('bass808Decay')?.value || 0.6),
+                    bass808Gain: parseFloat(document.getElementById('bass808Gain')?.value || 0.8),
+                }
+            };
+        }
+
+        function saveToHistory() {
+            const currentState = captureState();
+            
+            // Don't save if no change
+            if (lastState && JSON.stringify(currentState.parameters) === JSON.stringify(lastState.parameters)) {
+                return;
+            }
+            
+            historyStack.push(currentState);
+            if (historyStack.length > MAX_HISTORY) {
+                historyStack.shift();
+            }
+            
+            redoStack.length = 0; // Clear redo stack on new action
+            lastState = currentState;
+        }
+
+        function undoLastChange() {
+            if (historyStack.length < 2) {
+                showToast('❌ Nothing to undo', 'info');
+                return;
+            }
+            
+            const current = historyStack.pop();
+            redoStack.push(current);
+            
+            const previous = historyStack[historyStack.length - 1];
+            restoreState(previous);
+            showToast('↶ Undo', 'info');
+        }
+
+        function redoChange() {
+            if (redoStack.length === 0) {
+                showToast('❌ Nothing to redo', 'info');
+                return;
+            }
+            
+            const state = redoStack.pop();
+            historyStack.push(state);
+            restoreState(state);
+            showToast('↷ Redo', 'info');
+        }
+
+        function restoreState(state) {
+            const params = state.parameters;
+            if (document.getElementById('keySelect')) document.getElementById('keySelect').value = params.key;
+            if (document.getElementById('scaleSelect')) document.getElementById('scaleSelect').value = params.scale;
+            if (document.getElementById('bpmControl')) {
+                document.getElementById('bpmControl').value = params.bpm;
+                updateBPM(params.bpm);
+            }
+            if (document.getElementById('bass808Freq')) {
+                document.getElementById('bass808Freq').value = params.bass808Freq;
+                update808Param('freq', params.bass808Freq);
+            }
+            if (document.getElementById('bass808Decay')) {
+                document.getElementById('bass808Decay').value = params.bass808Decay;
+                update808Param('decay', params.bass808Decay);
+            }
+            if (document.getElementById('bass808Gain')) {
+                document.getElementById('bass808Gain').value = params.bass808Gain;
+                update808Param('gain', params.bass808Gain);
+            }
+            lastState = state;
+        }
+
+        // Auto-save to history on parameter change
+        document.addEventListener('change', (e) => {
+            if (e.target.type === 'range' || e.target.tagName === 'SELECT') {
+                debounce(() => saveToHistory(), 500)();
+            }
+        });
+
+        // ============================================
+        // PARAMETER RANDOMIZER
+        // ============================================
+        
+        function randomizeParameters() {
+            if (!confirm('🎲 Randomize all parameters? This will create a unique sound!')) return;
+            
+            saveToHistory(); // Save before randomizing
+            
+            // Randomize BPM (120-180)
+            const randomBPM = Math.floor(Math.random() * 61) + 120;
+            if (document.getElementById('bpmControl')) {
+                document.getElementById('bpmControl').value = randomBPM;
+                updateBPM(randomBPM);
+            }
+            
+            // Randomize 808 frequency (40-80)
+            const random808 = Math.floor(Math.random() * 41) + 40;
+            if (document.getElementById('bass808Freq')) {
+                document.getElementById('bass808Freq').value = random808;
+                update808Param('freq', random808);
+            }
+            
+            // Randomize 808 decay (0.3-1.0)
+            const randomDecay = (Math.random() * 0.7) + 0.3;
+            if (document.getElementById('bass808Decay')) {
+                document.getElementById('bass808Decay').value = randomDecay.toFixed(2);
+                update808Param('decay', randomDecay);
+            }
+            
+            // Randomize key
+            const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            if (document.getElementById('keySelect')) {
+                document.getElementById('keySelect').value = randomKey;
+            }
+            
+            showToast('🎲 Parameters randomized!', 'success');
+        }
+
+        // ============================================
+        // SMART SUGGESTIONS ENGINE
+        // ============================================
+        
+        function suggestParameters() {
+            const bpm = parseInt(document.getElementById('bpmControl')?.value || 140);
+            const suggestions = [];
+            
+            // BPM-based suggestions
+            if (bpm < 120) {
+                suggestions.push("💡 For this slow tempo, try a deeper 808 (40-50 Hz)");
+            } else if (bpm > 160) {
+                suggestions.push("💡 Fast BPM detected! Try shorter 808 decay (0.3-0.5s)");
+            } else {
+                suggestions.push("💡 Classic trap range! Experiment with 808 around 55 Hz");
+            }
+            
+            // Key-based suggestions
+            const key = document.getElementById('keySelect')?.value;
+            const scale = document.getElementById('scaleSelect')?.value;
+            if (scale === 'minor') {
+                suggestions.push("💡 Minor scale = dark vibes. Try chord progressions: i-VI-III-VII");
+            } else {
+                suggestions.push("💡 Major scale = uplifting. Try: I-V-vi-IV");
+            }
+            
+            return suggestions;
+        }
+
+        function showSuggestions() {
+            const suggestions = suggestParameters();
+            const suggestText = suggestions.join('\n\n');
+            alert(`🎯 Smart Suggestions:\n\n${suggestText}`);
+        }
+
+        // ============================================
+        // TOAST NOTIFICATION SYSTEM
+        // ============================================
+        
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${type === 'success' ? '#00ff41' : type === 'error' ? '#ff2e63' : '#08d9d6'};
+                color: #000;
+                border-radius: 8px;
+                font-weight: bold;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================
+        // DEBOUNCE UTILITY
+        // ============================================
+        
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // ============================================
         // FIRST-TIME USER DETECTION
         // ============================================
         
@@ -4891,19 +5547,124 @@ Pads:                200-800 Hz  [Atmosphere]
                     setTimeout(() => {
                         if (confirm('👋 Welcome to Trap Studio! Would you like a quick tour of the new features?')) {
                             startTutorial();
+                        } else {
+                            showToast('💡 Press H for keyboard shortcuts!', 'info');
                         }
                     }, 2000);
                 }, 1000);
                 
                 localStorage.setItem('trap-studio-visited', 'true');
+            } else {
+                // Show tour button for returning users
+                setTimeout(() => {
+                    const tourBtn = document.getElementById('tourButton');
+                    if (tourBtn) tourBtn.style.display = 'block';
+                }, 1000);
             }
+            
+            // Initialize history with current state
+            setTimeout(() => saveToHistory(), 500);
         });
     </script>
+
 
     <!-- Interactive Tutorial Button -->
     <button id="tourButton" class="tour-button" onclick="startTutorial()" style="display: none;">
         🎓 Take a Tour
     </button>
 
+    <!-- Shortcuts Panel -->
+    <div id="shortcutsPanel" class="shortcuts-panel minimized">
+        <h3 onclick="document.getElementById('shortcutsPanel').classList.toggle('minimized')">
+            ⌨️ Keyboard Shortcuts
+            <span style="font-size: 0.8em;">▼</span>
+        </h3>
+        <div class="shortcuts-content">
+            <div class="shortcut-item">
+                <span class="shortcut-key">SPACE</span>
+                <span class="shortcut-desc">Play/Pause</span>
+            </div>
+            <div class="shortcut-item">
+                <span class="shortcut-key">S</span>
+                <span class="shortcut-desc">Save Preset</span>
+            </div>
+            <div class="shortcut-item">
+                <span class="shortcut-key">R</span>
+                <span class="shortcut-desc">Randomize</span>
+            </div>
+            <div class="shortcut-item">
+                <span class="shortcut-key">L</span>
+                <span class="shortcut-desc">Load Random</span>
+            </div>
+            <div class="shortcut-item">
+                <span class="shortcut-key">1-9</span>
+                <span class="shortcut-desc">Load Preset</span>
+            </div>
+            <div class="shortcut-item">
+                <span class="shortcut-key">Cmd+Z</span>
+                <span class="shortcut-desc">Undo</span>
+            </div>
+            <div class="shortcut-item">
+                <span class="shortcut-key">Cmd+Y</span>
+                <span class="shortcut-desc">Redo</span>
+            </div>
+            <div class="shortcut-item">
+                <span class="shortcut-key">H</span>
+                <span class="shortcut-desc">Show Help</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preset Manager Modal -->
+    <div id="presetManager" class="preset-manager">
+        <h2 style="color: var(--accent-primary); margin-bottom: 20px; text-align: center;">
+            💾 Preset Manager
+        </h2>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <button onclick="saveCurrentAsPreset(prompt('Slot (1-9):', '1'))" 
+                    style="flex: 1; padding: 12px; background: var(--accent-secondary); border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; min-width: 120px;">
+                ➕ Save Current
+            </button>
+            <button onclick="exportUserPresets()" 
+                    style="flex: 1; padding: 12px; background: var(--accent-gold); border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; min-width: 120px;">
+                📤 Export All
+            </button>
+            <button onclick="importUserPresets()" 
+                    style="flex: 1; padding: 12px; background: var(--accent-primary); border: none; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer; min-width: 120px;">
+                📥 Import
+            </button>
+            <button onclick="document.getElementById('presetManager').classList.remove('active')" 
+                    style="flex: 1; padding: 12px; background: var(--bg-tertiary); border: 2px solid var(--border); border-radius: 8px; color: var(--text-primary); font-weight: bold; cursor: pointer; min-width: 120px;">
+                ✖ Close
+            </button>
+        </div>
+
+        <div id="presetSlotsList">
+            <!-- Preset slots will be dynamically populated -->
+        </div>
+    </div>
+
+    <!-- Quick Action Toolbar -->
+    <div style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 998;">
+        <button onclick="document.getElementById('presetManager').classList.add('active'); renderPresetSlots()" 
+                class="tour-button" style="position: relative; animation: none;">
+            💾 Presets
+        </button>
+        <button onclick="randomizeParameters()" 
+                class="tour-button" style="position: relative; animation: none; background: linear-gradient(135deg, #ff00ff, #00ffff);">
+            🎲 Random
+        </button>
+        <button onclick="showSuggestions()" 
+                class="tour-button" style="position: relative; animation: none; background: linear-gradient(135deg, #ffd700, #ff8c00);">
+            💡 Tips
+        </button>
+        <button onclick="undoLastChange()" 
+                class="tour-button" style="position: relative; animation: none; background: linear-gradient(135deg, #4CAF50, #2196F3);">
+            ↶ Undo
+        </button>
+    </div>
+
 </body>
 </html>
+

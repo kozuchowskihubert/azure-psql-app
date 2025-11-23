@@ -2667,6 +2667,125 @@
             if (originalExportTechnoToRadio) originalExportTechnoToRadio();
             checkTechnoAchievement('firstRadio');
         };
+
+        // ============================================
+        // TECHNO PRESET SYSTEM
+        // ============================================
+        
+        let technoPresets = {};
+        
+        function saveTechnoPreset(slot) {
+            const presetName = prompt(`💾 Name your techno preset (Slot ${slot}):`, `Techno ${slot}`);
+            if (!presetName) return;
+            
+            const preset = {
+                name: presetName,
+                timestamp: new Date().toISOString(),
+                parameters: {
+                    bpm: parseInt(document.getElementById('technoBPM')?.value || 128),
+                    acidFreq: parseInt(document.getElementById('acidFreq')?.value || 110),
+                    acidRes: parseFloat(document.getElementById('acidRes')?.value || 0.7),
+                    // Add more techno-specific parameters
+                }
+            };
+            
+            technoPresets[`slot${slot}`] = preset;
+            localStorage.setItem('techno-presets', JSON.stringify(technoPresets));
+            showTechnoToast(`✅ Preset "${presetName}" saved!`, 'success');
+        }
+
+        function loadTechnoPreset(slot) {
+            const preset = technoPresets[`slot${slot}`];
+            if (!preset) {
+                showTechnoToast(`❌ No preset in slot ${slot}`, 'error');
+                return;
+            }
+            
+            const params = preset.parameters;
+            if (document.getElementById('technoBPM')) {
+                document.getElementById('technoBPM').value = params.bpm || 128;
+            }
+            // Load other parameters...
+            
+            showTechnoToast(`✅ Loaded "${preset.name}"`, 'success');
+        }
+
+        function showTechnoToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${type === 'success' ? '#00ff00' : type === 'error' ? '#ff00ff' : '#00ffff'};
+                color: #000;
+                border-radius: 8px;
+                font-weight: bold;
+                box-shadow: 0 0 30px rgba(0, 255, 0, 0.7);
+                z-index: 10000;
+                font-family: 'Courier New', monospace;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        const savedTechnoPresets = localStorage.getItem('techno-presets');
+        if (savedTechnoPresets) {
+            technoPresets = JSON.parse(savedTechnoPresets);
+        }
+
+        // ============================================
+        // TECHNO KEYBOARD SHORTCUTS
+        // ============================================
+        
+        const technoShortcuts = {
+            ' ': () => { // Space - Play/Pause
+                const playBtn = document.querySelector('button[onclick*="playTechno"]');
+                if (playBtn) playBtn.click();
+            },
+            's': (e) => { // S - Save preset
+                if (e.ctrlKey || e.metaKey) return;
+                const slot = prompt('Save to slot (1-9):', '1');
+                if (slot && /^[1-9]$/.test(slot)) {
+                    saveTechnoPreset(parseInt(slot));
+                }
+            },
+            'g': () => { // G - Generate sequence
+                const genBtn = document.querySelector('button[onclick*="generate"]');
+                if (genBtn) genBtn.click();
+            },
+            'h': () => { // H - Show help
+                alert(`⚡ TECHNO KEYBOARD SHORTCUTS:
+
+SPACE     - Play/Pause
+S         - Save preset
+G         - Generate sequence
+1-9       - Load preset
+H         - Show this help
+ESC       - Close modals`);
+            }
+        };
+
+        // Number keys for techno presets
+        for (let i = 1; i <= 9; i++) {
+            technoShortcuts[i.toString()] = () => loadTechnoPreset(i);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            const handler = technoShortcuts[e.key];
+            if (handler) {
+                e.preventDefault();
+                handler(e);
+            }
+        });
     </script>
 
     <!-- Tour Button for Techno -->
@@ -2675,5 +2794,47 @@
         ⚡ TAKE TOUR
     </button>
 
+    <!-- Techno Quick Actions -->
+    <div style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 998;">
+        <button onclick="saveTechnoPreset(prompt('Slot (1-9):', '1'))" 
+                style="padding: 15px 25px; background: linear-gradient(135deg, #00ff00, #00ffff); color: #000; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); font-family: 'Courier New', monospace;">
+            💾 SAVE
+        </button>
+        <button onclick="alert('⚡ TECHNO TIPS:\\n\\nBPM: 128-135 for classic techno\\n140-150 for hard techno\\n\\nAcid bass: High resonance = classic 303 sound\\n\\nPattern length: 16-32 steps for hypnotic loops')" 
+                style="padding: 15px 25px; background: linear-gradient(135deg, #ff00ff, #00ffff); color: #000; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px rgba(255, 0, 255, 0.5); font-family: 'Courier New', monospace;">
+            💡 TIPS
+        </button>
+    </div>
+
+    <!-- Keyboard Shortcuts Panel for Techno -->
+    <div style="position: fixed; bottom: 160px; left: 20px; background: #1a1a1a; border: 2px solid #00ff00; border-radius: 12px; padding: 15px; max-width: 250px; box-shadow: 0 0 30px rgba(0, 255, 0, 0.3); z-index: 999; font-family: 'Courier New', monospace; font-size: 0.85em;" id="technoShortcuts">
+        <h3 style="color: #00ff00; margin-bottom: 10px; font-size: 1.1em; cursor: pointer;" onclick="this.parentElement.style.height = this.parentElement.style.height === '45px' ? 'auto' : '45px'">
+            ⌨️ SHORTCUTS ▼
+        </h3>
+        <div>
+            <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 5px 0; border-bottom: 1px solid #333;">
+                <span style="background: #0a0a0a; color: #00ff00; padding: 2px 8px; border-radius: 4px; font-weight: bold;">SPACE</span>
+                <span style="color: #00cc00;">Play</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 5px 0; border-bottom: 1px solid #333;">
+                <span style="background: #0a0a0a; color: #00ff00; padding: 2px 8px; border-radius: 4px; font-weight: bold;">S</span>
+                <span style="color: #00cc00;">Save</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 5px 0; border-bottom: 1px solid #333;">
+                <span style="background: #0a0a0a; color: #00ff00; padding: 2px 8px; border-radius: 4px; font-weight: bold;">G</span>
+                <span style="color: #00cc00;">Generate</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 5px 0; border-bottom: 1px solid #333;">
+                <span style="background: #0a0a0a; color: #00ff00; padding: 2px 8px; border-radius: 4px; font-weight: bold;">1-9</span>
+                <span style="color: #00cc00;">Load</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 5px 0;">
+                <span style="background: #0a0a0a; color: #00ff00; padding: 2px 8px; border-radius: 4px; font-weight: bold;">H</span>
+                <span style="color: #00cc00;">Help</span>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
+
