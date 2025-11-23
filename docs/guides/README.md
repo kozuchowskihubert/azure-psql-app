@@ -23,6 +23,16 @@ This directory contains user-facing guides for features and functionality.
 - **[TECHNO_CREATOR_PRESET_BUTTON_MAP.md](./TECHNO_CREATOR_PRESET_BUTTON_MAP.md)** - Complete preset and button mapping (detailed)
 - **[TECHNO_BUTTON_TEST_CHECKLIST.md](./TECHNO_BUTTON_TEST_CHECKLIST.md)** - Manual testing checklist
 - **[TECHNO_VERIFICATION_SUMMARY.md](./TECHNO_VERIFICATION_SUMMARY.md)** - Verification results and production readiness
+
+## 🔥 Trap Studio Documentation
+
+- **[TRAP_STUDIO_QUICK_REFERENCE.md](./TRAP_STUDIO_QUICK_REFERENCE.md)** - 🆕 Quick reference guide (lean & clean)
+- **[TRAP_STUDIO_GUIDE.md](../TRAP_STUDIO_GUIDE.md)** - Comprehensive feature guide (detailed)
+- **[TRAP_STUDIO_SYNTHESIS.md](../TRAP_STUDIO_SYNTHESIS.md)** - Deep dive into 808 synthesis and sound design
+- **[TRAP_STUDIO_PREVIEW.md](../TRAP_STUDIO_PREVIEW.md)** - Feature preview and overview
+
+## 🎼 Music Theory
+
 - **[MUSIC_THEORY_AUDIT_REPORT.md](./MUSIC_THEORY_AUDIT_REPORT.md)** - Comprehensive music theory validation (Trap + Techno)
 
 ## 🔗 Related Documentation
