@@ -72,11 +72,14 @@ cp config/.env.template .env
 - **Calendar & Meetings** - Scheduling and collaboration tools
 - **File Sharing** - Secure document collaboration
 
-### Music Production (Side Functions)
+### Music Production Studio 🎛️
+- **Modular Synthesis** - Professional 808 Bass & TB-303 Acid modules
+- **Trap Studio** - Complete trap beat production environment
+- **Techno Creator** - Acid techno and minimal production tools
 - **MIDI Generation** - Deep techno track creation
 - **Ableton Integration** - Template and project generation
 - **Behringer 2600 CLI** - Synthesizer control interface
-- **Audio Processing** - Web Audio API synthesis
+- **Web Audio Synthesis** - Professional modular synthesis system (v2.6)
 
 ---
 
@@ -197,13 +200,39 @@ make infra-apply
 | [BUILD_SUMMARY.md](BUILD_SUMMARY.md) | Build status and deployment guide |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Development guidelines |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture |
+| [docs/MODULAR_SYNTHESIS_SUMMARY.md](docs/MODULAR_SYNTHESIS_SUMMARY.md) | ✨ Modular synthesis system (NEW) |
+| [app/public/modules/README.md](app/public/modules/README.md) | Synthesis module documentation |
 | [docs/ableton-cli/](docs/ableton-cli/) | Music production documentation |
 
 ---
 
-## 🎵 Music Production (Optional)
+## 🎵 Music Production Studio
 
-The application includes optional music production features:
+The application includes a professional modular synthesis system (v2.6):
+
+### Modular Synthesis (NEW ✨)
+
+```bash
+# Open live demo
+open app/public/modular-demo.html
+
+# Or browse to:
+# http://localhost:3000/modular-demo.html
+```
+
+**Features:**
+- **808 Bass Synth** - Authentic sub-bass with dual oscillators, 24dB filter, 6 presets
+- **TB-303 Acid Bass** - Ladder filter, accent, glide, 7 acid presets
+- **Core Audio Engine** - Professional Web Audio API wrapper
+- **Modular Architecture** - ES6 modules with device group pattern
+- **Real-time Controls** - Live parameter automation
+- **Preset System** - Professional starting points
+
+**Documentation:**
+- [Modular Synthesis Summary](docs/MODULAR_SYNTHESIS_SUMMARY.md) - Complete implementation guide
+- [Module README](app/public/modules/README.md) - API documentation and examples
+
+### Legacy Music Features
 
 ```bash
 # Install music dependencies

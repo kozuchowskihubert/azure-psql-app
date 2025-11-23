@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎛️ Modular Synthesis Demo - haos.fm</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #00ff00;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #00cc00;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .module-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1400px;
+            margin-bottom: 30px;
+        }
+
+        .module {
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .module h2 {
+            color: #00ffff;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            color: #00cc00;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .value-display {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            background: #2a2a2a;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #00ff00;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #00ff00;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        select {
+            background: #2a2a2a;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+        }
+
+        button {
+            background: #00ff00;
+            color: #0a0a0a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        button:hover {
+            background: #00ffff;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            background: #2a2a2a;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            margin-top: 20px;
+            max-width: 600px;
+        }
+
+        .status.active {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: #00ffff;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .playing {
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .info {
+            max-width: 800px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .info h3 {
+            color: #00ffff;
+            margin-bottom: 10px;
+        }
+
+        .info ul {
+            margin-left: 20px;
+            color: #00cc00;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎛️ Modular Synthesis Demo</h1>
+    <p class="subtitle">haos.fm v2.6 - CoreAudioEngine + 808 Bass + TB-303</p>
+
+    <div class="module-container">
+        <!-- 808 Bass Module -->
+        <div class="module">
+            <h2>🔊 808 Bass Synth</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label>
+                        Frequency
+                        <span class="value-display" id="bass808-freq-display">55 Hz</span>
+                    </label>
+                    <input type="range" id="bass808-freq" min="30" max="150" value="55" step="1">
+                </div>
+                <div class="control-group">
+                    <label>
+                        Decay
+                        <span class="value-display" id="bass808-decay-display">0.5s</span>
+                    </label>
+                    <input type="range" id="bass808-decay" min="0.1" max="2.0" value="0.5" step="0.1">
+                </div>
+                <div class="control-group">
+                    <label>
+                        Cutoff
+                        <span class="value-display" id="bass808-cutoff-display">250 Hz</span>
+                    </label>
+                    <input type="range" id="bass808-cutoff" min="100" max="2000" value="250" step="10">
+                </div>
+                <div class="control-group">
+                    <label>
+                        Resonance
+                        <span class="value-display" id="bass808-resonance-display">50%</span>
+                    </label>
+                    <input type="range" id="bass808-resonance" min="0" max="100" value="50" step="1">
+                </div>
+                <div class="control-group">
+                    <label>
+                        Distortion
+                        <span class="value-display" id="bass808-distortion-display">20%</span>
+                    </label>
+                    <input type="range" id="bass808-distortion" min="0" max="100" value="20" step="1">
+                </div>
+                <div class="control-group">
+                    <label>Preset</label>
+                    <select id="bass808-preset">
+                        <option value="">-- Select Preset --</option>
+                        <option value="classic">Classic 808</option>
+                        <option value="deep">Deep Sub</option>
+                        <option value="punchy">Punchy</option>
+                        <option value="rolling">Rolling Bass</option>
+                        <option value="distorted">Distorted</option>
+                    </select>
+                </div>
+                <button id="bass808-trigger">▶ TRIGGER 808</button>
+            </div>
+        </div>
+
+        <!-- TB-303 Module -->
+        <div class="module">
+            <h2>⚡ TB-303 Acid Bass</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label>
+                        Waveform
+                    </label>
+                    <select id="bass303-waveform">
+                        <option value="sawtooth" selected>Sawtooth</option>
+                        <option value="square">Square</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>
+                        Cutoff
+                        <span class="value-display" id="bass303-cutoff-display">800 Hz</span>
+                    </label>
+                    <input type="range" id="bass303-cutoff" min="200" max="4000" value="800" step="10">
+                </div>
+                <div class="control-group">
+                    <label>
+                        Resonance
+                        <span class="value-display" id="bass303-resonance-display">70%</span>
+                    </label>
+                    <input type="range" id="bass303-resonance" min="0" max="100" value="70" step="1">
+                </div>
+                <div class="control-group">
+                    <label>
+                        Envelope Mod
+                        <span class="value-display" id="bass303-envmod-display">60%</span>
+                    </label>
+                    <input type="range" id="bass303-envmod" min="0" max="100" value="60" step="1">
+                </div>
+                <div class="control-group">
+                    <label>
+                        Glide
+                        <span class="value-display" id="bass303-glide-display">0.0s</span>
+                    </label>
+                    <input type="range" id="bass303-glide" min="0" max="50" value="0" step="1">
+                </div>
+                <div class="control-group">
+                    <label>Preset</label>
+                    <select id="bass303-preset">
+                        <option value="">-- Select Preset --</option>
+                        <option value="classic">Classic Acid</option>
+                        <option value="aggressive">Aggressive</option>
+                        <option value="squelchy">Squelchy</option>
+                        <option value="hard">Hard Techno</option>
+                        <option value="liquid">Liquid</option>
+                    </select>
+                </div>
+                <div class="button-group">
+                    <button id="bass303-trigger">▶ TRIGGER</button>
+                    <button id="bass303-slide">↗ SLIDE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status" id="status">
+        <strong>🔴 Audio Engine: Not Initialized</strong>
+        <p style="margin-top: 10px; color: #00cc00;">Click any button to start</p>
+    </div>
+
+    <div class="info">
+        <h3>📝 About This Demo</h3>
+        <p>This demo showcases the new modular synthesis architecture for haos.fm v2.6:</p>
+        <ul>
+            <li><strong>CoreAudioEngine</strong> - Web Audio API wrapper with module registration and routing</li>
+            <li><strong>Bass808</strong> - Authentic 808 bass with dual oscillators, 24dB filter, distortion</li>
+            <li><strong>Bass303</strong> - TB-303 emulation with ladder filter, accent, glide, and acid presets</li>
+        </ul>
+        <p style="margin-top: 15px;">
+            <strong>Usage:</strong> Adjust parameters with sliders, load presets, and trigger notes. 
+            Both modules connect through the CoreAudioEngine routing system for professional sound quality.
+        </p>
+    </div>
+
+    <!-- Load Modules -->
+    <script src="modules/core-audio-engine.js"></script>
+    <script src="modules/bass-808.js"></script>
+    <script src="modules/bass-303.js"></script>
+    <script src="modules/drums.js"></script>
+    <script src="modules/sequencer.js"></script>
+
+    <!-- Demo Logic -->
+    <script>
+        let audioEngine = null;
+        let bass808 = null;
+        let bass303 = null;
+        let currentNote303 = 130.81; // C3
+
+        // Initialize audio engine
+        async function initAudio() {
+            if (!audioEngine) {
+                audioEngine = new CoreAudioEngine({ autoInit: false });
+                await audioEngine.init();
+                
+                // Create modules
+                bass808 = new Bass808(audioEngine);
+                bass303 = new Bass303(audioEngine);
+                
+                // Connect to master output
+                bass808.output.connect(audioEngine.getMasterOutput());
+                bass303.output.connect(audioEngine.getMasterOutput());
+                
+                // Register modules
+                audioEngine.registerModule('bass808', bass808);
+                audioEngine.registerModule('bass303', bass303);
+                
+                // Update status
+                document.getElementById('status').innerHTML = '<strong>🟢 Audio Engine: Active</strong><p style="margin-top: 10px; color: #00cc00;">Modules loaded and ready</p>';
+                document.getElementById('status').classList.add('active');
+                
+                console.log('✅ Audio system initialized', audioEngine.getStatus());
+            }
+        }
+
+        // === 808 Bass Controls ===
+        document.getElementById('bass808-trigger').addEventListener('click', async () => {
+            await initAudio();
+            const freq = parseFloat(document.getElementById('bass808-freq').value);
+            bass808.trigger(freq, 1.0);
+            document.getElementById('bass808-trigger').classList.add('playing');
+            setTimeout(() => {
+                document.getElementById('bass808-trigger').classList.remove('playing');
+            }, bass808.params.decay * 1000);
+        });
+
+        document.getElementById('bass808-freq').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            document.getElementById('bass808-freq-display').textContent = `${value} Hz`;
+            bass808?.setFrequency(value);
+        });
+
+        document.getElementById('bass808-decay').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            document.getElementById('bass808-decay-display').textContent = `${value}s`;
+            bass808?.setDecay(value);
+        });
+
+        document.getElementById('bass808-cutoff').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            document.getElementById('bass808-cutoff-display').textContent = `${value} Hz`;
+            bass808?.setCutoff(value);
+        });
+
+        document.getElementById('bass808-resonance').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value) / 100;
+            document.getElementById('bass808-resonance-display').textContent = `${e.target.value}%`;
+            bass808?.setResonance(value);
+        });
+
+        document.getElementById('bass808-distortion').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value) / 100;
+            document.getElementById('bass808-distortion-display').textContent = `${e.target.value}%`;
+            bass808?.setDistortion(value);
+        });
+
+        document.getElementById('bass808-preset').addEventListener('change', async (e) => {
+            if (e.target.value) {
+                await initAudio();
+                const preset = bass808.loadPreset(e.target.value);
+                if (preset) {
+                    // Update UI
+                    document.getElementById('bass808-freq').value = preset.frequency || 55;
+                    document.getElementById('bass808-decay').value = preset.decay || 0.5;
+                    document.getElementById('bass808-cutoff').value = preset.cutoff || 250;
+                    document.getElementById('bass808-resonance').value = (preset.resonance || 0.5) * 100;
+                    document.getElementById('bass808-distortion').value = (preset.distortion || 0.2) * 100;
+                    
+                    // Update displays
+                    document.getElementById('bass808-freq-display').textContent = `${preset.frequency || 55} Hz`;
+                    document.getElementById('bass808-decay-display').textContent = `${preset.decay || 0.5}s`;
+                    document.getElementById('bass808-cutoff-display').textContent = `${preset.cutoff || 250} Hz`;
+                    document.getElementById('bass808-resonance-display').textContent = `${Math.round((preset.resonance || 0.5) * 100)}%`;
+                    document.getElementById('bass808-distortion-display').textContent = `${Math.round((preset.distortion || 0.2) * 100)}%`;
+                }
+            }
+        });
+
+        // === TB-303 Controls ===
+        document.getElementById('bass303-trigger').addEventListener('click', async () => {
+            await initAudio();
+            currentNote303 = 130.81; // Reset to C3
+            bass303.trigger(currentNote303, 1.0, false);
+            document.getElementById('bass303-trigger').classList.add('playing');
+            setTimeout(() => {
+                document.getElementById('bass303-trigger').classList.remove('playing');
+            }, 300);
+        });
+
+        document.getElementById('bass303-slide').addEventListener('click', async () => {
+            await initAudio();
+            currentNote303 = currentNote303 * 1.5; // Slide up
+            if (currentNote303 > 400) currentNote303 = 130.81; // Reset
+            bass303.trigger(currentNote303, 1.0, true);
+            document.getElementById('bass303-slide').classList.add('playing');
+            setTimeout(() => {
+                document.getElementById('bass303-slide').classList.remove('playing');
+            }, 300);
+        });
+
+        document.getElementById('bass303-waveform').addEventListener('change', (e) => {
+            bass303?.setWaveform(e.target.value);
+        });
+
+        document.getElementById('bass303-cutoff').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            document.getElementById('bass303-cutoff-display').textContent = `${value} Hz`;
+            bass303?.setCutoff(value);
+        });
+
+        document.getElementById('bass303-resonance').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value) / 100;
+            document.getElementById('bass303-resonance-display').textContent = `${e.target.value}%`;
+            bass303?.setResonance(value);
+        });
+
+        document.getElementById('bass303-envmod').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value) / 100;
+            document.getElementById('bass303-envmod-display').textContent = `${e.target.value}%`;
+            bass303?.setEnvMod(value);
+        });
+
+        document.getElementById('bass303-glide').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value) / 100; // 0-0.5
+            document.getElementById('bass303-glide-display').textContent = `${value.toFixed(2)}s`;
+            bass303?.setGlide(value);
+        });
+
+        document.getElementById('bass303-preset').addEventListener('change', async (e) => {
+            if (e.target.value) {
+                await initAudio();
+                const preset = bass303.loadPreset(e.target.value);
+                if (preset) {
+                    // Update UI
+                    document.getElementById('bass303-waveform').value = preset.waveform || 'sawtooth';
+                    document.getElementById('bass303-cutoff').value = preset.cutoff || 800;
+                    document.getElementById('bass303-resonance').value = (preset.resonance || 0.7) * 100;
+                    document.getElementById('bass303-envmod').value = (preset.envMod || 0.6) * 100;
+                    document.getElementById('bass303-glide').value = (preset.glide || 0) * 100;
+                    
+                    // Update displays
+                    document.getElementById('bass303-cutoff-display').textContent = `${preset.cutoff || 800} Hz`;
+                    document.getElementById('bass303-resonance-display').textContent = `${Math.round((preset.resonance || 0.7) * 100)}%`;
+                    document.getElementById('bass303-envmod-display').textContent = `${Math.round((preset.envMod || 0.6) * 100)}%`;
+                    document.getElementById('bass303-glide-display').textContent = `${(preset.glide || 0).toFixed(2)}s`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
