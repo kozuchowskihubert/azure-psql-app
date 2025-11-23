@@ -1310,6 +1310,158 @@
                 </div>
             </div>
 
+            <!-- ============================================ -->
+            <!-- EXPERT MODE: PATTERN COMBINATOR & INTELLIGENT BEAT GENERATOR -->
+            <!-- ============================================ -->
+            <div class="control-group" data-mode="advanced" style="margin: 30px 0; padding: 25px; background: linear-gradient(135deg, rgba(0, 255, 65, 0.15), rgba(0, 191, 255, 0.15)); border: 2px solid var(--accent-cyan); border-radius: 15px;">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 20px; font-size: 1.3em; text-align: center;">
+                    🧠 Intelligent Techno Generator - Expert Mode
+                </h3>
+                
+                <p style="color: var(--text-secondary); text-align: center; margin-bottom: 25px; font-size: 0.95em;">
+                    Generate complete techno patterns based on style, instruments, and complexity!
+                </p>
+
+                <!-- Style-Based Beat Generation -->
+                <div style="margin-bottom: 25px; padding: 20px; background: var(--bg-secondary); border-radius: 10px;">
+                    <h4 style="color: var(--accent-cyan); margin-bottom: 15px; font-size: 1.1em;">
+                        🎯 Style-Based Auto-Generation
+                    </h4>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <!-- Genre Selection -->
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.9em; margin-bottom: 8px;">
+                                🎼 Techno Style:
+                            </label>
+                            <select id="technoGenreStyle" class="form-control" style="width: 100%; padding: 10px; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px; font-size: 0.95em;">
+                                <option value="detroit">🚗 Detroit Techno</option>
+                                <option value="minimal">◽ Minimal Techno</option>
+                                <option value="industrial">⚙️ Industrial</option>
+                                <option value="acid">🔥 Acid Techno</option>
+                                <option value="hard">💥 Hard Techno</option>
+                                <option value="tribal">🥁 Tribal</option>
+                                <option value="progressive">🌊 Progressive</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Complexity Level -->
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.9em; margin-bottom: 8px;">
+                                ⚙️ Complexity:
+                            </label>
+                            <select id="technoComplexityLevel" class="form-control" style="width: 100%; padding: 10px; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px; font-size: 0.95em;">
+                                <option value="minimal">◽ Minimal</option>
+                                <option value="simple">🟢 Simple</option>
+                                <option value="moderate" selected>🟡 Moderate</option>
+                                <option value="complex">🟠 Complex</option>
+                                <option value="chaotic">🔴 Chaotic</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Energy Level -->
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.9em; margin-bottom: 8px;">
+                                ⚡ Energy Level:
+                            </label>
+                            <input type="range" id="technoEnergyLevel" min="1" max="10" value="7" 
+                                   style="width: 100%; margin-top: 10px;"
+                                   oninput="document.getElementById('technoEnergyValue').textContent = this.value">
+                            <div style="text-align: center; color: var(--accent-cyan); font-weight: bold; margin-top: 5px;">
+                                <span id="technoEnergyValue">7</span> / 10
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instrument Selection -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; color: var(--text-secondary); font-size: 0.9em; margin-bottom: 10px;">
+                            🎹 Select Active Instruments:
+                        </label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                            <label style="display: flex; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" id="techno_inst_kick" checked style="margin-right: 10px;">
+                                <span>🥁 Kick</span>
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" id="techno_inst_snare" checked style="margin-right: 10px;">
+                                <span>👏 Snare</span>
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" id="techno_inst_hihat" checked style="margin-right: 10px;">
+                                <span>🎩 Hi-Hat</span>
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" id="techno_inst_perc" style="margin-right: 10px;">
+                                <span>🎵 Percussion</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <div style="text-align: center;">
+                        <button class="btn" onclick="generateIntelligentTechno()" style="font-size: 1.1em; padding: 15px 40px; background: linear-gradient(135deg, var(--accent-cyan), #00ffff); color: #000; font-weight: bold; box-shadow: 0 5px 20px rgba(0, 255, 255, 0.4);">
+                            🧠 Generate Techno
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pattern Combination Library -->
+                <div style="padding: 20px; background: var(--bg-secondary); border-radius: 10px;">
+                    <h4 style="color: var(--accent-cyan); margin-bottom: 15px; font-size: 1.1em;">
+                        🎨 Techno Pattern Presets
+                    </h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85em; margin-bottom: 15px;">
+                        Classic techno combinations. Click to apply!
+                    </p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        <button class="btn btn-secondary" onclick="loadTechnoCombo('four-floor-classic')" style="padding: 12px;">
+                            🎵 Four-on-Floor Classic
+                            <div style="font-size: 0.75em; opacity: 0.8;">Detroit Style</div>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadTechnoCombo('minimal-groove')" style="padding: 12px;">
+                            ◽ Minimal Groove
+                            <div style="font-size: 0.75em; opacity: 0.8;">Sparse & Deep</div>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadTechnoCombo('industrial-assault')" style="padding: 12px;">
+                            ⚙️ Industrial Assault
+                            <div style="font-size: 0.75em; opacity: 0.8;">Hard & Heavy</div>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadTechnoCombo('acid-rave')" style="padding: 12px;">
+                            🔥 Acid Rave
+                            <div style="font-size: 0.75em; opacity: 0.8;">303 Vibes</div>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadTechnoCombo('tribal-ritual')" style="padding: 12px;">
+                            🥁 Tribal Ritual
+                            <div style="font-size: 0.75em; opacity: 0.8;">Percussive Energy</div>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadTechnoCombo('progressive-journey')" style="padding: 12px;">
+                            🌊 Progressive Journey
+                            <div style="font-size: 0.75em; opacity: 0.8;">Build & Release</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pattern Randomizer -->
+                <div style="margin-top: 20px; padding: 20px; background: var(--bg-tertiary); border-radius: 10px; text-align: center;">
+                    <h4 style="color: var(--accent-cyan); margin-bottom: 15px; font-size: 1em;">
+                        🎲 Pattern Randomizer
+                    </h4>
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="randomizeTechnoKickPattern()">
+                            🥁 Random Kick
+                        </button>
+                        <button class="btn btn-secondary" onclick="randomizeTechnoHiHatPattern()">
+                            🎩 Random Hi-Hat
+                        </button>
+                        <button class="btn btn-secondary" onclick="randomizeAllTechnoPatterns()">
+                            🎲 Randomize All
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Sequencer Grid -->
             <div class="sequencer-grid" id="technoSequencerGrid">
                 <!-- Will be populated by JavaScript -->
@@ -2823,6 +2975,305 @@
                 console.error('Failed to send to radio:', error);
                 return false;
             }
+        }
+
+        // ============================================
+        // INTELLIGENT TECHNO GENERATOR - EXPERT MODE
+        // ============================================
+        
+        /**
+         * Generate an intelligent techno pattern based on style, complexity, and instruments
+         */
+        function generateIntelligentTechno() {
+            const genre = document.getElementById('technoGenreStyle').value;
+            const complexity = document.getElementById('technoComplexityLevel').value;
+            const energy = parseInt(document.getElementById('technoEnergyLevel').value);
+            
+            // Get active instruments
+            const instruments = {
+                kick: document.getElementById('techno_inst_kick').checked,
+                snare: document.getElementById('techno_inst_snare').checked,
+                hihat: document.getElementById('techno_inst_hihat').checked,
+                perc: document.getElementById('techno_inst_perc').checked
+            };
+            
+            console.log(`Generating ${genre} techno | Complexity: ${complexity} | Energy: ${energy}`);
+            
+            // Clear current pattern
+            clearTechnoPattern();
+            
+            // Generate BPM based on genre and energy
+            const bpm = calculateTechnoBPM(genre, energy);
+            document.getElementById('technoBPM').value = bpm;
+            // Update BPM display if function exists
+            if (typeof updateTechnoBPM === 'function') {
+                updateTechnoBPM(bpm);
+            }
+            
+            // Generate patterns for each active instrument
+            if (instruments.kick) {
+                const kickPattern = selectTechnoKickPattern(genre, complexity, energy);
+                loadTechnoKickPattern(kickPattern);
+            }
+            
+            if (instruments.hihat) {
+                const hihatPattern = selectTechnoHiHatPattern(genre, complexity, energy);
+                loadTechnoHatPattern(hihatPattern);
+            }
+            
+            // Play preview
+            setTimeout(() => {
+                playTechnoPattern();
+            }, 300);
+            
+            // Show notification
+            showTechnoGenerationNotification(genre, complexity);
+        }
+        
+        /**
+         * Calculate BPM for techno genre
+         */
+        function calculateTechnoBPM(genre, energy) {
+            const bpmRanges = {
+                'detroit': { min: 120, max: 130 },
+                'minimal': { min: 125, max: 135 },
+                'industrial': { min: 135, max: 150 },
+                'acid': { min: 130, max: 145 },
+                'hard': { min: 140, max: 155 },
+                'tribal': { min: 125, max: 140 },
+                'progressive': { min: 128, max: 138 }
+            };
+            
+            const range = bpmRanges[genre] || { min: 128, max: 135 };
+            const bpm = Math.round(range.min + (range.max - range.min) * (energy / 10));
+            return bpm;
+        }
+        
+        /**
+         * Select techno kick pattern based on parameters
+         */
+        function selectTechnoKickPattern(genre, complexity, energy) {
+            const patterns = {
+                'detroit': {
+                    minimal: 'four-floor',
+                    simple: 'four-floor',
+                    moderate: 'hard',
+                    complex: 'double',
+                    chaotic: 'offbeat'
+                },
+                'minimal': {
+                    minimal: 'minimal',
+                    simple: 'minimal',
+                    moderate: 'four-floor',
+                    complex: 'offbeat',
+                    chaotic: 'double'
+                },
+                'industrial': {
+                    minimal: 'hard',
+                    simple: 'industrial',
+                    moderate: 'industrial',
+                    complex: 'double',
+                    chaotic: 'acid'
+                },
+                'acid': {
+                    minimal: 'four-floor',
+                    simple: 'acid',
+                    moderate: 'acid',
+                    complex: 'offbeat',
+                    chaotic: 'double'
+                },
+                'hard': {
+                    minimal: 'hard',
+                    simple: 'hard',
+                    moderate: 'industrial',
+                    complex: 'double',
+                    chaotic: 'acid'
+                },
+                'tribal': {
+                    minimal: 'four-floor',
+                    simple: 'tribal',
+                    moderate: 'tribal',
+                    complex: 'offbeat',
+                    chaotic: 'double'
+                },
+                'progressive': {
+                    minimal: 'minimal',
+                    simple: 'four-floor',
+                    moderate: 'offbeat',
+                    complex: 'double',
+                    chaotic: 'hard'
+                }
+            };
+            
+            return patterns[genre]?.[complexity] || 'four-floor';
+        }
+        
+        /**
+         * Select techno hi-hat pattern based on parameters
+         */
+        function selectTechnoHiHatPattern(genre, complexity, energy) {
+            const patterns = {
+                'detroit': {
+                    minimal: 'closed',
+                    simple: 'closed',
+                    moderate: '16ths',
+                    complex: 'rolling',
+                    chaotic: 'syncopated'
+                },
+                'minimal': {
+                    minimal: 'minimal',
+                    simple: 'minimal',
+                    moderate: 'closed',
+                    complex: 'offbeat',
+                    chaotic: '16ths'
+                },
+                'industrial': {
+                    minimal: 'closed',
+                    simple: 'industrial',
+                    moderate: 'industrial',
+                    complex: '16ths',
+                    chaotic: 'rolling'
+                },
+                'acid': {
+                    minimal: 'closed',
+                    simple: 'offbeat',
+                    moderate: '16ths',
+                    complex: 'rolling',
+                    chaotic: 'syncopated'
+                },
+                'hard': {
+                    minimal: 'closed',
+                    simple: '16ths',
+                    moderate: 'industrial',
+                    complex: 'rolling',
+                    chaotic: 'syncopated'
+                },
+                'tribal': {
+                    minimal: 'minimal',
+                    simple: 'offbeat',
+                    moderate: 'syncopated',
+                    complex: 'rolling',
+                    chaotic: '16ths'
+                },
+                'progressive': {
+                    minimal: 'minimal',
+                    simple: 'closed',
+                    moderate: 'offbeat',
+                    complex: '16ths',
+                    chaotic: 'rolling'
+                }
+            };
+            
+            return patterns[genre]?.[complexity] || 'closed';
+        }
+        
+        /**
+         * Show techno generation notification
+         */
+        function showTechnoGenerationNotification(genre, complexity) {
+            const notif = document.createElement('div');
+            notif.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 20px 30px;
+                background: linear-gradient(135deg, var(--accent-cyan), #00ffff);
+                color: #000;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0, 255, 255, 0.5);
+                z-index: 10000;
+                font-weight: bold;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            notif.innerHTML = `🧠 Generated ${genre.toUpperCase()} techno<br><small style="opacity:0.8">${complexity} complexity</small>`;
+            document.body.appendChild(notif);
+            setTimeout(() => {
+                notif.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => document.body.removeChild(notif), 300);
+            }, 3000);
+        }
+        
+        /**
+         * Load techno pattern combination presets
+         */
+        function loadTechnoCombo(comboName) {
+            const combos = {
+                'four-floor-classic': {
+                    kick: 'four-floor',
+                    hihat: 'closed',
+                    bpm: 128
+                },
+                'minimal-groove': {
+                    kick: 'minimal',
+                    hihat: 'minimal',
+                    bpm: 130
+                },
+                'industrial-assault': {
+                    kick: 'industrial',
+                    hihat: 'industrial',
+                    bpm: 145
+                },
+                'acid-rave': {
+                    kick: 'acid',
+                    hihat: '16ths',
+                    bpm: 138
+                },
+                'tribal-ritual': {
+                    kick: 'tribal',
+                    hihat: 'syncopated',
+                    bpm: 132
+                },
+                'progressive-journey': {
+                    kick: 'offbeat',
+                    hihat: 'rolling',
+                    bpm: 133
+                }
+            };
+            
+            const combo = combos[comboName];
+            if (!combo) return;
+            
+            // Set BPM
+            document.getElementById('technoBPM').value = combo.bpm;
+            if (typeof updateTechnoBPM === 'function') {
+                updateTechnoBPM(combo.bpm);
+            }
+            
+            // Load patterns
+            loadTechnoKickPattern(combo.kick);
+            loadTechnoHatPattern(combo.hihat);
+            
+            // Play preview
+            setTimeout(() => playTechnoPattern(), 200);
+            
+            console.log(`Loaded techno combo: ${comboName}`);
+        }
+        
+        /**
+         * Randomize techno kick pattern
+         */
+        function randomizeTechnoKickPattern() {
+            const patterns = ['four-floor', 'hard', 'offbeat', 'double', 'minimal', 'tribal', 'acid', 'industrial'];
+            const random = patterns[Math.floor(Math.random() * patterns.length)];
+            loadTechnoKickPattern(random);
+        }
+        
+        /**
+         * Randomize techno hi-hat pattern
+         */
+        function randomizeTechnoHiHatPattern() {
+            const patterns = ['closed', 'open', '16ths', 'offbeat', 'minimal', 'rolling', 'syncopated', 'industrial'];
+            const random = patterns[Math.floor(Math.random() * patterns.length)];
+            loadTechnoHatPattern(random);
+        }
+        
+        /**
+         * Randomize all techno patterns
+         */
+        function randomizeAllTechnoPatterns() {
+            randomizeTechnoKickPattern();
+            setTimeout(() => randomizeTechnoHiHatPattern(), 100);
+            setTimeout(() => playTechnoPattern(), 300);
         }
 
         // Initialize sequencer on load
