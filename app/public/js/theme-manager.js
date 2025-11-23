@@ -6,7 +6,24 @@
  * Features:
  * - LocalStorage persistence
  * - Smooth transitions
- * - Toast notifications
+ * - T            /* Smooth transitions */
+            body {
+                transition: background 0.3s ease, color 0.3s ease, filter 0.3s ease;
+            }
+            
+            /* Force dark mode as default (no .light-mode class) */
+            body:not(.light-mode) {
+                background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%) !important;
+                color: #ffffff !important;
+            }
+            
+            /* Force light mode styles with !important to override inline styles */
+            body.light-mode {
+                background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 50%, #dde3ef 100%) !important;
+                color: #1a202c !important;
+            }
+            
+            /* Light mode adjustments for common elements */ations
  * - CSS variable system
  * - Auto-detection of user preference
  * 
@@ -38,6 +55,9 @@ class ThemeManager {
      * Initialize theme system
      */
     init() {
+        // Inject styles FIRST before applying theme
+        this.injectStyles();
+        
         // Get saved theme or use default
         this.theme = this.options.autoDetect 
             ? this.detectPreferredTheme() 
@@ -52,9 +72,6 @@ class ThemeManager {
         } else {
             this.setupToggle();
         }
-        
-        // Inject necessary styles
-        this.injectStyles();
     }
     
     /**
@@ -135,6 +152,9 @@ class ThemeManager {
         // Save to localStorage
         localStorage.setItem(this.options.storageKey, theme);
         
+        // Log for debugging
+        console.log(`🎨 Theme applied: ${theme} mode`);
+        
         // Update button aria-label
         if (this.toggleButton) {
             this.toggleButton.setAttribute('aria-label', 
@@ -214,6 +234,13 @@ class ThemeManager {
                 --card-bg: rgba(255, 255, 255, 0.1);
                 --hover-bg: rgba(255, 255, 255, 0.2);
                 --shadow: rgba(0, 0, 0, 0.3);
+                
+                /* Page-specific dark mode variables */
+                --dark: #0a0a0f;
+                --dark-light: #1a1a2e;
+                --dark-lighter: #2a2a3e;
+                --text: #e4e4e4;
+                --text-dim: #888;
             }
             
             body.light-mode {
@@ -228,16 +255,24 @@ class ThemeManager {
                 --card-bg: rgba(255, 255, 255, 0.9);
                 --hover-bg: rgba(0, 0, 0, 0.1);
                 --shadow: rgba(0, 0, 0, 0.1);
+                
+                /* Override page-specific variables for light mode */
+                --dark: #f5f7fa;
+                --dark-light: #e4e8f0;
+                --dark-lighter: #dde3ef;
+                --text: #1a202c;
+                --text-dim: #4a5568;
             }
             
             /* Smooth transitions */
             body {
-                transition: background 0.3s ease, color 0.3s ease;
+                transition: background 0.3s ease, color 0.3s ease, filter 0.3s ease;
             }
             
+            /* Force light mode styles with !important to override inline styles */
             body.light-mode {
-                background: var(--bg-primary) !important;
-                color: var(--text-primary) !important;
+                background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 50%, #dde3ef 100%) !important;
+                color: #1a202c !important;
             }
             
             /* Theme toggle button animation */
