@@ -73,7 +73,38 @@
 ✅ Progress Tracking (seek + time display)  
 ✅ Auto-advance (continuous playback)  
 ✅ Statistics (tracks, duration, listeners)  
-✅ localStorage Persistence (metadata)
+✅ localStorage Persistence (metadata)  
+✅ **Studio Integration** (Trap Studio → Rap Radio)  
+✅ **Studio Integration** (Techno Creator → Techno Radio)  
+✅ **One-Click Export** (create beats, send instantly)
+
+---
+
+## 🎵 Studio Integration
+
+### Create & Send Beats Instantly!
+
+**From Trap Studio:**
+1. Create beat with chords + drums
+2. Click **📻 Send to Radio**
+3. Beat recorded (8 bars)
+4. Auto-added to **Rap Radio**
+5. Start playing! 🔥
+
+**From Techno Creator:**
+1. Create track with sequence + pattern
+2. Click **📻 Send to Radio**
+3. Track recorded (8 bars)
+4. Auto-added to **Techno Radio**
+5. Start playing! ⚡
+
+**Benefits:**
+- No file export needed
+- No manual upload
+- Instant playback
+- Perfect for live sessions
+
+[Full Integration Guide →](./docs/STUDIO_RADIO_INTEGRATION.md)
 
 ---
 
