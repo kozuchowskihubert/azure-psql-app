@@ -626,6 +626,107 @@
             box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
         }
 
+        /* Mode Selector Tabs */
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            border: 1px solid var(--accent-primary);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 3px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            font-family: 'Courier New', monospace;
+        }
+
+        .mode-tab:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .mode-tab.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: var(--bg-primary);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .mode-tab .mode-icon {
+            font-size: 1.5em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .mode-tab .mode-name {
+            font-size: 0.95em;
+            display: block;
+        }
+
+        .mode-tab .mode-desc {
+            font-size: 0.75em;
+            opacity: 0.7;
+            display: block;
+            margin-top: 3px;
+        }
+
+        /* Control Visibility by Mode */
+        .control-group[data-mode="pro"],
+        .control-group[data-mode="advanced"] {
+            display: none;
+        }
+
+        .mode-basic .control-group[data-mode="basic"] {
+            display: block;
+        }
+
+        .mode-pro .control-group[data-mode="basic"],
+        .mode-pro .control-group[data-mode="pro"] {
+            display: block;
+        }
+
+        .mode-advanced .control-group {
+            display: block;
+        }
+
+        /* Mode Indicator Badge */
+        .mode-badge {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            padding: 8px 16px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .mode-badge .badge-icon {
+            font-size: 1.2em;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header h1 {
@@ -648,6 +749,12 @@
     </style>
 </head>
 <body>
+    <!-- Mode Indicator Badge -->
+    <div class="mode-badge" id="modeBadge">
+        <span class="badge-icon">🎚️</span>
+        <span id="modeText">BASIC MODE</span>
+    </div>
+
     <div class="header">
         <h1>⚡ TECHNO PRODUCTION STUDIO ⚡</h1>
         <p>[ HARD • ACID • MINIMAL • INDUSTRIAL • DETROIT • DUB ]</p>
@@ -714,6 +821,25 @@
     </div>
 
     <div class="container">
+        <!-- Mode Selector -->
+        <div class="mode-selector" id="modeSelector">
+            <div class="mode-tab active" data-mode="basic" onclick="switchMode('basic')">
+                <span class="mode-icon">🎯</span>
+                <span class="mode-name">BASIC</span>
+                <span class="mode-desc">Essential controls</span>
+            </div>
+            <div class="mode-tab" data-mode="pro" onclick="switchMode('pro')">
+                <span class="mode-icon">🎛️</span>
+                <span class="mode-name">PRO</span>
+                <span class="mode-desc">Production tools</span>
+            </div>
+            <div class="mode-tab" data-mode="advanced" onclick="switchMode('advanced')">
+                <span class="mode-icon">⚡</span>
+                <span class="mode-name">ADVANCED</span>
+                <span class="mode-desc">Full control</span>
+            </div>
+        </div>
+
         <!-- Navigation -->
         <div class="nav-menu">
             <a href="/">🏠 Home</a>
@@ -1114,6 +1240,72 @@
                     </button>
                     <button class="btn btn-secondary" onclick="initAudio(); playTechnoPerc(audioContext, audioContext.currentTime)" style="padding: 8px 16px; font-size: 0.9em;">
                         🔔 Perc
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kick Pattern Variations (Pro Mode) -->
+            <div class="control-group" data-mode="pro" style="margin: 20px 0; padding: 15px; background: var(--bg-tertiary); border-radius: 3px; border: 1px solid var(--accent-cyan);">
+                <label style="display: block; margin-bottom: 10px; color: var(--accent-cyan);">
+                    🦶 KICK PATTERN VARIATIONS:
+                </label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+                    <button class="btn btn-secondary" onclick="loadTechnoKickPattern('four-floor')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎵 Four Floor
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoKickPattern('hard')" style="padding: 8px 12px; font-size: 0.85em;">
+                        💪 Hard Techno
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoKickPattern('offbeat')" style="padding: 8px 12px; font-size: 0.85em;">
+                        ⚡ Offbeat
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoKickPattern('double')" style="padding: 8px 12px; font-size: 0.85em;">
+                        ✌️ Double
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoKickPattern('minimal')" style="padding: 8px 12px; font-size: 0.85em;">
+                        ◽ Minimal
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoKickPattern('tribal')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🌍 Tribal
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoKickPattern('acid')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🔥 Acid
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoKickPattern('industrial')" style="padding: 8px 12px; font-size: 0.85em;">
+                        ⚙️ Industrial
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hi-Hat Pattern Variations (Pro Mode) -->
+            <div class="control-group" data-mode="pro" style="margin: 20px 0; padding: 15px; background: var(--bg-tertiary); border-radius: 3px; border: 1px solid var(--accent-cyan);">
+                <label style="display: block; margin-bottom: 10px; color: var(--accent-cyan);">
+                    🎩 HI-HAT PATTERN VARIATIONS:
+                </label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+                    <button class="btn btn-secondary" onclick="loadTechnoHatPattern('closed')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🔒 Closed 8ths
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoHatPattern('open')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🔓 Open
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoHatPattern('16ths')" style="padding: 8px 12px; font-size: 0.85em;">
+                        ⚡ 16th Notes
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoHatPattern('offbeat')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎵 Offbeat
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoHatPattern('minimal')" style="padding: 8px 12px; font-size: 0.85em;">
+                        ◽ Minimal
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoHatPattern('rolling')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🌀 Rolling
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoHatPattern('syncopated')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎶 Syncopated
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoHatPattern('industrial')" style="padding: 8px 12px; font-size: 0.85em;">
+                        ⚙️ Industrial
                     </button>
                 </div>
             </div>
@@ -2051,6 +2243,122 @@
             delay.connect(output);
             
             return { input: delay, output: output, feedbackNode: feedbackGain };
+        }
+
+        // ============================================
+        // MODE SWITCHING SYSTEM
+        // ============================================
+        
+        let currentMode = 'basic';
+        
+        function switchMode(mode) {
+            currentMode = mode;
+            const container = document.querySelector('.container');
+            
+            // Remove all mode classes
+            container.classList.remove('mode-basic', 'mode-pro', 'mode-advanced');
+            
+            // Add new mode class
+            container.classList.add(`mode-${mode}`);
+            
+            // Update mode tabs
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.mode-tab[data-mode="${mode}"]`).classList.add('active');
+            
+            // Update mode badge
+            const badges = {
+                'basic': '🎯 BASIC MODE',
+                'pro': '🎛️ PRO MODE',
+                'advanced': '⚡ ADVANCED MODE'
+            };
+            document.getElementById('modeText').textContent = badges[mode];
+            
+            // Save mode preference
+            localStorage.setItem('techno-creator-mode', mode);
+            
+            console.log(`Switched to ${mode} mode`);
+        }
+        
+        // Load saved mode on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedMode = localStorage.getItem('techno-creator-mode') || 'basic';
+            switchMode(savedMode);
+        });
+
+        // ============================================
+        // KICK PATTERN VARIATIONS
+        // ============================================
+        
+        const technoKickPatterns = {
+            'four-floor': [true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false],  // Classic four on floor
+            'hard': [true, false, false, false, true, false, false, false, true, false, false, false, true, false, true, false],  // Hard techno
+            'offbeat': [false, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false],  // Offbeat
+            'double': [true, true, false, false, true, true, false, false, true, true, false, false, true, true, false, false],  // Double kicks
+            'minimal': [true, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false],  // Minimal
+            'tribal': [true, false, false, true, false, true, false, false, true, false, false, true, false, true, false, false],  // Tribal
+            'acid': [true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false],  // Acid
+            'industrial': [true, false, false, true, true, false, false, true, true, false, false, true, true, false, false, true]  // Industrial
+        };
+        
+        function loadTechnoKickPattern(patternName) {
+            const pattern = technoKickPatterns[patternName];
+            if (!pattern) return;
+            
+            // Clear current kick pattern
+            technoPattern.kick.fill(false);
+            document.querySelectorAll('[data-instrument="kick"]').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Load new pattern
+            pattern.forEach((active, index) => {
+                if (active) {
+                    technoPattern.kick[index] = true;
+                    const step = document.querySelector(`[data-instrument="kick"][data-step="${index}"]`);
+                    if (step) step.classList.add('active');
+                }
+            });
+            
+            console.log(`Loaded ${patternName} kick pattern 🦶`);
+        }
+
+        // ============================================
+        // HI-HAT PATTERN VARIATIONS
+        // ============================================
+        
+        const technoHatPatterns = {
+            'closed': [false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true],  // Closed 8ths
+            'open': [false, false, false, false, true, false, false, false, false, false, false, false, true, false, false, false],  // Open
+            '16ths': [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],  // 16th notes
+            'offbeat': [false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true],  // Offbeat
+            'minimal': [false, false, false, true, false, false, false, true, false, false, false, true, false, false, false, true],  // Minimal
+            'rolling': [true, false, true, true, false, true, true, false, true, false, true, true, false, true, true, false],  // Rolling
+            'syncopated': [true, false, false, true, false, true, false, false, true, false, false, true, false, true, false, false],  // Syncopated
+            'industrial': [true, true, false, true, true, false, true, false, true, true, false, true, true, false, true, false]  // Industrial
+        };
+        
+        function loadTechnoHatPattern(patternName) {
+            const pattern = technoHatPatterns[patternName];
+            if (!pattern) return;
+            
+            // Clear current hat pattern
+            technoPattern.hat.fill(false);
+            document.querySelectorAll('[data-instrument="hat"]').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Load new pattern
+            pattern.forEach((active, index) => {
+                if (active) {
+                    technoPattern.hat[index] = true;
+                    const step = document.querySelector(`[data-instrument="hat"][data-step="${index}"]`);
+                    if (step) step.classList.add('active');
+                }
+            });
+            
+            console.log(`Loaded ${patternName} hi-hat pattern 🎩`);
         }
 
         // Sequencer Functions

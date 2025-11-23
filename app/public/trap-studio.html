@@ -1146,6 +1146,122 @@
             color: var(--text-secondary);
         }
 
+        /* Mode Selector Tabs */
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .mode-tab:hover::before {
+            left: 100%;
+        }
+
+        .mode-tab:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-secondary);
+            box-shadow: 0 5px 15px rgba(8, 217, 214, 0.3);
+        }
+
+        .mode-tab.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-color: var(--accent-gold);
+            color: var(--text-primary);
+            box-shadow: 0 5px 20px rgba(255, 46, 99, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .mode-tab .mode-icon {
+            font-size: 1.5em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .mode-tab .mode-name {
+            font-size: 0.95em;
+            display: block;
+        }
+
+        .mode-tab .mode-desc {
+            font-size: 0.75em;
+            opacity: 0.7;
+            display: block;
+            margin-top: 3px;
+        }
+
+        /* Control Visibility by Mode */
+        .control-group[data-mode="pro"],
+        .control-group[data-mode="advanced"] {
+            display: none;
+        }
+
+        .mode-basic .control-group[data-mode="basic"] {
+            display: block;
+        }
+
+        .mode-pro .control-group[data-mode="basic"],
+        .mode-pro .control-group[data-mode="pro"] {
+            display: block;
+        }
+
+        .mode-advanced .control-group {
+            display: block;
+        }
+
+        /* Mode Indicator Badge */
+        .mode-badge {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mode-badge .badge-icon {
+            font-size: 1.2em;
+        }
+
         /* Preset Manager Panel */
         .preset-manager {
             position: fixed;
@@ -1311,6 +1427,12 @@
     </style>
 </head>
 <body>
+    <!-- Mode Indicator Badge -->
+    <div class="mode-badge" id="modeBadge">
+        <span class="badge-icon">🎚️</span>
+        <span id="modeText">Basic Mode</span>
+    </div>
+
     <div class="header">
         <h1>🔥 TRAP & HIP-HOP PRODUCTION STUDIO 🔥</h1>
         <p>Professional Beat Making Tools | Chord Generator | 808 Designer | Pattern Sequencer</p>
@@ -1393,6 +1515,25 @@
     </div>
 
     <div class="container">
+        <!-- Mode Selector -->
+        <div class="mode-selector" id="modeSelector">
+            <div class="mode-tab active" data-mode="basic" onclick="switchMode('basic')">
+                <span class="mode-icon">🎯</span>
+                <span class="mode-name">Basic</span>
+                <span class="mode-desc">Essential controls only</span>
+            </div>
+            <div class="mode-tab" data-mode="pro" onclick="switchMode('pro')">
+                <span class="mode-icon">🎛️</span>
+                <span class="mode-name">Pro</span>
+                <span class="mode-desc">Common production tools</span>
+            </div>
+            <div class="mode-tab" data-mode="advanced" onclick="switchMode('advanced')">
+                <span class="mode-icon">⚡</span>
+                <span class="mode-name">Advanced</span>
+                <span class="mode-desc">Full control & precision</span>
+            </div>
+        </div>
+
         <!-- Chord Progression Generator -->
         <div class="tool-section animated">
             <div class="section-header-enhanced">
@@ -1420,7 +1561,7 @@
             </div>
 
             <div class="tool-grid">
-                <div class="control-group">
+                <div class="control-group" data-mode="basic">
                     <div class="control-label-enhanced">
                         <span>
                             🎼 Key
@@ -1443,7 +1584,7 @@
                     </select>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group" data-mode="basic">
                     <div class="control-label-enhanced">
                         <span>
                             🎭 Mode
@@ -1456,7 +1597,7 @@
                     </select>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group" data-mode="basic">
                     <div class="control-label-enhanced">
                         <span>
                             🎵 Progression Type
@@ -1855,7 +1996,91 @@
                 </div>
             </div>
 
-            <div class="control-group">
+            <!-- Kick Pattern Variations (Pro Mode) -->
+            <div class="control-group" data-mode="pro" style="margin: 20px 0; padding: 15px; background: var(--bg-tertiary); border-radius: 10px;">
+                <div class="control-label-enhanced">
+                    <span>
+                        🥁 Kick Pattern Variations
+                        <span class="info-tooltip" data-tip="Different kick patterns for various trap styles. Hard hitting = Classic trap, Rolling = Drill, Syncopated = Modern trap">ℹ</span>
+                    </span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 10px;">
+                    <button class="btn btn-secondary" onclick="loadKickPattern('classic')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🔥 Classic
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadKickPattern('hard')" style="padding: 8px 12px; font-size: 0.85em;">
+                        💪 Hard Hit
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadKickPattern('rolling')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🌀 Rolling
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadKickPattern('double')" style="padding: 8px 12px; font-size: 0.85em;">
+                        ✌️ Double
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadKickPattern('triplet')" style="padding: 8px 12px; font-size: 0.85em;">
+                        3️⃣ Triplet
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadKickPattern('offbeat')" style="padding: 8px 12px; font-size: 0.85em;">
+                        ⚡ Offbeat
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadKickPattern('syncopated')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎵 Syncopated
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadKickPattern('drill')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🔫 Drill
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadKickPattern('sparse')" style="padding: 8px 12px; font-size: 0.85em;">
+                        ◽ Sparse
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadKickPattern('breakbeat')" style="padding: 8px 12px; font-size: 0.85em;">
+                        💥 Breakbeat
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hi-Hat Pattern Variations (Pro Mode) -->
+            <div class="control-group" data-mode="pro" style="margin: 20px 0; padding: 15px; background: var(--bg-tertiary); border-radius: 10px;">
+                <div class="control-label-enhanced">
+                    <span>
+                        🎩 Hi-Hat Pattern Variations
+                        <span class="info-tooltip" data-tip="Different hi-hat patterns. Trap Roll = Signature hi-hat rolls, Open = Open hat hits, Double Time = Twice as fast">ℹ</span>
+                    </span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 10px;">
+                    <button class="btn btn-secondary" onclick="loadHiHatPattern('closed')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🔒 Closed
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadHiHatPattern('open')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🔓 Open
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadHiHatPattern('trap-roll')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🔥 Trap Roll
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadHiHatPattern('drill-roll')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🔫 Drill Roll
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadHiHatPattern('double-time')" style="padding: 8px 12px; font-size: 0.85em;">
+                        ⚡ Double Time
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadHiHatPattern('half-time')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🐌 Half Time
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadHiHatPattern('triplets')" style="padding: 8px 12px; font-size: 0.85em;">
+                        3️⃣ Triplets
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadHiHatPattern('shuffled')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎲 Shuffled
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadHiHatPattern('syncopated')" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎵 Syncopated
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadHiHatPattern('minimal')" style="padding: 8px 12px; font-size: 0.85em;">
+                        ◽ Minimal
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-group" data-mode="basic">
                 <div class="control-label-enhanced">
                     <span>
                         <span class="live-indicator"></span>
@@ -1963,7 +2188,7 @@
             </div>
 
             <div class="tool-grid">
-                <div class="control-group">
+                <div class="control-group" data-mode="basic">
                     <div class="control-label-enhanced">
                         <span>
                             Frequency
@@ -1978,7 +2203,7 @@
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group" data-mode="basic">
                     <div class="control-label-enhanced">
                         <span>
                             Decay
@@ -1993,7 +2218,7 @@
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group" data-mode="pro">
                     <div class="control-label-enhanced">
                         <span>
                             Filter Cutoff
@@ -2008,7 +2233,7 @@
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group" data-mode="pro">
                     <div class="control-label-enhanced">
                         <span>
                             Resonance
@@ -2023,7 +2248,7 @@
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group" data-mode="advanced">
                     <div class="control-label-enhanced">
                         <span>
                             Distortion
@@ -2038,7 +2263,7 @@
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group" data-mode="advanced">
                     <div class="control-label-enhanced">
                         <span>
                             Pitch Glide
@@ -3670,6 +3895,128 @@ Pads:                200-800 Hz  [Atmosphere]
                 beatPattern[instrument].push(step);
                 cell.classList.add('active');
             }
+        }
+
+        // ============================================
+        // MODE SWITCHING SYSTEM
+        // ============================================
+        
+        let currentMode = 'basic';
+        
+        function switchMode(mode) {
+            currentMode = mode;
+            const container = document.querySelector('.container');
+            
+            // Remove all mode classes
+            container.classList.remove('mode-basic', 'mode-pro', 'mode-advanced');
+            
+            // Add new mode class
+            container.classList.add(`mode-${mode}`);
+            
+            // Update mode tabs
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.mode-tab[data-mode="${mode}"]`).classList.add('active');
+            
+            // Update mode badge
+            const badges = {
+                'basic': '🎯 Basic Mode',
+                'pro': '🎛️ Pro Mode',
+                'advanced': '⚡ Advanced Mode'
+            };
+            document.getElementById('modeText').textContent = badges[mode];
+            
+            // Show toast notification
+            const descriptions = {
+                'basic': 'Essential controls only - perfect for beginners!',
+                'pro': 'Common production tools - for experienced producers',
+                'advanced': 'Full control & precision - for power users'
+            };
+            showToast(`Switched to ${badges[mode]}\n${descriptions[mode]}`, 'success');
+            
+            // Save mode preference
+            localStorage.setItem('trap-studio-mode', mode);
+        }
+        
+        // Load saved mode on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedMode = localStorage.getItem('trap-studio-mode') || 'basic';
+            switchMode(savedMode);
+        });
+
+        // ============================================
+        // KICK PATTERN VARIATIONS
+        // ============================================
+        
+        const kickPatterns = {
+            'classic': [0, 4, 8, 12],  // Four on the floor
+            'hard': [0, 3, 6, 8, 11, 14],  // Hard hitting
+            'rolling': [0, 2, 4, 6, 8, 10, 12, 14],  // Rolling kicks
+            'double': [0, 1, 4, 5, 8, 9, 12, 13],  // Double kicks
+            'triplet': [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14],  // Triplet feel
+            'offbeat': [2, 6, 10, 14],  // Offbeat kicks
+            'syncopated': [0, 3, 7, 10, 13],  // Syncopated
+            'drill': [0, 6, 10],  // UK Drill style
+            'sparse': [0, 8],  // Minimal
+            'breakbeat': [0, 3, 7, 10, 12, 15]  // Breakbeat style
+        };
+        
+        function loadKickPattern(patternName) {
+            const pattern = kickPatterns[patternName];
+            if (!pattern) return;
+            
+            // Clear current kick pattern
+            beatPattern['Kick'] = [];
+            document.querySelectorAll('.beat-step[data-instrument="Kick"]').forEach(cell => {
+                cell.classList.remove('active');
+            });
+            
+            // Load new pattern
+            pattern.forEach(step => {
+                beatPattern['Kick'].push(step);
+                const cell = document.querySelector(`.beat-step[data-instrument="Kick"][data-step="${step}"]`);
+                if (cell) cell.classList.add('active');
+            });
+            
+            showToast(`Loaded ${patternName} kick pattern! 🥁`, 'success');
+        }
+
+        // ============================================
+        // HI-HAT PATTERN VARIATIONS
+        // ============================================
+        
+        const hiHatPatterns = {
+            'closed': [0, 2, 4, 6, 8, 10, 12, 14],  // Closed 8th notes
+            'open': [1, 5, 9, 13],  // Open hats on offbeats
+            'trap-roll': [0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 14],  // Trap roll
+            'drill-roll': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],  // Full roll
+            'double-time': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],  // 16th notes
+            'half-time': [0, 4, 8, 12],  // Quarter notes
+            'triplets': [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14],  // Triplet feel
+            'shuffled': [0, 2, 3, 4, 7, 8, 10, 11, 12, 15],  // Shuffled
+            'syncopated': [0, 3, 4, 7, 8, 11, 12, 15],  // Syncopated
+            'minimal': [4, 12]  // Minimal hats
+        };
+        
+        function loadHiHatPattern(patternName) {
+            const pattern = hiHatPatterns[patternName];
+            if (!pattern) return;
+            
+            // Clear current hi-hat pattern
+            beatPattern['Hi-Hat'] = [];
+            document.querySelectorAll('.beat-step[data-instrument="Hi-Hat"]').forEach(cell => {
+                cell.classList.remove('active');
+            });
+            
+            // Load new pattern
+            pattern.forEach(step => {
+                beatPattern['Hi-Hat'].push(step);
+                const cell = document.querySelector(`.beat-step[data-instrument="Hi-Hat"][data-step="${step}"]`);
+                if (cell) cell.classList.add('active');
+            });
+            
+            showToast(`Loaded ${patternName} hi-hat pattern! 🎩`, 'success');
         }
 
         function updateBPM(value) {
