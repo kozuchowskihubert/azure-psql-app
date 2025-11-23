@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Professional Trap & Hip-Hop Production Studio - Beat maker, chord progression generator, 808 designer">
+    <meta name="theme-color" content="#1a1a2e">
+    
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Trap Studio">
+    
+    <title>🔥 Trap & Hip-Hop Production Studio 🔥</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Dark Trap Theme */
+            --bg-primary: #0f0f1e;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --accent-primary: #ff2e63;
+            --accent-secondary: #08d9d6;
+            --accent-gold: #ffd700;
+            --text-primary: #eee;
+            --text-secondary: #a8a8a8;
+            --success: #00ff41;
+            --warning: #ff9800;
+            --border: #2d2d44;
+            --glow: rgba(255, 46, 99, 0.5);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 46, 99, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(8, 217, 214, 0.1) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border-bottom: 2px solid var(--accent-primary);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px var(--glow);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px var(--glow)); }
+            50% { filter: drop-shadow(0 0 20px var(--glow)); }
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Tool Cards */
+        .tool-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .tool-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(255, 46, 99, 0.2);
+        }
+
+        .tool-section h2 {
+            color: var(--accent-primary);
+            font-size: 2em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tool-section h3 {
+            color: var(--accent-secondary);
+            font-size: 1.4em;
+            margin: 20px 0 10px 0;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, var(--accent-primary), #d91e4e);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 46, 99, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(255, 46, 99, 0.5);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--accent-secondary), #06b8b5);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 25px rgba(8, 217, 214, 0.5);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--accent-gold), #ffed4e);
+            color: var(--bg-primary);
+        }
+
+        /* Input Controls */
+        .control-group {
+            margin: 15px 0;
+        }
+
+        .control-group label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        select, input[type="range"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 1em;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 40px;
+        }
+
+        /* Chord Display */
+        .chord-display {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--accent-primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 100px;
+        }
+
+        .chord-item {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border-left: 4px solid var(--accent-gold);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .chord-item:hover {
+            transform: translateX(10px);
+            border-left-color: var(--accent-primary);
+        }
+
+        .chord-name {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        .chord-notes {
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Beat Grid */
+        .beat-grid {
+            display: grid;
+            grid-template-columns: auto repeat(16, 1fr);
+            gap: 4px;
+            margin: 20px 0;
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        .beat-label {
+            display: flex;
+            align-items: center;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            padding: 8px;
+            font-weight: 600;
+        }
+
+        .beat-step {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .beat-step:hover {
+            border-color: var(--accent-secondary);
+            transform: scale(1.1);
+        }
+
+        .beat-step.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 15px var(--glow);
+        }
+
+        .beat-step.bar-marker {
+            border-left: 3px solid var(--accent-gold);
+        }
+
+        /* 808 Designer */
+        .waveform-display {
+            width: 100%;
+            height: 150px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--accent-secondary);
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        /* Preset Cards */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .preset-card {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .preset-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(255, 46, 99, 0.3);
+        }
+
+        .preset-card.selected {
+            border-color: var(--accent-gold);
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+        }
+
+        .preset-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .preset-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .preset-desc {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+
+        /* Output Display */
+        .output-box {
+            background: var(--bg-primary);
+            border: 2px solid var(--accent-secondary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            color: var(--success);
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .output-box pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* BPM Display */
+        .bpm-display {
+            font-size: 3em;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-align: center;
+            margin: 15px 0;
+            text-shadow: 0 0 20px var(--glow);
+        }
+
+        /* Grid Layout */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-badge.active {
+            background: var(--success);
+            color: var(--bg-primary);
+        }
+
+        .status-badge.inactive {
+            background: var(--text-secondary);
+            color: var(--bg-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .tool-section h2 {
+                font-size: 1.5em;
+            }
+
+            .beat-grid {
+                grid-template-columns: auto repeat(8, 1fr);
+            }
+
+            .beat-step {
+                width: 32px;
+                height: 32px;
+            }
+
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+
+        /* Animation for new elements */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85em;
+            white-space: nowrap;
+            border: 1px solid var(--accent-primary);
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Key Display */
+        .key-display {
+            display: inline-block;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.2em;
+            color: var(--accent-gold);
+            margin: 10px 5px;
+        }
+
+        /* Export Button */
+        .export-btn {
+            background: linear-gradient(135deg, var(--accent-gold), #ffed4e);
+            color: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .export-btn:hover {
+            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔥 TRAP & HIP-HOP PRODUCTION STUDIO 🔥</h1>
+        <p>Professional Beat Making Tools | Chord Generator | 808 Designer | Pattern Sequencer</p>
+    </div>
+
+    <div class="container">
+        <!-- Chord Progression Generator -->
+        <div class="tool-section animated">
+            <h2>🎹 Chord Progression Generator</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Generate professional trap and hip-hop chord progressions in any key
+            </p>
+
+            <div class="tool-grid">
+                <div class="control-group">
+                    <label for="chordKey">🎼 Key</label>
+                    <select id="chordKey">
+                        <option value="C">C Major / A Minor</option>
+                        <option value="Db">C# Major / Bb Minor</option>
+                        <option value="D">D Major / B Minor</option>
+                        <option value="Eb">Eb Major / C Minor</option>
+                        <option value="E">E Major / C# Minor</option>
+                        <option value="F">F Major / D Minor</option>
+                        <option value="F#">F# Major / Eb Minor</option>
+                        <option value="G">G Major / E Minor</option>
+                        <option value="Ab">Ab Major / F Minor</option>
+                        <option value="A" selected>A Major / F# Minor</option>
+                        <option value="Bb">Bb Major / G Minor</option>
+                        <option value="B">B Major / G# Minor</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="chordMode">🎭 Mode</label>
+                    <select id="chordMode">
+                        <option value="minor" selected>Minor (Dark Trap)</option>
+                        <option value="major">Major (Melodic Trap)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="progressionType">🎵 Progression Type</label>
+                    <select id="progressionType">
+                        <option value="dark_trap" selected>Dark Trap (i-VI-III-VII)</option>
+                        <option value="melodic_trap">Melodic Trap (i-iv-VII-VI)</option>
+                        <option value="drill">Drill (i-III-VII-VI)</option>
+                        <option value="cloud_rap">Cloud Rap (vi-IV-I-V)</option>
+                        <option value="boom_bap">Boom-Bap (i-VII-VI-V)</option>
+                        <option value="emotional">Emotional (i-v-VI-III)</option>
+                        <option value="custom">Custom Progression</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 20px 0;">
+                <button class="btn" onclick="generateChordProgression()">
+                    ✨ Generate Progression
+                </button>
+                <button class="btn btn-secondary" onclick="playChordProgression()">
+                    ▶️ Play Preview
+                </button>
+            </div>
+
+            <div id="chordDisplay" class="chord-display">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    Click "Generate Progression" to create chords
+                </p>
+            </div>
+
+            <div id="chordOutput" class="output-box" style="display: none;">
+                <pre id="chordCode"></pre>
+            </div>
+        </div>
+
+        <!-- Beat Pattern Sequencer -->
+        <div class="tool-section animated">
+            <h2>🥁 Trap Beat Sequencer</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Create trap drum patterns with 808s, kicks, snares, and hi-hats
+            </p>
+
+            <div class="control-group">
+                <label for="bpmControl">BPM: <span class="bpm-display" id="bpmValue">140</span></label>
+                <input type="range" id="bpmControl" min="60" max="200" value="140" 
+                       oninput="updateBPM(this.value)">
+            </div>
+
+            <h3>🎛️ Pattern Grid (16 Steps)</h3>
+            
+            <div class="beat-grid" id="beatGrid">
+                <!-- Grid will be generated by JavaScript -->
+            </div>
+
+            <div style="text-align: center; margin: 20px 0;">
+                <button class="btn" onclick="playBeat()">▶️ Play Beat</button>
+                <button class="btn btn-secondary" onclick="stopBeat()">⏹️ Stop</button>
+                <button class="btn" onclick="clearPattern()">🗑️ Clear</button>
+                <button class="btn btn-gold" onclick="loadPresetPattern()">📦 Load Preset</button>
+            </div>
+
+            <div class="preset-grid">
+                <div class="preset-card" onclick="loadPattern('classic_trap')">
+                    <div class="preset-icon">🔥</div>
+                    <div class="preset-name">Classic Trap</div>
+                    <div class="preset-desc">140 BPM</div>
+                </div>
+                <div class="preset-card" onclick="loadPattern('drill')">
+                    <div class="preset-icon">🔫</div>
+                    <div class="preset-name">Drill</div>
+                    <div class="preset-desc">145 BPM</div>
+                </div>
+                <div class="preset-card" onclick="loadPattern('boom_bap')">
+                    <div class="preset-icon">💿</div>
+                    <div class="preset-name">Boom-Bap</div>
+                    <div class="preset-desc">90 BPM</div>
+                </div>
+                <div class="preset-card" onclick="loadPattern('phonk')">
+                    <div class="preset-icon">💀</div>
+                    <div class="preset-name">Phonk</div>
+                    <div class="preset-desc">130 BPM</div>
+                </div>
+            </div>
+
+            <div id="patternOutput" class="output-box" style="display: none;">
+                <pre id="patternCode"></pre>
+            </div>
+        </div>
+
+        <!-- 808 Bass Designer -->
+        <div class="tool-section animated">
+            <h2>🔊 808 Bass Designer</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Design your perfect 808 sub-bass sound
+            </p>
+
+            <div class="tool-grid">
+                <div class="control-group">
+                    <label for="bass808Freq">Frequency: <span id="freq808Value">55</span> Hz</label>
+                    <input type="range" id="bass808Freq" min="30" max="100" value="55" 
+                           oninput="update808Param('freq', this.value)">
+                </div>
+
+                <div class="control-group">
+                    <label for="bass808Decay">Decay: <span id="decay808Value">0.8</span>s</label>
+                    <input type="range" id="bass808Decay" min="0.1" max="2.0" step="0.1" value="0.8" 
+                           oninput="update808Param('decay', this.value)">
+                </div>
+
+                <div class="control-group">
+                    <label for="bass808Cutoff">Filter Cutoff: <span id="cutoff808Value">180</span> Hz</label>
+                    <input type="range" id="bass808Cutoff" min="80" max="500" value="180" 
+                           oninput="update808Param('cutoff', this.value)">
+                </div>
+
+                <div class="control-group">
+                    <label for="bass808Resonance">Resonance: <span id="res808Value">0.4</span></label>
+                    <input type="range" id="bass808Resonance" min="0" max="1" step="0.1" value="0.4" 
+                           oninput="update808Param('resonance', this.value)">
+                </div>
+
+                <div class="control-group">
+                    <label for="bass808Distortion">Distortion: <span id="dist808Value">0</span>%</label>
+                    <input type="range" id="bass808Distortion" min="0" max="100" value="0" 
+                           oninput="update808Param('distortion', this.value)">
+                </div>
+
+                <div class="control-group">
+                    <label for="bass808Glide">Pitch Glide: <span id="glide808Value">0</span>ms</label>
+                    <input type="range" id="bass808Glide" min="0" max="200" value="0" 
+                           oninput="update808Param('glide', this.value)">
+                </div>
+            </div>
+
+            <canvas id="waveformCanvas" class="waveform-display"></canvas>
+
+            <div style="text-align: center; margin: 20px 0;">
+                <button class="btn" onclick="play808Preview()">▶️ Play 808</button>
+                <button class="btn btn-secondary" onclick="randomize808()">🎲 Randomize</button>
+                <button class="btn export-btn" onclick="export808Settings()">
+                    💾 Export Settings
+                </button>
+            </div>
+
+            <div id="bass808Output" class="output-box" style="display: none;">
+                <pre id="bass808Code"></pre>
+            </div>
+        </div>
+
+        <!-- Quick Reference -->
+        <div class="tool-section animated">
+            <h2>📚 Quick Reference Guide</h2>
+            
+            <h3>🎼 BPM Ranges by Genre</h3>
+            <div class="tool-grid">
+                <div class="preset-card">
+                    <div class="preset-icon">💿</div>
+                    <div class="preset-name">Boom-Bap</div>
+                    <div class="preset-desc">85-95 BPM</div>
+                </div>
+                <div class="preset-card">
+                    <div class="preset-icon">🔥</div>
+                    <div class="preset-name">Modern Trap</div>
+                    <div class="preset-desc">130-150 BPM</div>
+                </div>
+                <div class="preset-card">
+                    <div class="preset-icon">🔫</div>
+                    <div class="preset-name">Drill</div>
+                    <div class="preset-desc">140-150 BPM</div>
+                </div>
+                <div class="preset-card">
+                    <div class="preset-icon">☁️</div>
+                    <div class="preset-name">Cloud Rap</div>
+                    <div class="preset-desc">60-80 BPM</div>
+                </div>
+                <div class="preset-card">
+                    <div class="preset-icon">💀</div>
+                    <div class="preset-name">Phonk</div>
+                    <div class="preset-desc">120-140 BPM</div>
+                </div>
+                <div class="preset-card">
+                    <div class="preset-icon">🌊</div>
+                    <div class="preset-name">Wave</div>
+                    <div class="preset-desc">110-130 BPM</div>
+                </div>
+            </div>
+
+            <h3>🎹 Popular Trap Scales</h3>
+            <div style="margin: 20px 0;">
+                <div class="chord-item">
+                    <span class="chord-name">A Minor Pentatonic</span>
+                    <span class="chord-notes">A - C - D - E - G</span>
+                </div>
+                <div class="chord-item">
+                    <span class="chord-name">E Minor Pentatonic</span>
+                    <span class="chord-notes">E - G - A - B - D</span>
+                </div>
+                <div class="chord-item">
+                    <span class="chord-name">F# Minor Pentatonic</span>
+                    <span class="chord-notes">F# - A - B - C# - E</span>
+                </div>
+                <div class="chord-item">
+                    <span class="chord-name">C Minor Pentatonic</span>
+                    <span class="chord-notes">C - Eb - F - G - Bb</span>
+                </div>
+            </div>
+
+            <h3>🎚️ Frequency Chart</h3>
+            <div class="output-box">
+                <pre>
+Sub-Bass (808):      20-80 Hz    [Foundation]
+Kick Punch:          50-120 Hz   [Impact]
+Snare Body:          200-400 Hz  [Warmth]
+Snare Crack:         2-5 kHz     [Attack]
+Hi-Hats:             8-15 kHz    [Brightness]
+Melody/Bells:        1-5 kHz     [Presence]
+Pads:                200-800 Hz  [Atmosphere]
+                </pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio Context
+        let audioContext;
+        let beatInterval;
+        let isPlaying = false;
+
+        // Initialize Audio Context
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+
+        // Chord Theory Data
+        const chordTheory = {
+            notes: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
+            
+            progressions: {
+                dark_trap: {
+                    name: 'Dark Trap',
+                    degrees: [0, 5, 2, 6], // i-VI-III-VII
+                    description: 'Classic dark trap sound'
+                },
+                melodic_trap: {
+                    name: 'Melodic Trap',
+                    degrees: [0, 3, 6, 5], // i-iv-VII-VI
+                    description: 'Emotional, melodic vibe'
+                },
+                drill: {
+                    name: 'Drill',
+                    degrees: [0, 2, 6, 5], // i-III-VII-VI
+                    description: 'UK/NY Drill progression'
+                },
+                cloud_rap: {
+                    name: 'Cloud Rap',
+                    degrees: [5, 3, 0, 4], // vi-IV-I-V
+                    description: 'Dreamy, atmospheric'
+                },
+                boom_bap: {
+                    name: 'Boom-Bap',
+                    degrees: [0, 6, 5, 4], // i-VII-VI-V
+                    description: '90s hip-hop classic'
+                },
+                emotional: {
+                    name: 'Emotional',
+                    degrees: [0, 4, 5, 2], // i-v-VI-III
+                    description: 'Sad, introspective'
+                }
+            },
+
+            minorScale: [0, 2, 3, 5, 7, 8, 10], // Natural minor intervals
+            majorScale: [0, 2, 4, 5, 7, 9, 11],
+
+            getChordNotes(root, type) {
+                const rootIndex = this.notes.indexOf(root);
+                let intervals;
+                
+                if (type === 'minor') {
+                    intervals = [0, 3, 7]; // Minor triad
+                } else if (type === 'major') {
+                    intervals = [0, 4, 7]; // Major triad
+                } else if (type === 'dim') {
+                    intervals = [0, 3, 6]; // Diminished
+                }
+                
+                return intervals.map(interval => 
+                    this.notes[(rootIndex + interval) % 12]
+                );
+            }
+        };
+
+        // Generate Chord Progression
+        function generateChordProgression() {
+            const key = document.getElementById('chordKey').value;
+            const mode = document.getElementById('chordMode').value;
+            const progressionType = document.getElementById('progressionType').value;
+            
+            const progression = chordTheory.progressions[progressionType];
+            const scale = mode === 'minor' ? chordTheory.minorScale : chordTheory.majorScale;
+            const rootIndex = chordTheory.notes.indexOf(key);
+            
+            const chords = [];
+            let codeOutput = `# ${progression.name} Progression in ${key} ${mode}\n\n`;
+            
+            progression.degrees.forEach((degree, index) => {
+                const scaleNote = (rootIndex + scale[degree]) % 12;
+                const chordRoot = chordTheory.notes[scaleNote];
+                
+                // Determine chord quality
+                let chordType = 'minor';
+                if (mode === 'minor') {
+                    if (degree === 2 || degree === 5 || degree === 6) chordType = 'major';
+                    if (degree === 1) chordType = 'dim';
+                } else {
+                    if (degree === 0 || degree === 3 || degree === 4) chordType = 'major';
+                }
+                
+                const notes = chordTheory.getChordNotes(chordRoot, chordType);
+                const chordSymbol = chordType === 'minor' ? 'm' : 
+                                  chordType === 'dim' ? 'dim' : '';
+                
+                chords.push({
+                    name: `${chordRoot}${chordSymbol}`,
+                    notes: notes.join(' - '),
+                    roman: getRomanNumeral(degree, mode)
+                });
+                
+                codeOutput += `Chord ${index + 1}: ${chordRoot}${chordSymbol}\n`;
+                codeOutput += `Notes: ${notes.join(', ')}\n`;
+                codeOutput += `MIDI: ${notes.map(n => getMIDINote(n, 4)).join(', ')}\n\n`;
+            });
+            
+            displayChords(chords);
+            document.getElementById('chordCode').textContent = codeOutput;
+            document.getElementById('chordOutput').style.display = 'block';
+        }
+
+        function getRomanNumeral(degree, mode) {
+            const numerals = ['i', 'ii', 'III', 'iv', 'v', 'VI', 'VII'];
+            return mode === 'minor' ? numerals[degree] : numerals[degree].toUpperCase();
+        }
+
+        function getMIDINote(note, octave) {
+            const noteIndex = chordTheory.notes.indexOf(note);
+            return 12 + (octave * 12) + noteIndex;
+        }
+
+        function displayChords(chords) {
+            const display = document.getElementById('chordDisplay');
+            display.innerHTML = chords.map((chord, i) => `
+                <div class="chord-item animated">
+                    <div>
+                        <span class="chord-name">${i + 1}. ${chord.name}</span>
+                        <span style="margin-left: 15px; color: var(--accent-secondary);">${chord.roman}</span>
+                    </div>
+                    <span class="chord-notes">${chord.notes}</span>
+                </div>
+            `).join('');
+        }
+
+        // Play Chord Progression
+        function playChordProgression() {
+            initAudio();
+            alert('🎵 Audio playback coming soon! For now, use the MIDI notes in the output to play in your DAW.');
+        }
+
+        // Beat Grid Generation
+        const instruments = ['808', 'Kick', 'Snare', 'Hi-Hat'];
+        let beatPattern = {
+            '808': [],
+            'Kick': [],
+            'Snare': [],
+            'Hi-Hat': []
+        };
+
+        function initBeatGrid() {
+            const grid = document.getElementById('beatGrid');
+            grid.innerHTML = '';
+            
+            // Header row with step numbers
+            grid.appendChild(createEmptyCell());
+            for (let i = 1; i <= 16; i++) {
+                const stepLabel = document.createElement('div');
+                stepLabel.className = 'beat-label';
+                stepLabel.textContent = i;
+                stepLabel.style.textAlign = 'center';
+                stepLabel.style.fontSize = '0.8em';
+                grid.appendChild(stepLabel);
+            }
+            
+            // Create grid for each instrument
+            instruments.forEach(instrument => {
+                const label = document.createElement('div');
+                label.className = 'beat-label';
+                label.textContent = instrument;
+                grid.appendChild(label);
+                
+                for (let step = 0; step < 16; step++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'beat-step';
+                    if (step % 4 === 0) cell.classList.add('bar-marker');
+                    cell.dataset.instrument = instrument;
+                    cell.dataset.step = step;
+                    
+                    cell.onclick = () => toggleStep(instrument, step, cell);
+                    grid.appendChild(cell);
+                }
+            });
+        }
+
+        function toggleStep(instrument, step, cell) {
+            const index = beatPattern[instrument].indexOf(step);
+            if (index > -1) {
+                beatPattern[instrument].splice(index, 1);
+                cell.classList.remove('active');
+            } else {
+                beatPattern[instrument].push(step);
+                cell.classList.add('active');
+            }
+        }
+
+        function updateBPM(value) {
+            document.getElementById('bpmValue').textContent = value;
+        }
+
+        function playBeat() {
+            if (isPlaying) return;
+            initAudio();
+            
+            isPlaying = true;
+            const bpm = parseInt(document.getElementById('bpmControl').value);
+            const stepDuration = (60 / bpm) / 4 * 1000; // 16th notes
+            
+            let currentStep = 0;
+            beatInterval = setInterval(() => {
+                // Highlight current step
+                document.querySelectorAll('.beat-step').forEach(cell => {
+                    if (parseInt(cell.dataset.step) === currentStep) {
+                        cell.style.transform = 'scale(1.2)';
+                        setTimeout(() => cell.style.transform = '', 100);
+                    }
+                });
+                
+                // Play sounds for active steps
+                instruments.forEach(instrument => {
+                    if (beatPattern[instrument].includes(currentStep)) {
+                        playSound(instrument);
+                    }
+                });
+                
+                currentStep = (currentStep + 1) % 16;
+            }, stepDuration);
+        }
+
+        function stopBeat() {
+            isPlaying = false;
+            if (beatInterval) {
+                clearInterval(beatInterval);
+            }
+        }
+
+        function clearPattern() {
+            beatPattern = {
+                '808': [],
+                'Kick': [],
+                'Snare': [],
+                'Hi-Hat': []
+            };
+            document.querySelectorAll('.beat-step').forEach(cell => {
+                cell.classList.remove('active');
+            });
+        }
+
+        function loadPattern(presetName) {
+            clearPattern();
+            
+            const presets = {
+                classic_trap: {
+                    bpm: 140,
+                    '808': [0, 3, 8, 11],
+                    'Kick': [0, 4, 8, 12],
+                    'Snare': [4, 12],
+                    'Hi-Hat': [0, 2, 4, 6, 8, 10, 12, 14]
+                },
+                drill: {
+                    bpm: 145,
+                    '808': [0, 2, 6, 11, 13],
+                    'Kick': [0, 6, 10],
+                    'Snare': [4, 12],
+                    'Hi-Hat': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+                },
+                boom_bap: {
+                    bpm: 90,
+                    '808': [0, 8],
+                    'Kick': [0, 10],
+                    'Snare': [4, 12],
+                    'Hi-Hat': [2, 6, 10, 14]
+                },
+                phonk: {
+                    bpm: 130,
+                    '808': [0, 4, 8, 12],
+                    'Kick': [0, 6, 8, 14],
+                    'Snare': [4, 12],
+                    'Hi-Hat': [0, 2, 4, 6, 8, 10, 12, 14]
+                }
+            };
+            
+            const preset = presets[presetName];
+            if (preset) {
+                document.getElementById('bpmControl').value = preset.bpm;
+                updateBPM(preset.bpm);
+                
+                beatPattern = { ...preset };
+                delete beatPattern.bpm;
+                
+                // Update UI
+                Object.keys(beatPattern).forEach(instrument => {
+                    beatPattern[instrument].forEach(step => {
+                        const cell = document.querySelector(
+                            `.beat-step[data-instrument="${instrument}"][data-step="${step}"]`
+                        );
+                        if (cell) cell.classList.add('active');
+                    });
+                });
+                
+                // Highlight selected preset
+                document.querySelectorAll('.preset-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                event.currentTarget.classList.add('selected');
+            }
+        }
+
+        function playSound(instrument) {
+            const ctx = audioContext;
+            const now = ctx.currentTime;
+            
+            // Create simple synthesis sounds
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            switch(instrument) {
+                case '808':
+                    osc.frequency.setValueAtTime(55, now);
+                    osc.frequency.exponentialRampToValueAtTime(40, now + 0.5);
+                    gain.gain.setValueAtTime(0.8, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.type = 'sine';
+                    break;
+                case 'Kick':
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(40, now + 0.1);
+                    gain.gain.setValueAtTime(1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.type = 'sine';
+                    break;
+                case 'Snare':
+                    osc.frequency.setValueAtTime(200, now);
+                    gain.gain.setValueAtTime(0.5, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.type = 'triangle';
+                    break;
+                case 'Hi-Hat':
+                    osc.frequency.setValueAtTime(8000, now);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.type = 'square';
+                    break;
+            }
+            
+            osc.start(now);
+            osc.stop(now + 0.5);
+        }
+
+        // 808 Bass Designer
+        let bass808Settings = {
+            freq: 55,
+            decay: 0.8,
+            cutoff: 180,
+            resonance: 0.4,
+            distortion: 0,
+            glide: 0
+        };
+
+        function update808Param(param, value) {
+            bass808Settings[param] = parseFloat(value);
+            document.getElementById(`${param}808Value`).textContent = value;
+            draw808Waveform();
+        }
+
+        function draw808Waveform() {
+            const canvas = document.getElementById('waveformCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerY = height / 2;
+            
+            ctx.fillStyle = getComputedStyle(document.documentElement)
+                .getPropertyValue('--bg-tertiary');
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw waveform
+            ctx.beginPath();
+            ctx.strokeStyle = getComputedStyle(document.documentElement)
+                .getPropertyValue('--accent-primary');
+            ctx.lineWidth = 2;
+            
+            const decayFactor = bass808Settings.decay;
+            const cycles = bass808Settings.freq / 20; // Approximate visual cycles
+            
+            for (let x = 0; x < width; x++) {
+                const t = x / width;
+                const decay = Math.exp(-t * 5 / decayFactor);
+                const wave = Math.sin(t * Math.PI * 2 * cycles) * decay;
+                const y = centerY + wave * (height / 2) * 0.8;
+                
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Draw grid
+            ctx.strokeStyle = getComputedStyle(document.documentElement)
+                .getPropertyValue('--border');
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.stroke();
+        }
+
+        function play808Preview() {
+            initAudio();
+            const ctx = audioContext;
+            const now = ctx.currentTime;
+            
+            const osc = ctx.createOscillator();
+            const filter = ctx.createBiquadFilter();
+            const gain = ctx.createGain();
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.frequency.setValueAtTime(bass808Settings.freq, now);
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(bass808Settings.cutoff, now);
+            filter.Q.setValueAtTime(bass808Settings.resonance * 10, now);
+            
+            gain.gain.setValueAtTime(0.8, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + bass808Settings.decay);
+            
+            osc.type = 'sine';
+            osc.start(now);
+            osc.stop(now + bass808Settings.decay);
+        }
+
+        function randomize808() {
+            bass808Settings = {
+                freq: Math.floor(Math.random() * 40) + 40,
+                decay: (Math.random() * 1.5 + 0.3).toFixed(1),
+                cutoff: Math.floor(Math.random() * 300) + 100,
+                resonance: (Math.random() * 0.8).toFixed(1),
+                distortion: Math.floor(Math.random() * 50),
+                glide: Math.floor(Math.random() * 150)
+            };
+            
+            // Update UI
+            document.getElementById('bass808Freq').value = bass808Settings.freq;
+            document.getElementById('bass808Decay').value = bass808Settings.decay;
+            document.getElementById('bass808Cutoff').value = bass808Settings.cutoff;
+            document.getElementById('bass808Resonance').value = bass808Settings.resonance;
+            document.getElementById('bass808Distortion').value = bass808Settings.distortion;
+            document.getElementById('bass808Glide').value = bass808Settings.glide;
+            
+            Object.keys(bass808Settings).forEach(param => {
+                document.getElementById(`${param}808Value`).textContent = bass808Settings[param];
+            });
+            
+            draw808Waveform();
+        }
+
+        function export808Settings() {
+            const settings = `# 808 Bass Settings\n\n` +
+                `Frequency: ${bass808Settings.freq} Hz\n` +
+                `Decay: ${bass808Settings.decay}s\n` +
+                `Filter Cutoff: ${bass808Settings.cutoff} Hz\n` +
+                `Resonance: ${bass808Settings.resonance}\n` +
+                `Distortion: ${bass808Settings.distortion}%\n` +
+                `Pitch Glide: ${bass808Settings.glide}ms\n\n` +
+                `# Synth2600 CLI Command:\n` +
+                `python3 synth2600_cli.py preset --load 808_custom\n` +
+                `python3 synth2600_cli.py params set "vco1.frequency=${bass808Settings.freq}"\n` +
+                `python3 synth2600_cli.py params set "env.decay=${bass808Settings.decay}"\n` +
+                `python3 synth2600_cli.py params set "vcf.cutoff=${bass808Settings.cutoff}"\n` +
+                `python3 synth2600_cli.py params set "vcf.resonance=${bass808Settings.resonance}"\n`;
+            
+            document.getElementById('bass808Code').textContent = settings;
+            document.getElementById('bass808Output').style.display = 'block';
+            
+            // Download as file
+            const blob = new Blob([settings], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '808_bass_settings.txt';
+            a.click();
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initBeatGrid();
+            draw808Waveform();
+        });
+
+        // Resume AudioContext on user interaction (required by browsers)
+        document.addEventListener('click', () => {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
