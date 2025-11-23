@@ -289,6 +289,152 @@
             border-left: 3px solid var(--accent-gold);
         }
 
+        /* ============================================ */
+        /* DAW ARRANGEMENT TIMELINE STYLES */
+        /* ============================================ */
+        
+        .pattern-block {
+            padding: 12px 8px;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 2px solid var(--accent-secondary);
+            border-radius: 8px;
+            text-align: center;
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        
+        .pattern-block:hover {
+            border-color: var(--accent-gold);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px var(--glow);
+        }
+        
+        .pattern-block:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+        
+        .pattern-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        
+        .pattern-name {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        .timeline-track {
+            display: flex;
+            margin-bottom: 8px;
+            min-height: 60px;
+            position: relative;
+        }
+        
+        .track-label {
+            width: 120px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 15px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px 0 0 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .track-icon {
+            font-size: 1.2em;
+        }
+        
+        .track-content {
+            flex: 1;
+            background: linear-gradient(90deg, 
+                rgba(255, 46, 99, 0.05) 0%, 
+                rgba(255, 46, 99, 0.05) 25%, 
+                transparent 25%, 
+                transparent 50%,
+                rgba(255, 46, 99, 0.05) 50%,
+                rgba(255, 46, 99, 0.05) 75%,
+                transparent 75%,
+                transparent 100%
+            );
+            background-size: 25% 100%;
+            border: 1px solid var(--border);
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            position: relative;
+            min-height: 60px;
+        }
+        
+        .track-content.drag-over {
+            background-color: rgba(0, 255, 0, 0.1);
+            border-color: var(--accent-gold);
+        }
+        
+        .arrangement-block {
+            position: absolute;
+            top: 5px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: 2px solid var(--accent-gold);
+            border-radius: 6px;
+            padding: 5px 10px;
+            cursor: move;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .arrangement-block:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--glow);
+            z-index: 10;
+        }
+        
+        .arrangement-block-icon {
+            font-size: 1.2em;
+            margin-bottom: 2px;
+        }
+        
+        .arrangement-block-name {
+            font-size: 0.7em;
+            color: #000;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+        }
+        
+        .arrangement-block.kick {
+            background: linear-gradient(135deg, #ff2e63, #ff6b9d);
+        }
+        
+        .arrangement-block.snare {
+            background: linear-gradient(135deg, #08d9d6, #5ce1e6);
+        }
+        
+        .arrangement-block.hihat {
+            background: linear-gradient(135deg, #ffbd39, #ffd66b);
+        }
+        
+        .arrangement-block.bass-808 {
+            background: linear-gradient(135deg, #9d4edd, #c77dff);
+        }
+        
+        .arrangement-block.melody {
+            background: linear-gradient(135deg, #06ffa5, #38ffb3);
+        }
+        
+        .arrangement-block.fx {
+            background: linear-gradient(135deg, #ff006e, #ff4d8f);
+        }
+
         /* 808 Designer */
         .waveform-display {
             width: 100%;
@@ -2080,6 +2226,177 @@
                 </div>
             </div>
 
+            <!-- ============================================ -->
+            <!-- EXPERT MODE: PATTERN COMBINATOR & INTELLIGENT BEAT GENERATOR -->
+            <!-- ============================================ -->
+            <div class="control-group" data-mode="advanced" style="margin: 30px 0; padding: 25px; background: linear-gradient(135deg, rgba(255, 46, 99, 0.15), rgba(138, 43, 226, 0.15)); border: 2px solid var(--accent-gold); border-radius: 15px;">
+                <h3 style="color: var(--accent-gold); margin-bottom: 20px; font-size: 1.3em; text-align: center;">
+                    🧠 Intelligent Beat Generator - Expert Mode
+                </h3>
+                
+                <p style="color: var(--text-secondary); text-align: center; margin-bottom: 25px; font-size: 0.95em;">
+                    Combine patterns automatically and generate complete beats based on style, instruments, and complexity!
+                </p>
+
+                <!-- Style-Based Beat Generation -->
+                <div style="margin-bottom: 25px; padding: 20px; background: var(--bg-secondary); border-radius: 10px;">
+                    <h4 style="color: var(--accent-secondary); margin-bottom: 15px; font-size: 1.1em;">
+                        🎯 Style-Based Auto-Generation
+                    </h4>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <!-- Genre Selection -->
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.9em; margin-bottom: 8px;">
+                                🎼 Genre Style:
+                            </label>
+                            <select id="genreStyle" class="form-control" style="width: 100%; padding: 10px; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px; font-size: 0.95em;">
+                                <option value="trap">🔥 Trap</option>
+                                <option value="drill">🔫 Drill</option>
+                                <option value="boom-bap">💿 Boom-Bap</option>
+                                <option value="lo-fi">🌙 Lo-Fi</option>
+                                <option value="hyperpop">⚡ Hyperpop</option>
+                                <option value="phonk">👻 Phonk</option>
+                                <option value="jersey-club">🎪 Jersey Club</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Complexity Level -->
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.9em; margin-bottom: 8px;">
+                                ⚙️ Complexity:
+                            </label>
+                            <select id="complexityLevel" class="form-control" style="width: 100%; padding: 10px; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px; font-size: 0.95em;">
+                                <option value="minimal">◽ Minimal (Sparse)</option>
+                                <option value="simple">🟢 Simple (Clean)</option>
+                                <option value="moderate" selected>🟡 Moderate (Balanced)</option>
+                                <option value="complex">🟠 Complex (Layered)</option>
+                                <option value="chaotic">🔴 Chaotic (Maximal)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Energy Level -->
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.9em; margin-bottom: 8px;">
+                                ⚡ Energy Level:
+                            </label>
+                            <input type="range" id="energyLevel" min="1" max="10" value="7" 
+                                   style="width: 100%; margin-top: 10px;"
+                                   oninput="document.getElementById('energyValue').textContent = this.value">
+                            <div style="text-align: center; color: var(--accent-gold); font-weight: bold; margin-top: 5px;">
+                                <span id="energyValue">7</span> / 10
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instrument Selection -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; color: var(--text-secondary); font-size: 0.9em; margin-bottom: 10px;">
+                            🎹 Select Active Instruments:
+                        </label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                            <label style="display: flex; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                <input type="checkbox" id="inst_kick" checked style="margin-right: 10px;">
+                                <span>🥁 Kick</span>
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                <input type="checkbox" id="inst_snare" checked style="margin-right: 10px;">
+                                <span>👏 Snare</span>
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                <input type="checkbox" id="inst_hihat" checked style="margin-right: 10px;">
+                                <span>🎩 Hi-Hat</span>
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                <input type="checkbox" id="inst_808" checked style="margin-right: 10px;">
+                                <span>🔊 808</span>
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                <input type="checkbox" id="inst_perc" style="margin-right: 10px;">
+                                <span>🎵 Percussion</span>
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                <input type="checkbox" id="inst_melody" style="margin-right: 10px;">
+                                <span>🎹 Melody</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <div style="text-align: center;">
+                        <button class="btn" onclick="generateIntelligentBeat()" style="font-size: 1.1em; padding: 15px 40px; background: linear-gradient(135deg, var(--accent-gold), #ffd700); color: #000; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);">
+                            🧠 Generate Beat
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pattern Combination Library -->
+                <div style="padding: 20px; background: var(--bg-secondary); border-radius: 10px;">
+                    <h4 style="color: var(--accent-secondary); margin-bottom: 15px; font-size: 1.1em;">
+                        🎨 Pattern Combination Presets
+                    </h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85em; margin-bottom: 15px;">
+                        Pre-made combinations that work great together. Click to apply!
+                    </p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        <button class="btn btn-secondary" onclick="loadPatternCombo('trap-banger')" style="padding: 12px;">
+                            🔥 Trap Banger
+                            <div style="font-size: 0.75em; opacity: 0.8;">Hard Kick + Trap Roll</div>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadPatternCombo('drill-attack')" style="padding: 12px;">
+                            🔫 Drill Attack
+                            <div style="font-size: 0.75em; opacity: 0.8;">Drill Kick + Roll Hats</div>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadPatternCombo('minimalist')" style="padding: 12px;">
+                            ◽ Minimalist
+                            <div style="font-size: 0.75em; opacity: 0.8;">Sparse + Minimal</div>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadPatternCombo('hyperpop-chaos')" style="padding: 12px;">
+                            ⚡ Hyperpop Chaos
+                            <div style="font-size: 0.75em; opacity: 0.8;">Double Time + Syncopated</div>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadPatternCombo('boom-bap-classic')" style="padding: 12px;">
+                            💿 Boom-Bap Classic
+                            <div style="font-size: 0.75em; opacity: 0.8;">Classic + Half-Time</div>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadPatternCombo('lo-fi-chill')" style="padding: 12px;">
+                            🌙 Lo-Fi Chill
+                            <div style="font-size: 0.75em; opacity: 0.8;">Offbeat + Shuffled</div>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadPatternCombo('jersey-bounce')" style="padding: 12px;">
+                            🎪 Jersey Bounce
+                            <div style="font-size: 0.75em; opacity: 0.8;">Triplet + Double Time</div>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadPatternCombo('phonk-drift')" style="padding: 12px;">
+                            👻 Phonk Drift
+                            <div style="font-size: 0.75em; opacity: 0.8;">Rolling + Syncopated</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pattern Randomizer -->
+                <div style="margin-top: 20px; padding: 20px; background: var(--bg-tertiary); border-radius: 10px; text-align: center;">
+                    <h4 style="color: var(--accent-secondary); margin-bottom: 15px; font-size: 1em;">
+                        🎲 Pattern Randomizer
+                    </h4>
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="randomizeKickPattern()">
+                            🥁 Random Kick
+                        </button>
+                        <button class="btn btn-secondary" onclick="randomizeHiHatPattern()">
+                            🎩 Random Hi-Hat
+                        </button>
+                        <button class="btn btn-secondary" onclick="randomizeAllPatterns()">
+                            🎲 Randomize All
+                        </button>
+                        <button class="btn btn-secondary" onclick="mutateCurrentPattern()">
+                            🧬 Mutate Current
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="control-group" data-mode="basic">
                 <div class="control-label-enhanced">
                     <span>
@@ -2291,6 +2608,208 @@
 
             <div id="bass808Output" class="output-box" style="display: none;">
                 <pre id="bass808Code"></pre>
+            </div>
+
+            <!-- ============================================ -->
+            <!-- DAW-STYLE ARRANGEMENT TIMELINE (ADVANCED MODE) -->
+            <!-- ============================================ -->
+            <div class="control-group" data-mode="advanced" style="margin-top: 30px;">
+                <div style="padding: 25px; background: linear-gradient(135deg, rgba(255, 46, 99, 0.15), rgba(8, 217, 214, 0.15)); border: 2px solid var(--accent-gold); border-radius: 15px;">
+                    <h2 style="color: var(--accent-gold); margin-bottom: 20px; font-size: 1.4em; text-align: center;">
+                        🎼 Arrangement Timeline - DAW Style
+                    </h2>
+                    
+                    <p style="color: var(--text-secondary); text-align: center; margin-bottom: 25px; font-size: 0.95em;">
+                        Arrange your patterns and instruments into a full track. Drag blocks to build your song structure!
+                    </p>
+
+                    <!-- Timeline Controls -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px; background: var(--bg-tertiary); border-radius: 10px;">
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn" onclick="playArrangement()" id="playArrangementBtn">
+                                ▶️ Play Full Track
+                            </button>
+                            <button class="btn btn-secondary" onclick="stopArrangement()">
+                                ⏹️ Stop
+                            </button>
+                            <button class="btn btn-secondary" onclick="clearArrangement()">
+                                🗑️ Clear All
+                            </button>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <label style="color: var(--text-secondary); font-size: 0.9em;">
+                                Bars: <span id="arrangementBars">8</span>
+                            </label>
+                            <input type="range" id="arrangementLength" min="4" max="32" value="8" step="4"
+                                   oninput="updateArrangementLength(this.value)"
+                                   style="width: 150px;">
+                        </div>
+                    </div>
+
+                    <!-- Pattern Library (Drag Sources) -->
+                    <div style="margin-bottom: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 10px;">
+                        <h4 style="color: var(--accent-secondary); margin-bottom: 15px; font-size: 1em;">
+                            📦 Pattern Library - Drag to Timeline
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
+                            <!-- Kick Patterns -->
+                            <div class="pattern-block" draggable="true" data-type="kick" data-pattern="classic">
+                                <div class="pattern-icon">🥁</div>
+                                <div class="pattern-name">Classic Kick</div>
+                            </div>
+                            <div class="pattern-block" draggable="true" data-type="kick" data-pattern="hard">
+                                <div class="pattern-icon">🥁</div>
+                                <div class="pattern-name">Hard Kick</div>
+                            </div>
+                            <div class="pattern-block" draggable="true" data-type="kick" data-pattern="drill">
+                                <div class="pattern-icon">🥁</div>
+                                <div class="pattern-name">Drill Kick</div>
+                            </div>
+                            
+                            <!-- Hi-Hat Patterns -->
+                            <div class="pattern-block" draggable="true" data-type="hihat" data-pattern="closed">
+                                <div class="pattern-icon">🎩</div>
+                                <div class="pattern-name">Closed Hats</div>
+                            </div>
+                            <div class="pattern-block" draggable="true" data-type="hihat" data-pattern="trap-roll">
+                                <div class="pattern-icon">🎩</div>
+                                <div class="pattern-name">Trap Roll</div>
+                            </div>
+                            <div class="pattern-block" draggable="true" data-type="hihat" data-pattern="double-time">
+                                <div class="pattern-icon">🎩</div>
+                                <div class="pattern-name">Double Time</div>
+                            </div>
+                            
+                            <!-- 808 Bass Patterns -->
+                            <div class="pattern-block" draggable="true" data-type="808" data-pattern="rolling">
+                                <div class="pattern-icon">🔊</div>
+                                <div class="pattern-name">808 Rolling</div>
+                            </div>
+                            <div class="pattern-block" draggable="true" data-type="808" data-pattern="melodic">
+                                <div class="pattern-icon">🔊</div>
+                                <div class="pattern-name">808 Melodic</div>
+                            </div>
+                            
+                            <!-- Snare Patterns -->
+                            <div class="pattern-block" draggable="true" data-type="snare" data-pattern="classic">
+                                <div class="pattern-icon">👏</div>
+                                <div class="pattern-name">Snare Basic</div>
+                            </div>
+                            <div class="pattern-block" draggable="true" data-type="snare" data-pattern="roll">
+                                <div class="pattern-icon">👏</div>
+                                <div class="pattern-name">Snare Roll</div>
+                            </div>
+                            
+                            <!-- Special Elements -->
+                            <div class="pattern-block" draggable="true" data-type="melody" data-pattern="chord">
+                                <div class="pattern-icon">🎹</div>
+                                <div class="pattern-name">Chord Prog</div>
+                            </div>
+                            <div class="pattern-block" draggable="true" data-type="fx" data-pattern="riser">
+                                <div class="pattern-icon">⚡</div>
+                                <div class="pattern-name">Riser FX</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arrangement Timeline Grid -->
+                    <div style="background: #000; padding: 20px; border-radius: 10px; overflow-x: auto;">
+                        <div id="arrangementTimeline" style="min-width: 800px;">
+                            <!-- Timeline header with bar markers -->
+                            <div style="display: flex; margin-bottom: 10px; padding-left: 120px;">
+                                <div id="timelineMarkers" style="display: flex; flex: 1;">
+                                    <!-- Generated by JS -->
+                                </div>
+                            </div>
+                            
+                            <!-- Track rows -->
+                            <div id="timelineTracks">
+                                <!-- Track 1: Kick -->
+                                <div class="timeline-track" data-track="kick">
+                                    <div class="track-label">
+                                        <span class="track-icon">🥁</span>
+                                        <span>Kick</span>
+                                    </div>
+                                    <div class="track-content" data-track-type="kick"></div>
+                                </div>
+                                
+                                <!-- Track 2: Snare -->
+                                <div class="timeline-track" data-track="snare">
+                                    <div class="track-label">
+                                        <span class="track-icon">👏</span>
+                                        <span>Snare</span>
+                                    </div>
+                                    <div class="track-content" data-track-type="snare"></div>
+                                </div>
+                                
+                                <!-- Track 3: Hi-Hat -->
+                                <div class="timeline-track" data-track="hihat">
+                                    <div class="track-label">
+                                        <span class="track-icon">🎩</span>
+                                        <span>Hi-Hat</span>
+                                    </div>
+                                    <div class="track-content" data-track-type="hihat"></div>
+                                </div>
+                                
+                                <!-- Track 4: 808 Bass -->
+                                <div class="timeline-track" data-track="808">
+                                    <div class="track-label">
+                                        <span class="track-icon">🔊</span>
+                                        <span>808</span>
+                                    </div>
+                                    <div class="track-content" data-track-type="808"></div>
+                                </div>
+                                
+                                <!-- Track 5: Melody -->
+                                <div class="timeline-track" data-track="melody">
+                                    <div class="track-label">
+                                        <span class="track-icon">🎹</span>
+                                        <span>Melody</span>
+                                    </div>
+                                    <div class="track-content" data-track-type="melody"></div>
+                                </div>
+                                
+                                <!-- Track 6: FX -->
+                                <div class="timeline-track" data-track="fx">
+                                    <div class="track-label">
+                                        <span class="track-icon">⚡</span>
+                                        <span>FX</span>
+                                    </div>
+                                    <div class="track-content" data-track-type="fx"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arrangement Info -->
+                    <div style="margin-top: 15px; padding: 15px; background: var(--bg-tertiary); border-radius: 10px; text-align: center;">
+                        <div style="color: var(--text-secondary); font-size: 0.9em;">
+                            <strong style="color: var(--accent-gold);">💡 Tips:</strong>
+                            Drag patterns from the library onto tracks. Click blocks to delete. Double-click to edit. Build intro → verse → chorus → outro!
+                        </div>
+                    </div>
+
+                    <!-- Quick Arrangement Presets -->
+                    <div style="margin-top: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 10px;">
+                        <h4 style="color: var(--accent-secondary); margin-bottom: 15px; font-size: 1em;">
+                            🎯 Quick Arrangement Templates
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                            <button class="btn btn-secondary" onclick="loadArrangementTemplate('intro-verse-chorus')">
+                                📊 Intro → Verse → Chorus
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadArrangementTemplate('trap-buildup')">
+                                🔥 Trap Buildup
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadArrangementTemplate('drill-structure')">
+                                🔫 Drill Structure
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadArrangementTemplate('minimal-loop')">
+                                🎵 Minimal Loop
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- Synthesis Architecture Info -->
@@ -4746,6 +5265,867 @@ Pads:                200-800 Hz  [Atmosphere]
             } else {
                 info.style.display = 'none';
             }
+        }
+
+        // ============================================
+        // DAW-STYLE ARRANGEMENT TIMELINE
+        // ============================================
+        
+        let arrangementData = {
+            kick: [],
+            snare: [],
+            hihat: [],
+            '808': [],
+            melody: [],
+            fx: []
+        };
+        let arrangementLength = 8; // in bars
+        let isPlayingArrangement = false;
+        let arrangementPlaybackTimeout = null;
+        
+        /**
+         * Initialize arrangement timeline
+         */
+        function initArrangementTimeline() {
+            updateTimelineMarkers();
+            setupDragAndDrop();
+        }
+        
+        /**
+         * Update timeline bar markers
+         */
+        function updateTimelineMarkers() {
+            const markers = document.getElementById('timelineMarkers');
+            if (!markers) return;
+            
+            markers.innerHTML = '';
+            for (let i = 1; i <= arrangementLength; i++) {
+                const marker = document.createElement('div');
+                marker.style.cssText = `
+                    flex: 1;
+                    text-align: center;
+                    color: var(--text-secondary);
+                    font-size: 0.8em;
+                    border-left: 1px solid var(--border);
+                    padding: 5px 0;
+                `;
+                marker.textContent = `Bar ${i}`;
+                markers.appendChild(marker);
+            }
+        }
+        
+        /**
+         * Update arrangement length
+         */
+        function updateArrangementLength(bars) {
+            arrangementLength = parseInt(bars);
+            document.getElementById('arrangementBars').textContent = bars;
+            updateTimelineMarkers();
+            
+            // Adjust track content widths
+            document.querySelectorAll('.track-content').forEach(track => {
+                // Remove blocks that are beyond new length
+                const blocks = track.querySelectorAll('.arrangement-block');
+                blocks.forEach(block => {
+                    const blockStart = parseFloat(block.dataset.startBar);
+                    if (blockStart >= arrangementLength) {
+                        block.remove();
+                    }
+                });
+            });
+        }
+        
+        /**
+         * Setup drag and drop for pattern blocks
+         */
+        function setupDragAndDrop() {
+            // Make pattern library items draggable
+            document.querySelectorAll('.pattern-block').forEach(block => {
+                block.addEventListener('dragstart', handleDragStart);
+                block.addEventListener('dragend', handleDragEnd);
+            });
+            
+            // Make track content areas droppable
+            document.querySelectorAll('.track-content').forEach(track => {
+                track.addEventListener('dragover', handleDragOver);
+                track.addEventListener('dragleave', handleDragLeave);
+                track.addEventListener('drop', handleDrop);
+            });
+        }
+        
+        let draggedPattern = null;
+        
+        function handleDragStart(e) {
+            draggedPattern = {
+                type: this.dataset.type,
+                pattern: this.dataset.pattern,
+                name: this.querySelector('.pattern-name').textContent
+            };
+            this.style.opacity = '0.5';
+            e.dataTransfer.effectAllowed = 'copy';
+        }
+        
+        function handleDragEnd(e) {
+            this.style.opacity = '1';
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            this.classList.add('drag-over');
+            return false;
+        }
+        
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+            
+            if (!draggedPattern) return;
+            
+            // Calculate drop position (which bar)
+            const trackRect = this.getBoundingClientRect();
+            const dropX = e.clientX - trackRect.left;
+            const barWidth = trackRect.width / arrangementLength;
+            const barPosition = Math.floor(dropX / barWidth);
+            
+            // Check if pattern type matches track type
+            const trackType = this.dataset.trackType;
+            if (draggedPattern.type !== trackType && trackType !== '808') {
+                // Allow flexibility - user can place different patterns
+                // console.log('Pattern type mismatch, but allowing for creative freedom');
+            }
+            
+            // Create arrangement block
+            createArrangementBlock(this, draggedPattern, barPosition);
+            
+            return false;
+        }
+        
+        /**
+         * Create an arrangement block on the timeline
+         */
+        function createArrangementBlock(trackContent, pattern, barPosition) {
+            // Prevent overlapping - check if block exists at this position
+            const existingBlocks = trackContent.querySelectorAll('.arrangement-block');
+            for (let block of existingBlocks) {
+                const existingBar = parseInt(block.dataset.startBar);
+                const existingLength = parseInt(block.dataset.length);
+                if (barPosition >= existingBar && barPosition < existingBar + existingLength) {
+                    console.log('Block already exists at this position');
+                    return;
+                }
+            }
+            
+            const block = document.createElement('div');
+            block.className = `arrangement-block ${pattern.type}`;
+            block.dataset.type = pattern.type;
+            block.dataset.pattern = pattern.pattern;
+            block.dataset.startBar = barPosition;
+            block.dataset.length = 1; // 1 bar length by default
+            
+            // Position the block
+            const barWidth = 100 / arrangementLength;
+            block.style.left = `${barPosition * barWidth}%`;
+            block.style.width = `${barWidth}%`;
+            
+            // Block content
+            const icon = getPatternIcon(pattern.type);
+            block.innerHTML = `
+                <div class="arrangement-block-icon">${icon}</div>
+                <div class="arrangement-block-name">${pattern.name}</div>
+            `;
+            
+            // Add click to delete
+            block.addEventListener('click', function(e) {
+                if (e.shiftKey) {
+                    // Shift-click to delete
+                    this.remove();
+                }
+            });
+            
+            // Add double-click to edit/extend
+            block.addEventListener('dblclick', function(e) {
+                const currentLength = parseInt(this.dataset.length);
+                const newLength = (currentLength % 4) + 1; // Cycle through 1, 2, 3, 4 bars
+                this.dataset.length = newLength;
+                this.style.width = `${barWidth * newLength}%`;
+            });
+            
+            trackContent.appendChild(block);
+            
+            // Store in arrangement data
+            const trackType = trackContent.dataset.trackType;
+            if (!arrangementData[trackType]) {
+                arrangementData[trackType] = [];
+            }
+            arrangementData[trackType].push({
+                pattern: pattern.pattern,
+                startBar: barPosition,
+                length: 1
+            });
+        }
+        
+        /**
+         * Get icon for pattern type
+         */
+        function getPatternIcon(type) {
+            const icons = {
+                'kick': '🥁',
+                'snare': '👏',
+                'hihat': '🎩',
+                '808': '🔊',
+                'melody': '🎹',
+                'fx': '⚡'
+            };
+            return icons[type] || '🎵';
+        }
+        
+        /**
+         * Play full arrangement
+         */
+        async function playArrangement() {
+            if (isPlayingArrangement) {
+                stopArrangement();
+                return;
+            }
+            
+            // Check if there are any blocks
+            const allTracks = document.querySelectorAll('.track-content');
+            let hasBlocks = false;
+            allTracks.forEach(track => {
+                if (track.querySelectorAll('.arrangement-block').length > 0) {
+                    hasBlocks = true;
+                }
+            });
+            
+            if (!hasBlocks) {
+                alert('⚠️ Add some pattern blocks to the timeline first!\n\nDrag patterns from the library onto the tracks.');
+                return;
+            }
+            
+            isPlayingArrangement = true;
+            document.getElementById('playArrangementBtn').innerHTML = '⏸️ Pause';
+            
+            // Initialize audio context
+            if (!audioContext) {
+                initAudio();
+            }
+            
+            // Calculate BPM and timing
+            const bpm = parseInt(document.getElementById('bpmControl').value);
+            const beatsPerBar = 4;
+            const barDuration = (60 / bpm) * beatsPerBar; // in seconds
+            
+            // Play each bar sequentially
+            let currentBar = 0;
+            const playNextBar = () => {
+                if (!isPlayingArrangement || currentBar >= arrangementLength) {
+                    stopArrangement();
+                    return;
+                }
+                
+                // Highlight current bar
+                updatePlayheadPosition(currentBar);
+                
+                // Trigger all patterns at this bar position
+                allTracks.forEach(track => {
+                    const blocks = track.querySelectorAll('.arrangement-block');
+                    blocks.forEach(block => {
+                        const startBar = parseInt(block.dataset.startBar);
+                        const length = parseInt(block.dataset.length);
+                        const endBar = startBar + length;
+                        
+                        if (currentBar >= startBar && currentBar < endBar) {
+                            // This block should play
+                            const pattern = block.dataset.pattern;
+                            const type = block.dataset.type;
+                            playPatternOnTimeline(type, pattern, audioContext.currentTime);
+                        }
+                    });
+                });
+                
+                currentBar++;
+                arrangementPlaybackTimeout = setTimeout(playNextBar, barDuration * 1000);
+            };
+            
+            playNextBar();
+        }
+        
+        /**
+         * Stop arrangement playback
+         */
+        function stopArrangement() {
+            isPlayingArrangement = false;
+            document.getElementById('playArrangementBtn').innerHTML = '▶️ Play Full Track';
+            if (arrangementPlaybackTimeout) {
+                clearTimeout(arrangementPlaybackTimeout);
+                arrangementPlaybackTimeout = null;
+            }
+            removePlayheadHighlight();
+        }
+        
+        /**
+         * Update playhead position visual indicator
+         */
+        function updatePlayheadPosition(barIndex) {
+            // Add visual feedback for current bar playback
+            document.querySelectorAll('.track-content').forEach(track => {
+                const barWidth = 100 / arrangementLength;
+                // Could add a playhead line here
+            });
+        }
+        
+        /**
+         * Remove playhead highlight
+         */
+        function removePlayheadHighlight() {
+            // Clean up playhead visual
+        }
+        
+        /**
+         * Play a specific pattern on the timeline
+         */
+        function playPatternOnTimeline(type, patternName, startTime) {
+            if (!audioContext) return;
+            
+            // Play appropriate sound based on type and pattern
+            switch(type) {
+                case 'kick':
+                    playKickDrum(audioContext, startTime);
+                    break;
+                case 'snare':
+                    playSnareDrum(audioContext, startTime);
+                    break;
+                case 'hihat':
+                    playHiHat(audioContext, startTime);
+                    break;
+                case '808':
+                    play808Bass(audioContext, startTime);
+                    break;
+                case 'melody':
+                    // Play chord progression or melody
+                    if (generatedChords.length > 0) {
+                        playChordAtTime(generatedChords[0], startTime);
+                    }
+                    break;
+                case 'fx':
+                    // Play FX sound (could be hi-hat roll or cymbal)
+                    playHiHat(audioContext, startTime);
+                    setTimeout(() => playHiHat(audioContext, audioContext.currentTime), 50);
+                    break;
+            }
+        }
+        
+        /**
+         * Clear all arrangement blocks
+         */
+        function clearArrangement() {
+            if (!confirm('Clear entire arrangement? This cannot be undone.')) {
+                return;
+            }
+            
+            document.querySelectorAll('.track-content').forEach(track => {
+                track.innerHTML = '';
+            });
+            
+            arrangementData = {
+                kick: [],
+                snare: [],
+                hihat: [],
+                '808': [],
+                melody: [],
+                fx: []
+            };
+        }
+        
+        /**
+         * Load arrangement template
+         */
+        function loadArrangementTemplate(templateName) {
+            clearArrangement();
+            
+            const templates = {
+                'intro-verse-chorus': {
+                    kick: [{pattern: 'classic', startBar: 0, length: 2}, {pattern: 'hard', startBar: 2, length: 4}, {pattern: 'drill', startBar: 6, length: 2}],
+                    hihat: [{pattern: 'closed', startBar: 0, length: 2}, {pattern: 'trap-roll', startBar: 2, length: 4}, {pattern: 'double-time', startBar: 6, length: 2}],
+                    snare: [{pattern: 'classic', startBar: 2, length: 4}, {pattern: 'roll', startBar: 6, length: 2}],
+                    '808': [{pattern: 'rolling', startBar: 2, length: 6}]
+                },
+                'trap-buildup': {
+                    kick: [{pattern: 'sparse', startBar: 0, length: 4}, {pattern: 'hard', startBar: 4, length: 4}],
+                    hihat: [{pattern: 'closed', startBar: 0, length: 4}, {pattern: 'trap-roll', startBar: 4, length: 4}],
+                    fx: [{pattern: 'riser', startBar: 3, length: 1}]
+                },
+                'drill-structure': {
+                    kick: [{pattern: 'drill', startBar: 0, length: 8}],
+                    hihat: [{pattern: 'drill-roll', startBar: 0, length: 8}],
+                    snare: [{pattern: 'roll', startBar: 2, length: 6}],
+                    '808': [{pattern: 'rolling', startBar: 0, length: 8}]
+                },
+                'minimal-loop': {
+                    kick: [{pattern: 'classic', startBar: 0, length: 4}],
+                    hihat: [{pattern: 'minimal', startBar: 0, length: 4}],
+                    '808': [{pattern: 'melodic', startBar: 0, length: 4}]
+                }
+            };
+            
+            const template = templates[templateName];
+            if (!template) return;
+            
+            // Create blocks for each track
+            Object.keys(template).forEach(trackType => {
+                const trackContent = document.querySelector(`.track-content[data-track-type="${trackType}"]`);
+                if (!trackContent) return;
+                
+                template[trackType].forEach(item => {
+                    const pattern = {
+                        type: trackType,
+                        pattern: item.pattern,
+                        name: item.pattern.charAt(0).toUpperCase() + item.pattern.slice(1)
+                    };
+                    
+                    const block = document.createElement('div');
+                    block.className = `arrangement-block ${trackType}`;
+                    block.dataset.type = trackType;
+                    block.dataset.pattern = item.pattern;
+                    block.dataset.startBar = item.startBar;
+                    block.dataset.length = item.length;
+                    
+                    const barWidth = 100 / arrangementLength;
+                    block.style.left = `${item.startBar * barWidth}%`;
+                    block.style.width = `${item.length * barWidth}%`;
+                    
+                    const icon = getPatternIcon(trackType);
+                    block.innerHTML = `
+                        <div class="arrangement-block-icon">${icon}</div>
+                        <div class="arrangement-block-name">${pattern.name}</div>
+                    `;
+                    
+                    block.addEventListener('click', function(e) {
+                        if (e.shiftKey) this.remove();
+                    });
+                    
+                    block.addEventListener('dblclick', function(e) {
+                        const currentLength = parseInt(this.dataset.length);
+                        const newLength = (currentLength % 4) + 1;
+                        this.dataset.length = newLength;
+                        this.style.width = `${barWidth * newLength}%`;
+                    });
+                    
+                    trackContent.appendChild(block);
+                });
+            });
+            
+            console.log(`Loaded template: ${templateName}`);
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            setTimeout(initArrangementTimeline, 500);
+        });
+
+        // ============================================
+        // INTELLIGENT BEAT GENERATOR - EXPERT MODE
+        // ============================================
+        
+        /**
+         * Generate an intelligent beat based on style, complexity, and instruments
+         */
+        function generateIntelligentBeat() {
+            const genre = document.getElementById('genreStyle').value;
+            const complexity = document.getElementById('complexityLevel').value;
+            const energy = parseInt(document.getElementById('energyLevel').value);
+            
+            // Get active instruments
+            const instruments = {
+                kick: document.getElementById('inst_kick').checked,
+                snare: document.getElementById('inst_snare').checked,
+                hihat: document.getElementById('inst_hihat').checked,
+                bass808: document.getElementById('inst_808').checked,
+                perc: document.getElementById('inst_perc').checked,
+                melody: document.getElementById('inst_melody').checked
+            };
+            
+            console.log(`Generating ${genre} beat | Complexity: ${complexity} | Energy: ${energy}`);
+            
+            // Clear current pattern
+            clearPattern();
+            
+            // Generate BPM based on genre and energy
+            const bpm = calculateBPMForGenre(genre, energy);
+            document.getElementById('bpmControl').value = bpm;
+            updateBPM(bpm);
+            
+            // Generate patterns for each active instrument
+            if (instruments.kick) {
+                const kickPattern = selectKickPattern(genre, complexity, energy);
+                loadKickPattern(kickPattern);
+            }
+            
+            if (instruments.hihat) {
+                const hihatPattern = selectHiHatPattern(genre, complexity, energy);
+                loadHiHatPattern(hihatPattern);
+            }
+            
+            if (instruments.snare) {
+                generateSnarePattern(genre, complexity, energy);
+            }
+            
+            if (instruments.bass808) {
+                generate808Pattern(genre, energy);
+            }
+            
+            // Play preview
+            setTimeout(() => {
+                playBeat();
+            }, 300);
+            
+            // Show notification
+            showBeatGenerationNotification(genre, complexity);
+        }
+        
+        /**
+         * Calculate BPM for genre
+         */
+        function calculateBPMForGenre(genre, energy) {
+            const bpmRanges = {
+                'trap': { min: 130, max: 150 },
+                'drill': { min: 140, max: 165 },
+                'boom-bap': { min: 80, max: 95 },
+                'lo-fi': { min: 70, max: 90 },
+                'hyperpop': { min: 150, max: 180 },
+                'phonk': { min: 120, max: 145 },
+                'jersey-club': { min: 130, max: 145 }
+            };
+            
+            const range = bpmRanges[genre] || { min: 120, max: 140 };
+            const bpm = Math.round(range.min + (range.max - range.min) * (energy / 10));
+            return bpm;
+        }
+        
+        /**
+         * Select kick pattern based on parameters
+         */
+        function selectKickPattern(genre, complexity, energy) {
+            const patterns = {
+                'trap': {
+                    minimal: 'sparse',
+                    simple: 'classic',
+                    moderate: 'hard',
+                    complex: 'rolling',
+                    chaotic: 'double'
+                },
+                'drill': {
+                    minimal: 'classic',
+                    simple: 'drill',
+                    moderate: 'hard',
+                    complex: 'drill',
+                    chaotic: 'rolling'
+                },
+                'boom-bap': {
+                    minimal: 'classic',
+                    simple: 'classic',
+                    moderate: 'offbeat',
+                    complex: 'syncopated',
+                    chaotic: 'breakbeat'
+                },
+                'lo-fi': {
+                    minimal: 'sparse',
+                    simple: 'classic',
+                    moderate: 'offbeat',
+                    complex: 'syncopated',
+                    chaotic: 'rolling'
+                },
+                'hyperpop': {
+                    minimal: 'double',
+                    simple: 'hard',
+                    moderate: 'triplet',
+                    complex: 'rolling',
+                    chaotic: 'breakbeat'
+                },
+                'phonk': {
+                    minimal: 'classic',
+                    simple: 'rolling',
+                    moderate: 'hard',
+                    complex: 'drill',
+                    chaotic: 'breakbeat'
+                },
+                'jersey-club': {
+                    minimal: 'classic',
+                    simple: 'double',
+                    moderate: 'triplet',
+                    complex: 'rolling',
+                    chaotic: 'breakbeat'
+                }
+            };
+            
+            return patterns[genre]?.[complexity] || 'classic';
+        }
+        
+        /**
+         * Select hi-hat pattern based on parameters
+         */
+        function selectHiHatPattern(genre, complexity, energy) {
+            const patterns = {
+                'trap': {
+                    minimal: 'closed',
+                    simple: 'closed',
+                    moderate: 'trap-roll',
+                    complex: 'double-time',
+                    chaotic: 'drill-roll'
+                },
+                'drill': {
+                    minimal: 'closed',
+                    simple: 'drill-roll',
+                    moderate: 'drill-roll',
+                    complex: 'double-time',
+                    chaotic: 'trap-roll'
+                },
+                'boom-bap': {
+                    minimal: 'minimal',
+                    simple: 'closed',
+                    moderate: 'half-time',
+                    complex: 'shuffled',
+                    chaotic: 'syncopated'
+                },
+                'lo-fi': {
+                    minimal: 'minimal',
+                    simple: 'half-time',
+                    moderate: 'shuffled',
+                    complex: 'syncopated',
+                    chaotic: 'triplets'
+                },
+                'hyperpop': {
+                    minimal: 'closed',
+                    simple: 'double-time',
+                    moderate: 'trap-roll',
+                    complex: 'drill-roll',
+                    chaotic: 'double-time'
+                },
+                'phonk': {
+                    minimal: 'closed',
+                    simple: 'shuffled',
+                    moderate: 'syncopated',
+                    complex: 'trap-roll',
+                    chaotic: 'drill-roll'
+                },
+                'jersey-club': {
+                    minimal: 'closed',
+                    simple: 'double-time',
+                    moderate: 'triplets',
+                    complex: 'trap-roll',
+                    chaotic: 'drill-roll'
+                }
+            };
+            
+            return patterns[genre]?.[complexity] || 'closed';
+        }
+        
+        /**
+         * Generate snare pattern
+         */
+        function generateSnarePattern(genre, complexity, energy) {
+            // Snare typically hits on beats 2 and 4
+            const basePattern = [4, 12]; // Steps 5 and 13 (beats 2 and 4)
+            
+            if (complexity === 'complex' || complexity === 'chaotic') {
+                // Add extra snare hits
+                basePattern.push(7, 15);
+            }
+            
+            if (complexity === 'chaotic' && energy > 7) {
+                // Add even more snare rolls
+                basePattern.push(3, 11);
+            }
+            
+            beatPattern['Snare'] = basePattern;
+            updateBeatGrid();
+        }
+        
+        /**
+         * Generate 808 bass pattern
+         */
+        function generate808Pattern(genre, energy) {
+            // 808 follows kick pattern but with some variation
+            const basePattern = [0, 8]; // On beat
+            
+            if (energy > 5) {
+                basePattern.push(4, 12);
+            }
+            
+            if (energy > 7) {
+                basePattern.push(6, 14);
+            }
+            
+            beatPattern['808'] = basePattern;
+            updateBeatGrid();
+        }
+        
+        /**
+         * Update beat grid visual after pattern changes
+         */
+        function updateBeatGrid() {
+            instruments.forEach(instrument => {
+                for (let step = 0; step < 16; step++) {
+                    const cell = document.querySelector(`[data-instrument="${instrument}"][data-step="${step}"]`);
+                    if (cell) {
+                        if (beatPattern[instrument].includes(step)) {
+                            cell.classList.add('active');
+                        } else {
+                            cell.classList.remove('active');
+                        }
+                    }
+                }
+            });
+        }
+        
+        /**
+         * Show beat generation notification
+         */
+        function showBeatGenerationNotification(genre, complexity) {
+            const notif = document.createElement('div');
+            notif.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 20px 30px;
+                background: linear-gradient(135deg, var(--accent-gold), #ffd700);
+                color: #000;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+                z-index: 10000;
+                font-weight: bold;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            notif.innerHTML = `🧠 Generated ${genre.toUpperCase()} beat<br><small style="opacity:0.8">${complexity} complexity</small>`;
+            document.body.appendChild(notif);
+            setTimeout(() => {
+                notif.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => document.body.removeChild(notif), 300);
+            }, 3000);
+        }
+        
+        /**
+         * Load pattern combination presets
+         */
+        function loadPatternCombo(comboName) {
+            const combos = {
+                'trap-banger': {
+                    kick: 'hard',
+                    hihat: 'trap-roll',
+                    bpm: 140
+                },
+                'drill-attack': {
+                    kick: 'drill',
+                    hihat: 'drill-roll',
+                    bpm: 150
+                },
+                'minimalist': {
+                    kick: 'sparse',
+                    hihat: 'minimal',
+                    bpm: 120
+                },
+                'hyperpop-chaos': {
+                    kick: 'triplet',
+                    hihat: 'double-time',
+                    bpm: 165
+                },
+                'boom-bap-classic': {
+                    kick: 'classic',
+                    hihat: 'half-time',
+                    bpm: 90
+                },
+                'lo-fi-chill': {
+                    kick: 'offbeat',
+                    hihat: 'shuffled',
+                    bpm: 80
+                },
+                'jersey-bounce': {
+                    kick: 'triplet',
+                    hihat: 'double-time',
+                    bpm: 135
+                },
+                'phonk-drift': {
+                    kick: 'rolling',
+                    hihat: 'syncopated',
+                    bpm: 130
+                }
+            };
+            
+            const combo = combos[comboName];
+            if (!combo) return;
+            
+            // Set BPM
+            document.getElementById('bpmControl').value = combo.bpm;
+            updateBPM(combo.bpm);
+            
+            // Load patterns
+            loadKickPattern(combo.kick);
+            loadHiHatPattern(combo.hihat);
+            
+            // Play preview
+            setTimeout(() => playBeat(), 200);
+            
+            console.log(`Loaded combo: ${comboName}`);
+        }
+        
+        /**
+         * Randomize kick pattern
+         */
+        function randomizeKickPattern() {
+            const patterns = ['classic', 'hard', 'rolling', 'double', 'triplet', 'offbeat', 'syncopated', 'drill', 'sparse', 'breakbeat'];
+            const random = patterns[Math.floor(Math.random() * patterns.length)];
+            loadKickPattern(random);
+        }
+        
+        /**
+         * Randomize hi-hat pattern
+         */
+        function randomizeHiHatPattern() {
+            const patterns = ['closed', 'open', 'trap-roll', 'drill-roll', 'double-time', 'half-time', 'triplets', 'shuffled', 'syncopated', 'minimal'];
+            const random = patterns[Math.floor(Math.random() * patterns.length)];
+            loadHiHatPattern(random);
+        }
+        
+        /**
+         * Randomize all patterns
+         */
+        function randomizeAllPatterns() {
+            randomizeKickPattern();
+            setTimeout(() => randomizeHiHatPattern(), 100);
+            setTimeout(() => playBeat(), 300);
+        }
+        
+        /**
+         * Mutate current pattern (slight variations)
+         */
+        function mutateCurrentPattern() {
+            // Add random variations to existing pattern
+            instruments.forEach(instrument => {
+                const currentPattern = beatPattern[instrument];
+                if (currentPattern.length > 0) {
+                    // 30% chance to add a new hit
+                    if (Math.random() < 0.3) {
+                        const randomStep = Math.floor(Math.random() * 16);
+                        if (!currentPattern.includes(randomStep)) {
+                            currentPattern.push(randomStep);
+                        }
+                    }
+                    // 20% chance to remove a hit
+                    if (Math.random() < 0.2 && currentPattern.length > 1) {
+                        const randomIndex = Math.floor(Math.random() * currentPattern.length);
+                        currentPattern.splice(randomIndex, 1);
+                    }
+                }
+            });
+            
+            updateBeatGrid();
+            setTimeout(() => playBeat(), 100);
         }
 
         // ============================================
