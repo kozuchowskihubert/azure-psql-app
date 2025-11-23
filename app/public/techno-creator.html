@@ -2520,7 +2520,160 @@
         // Initialize sequencer on load
         window.addEventListener('DOMContentLoaded', () => {
             initTechnoSequencer();
+            
+            // First-time user detection for techno
+            const hasVisited = localStorage.getItem('techno-creator-visited');
+            if (!hasVisited) {
+                setTimeout(() => {
+                    if (confirm('⚡ Welcome to Techno Creator! Would you like a quick tour of the features?')) {
+                        startTechnoTutorial();
+                    }
+                }, 2000);
+                localStorage.setItem('techno-creator-visited', 'true');
+            }
         });
+
+        // ============================================
+        // TECHNO INTERACTIVE FEATURES
+        // ============================================
+        
+        function startTechnoTutorial() {
+            const steps = [
+                {
+                    title: "⚡ Welcome to Techno Creator!",
+                    text: "Industrial-grade techno production with live guidance!"
+                },
+                {
+                    title: "🎹 Sequence Generator",
+                    text: "Generate hypnotic acid basslines and minimal progressions",
+                    element: ".tool-section"
+                },
+                {
+                    title: "⚡ Live Guidance",
+                    text: "Follow the 7-step workflow in the guidance panel",
+                    element: "#guidancePanel"
+                },
+                {
+                    title: "🔥 Pattern Types",
+                    text: "Choose from Acid, Minimal, Hard, Industrial, Detroit, or Dub Techno",
+                    element: "#technoPatternType"
+                },
+                {
+                    title: "🎵 BPM Styles",
+                    text: "Adjust BPM and watch the style change from Dub Techno (120) to Hardcore (150+)",
+                    element: "#technoBPM"
+                },
+                {
+                    title: "✅ Ready to Create!",
+                    text: "Start making industrial techno tracks now!"
+                }
+            ];
+            
+            showTechnoTutorialStep(0, steps);
+        }
+
+        let technoTutorialStep = 0;
+        function showTechnoTutorialStep(index, steps) {
+            if (index >= steps.length) {
+                showTechnoAchievement("Tutorial Complete!", "Create hypnotic techno! ⚡");
+                return;
+            }
+            
+            const step = steps[index];
+            const confirmed = confirm(`${step.title}\n\n${step.text}\n\n${index < steps.length - 1 ? '▶ Click OK for next step' : '✓ Click OK to finish'}`);
+            
+            if (confirmed && index < steps.length - 1) {
+                showTechnoTutorialStep(index + 1, steps);
+            }
+        }
+
+        function showTechnoAchievement(title, text) {
+            const achievement = document.createElement('div');
+            achievement.className = 'achievement';
+            achievement.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #00ff00, #00cc00);
+                color: #000;
+                padding: 20px;
+                border-radius: 5px;
+                box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+                z-index: 9999;
+                transform: translateX(400px);
+                transition: transform 0.5s ease;
+                min-width: 300px;
+                font-family: 'Courier New', monospace;
+                font-weight: bold;
+            `;
+            achievement.innerHTML = `
+                <div style="font-size: 1.2em; margin-bottom: 5px;">🏆 ${title}</div>
+                <div style="font-size: 0.9em;">${text}</div>
+            `;
+            
+            document.body.appendChild(achievement);
+            setTimeout(() => achievement.style.transform = 'translateX(0)', 100);
+            setTimeout(() => {
+                achievement.style.transform = 'translateX(400px)';
+                setTimeout(() => achievement.remove(), 500);
+            }, 3000);
+        }
+
+        // Achievement tracking for techno
+        let technoAchievements = {
+            firstSequence: false,
+            firstLoop: false,
+            firstRadio: false
+        };
+
+        const savedTechnoAchievements = localStorage.getItem('techno-achievements');
+        if (savedTechnoAchievements) {
+            technoAchievements = JSON.parse(savedTechnoAchievements);
+        }
+
+        function checkTechnoAchievement(type) {
+            if (!technoAchievements[type]) {
+                technoAchievements[type] = true;
+                switch(type) {
+                    case 'firstSequence':
+                        showTechnoAchievement("Sequence Generated!", "Your first techno sequence! 🎵");
+                        break;
+                    case 'firstLoop':
+                        showTechnoAchievement("Loop Playing!", "Hypnotic techno groove! ⚡");
+                        break;
+                    case 'firstRadio':
+                        showTechnoAchievement("Broadcasting!", "Live on Techno Radio 24/7! 📻");
+                        break;
+                }
+                localStorage.setItem('techno-achievements', JSON.stringify(technoAchievements));
+            }
+        }
+
+        // Enhance existing functions with achievements
+        const originalGenerateTechnoSequence = window.generateTechnoSequence;
+        window.generateTechnoSequence = function() {
+            if (originalGenerateTechnoSequence) originalGenerateTechnoSequence();
+            checkTechnoAchievement('firstSequence');
+        };
+
+        const originalPlayTechnoLoop = window.playTechnoLoop;
+        window.playTechnoLoop = function() {
+            if (originalPlayTechnoLoop) originalPlayTechnoLoop();
+            checkTechnoAchievement('firstLoop');
+        };
+
+        const originalExportTechnoToRadio = window.exportTechnoToRadio;
+        window.exportTechnoToRadio = function() {
+            if (originalExportTechnoToRadio) originalExportTechnoToRadio();
+            checkTechnoAchievement('firstRadio');
+        };
     </script>
+
+    <!-- Tour Button for Techno -->
+    <button id="technoTourButton" class="tour-button" onclick="startTechnoTutorial()" 
+            style="position: fixed; bottom: 100px; left: 20px; background: linear-gradient(135deg, #00ff00, #00ffff); color: #000; padding: 15px 25px; border-radius: 50px; border: none; font-weight: bold; font-size: 1em; cursor: pointer; box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); z-index: 999; font-family: 'Courier New', monospace; display: none;">
+        ⚡ TAKE TOUR
+    </button>
+
 </body>
 </html>

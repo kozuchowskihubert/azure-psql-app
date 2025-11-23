@@ -819,6 +819,322 @@
             color: var(--text-secondary);
             text-decoration: line-through;
         }
+
+        /* ============================================
+           LIVE INTERACTIVE FEATURES
+           ============================================ */
+        
+        /* Interactive Tutorial Overlay */
+        .tutorial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tutorial-overlay.active {
+            display: flex;
+        }
+
+        .tutorial-spotlight {
+            position: fixed;
+            border: 3px solid var(--accent-gold);
+            border-radius: 10px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85), 0 0 30px var(--accent-gold);
+            pointer-events: none;
+            z-index: 10001;
+            transition: all 0.5s ease;
+            animation: spotlight-pulse 2s infinite;
+        }
+
+        @keyframes spotlight-pulse {
+            0%, 100% { 
+                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85), 0 0 30px var(--accent-gold);
+            }
+            50% { 
+                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85), 0 0 50px var(--accent-gold);
+            }
+        }
+
+        .tutorial-card {
+            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+            border: 2px solid var(--accent-gold);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 50px rgba(255, 215, 0, 0.3);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .tutorial-title {
+            font-size: 1.8em;
+            color: var(--accent-gold);
+            margin-bottom: 15px;
+        }
+
+        .tutorial-text {
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .tutorial-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .tutorial-btn {
+            padding: 12px 24px;
+            border: 2px solid var(--accent-gold);
+            background: transparent;
+            color: var(--accent-gold);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-btn:hover {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+            transform: scale(1.05);
+        }
+
+        .tutorial-btn.primary {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+        }
+
+        .tutorial-btn.primary:hover {
+            background: var(--accent-secondary);
+            border-color: var(--accent-secondary);
+        }
+
+        /* Live Parameter Preview */
+        .param-preview {
+            position: absolute;
+            bottom: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-primary);
+            border: 2px solid var(--accent-secondary);
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 200px;
+            box-shadow: 0 5px 20px rgba(8, 217, 214, 0.3);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .param-preview.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+
+        .param-preview-title {
+            color: var(--accent-secondary);
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .param-preview-visual {
+            width: 100%;
+            height: 60px;
+            background: var(--bg-secondary);
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .param-preview-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: width 0.3s ease;
+        }
+
+        .param-preview-wave {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Interactive Tooltip Enhancement */
+        .info-tooltip.interactive {
+            cursor: pointer;
+        }
+
+        .info-tooltip.interactive:hover {
+            background: var(--accent-gold);
+            transform: scale(1.2);
+        }
+
+        .tooltip-demo {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-primary);
+            border: 2px solid var(--accent-gold);
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 300px;
+            margin-bottom: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 2000;
+        }
+
+        .tooltip-demo.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .tooltip-demo-title {
+            color: var(--accent-gold);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .tooltip-demo-controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .tooltip-demo-btn {
+            flex: 1;
+            padding: 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent-secondary);
+            color: var(--text-primary);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+        }
+
+        .tooltip-demo-btn:hover {
+            background: var(--accent-secondary);
+            color: var(--bg-primary);
+        }
+
+        /* Welcome Tour Button */
+        .tour-button {
+            position: fixed;
+            bottom: 100px;
+            left: 20px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-secondary));
+            color: var(--bg-primary);
+            padding: 15px 25px;
+            border-radius: 50px;
+            border: none;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+            z-index: 999;
+            animation: tour-bounce 2s infinite;
+            transition: all 0.3s ease;
+        }
+
+        .tour-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.7);
+        }
+
+        @keyframes tour-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Live Feedback Visualizer */
+        .live-visualizer {
+            position: relative;
+            height: 80px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+            border: 2px solid var(--border);
+        }
+
+        .visualizer-bars {
+            display: flex;
+            align-items: flex-end;
+            height: 100%;
+            gap: 2px;
+            padding: 5px;
+        }
+
+        .visualizer-bar {
+            flex: 1;
+            background: linear-gradient(0deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 3px 3px 0 0;
+            transition: height 0.1s ease;
+            min-height: 5px;
+        }
+
+        /* Achievement Notifications */
+        .achievement {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--accent-gold), #ffa500);
+            color: var(--bg-primary);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(255, 215, 0, 0.5);
+            z-index: 9999;
+            transform: translateX(400px);
+            transition: transform 0.5s ease;
+            min-width: 300px;
+        }
+
+        .achievement.show {
+            transform: translateX(0);
+        }
+
+        .achievement-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .achievement-text {
+            font-size: 0.9em;
+        }
+
+        /* Interactive Waveform Display */
+        .waveform-interactive {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .waveform-interactive:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px var(--accent-secondary);
+        }
     </style>
 </head>
 <body>
@@ -4180,6 +4496,414 @@ Pads:                200-800 Hz  [Atmosphere]
                 audioContext.resume();
             }
         }, { once: true });
+
+        // ============================================
+        // LIVE INTERACTIVE TUTORIAL SYSTEM
+        // ============================================
+        
+        let tutorialActive = false;
+        let currentTutorialStep = 0;
+        
+        const tutorialSteps = [
+            {
+                title: "🎉 Welcome to Trap Studio!",
+                text: "Let's take a quick tour of the new features that will help you create amazing beats!",
+                element: null,
+                highlightGuidance: true
+            },
+            {
+                title: "💡 Live Guidance Panel",
+                text: "This panel shows you exactly what to do next. Follow the 7 steps to create your first beat!",
+                element: "#guidancePanel",
+                action: () => {
+                    const panel = document.getElementById('guidancePanel');
+                    if (panel.classList.contains('minimized')) {
+                        toggleGuidance();
+                    }
+                }
+            },
+            {
+                title: "ℹ️ Interactive Tooltips",
+                text: "Hover over any ℹ icon to learn what each control does. Try hovering over the BPM tooltip!",
+                element: ".info-tooltip",
+                demo: "tooltip"
+            },
+            {
+                title: "🚀 Quick Presets",
+                text: "Click these buttons for instant professional settings. Try 'Classic Trap' to get started fast!",
+                element: ".quick-actions",
+                action: () => {
+                    const btn = document.querySelector('.quick-action-btn');
+                    if (btn) {
+                        btn.style.animation = 'tour-bounce 0.5s 3';
+                    }
+                }
+            },
+            {
+                title: "📊 Live Feedback",
+                text: "Watch the style indicators update in real-time as you adjust parameters. The values show you exactly what sound you're creating!",
+                element: ".value-display",
+                demo: "parameter"
+            },
+            {
+                title: "🎵 BPM Control",
+                text: "Try adjusting the BPM slider and watch the style change from 'Boom-Bap' to 'Trap' to 'Drill'!",
+                element: "#bpmControl"
+            },
+            {
+                title: "🎉 You're Ready!",
+                text: "You now know how to use all the new features. Start creating your first trap beat!",
+                element: null,
+                action: () => {
+                    showAchievement("Tutorial Complete!", "You're ready to create amazing beats! 🔥");
+                }
+            }
+        ];
+
+        function startTutorial() {
+            tutorialActive = true;
+            currentTutorialStep = 0;
+            showTutorialStep(0);
+        }
+
+        function showTutorialStep(stepIndex) {
+            if (stepIndex >= tutorialSteps.length) {
+                endTutorial();
+                return;
+            }
+
+            const step = tutorialSteps[stepIndex];
+            
+            // Remove previous spotlight
+            const oldSpotlight = document.querySelector('.tutorial-spotlight');
+            if (oldSpotlight) oldSpotlight.remove();
+            
+            // Create overlay
+            let overlay = document.querySelector('.tutorial-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.className = 'tutorial-overlay';
+                document.body.appendChild(overlay);
+            }
+            
+            overlay.className = 'tutorial-overlay active';
+            
+            // Create tutorial card
+            const card = document.createElement('div');
+            card.className = 'tutorial-card';
+            card.innerHTML = `
+                <div class="tutorial-title">${step.title}</div>
+                <div class="tutorial-text">${step.text}</div>
+                <div class="tutorial-buttons">
+                    ${stepIndex > 0 ? '<button class="tutorial-btn" onclick="previousTutorialStep()">← Back</button>' : ''}
+                    <button class="tutorial-btn primary" onclick="nextTutorialStep()">
+                        ${stepIndex < tutorialSteps.length - 1 ? 'Next →' : 'Finish ✓'}
+                    </button>
+                    <button class="tutorial-btn" onclick="skipTutorial()">Skip Tour</button>
+                </div>
+            `;
+            
+            overlay.innerHTML = '';
+            overlay.appendChild(card);
+            
+            // Highlight element if specified
+            if (step.element) {
+                const element = document.querySelector(step.element);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
+                    const spotlight = document.createElement('div');
+                    spotlight.className = 'tutorial-spotlight';
+                    spotlight.style.top = `${rect.top - 10}px`;
+                    spotlight.style.left = `${rect.left - 10}px`;
+                    spotlight.style.width = `${rect.width + 20}px`;
+                    spotlight.style.height = `${rect.height + 20}px`;
+                    document.body.appendChild(spotlight);
+                    
+                    // Scroll element into view
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+            
+            // Execute step action
+            if (step.action) {
+                setTimeout(step.action, 500);
+            }
+        }
+
+        function nextTutorialStep() {
+            currentTutorialStep++;
+            showTutorialStep(currentTutorialStep);
+        }
+
+        function previousTutorialStep() {
+            if (currentTutorialStep > 0) {
+                currentTutorialStep--;
+                showTutorialStep(currentTutorialStep);
+            }
+        }
+
+        function skipTutorial() {
+            endTutorial();
+        }
+
+        function endTutorial() {
+            tutorialActive = false;
+            const overlay = document.querySelector('.tutorial-overlay');
+            if (overlay) overlay.classList.remove('active');
+            const spotlight = document.querySelector('.tutorial-spotlight');
+            if (spotlight) spotlight.remove();
+            
+            // Hide tour button
+            const tourBtn = document.getElementById('tourButton');
+            if (tourBtn) tourBtn.style.display = 'none';
+        }
+
+        // ============================================
+        // LIVE PARAMETER PREVIEW
+        // ============================================
+        
+        function showParameterPreview(element, paramName, value, type = 'bar') {
+            const container = element.closest('.control-group');
+            if (!container) return;
+            
+            let preview = container.querySelector('.param-preview');
+            if (!preview) {
+                preview = document.createElement('div');
+                preview.className = 'param-preview';
+                container.style.position = 'relative';
+                container.appendChild(preview);
+            }
+            
+            const percentage = ((value - element.min) / (element.max - element.min)) * 100;
+            
+            preview.innerHTML = `
+                <div class="param-preview-title">${paramName} Preview</div>
+                <div class="param-preview-visual">
+                    ${type === 'bar' ? 
+                        `<div class="param-preview-bar" style="width: ${percentage}%"></div>` :
+                        `<canvas class="param-preview-wave" id="preview-${paramName}"></canvas>`
+                    }
+                </div>
+            `;
+            
+            preview.classList.add('active');
+            
+            // Auto-hide after 2 seconds
+            setTimeout(() => {
+                preview.classList.remove('active');
+            }, 2000);
+            
+            // Draw waveform if type is 'wave'
+            if (type === 'wave') {
+                drawPreviewWaveform(`preview-${paramName}`, value);
+            }
+        }
+
+        function drawPreviewWaveform(canvasId, frequency) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#08d9d6';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            const amplitude = canvas.height / 3;
+            const centerY = canvas.height / 2;
+            const cycles = frequency / 50; // Scale frequency to visible cycles
+            
+            for (let x = 0; x < canvas.width; x++) {
+                const y = centerY + Math.sin((x / canvas.width) * Math.PI * 2 * cycles) * amplitude;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            
+            ctx.stroke();
+        }
+
+        // ============================================
+        // ACHIEVEMENT SYSTEM
+        // ============================================
+        
+        let achievements = {
+            firstBeat: false,
+            firstPreset: false,
+            first808: false,
+            firstRadio: false
+        };
+
+        function showAchievement(title, text) {
+            const achievement = document.createElement('div');
+            achievement.className = 'achievement';
+            achievement.innerHTML = `
+                <div class="achievement-title">🏆 ${title}</div>
+                <div class="achievement-text">${text}</div>
+            `;
+            
+            document.body.appendChild(achievement);
+            
+            setTimeout(() => achievement.classList.add('show'), 100);
+            setTimeout(() => {
+                achievement.classList.remove('show');
+                setTimeout(() => achievement.remove(), 500);
+            }, 3000);
+        }
+
+        function checkAchievement(type) {
+            if (!achievements[type]) {
+                achievements[type] = true;
+                switch(type) {
+                    case 'firstBeat':
+                        showAchievement("First Beat!", "You played your first trap beat! 🎵");
+                        break;
+                    case 'firstPreset':
+                        showAchievement("Preset Master!", "You used a quick preset! ⚡");
+                        break;
+                    case 'first808':
+                        showAchievement("808 Designer!", "You customized your 808 bass! 🔊");
+                        break;
+                    case 'firstRadio':
+                        showAchievement("Live on Air!", "Your beat is broadcasting on Radio 24/7! 📻");
+                        break;
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('trap-achievements', JSON.stringify(achievements));
+            }
+        }
+
+        // Load achievements from localStorage
+        const savedAchievements = localStorage.getItem('trap-achievements');
+        if (savedAchievements) {
+            achievements = JSON.parse(savedAchievements);
+        }
+
+        // ============================================
+        // LIVE VISUALIZER
+        // ============================================
+        
+        function createLiveVisualizer(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const visualizer = document.createElement('div');
+            visualizer.className = 'live-visualizer';
+            visualizer.innerHTML = '<div class="visualizer-bars"></div>';
+            container.appendChild(visualizer);
+            
+            const bars = visualizer.querySelector('.visualizer-bars');
+            for (let i = 0; i < 20; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'visualizer-bar';
+                bars.appendChild(bar);
+            }
+            
+            return visualizer;
+        }
+
+        function animateVisualizer(visualizer, active = true) {
+            if (!visualizer) return;
+            
+            const bars = visualizer.querySelectorAll('.visualizer-bar');
+            
+            if (active) {
+                const interval = setInterval(() => {
+                    if (!visualizer.isConnected) {
+                        clearInterval(interval);
+                        return;
+                    }
+                    
+                    bars.forEach(bar => {
+                        const height = Math.random() * 80 + 10;
+                        bar.style.height = `${height}%`;
+                    });
+                }, 100);
+            } else {
+                bars.forEach(bar => {
+                    bar.style.height = '5px';
+                });
+            }
+        }
+
+        // ============================================
+        // ENHANCED PARAMETER UPDATES WITH LIVE FEATURES
+        // ============================================
+        
+        const originalUpdateBPM = window.updateBPM;
+        window.updateBPM = function(value) {
+            if (originalUpdateBPM) originalUpdateBPM(value);
+            
+            const slider = document.getElementById('bpmControl');
+            if (slider) {
+                showParameterPreview(slider, 'BPM', value, 'bar');
+            }
+        };
+
+        const originalUpdate808Param = window.update808Param;
+        window.update808Param = function(param, value) {
+            if (originalUpdate808Param) originalUpdate808Param(param, value);
+            
+            if (param === 'freq') {
+                const slider = document.getElementById('bass808Freq');
+                if (slider) {
+                    showParameterPreview(slider, 'Frequency', value, 'wave');
+                }
+                checkAchievement('first808');
+            }
+        };
+
+        const originalPlayBeat = window.playBeat;
+        window.playBeat = function() {
+            if (originalPlayBeat) originalPlayBeat();
+            checkAchievement('firstBeat');
+        };
+
+        const originalLoadPresetPattern = window.loadPresetPattern;
+        window.loadPresetPattern = function(type) {
+            if (originalLoadPresetPattern) originalLoadPresetPattern(type);
+            checkAchievement('firstPreset');
+        };
+
+        const originalExportToRadio = window.exportToRadio;
+        window.exportToRadio = function() {
+            if (originalExportToRadio) originalExportToRadio();
+            checkAchievement('firstRadio');
+        };
+
+        // ============================================
+        // FIRST-TIME USER DETECTION
+        // ============================================
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            const hasVisited = localStorage.getItem('trap-studio-visited');
+            
+            if (!hasVisited) {
+                // Show welcome and start tutorial
+                setTimeout(() => {
+                    const tourBtn = document.getElementById('tourButton');
+                    if (tourBtn) tourBtn.style.display = 'block';
+                    
+                    // Auto-start tutorial after 2 seconds
+                    setTimeout(() => {
+                        if (confirm('👋 Welcome to Trap Studio! Would you like a quick tour of the new features?')) {
+                            startTutorial();
+                        }
+                    }, 2000);
+                }, 1000);
+                
+                localStorage.setItem('trap-studio-visited', 'true');
+            }
+        });
     </script>
+
+    <!-- Interactive Tutorial Button -->
+    <button id="tourButton" class="tour-button" onclick="startTutorial()" style="display: none;">
+        🎓 Take a Tour
+    </button>
+
 </body>
 </html>
