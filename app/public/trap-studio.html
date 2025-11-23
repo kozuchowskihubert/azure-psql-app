@@ -607,6 +607,9 @@
                     🎹 Select Instrument Sound:
                 </p>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                    <button class="btn btn-secondary" onclick="setChordInstrument('enhanced')" id="inst-enhanced" style="padding: 8px 12px; font-size: 0.85em; background: linear-gradient(135deg, var(--accent-gold), var(--accent-secondary));">
+                        ⚙️ Enhanced
+                    </button>
                     <button class="btn btn-secondary" onclick="setChordInstrument('piano')" id="inst-piano" style="padding: 8px 12px; font-size: 0.85em;">
                         🎹 Piano
                     </button>
@@ -723,6 +726,211 @@
                         <button class="btn btn-secondary" onclick="loadPreset('hyperpop_lead')" style="padding: 6px 12px; font-size: 0.8em;">
                             ⚡ Hyperpop Lead
                         </button>
+                    </div>
+                </div>
+
+                <!-- Advanced Synthesis Controls -->
+                <div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, rgba(255, 46, 99, 0.1), rgba(8, 217, 214, 0.1)); border: 1px solid var(--accent-secondary); border-radius: 10px;">
+                    <h3 style="color: var(--accent-gold); margin-bottom: 15px; font-size: 1.1em;">
+                        ⚙️ Advanced Synthesis Controls
+                    </h3>
+                    
+                    <!-- Oscillator Section -->
+                    <div style="margin-bottom: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <p style="color: var(--accent-secondary); margin-bottom: 10px; font-size: 0.95em; font-weight: bold;">
+                            🎛️ Oscillator
+                        </p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    Waveform:
+                                </label>
+                                <select id="waveform" class="form-control" style="width: 100%; padding: 6px; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 5px;">
+                                    <option value="sine">Sine (Clean)</option>
+                                    <option value="triangle">Triangle (Warm)</option>
+                                    <option value="sawtooth" selected>Sawtooth (Bright)</option>
+                                    <option value="square">Square (Hollow)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    Unison Voices: <span id="unisonValue">1</span>
+                                </label>
+                                <input type="range" id="unisonVoices" min="1" max="7" value="1" step="2"
+                                       oninput="document.getElementById('unisonValue').textContent = this.value"
+                                       style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    Detune: <span id="detuneValue">5</span> cents
+                                </label>
+                                <input type="range" id="detuneAmount" min="0" max="50" value="5"
+                                       oninput="document.getElementById('detuneValue').textContent = this.value"
+                                       style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    Harmonics: <span id="harmonicsValue">2</span>
+                                </label>
+                                <input type="range" id="harmonicCount" min="0" max="5" value="2"
+                                       oninput="document.getElementById('harmonicsValue').textContent = this.value"
+                                       style="width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Section -->
+                    <div style="margin-bottom: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <p style="color: var(--accent-secondary); margin-bottom: 10px; font-size: 0.95em; font-weight: bold;">
+                            🎚️ Filter
+                        </p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    Filter Type:
+                                </label>
+                                <select id="filterType" class="form-control" style="width: 100%; padding: 6px; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 5px;">
+                                    <option value="lowpass" selected>Low-Pass</option>
+                                    <option value="highpass">High-Pass</option>
+                                    <option value="bandpass">Band-Pass</option>
+                                    <option value="notch">Notch</option>
+                                    <option value="allpass">All-Pass</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    Cutoff: <span id="filterCutoffValue">2000</span> Hz
+                                </label>
+                                <input type="range" id="filterCutoff" min="100" max="8000" value="2000"
+                                       oninput="document.getElementById('filterCutoffValue').textContent = this.value"
+                                       style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    Resonance: <span id="filterResValue">1</span>
+                                </label>
+                                <input type="range" id="filterResonance" min="0.1" max="20" value="1" step="0.1"
+                                       oninput="document.getElementById('filterResValue').textContent = parseFloat(this.value).toFixed(1)"
+                                       style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    Envelope: <span id="filterEnvValue">50</span>%
+                                </label>
+                                <input type="range" id="filterEnvelope" min="0" max="100" value="50"
+                                       oninput="document.getElementById('filterEnvValue').textContent = this.value"
+                                       style="width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Envelope Section -->
+                    <div style="margin-bottom: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <p style="color: var(--accent-secondary); margin-bottom: 10px; font-size: 0.95em; font-weight: bold;">
+                            📊 Envelope (ADSR)
+                        </p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    Attack: <span id="attackValue">0.01</span>s
+                                </label>
+                                <input type="range" id="attackTime" min="0.001" max="2" value="0.01" step="0.001"
+                                       oninput="document.getElementById('attackValue').textContent = parseFloat(this.value).toFixed(3)"
+                                       style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    Decay: <span id="decayValue">0.3</span>s
+                                </label>
+                                <input type="range" id="decayTime" min="0.001" max="2" value="0.3" step="0.01"
+                                       oninput="document.getElementById('decayValue').textContent = parseFloat(this.value).toFixed(2)"
+                                       style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    Sustain: <span id="sustainValue">70</span>%
+                                </label>
+                                <input type="range" id="sustainLevel" min="0" max="100" value="70"
+                                       oninput="document.getElementById('sustainValue').textContent = this.value"
+                                       style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    Release: <span id="releaseValue">0.5</span>s
+                                </label>
+                                <input type="range" id="releaseTime" min="0.01" max="5" value="0.5" step="0.01"
+                                       oninput="document.getElementById('releaseValue').textContent = parseFloat(this.value).toFixed(2)"
+                                       style="width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LFO Section -->
+                    <div style="margin-bottom: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <p style="color: var(--accent-secondary); margin-bottom: 10px; font-size: 0.95em; font-weight: bold;">
+                            🌊 LFO (Low Frequency Oscillator)
+                        </p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                            <div>
+                                <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                                    <input type="checkbox" id="lfoEnabled" style="margin-right: 8px;">
+                                    Enable LFO
+                                </label>
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    LFO Rate: <span id="lfoRateValue">4</span> Hz
+                                </label>
+                                <input type="range" id="lfoRate" min="0.1" max="20" value="4" step="0.1"
+                                       oninput="document.getElementById('lfoRateValue').textContent = parseFloat(this.value).toFixed(1)"
+                                       style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    LFO Depth: <span id="lfoDepthValue">30</span>%
+                                </label>
+                                <input type="range" id="lfoDepth" min="0" max="100" value="30"
+                                       oninput="document.getElementById('lfoDepthValue').textContent = this.value"
+                                       style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    LFO Target:
+                                </label>
+                                <select id="lfoTarget" class="form-control" style="width: 100%; padding: 6px; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 5px;">
+                                    <option value="pitch">Pitch (Vibrato)</option>
+                                    <option value="filter" selected>Filter (Wah)</option>
+                                    <option value="volume">Volume (Tremolo)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Automation Section -->
+                    <div style="padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <p style="color: var(--accent-secondary); margin-bottom: 10px; font-size: 0.95em; font-weight: bold;">
+                            🎬 Automation
+                        </p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                            <div>
+                                <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                                    <input type="checkbox" id="autoFilterEnabled" style="margin-right: 8px;">
+                                    Filter Sweep
+                                </label>
+                            </div>
+                            <div>
+                                <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                                    <input type="checkbox" id="autoVolumeEnabled" style="margin-right: 8px;">
+                                    Volume Fade
+                                </label>
+                            </div>
+                            <div>
+                                <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                                    <input type="checkbox" id="autoPanEnabled" style="margin-right: 8px;">
+                                    Auto-Pan
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1322,6 +1530,12 @@ Pads:                200-800 Hz  [Atmosphere]
         function playChordWithDestination(ctx, midiNotes, startTime, instrument, velocity, destination) {
             const frequencies = midiNotes.map(midi => midiToFrequency(midi));
             
+            // Use enhanced engine if selected
+            if (instrument === 'enhanced') {
+                playEnhancedChord(ctx, frequencies, startTime, velocity, destination);
+                return;
+            }
+            
             switch(instrument) {
                 case 'piano':
                     playPianoChordDest(ctx, frequencies, startTime, velocity, destination);
@@ -1342,6 +1556,178 @@ Pads:                200-800 Hz  [Atmosphere]
                     playLeadChordDest(ctx, frequencies, startTime, velocity, destination);
                     break;
             }
+        }
+
+        // ============================================
+        // ENHANCED SYNTHESIS ENGINE
+        // Uses advanced parameters from UI controls
+        // ============================================
+        
+        function playEnhancedNote(ctx, freq, startTime, velocity, destination, duration = 2.0) {
+            // Get synthesis parameters from UI
+            const waveform = document.getElementById('waveform')?.value || 'sawtooth';
+            const unisonVoices = parseInt(document.getElementById('unisonVoices')?.value || 1);
+            const detuneAmount = parseFloat(document.getElementById('detuneAmount')?.value || 5);
+            const harmonicCount = parseInt(document.getElementById('harmonicCount')?.value || 2);
+            
+            // Filter parameters
+            const filterType = document.getElementById('filterType')?.value || 'lowpass';
+            const filterCutoff = parseFloat(document.getElementById('filterCutoff')?.value || 2000);
+            const filterResonance = parseFloat(document.getElementById('filterResonance')?.value || 1);
+            const filterEnvelope = parseFloat(document.getElementById('filterEnvelope')?.value || 50) / 100;
+            
+            // Envelope parameters
+            const attackTime = parseFloat(document.getElementById('attackTime')?.value || 0.01);
+            const decayTime = parseFloat(document.getElementById('decayTime')?.value || 0.3);
+            const sustainLevel = parseFloat(document.getElementById('sustainLevel')?.value || 70) / 100;
+            const releaseTime = parseFloat(document.getElementById('releaseTime')?.value || 0.5);
+            
+            // LFO parameters
+            const lfoEnabled = document.getElementById('lfoEnabled')?.checked || false;
+            const lfoRate = parseFloat(document.getElementById('lfoRate')?.value || 4);
+            const lfoDepth = parseFloat(document.getElementById('lfoDepth')?.value || 30) / 100;
+            const lfoTarget = document.getElementById('lfoTarget')?.value || 'filter';
+            
+            // Automation
+            const autoFilter = document.getElementById('autoFilterEnabled')?.checked || false;
+            const autoVolume = document.getElementById('autoVolumeEnabled')?.checked || false;
+            const autoPan = document.getElementById('autoPanEnabled')?.checked || false;
+            
+            // Create master filter
+            const masterFilter = ctx.createBiquadFilter();
+            masterFilter.type = filterType;
+            masterFilter.frequency.setValueAtTime(filterCutoff, startTime);
+            masterFilter.Q.setValueAtTime(filterResonance, startTime);
+            
+            // Create master gain
+            const masterGain = ctx.createGain();
+            
+            // Create panner for auto-pan
+            const panner = ctx.createStereoPanner();
+            panner.pan.setValueAtTime(0, startTime);
+            
+            // LFO setup
+            let lfo = null;
+            let lfoGain = null;
+            if (lfoEnabled) {
+                lfo = ctx.createOscillator();
+                lfoGain = ctx.createGain();
+                lfo.frequency.setValueAtTime(lfoRate, startTime);
+                lfo.connect(lfoGain);
+                
+                if (lfoTarget === 'pitch') {
+                    lfoGain.gain.setValueAtTime(freq * lfoDepth * 0.1, startTime);
+                } else if (lfoTarget === 'filter') {
+                    lfoGain.gain.setValueAtTime(filterCutoff * lfoDepth, startTime);
+                    lfoGain.connect(masterFilter.frequency);
+                } else if (lfoTarget === 'volume') {
+                    lfoGain.gain.setValueAtTime(velocity * lfoDepth, startTime);
+                    lfoGain.connect(masterGain.gain);
+                }
+                
+                lfo.start(startTime);
+                lfo.stop(startTime + duration);
+            }
+            
+            // Create unison voices with harmonics
+            const oscillators = [];
+            const gains = [];
+            
+            for (let voice = 0; voice < unisonVoices; voice++) {
+                // Calculate detune for this voice
+                const voiceDetune = voice === Math.floor(unisonVoices / 2) ? 0 : 
+                    ((voice - Math.floor(unisonVoices / 2)) * detuneAmount);
+                
+                // Create fundamental oscillator
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = waveform;
+                osc.frequency.setValueAtTime(freq, startTime);
+                osc.detune.setValueAtTime(voiceDetune, startTime);
+                
+                // Connect pitch LFO if enabled
+                if (lfoEnabled && lfoTarget === 'pitch') {
+                    lfoGain.connect(osc.frequency);
+                }
+                
+                osc.connect(gain);
+                gain.connect(masterFilter);
+                
+                // Voice amplitude (center voice louder)
+                const voiceAmp = voice === Math.floor(unisonVoices / 2) ? 1.0 : 0.7;
+                gain.gain.setValueAtTime(voiceAmp / unisonVoices, startTime);
+                
+                oscillators.push(osc);
+                gains.push(gain);
+                
+                // Add harmonics
+                for (let h = 1; h <= harmonicCount; h++) {
+                    const harmOsc = ctx.createOscillator();
+                    const harmGain = ctx.createGain();
+                    
+                    harmOsc.type = 'sine'; // Harmonics always sine
+                    harmOsc.frequency.setValueAtTime(freq * (h + 1), startTime);
+                    harmOsc.detune.setValueAtTime(voiceDetune, startTime);
+                    
+                    harmOsc.connect(harmGain);
+                    harmGain.connect(masterFilter);
+                    
+                    // Decreasing amplitude for higher harmonics
+                    harmGain.gain.setValueAtTime((voiceAmp / unisonVoices) * (0.5 / (h + 1)), startTime);
+                    
+                    oscillators.push(harmOsc);
+                    gains.push(harmGain);
+                }
+            }
+            
+            // Connect filter -> gain -> panner -> destination
+            masterFilter.connect(masterGain);
+            masterGain.connect(panner);
+            panner.connect(destination);
+            
+            // Apply ADSR envelope
+            masterGain.gain.setValueAtTime(0, startTime);
+            masterGain.gain.linearRampToValueAtTime(velocity, startTime + attackTime);
+            masterGain.gain.linearRampToValueAtTime(velocity * sustainLevel, startTime + attackTime + decayTime);
+            masterGain.gain.linearRampToValueAtTime(velocity * sustainLevel, startTime + duration - releaseTime);
+            masterGain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            
+            // Filter envelope modulation
+            const filterEnvAmount = filterCutoff * filterEnvelope * 2;
+            masterFilter.frequency.setValueAtTime(filterCutoff, startTime);
+            masterFilter.frequency.linearRampToValueAtTime(filterCutoff + filterEnvAmount, startTime + attackTime);
+            masterFilter.frequency.exponentialRampToValueAtTime(filterCutoff, startTime + attackTime + decayTime + 0.5);
+            
+            // Automation effects
+            if (autoFilter) {
+                // Slow filter sweep over duration
+                masterFilter.frequency.exponentialRampToValueAtTime(filterCutoff * 0.3, startTime + duration * 0.8);
+            }
+            
+            if (autoVolume) {
+                // Volume fade
+                masterGain.gain.linearRampToValueAtTime(velocity * 0.3, startTime + duration * 0.9);
+            }
+            
+            if (autoPan) {
+                // Auto-pan from left to right
+                panner.pan.linearRampToValueAtTime(-1, startTime + duration * 0.5);
+                panner.pan.linearRampToValueAtTime(1, startTime + duration);
+            }
+            
+            // Start and stop all oscillators
+            oscillators.forEach(osc => {
+                osc.start(startTime);
+                osc.stop(startTime + duration);
+            });
+        }
+
+        function playEnhancedChord(ctx, frequencies, startTime, velocity, destination) {
+            frequencies.forEach((freq, index) => {
+                const noteDelay = index * 0.02; // Slight stagger for richness
+                playEnhancedNote(ctx, freq, startTime + noteDelay, velocity * (1 - index * 0.1), destination, 2.0);
+            });
         }
 
         function randomizeChordProgression() {
@@ -2521,6 +2907,179 @@ Pads:                200-800 Hz  [Atmosphere]
             }
             
             return curve;
+        }
+
+        // ============================================
+        // CLEAN SOUND ENGINE UTILITIES
+        // Anti-aliasing and improved synthesis
+        // ============================================
+        
+        /**
+         * Create bandlimited oscillator with reduced aliasing
+         * Uses additive synthesis to avoid high-frequency artifacts
+         */
+        function createCleanOscillator(ctx, freq, waveform, maxPartials = 32) {
+            const nyquist = ctx.sampleRate / 2;
+            const fundamental = freq;
+            
+            // Calculate how many harmonics we can safely add without aliasing
+            const safePartials = Math.min(maxPartials, Math.floor(nyquist / fundamental) - 1);
+            
+            // Create oscillator nodes for each partial
+            const oscillators = [];
+            const gains = [];
+            const merger = ctx.createGain();
+            
+            for (let n = 1; n <= safePartials; n++) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'sine'; // All partials are sine waves
+                osc.frequency.value = fundamental * n;
+                
+                // Calculate amplitude based on waveform type
+                let amplitude = 0;
+                switch(waveform) {
+                    case 'sawtooth':
+                        amplitude = 1 / n; // Harmonics decrease linearly
+                        break;
+                    case 'square':
+                        amplitude = (n % 2 === 1) ? (1 / n) : 0; // Odd harmonics only
+                        break;
+                    case 'triangle':
+                        amplitude = (n % 2 === 1) ? (1 / (n * n)) : 0; // Odd harmonics, squared decrease
+                        break;
+                    case 'sine':
+                        amplitude = (n === 1) ? 1 : 0; // Fundamental only
+                        break;
+                }
+                
+                gain.gain.value = amplitude / safePartials;
+                
+                osc.connect(gain);
+                gain.connect(merger);
+                
+                oscillators.push(osc);
+                gains.push(gain);
+            }
+            
+            return { oscillators, gains, output: merger };
+        }
+        
+        /**
+         * Create improved biquad filter with smoother response
+         * Uses cascaded filters for steeper rolloff
+         */
+        function createCleanFilter(ctx, type, cutoff, resonance, stages = 2) {
+            const filters = [];
+            let input = null;
+            
+            for (let i = 0; i < stages; i++) {
+                const filter = ctx.createBiquadFilter();
+                filter.type = type;
+                filter.frequency.value = cutoff;
+                // Distribute resonance across stages to avoid instability
+                filter.Q.value = Math.pow(resonance, 1 / stages);
+                
+                if (input) {
+                    input.connect(filter);
+                }
+                
+                filters.push(filter);
+                input = filter;
+            }
+            
+            return {
+                input: filters[0],
+                output: filters[filters.length - 1],
+                filters: filters,
+                setFrequency: (freq) => filters.forEach(f => f.frequency.value = freq),
+                setQ: (q) => filters.forEach((f, i) => f.Q.value = Math.pow(q, 1 / stages))
+            };
+        }
+        
+        /**
+         * Soft clipping function for warmer saturation
+         * Uses hyperbolic tangent for smooth saturation
+         */
+        function createSoftClipper(ctx, drive = 1.0) {
+            const samples = 2048;
+            const curve = new Float32Array(samples);
+            
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2 / samples) - 1;
+                const processed = Math.tanh(x * drive);
+                curve[i] = processed / Math.max(Math.abs(processed), 1.0);
+            }
+            
+            const shaper = ctx.createWaveShaper();
+            shaper.curve = curve;
+            shaper.oversample = '4x'; // Enable oversampling to reduce aliasing
+            
+            return shaper;
+        }
+        
+        /**
+         * Create improved reverb with early reflections
+         */
+        function createCleanReverb(ctx, size = 0.5, damping = 0.5) {
+            const convolver = ctx.createConvolver();
+            const reverbTime = 2 * size;
+            const sampleRate = ctx.sampleRate;
+            const length = sampleRate * reverbTime;
+            const impulse = ctx.createBuffer(2, length, sampleRate);
+            
+            const leftChannel = impulse.getChannelData(0);
+            const rightChannel = impulse.getChannelData(1);
+            
+            // Generate impulse with early reflections
+            for (let i = 0; i < length; i++) {
+                const decay = Math.exp(-3 * i / length);
+                const noise = (Math.random() * 2 - 1);
+                
+                // Apply damping to high frequencies
+                const dampedNoise = noise * (1 - damping * (i / length));
+                
+                leftChannel[i] = dampedNoise * decay;
+                rightChannel[i] = dampedNoise * decay * 0.9; // Slight stereo difference
+            }
+            
+            // Add early reflections (first 50ms)
+            const earlyReflections = Math.floor(sampleRate * 0.05);
+            const reflectionTimes = [7, 11, 13, 17, 19, 23, 29, 31];
+            
+            reflectionTimes.forEach(time => {
+                const sample = Math.floor(sampleRate * time / 1000);
+                if (sample < earlyReflections) {
+                    leftChannel[sample] += 0.3 * (Math.random() * 2 - 1);
+                    rightChannel[sample] += 0.3 * (Math.random() * 2 - 1);
+                }
+            });
+            
+            convolver.buffer = impulse;
+            return convolver;
+        }
+        
+        /**
+         * Stereo widener using Haas effect
+         */
+        function createStereoWidener(ctx, width = 0.5) {
+            const splitter = ctx.createChannelSplitter(2);
+            const merger = ctx.createChannelMerger(2);
+            const delay = ctx.createDelay();
+            const delayGain = ctx.createGain();
+            
+            // Small delay for Haas effect (5-35ms)
+            delay.delayTime.value = 0.015 * width;
+            delayGain.gain.value = 0.7;
+            
+            splitter.connect(delay, 0);
+            delay.connect(delayGain);
+            delayGain.connect(merger, 0, 1); // Cross delay to opposite channel
+            splitter.connect(merger, 0, 0);
+            splitter.connect(merger, 1, 1);
+            
+            return { input: splitter, output: merger };
         }
 
         // 808 Bass Designer

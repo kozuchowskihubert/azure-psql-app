@@ -465,6 +465,9 @@
                     🎛️ SELECT SYNTHESIS ENGINE:
                 </p>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                    <button class="btn btn-secondary" onclick="setTechnoInstrument('enhanced')" id="inst-enhanced_techno" style="padding: 8px 12px; font-size: 0.85em; background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan)); color: #000; font-weight: bold; border: 2px solid var(--accent-cyan);">
+                        ⚡ ENHANCED
+                    </button>
                     <button class="btn btn-secondary" onclick="setTechnoInstrument('acid_bass')" id="inst-acid_bass" style="padding: 8px 12px; font-size: 0.85em; border: 2px solid var(--accent-primary);">
                         🔊 Acid Bass (303)
                     </button>
@@ -548,6 +551,194 @@
                         <input type="checkbox" id="lfoToggle" checked style="margin-right: 8px;">
                         〰️ LFO Modulation
                     </label>
+                </div>
+            </div>
+
+            <!-- Advanced Synthesis Engine -->
+            <div style="margin: 15px 0; padding: 20px; background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(255, 0, 255, 0.1)); border: 2px solid var(--accent-primary); border-radius: 10px;">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 15px; font-size: 1.1em; text-align: center;">
+                    ⚡ ADVANCED SYNTHESIS ENGINE ⚡
+                </h3>
+                
+                <!-- Oscillator Section -->
+                <div style="margin-bottom: 15px; padding: 15px; background: rgba(0,0,0,0.5); border-radius: 8px; border: 1px solid var(--border);">
+                    <p style="color: var(--accent-primary); margin-bottom: 10px; font-size: 0.95em; font-weight: bold;">
+                        >>> OSCILLATOR <<<
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                Waveform:
+                            </label>
+                            <select id="technoWaveform" class="form-control" style="width: 100%; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--accent-primary); border-radius: 5px; font-family: 'Courier New', monospace;">
+                                <option value="sine">SINE</option>
+                                <option value="triangle">TRIANGLE</option>
+                                <option value="sawtooth" selected>SAWTOOTH</option>
+                                <option value="square">SQUARE</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                Unison: <span id="technoUnisonValue">3</span>
+                            </label>
+                            <input type="range" id="technoUnison" min="1" max="7" value="3" step="2"
+                                   oninput="document.getElementById('technoUnisonValue').textContent = this.value"
+                                   style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                Detune: <span id="technoDetuneValue">10</span> cents
+                            </label>
+                            <input type="range" id="technoDetune" min="0" max="50" value="10"
+                                   oninput="document.getElementById('technoDetuneValue').textContent = this.value"
+                                   style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                Harmonics: <span id="technoHarmonicsValue">3</span>
+                            </label>
+                            <input type="range" id="technoHarmonics" min="0" max="5" value="3"
+                                   oninput="document.getElementById('technoHarmonicsValue').textContent = this.value"
+                                   style="width: 100%;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Section -->
+                <div style="margin-bottom: 15px; padding: 15px; background: rgba(0,0,0,0.5); border-radius: 8px; border: 1px solid var(--border);">
+                    <p style="color: var(--accent-primary); margin-bottom: 10px; font-size: 0.95em; font-weight: bold;">
+                        >>> FILTER <<<
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                Type:
+                            </label>
+                            <select id="technoFilterType" class="form-control" style="width: 100%; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--accent-primary); border-radius: 5px; font-family: 'Courier New', monospace;">
+                                <option value="lowpass" selected>LOW-PASS</option>
+                                <option value="highpass">HIGH-PASS</option>
+                                <option value="bandpass">BAND-PASS</option>
+                                <option value="notch">NOTCH</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                Filter Env: <span id="technoFilterEnvValue">80</span>%
+                            </label>
+                            <input type="range" id="technoFilterEnv" min="0" max="100" value="80"
+                                   oninput="document.getElementById('technoFilterEnvValue').textContent = this.value"
+                                   style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                Velocity: <span id="technoVelocityValue">90</span>%
+                            </label>
+                            <input type="range" id="technoVelocity" min="30" max="100" value="90"
+                                   oninput="document.getElementById('technoVelocityValue').textContent = this.value"
+                                   style="width: 100%;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Envelope Section -->
+                <div style="margin-bottom: 15px; padding: 15px; background: rgba(0,0,0,0.5); border-radius: 8px; border: 1px solid var(--border);">
+                    <p style="color: var(--accent-primary); margin-bottom: 10px; font-size: 0.95em; font-weight: bold;">
+                        >>> ENVELOPE (ADSR) <<<
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                Attack: <span id="technoAttackValue">0.01</span>s
+                            </label>
+                            <input type="range" id="technoAttack" min="0.001" max="1" value="0.01" step="0.001"
+                                   oninput="document.getElementById('technoAttackValue').textContent = parseFloat(this.value).toFixed(3)"
+                                   style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                Decay: <span id="technoDecayValue">0.2</span>s
+                            </label>
+                            <input type="range" id="technoDecay" min="0.01" max="2" value="0.2" step="0.01"
+                                   oninput="document.getElementById('technoDecayValue').textContent = parseFloat(this.value).toFixed(2)"
+                                   style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                Sustain: <span id="technoSustainValue">50</span>%
+                            </label>
+                            <input type="range" id="technoSustain" min="0" max="100" value="50"
+                                   oninput="document.getElementById('technoSustainValue').textContent = this.value"
+                                   style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                Release: <span id="technoReleaseValue">0.3</span>s
+                            </label>
+                            <input type="range" id="technoRelease" min="0.01" max="3" value="0.3" step="0.01"
+                                   oninput="document.getElementById('technoReleaseValue').textContent = parseFloat(this.value).toFixed(2)"
+                                   style="width: 100%;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LFO Configuration -->
+                <div style="margin-bottom: 15px; padding: 15px; background: rgba(0,0,0,0.5); border-radius: 8px; border: 1px solid var(--border);">
+                    <p style="color: var(--accent-primary); margin-bottom: 10px; font-size: 0.95em; font-weight: bold;">
+                        >>> LFO MODULATION <<<
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                LFO Rate: <span id="technoLFORateValue">6</span> Hz
+                            </label>
+                            <input type="range" id="technoLFORate" min="0.1" max="20" value="6" step="0.1"
+                                   oninput="document.getElementById('technoLFORateValue').textContent = parseFloat(this.value).toFixed(1)"
+                                   style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                LFO Depth: <span id="technoLFODepthValue">40</span>%
+                            </label>
+                            <input type="range" id="technoLFODepth" min="0" max="100" value="40"
+                                   oninput="document.getElementById('technoLFODepthValue').textContent = this.value"
+                                   style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                Target:
+                            </label>
+                            <select id="technoLFOTarget" class="form-control" style="width: 100%; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--accent-primary); border-radius: 5px; font-family: 'Courier New', monospace;">
+                                <option value="pitch">PITCH</option>
+                                <option value="filter" selected>FILTER</option>
+                                <option value="volume">VOLUME</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Automation -->
+                <div style="padding: 15px; background: rgba(0,0,0,0.5); border-radius: 8px; border: 1px solid var(--border);">
+                    <p style="color: var(--accent-primary); margin-bottom: 10px; font-size: 0.95em; font-weight: bold;">
+                        >>> AUTOMATION <<<
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                        <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                            <input type="checkbox" id="technoAutoFilter" style="margin-right: 8px;">
+                            FILTER SWEEP
+                        </label>
+                        <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                            <input type="checkbox" id="technoAutoVolume" style="margin-right: 8px;">
+                            VOLUME FADE
+                        </label>
+                        <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                            <input type="checkbox" id="technoAutoPan" style="margin-right: 8px;">
+                            AUTO-PAN
+                        </label>
+                        <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                            <input type="checkbox" id="technoPulseWidth" style="margin-right: 8px;">
+                            PULSE WIDTH MOD
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -813,6 +1004,12 @@
         }
 
         function playTechnoNote(ctx, freq, startTime, instrument) {
+            // Use enhanced engine if selected
+            if (instrument === 'enhanced') {
+                playEnhancedTechnoNote(ctx, freq, startTime, 0.25);
+                return;
+            }
+            
             const resonance = parseInt(document.getElementById('resonanceControl').value) / 100;
             const cutoff = parseInt(document.getElementById('cutoffControl').value);
             const glide = parseInt(document.getElementById('glideControl').value) / 1000;
@@ -838,6 +1035,215 @@
                     playPercSynth(ctx, freq, startTime);
                     break;
             }
+        }
+
+        // ============================================
+        // ENHANCED TECHNO SYNTHESIS ENGINE
+        // Uses advanced parameters from UI controls
+        // ============================================
+        
+        function playEnhancedTechnoNote(ctx, freq, startTime, duration = 0.5) {
+            // Get synthesis parameters from UI
+            const waveform = document.getElementById('technoWaveform')?.value || 'sawtooth';
+            const unisonVoices = parseInt(document.getElementById('technoUnison')?.value || 3);
+            const detuneAmount = parseFloat(document.getElementById('technoDetune')?.value || 10);
+            const harmonicCount = parseInt(document.getElementById('technoHarmonics')?.value || 3);
+            
+            // Filter parameters
+            const filterType = document.getElementById('technoFilterType')?.value || 'lowpass';
+            const baseCutoff = parseFloat(document.getElementById('cutoffControl')?.value || 500);
+            const baseResonance = parseFloat(document.getElementById('resonanceControl')?.value || 70) / 100;
+            const filterEnvelope = parseFloat(document.getElementById('technoFilterEnv')?.value || 80) / 100;
+            const velocity = parseFloat(document.getElementById('technoVelocity')?.value || 90) / 100;
+            
+            // Envelope parameters
+            const attackTime = parseFloat(document.getElementById('technoAttack')?.value || 0.01);
+            const decayTime = parseFloat(document.getElementById('technoDecay')?.value || 0.2);
+            const sustainLevel = parseFloat(document.getElementById('technoSustain')?.value || 50) / 100;
+            const releaseTime = parseFloat(document.getElementById('technoRelease')?.value || 0.3);
+            
+            // LFO parameters
+            const lfoEnabled = document.getElementById('lfoToggle')?.checked || false;
+            const lfoRate = parseFloat(document.getElementById('technoLFORate')?.value || 6);
+            const lfoDepth = parseFloat(document.getElementById('technoLFODepth')?.value || 40) / 100;
+            const lfoTarget = document.getElementById('technoLFOTarget')?.value || 'filter';
+            
+            // Distortion from existing control
+            const distortionAmount = parseFloat(document.getElementById('distortionControl')?.value || 30);
+            
+            // Automation
+            const autoFilter = document.getElementById('technoAutoFilter')?.checked || false;
+            const autoVolume = document.getElementById('technoAutoVolume')?.checked || false;
+            const autoPan = document.getElementById('technoAutoPan')?.checked || false;
+            const pulseMod = document.getElementById('technoPulseWidth')?.checked || false;
+            
+            // Create master filter
+            const masterFilter = ctx.createBiquadFilter();
+            masterFilter.type = filterType;
+            masterFilter.frequency.setValueAtTime(baseCutoff, startTime);
+            masterFilter.Q.setValueAtTime(baseResonance * 20, startTime);
+            
+            // Distortion
+            const distNode = ctx.createWaveShaper();
+            distNode.curve = makeDistortionCurve(distortionAmount);
+            
+            // Create master gain
+            const masterGain = ctx.createGain();
+            
+            // Create panner for auto-pan
+            const panner = ctx.createStereoPanner();
+            panner.pan.setValueAtTime(0, startTime);
+            
+            // LFO setup
+            let lfo = null;
+            let lfoGain = null;
+            if (lfoEnabled) {
+                lfo = ctx.createOscillator();
+                lfoGain = ctx.createGain();
+                lfo.frequency.setValueAtTime(lfoRate, startTime);
+                lfo.connect(lfoGain);
+                
+                if (lfoTarget === 'pitch') {
+                    lfoGain.gain.setValueAtTime(freq * lfoDepth * 0.05, startTime);
+                } else if (lfoTarget === 'filter') {
+                    lfoGain.gain.setValueAtTime(baseCutoff * lfoDepth * 2, startTime);
+                    lfoGain.connect(masterFilter.frequency);
+                } else if (lfoTarget === 'volume') {
+                    lfoGain.gain.setValueAtTime(velocity * lfoDepth * 0.5, startTime);
+                    lfoGain.connect(masterGain.gain);
+                }
+                
+                lfo.start(startTime);
+                lfo.stop(startTime + duration);
+            }
+            
+            // Create pulse width modulation LFO
+            let pwmLFO = null;
+            let pwmGain = null;
+            if (pulseMod && waveform === 'square') {
+                pwmLFO = ctx.createOscillator();
+                pwmGain = ctx.createGain();
+                pwmLFO.frequency.setValueAtTime(0.5, startTime); // Slow modulation
+                pwmGain.gain.setValueAtTime(20, startTime); // Detune amount
+                pwmLFO.connect(pwmGain);
+                pwmLFO.start(startTime);
+                pwmLFO.stop(startTime + duration);
+            }
+            
+            // Create unison voices with harmonics
+            const oscillators = [];
+            
+            for (let voice = 0; voice < unisonVoices; voice++) {
+                // Calculate detune for this voice
+                const voiceDetune = voice === Math.floor(unisonVoices / 2) ? 0 : 
+                    ((voice - Math.floor(unisonVoices / 2)) * detuneAmount);
+                
+                // Create fundamental oscillator
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = waveform;
+                osc.frequency.setValueAtTime(freq, startTime);
+                osc.detune.setValueAtTime(voiceDetune, startTime);
+                
+                // Connect pitch LFO if enabled
+                if (lfoEnabled && lfoTarget === 'pitch') {
+                    lfoGain.connect(osc.frequency);
+                }
+                
+                // Connect PWM if enabled
+                if (pwmLFO && waveform === 'square') {
+                    pwmGain.connect(osc.detune);
+                }
+                
+                osc.connect(gain);
+                gain.connect(masterFilter);
+                
+                // Voice amplitude (center voice louder)
+                const voiceAmp = voice === Math.floor(unisonVoices / 2) ? 1.0 : 0.6;
+                gain.gain.setValueAtTime(voiceAmp / unisonVoices, startTime);
+                
+                oscillators.push(osc);
+                
+                // Add harmonics
+                for (let h = 1; h <= harmonicCount; h++) {
+                    const harmOsc = ctx.createOscillator();
+                    const harmGain = ctx.createGain();
+                    
+                    harmOsc.type = 'sine';
+                    harmOsc.frequency.setValueAtTime(freq * (h + 1), startTime);
+                    harmOsc.detune.setValueAtTime(voiceDetune, startTime);
+                    
+                    harmOsc.connect(harmGain);
+                    harmGain.connect(masterFilter);
+                    
+                    // Decreasing amplitude for higher harmonics
+                    harmGain.gain.setValueAtTime((voiceAmp / unisonVoices) * (0.4 / (h + 1)), startTime);
+                    
+                    oscillators.push(harmOsc);
+                }
+            }
+            
+            // Connect filter -> distortion -> gain -> panner -> destination
+            masterFilter.connect(distNode);
+            distNode.connect(masterGain);
+            masterGain.connect(panner);
+            panner.connect(ctx.destination);
+            
+            // Apply ADSR envelope
+            masterGain.gain.setValueAtTime(0, startTime);
+            masterGain.gain.linearRampToValueAtTime(velocity * 0.4, startTime + attackTime);
+            masterGain.gain.linearRampToValueAtTime(velocity * 0.4 * sustainLevel, startTime + attackTime + decayTime);
+            
+            const releaseStart = startTime + duration - releaseTime;
+            if (releaseStart > startTime + attackTime + decayTime) {
+                masterGain.gain.setValueAtTime(velocity * 0.4 * sustainLevel, releaseStart);
+            }
+            masterGain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            
+            // TB-303 style filter envelope
+            const filterEnvAmount = baseCutoff * filterEnvelope * 8;
+            masterFilter.frequency.setValueAtTime(baseCutoff, startTime);
+            masterFilter.frequency.exponentialRampToValueAtTime(baseCutoff + filterEnvAmount, startTime + attackTime * 2);
+            masterFilter.frequency.exponentialRampToValueAtTime(baseCutoff, startTime + attackTime + decayTime + 0.1);
+            
+            // Automation effects
+            if (autoFilter) {
+                // Filter sweep over duration
+                masterFilter.frequency.exponentialRampToValueAtTime(baseCutoff * 0.2, startTime + duration * 0.9);
+            }
+            
+            if (autoVolume) {
+                // Volume fade
+                masterGain.gain.linearRampToValueAtTime(velocity * 0.2, startTime + duration * 0.95);
+            }
+            
+            if (autoPan) {
+                // Auto-pan sweep
+                panner.pan.setValueAtTime(-1, startTime);
+                panner.pan.linearRampToValueAtTime(1, startTime + duration);
+            }
+            
+            // Start and stop all oscillators
+            oscillators.forEach(osc => {
+                osc.start(startTime);
+                osc.stop(startTime + duration);
+            });
+        }
+
+        // Play enhanced note sequence
+        function playEnhancedTechnoSequence(sequence) {
+            if (!audioContext) initAudio();
+            
+            const startTime = audioContext.currentTime;
+            const noteDuration = 0.25; // 16th notes
+            
+            sequence.forEach((note, index) => {
+                if (note && note.freq) {
+                    const noteTime = startTime + (index * noteDuration);
+                    playEnhancedTechnoNote(audioContext, note.freq, noteTime, noteDuration * 0.9);
+                }
+            });
         }
 
         // Acid Bass (TB-303 Style)
@@ -1118,6 +1524,128 @@
                 curve[i] = ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
             }
             return curve;
+        }
+
+        // ============================================
+        // CLEAN SOUND ENGINE UTILITIES (TECHNO)
+        // Anti-aliasing and improved synthesis
+        // ============================================
+        
+        /**
+         * Create bandlimited oscillator with reduced aliasing
+         */
+        function createCleanOscillator(ctx, freq, waveform, maxPartials = 32) {
+            const nyquist = ctx.sampleRate / 2;
+            const fundamental = freq;
+            const safePartials = Math.min(maxPartials, Math.floor(nyquist / fundamental) - 1);
+            
+            const oscillators = [];
+            const gains = [];
+            const merger = ctx.createGain();
+            
+            for (let n = 1; n <= safePartials; n++) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.value = fundamental * n;
+                
+                let amplitude = 0;
+                switch(waveform) {
+                    case 'sawtooth':
+                        amplitude = 1 / n;
+                        break;
+                    case 'square':
+                        amplitude = (n % 2 === 1) ? (1 / n) : 0;
+                        break;
+                    case 'triangle':
+                        amplitude = (n % 2 === 1) ? (1 / (n * n)) : 0;
+                        break;
+                    case 'sine':
+                        amplitude = (n === 1) ? 1 : 0;
+                        break;
+                }
+                
+                gain.gain.value = amplitude / safePartials;
+                osc.connect(gain);
+                gain.connect(merger);
+                
+                oscillators.push(osc);
+                gains.push(gain);
+            }
+            
+            return { oscillators, gains, output: merger };
+        }
+        
+        /**
+         * Create cascaded filter for steeper rolloff
+         */
+        function createCleanFilter(ctx, type, cutoff, resonance, stages = 2) {
+            const filters = [];
+            let input = null;
+            
+            for (let i = 0; i < stages; i++) {
+                const filter = ctx.createBiquadFilter();
+                filter.type = type;
+                filter.frequency.value = cutoff;
+                filter.Q.value = Math.pow(resonance, 1 / stages);
+                
+                if (input) {
+                    input.connect(filter);
+                }
+                
+                filters.push(filter);
+                input = filter;
+            }
+            
+            return {
+                input: filters[0],
+                output: filters[filters.length - 1],
+                filters: filters,
+                setFrequency: (freq) => filters.forEach(f => f.frequency.value = freq),
+                setQ: (q) => filters.forEach((f, i) => f.Q.value = Math.pow(q, 1 / stages))
+            };
+        }
+        
+        /**
+         * Soft clipping for warmer techno saturation
+         */
+        function createSoftClipper(ctx, drive = 1.0) {
+            const samples = 2048;
+            const curve = new Float32Array(samples);
+            
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2 / samples) - 1;
+                const processed = Math.tanh(x * drive);
+                curve[i] = processed / Math.max(Math.abs(processed), 1.0);
+            }
+            
+            const shaper = ctx.createWaveShaper();
+            shaper.curve = curve;
+            shaper.oversample = '4x';
+            
+            return shaper;
+        }
+        
+        /**
+         * Industrial delay with feedback saturation
+         */
+        function createIndustrialDelay(ctx, time = 0.375, feedback = 0.4) {
+            const delay = ctx.createDelay();
+            const feedbackGain = ctx.createGain();
+            const saturator = createSoftClipper(ctx, 2.0);
+            const output = ctx.createGain();
+            
+            delay.delayTime.value = time;
+            feedbackGain.gain.value = feedback;
+            output.gain.value = 0.5;
+            
+            delay.connect(saturator);
+            saturator.connect(feedbackGain);
+            feedbackGain.connect(delay);
+            delay.connect(output);
+            
+            return { input: delay, output: output, feedbackNode: feedbackGain };
         }
 
         // Sequencer Functions
