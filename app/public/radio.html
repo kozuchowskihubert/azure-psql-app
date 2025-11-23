@@ -853,7 +853,14 @@
                 
                 // Auto-play if this is the first track and nothing is playing
                 if (queue.length === 1 && !isPlaying) {
-                    playTrack(0);
+                    // Resume audio context (required for autoplay)
+                    resumeAudioContext().then(() => {
+                        playTrack(0);
+                    }).catch(err => {
+                        console.log('Autoplay blocked. User must click play button.');
+                        // Show a friendly prompt
+                        showPlayPrompt();
+                    });
                 }
             });
             
@@ -865,7 +872,98 @@
                 setCurrentQueue(queue);
                 saveQueueToStorage();
                 updateUI();
+                
+                // Try to play if first track
+                if (queue.length === 1 && !isPlaying) {
+                    resumeAudioContext().then(() => {
+                        playTrack(0);
+                    }).catch(err => {
+                        console.log('Autoplay blocked. User must click play button.');
+                        showPlayPrompt();
+                    });
+                }
             });
+        }
+
+        /**
+         * Resume audio context (required for autoplay on modern browsers)
+         */
+        function resumeAudioContext() {
+            return new Promise((resolve, reject) => {
+                if (!audioContext) {
+                    // Initialize if not yet created
+                    initializeVisualizer();
+                }
+                
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                        console.log('Audio context resumed');
+                        resolve();
+                    }).catch(err => {
+                        console.error('Failed to resume audio context:', err);
+                        reject(err);
+                    });
+                } else {
+                    resolve();
+                }
+            });
+        }
+
+        /**
+         * Show a visual prompt for user to click play
+         */
+        function showPlayPrompt() {
+            // Make the play button pulse/glow
+            const playBtn = document.getElementById('playPauseBtn');
+            playBtn.style.animation = 'pulse 1.5s ease-in-out infinite';
+            
+            // Show a tooltip/prompt
+            const prompt = document.createElement('div');
+            prompt.id = 'playPrompt';
+            prompt.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, var(--accent-techno), var(--accent-rap));
+                color: #000;
+                padding: 30px 40px;
+                border-radius: 15px;
+                box-shadow: 0 20px 60px rgba(0, 255, 0, 0.6);
+                z-index: 10000;
+                font-size: 1.3em;
+                font-weight: bold;
+                text-align: center;
+                animation: scaleIn 0.3s ease-out;
+                cursor: pointer;
+            `;
+            
+            prompt.innerHTML = `
+                <div style="font-size: 3em; margin-bottom: 15px;">🎵</div>
+                <div style="margin-bottom: 10px;">Track Added to Queue!</div>
+                <div style="font-size: 0.8em; opacity: 0.9;">Click here or press Play to start listening</div>
+            `;
+            
+            // Click to dismiss and play
+            prompt.addEventListener('click', () => {
+                document.body.removeChild(prompt);
+                playBtn.style.animation = '';
+                togglePlayPause();
+            });
+            
+            document.body.appendChild(prompt);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (document.getElementById('playPrompt')) {
+                    prompt.style.animation = 'scaleOut 0.3s ease-out';
+                    setTimeout(() => {
+                        if (document.body.contains(prompt)) {
+                            document.body.removeChild(prompt);
+                        }
+                    }, 300);
+                }
+            }, 5000);
         }
 
         /**
@@ -926,6 +1024,39 @@
                 }
                 to {
                     transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes pulse {
+                0%, 100% {
+                    transform: scale(1);
+                    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+                }
+                50% {
+                    transform: scale(1.05);
+                    box-shadow: 0 0 30px rgba(0, 255, 0, 1);
+                }
+            }
+            
+            @keyframes scaleIn {
+                from {
+                    transform: translate(-50%, -50%) scale(0.5);
+                    opacity: 0;
+                }
+                to {
+                    transform: translate(-50%, -50%) scale(1);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes scaleOut {
+                from {
+                    transform: translate(-50%, -50%) scale(1);
+                    opacity: 1;
+                }
+                to {
+                    transform: translate(-50%, -50%) scale(0.5);
                     opacity: 0;
                 }
             }
@@ -1075,13 +1206,30 @@
                 isPlaying = false;
                 document.getElementById('playPauseBtn').innerHTML = '▶️ Play';
             } else {
-                if (currentTrackIndex === -1) {
-                    playTrack(0);
-                } else {
-                    audio.play();
-                    isPlaying = true;
-                    document.getElementById('playPauseBtn').innerHTML = '⏸️ Pause';
-                }
+                // Resume audio context first (handles autoplay policy)
+                resumeAudioContext().then(() => {
+                    if (currentTrackIndex === -1) {
+                        playTrack(0);
+                    } else {
+                        audio.play().then(() => {
+                            isPlaying = true;
+                            document.getElementById('playPauseBtn').innerHTML = '⏸️ Pause';
+                        }).catch(err => {
+                            console.error('Play error:', err);
+                            alert('Unable to play. Please try again.');
+                        });
+                    }
+                }).catch(err => {
+                    console.error('Audio context error:', err);
+                    // Try to play anyway
+                    if (currentTrackIndex === -1) {
+                        playTrack(0);
+                    } else {
+                        audio.play();
+                        isPlaying = true;
+                        document.getElementById('playPauseBtn').innerHTML = '⏸️ Pause';
+                    }
+                });
             }
         }
 
@@ -1093,6 +1241,18 @@
             currentTrackIndex = index;
             const track = queue[index];
             
+            // Remove play prompt if exists
+            const playPrompt = document.getElementById('playPrompt');
+            if (playPrompt && document.body.contains(playPrompt)) {
+                document.body.removeChild(playPrompt);
+            }
+            
+            // Remove pulse animation from play button
+            const playBtn = document.getElementById('playPauseBtn');
+            if (playBtn) {
+                playBtn.style.animation = '';
+            }
+            
             // Load and play
             audio.src = track.url;
             audio.play().then(() => {
@@ -1102,7 +1262,14 @@
                 updateQueueUI();
             }).catch(err => {
                 console.error('Playback error:', err);
-                alert('Error playing track. Please try another file.');
+                
+                // More user-friendly error handling
+                if (err.name === 'NotAllowedError') {
+                    console.log('Autoplay not allowed. Showing play prompt.');
+                    showPlayPrompt();
+                } else {
+                    alert('Error playing track. Please try another file.');
+                }
             });
         }
 
