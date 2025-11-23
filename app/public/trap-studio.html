@@ -991,6 +991,9 @@
                 <button class="btn btn-secondary" onclick="stopBeat()">⏹️ Stop</button>
                 <button class="btn" onclick="clearPattern()">🗑️ Clear</button>
                 <button class="btn btn-gold" onclick="loadPresetPattern()">📦 Load Preset</button>
+                <button class="btn" onclick="exportToRadio()" style="background: linear-gradient(135deg, #ff00ff, #00ff00); color: #000; font-weight: bold;">
+                    📻 Send to Radio
+                </button>
             </div>
 
             <div class="preset-grid">
@@ -3212,6 +3215,262 @@ Pads:                200-800 Hz  [Atmosphere]
                 info.style.display = 'block';
             } else {
                 info.style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // RADIO INTEGRATION
+        // ============================================
+        
+        /**
+         * Export current beat to Radio 24/7
+         * Records the beat and sends it to the radio queue
+         */
+        async function exportToRadio() {
+            if (generatedChords.length === 0 && !hasActivePattern()) {
+                alert('⚠️ Create a beat first!\n\n1. Generate a chord progression\n2. Add drum pattern\n3. Click "Send to Radio"');
+                return;
+            }
+
+            // Show progress
+            const originalBtn = event.target;
+            const originalText = originalBtn.innerHTML;
+            originalBtn.innerHTML = '🎙️ Recording...';
+            originalBtn.disabled = true;
+
+            try {
+                // Record the beat (8 bars)
+                const audioBlob = await recordBeat();
+                
+                if (!audioBlob) {
+                    throw new Error('Recording failed');
+                }
+
+                // Get beat metadata
+                const beatName = `Trap Beat ${new Date().toLocaleTimeString()}`;
+                const bpm = parseInt(document.getElementById('bpmSlider').value);
+                const key = document.getElementById('keySelect').value;
+                
+                // Send to Radio 24/7
+                const success = sendToRadio({
+                    blob: audioBlob,
+                    title: beatName,
+                    artist: 'Trap Studio',
+                    bpm: bpm,
+                    key: key,
+                    channel: 'rap' // Trap beats go to Rap channel
+                });
+
+                if (success) {
+                    originalBtn.innerHTML = '✅ Sent to Radio!';
+                    setTimeout(() => {
+                        originalBtn.innerHTML = originalText;
+                        originalBtn.disabled = false;
+                    }, 2000);
+                    
+                    // Ask if user wants to open radio
+                    if (confirm('🎉 Beat sent to Rap Radio!\n\nOpen Radio 24/7 now?')) {
+                        window.open('/radio.html', '_blank');
+                    }
+                } else {
+                    throw new Error('Failed to send to radio');
+                }
+            } catch (error) {
+                console.error('Export to radio error:', error);
+                originalBtn.innerHTML = '❌ Failed';
+                setTimeout(() => {
+                    originalBtn.innerHTML = originalText;
+                    originalBtn.disabled = false;
+                }, 2000);
+                alert('❌ Failed to send to radio. Make sure you have created a beat first.');
+            }
+        }
+
+        /**
+         * Check if there's an active drum pattern
+         */
+        function hasActivePattern() {
+            const grid = document.getElementById('beatGrid');
+            if (!grid) return false;
+            
+            const cells = grid.querySelectorAll('.beat-cell.active');
+            return cells.length > 0;
+        }
+
+        /**
+         * Record the current beat to audio blob
+         */
+        async function recordBeat() {
+            return new Promise((resolve, reject) => {
+                try {
+                    // Create MediaStreamDestination for recording
+                    const destination = audioContext.createMediaStreamDestination();
+                    
+                    // Start recording
+                    const mediaRecorder = new MediaRecorder(destination.stream, {
+                        mimeType: 'audio/webm;codecs=opus'
+                    });
+                    
+                    const chunks = [];
+                    
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) {
+                            chunks.push(e.data);
+                        }
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'audio/webm' });
+                        resolve(blob);
+                    };
+                    
+                    mediaRecorder.onerror = (error) => {
+                        reject(error);
+                    };
+                    
+                    // Start recording
+                    mediaRecorder.start();
+                    
+                    // Play beat for 8 bars
+                    const bpm = parseInt(document.getElementById('bpmSlider').value);
+                    const barDuration = (60 / bpm) * 4 * 1000; // 4 beats per bar
+                    const recordingDuration = barDuration * 8; // 8 bars
+                    
+                    // Play the beat with recording destination
+                    playBeatWithDestination(destination, recordingDuration);
+                    
+                    // Stop recording after duration
+                    setTimeout(() => {
+                        mediaRecorder.stop();
+                    }, recordingDuration + 500); // Add 500ms buffer
+                    
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        /**
+         * Play beat with custom destination (for recording)
+         */
+        function playBeatWithDestination(destination, duration) {
+            const bpm = parseInt(document.getElementById('bpmSlider').value);
+            const beatInterval = (60 / bpm) * 1000 / 4; // 16th note interval
+            let currentStep = 0;
+            const totalSteps = Math.ceil(duration / beatInterval);
+            
+            const playStep = () => {
+                if (currentStep >= totalSteps) return;
+                
+                const stepInPattern = currentStep % 16;
+                
+                // Play active instruments on this step
+                ['kick', 'snare', 'hihat', 'clap'].forEach((instrument, row) => {
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${stepInPattern}"]`);
+                    if (cell && cell.classList.contains('active')) {
+                        playSampleWithDestination(instrument, destination);
+                    }
+                });
+                
+                // Play chord progression
+                if (generatedChords.length > 0 && stepInPattern % 4 === 0) {
+                    const chordIndex = Math.floor(stepInPattern / 4) % generatedChords.length;
+                    const chord = generatedChords[chordIndex];
+                    if (chord) {
+                        playChordWithDestination(chord, destination);
+                    }
+                }
+                
+                currentStep++;
+                setTimeout(playStep, beatInterval);
+            };
+            
+            playStep();
+        }
+
+        /**
+         * Play sample with custom destination
+         */
+        function playSampleWithDestination(instrument, destination) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(destination);
+            gainNode.connect(audioContext.destination); // Also to speakers
+            
+            // Instrument-specific settings
+            const settings = {
+                kick: { freq: 60, decay: 0.5, gain: 0.8 },
+                snare: { freq: 200, decay: 0.15, gain: 0.6 },
+                hihat: { freq: 8000, decay: 0.05, gain: 0.4 },
+                clap: { freq: 1000, decay: 0.1, gain: 0.5 }
+            };
+            
+            const config = settings[instrument] || settings.kick;
+            
+            oscillator.frequency.setValueAtTime(config.freq, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(config.gain, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + config.decay);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + config.decay);
+        }
+
+        /**
+         * Send audio blob to Radio 24/7
+         */
+        function sendToRadio(beatData) {
+            try {
+                // Create a unique track object
+                const track = {
+                    id: Date.now() + Math.random(),
+                    title: beatData.title,
+                    artist: beatData.artist,
+                    bpm: beatData.bpm,
+                    key: beatData.key,
+                    url: URL.createObjectURL(beatData.blob),
+                    file: new File([beatData.blob], `${beatData.title}.webm`, { type: 'audio/webm' }),
+                    channel: beatData.channel,
+                    duration: 0, // Will be calculated by Radio
+                    source: 'Trap Studio'
+                };
+                
+                // Store in localStorage for Radio to pickup
+                const radioQueue = localStorage.getItem('rapQueue');
+                let queue = radioQueue ? JSON.parse(radioQueue) : [];
+                
+                // Add metadata (note: blob URLs can't be persisted)
+                queue.push({
+                    id: track.id,
+                    title: track.title,
+                    artist: track.artist,
+                    bpm: track.bpm,
+                    key: track.key,
+                    channel: track.channel,
+                    source: track.source,
+                    timestamp: new Date().toISOString()
+                });
+                
+                localStorage.setItem('rapQueue', JSON.stringify(queue));
+                
+                // Also send via postMessage if Radio is open
+                if (window.opener || window.parent !== window) {
+                    window.postMessage({
+                        type: 'ADD_TO_RADIO',
+                        track: track
+                    }, '*');
+                }
+                
+                // Dispatch custom event for same-window communication
+                window.dispatchEvent(new CustomEvent('trapStudioBeatExport', {
+                    detail: track
+                }));
+                
+                return true;
+            } catch (error) {
+                console.error('Failed to send to radio:', error);
+                return false;
             }
         }
 

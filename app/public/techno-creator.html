@@ -809,6 +809,9 @@
                 <button class="btn btn-cyan" onclick="randomizeTechnoPattern()">
                     🎲 Random Pattern
                 </button>
+                <button class="btn" onclick="exportTechnoToRadio()" style="background: linear-gradient(135deg, #00ff00, #00ffff); color: #000; font-weight: bold;">
+                    📻 Send to Radio
+                </button>
             </div>
 
             <!-- Preset Patterns -->
@@ -1782,6 +1785,334 @@
         function updateTechnoBPM(value) {
             technoBPM = parseInt(value);
             document.getElementById('technoBpmValue').textContent = value;
+        }
+
+        // ============================================
+        // RADIO INTEGRATION
+        // ============================================
+        
+        /**
+         * Export current techno track to Radio 24/7
+         * Records the pattern and sends it to the radio queue
+         */
+        async function exportTechnoToRadio() {
+            if (!hasActiveTechnoPattern() && technoSequence.length === 0) {
+                alert('⚠️ Create a techno track first!\n\n1. Generate a melodic sequence\n2. Add drum pattern\n3. Click "Send to Radio"');
+                return;
+            }
+
+            // Show progress
+            const originalBtn = event.target;
+            const originalText = originalBtn.innerHTML;
+            originalBtn.innerHTML = '🎙️ Recording...';
+            originalBtn.disabled = true;
+
+            try {
+                // Record the pattern (8 bars)
+                const audioBlob = await recordTechnoTrack();
+                
+                if (!audioBlob) {
+                    throw new Error('Recording failed');
+                }
+
+                // Get track metadata
+                const trackName = `Techno Track ${new Date().toLocaleTimeString()}`;
+                const bpm = technoBPM;
+                const instrument = currentTechnoInstrument;
+                
+                // Send to Radio 24/7
+                const success = sendTechnoToRadio({
+                    blob: audioBlob,
+                    title: trackName,
+                    artist: 'Techno Creator',
+                    bpm: bpm,
+                    instrument: instrument,
+                    channel: 'techno' // Techno tracks go to Techno channel
+                });
+
+                if (success) {
+                    originalBtn.innerHTML = '✅ Sent to Radio!';
+                    setTimeout(() => {
+                        originalBtn.innerHTML = originalText;
+                        originalBtn.disabled = false;
+                    }, 2000);
+                    
+                    // Ask if user wants to open radio
+                    if (confirm('🎉 Track sent to Techno Radio!\n\nOpen Radio 24/7 now?')) {
+                        window.open('/radio.html', '_blank');
+                    }
+                } else {
+                    throw new Error('Failed to send to radio');
+                }
+            } catch (error) {
+                console.error('Export to radio error:', error);
+                originalBtn.innerHTML = '❌ Failed';
+                setTimeout(() => {
+                    originalBtn.innerHTML = originalText;
+                    originalBtn.disabled = false;
+                }, 2000);
+                alert('❌ Failed to send to radio. Make sure you have created a track first.');
+            }
+        }
+
+        /**
+         * Check if there's an active techno pattern
+         */
+        function hasActiveTechnoPattern() {
+            return Object.values(technoPattern).some(track => track.some(step => step));
+        }
+
+        /**
+         * Record the current techno track to audio blob
+         */
+        async function recordTechnoTrack() {
+            return new Promise((resolve, reject) => {
+                try {
+                    // Initialize audio if needed
+                    if (!audioContext) {
+                        initAudio();
+                    }
+                    
+                    // Create MediaStreamDestination for recording
+                    const destination = audioContext.createMediaStreamDestination();
+                    
+                    // Start recording
+                    const mediaRecorder = new MediaRecorder(destination.stream, {
+                        mimeType: 'audio/webm;codecs=opus'
+                    });
+                    
+                    const chunks = [];
+                    
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) {
+                            chunks.push(e.data);
+                        }
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'audio/webm' });
+                        resolve(blob);
+                    };
+                    
+                    mediaRecorder.onerror = (error) => {
+                        reject(error);
+                    };
+                    
+                    // Start recording
+                    mediaRecorder.start();
+                    
+                    // Calculate recording duration (8 bars)
+                    const barDuration = (60 / technoBPM) * 4 * 1000; // 4 beats per bar
+                    const recordingDuration = barDuration * 8; // 8 bars
+                    
+                    // Play the pattern with recording destination
+                    playTechnoPatternWithDestination(destination, recordingDuration);
+                    
+                    // Stop recording after duration
+                    setTimeout(() => {
+                        mediaRecorder.stop();
+                    }, recordingDuration + 500); // Add 500ms buffer
+                    
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        /**
+         * Play techno pattern with custom destination (for recording)
+         */
+        function playTechnoPatternWithDestination(destination, duration) {
+            const stepTime = (60 / technoBPM) / 4; // 16th note duration in seconds
+            let currentStep = 0;
+            const totalSteps = Math.ceil(duration / (stepTime * 1000));
+            
+            const playStep = () => {
+                if (currentStep >= totalSteps) return;
+                
+                const step = currentStep % 16;
+                const time = audioContext.currentTime;
+                
+                // Play drums
+                if (technoPattern.kick[step]) {
+                    playTechnoKickWithDestination(time, destination);
+                }
+                if (technoPattern.hat[step]) {
+                    playTechnoHatWithDestination(time, destination);
+                }
+                if (technoPattern.clap[step]) {
+                    playTechnoClapWithDestination(time, destination);
+                }
+                if (technoPattern.perc[step]) {
+                    playTechnoPercWithDestination(time, destination);
+                }
+                
+                // Play melodic sequence
+                if (technoSequence.length > 0 && step % 4 === 0) {
+                    const noteIndex = Math.floor(step / 4) % technoSequence.length;
+                    const note = technoSequence[noteIndex];
+                    if (note && note.freq) {
+                        playTechnoNoteWithDestination(note.freq, time, destination);
+                    }
+                }
+                
+                currentStep++;
+                setTimeout(playStep, stepTime * 1000);
+            };
+            
+            playStep();
+        }
+
+        /**
+         * Play techno instruments with custom destination
+         */
+        function playTechnoKickWithDestination(time, destination) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.connect(gain);
+            gain.connect(destination);
+            gain.connect(audioContext.destination);
+            
+            osc.frequency.setValueAtTime(150, time);
+            osc.frequency.exponentialRampToValueAtTime(40, time + 0.5);
+            gain.gain.setValueAtTime(1, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+            
+            osc.start(time);
+            osc.stop(time + 0.5);
+        }
+
+        function playTechnoHatWithDestination(time, destination) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.type = 'square';
+            osc.connect(gain);
+            gain.connect(destination);
+            gain.connect(audioContext.destination);
+            
+            osc.frequency.setValueAtTime(10000, time);
+            gain.gain.setValueAtTime(0.3, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
+            
+            osc.start(time);
+            osc.stop(time + 0.05);
+        }
+
+        function playTechnoClapWithDestination(time, destination) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.type = 'square';
+            osc.connect(gain);
+            gain.connect(destination);
+            gain.connect(audioContext.destination);
+            
+            osc.frequency.setValueAtTime(1000, time);
+            gain.gain.setValueAtTime(0.5, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+            
+            osc.start(time);
+            osc.stop(time + 0.1);
+        }
+
+        function playTechnoPercWithDestination(time, destination) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.type = 'triangle';
+            osc.connect(gain);
+            gain.connect(destination);
+            gain.connect(audioContext.destination);
+            
+            osc.frequency.setValueAtTime(800, time);
+            gain.gain.setValueAtTime(0.4, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
+            
+            osc.start(time);
+            osc.stop(time + 0.15);
+        }
+
+        function playTechnoNoteWithDestination(freq, time, destination) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, time);
+            
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(2000, time);
+            filter.Q.setValueAtTime(5, time);
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(destination);
+            gain.connect(audioContext.destination);
+            
+            gain.gain.setValueAtTime(0.3, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+            
+            osc.start(time);
+            osc.stop(time + 0.5);
+        }
+
+        /**
+         * Send audio blob to Radio 24/7
+         */
+        function sendTechnoToRadio(trackData) {
+            try {
+                // Create a unique track object
+                const track = {
+                    id: Date.now() + Math.random(),
+                    title: trackData.title,
+                    artist: trackData.artist,
+                    bpm: trackData.bpm,
+                    instrument: trackData.instrument,
+                    url: URL.createObjectURL(trackData.blob),
+                    file: new File([trackData.blob], `${trackData.title}.webm`, { type: 'audio/webm' }),
+                    channel: trackData.channel,
+                    duration: 0, // Will be calculated by Radio
+                    source: 'Techno Creator'
+                };
+                
+                // Store in localStorage for Radio to pickup
+                const radioQueue = localStorage.getItem('technoQueue');
+                let queue = radioQueue ? JSON.parse(radioQueue) : [];
+                
+                // Add metadata (note: blob URLs can't be persisted)
+                queue.push({
+                    id: track.id,
+                    title: track.title,
+                    artist: track.artist,
+                    bpm: track.bpm,
+                    instrument: track.instrument,
+                    channel: track.channel,
+                    source: track.source,
+                    timestamp: new Date().toISOString()
+                });
+                
+                localStorage.setItem('technoQueue', JSON.stringify(queue));
+                
+                // Also send via postMessage if Radio is open
+                if (window.opener || window.parent !== window) {
+                    window.postMessage({
+                        type: 'ADD_TO_RADIO',
+                        track: track
+                    }, '*');
+                }
+                
+                // Dispatch custom event for same-window communication
+                window.dispatchEvent(new CustomEvent('technoCreatorTrackExport', {
+                    detail: track
+                }));
+                
+                return true;
+            } catch (error) {
+                console.error('Failed to send to radio:', error);
+                return false;
+            }
         }
 
         // Initialize sequencer on load

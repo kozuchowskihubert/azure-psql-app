@@ -775,7 +775,162 @@
             initializeVisualizer();
             loadQueueFromStorage();
             updateUI();
+            setupStudioIntegration();
         });
+
+        // ============================================
+        // STUDIO INTEGRATION
+        // ============================================
+        
+        /**
+         * Setup integration with Trap Studio and Techno Creator
+         * Listens for exported beats and automatically adds them to queue
+         */
+        function setupStudioIntegration() {
+            // Listen for Trap Studio exports
+            window.addEventListener('trapStudioBeatExport', (event) => {
+                const track = event.detail;
+                console.log('Received beat from Trap Studio:', track);
+                
+                // Switch to Rap channel
+                if (currentChannel !== 'rap') {
+                    switchChannel('rap');
+                }
+                
+                // Add track to rap queue
+                addStudioTrackToQueue(track);
+                
+                // Show notification
+                showNotification('🔥 Trap Beat Added!', `"${track.title}" is now in the Rap Radio queue`);
+            });
+            
+            // Listen for Techno Creator exports
+            window.addEventListener('technoCreatorTrackExport', (event) => {
+                const track = event.detail;
+                console.log('Received track from Techno Creator:', track);
+                
+                // Switch to Techno channel
+                if (currentChannel !== 'techno') {
+                    switchChannel('techno');
+                }
+                
+                // Add track to techno queue
+                addStudioTrackToQueue(track);
+                
+                // Show notification
+                showNotification('⚡ Techno Track Added!', `"${track.title}" is now in the Techno Radio queue`);
+            });
+            
+            // Listen for cross-window messages
+            window.addEventListener('message', (event) => {
+                if (event.data && event.data.type === 'ADD_TO_RADIO') {
+                    const track = event.data.track;
+                    console.log('Received track via postMessage:', track);
+                    addStudioTrackToQueue(track);
+                }
+            });
+        }
+
+        /**
+         * Add a track from studio to the queue
+         */
+        function addStudioTrackToQueue(track) {
+            const queue = getCurrentQueue();
+            
+            // Create audio element to get duration
+            const tempAudio = new Audio(track.url);
+            
+            tempAudio.addEventListener('loadedmetadata', () => {
+                track.duration = tempAudio.duration;
+                
+                // Add to queue
+                queue.push(track);
+                setCurrentQueue(queue);
+                
+                // Save and update UI
+                saveQueueToStorage();
+                updateUI();
+                
+                // Auto-play if this is the first track and nothing is playing
+                if (queue.length === 1 && !isPlaying) {
+                    playTrack(0);
+                }
+            });
+            
+            tempAudio.addEventListener('error', () => {
+                console.error('Failed to load track metadata');
+                // Add anyway with 0 duration
+                track.duration = 0;
+                queue.push(track);
+                setCurrentQueue(queue);
+                saveQueueToStorage();
+                updateUI();
+            });
+        }
+
+        /**
+         * Show notification toast
+         */
+        function showNotification(title, message) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, var(--accent-techno), var(--accent-rap));
+                color: #000;
+                padding: 20px 30px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0, 255, 0, 0.5);
+                z-index: 10000;
+                font-weight: bold;
+                animation: slideInRight 0.3s ease-out;
+                max-width: 400px;
+            `;
+            
+            notification.innerHTML = `
+                <div style="font-size: 1.2em; margin-bottom: 5px;">${title}</div>
+                <div style="font-size: 0.9em; opacity: 0.8;">${message}</div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 5000);
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
 
         // ============================================
         // AUDIO INITIALIZATION
