@@ -12,6 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="Radio 24/7">
     
     <title>📻 24/7 Music Radio - Techno & Rap</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         * {
@@ -623,8 +624,15 @@
 </head>
 <body>
     <div class="header">
-        <h1>📻 24/7 MUSIC RADIO</h1>
-        <p class="subtitle">Continuous Techno & Rap • Upload Tracks • Manage Queue</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto;">
+            <div style="flex: 1;">
+                <h1>📻 24/7 MUSIC RADIO</h1>
+                <p class="subtitle">Continuous Techno & Rap • Upload Tracks • Manage Queue</p>
+            </div>
+            <button id="theme-toggle" style="padding: 12px 18px; background: var(--bg-tertiary); border: 1px solid var(--accent-techno); border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: all 0.3s; font-size: 1.2em;" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
         
         <!-- Navigation -->
         <div class="nav-links">
@@ -1621,5 +1629,17 @@
             }
         }
     </script>
+
+    <!-- Theme Manager Script -->
+    <script src="/js/theme-manager.js"></script>
+    <script>
+        // Initialize theme manager
+        const themeManager = new ThemeManager({
+            toggleButtonId: 'theme-toggle',
+            showToast: true
+        });
+        themeManager.init();
+    </script>
+
 </body>
 </html>

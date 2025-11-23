@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎛️ Modular Synthesis Demo - haos.fm</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -199,8 +200,15 @@
     </style>
 </head>
 <body>
-    <h1>🎛️ Modular Synthesis Demo</h1>
-    <p class="subtitle">haos.fm v2.6 - CoreAudioEngine + 808 Bass + TB-303</p>
+    <div style="width: 100%; max-width: 1400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <h1>🎛️ Modular Synthesis Demo</h1>
+            <p class="subtitle">haos.fm v2.6 - CoreAudioEngine + 808 Bass + TB-303</p>
+        </div>
+        <button id="theme-toggle" style="padding: 12px 18px; background: #1a1a1a; border: 2px solid #00ff00; border-radius: 8px; color: #00ff00; cursor: pointer; transition: all 0.3s; font-size: 1.2em;" aria-label="Toggle theme">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
 
     <div class="module-container">
         <!-- 808 Bass Module -->
@@ -510,5 +518,17 @@
             }
         });
     </script>
+
+    <!-- Theme Manager Script -->
+    <script src="/js/theme-manager.js"></script>
+    <script>
+        // Initialize theme manager
+        const themeManager = new ThemeManager({
+            toggleButtonId: 'theme-toggle',
+            showToast: true
+        });
+        themeManager.init();
+    </script>
+
 </body>
 </html>

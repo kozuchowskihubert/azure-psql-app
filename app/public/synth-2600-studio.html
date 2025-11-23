@@ -1887,6 +1887,9 @@
             <button class="nav-btn" onclick="window.location.href='/'">
                 <i class="fas fa-home"></i>
             </button>
+            <button class="nav-btn" id="theme-toggle" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
         </div>
         <!-- Mobile Navigation Toggle -->
         <button class="mobile-nav-toggle" onclick="toggleMobileMenu()" id="mobile-menu-btn">
@@ -4211,5 +4214,17 @@
         });
 
     </script>
+
+    <!-- Theme Manager Script -->
+    <script src="/js/theme-manager.js"></script>
+    <script>
+        // Initialize theme manager
+        const themeManager = new ThemeManager({
+            toggleButtonId: 'theme-toggle',
+            showToast: true
+        });
+        themeManager.init();
+    </script>
+
 </body>
 </html>

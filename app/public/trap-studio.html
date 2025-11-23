@@ -1599,8 +1599,13 @@
             </a>
             
             <!-- Mode Toggle -->
-            <button id="modeToggle" onclick="toggleAdvancedMode()" style="color: var(--text-primary); text-decoration: none; padding: 8px 16px; background: linear-gradient(135deg, #667eea, #764ba2); border: 1px solid var(--accent-secondary); border-radius: 5px; font-weight: bold; cursor: pointer; transition: all 0.3s; margin-left: 10px;">
+            <button id="modeToggle" onclick="toggleAdvancedMode()" style="color: var(--text-primary); text-decoration: none; padding: 8px 16px; background: linear-gradient(135deg, #667eea, #764ba2); border: 1px solid var(--accent-secondary); border-radius: 5px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
                 ⚙️ <span id="modeText">Basic Mode</span>
+            </button>
+            
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" style="color: var(--text-primary); padding: 8px 16px; background: var(--bg-tertiary); border: 1px solid var(--accent-secondary); border-radius: 5px; cursor: pointer; transition: all 0.3s; font-size: 1.1em;" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
             </button>
         </div>
     </div>
@@ -7479,6 +7484,17 @@ Cmd+Y     - Redo change
             ↶ Undo
         </button>
     </div>
+
+    <!-- Theme Manager Script -->
+    <script src="/js/theme-manager.js"></script>
+    <script>
+        // Initialize theme manager
+        const themeManager = new ThemeManager({
+            toggleButtonId: 'theme-toggle',
+            showToast: true
+        });
+        themeManager.init();
+    </script>
 
 </body>
 </html>

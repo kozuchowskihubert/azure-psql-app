@@ -756,8 +756,15 @@
     </div>
 
     <div class="header">
-        <h1>⚡ TECHNO PRODUCTION STUDIO ⚡</h1>
-        <p>[ HARD • ACID • MINIMAL • INDUSTRIAL • DETROIT • DUB ]</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto;">
+            <div>
+                <h1>⚡ TECHNO PRODUCTION STUDIO ⚡</h1>
+                <p>[ HARD • ACID • MINIMAL • INDUSTRIAL • DETROIT • DUB ]</p>
+            </div>
+            <button id="theme-toggle" style="color: var(--text-primary); padding: 12px 18px; background: var(--bg-tertiary); border: 1px solid var(--accent-primary); border-radius: 8px; cursor: pointer; transition: all 0.3s; font-size: 1.2em;" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Live Guidance Panel -->
@@ -3594,6 +3601,17 @@ ESC       - Close modals`);
             </div>
         </div>
     </div>
+
+    <!-- Theme Manager Script -->
+    <script src="/js/theme-manager.js"></script>
+    <script>
+        // Initialize theme manager
+        const themeManager = new ThemeManager({
+            toggleButtonId: 'theme-toggle',
+            showToast: true
+        });
+        themeManager.init();
+    </script>
 
 </body>
 </html>
