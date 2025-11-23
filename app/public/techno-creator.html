@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Professional Techno Production Studio - Acid basslines, industrial percussion, minimal patterns">
+    <meta name="theme-color" content="#0a0a0a">
+    
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Techno Creator">
+    
+    <title>⚡ Techno Production Studio ⚡</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Industrial Techno Theme */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --accent-primary: #00ff00;
+            --accent-secondary: #ff00ff;
+            --accent-cyan: #00ffff;
+            --text-primary: #00ff00;
+            --text-secondary: #00cc00;
+            --success: #00ff00;
+            --warning: #ffff00;
+            --border: #333;
+            --glow: rgba(0, 255, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Scanline Effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 0, 0.03) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0, 255, 0, 0.03) 3px
+            );
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--accent-primary);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: var(--accent-primary);
+            text-shadow: 
+                0 0 10px var(--glow),
+                0 0 20px var(--glow),
+                0 0 30px var(--glow);
+            margin-bottom: 10px;
+            animation: flicker 3s ease-in-out infinite;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+            51% { opacity: 1; }
+            52% { opacity: 0.85; }
+            53% { opacity: 1; }
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 5;
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-menu a {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 12px 24px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent-primary);
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .nav-menu a:hover {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        /* Tool Sections */
+        .tool-section {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-primary);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 0, 0.2),
+                inset 0 0 20px rgba(0, 255, 0, 0.05);
+        }
+
+        .tool-section h2 {
+            color: var(--accent-primary);
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            text-shadow: 0 0 10px var(--glow);
+        }
+
+        .tool-section h3 {
+            color: var(--accent-cyan);
+            margin: 20px 0 10px 0;
+            font-size: 1.3em;
+        }
+
+        /* Form Controls */
+        .control-group {
+            margin: 15px 0;
+        }
+
+        .control-group label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--accent-primary);
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: var(--bg-tertiary);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-primary);
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--glow);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--accent-primary), #00cc00);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
+            font-family: 'Courier New', monospace;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--glow);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--border));
+            color: var(--text-primary);
+            border: 1px solid var(--accent-primary);
+        }
+
+        .btn-magenta {
+            background: linear-gradient(135deg, var(--accent-secondary), #cc00cc);
+        }
+
+        .btn-cyan {
+            background: linear-gradient(135deg, var(--accent-cyan), #00cccc);
+        }
+
+        /* Output Box */
+        .output-box {
+            background: var(--bg-primary);
+            border: 1px solid var(--accent-primary);
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .output-box pre {
+            color: var(--accent-primary);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Sequencer Grid */
+        .sequencer-grid {
+            display: grid;
+            gap: 5px;
+            margin: 20px 0;
+            background: var(--bg-primary);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--accent-primary);
+        }
+
+        .sequencer-row {
+            display: grid;
+            grid-template-columns: 100px repeat(16, 1fr);
+            gap: 3px;
+            align-items: center;
+        }
+
+        .instrument-label {
+            color: var(--text-primary);
+            font-weight: bold;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 5px;
+            text-align: center;
+            border: 1px solid var(--accent-primary);
+        }
+
+        .step {
+            aspect-ratio: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .step.active {
+            background: var(--accent-primary);
+            box-shadow: 0 0 10px var(--glow);
+        }
+
+        .step:hover {
+            border-color: var(--accent-primary);
+        }
+
+        /* Chord Display */
+        .chord-display {
+            background: var(--bg-primary);
+            border: 1px solid var(--accent-primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .chord-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: var(--bg-tertiary);
+            border-left: 3px solid var(--accent-primary);
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chord-name {
+            font-size: 1.5em;
+            color: var(--accent-primary);
+            font-weight: bold;
+        }
+
+        .chord-notes {
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Waveform Canvas */
+        canvas {
+            width: 100%;
+            height: 200px;
+            background: var(--bg-primary);
+            border: 1px solid var(--accent-primary);
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .sequencer-row {
+                grid-template-columns: 80px repeat(16, 1fr);
+            }
+
+            .tool-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚡ TECHNO PRODUCTION STUDIO ⚡</h1>
+        <p>[ HARD • ACID • MINIMAL • INDUSTRIAL • DETROIT • DUB ]</p>
+    </div>
+
+    <div class="container">
+        <!-- Navigation -->
+        <div class="nav-menu">
+            <a href="/">🏠 Home</a>
+            <a href="/trap-studio">🔥 Trap Studio</a>
+            <a href="/techno-creator" style="background: var(--accent-primary); color: var(--bg-primary);">⚡ Techno Creator</a>
+        </div>
+
+        <!-- Techno Chord/Sequence Generator -->
+        <div class="tool-section animated">
+            <h2>🎹 TECHNO SEQUENCE GENERATOR</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Generate hypnotic sequences and minimal progressions for various techno subgenres
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <!-- Key Selection -->
+                <div class="control-group">
+                    <label for="technoKey">Root Note:</label>
+                    <select id="technoKey">
+                        <option value="C">C</option>
+                        <option value="C#">C# / Db</option>
+                        <option value="D">D</option>
+                        <option value="D#">D# / Eb</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="F#">F# / Gb</option>
+                        <option value="G">G</option>
+                        <option value="G#">G# / Ab</option>
+                        <option value="A" selected>A</option>
+                        <option value="A#">A# / Bb</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+
+                <!-- Scale Type -->
+                <div class="control-group">
+                    <label for="technoScale">Scale/Mode:</label>
+                    <select id="technoScale">
+                        <option value="minor" selected>Natural Minor (Aeolian)</option>
+                        <option value="phrygian">Phrygian (Dark)</option>
+                        <option value="dorian">Dorian (Groovy)</option>
+                        <option value="minor_penta">Minor Pentatonic</option>
+                        <option value="harmonic">Harmonic Minor</option>
+                    </select>
+                </div>
+
+                <!-- Subgenre -->
+                <div class="control-group">
+                    <label for="technoSubgenre">Techno Subgenre:</label>
+                    <select id="technoSubgenre">
+                        <option value="hard_techno">Hard Techno (Fast, Aggressive)</option>
+                        <option value="acid_techno" selected>Acid Techno (303 Style)</option>
+                        <option value="minimal">Minimal Techno (Hypnotic)</option>
+                        <option value="industrial">Industrial Techno (Dark)</option>
+                        <option value="detroit">Detroit Techno (Classic)</option>
+                        <option value="dub_techno">Dub Techno (Deep)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Generate Buttons -->
+            <div style="margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                <button class="btn" onclick="generateTechnoSequence()">
+                    ⚡ Generate Sequence
+                </button>
+                <button class="btn btn-secondary" onclick="playTechnoSequence()">
+                    ▶️ Play Preview
+                </button>
+                <button class="btn btn-cyan" onclick="randomizeTechnoSequence()">
+                    🎲 Randomize
+                </button>
+            </div>
+
+            <!-- Instrument Selection -->
+            <div style="margin: 15px 0; padding: 15px; background: var(--bg-tertiary); border-radius: 10px; border: 1px solid var(--accent-primary);">
+                <p style="color: var(--text-secondary); margin-bottom: 10px; font-size: 0.9em;">
+                    🎛️ SELECT SYNTHESIS ENGINE:
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                    <button class="btn btn-secondary" onclick="setTechnoInstrument('acid_bass')" id="inst-acid_bass" style="padding: 8px 12px; font-size: 0.85em; border: 2px solid var(--accent-primary);">
+                        🔊 Acid Bass (303)
+                    </button>
+                    <button class="btn btn-secondary" onclick="setTechnoInstrument('minimal_stab')" id="inst-minimal_stab" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎹 Minimal Stab
+                    </button>
+                    <button class="btn btn-secondary" onclick="setTechnoInstrument('dub_chord')" id="inst-dub_chord" style="padding: 8px 12px; font-size: 0.85em;">
+                        🌊 Dub Chord
+                    </button>
+                    <button class="btn btn-secondary" onclick="setTechnoInstrument('industrial_drone')" id="inst-industrial_drone" style="padding: 8px 12px; font-size: 0.85em;">
+                        ⚙️ Industrial Drone
+                    </button>
+                    <button class="btn btn-secondary" onclick="setTechnoInstrument('detroit_pad')" id="inst-detroit_pad" style="padding: 8px 12px; font-size: 0.85em;">
+                        🏙️ Detroit Pad
+                    </button>
+                    <button class="btn btn-secondary" onclick="setTechnoInstrument('perc_synth')" id="inst-perc_synth" style="padding: 8px 12px; font-size: 0.85em;">
+                        🥁 Perc Synth
+                    </button>
+                </div>
+            </div>
+
+            <!-- Advanced Controls -->
+            <div style="margin: 15px 0; padding: 15px; background: var(--bg-tertiary); border-radius: 10px; border: 1px solid var(--accent-primary);">
+                <p style="color: var(--text-secondary); margin-bottom: 10px; font-size: 0.9em;">
+                    ⚙️ MODULATION & EFFECTS:
+                </p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <!-- Acid Parameters -->
+                    <div>
+                        <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                            🎛️ Filter Resonance: <span id="resonanceValue">70</span>%
+                        </label>
+                        <input type="range" id="resonanceControl" min="0" max="100" value="70" 
+                               oninput="document.getElementById('resonanceValue').textContent = this.value"
+                               style="width: 100%;">
+                    </div>
+
+                    <!-- Filter Cutoff -->
+                    <div>
+                        <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                            🔧 Filter Cutoff: <span id="cutoffValue">500</span> Hz
+                        </label>
+                        <input type="range" id="cutoffControl" min="100" max="5000" value="500" 
+                               oninput="document.getElementById('cutoffValue').textContent = this.value"
+                               style="width: 100%;">
+                    </div>
+
+                    <!-- Glide/Portamento -->
+                    <div>
+                        <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                            🎵 Glide Time: <span id="glideValue">50</span> ms
+                        </label>
+                        <input type="range" id="glideControl" min="0" max="200" value="50" 
+                               oninput="document.getElementById('glideValue').textContent = this.value"
+                               style="width: 100%;">
+                    </div>
+
+                    <!-- Distortion -->
+                    <div>
+                        <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                            🔥 Distortion: <span id="distortionValue">30</span>%
+                        </label>
+                        <input type="range" id="distortionControl" min="0" max="100" value="30" 
+                               oninput="document.getElementById('distortionValue').textContent = this.value"
+                               style="width: 100%;">
+                    </div>
+                </div>
+
+                <!-- Effect Toggles -->
+                <div style="margin-top: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                    <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                        <input type="checkbox" id="delayToggle" checked style="margin-right: 8px;">
+                        ⏱️ Delay
+                    </label>
+                    <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                        <input type="checkbox" id="reverbToggle" checked style="margin-right: 8px;">
+                        🌊 Reverb
+                    </label>
+                    <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                        <input type="checkbox" id="lfoToggle" checked style="margin-right: 8px;">
+                        〰️ LFO Modulation
+                    </label>
+                </div>
+            </div>
+
+            <!-- Sequence Display -->
+            <div id="technoDisplay" class="chord-display">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    >>> READY TO GENERATE TECHNO SEQUENCE <<<
+                </p>
+            </div>
+
+            <div id="technoOutput" class="output-box" style="display: none;">
+                <pre id="technoCode"></pre>
+            </div>
+        </div>
+
+        <!-- Techno Beat Sequencer -->
+        <div class="tool-section animated">
+            <h2>🥁 TECHNO DRUM MACHINE</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Create hard-hitting techno drum patterns (16-step sequencer)
+            </p>
+
+            <div class="control-group">
+                <label for="technoBpmControl">BPM: <span class="bpm-display" id="technoBpmValue">135</span></label>
+                <input type="range" id="technoBpmControl" min="120" max="160" value="135" 
+                       oninput="updateTechnoBPM(this.value)">
+            </div>
+
+            <h3>🎛️ PATTERN GRID (16 STEPS)</h3>
+            
+            <!-- Sound Preview Buttons -->
+            <div style="margin: 15px 0; padding: 15px; background: var(--bg-tertiary); border-radius: 10px; border: 1px solid var(--accent-primary);">
+                <p style="color: var(--text-secondary); margin-bottom: 10px; font-size: 0.9em;">
+                    🎧 PREVIEW SOUNDS:
+                </p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                    <button class="btn btn-secondary" onclick="initAudio(); playTechnoKick(audioContext, audioContext.currentTime)" style="padding: 8px 16px; font-size: 0.9em;">
+                        🦶 Techno Kick
+                    </button>
+                    <button class="btn btn-secondary" onclick="initAudio(); playTechnoHat(audioContext, audioContext.currentTime)" style="padding: 8px 16px; font-size: 0.9em;">
+                        🎩 Hi-Hat
+                    </button>
+                    <button class="btn btn-secondary" onclick="initAudio(); playTechnoClap(audioContext, audioContext.currentTime)" style="padding: 8px 16px; font-size: 0.9em;">
+                        👏 Clap
+                    </button>
+                    <button class="btn btn-secondary" onclick="initAudio(); playTechnoPerc(audioContext, audioContext.currentTime)" style="padding: 8px 16px; font-size: 0.9em;">
+                        🔔 Perc
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sequencer Grid -->
+            <div class="sequencer-grid" id="technoSequencerGrid">
+                <!-- Will be populated by JavaScript -->
+            </div>
+
+            <!-- Sequencer Controls -->
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
+                <button class="btn" onclick="playTechnoPattern()">
+                    ▶️ Play Pattern
+                </button>
+                <button class="btn btn-secondary" onclick="stopTechnoPattern()">
+                    ⏹️ Stop
+                </button>
+                <button class="btn btn-magenta" onclick="clearTechnoPattern()">
+                    🗑️ Clear
+                </button>
+                <button class="btn btn-cyan" onclick="randomizeTechnoPattern()">
+                    🎲 Random Pattern
+                </button>
+            </div>
+
+            <!-- Preset Patterns -->
+            <div style="margin-top: 20px;">
+                <h3>📦 PRESET PATTERNS:</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                    <button class="btn btn-secondary" onclick="loadTechnoPreset('hard_techno')">
+                        ⚡ Hard Techno
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoPreset('minimal')">
+                        🎵 Minimal
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoPreset('industrial')">
+                        ⚙️ Industrial
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoPreset('acid_groove')">
+                        🔊 Acid Groove
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio Context
+        let audioContext = null;
+        let currentTechnoInstrument = 'acid_bass';
+        let generatedTechnoSequence = [];
+        let technoBPM = 135;
+        let technoPattern = {
+            kick: new Array(16).fill(false),
+            hat: new Array(16).fill(false),
+            clap: new Array(16).fill(false),
+            perc: new Array(16).fill(false)
+        };
+        let technoIsPlaying = false;
+        let technoCurrentStep = 0;
+        let technoIntervalId = null;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+
+        // Techno Music Theory
+        const technoTheory = {
+            notes: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+            scales: {
+                minor: [0, 2, 3, 5, 7, 8, 10],           // Natural minor
+                phrygian: [0, 1, 3, 5, 7, 8, 10],        // Dark, Spanish
+                dorian: [0, 2, 3, 5, 7, 9, 10],          // Groovy, jazzy
+                minor_penta: [0, 3, 5, 7, 10],           // Simple, hypnotic
+                harmonic: [0, 2, 3, 5, 7, 8, 11]         // Exotic, dramatic
+            },
+            patterns: {
+                hard_techno: {
+                    name: 'Hard Techno Sequence',
+                    pattern: [0, 0, 5, 0, 3, 0, 7, 0],  // Root, fifth, third patterns
+                    rhythm: 'driving'
+                },
+                acid_techno: {
+                    name: 'Acid Bassline',
+                    pattern: [0, 3, 5, 3, 7, 5, 3, 0],  // Classic 303 pattern
+                    rhythm: 'hypnotic'
+                },
+                minimal: {
+                    name: 'Minimal Loop',
+                    pattern: [0, 5, 7, 5],              // Simple, repetitive
+                    rhythm: 'sparse'
+                },
+                industrial: {
+                    name: 'Industrial Sequence',
+                    pattern: [0, 1, 0, 3, 0, 1, 5, 3],  // Chromatic, harsh
+                    rhythm: 'aggressive'
+                },
+                detroit: {
+                    name: 'Detroit Chord Progression',
+                    pattern: [0, 3, 7, 10, 3, 7, 5, 3], // Soulful, melodic
+                    rhythm: 'groovy'
+                },
+                dub_techno: {
+                    name: 'Dub Techno Chords',
+                    pattern: [0, 5, 7, 10],             // Deep, sustained
+                    rhythm: 'spacious'
+                }
+            }
+        };
+
+        // Generate Techno Sequence
+        function generateTechnoSequence() {
+            const root = document.getElementById('technoKey').value;
+            const scale = document.getElementById('technoScale').value;
+            const subgenre = document.getElementById('technoSubgenre').value;
+            
+            const scaleIntervals = technoTheory.scales[scale];
+            const pattern = technoTheory.patterns[subgenre];
+            const rootIndex = technoTheory.notes.indexOf(root);
+            
+            generatedTechnoSequence = [];
+            let codeOutput = `# ${pattern.name}\n`;
+            codeOutput += `Root: ${root} | Scale: ${scale} | Style: ${subgenre}\n\n`;
+            
+            const sequence = [];
+            pattern.pattern.forEach((degree, index) => {
+                const noteIndex = (rootIndex + scaleIntervals[degree % scaleIntervals.length]) % 12;
+                const noteName = technoTheory.notes[noteIndex];
+                const octave = 3; // Bass octave for techno
+                const midiNote = 12 + (octave * 12) + noteIndex;
+                
+                sequence.push({
+                    note: noteName,
+                    midi: midiNote,
+                    step: index + 1
+                });
+                
+                generatedTechnoSequence.push(midiNote);
+                
+                codeOutput += `Step ${index + 1}: ${noteName}${octave} (MIDI ${midiNote})\n`;
+            });
+            
+            displayTechnoSequence(sequence, pattern.name);
+            document.getElementById('technoCode').textContent = codeOutput;
+            document.getElementById('technoOutput').style.display = 'block';
+        }
+
+        function displayTechnoSequence(sequence, patternName) {
+            const display = document.getElementById('technoDisplay');
+            display.innerHTML = `
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <h3 style="color: var(--accent-primary);">${patternName}</h3>
+                </div>
+                ${sequence.map(item => `
+                    <div class="chord-item animated">
+                        <div>
+                            <span class="chord-name">Step ${item.step}: ${item.note}</span>
+                        </div>
+                        <span class="chord-notes">MIDI: ${item.midi}</span>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // Set Instrument
+        function setTechnoInstrument(instrument) {
+            currentTechnoInstrument = instrument;
+            
+            // Update button styles
+            document.querySelectorAll('[id^="inst-"]').forEach(btn => {
+                btn.style.border = '1px solid var(--accent-primary)';
+                btn.style.background = 'linear-gradient(135deg, var(--bg-tertiary), var(--border))';
+            });
+            document.getElementById(`inst-${instrument}`).style.border = '2px solid var(--accent-primary)';
+            document.getElementById(`inst-${instrument}`).style.background = 'linear-gradient(135deg, var(--accent-primary), #00cc00)';
+        }
+
+        // Randomize Sequence
+        function randomizeTechnoSequence() {
+            const notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+            const scales = ['minor', 'phrygian', 'dorian', 'minor_penta', 'harmonic'];
+            const subgenres = ['hard_techno', 'acid_techno', 'minimal', 'industrial', 'detroit', 'dub_techno'];
+            
+            document.getElementById('technoKey').value = notes[Math.floor(Math.random() * notes.length)];
+            document.getElementById('technoScale').value = scales[Math.floor(Math.random() * scales.length)];
+            document.getElementById('technoSubgenre').value = subgenres[Math.floor(Math.random() * subgenres.length)];
+            
+            generateTechnoSequence();
+        }
+
+        // Play Techno Sequence
+        function playTechnoSequence() {
+            initAudio();
+            
+            if (generatedTechnoSequence.length === 0) {
+                alert('⚠️ Generate a sequence first!');
+                return;
+            }
+            
+            const ctx = audioContext;
+            const startTime = ctx.currentTime + 0.1;
+            const noteLength = 0.25; // 16th notes
+            
+            generatedTechnoSequence.forEach((midi, index) => {
+                const time = startTime + (index * noteLength);
+                const freq = midiToFrequency(midi);
+                playTechnoNote(ctx, freq, time, currentTechnoInstrument);
+            });
+        }
+
+        function midiToFrequency(midi) {
+            return 440 * Math.pow(2, (midi - 69) / 12);
+        }
+
+        function playTechnoNote(ctx, freq, startTime, instrument) {
+            const resonance = parseInt(document.getElementById('resonanceControl').value) / 100;
+            const cutoff = parseInt(document.getElementById('cutoffControl').value);
+            const glide = parseInt(document.getElementById('glideControl').value) / 1000;
+            const distortion = parseInt(document.getElementById('distortionControl').value);
+            
+            switch(instrument) {
+                case 'acid_bass':
+                    playAcidBass(ctx, freq, startTime, resonance, cutoff, glide, distortion);
+                    break;
+                case 'minimal_stab':
+                    playMinimalStab(ctx, freq, startTime);
+                    break;
+                case 'dub_chord':
+                    playDubChord(ctx, freq, startTime);
+                    break;
+                case 'industrial_drone':
+                    playIndustrialDrone(ctx, freq, startTime);
+                    break;
+                case 'detroit_pad':
+                    playDetroitPad(ctx, freq, startTime);
+                    break;
+                case 'perc_synth':
+                    playPercSynth(ctx, freq, startTime);
+                    break;
+            }
+        }
+
+        // Acid Bass (TB-303 Style)
+        function playAcidBass(ctx, freq, startTime, resonance, cutoff, glide, distortion) {
+            const osc = ctx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, startTime);
+            if (glide > 0) {
+                osc.frequency.exponentialRampToValueAtTime(freq, startTime + glide);
+            }
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(cutoff, startTime);
+            filter.Q.setValueAtTime(resonance * 20, startTime);
+            
+            // Filter envelope
+            filter.frequency.exponentialRampToValueAtTime(cutoff * 3, startTime + 0.05);
+            filter.frequency.exponentialRampToValueAtTime(cutoff, startTime + 0.2);
+            
+            const distNode = ctx.createWaveShaper();
+            distNode.curve = makeDistortionCurve(distortion);
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.3, startTime + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.25);
+            
+            osc.connect(filter);
+            filter.connect(distNode);
+            distNode.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(startTime);
+            osc.stop(startTime + 0.3);
+        }
+
+        // Minimal Stab
+        function playMinimalStab(ctx, freq, startTime) {
+            const osc = ctx.createOscillator();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, startTime);
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(freq * 2, startTime);
+            filter.Q.setValueAtTime(5, startTime);
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.2, startTime + 0.005);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.15);
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(startTime);
+            osc.stop(startTime + 0.2);
+        }
+
+        // Dub Chord
+        function playDubChord(ctx, freq, startTime) {
+            [1, 1.25, 1.5].forEach(ratio => {
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq * ratio, startTime);
+                
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, startTime);
+                filter.Q.setValueAtTime(1, startTime);
+                
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(0.1, startTime + 0.3);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + 2.0);
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.start(startTime);
+                osc.stop(startTime + 2.5);
+            });
+        }
+
+        // Industrial Drone
+        function playIndustrialDrone(ctx, freq, startTime) {
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            
+            osc1.type = 'sawtooth';
+            osc2.type = 'square';
+            osc1.frequency.setValueAtTime(freq, startTime);
+            osc2.frequency.setValueAtTime(freq * 0.99, startTime);
+            
+            const noise = createNoiseBuffer(ctx);
+            const noiseSource = ctx.createBufferSource();
+            noiseSource.buffer = noise;
+            
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.1, startTime);
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(300, startTime);
+            filter.Q.setValueAtTime(10, startTime);
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.2, startTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.8);
+            
+            osc1.connect(filter);
+            osc2.connect(filter);
+            noiseSource.connect(noiseGain);
+            noiseGain.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc1.start(startTime);
+            osc2.start(startTime);
+            noiseSource.start(startTime);
+            osc1.stop(startTime + 1.0);
+            osc2.stop(startTime + 1.0);
+            noiseSource.stop(startTime + 1.0);
+        }
+
+        // Detroit Pad
+        function playDetroitPad(ctx, freq, startTime) {
+            [0.99, 1, 1.01].forEach((detune, i) => {
+                const osc = ctx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(freq * detune, startTime);
+                
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1500, startTime);
+                filter.Q.setValueAtTime(0.7, startTime);
+                
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(0.08, startTime + 0.5);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + 3.0);
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.start(startTime);
+                osc.stop(startTime + 3.5);
+            });
+        }
+
+        // Perc Synth
+        function playPercSynth(ctx, freq, startTime) {
+            const osc = ctx.createOscillator();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq * 4, startTime);
+            osc.frequency.exponentialRampToValueAtTime(freq, startTime + 0.05);
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(freq * 2, startTime);
+            filter.Q.setValueAtTime(10, startTime);
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.3, startTime + 0.001);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.1);
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(startTime);
+            osc.stop(startTime + 0.15);
+        }
+
+        // Drum Synthesis
+        function playTechnoKick(ctx, startTime) {
+            const osc = ctx.createOscillator();
+            osc.frequency.setValueAtTime(150, startTime);
+            osc.frequency.exponentialRampToValueAtTime(40, startTime + 0.05);
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(1, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(startTime);
+            osc.stop(startTime + 0.3);
+        }
+
+        function playTechnoHat(ctx, startTime) {
+            const noise = createNoiseBuffer(ctx);
+            const source = ctx.createBufferSource();
+            source.buffer = noise;
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.setValueAtTime(8000, startTime);
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.3, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.05);
+            
+            source.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            
+            source.start(startTime);
+            source.stop(startTime + 0.05);
+        }
+
+        function playTechnoClap(ctx, startTime) {
+            const noise = createNoiseBuffer(ctx);
+            
+            [0, 0.015, 0.03].forEach(offset => {
+                const source = ctx.createBufferSource();
+                source.buffer = noise;
+                
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(1500, startTime + offset);
+                filter.Q.setValueAtTime(1, startTime + offset);
+                
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0.5, startTime + offset);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + offset + 0.1);
+                
+                source.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                
+                source.start(startTime + offset);
+                source.stop(startTime + offset + 0.1);
+            });
+        }
+
+        function playTechnoPerc(ctx, startTime) {
+            const osc = ctx.createOscillator();
+            osc.frequency.setValueAtTime(800, startTime);
+            osc.frequency.exponentialRampToValueAtTime(400, startTime + 0.05);
+            osc.type = 'sine';
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.4, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.08);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(startTime);
+            osc.stop(startTime + 0.08);
+        }
+
+        // Utility Functions
+        function createNoiseBuffer(ctx) {
+            const bufferSize = ctx.sampleRate * 0.5;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            return buffer;
+        }
+
+        function makeDistortionCurve(amount) {
+            const samples = 44100;
+            const curve = new Float32Array(samples);
+            const deg = Math.PI / 180;
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2) / samples - 1;
+                curve[i] = ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
+            }
+            return curve;
+        }
+
+        // Sequencer Functions
+        function initTechnoSequencer() {
+            const grid = document.getElementById('technoSequencerGrid');
+            const instruments = [
+                { name: 'KICK', key: 'kick', icon: '🦶' },
+                { name: 'HAT', key: 'hat', icon: '🎩' },
+                { name: 'CLAP', key: 'clap', icon: '👏' },
+                { name: 'PERC', key: 'perc', icon: '🔔' }
+            ];
+            
+            grid.innerHTML = '';
+            
+            instruments.forEach(inst => {
+                const row = document.createElement('div');
+                row.className = 'sequencer-row';
+                
+                const label = document.createElement('div');
+                label.className = 'instrument-label';
+                label.textContent = `${inst.icon} ${inst.name}`;
+                row.appendChild(label);
+                
+                for (let i = 0; i < 16; i++) {
+                    const step = document.createElement('div');
+                    step.className = 'step';
+                    step.dataset.instrument = inst.key;
+                    step.dataset.step = i;
+                    step.onclick = () => toggleTechnoStep(inst.key, i, step);
+                    row.appendChild(step);
+                }
+                
+                grid.appendChild(row);
+            });
+        }
+
+        function toggleTechnoStep(instrument, step, element) {
+            technoPattern[instrument][step] = !technoPattern[instrument][step];
+            element.classList.toggle('active');
+        }
+
+        function playTechnoPattern() {
+            if (technoIsPlaying) return;
+            
+            initAudio();
+            technoIsPlaying = true;
+            technoCurrentStep = 0;
+            
+            const stepDuration = (60 / technoBPM) / 4 * 1000; // 16th notes
+            
+            technoIntervalId = setInterval(() => {
+                const ctx = audioContext;
+                const time = ctx.currentTime;
+                
+                if (technoPattern.kick[technoCurrentStep]) playTechnoKick(ctx, time);
+                if (technoPattern.hat[technoCurrentStep]) playTechnoHat(ctx, time);
+                if (technoPattern.clap[technoCurrentStep]) playTechnoClap(ctx, time);
+                if (technoPattern.perc[technoCurrentStep]) playTechnoPerc(ctx, time);
+                
+                technoCurrentStep = (technoCurrentStep + 1) % 16;
+            }, stepDuration);
+        }
+
+        function stopTechnoPattern() {
+            technoIsPlaying = false;
+            if (technoIntervalId) {
+                clearInterval(technoIntervalId);
+                technoIntervalId = null;
+            }
+        }
+
+        function clearTechnoPattern() {
+            Object.keys(technoPattern).forEach(key => {
+                technoPattern[key].fill(false);
+            });
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+        }
+
+        function randomizeTechnoPattern() {
+            clearTechnoPattern();
+            Object.keys(technoPattern).forEach((key, instIndex) => {
+                for (let i = 0; i < 16; i++) {
+                    if (Math.random() > 0.7) {
+                        technoPattern[key][i] = true;
+                        const step = document.querySelector(`[data-instrument="${key}"][data-step="${i}"]`);
+                        if (step) step.classList.add('active');
+                    }
+                }
+            });
+        }
+
+        function loadTechnoPreset(preset) {
+            clearTechnoPattern();
+            
+            const presets = {
+                hard_techno: {
+                    kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                    hat: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],
+                    clap: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                    perc: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]
+                },
+                minimal: {
+                    kick: [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                    hat: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
+                    clap: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                    perc: [0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0]
+                },
+                industrial: {
+                    kick: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],
+                    hat: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    clap: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
+                    perc: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]
+                },
+                acid_groove: {
+                    kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                    hat: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
+                    clap: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                    perc: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0]
+                }
+            };
+            
+            const pattern = presets[preset];
+            if (!pattern) return;
+            
+            Object.keys(pattern).forEach(key => {
+                pattern[key].forEach((val, i) => {
+                    technoPattern[key][i] = val === 1;
+                    const step = document.querySelector(`[data-instrument="${key}"][data-step="${i}"]`);
+                    if (step && val === 1) step.classList.add('active');
+                });
+            });
+        }
+
+        function updateTechnoBPM(value) {
+            technoBPM = parseInt(value);
+            document.getElementById('technoBpmValue').textContent = value;
+        }
+
+        // Initialize sequencer on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initTechnoSequencer();
+        });
+    </script>
+</body>
+</html>

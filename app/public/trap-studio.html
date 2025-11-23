@@ -525,6 +525,19 @@
     <div class="header">
         <h1>🔥 TRAP & HIP-HOP PRODUCTION STUDIO 🔥</h1>
         <p>Professional Beat Making Tools | Chord Generator | 808 Designer | Pattern Sequencer</p>
+        
+        <!-- Navigation -->
+        <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
+            <a href="/" style="color: var(--text-primary); text-decoration: none; padding: 8px 16px; background: var(--bg-tertiary); border: 1px solid var(--accent-secondary); border-radius: 5px; transition: all 0.3s;">
+                🏠 Home
+            </a>
+            <a href="/trap-studio" style="color: var(--bg-primary); background: var(--accent-primary); text-decoration: none; padding: 8px 16px; border: 1px solid var(--accent-primary); border-radius: 5px; font-weight: bold; box-shadow: 0 0 15px var(--glow);">
+                🔥 Trap Studio
+            </a>
+            <a href="/techno-creator" style="color: var(--text-primary); text-decoration: none; padding: 8px 16px; background: var(--bg-tertiary); border: 1px solid var(--accent-secondary); border-radius: 5px; transition: all 0.3s;">
+                ⚡ Techno Creator
+            </a>
+        </div>
     </div>
 
     <div class="container">
@@ -583,6 +596,135 @@
                 <button class="btn btn-secondary" onclick="playChordProgression()">
                     ▶️ Play Preview
                 </button>
+                <button class="btn btn-gold" onclick="randomizeChordProgression()">
+                    🎲 Randomize
+                </button>
+            </div>
+
+            <!-- Instrument Selection for Playback -->
+            <div style="margin: 15px 0; padding: 15px; background: var(--bg-tertiary); border-radius: 10px;">
+                <p style="color: var(--text-secondary); margin-bottom: 10px; font-size: 0.9em;">
+                    🎹 Select Instrument Sound:
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                    <button class="btn btn-secondary" onclick="setChordInstrument('piano')" id="inst-piano" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎹 Piano
+                    </button>
+                    <button class="btn btn-secondary" onclick="setChordInstrument('bells')" id="inst-bells" style="padding: 8px 12px; font-size: 0.85em;">
+                        🔔 Bells
+                    </button>
+                    <button class="btn btn-secondary" onclick="setChordInstrument('pad')" id="inst-pad" style="padding: 8px 12px; font-size: 0.85em;">
+                        🌊 Pad
+                    </button>
+                    <button class="btn btn-secondary" onclick="setChordInstrument('pluck')" id="inst-pluck" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎸 Pluck
+                    </button>
+                    <button class="btn btn-secondary" onclick="setChordInstrument('brass')" id="inst-brass" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎺 Brass
+                    </button>
+                    <button class="btn btn-secondary" onclick="setChordInstrument('lead')" id="inst-lead" style="padding: 8px 12px; font-size: 0.85em;">
+                        ⚡ Lead
+                    </button>
+                </div>
+            </div>
+
+            <!-- Advanced Playback Controls -->
+            <div style="margin: 15px 0; padding: 15px; background: var(--bg-tertiary); border-radius: 10px;">
+                <p style="color: var(--text-secondary); margin-bottom: 10px; font-size: 0.9em;">
+                    ⚙️ Playback Options:
+                </p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <!-- Arpeggiator -->
+                    <div>
+                        <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                            🎵 Arpeggio Pattern:
+                        </label>
+                        <select id="arpeggioPattern" class="form-control" style="width: 100%; padding: 8px; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--accent-secondary); border-radius: 5px;">
+                            <option value="none">Chord (All Together)</option>
+                            <option value="up">Up ↑</option>
+                            <option value="down">Down ↓</option>
+                            <option value="updown">Up-Down ↕</option>
+                            <option value="random">Random 🎲</option>
+                        </select>
+                    </div>
+
+                    <!-- Rhythm Pattern -->
+                    <div>
+                        <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                            🎼 Rhythm Pattern:
+                        </label>
+                        <select id="rhythmPattern" class="form-control" style="width: 100%; padding: 8px; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--accent-secondary); border-radius: 5px;">
+                            <option value="whole">Whole Notes (Sustain)</option>
+                            <option value="quarter">Quarter Notes (Staccato)</option>
+                            <option value="syncopated">Syncopated</option>
+                            <option value="triplet">Triplets</option>
+                        </select>
+                    </div>
+
+                    <!-- Octave -->
+                    <div>
+                        <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                            🎹 Octave: <span id="octaveValue">4</span>
+                        </label>
+                        <input type="range" id="octaveControl" min="2" max="6" value="4" 
+                               oninput="document.getElementById('octaveValue').textContent = this.value"
+                               style="width: 100%;">
+                    </div>
+
+                    <!-- Velocity -->
+                    <div>
+                        <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                            💪 Velocity: <span id="velocityValue">80</span>%
+                        </label>
+                        <input type="range" id="velocityControl" min="30" max="100" value="80" 
+                               oninput="document.getElementById('velocityValue').textContent = this.value"
+                               style="width: 100%;">
+                    </div>
+                </div>
+
+                <!-- Effects and Humanization -->
+                <div style="margin-top: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                    <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                        <input type="checkbox" id="humanizeToggle" style="margin-right: 8px;">
+                        🎭 Humanize (Timing & Velocity)
+                    </label>
+                    <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                        <input type="checkbox" id="reverbToggle" style="margin-right: 8px;">
+                        🌊 Reverb
+                    </label>
+                    <label style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.85em; cursor: pointer;">
+                        <input type="checkbox" id="delayToggle" style="margin-right: 8px;">
+                        ⏱️ Delay
+                    </label>
+                </div>
+
+                <!-- Preset System -->
+                <div style="margin-top: 15px;">
+                    <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                        💾 Presets:
+                    </label>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="loadPreset('dark_piano')" style="padding: 6px 12px; font-size: 0.8em;">
+                            🌙 Dark Piano
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadPreset('bright_bells')" style="padding: 6px 12px; font-size: 0.8em;">
+                            ✨ Bright Bells
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadPreset('ambient_pad')" style="padding: 6px 12px; font-size: 0.8em;">
+                            🌌 Ambient Pad
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadPreset('trap_pluck')" style="padding: 6px 12px; font-size: 0.8em;">
+                            🎸 Trap Pluck
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadPreset('drill_brass')" style="padding: 6px 12px; font-size: 0.8em;">
+                            🎺 Drill Brass
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadPreset('hyperpop_lead')" style="padding: 6px 12px; font-size: 0.8em;">
+                            ⚡ Hyperpop Lead
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div id="chordDisplay" class="chord-display">
@@ -941,6 +1083,7 @@ Pads:                200-800 Hz  [Atmosphere]
             const rootIndex = chordTheory.notes.indexOf(key);
             
             const chords = [];
+            generatedChords = []; // Reset generated chords
             let codeOutput = `# ${progression.name} Progression in ${key} ${mode}\n\n`;
             
             progression.degrees.forEach((degree, index) => {
@@ -957,6 +1100,7 @@ Pads:                200-800 Hz  [Atmosphere]
                 }
                 
                 const notes = chordTheory.getChordNotes(chordRoot, chordType);
+                const midiNotes = notes.map(n => getMIDINote(n, 4));
                 const chordSymbol = chordType === 'minor' ? 'm' : 
                                   chordType === 'dim' ? 'dim' : '';
                 
@@ -966,9 +1110,15 @@ Pads:                200-800 Hz  [Atmosphere]
                     roman: getRomanNumeral(degree, mode)
                 });
                 
+                // Save for playback
+                generatedChords.push({
+                    name: `${chordRoot}${chordSymbol}`,
+                    notes: midiNotes
+                });
+                
                 codeOutput += `Chord ${index + 1}: ${chordRoot}${chordSymbol}\n`;
                 codeOutput += `Notes: ${notes.join(', ')}\n`;
-                codeOutput += `MIDI: ${notes.map(n => getMIDINote(n, 4)).join(', ')}\n\n`;
+                codeOutput += `MIDI: ${midiNotes.join(', ')}\n\n`;
             });
             
             displayChords(chords);
@@ -1000,9 +1150,899 @@ Pads:                200-800 Hz  [Atmosphere]
         }
 
         // Play Chord Progression
+        let currentChordInstrument = 'piano';
+        let generatedChords = [];
+
+        function setChordInstrument(instrument) {
+            currentChordInstrument = instrument;
+            
+            // Update button styles
+            document.querySelectorAll('[id^="inst-"]').forEach(btn => {
+                btn.style.background = 'linear-gradient(135deg, var(--accent-secondary), #06b8b5)';
+            });
+            document.getElementById(`inst-${instrument}`).style.background = 
+                'linear-gradient(135deg, var(--accent-gold), #ffed4e)';
+        }
+
         function playChordProgression() {
             initAudio();
-            alert('🎵 Audio playback coming soon! For now, use the MIDI notes in the output to play in your DAW.');
+            
+            if (generatedChords.length === 0) {
+                alert('⚠️ Please generate a chord progression first!');
+                return;
+            }
+            
+            const ctx = audioContext;
+            const startTime = ctx.currentTime + 0.1;
+            const rhythmPattern = document.getElementById('rhythmPattern').value;
+            const arpeggioPattern = document.getElementById('arpeggioPattern').value;
+            
+            // Calculate chord duration based on rhythm
+            const baseDuration = rhythmPattern === 'quarter' ? 0.75 : 
+                                rhythmPattern === 'triplet' ? 0.5 : 1.5;
+            
+            let currentTime = startTime;
+            
+            generatedChords.forEach((chord, chordIndex) => {
+                if (arpeggioPattern === 'none') {
+                    // Play full chord
+                    playChordWithEffects(ctx, chord.notes, currentTime, currentChordInstrument);
+                    
+                    // Add rhythm variations
+                    if (rhythmPattern === 'syncopated') {
+                        // Play again at half position
+                        playChordWithEffects(ctx, chord.notes, currentTime + baseDuration * 0.5, currentChordInstrument, 0.5);
+                    } else if (rhythmPattern === 'triplet') {
+                        // Play triplet pattern
+                        playChordWithEffects(ctx, chord.notes, currentTime + baseDuration, currentChordInstrument, 0.7);
+                        playChordWithEffects(ctx, chord.notes, currentTime + baseDuration * 2, currentChordInstrument, 0.7);
+                    }
+                } else {
+                    // Arpeggiate the chord
+                    playArpeggio(ctx, chord.notes, currentTime, arpeggioPattern, baseDuration);
+                }
+                
+                currentTime += rhythmPattern === 'triplet' ? baseDuration * 3 : 
+                              rhythmPattern === 'quarter' ? baseDuration : 
+                              rhythmPattern === 'syncopated' ? baseDuration * 1.5 : baseDuration;
+            });
+        }
+
+        function playChordWithEffects(ctx, midiNotes, startTime, instrument, velocityMod = 1.0) {
+            // Get settings
+            const octave = parseInt(document.getElementById('octaveControl').value);
+            const velocity = parseInt(document.getElementById('velocityControl').value) / 100;
+            const humanize = document.getElementById('humanizeToggle').checked;
+            const reverb = document.getElementById('reverbToggle').checked;
+            const delay = document.getElementById('delayToggle').checked;
+            
+            // Adjust MIDI notes for octave
+            const octaveShift = (octave - 4) * 12;
+            const adjustedNotes = midiNotes.map(note => note + octaveShift);
+            
+            // Apply humanization
+            const timeOffset = humanize ? (Math.random() - 0.5) * 0.02 : 0;
+            const velocityVar = humanize ? 0.9 + Math.random() * 0.2 : 1.0;
+            const finalVelocity = velocity * velocityMod * velocityVar;
+            
+            // Create effects chain
+            let destination = ctx.destination;
+            let effectsChain = [];
+            
+            if (reverb) {
+                const reverbNode = createReverb(ctx);
+                effectsChain.push(reverbNode);
+            }
+            
+            if (delay) {
+                const delayNode = createDelay(ctx);
+                effectsChain.push(delayNode);
+            }
+            
+            // Connect effects chain
+            if (effectsChain.length > 0) {
+                destination = effectsChain[0];
+                for (let i = 0; i < effectsChain.length - 1; i++) {
+                    effectsChain[i].connect(effectsChain[i + 1]);
+                }
+                effectsChain[effectsChain.length - 1].connect(ctx.destination);
+            }
+            
+            // Play with modified parameters
+            playChordWithDestination(ctx, adjustedNotes, startTime + timeOffset, instrument, finalVelocity, destination);
+        }
+
+        function playArpeggio(ctx, midiNotes, startTime, pattern, baseDuration) {
+            let noteOrder = [...midiNotes];
+            
+            // Determine note order based on pattern
+            switch(pattern) {
+                case 'up':
+                    noteOrder.sort((a, b) => a - b);
+                    break;
+                case 'down':
+                    noteOrder.sort((a, b) => b - a);
+                    break;
+                case 'updown':
+                    noteOrder.sort((a, b) => a - b);
+                    noteOrder = [...noteOrder, ...noteOrder.slice(1, -1).reverse()];
+                    break;
+                case 'random':
+                    noteOrder = noteOrder.sort(() => Math.random() - 0.5);
+                    break;
+            }
+            
+            const noteGap = baseDuration / noteOrder.length;
+            noteOrder.forEach((note, index) => {
+                playChordWithEffects(ctx, [note], startTime + (index * noteGap), currentChordInstrument);
+            });
+        }
+
+        function createReverb(ctx) {
+            const convolver = ctx.createConvolver();
+            const reverbTime = 2; // 2 seconds
+            const sampleRate = ctx.sampleRate;
+            const length = sampleRate * reverbTime;
+            const impulse = ctx.createBuffer(2, length, sampleRate);
+            
+            for (let channel = 0; channel < 2; channel++) {
+                const channelData = impulse.getChannelData(channel);
+                for (let i = 0; i < length; i++) {
+                    channelData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (sampleRate * 0.5));
+                }
+            }
+            
+            convolver.buffer = impulse;
+            
+            // Mix with dry signal
+            const dryGain = ctx.createGain();
+            const wetGain = ctx.createGain();
+            dryGain.gain.value = 0.7;
+            wetGain.gain.value = 0.3;
+            
+            return convolver;
+        }
+
+        function createDelay(ctx) {
+            const delayNode = ctx.createDelay();
+            const feedback = ctx.createGain();
+            const wetGain = ctx.createGain();
+            
+            delayNode.delayTime.value = 0.375; // Dotted eighth note at 120 BPM
+            feedback.gain.value = 0.3;
+            wetGain.gain.value = 0.4;
+            
+            delayNode.connect(feedback);
+            feedback.connect(delayNode);
+            delayNode.connect(wetGain);
+            
+            return wetGain;
+        }
+
+        function playChordWithDestination(ctx, midiNotes, startTime, instrument, velocity, destination) {
+            const frequencies = midiNotes.map(midi => midiToFrequency(midi));
+            
+            switch(instrument) {
+                case 'piano':
+                    playPianoChordDest(ctx, frequencies, startTime, velocity, destination);
+                    break;
+                case 'bells':
+                    playBellsChordDest(ctx, frequencies, startTime, velocity, destination);
+                    break;
+                case 'pad':
+                    playPadChordDest(ctx, frequencies, startTime, velocity, destination);
+                    break;
+                case 'pluck':
+                    playPluckChordDest(ctx, frequencies, startTime, velocity, destination);
+                    break;
+                case 'brass':
+                    playBrassChordDest(ctx, frequencies, startTime, velocity, destination);
+                    break;
+                case 'lead':
+                    playLeadChordDest(ctx, frequencies, startTime, velocity, destination);
+                    break;
+            }
+        }
+
+        function randomizeChordProgression() {
+            // Randomize key
+            const keys = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            document.getElementById('chordKey').value = randomKey;
+            
+            // Randomize mode
+            const mode = Math.random() > 0.5 ? 'minor' : 'major';
+            document.getElementById('chordMode').value = mode;
+            
+            // Randomize progression type
+            const types = ['dark_trap', 'melodic_trap', 'drill', 'cloud_rap', 'boom_bap', 'emotional'];
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            document.getElementById('progressionType').value = randomType;
+            
+            // Generate and play
+            generateChordProgression();
+            
+            // Visual feedback
+            const display = document.getElementById('chordDisplay');
+            display.style.animation = 'none';
+            setTimeout(() => {
+                display.style.animation = 'slideIn 0.5s ease-out';
+            }, 10);
+        }
+
+        // Preset System
+        const chordPresets = {
+            'dark_piano': { 
+                instrument: 'piano', 
+                key: 'A', 
+                mode: 'minor', 
+                type: 'dark_trap',
+                octave: 3,
+                arpeggio: 'none',
+                rhythm: 'whole'
+            },
+            'bright_bells': { 
+                instrument: 'bells', 
+                key: 'C', 
+                mode: 'major', 
+                type: 'melodic_trap',
+                octave: 5,
+                arpeggio: 'up',
+                rhythm: 'quarter'
+            },
+            'ambient_pad': { 
+                instrument: 'pad', 
+                key: 'F', 
+                mode: 'minor', 
+                type: 'emotional',
+                octave: 3,
+                arpeggio: 'none',
+                rhythm: 'whole'
+            },
+            'trap_pluck': { 
+                instrument: 'pluck', 
+                key: 'D', 
+                mode: 'minor', 
+                type: 'drill',
+                octave: 4,
+                arpeggio: 'updown',
+                rhythm: 'syncopated'
+            },
+            'drill_brass': { 
+                instrument: 'brass', 
+                key: 'E', 
+                mode: 'minor', 
+                type: 'drill',
+                octave: 4,
+                arpeggio: 'none',
+                rhythm: 'quarter'
+            },
+            'hyperpop_lead': { 
+                instrument: 'lead', 
+                key: 'G', 
+                mode: 'major', 
+                type: 'melodic_trap',
+                octave: 5,
+                arpeggio: 'random',
+                rhythm: 'triplet'
+            }
+        };
+
+        function loadPreset(presetName) {
+            const preset = chordPresets[presetName];
+            if (!preset) return;
+            
+            // Set chord parameters
+            document.getElementById('chordKey').value = preset.key;
+            document.getElementById('chordMode').value = preset.mode;
+            document.getElementById('progressionType').value = preset.type;
+            
+            // Set instrument
+            setChordInstrument(preset.instrument);
+            
+            // Set playback options
+            document.getElementById('octaveControl').value = preset.octave;
+            document.getElementById('octaveValue').textContent = preset.octave;
+            document.getElementById('arpeggioPattern').value = preset.arpeggio;
+            document.getElementById('rhythmPattern').value = preset.rhythm;
+            
+            // Generate progression
+            generateChordProgression();
+            
+            // Visual feedback
+            const display = document.getElementById('chordDisplay');
+            display.style.animation = 'none';
+            setTimeout(() => {
+                display.style.animation = 'slideIn 0.5s ease-out';
+            }, 10);
+        }
+
+        // Play a single chord with chosen instrument
+        function playChord(ctx, midiNotes, startTime, instrument) {
+            const frequencies = midiNotes.map(midi => midiToFrequency(midi));
+            
+            switch(instrument) {
+                case 'piano':
+                    playPianoChord(ctx, frequencies, startTime);
+                    break;
+                case 'bells':
+                    playBellsChord(ctx, frequencies, startTime);
+                    break;
+                case 'pad':
+                    playPadChord(ctx, frequencies, startTime);
+                    break;
+                case 'pluck':
+                    playPluckChord(ctx, frequencies, startTime);
+                    break;
+                case 'brass':
+                    playBrassChord(ctx, frequencies, startTime);
+                    break;
+                case 'lead':
+                    playLeadChord(ctx, frequencies, startTime);
+                    break;
+            }
+        }
+
+        // Convert MIDI note to frequency
+        function midiToFrequency(midi) {
+            return 440 * Math.pow(2, (midi - 69) / 12);
+        }
+
+        // Destination-aware synthesis wrappers
+        function playPianoChordDest(ctx, frequencies, startTime, velocity = 0.3, destination = null) {
+            playInstrumentChord(ctx, frequencies, startTime, velocity, destination || ctx.destination, 'piano');
+        }
+
+        function playBellsChordDest(ctx, frequencies, startTime, velocity = 0.25, destination = null) {
+            playInstrumentChord(ctx, frequencies, startTime, velocity, destination || ctx.destination, 'bells');
+        }
+
+        function playPadChordDest(ctx, frequencies, startTime, velocity = 0.15, destination = null) {
+            playInstrumentChord(ctx, frequencies, startTime, velocity, destination || ctx.destination, 'pad');
+        }
+
+        function playPluckChordDest(ctx, frequencies, startTime, velocity = 0.4, destination = null) {
+            playInstrumentChord(ctx, frequencies, startTime, velocity, destination || ctx.destination, 'pluck');
+        }
+
+        function playBrassChordDest(ctx, frequencies, startTime, velocity = 0.25, destination = null) {
+            playInstrumentChord(ctx, frequencies, startTime, velocity, destination || ctx.destination, 'brass');
+        }
+
+        function playLeadChordDest(ctx, frequencies, startTime, velocity = 0.2, destination = null) {
+            playInstrumentChord(ctx, frequencies, startTime, velocity, destination || ctx.destination, 'lead');
+        }
+
+        function playInstrumentChord(ctx, frequencies, startTime, velocity, destination, type) {
+            frequencies.forEach((freq, index) => {
+                if (type === 'piano') {
+                    playPianoNote(ctx, freq, startTime, velocity - (index * 0.05), destination);
+                } else if (type === 'bells') {
+                    playBellsNote(ctx, freq, startTime, velocity - (index * 0.1), destination);
+                } else if (type === 'pad') {
+                    playPadNote(ctx, freq, startTime, velocity - (index * 0.02), destination);
+                } else if (type === 'pluck') {
+                    playPluckNote(ctx, freq, startTime, velocity - (index * 0.08), destination);
+                } else if (type === 'brass') {
+                    playBrassNote(ctx, freq, startTime, velocity - (index * 0.04), destination);
+                } else if (type === 'lead') {
+                    playLeadNote(ctx, freq, startTime, velocity - (index * 0.03), destination);
+                }
+            });
+        }
+
+        function playPianoNote(ctx, freq, startTime, velocity, destination) {
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const osc3 = ctx.createOscillator();
+            
+            osc1.frequency.setValueAtTime(freq, startTime);
+            osc2.frequency.setValueAtTime(freq * 2, startTime);
+            osc3.frequency.setValueAtTime(freq * 3, startTime);
+            
+            osc1.type = 'sine';
+            osc2.type = 'sine';
+            osc3.type = 'triangle';
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(3000, startTime);
+            filter.Q.setValueAtTime(1, startTime);
+            
+            const gain1 = ctx.createGain();
+            const gain2 = ctx.createGain();
+            const gain3 = ctx.createGain();
+            const masterGain = ctx.createGain();
+            
+            osc1.connect(gain1);
+            osc2.connect(gain2);
+            osc3.connect(gain3);
+            gain1.connect(filter);
+            gain2.connect(filter);
+            gain3.connect(filter);
+            filter.connect(masterGain);
+            masterGain.connect(destination);
+            
+            gain1.gain.setValueAtTime(0.8, startTime);
+            gain2.gain.setValueAtTime(0.3, startTime);
+            gain3.gain.setValueAtTime(0.15, startTime);
+            
+            masterGain.gain.setValueAtTime(0, startTime);
+            masterGain.gain.linearRampToValueAtTime(velocity, startTime + 0.01);
+            masterGain.gain.exponentialRampToValueAtTime(0.01, startTime + 1.2);
+            
+            filter.frequency.exponentialRampToValueAtTime(800, startTime + 0.8);
+            
+            osc1.start(startTime);
+            osc2.start(startTime);
+            osc3.start(startTime);
+            osc1.stop(startTime + 1.5);
+            osc2.stop(startTime + 1.5);
+            osc3.stop(startTime + 1.5);
+        }
+
+        function playBellsNote(ctx, freq, startTime, velocity, destination) {
+            const partials = [1, 2.76, 5.4, 8.93];
+            partials.forEach((ratio, pIndex) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq * ratio, startTime);
+                
+                osc.connect(gain);
+                gain.connect(destination);
+                
+                const amplitude = (velocity / (pIndex + 1));
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(amplitude, startTime + 0.005);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + 1.5);
+                
+                osc.start(startTime);
+                osc.stop(startTime + 1.8);
+            });
+        }
+
+        function playPadNote(ctx, freq, startTime, velocity, destination) {
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const osc3 = ctx.createOscillator();
+            
+            osc1.type = 'sawtooth';
+            osc2.type = 'sawtooth';
+            osc3.type = 'triangle';
+            
+            osc1.frequency.setValueAtTime(freq, startTime);
+            osc2.frequency.setValueAtTime(freq * 1.01, startTime);
+            osc3.frequency.setValueAtTime(freq * 0.99, startTime);
+            
+            const lfo = ctx.createOscillator();
+            const lfoGain = ctx.createGain();
+            lfo.frequency.setValueAtTime(4, startTime);
+            lfoGain.gain.setValueAtTime(3, startTime);
+            
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc1.frequency);
+            lfoGain.connect(osc2.frequency);
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1200, startTime);
+            filter.Q.setValueAtTime(0.7, startTime);
+            
+            const gain = ctx.createGain();
+            
+            osc1.connect(filter);
+            osc2.connect(filter);
+            osc3.connect(filter);
+            filter.connect(gain);
+            gain.connect(destination);
+            
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(velocity, startTime + 0.4);
+            gain.gain.linearRampToValueAtTime(velocity * 0.8, startTime + 1.2);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 2.0);
+            
+            filter.frequency.linearRampToValueAtTime(1800, startTime + 0.3);
+            filter.frequency.linearRampToValueAtTime(1000, startTime + 1.5);
+            
+            lfo.start(startTime);
+            osc1.start(startTime);
+            osc2.start(startTime);
+            osc3.start(startTime);
+            lfo.stop(startTime + 2.2);
+            osc1.stop(startTime + 2.2);
+            osc2.stop(startTime + 2.2);
+            osc3.stop(startTime + 2.2);
+        }
+
+        function playPluckNote(ctx, freq, startTime, velocity, destination) {
+            const osc = ctx.createOscillator();
+            const filter = ctx.createBiquadFilter();
+            const gain = ctx.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, startTime);
+            
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(5000, startTime);
+            filter.Q.setValueAtTime(3, startTime);
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(destination);
+            
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(velocity, startTime + 0.002);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.5);
+            
+            filter.frequency.exponentialRampToValueAtTime(500, startTime + 0.3);
+            
+            osc.start(startTime);
+            osc.stop(startTime + 0.6);
+        }
+
+        function playBrassNote(ctx, freq, startTime, velocity, destination) {
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            
+            osc1.type = 'sawtooth';
+            osc2.type = 'sawtooth';
+            
+            osc1.frequency.setValueAtTime(freq, startTime);
+            osc2.frequency.setValueAtTime(freq * 1.005, startTime);
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(800, startTime);
+            filter.Q.setValueAtTime(4, startTime);
+            
+            const distortion = ctx.createWaveShaper();
+            distortion.curve = makeDistortionCurve(30);
+            
+            const gain = ctx.createGain();
+            
+            osc1.connect(filter);
+            osc2.connect(filter);
+            filter.connect(distortion);
+            distortion.connect(gain);
+            gain.connect(destination);
+            
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(velocity, startTime + 0.08);
+            gain.gain.linearRampToValueAtTime(velocity * 0.9, startTime + 1.0);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 1.4);
+            
+            filter.frequency.linearRampToValueAtTime(2000, startTime + 0.1);
+            filter.frequency.linearRampToValueAtTime(1200, startTime + 1.2);
+            
+            osc1.start(startTime);
+            osc2.start(startTime);
+            osc1.stop(startTime + 1.6);
+            osc2.stop(startTime + 1.6);
+        }
+
+        function playLeadNote(ctx, freq, startTime, velocity, destination) {
+            const osc = ctx.createOscillator();
+            
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, startTime);
+            
+            const lfo = ctx.createOscillator();
+            const lfoGain = ctx.createGain();
+            lfo.frequency.setValueAtTime(6, startTime);
+            lfoGain.gain.setValueAtTime(20, startTime);
+            
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc.detune);
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(4000, startTime);
+            filter.Q.setValueAtTime(2, startTime);
+            
+            const gain = ctx.createGain();
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(destination);
+            
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(velocity, startTime + 0.02);
+            gain.gain.linearRampToValueAtTime(velocity * 0.85, startTime + 0.8);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 1.3);
+            
+            filter.frequency.linearRampToValueAtTime(6000, startTime + 0.05);
+            filter.frequency.exponentialRampToValueAtTime(2000, startTime + 1.0);
+            
+            lfo.start(startTime);
+            osc.start(startTime);
+            lfo.stop(startTime + 1.5);
+            osc.stop(startTime + 1.5);
+        }
+
+        // Piano Sound (Multi-oscillator with decay)
+        function playPianoChord(ctx, frequencies, startTime) {
+            frequencies.forEach((freq, index) => {
+                // Fundamental
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                const osc3 = ctx.createOscillator();
+                
+                // Harmonic series for piano-like timbre
+                osc1.frequency.setValueAtTime(freq, startTime);
+                osc2.frequency.setValueAtTime(freq * 2, startTime);     // 2nd harmonic
+                osc3.frequency.setValueAtTime(freq * 3, startTime);     // 3rd harmonic
+                
+                osc1.type = 'sine';
+                osc2.type = 'sine';
+                osc3.type = 'triangle';
+                
+                // Filter for brightness control
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(3000, startTime);
+                filter.Q.setValueAtTime(1, startTime);
+                
+                // Gains for harmonic balance
+                const gain1 = ctx.createGain();
+                const gain2 = ctx.createGain();
+                const gain3 = ctx.createGain();
+                const masterGain = ctx.createGain();
+                
+                // Routing
+                osc1.connect(gain1);
+                osc2.connect(gain2);
+                osc3.connect(gain3);
+                gain1.connect(filter);
+                gain2.connect(filter);
+                gain3.connect(filter);
+                filter.connect(masterGain);
+                masterGain.connect(ctx.destination);
+                
+                // Harmonic levels
+                gain1.gain.setValueAtTime(0.8, startTime);   // Fundamental
+                gain2.gain.setValueAtTime(0.3, startTime);   // 2nd harmonic
+                gain3.gain.setValueAtTime(0.15, startTime);  // 3rd harmonic
+                
+                // Piano-like envelope (quick attack, medium decay)
+                const velocity = 0.3 - (index * 0.05); // Lower notes slightly louder
+                masterGain.gain.setValueAtTime(0, startTime);
+                masterGain.gain.linearRampToValueAtTime(velocity, startTime + 0.01);
+                masterGain.gain.exponentialRampToValueAtTime(0.01, startTime + 1.2);
+                
+                // Filter envelope
+                filter.frequency.exponentialRampToValueAtTime(800, startTime + 0.8);
+                
+                osc1.start(startTime);
+                osc2.start(startTime);
+                osc3.start(startTime);
+                osc1.stop(startTime + 1.5);
+                osc2.stop(startTime + 1.5);
+                osc3.stop(startTime + 1.5);
+            });
+        }
+
+        // Bells/Pluck Sound (Bright, metallic)
+        function playBellsChord(ctx, frequencies, startTime) {
+            frequencies.forEach((freq, index) => {
+                // Multiple inharmonic partials for bell-like sound
+                const partials = [1, 2.76, 5.4, 8.93];  // Bell-like ratios
+                
+                partials.forEach((ratio, pIndex) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq * ratio, startTime);
+                    
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    
+                    // Decreasing amplitude for higher partials
+                    const amplitude = (0.25 / (pIndex + 1)) * (1 - index * 0.1);
+                    gain.gain.setValueAtTime(0, startTime);
+                    gain.gain.linearRampToValueAtTime(amplitude, startTime + 0.005);
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 1.5);
+                    
+                    osc.start(startTime);
+                    osc.stop(startTime + 1.8);
+                });
+            });
+        }
+
+        // Pad Sound (Warm, sustained)
+        function playPadChord(ctx, frequencies, startTime) {
+            frequencies.forEach((freq, index) => {
+                // Detuned oscillators for width
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                const osc3 = ctx.createOscillator();
+                
+                osc1.type = 'sawtooth';
+                osc2.type = 'sawtooth';
+                osc3.type = 'triangle';
+                
+                osc1.frequency.setValueAtTime(freq, startTime);
+                osc2.frequency.setValueAtTime(freq * 1.01, startTime);  // Slight detune
+                osc3.frequency.setValueAtTime(freq * 0.99, startTime);  // Slight detune
+                
+                // LFO for subtle vibrato
+                const lfo = ctx.createOscillator();
+                const lfoGain = ctx.createGain();
+                lfo.frequency.setValueAtTime(4, startTime);
+                lfoGain.gain.setValueAtTime(3, startTime);
+                
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc1.frequency);
+                lfoGain.connect(osc2.frequency);
+                
+                // Filter for warmth
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1200, startTime);
+                filter.Q.setValueAtTime(0.7, startTime);
+                
+                // Gains
+                const gain = ctx.createGain();
+                
+                // Routing
+                osc1.connect(filter);
+                osc2.connect(filter);
+                osc3.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                
+                // Slow attack, long sustain (pad-like)
+                const amplitude = 0.15 - (index * 0.02);
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(amplitude, startTime + 0.4);
+                gain.gain.linearRampToValueAtTime(amplitude * 0.8, startTime + 1.2);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + 2.0);
+                
+                // Filter modulation
+                filter.frequency.linearRampToValueAtTime(1800, startTime + 0.3);
+                filter.frequency.linearRampToValueAtTime(1000, startTime + 1.5);
+                
+                lfo.start(startTime);
+                osc1.start(startTime);
+                osc2.start(startTime);
+                osc3.start(startTime);
+                lfo.stop(startTime + 2.2);
+                osc1.stop(startTime + 2.2);
+                osc2.stop(startTime + 2.2);
+                osc3.stop(startTime + 2.2);
+            });
+        }
+
+        // Pluck Sound (Guitar/Harp-like)
+        function playPluckChord(ctx, frequencies, startTime) {
+            frequencies.forEach((freq, index) => {
+                const osc = ctx.createOscillator();
+                const filter = ctx.createBiquadFilter();
+                const gain = ctx.createGain();
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(freq, startTime);
+                
+                // Filter for pluck character
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(5000, startTime);
+                filter.Q.setValueAtTime(3, startTime);
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                
+                // Sharp attack, fast decay (pluck envelope)
+                const amplitude = 0.4 - (index * 0.08);
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(amplitude, startTime + 0.002);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.5);
+                
+                // Filter sweep for pluck characteristic
+                filter.frequency.exponentialRampToValueAtTime(500, startTime + 0.3);
+                
+                osc.start(startTime);
+                osc.stop(startTime + 0.6);
+            });
+        }
+
+        // Brass Sound (Bold, punchy)
+        function playBrassChord(ctx, frequencies, startTime) {
+            frequencies.forEach((freq, index) => {
+                // Sawtooth oscillators for brass-like timbre
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                
+                osc1.type = 'sawtooth';
+                osc2.type = 'sawtooth';
+                
+                osc1.frequency.setValueAtTime(freq, startTime);
+                osc2.frequency.setValueAtTime(freq * 1.005, startTime);  // Slight detune
+                
+                // Filter for brass character
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, startTime);
+                filter.Q.setValueAtTime(4, startTime);
+                
+                // Distortion for edge
+                const distortion = ctx.createWaveShaper();
+                distortion.curve = makeDistortionCurve(30);
+                
+                const gain = ctx.createGain();
+                
+                // Routing
+                osc1.connect(filter);
+                osc2.connect(filter);
+                filter.connect(distortion);
+                distortion.connect(gain);
+                gain.connect(ctx.destination);
+                
+                // Brass envelope (medium attack, sustained)
+                const amplitude = 0.25 - (index * 0.04);
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(amplitude, startTime + 0.08);
+                gain.gain.linearRampToValueAtTime(amplitude * 0.9, startTime + 1.0);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + 1.4);
+                
+                // Filter envelope (opens up)
+                filter.frequency.linearRampToValueAtTime(2000, startTime + 0.1);
+                filter.frequency.linearRampToValueAtTime(1200, startTime + 1.2);
+                
+                osc1.start(startTime);
+                osc2.start(startTime);
+                osc1.stop(startTime + 1.6);
+                osc2.stop(startTime + 1.6);
+            });
+        }
+
+        // Lead Sound (Bright, cutting)
+        function playLeadChord(ctx, frequencies, startTime) {
+            frequencies.forEach((freq, index) => {
+                const osc = ctx.createOscillator();
+                
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq, startTime);
+                
+                // PWM-style modulation
+                const lfo = ctx.createOscillator();
+                const lfoGain = ctx.createGain();
+                lfo.frequency.setValueAtTime(6, startTime);
+                lfoGain.gain.setValueAtTime(20, startTime);
+                
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.detune);
+                
+                // Bright filter
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(4000, startTime);
+                filter.Q.setValueAtTime(2, startTime);
+                
+                const gain = ctx.createGain();
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                
+                // Lead envelope (quick attack, medium sustain)
+                const amplitude = 0.2 - (index * 0.03);
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(amplitude, startTime + 0.02);
+                gain.gain.linearRampToValueAtTime(amplitude * 0.85, startTime + 0.8);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + 1.3);
+                
+                // Filter modulation
+                filter.frequency.linearRampToValueAtTime(6000, startTime + 0.05);
+                filter.frequency.exponentialRampToValueAtTime(2000, startTime + 1.0);
+                
+                lfo.start(startTime);
+                osc.start(startTime);
+                lfo.stop(startTime + 1.5);
+                osc.stop(startTime + 1.5);
+            });
         }
 
         // Beat Grid Generation
