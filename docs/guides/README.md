@@ -19,8 +19,9 @@ This directory contains user-facing guides for features and functionality.
 
 ## ⚡ Techno Creator Documentation
 
-- **[TECHNO_CREATOR_PRESET_BUTTON_MAP.md](./TECHNO_CREATOR_PRESET_BUTTON_MAP.md)** - Complete preset and button mapping (82+ buttons)
-- **[TECHNO_BUTTON_TEST_CHECKLIST.md](./TECHNO_BUTTON_TEST_CHECKLIST.md)** - Manual testing checklist for all buttons
+- **[TECHNO_CREATOR_QUICK_REFERENCE.md](./TECHNO_CREATOR_QUICK_REFERENCE.md)** - 🆕 Quick reference guide (lean & clean)
+- **[TECHNO_CREATOR_PRESET_BUTTON_MAP.md](./TECHNO_CREATOR_PRESET_BUTTON_MAP.md)** - Complete preset and button mapping (detailed)
+- **[TECHNO_BUTTON_TEST_CHECKLIST.md](./TECHNO_BUTTON_TEST_CHECKLIST.md)** - Manual testing checklist
 - **[TECHNO_VERIFICATION_SUMMARY.md](./TECHNO_VERIFICATION_SUMMARY.md)** - Verification results and production readiness
 - **[MUSIC_THEORY_AUDIT_REPORT.md](./MUSIC_THEORY_AUDIT_REPORT.md)** - Comprehensive music theory validation (Trap + Techno)
 
