@@ -100,6 +100,81 @@
                 radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
         }
+        
+        /* ============================================
+           DARK MODE / LIGHT MODE THEME
+           ============================================ */
+        
+        :root {
+            /* Dark mode (default) */
+            --bg-primary: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            --bg-secondary: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --hover-bg: rgba(255, 255, 255, 0.2);
+        }
+        
+        body.light-mode {
+            /* Light mode colors */
+            --bg-primary: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 50%, #dde3ef 100%);
+            --bg-secondary: rgba(0, 0, 0, 0.05);
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --hover-bg: rgba(0, 0, 0, 0.1);
+        }
+        
+        body.light-mode {
+            background: var(--bg-primary) !important;
+            color: var(--text-primary) !important;
+        }
+        
+        body.light-mode .glass {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        body.light-mode .text-gray-400 {
+            color: var(--text-secondary) !important;
+        }
+        
+        body.light-mode .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        body.light-mode .feature-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        body.light-mode h1, 
+        body.light-mode h2, 
+        body.light-mode h3, 
+        body.light-mode h4 {
+            color: var(--text-primary) !important;
+        }
+        
+        body.light-mode .category-header {
+            background: linear-gradient(90deg, rgba(102,126,234,0.15), transparent);
+        }
+        
+        /* Theme toggle button animation */
+        #theme-toggle i {
+            transition: transform 0.3s ease;
+        }
+        
+        #theme-toggle:hover i {
+            transform: rotate(20deg);
+        }
+        
+        body.light-mode #theme-toggle i::before {
+            content: "\f185"; /* Sun icon */
+        }
     </style>
 </head>
 <body class="bg-gradient-dark text-white min-h-screen">
@@ -597,13 +672,65 @@
 
     <!-- Scripts -->
     <script>
-        // Theme Toggle
+        // ============================================
+        // DARK MODE / LIGHT MODE TOGGLE
+        // ============================================
+        
         const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                document.body.classList.toggle('light-mode');
-            });
+        const themeIcon = themeToggle.querySelector('i');
+        
+        // Load saved theme preference or default to dark
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        
+        function setTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.body.classList.remove('light-mode');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'dark');
+            }
         }
+        
+        // Apply saved theme on load
+        setTheme(savedTheme);
+        
+        // Toggle theme on button click
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            
+            // Show toast notification
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 9999;
+                animation: slideIn 0.3s ease-out;
+            `;
+            toast.textContent = `${newTheme === 'light' ? '☀️' : '🌙'} ${newTheme === 'light' ? 'Light' : 'Dark'} mode activated`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        });
+        
+        // ============================================
+        // SMOOTH SCROLL
+        // ============================================
         
         // Smooth Scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -615,6 +742,10 @@
                 }
             });
         });
+        
+        // ============================================
+        // SCROLL ANIMATIONS
+        // ============================================
         
         // Animate on scroll
         const observerOptions = {

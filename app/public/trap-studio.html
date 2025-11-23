@@ -1584,7 +1584,7 @@
         <p>Professional Beat Making Tools | Chord Generator | 808 Designer | Pattern Sequencer</p>
         
         <!-- Navigation -->
-        <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
+        <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px; flex-wrap: wrap; align-items: center;">
             <a href="/" style="color: var(--text-primary); text-decoration: none; padding: 8px 16px; background: var(--bg-tertiary); border: 1px solid var(--accent-secondary); border-radius: 5px; transition: all 0.3s;">
                 🏠 Home
             </a>
@@ -1597,6 +1597,11 @@
             <a href="/radio.html" style="color: var(--text-primary); text-decoration: none; padding: 8px 16px; background: linear-gradient(135deg, #ff00ff, #00ff00); color: #000; font-weight: bold; border-radius: 5px; transition: all 0.3s;">
                 📻 Radio 24/7
             </a>
+            
+            <!-- Mode Toggle -->
+            <button id="modeToggle" onclick="toggleAdvancedMode()" style="color: var(--text-primary); text-decoration: none; padding: 8px 16px; background: linear-gradient(135deg, #667eea, #764ba2); border: 1px solid var(--accent-secondary); border-radius: 5px; font-weight: bold; cursor: pointer; transition: all 0.3s; margin-left: 10px;">
+                ⚙️ <span id="modeText">Basic Mode</span>
+            </button>
         </div>
     </div>
 
@@ -1903,10 +1908,15 @@
                 </div>
 
                 <!-- Advanced Synthesis Controls -->
-                <div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, rgba(255, 46, 99, 0.1), rgba(8, 217, 214, 0.1)); border: 1px solid var(--accent-secondary); border-radius: 10px;">
-                    <h3 style="color: var(--accent-gold); margin-bottom: 15px; font-size: 1.1em;">
-                        ⚙️ Advanced Synthesis Controls
-                    </h3>
+                <div id="advancedSynthControls" class="advanced-section" style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, rgba(255, 46, 99, 0.1), rgba(8, 217, 214, 0.1)); border: 1px solid var(--accent-secondary); border-radius: 10px; display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="color: var(--accent-gold); font-size: 1.1em; margin: 0;">
+                            ⚙️ Advanced Synthesis Controls
+                        </h3>
+                        <span style="background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; padding: 4px 12px; border-radius: 12px; font-size: 0.75em; font-weight: bold;">
+                            EXPERT MODE
+                        </span>
+                    </div>
                     
                     <!-- Oscillator Section -->
                     <div style="margin-bottom: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
@@ -2964,6 +2974,84 @@ Pads:                200-800 Hz  [Atmosphere]
             panel.classList.toggle('minimized');
             toggle.textContent = panel.classList.contains('minimized') ? '+' : '−';
         }
+        
+        // ============================================
+        // ADVANCED MODE TOGGLE
+        // ============================================
+        
+        let isAdvancedMode = false;
+        
+        function toggleAdvancedMode() {
+            isAdvancedMode = !isAdvancedMode;
+            const advancedSections = document.querySelectorAll('.advanced-section, #advancedSynthControls');
+            const modeText = document.getElementById('modeText');
+            const modeToggle = document.getElementById('modeToggle');
+            
+            advancedSections.forEach(section => {
+                section.style.display = isAdvancedMode ? 'block' : 'none';
+            });
+            
+            // Update button text and style
+            if (isAdvancedMode) {
+                modeText.textContent = 'Expert Mode';
+                modeToggle.style.background = 'linear-gradient(135deg, #ffd700, #ffed4e)';
+                modeToggle.style.color = '#000';
+                
+                // Show notification
+                showAdvancedNotification('🎛️ Expert Mode Enabled', 'Advanced synthesis controls are now visible');
+            } else {
+                modeText.textContent = 'Basic Mode';
+                modeToggle.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                modeToggle.style.color = 'var(--text-primary)';
+                
+                showAdvancedNotification('🎵 Basic Mode Enabled', 'Advanced controls hidden for simpler workflow');
+            }
+            
+            // Save preference
+            localStorage.setItem('trap-studio-mode', isAdvancedMode ? 'advanced' : 'basic');
+        }
+        
+        function showAdvancedNotification(title, message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+                z-index: 10000;
+                min-width: 300px;
+                border: 1px solid rgba(255,255,255,0.2);
+                backdrop-filter: blur(10px);
+            `;
+            notification.innerHTML = `
+                <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 6px;">${title}</div>
+                <div style="font-size: 0.9em; opacity: 0.9;">${message}</div>
+            `;
+            document.body.appendChild(notification);
+            
+            // Slide in animation
+            notification.style.transform = 'translateX(400px)';
+            notification.style.transition = 'transform 0.3s ease-out';
+            setTimeout(() => notification.style.transform = 'translateX(0)', 10);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateX(400px)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Load saved mode preference on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedMode = localStorage.getItem('trap-studio-mode') || 'basic';
+            if (savedMode === 'advanced') {
+                toggleAdvancedMode();
+            }
+        });
 
         function updateGuidance(type, value) {
             const content = document.getElementById('guidanceContent');
