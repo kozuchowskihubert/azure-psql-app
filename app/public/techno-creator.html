@@ -1521,6 +1521,53 @@
                     <button class="btn btn-secondary" onclick="loadTechnoPreset('acid_groove')">
                         🔊 Acid Groove
                     </button>
+                    <button class="btn btn-secondary" onclick="loadTechnoPreset('dub_techno')">
+                        🌊 Dub Techno
+                    </button>
+                </div>
+            </div>
+
+            <!-- DAW Arrangement Section -->
+            <div style="margin-top: 30px; background: var(--bg-primary); padding: 20px; border-radius: 10px; border: 2px solid var(--accent-cyan);">
+                <h3>🎛️ DAW ARRANGEMENT BUILDER</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">Build complete tracks by arranging patterns on the timeline</p>
+                
+                <!-- Pattern Snapshot Controls -->
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <button class="btn btn-cyan" onclick="savePatternSnapshot()">
+                        💾 Save Current Pattern
+                    </button>
+                    <button class="btn btn-secondary" onclick="toggleArrangementMode()">
+                        <span id="arrangementModeText">🎬 Enter Arrangement Mode</span>
+                    </button>
+                    <button class="btn btn-magenta" onclick="playArrangement()">
+                        ▶️ Play Arrangement
+                    </button>
+                    <button class="btn btn-secondary" onclick="stopArrangement()">
+                        ⏹️ Stop
+                    </button>
+                    <button class="btn" onclick="exportArrangement()">
+                        💿 Export Track
+                    </button>
+                </div>
+                
+                <!-- Saved Patterns Library -->
+                <div id="patternLibrary" style="background: var(--bg-tertiary); padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <h4 style="color: var(--accent-primary); margin-bottom: 10px;">📚 Saved Patterns:</h4>
+                    <div id="patternList" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <p style="color: var(--text-secondary);">No patterns saved yet. Create a pattern and click "Save Current Pattern".</p>
+                    </div>
+                </div>
+                
+                <!-- Timeline Grid -->
+                <div id="arrangementTimeline" style="background: var(--bg-secondary); padding: 15px; border-radius: 5px; border: 1px solid var(--accent-primary);">
+                    <h4 style="color: var(--accent-cyan); margin-bottom: 10px;">📊 Timeline (16 Bars):</h4>
+                    <div id="timelineGrid" style="display: grid; grid-template-columns: repeat(16, 1fr); gap: 5px;">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                    <div id="timelineInfo" style="margin-top: 10px; color: var(--text-secondary); font-size: 0.9em;">
+                        Drag patterns from library to timeline to build your track. Each slot = 1 bar.
+                    </div>
                 </div>
             </div>
         </div>
@@ -1536,11 +1583,23 @@
             kick: new Array(16).fill(false),
             hat: new Array(16).fill(false),
             clap: new Array(16).fill(false),
-            perc: new Array(16).fill(false)
+            perc: new Array(16).fill(false),
+            dub_chord: new Array(16).fill(false),
+            bass: new Array(16).fill(false),
+            synth: new Array(16).fill(false),
+            fx: new Array(16).fill(false)
         };
         let technoIsPlaying = false;
         let technoCurrentStep = 0;
         let technoIntervalId = null;
+        
+        // DAW arrangement system
+        let technoArrangement = {
+            patterns: [], // Array of pattern snapshots
+            timeline: [],  // Array of {patternId, startBar, endBar}
+            currentBar: 0,
+            isArrangementMode: false
+        };
 
         function initAudio() {
             if (!audioContext) {
@@ -2099,6 +2158,72 @@
             });
         }
 
+        // Techno Bass
+        function playTechnoBass(ctx, freq, startTime) {
+            const osc = ctx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, startTime);
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(200, startTime);
+            filter.frequency.exponentialRampToValueAtTime(800, startTime + 0.1);
+            filter.frequency.exponentialRampToValueAtTime(150, startTime + 0.3);
+            filter.Q.setValueAtTime(8, startTime);
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.3, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.5);
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(startTime);
+            osc.stop(startTime + 0.6);
+        }
+
+        // Techno Synth
+        function playTechnoSynth(ctx, freq, startTime) {
+            const osc = ctx.createOscillator();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, startTime);
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1000, startTime);
+            filter.Q.setValueAtTime(5, startTime);
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.15, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(startTime);
+            osc.stop(startTime + 0.4);
+        }
+
+        // Techno FX
+        function playTechnoFX(ctx, startTime) {
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(2000, startTime);
+            osc.frequency.exponentialRampToValueAtTime(4000, startTime + 0.2);
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.1, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.2);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(startTime);
+            osc.stop(startTime + 0.25);
+        }
+
         // Industrial Drone
         function playIndustrialDrone(ctx, freq, startTime) {
             const osc1 = ctx.createOscillator();
@@ -2539,7 +2664,11 @@
                 { name: 'KICK', key: 'kick', icon: '🦶' },
                 { name: 'HAT', key: 'hat', icon: '🎩' },
                 { name: 'CLAP', key: 'clap', icon: '👏' },
-                { name: 'PERC', key: 'perc', icon: '🔔' }
+                { name: 'PERC', key: 'perc', icon: '🔔' },
+                { name: 'DUB CHORD', key: 'dub_chord', icon: '🌊' },
+                { name: 'BASS', key: 'bass', icon: '🎸' },
+                { name: 'SYNTH', key: 'synth', icon: '🎹' },
+                { name: 'FX', key: 'fx', icon: '✨' }
             ];
             
             grid.innerHTML = '';
@@ -2602,10 +2731,17 @@
                 const ctx = audioContext;
                 const time = ctx.currentTime;
                 
+                // Play drums
                 if (technoPattern.kick[technoCurrentStep]) playTechnoKick(ctx, time);
                 if (technoPattern.hat[technoCurrentStep]) playTechnoHat(ctx, time);
                 if (technoPattern.clap[technoCurrentStep]) playTechnoClap(ctx, time);
                 if (technoPattern.perc[technoCurrentStep]) playTechnoPerc(ctx, time);
+                
+                // Play melodic elements
+                if (technoPattern.dub_chord[technoCurrentStep]) playDubChord(ctx, 220, time);
+                if (technoPattern.bass[technoCurrentStep]) playTechnoBass(ctx, 110, time);
+                if (technoPattern.synth[technoCurrentStep]) playTechnoSynth(ctx, 440, time);
+                if (technoPattern.fx[technoCurrentStep]) playTechnoFX(ctx, time);
                 
                 // Highlight current step
                 document.querySelectorAll('.step').forEach(el => el.classList.remove('playing'));
@@ -2660,25 +2796,51 @@
                     kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
                     hat: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],
                     clap: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
-                    perc: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]
+                    perc: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
+                    dub_chord: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    bass: [1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0],
+                    synth: [0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0],
+                    fx: [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
                 },
                 minimal: {
                     kick: [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
                     hat: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
                     clap: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
-                    perc: [0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0]
+                    perc: [0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0],
+                    dub_chord: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    bass: [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                    synth: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    fx: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                 },
                 industrial: {
                     kick: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],
                     hat: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                     clap: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
-                    perc: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]
+                    perc: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],
+                    dub_chord: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    bass: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],
+                    synth: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
+                    fx: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]
                 },
                 acid_groove: {
                     kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
                     hat: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
                     clap: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
-                    perc: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0]
+                    perc: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],
+                    dub_chord: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    bass: [1,0,0,0,1,0,0,1,1,0,0,0,1,0,0,1],
+                    synth: [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0],
+                    fx: [0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0]
+                },
+                dub_techno: {
+                    kick: [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                    hat: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
+                    clap: [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                    perc: [0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0],
+                    dub_chord: [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                    bass: [1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0],
+                    synth: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                    fx: [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1]
                 }
             };
             
@@ -2738,6 +2900,318 @@
                 notification.style.animation = 'fadeOut 0.3s ease-out';
                 setTimeout(() => notification.remove(), 300);
             }, 2500);
+        }
+
+        // ============================================
+        // DAW ARRANGEMENT SYSTEM
+        // ============================================
+        
+        function savePatternSnapshot() {
+            // Create a deep copy of the current pattern
+            const snapshot = {
+                id: Date.now(),
+                name: prompt('Name this pattern:', `Pattern ${technoArrangement.patterns.length + 1}`) || `Pattern ${technoArrangement.patterns.length + 1}`,
+                timestamp: new Date().toISOString(),
+                pattern: JSON.parse(JSON.stringify(technoPattern))
+            };
+            
+            technoArrangement.patterns.push(snapshot);
+            updatePatternLibrary();
+            showTechnoNotification(`✅ Pattern "${snapshot.name}" saved!`);
+            console.log(`💾 Saved pattern:`, snapshot);
+        }
+        
+        function updatePatternLibrary() {
+            const patternList = document.getElementById('patternList');
+            
+            if (technoArrangement.patterns.length === 0) {
+                patternList.innerHTML = '<p style="color: var(--text-secondary);">No patterns saved yet. Create a pattern and click "Save Current Pattern".</p>';
+                return;
+            }
+            
+            patternList.innerHTML = technoArrangement.patterns.map((pattern, index) => `
+                <div class="pattern-card" style="
+                    background: var(--bg-secondary);
+                    padding: 10px 15px;
+                    border-radius: 5px;
+                    border: 1px solid var(--accent-primary);
+                    cursor: pointer;
+                    transition: all 0.3s;
+                " 
+                onmouseover="this.style.borderColor='var(--accent-cyan)'; this.style.boxShadow='0 0 15px rgba(0,255,255,0.3)'"
+                onmouseout="this.style.borderColor='var(--accent-primary)'; this.style.boxShadow='none'"
+                >
+                    <div style="font-weight: bold; color: var(--accent-primary); margin-bottom: 5px;">
+                        ${pattern.name}
+                    </div>
+                    <div style="font-size: 0.8em; color: var(--text-secondary); margin-bottom: 8px;">
+                        ID: ${pattern.id}
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.8em;" onclick="loadPatternSnapshot(${index})">
+                            📥 Load
+                        </button>
+                        <button class="btn btn-cyan" style="padding: 5px 10px; font-size: 0.8em;" onclick="addPatternToTimeline(${index})">
+                            ➕ Add to Timeline
+                        </button>
+                        <button class="btn btn-magenta" style="padding: 5px 10px; font-size: 0.8em;" onclick="deletePattern(${index})">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function loadPatternSnapshot(index) {
+            const snapshot = technoArrangement.patterns[index];
+            if (!snapshot) return;
+            
+            // Clear current pattern
+            clearTechnoPattern();
+            
+            // Load snapshot pattern
+            technoPattern = JSON.parse(JSON.stringify(snapshot.pattern));
+            
+            // Update UI
+            Object.keys(technoPattern).forEach(key => {
+                technoPattern[key].forEach((val, i) => {
+                    const step = document.querySelector(`[data-instrument="${key}"][data-step="${i}"]`);
+                    if (step && val) {
+                        step.classList.add('active');
+                    }
+                });
+            });
+            
+            showTechnoNotification(`✅ Loaded "${snapshot.name}"`);
+            console.log(`📥 Loaded pattern:`, snapshot);
+        }
+        
+        function deletePattern(index) {
+            if (!confirm(`Delete "${technoArrangement.patterns[index].name}"?`)) return;
+            
+            const deleted = technoArrangement.patterns.splice(index, 1)[0];
+            updatePatternLibrary();
+            showTechnoNotification(`🗑️ Deleted "${deleted.name}"`);
+        }
+        
+        function toggleArrangementMode() {
+            technoArrangement.isArrangementMode = !technoArrangement.isArrangementMode;
+            const btn = document.getElementById('arrangementModeText');
+            
+            if (technoArrangement.isArrangementMode) {
+                btn.textContent = '🎬 Exit Arrangement Mode';
+                initializeTimeline();
+                showTechnoNotification('🎬 Arrangement Mode ON - Build your track!');
+            } else {
+                btn.textContent = '🎬 Enter Arrangement Mode';
+                showTechnoNotification('🎬 Arrangement Mode OFF');
+            }
+        }
+        
+        function initializeTimeline() {
+            const timelineGrid = document.getElementById('timelineGrid');
+            timelineGrid.innerHTML = '';
+            
+            for (let i = 0; i < 16; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'timeline-slot';
+                slot.dataset.bar = i;
+                slot.style.cssText = `
+                    background: var(--bg-tertiary);
+                    border: 1px dashed var(--border);
+                    border-radius: 3px;
+                    min-height: 60px;
+                    padding: 5px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                `;
+                slot.innerHTML = `<span style="font-size: 0.7em; color: var(--text-secondary);">Bar ${i + 1}</span>`;
+                
+                slot.ondragover = (e) => {
+                    e.preventDefault();
+                    slot.style.background = 'rgba(0, 255, 0, 0.1)';
+                    slot.style.borderColor = 'var(--accent-primary)';
+                };
+                
+                slot.ondragleave = () => {
+                    slot.style.background = 'var(--bg-tertiary)';
+                    slot.style.borderColor = 'var(--border)';
+                };
+                
+                slot.ondrop = (e) => {
+                    e.preventDefault();
+                    const patternIndex = e.dataTransfer.getData('patternIndex');
+                    placePatternOnTimeline(parseInt(patternIndex), i);
+                    slot.style.background = 'var(--bg-tertiary)';
+                    slot.style.borderColor = 'var(--border)';
+                };
+                
+                timelineGrid.appendChild(slot);
+            }
+        }
+        
+        function addPatternToTimeline(patternIndex) {
+            if (!technoArrangement.isArrangementMode) {
+                showTechnoNotification('⚠️ Enable Arrangement Mode first!');
+                return;
+            }
+            
+            // Find next empty slot
+            const usedBars = technoArrangement.timeline.map(item => item.bar);
+            let nextBar = 0;
+            while (usedBars.includes(nextBar) && nextBar < 16) {
+                nextBar++;
+            }
+            
+            if (nextBar >= 16) {
+                showTechnoNotification('⚠️ Timeline is full!');
+                return;
+            }
+            
+            placePatternOnTimeline(patternIndex, nextBar);
+        }
+        
+        function placePatternOnTimeline(patternIndex, bar) {
+            const pattern = technoArrangement.patterns[patternIndex];
+            if (!pattern) return;
+            
+            // Add to timeline
+            technoArrangement.timeline.push({
+                patternId: pattern.id,
+                patternIndex: patternIndex,
+                bar: bar,
+                name: pattern.name
+            });
+            
+            // Update timeline UI
+            const slot = document.querySelector(`[data-bar="${bar}"]`);
+            if (slot) {
+                slot.style.background = 'linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 255, 255, 0.2))';
+                slot.style.borderColor = 'var(--accent-cyan)';
+                slot.innerHTML = `
+                    <div style="font-size: 0.7em; color: var(--text-secondary); margin-bottom: 3px;">Bar ${bar + 1}</div>
+                    <div style="font-size: 0.8em; color: var(--accent-cyan); font-weight: bold; text-align: center;">${pattern.name}</div>
+                    <button onclick="removeFromTimeline(${bar})" style="margin-top: 5px; padding: 2px 8px; font-size: 0.7em; background: var(--accent-secondary); color: #000; border: none; border-radius: 3px; cursor: pointer;">✕</button>
+                `;
+            }
+            
+            showTechnoNotification(`✅ Added "${pattern.name}" to Bar ${bar + 1}`);
+            console.log(`Timeline updated:`, technoArrangement.timeline);
+        }
+        
+        function removeFromTimeline(bar) {
+            technoArrangement.timeline = technoArrangement.timeline.filter(item => item.bar !== bar);
+            initializeTimeline();
+            
+            // Re-add remaining patterns
+            technoArrangement.timeline.forEach(item => {
+                const slot = document.querySelector(`[data-bar="${item.bar}"]`);
+                if (slot) {
+                    const pattern = technoArrangement.patterns[item.patternIndex];
+                    slot.style.background = 'linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 255, 255, 0.2))';
+                    slot.style.borderColor = 'var(--accent-cyan)';
+                    slot.innerHTML = `
+                        <div style="font-size: 0.7em; color: var(--text-secondary); margin-bottom: 3px;">Bar ${item.bar + 1}</div>
+                        <div style="font-size: 0.8em; color: var(--accent-cyan); font-weight: bold; text-align: center;">${pattern.name}</div>
+                        <button onclick="removeFromTimeline(${item.bar})" style="margin-top: 5px; padding: 2px 8px; font-size: 0.7em; background: var(--accent-secondary); color: #000; border: none; border-radius: 3px; cursor: pointer;">✕</button>
+                    `;
+                }
+            });
+            
+            showTechnoNotification(`🗑️ Removed from Bar ${bar + 1}`);
+        }
+        
+        function playArrangement() {
+            if (technoArrangement.timeline.length === 0) {
+                showTechnoNotification('⚠️ Timeline is empty! Add patterns first.');
+                return;
+            }
+            
+            stopTechnoPattern(); // Stop any current playback
+            
+            showTechnoNotification('▶️ Playing arrangement...');
+            console.log('🎬 Playing arrangement:', technoArrangement.timeline);
+            
+            // Sort timeline by bar order
+            const sortedTimeline = [...technoArrangement.timeline].sort((a, b) => a.bar - b.bar);
+            
+            let currentBarIndex = 0;
+            
+            function playNextBar() {
+                if (currentBarIndex >= sortedTimeline.length) {
+                    showTechnoNotification('✅ Arrangement complete!');
+                    return;
+                }
+                
+                const item = sortedTimeline[currentBarIndex];
+                const pattern = technoArrangement.patterns[item.patternIndex];
+                
+                // Load the pattern
+                clearTechnoPattern();
+                technoPattern = JSON.parse(JSON.stringify(pattern.pattern));
+                
+                // Update UI
+                Object.keys(technoPattern).forEach(key => {
+                    technoPattern[key].forEach((val, i) => {
+                        const step = document.querySelector(`[data-instrument="${key}"][data-step="${i}"]`);
+                        if (step) {
+                            if (val) {
+                                step.classList.add('active');
+                            } else {
+                                step.classList.remove('active');
+                            }
+                        }
+                    });
+                });
+                
+                // Play the pattern for 1 bar (4 beats = 4 loops of 16th notes)
+                playTechnoPattern();
+                
+                const barDuration = (60 / technoBPM) * 4 * 1000; // 4 beats in milliseconds
+                
+                setTimeout(() => {
+                    stopTechnoPattern();
+                    currentBarIndex++;
+                    playNextBar();
+                }, barDuration);
+            }
+            
+            playNextBar();
+        }
+        
+        function stopArrangement() {
+            stopTechnoPattern();
+            showTechnoNotification('⏹️ Arrangement stopped');
+        }
+        
+        function exportArrangement() {
+            if (technoArrangement.timeline.length === 0) {
+                showTechnoNotification('⚠️ No arrangement to export!');
+                return;
+            }
+            
+            const arrangementData = {
+                timeline: technoArrangement.timeline,
+                patterns: technoArrangement.patterns,
+                bpm: technoBPM,
+                exportedAt: new Date().toISOString()
+            };
+            
+            // Create downloadable JSON file
+            const blob = new Blob([JSON.stringify(arrangementData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `techno-arrangement-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showTechnoNotification('💿 Arrangement exported!');
+            console.log('💿 Exported arrangement:', arrangementData);
         }
 
         // ============================================
