@@ -1240,6 +1240,323 @@
                 opacity: 1;
             }
         }
+
+        /* ============================================
+           CUSTOM DRUM SELECTOR DROPDOWN SYSTEM
+           ============================================ */
+        
+        .drum-selector-container {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(26, 26, 26, 0.8));
+            border-radius: 12px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .drum-selector-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan), var(--accent-secondary));
+            border-radius: 12px;
+            z-index: -1;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+
+        .drum-selector-container:hover::before {
+            opacity: 1;
+            animation: border-glow 3s linear infinite;
+        }
+
+        @keyframes border-glow {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(60deg); }
+        }
+
+        .drum-selector-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .drum-selector-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .drum-icon {
+            font-size: 2em;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .drum-label {
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .dropdown-button {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.9), rgba(26, 26, 26, 0.9));
+            border: 2px solid var(--accent-primary);
+            border-radius: 10px;
+            color: var(--accent-primary);
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Courier New', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dropdown-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .dropdown-button:hover::before {
+            left: 100%;
+        }
+
+        .dropdown-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 25px rgba(0, 255, 0, 0.4),
+                inset 0 1px 0 rgba(0, 255, 0, 0.3);
+            border-color: var(--accent-cyan);
+        }
+
+        .dropdown-button.active {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.15), rgba(0, 255, 255, 0.1));
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .dropdown-current {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dropdown-icon {
+            font-size: 1.8em;
+        }
+
+        .dropdown-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .dropdown-name {
+            font-size: 1em;
+            color: var(--accent-primary);
+        }
+
+        .dropdown-desc {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+
+        .dropdown-arrow {
+            position: absolute;
+            right: 20px;
+            font-size: 1.2em;
+            transition: transform 0.3s;
+            color: var(--accent-cyan);
+        }
+
+        .dropdown-button.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.98), rgba(26, 26, 26, 0.98));
+            border: 2px solid var(--accent-primary);
+            border-radius: 10px;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8);
+        }
+
+        .dropdown-menu.active {
+            max-height: 500px;
+            opacity: 1;
+            transform: translateY(0);
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.8),
+                0 0 30px rgba(0, 255, 0, 0.2);
+        }
+
+        .dropdown-option {
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-option::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-primary);
+            transform: scaleY(0);
+            transition: transform 0.2s;
+        }
+
+        .dropdown-option:hover::before {
+            transform: scaleY(1);
+        }
+
+        .dropdown-option:hover {
+            background: linear-gradient(90deg, rgba(0, 255, 0, 0.15), transparent);
+            padding-left: 28px;
+        }
+
+        .dropdown-option.selected {
+            background: linear-gradient(90deg, rgba(0, 255, 0, 0.2), rgba(0, 255, 255, 0.1));
+            border-left: 4px solid var(--accent-cyan);
+            padding-left: 24px;
+        }
+
+        .dropdown-option-icon {
+            font-size: 2em;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .dropdown-option-text {
+            flex: 1;
+        }
+
+        .dropdown-option-name {
+            font-size: 1em;
+            font-weight: bold;
+            color: var(--accent-primary);
+            margin-bottom: 4px;
+        }
+
+        .dropdown-option.selected .dropdown-option-name {
+            color: var(--accent-cyan);
+        }
+
+        .dropdown-option-desc {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        .dropdown-option-check {
+            font-size: 1.5em;
+            color: var(--accent-cyan);
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .dropdown-option.selected .dropdown-option-check {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .test-button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--accent-secondary), #ff6600);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .test-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 102, 0, 0.5);
+        }
+
+        .test-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .drum-selector-container {
+                padding: 15px;
+            }
+
+            .dropdown-button {
+                padding: 14px 45px 14px 16px;
+                font-size: 1em;
+            }
+
+            .drum-icon {
+                font-size: 1.5em;
+            }
+
+            .drum-label {
+                font-size: 1em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1886,31 +2203,59 @@
                     </p>
 
                     <!-- KICK VARIATIONS -->
-                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid var(--accent-primary);">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                            <span>🦶</span> KICK DRUM VARIATIONS
-                        </h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
-                            <button class="modern-card" onclick="setDrumVariation('kick', 'classic'); testDrumSound('kick')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">💥</div>
-                                <div style="color: var(--accent-primary); font-weight: bold; font-size: 0.9em;">CLASSIC 808</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">150Hz → 40Hz sweep</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('kick', 'deep'); testDrumSound('kick')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🔊</div>
-                                <div style="color: var(--accent-primary); font-weight: bold; font-size: 0.9em;">DEEP SUB</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">60Hz sub bass punch</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('kick', 'hard'); testDrumSound('kick')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">⚡</div>
-                                <div style="color: var(--accent-primary); font-weight: bold; font-size: 0.9em;">HARD TECHNO</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">180Hz bright attack</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('kick', 'industrial'); testDrumSound('kick')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">⚙️</div>
-                                <div style="color: var(--accent-primary); font-weight: bold; font-size: 0.9em;">INDUSTRIAL</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">Distorted + noise layer</div>
-                            </button>
+                    <div class="drum-selector-container">
+                        <div class="drum-selector-header">
+                            <div class="drum-selector-title">
+                                <span class="drum-icon">💥</span>
+                                <span class="drum-label">KICK DRUM</span>
+                            </div>
+                            <button class="test-button" onclick="testDrumSound('kick')">▶️ TEST</button>
+                        </div>
+                        <div class="custom-dropdown">
+                            <div class="dropdown-button" onclick="toggleDropdown('kick-dropdown')">
+                                <div class="dropdown-current">
+                                    <span class="dropdown-icon" id="kick-icon">💥</span>
+                                    <div class="dropdown-text">
+                                        <span class="dropdown-name" id="kick-name">CLASSIC 808</span>
+                                        <span class="dropdown-desc" id="kick-desc">150Hz → 40Hz sweep</span>
+                                    </div>
+                                </div>
+                                <span class="dropdown-arrow">▼</span>
+                            </div>
+                            <div class="dropdown-menu" id="kick-dropdown">
+                                <div class="dropdown-option selected" onclick="selectDrumVariation('kick', 'classic', '💥', 'CLASSIC 808', '150Hz → 40Hz sweep • Balanced punch')">
+                                    <span class="dropdown-option-icon">💥</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">CLASSIC 808</div>
+                                        <div class="dropdown-option-desc">150Hz → 40Hz sweep • Balanced punch</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('kick', 'deep', '🔊', 'DEEP SUB', '60Hz sub bass punch • Maximum low end')">
+                                    <span class="dropdown-option-icon">🔊</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">DEEP SUB</div>
+                                        <div class="dropdown-option-desc">60Hz sub bass punch • Maximum low end</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('kick', 'hard', '⚡', 'HARD TECHNO', '180Hz bright attack • Industrial strength')">
+                                    <span class="dropdown-option-icon">⚡</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">HARD TECHNO</div>
+                                        <div class="dropdown-option-desc">180Hz bright attack • Industrial strength</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('kick', 'industrial', '⚙️', 'INDUSTRIAL', 'Distorted + noise layer • Raw power')">
+                                    <span class="dropdown-option-icon">⚙️</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">INDUSTRIAL</div>
+                                        <div class="dropdown-option-desc">Distorted + noise layer • Raw power</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -2999,6 +3344,61 @@
                     break;
             }
         }
+
+        // ============================================
+        // DROPDOWN SELECTOR FUNCTIONS
+        // ============================================
+        
+        function toggleDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const button = dropdown.previousElementSibling;
+            
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu.id !== dropdownId) {
+                    menu.classList.remove('active');
+                    menu.previousElementSibling.classList.remove('active');
+                }
+            });
+            
+            // Toggle current dropdown
+            dropdown.classList.toggle('active');
+            button.classList.toggle('active');
+        }
+
+        function selectDrumVariation(drumType, variation, icon, name, desc) {
+            // Update the drum variation
+            setDrumVariation(drumType, variation);
+            
+            // Update button display
+            document.getElementById(`${drumType}-icon`).textContent = icon;
+            document.getElementById(`${drumType}-name`).textContent = name;
+            document.getElementById(`${drumType}-desc`).textContent = desc.split('•')[0].trim();
+            
+            // Update selected state in dropdown
+            const dropdown = document.getElementById(`${drumType}-dropdown`);
+            dropdown.querySelectorAll('.dropdown-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // Close dropdown
+            dropdown.classList.remove('active');
+            dropdown.previousElementSibling.classList.remove('active');
+            
+            // Auto-play test sound
+            setTimeout(() => testDrumSound(drumType), 100);
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.custom-dropdown')) {
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    menu.classList.remove('active');
+                    menu.previousElementSibling.classList.remove('active');
+                });
+            }
+        });
         
         // Enhanced 2600-style kick drum with variations
         function playTechnoKick2600(ctx, startTime) {
