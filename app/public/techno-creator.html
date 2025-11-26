@@ -2343,138 +2343,272 @@
                         </div>
                     </div>
 
-                    <!-- HAT VARIATIONS -->
-                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid var(--accent-cyan);">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                            <span>🎩</span> HI-HAT VARIATIONS
-                        </h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
-                            <button class="modern-card" onclick="setDrumVariation('hat', 'classic'); testDrumSound('hat')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">✨</div>
-                                <div style="color: var(--accent-cyan); font-weight: bold; font-size: 0.9em;">CLASSIC</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">8kHz highpass crisp</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('hat', 'bright'); testDrumSound('hat')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">💎</div>
-                                <div style="color: var(--accent-cyan); font-weight: bold; font-size: 0.9em;">BRIGHT</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">12kHz shimmer</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('hat', 'metallic'); testDrumSound('hat')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🔩</div>
-                                <div style="color: var(--accent-cyan); font-weight: bold; font-size: 0.9em;">METALLIC</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">Ring modulation</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('hat', 'open'); testDrumSound('hat')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🌊</div>
-                                <div style="color: var(--accent-cyan); font-weight: bold; font-size: 0.9em;">OPEN</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">Long decay wash</div>
-                            </button>
+                    <!-- HI-HAT DROPDOWN -->
+                    <div class="drum-selector-container">
+                        <div class="drum-selector-header">
+                            <div class="drum-selector-title">
+                                <span class="drum-icon">🎩</span>
+                                <span class="drum-label">HI-HAT</span>
+                            </div>
+                            <button class="test-button" onclick="testDrumSound('hat')">▶️ TEST</button>
+                        </div>
+                        <div class="custom-dropdown">
+                            <div class="dropdown-button" onclick="toggleDropdown('hat-dropdown')">
+                                <div class="dropdown-current">
+                                    <span class="dropdown-icon" id="hat-icon">✨</span>
+                                    <div class="dropdown-text">
+                                        <span class="dropdown-name" id="hat-name">CLASSIC</span>
+                                        <span class="dropdown-desc" id="hat-desc">8kHz highpass crisp</span>
+                                    </div>
+                                </div>
+                                <span class="dropdown-arrow">▼</span>
+                            </div>
+                            <div class="dropdown-menu" id="hat-dropdown">
+                                <div class="dropdown-option selected" onclick="selectDrumVariation('hat', 'classic', '✨', 'CLASSIC', '8kHz highpass crisp • Balanced tone')">
+                                    <span class="dropdown-option-icon">✨</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">CLASSIC</div>
+                                        <div class="dropdown-option-desc">8kHz highpass crisp • Balanced tone</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('hat', 'bright', '💎', 'BRIGHT', '12kHz shimmer • Crystal clear')">
+                                    <span class="dropdown-option-icon">💎</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">BRIGHT</div>
+                                        <div class="dropdown-option-desc">12kHz shimmer • Crystal clear</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('hat', 'metallic', '🔩', 'METALLIC', 'Ring modulation • Complex harmonics')">
+                                    <span class="dropdown-option-icon">🔩</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">METALLIC</div>
+                                        <div class="dropdown-option-desc">Ring modulation • Complex harmonics</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('hat', 'open', '🌊', 'OPEN', 'Long decay wash • Sustained release')">
+                                    <span class="dropdown-option-icon">🌊</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">OPEN</div>
+                                        <div class="dropdown-option-desc">Long decay wash • Sustained release</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- CLAP/SNARE VARIATIONS -->
-                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid var(--accent-magenta);">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                            <span>👏</span> CLAP / SNARE VARIATIONS
-                        </h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
-                            <button class="modern-card" onclick="setDrumVariation('clap', 'classic'); testDrumSound('clap')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">👏</div>
-                                <div style="color: var(--accent-magenta); font-weight: bold; font-size: 0.9em;">CLASSIC CLAP</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">Triple hit @ 1.5kHz</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('clap', 'tight'); testDrumSound('clap')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🎯</div>
-                                <div style="color: var(--accent-magenta); font-weight: bold; font-size: 0.9em;">TIGHT</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">Short 50ms snap</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('clap', 'snare'); testDrumSound('clap')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🥁</div>
-                                <div style="color: var(--accent-magenta); font-weight: bold; font-size: 0.9em;">SNARE</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">200Hz body + noise</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('clap', 'reverb'); testDrumSound('clap')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🏛️</div>
-                                <div style="color: var(--accent-magenta); font-weight: bold; font-size: 0.9em;">REVERB CLAP</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">Wide stereo tail</div>
-                            </button>
+                    <!-- CLAP/SNARE DROPDOWN -->
+                    <div class="drum-selector-container">
+                        <div class="drum-selector-header">
+                            <div class="drum-selector-title">
+                                <span class="drum-icon">👏</span>
+                                <span class="drum-label">CLAP / SNARE</span>
+                            </div>
+                            <button class="test-button" onclick="testDrumSound('clap')">▶️ TEST</button>
+                        </div>
+                        <div class="custom-dropdown">
+                            <div class="dropdown-button" onclick="toggleDropdown('clap-dropdown')">
+                                <div class="dropdown-current">
+                                    <span class="dropdown-icon" id="clap-icon">👏</span>
+                                    <div class="dropdown-text">
+                                        <span class="dropdown-name" id="clap-name">CLASSIC CLAP</span>
+                                        <span class="dropdown-desc" id="clap-desc">Triple hit @ 1.5kHz</span>
+                                    </div>
+                                </div>
+                                <span class="dropdown-arrow">▼</span>
+                            </div>
+                            <div class="dropdown-menu" id="clap-dropdown">
+                                <div class="dropdown-option selected" onclick="selectDrumVariation('clap', 'classic', '👏', 'CLASSIC CLAP', 'Triple hit @ 1.5kHz • Vintage sound')">
+                                    <span class="dropdown-option-icon">👏</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">CLASSIC CLAP</div>
+                                        <div class="dropdown-option-desc">Triple hit @ 1.5kHz • Vintage sound</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('clap', 'tight', '🎯', 'TIGHT', 'Short 50ms snap • Punchy attack')">
+                                    <span class="dropdown-option-icon">🎯</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">TIGHT</div>
+                                        <div class="dropdown-option-desc">Short 50ms snap • Punchy attack</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('clap', 'snare', '🥁', 'SNARE', '200Hz body + noise • Full bodied')">
+                                    <span class="dropdown-option-icon">🥁</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">SNARE</div>
+                                        <div class="dropdown-option-desc">200Hz body + noise • Full bodied</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('clap', 'reverb', '🏛️', 'REVERB CLAP', 'Wide stereo tail • Spacious ambience')">
+                                    <span class="dropdown-option-icon">🏛️</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">REVERB CLAP</div>
+                                        <div class="dropdown-option-desc">Wide stereo tail • Spacious ambience</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- PERC VARIATIONS -->
-                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid var(--accent-secondary);">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                            <span>🔔</span> PERCUSSION VARIATIONS
-                        </h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
-                            <button class="modern-card" onclick="setDrumVariation('perc', 'tom'); testDrumSound('perc')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🎯</div>
-                                <div style="color: var(--accent-secondary); font-weight: bold; font-size: 0.9em;">TOM</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">800Hz → 400Hz</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('perc', 'rim'); testDrumSound('perc')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🎵</div>
-                                <div style="color: var(--accent-secondary); font-weight: bold; font-size: 0.9em;">RIM SHOT</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">2kHz metallic click</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('perc', 'conga'); testDrumSound('perc')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🥁</div>
-                                <div style="color: var(--accent-secondary); font-weight: bold; font-size: 0.9em;">CONGA</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">350Hz resonant</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('perc', 'cowbell'); testDrumSound('perc')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🔔</div>
-                                <div style="color: var(--accent-secondary); font-weight: bold; font-size: 0.9em;">COWBELL</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">800Hz + harmonics</div>
-                            </button>
+                    <!-- PERCUSSION DROPDOWN -->
+                    <div class="drum-selector-container">
+                        <div class="drum-selector-header">
+                            <div class="drum-selector-title">
+                                <span class="drum-icon">🔔</span>
+                                <span class="drum-label">PERCUSSION</span>
+                            </div>
+                            <button class="test-button" onclick="testDrumSound('perc')">▶️ TEST</button>
+                        </div>
+                        <div class="custom-dropdown">
+                            <div class="dropdown-button" onclick="toggleDropdown('perc-dropdown')">
+                                <div class="dropdown-current">
+                                    <span class="dropdown-icon" id="perc-icon">🎯</span>
+                                    <div class="dropdown-text">
+                                        <span class="dropdown-name" id="perc-name">TOM</span>
+                                        <span class="dropdown-desc" id="perc-desc">800Hz → 400Hz</span>
+                                    </div>
+                                </div>
+                                <span class="dropdown-arrow">▼</span>
+                            </div>
+                            <div class="dropdown-menu" id="perc-dropdown">
+                                <div class="dropdown-option selected" onclick="selectDrumVariation('perc', 'tom', '🎯', 'TOM', '800Hz → 400Hz • Pitched drum')">
+                                    <span class="dropdown-option-icon">🎯</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">TOM</div>
+                                        <div class="dropdown-option-desc">800Hz → 400Hz • Pitched drum</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('perc', 'rim', '🎵', 'RIM SHOT', '2kHz metallic click • Sharp attack')">
+                                    <span class="dropdown-option-icon">🎵</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">RIM SHOT</div>
+                                        <div class="dropdown-option-desc">2kHz metallic click • Sharp attack</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('perc', 'conga', '🥁', 'CONGA', '350Hz resonant • Latin groove')">
+                                    <span class="dropdown-option-icon">🥁</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">CONGA</div>
+                                        <div class="dropdown-option-desc">350Hz resonant • Latin groove</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('perc', 'cowbell', '🔔', 'COWBELL', '800Hz + harmonics • MORE COWBELL!')">
+                                    <span class="dropdown-option-icon">🔔</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">COWBELL</div>
+                                        <div class="dropdown-option-desc">800Hz + harmonics • MORE COWBELL!</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- RIDE CYMBAL VARIATIONS -->
-                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid #FFD700;">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                            <span>🥁</span> RIDE CYMBAL VARIATIONS
-                        </h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
-                            <button class="modern-card" onclick="setDrumVariation('ride', 'classic'); testDrumSound('ride')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🔔</div>
-                                <div style="color: #FFD700; font-weight: bold; font-size: 0.9em;">CLASSIC RIDE</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">4kHz bell tone</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('ride', 'bright'); testDrumSound('ride')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">✨</div>
-                                <div style="color: #FFD700; font-weight: bold; font-size: 0.9em;">BRIGHT</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">5kHz shimmer</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('ride', 'dark'); testDrumSound('ride')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🌙</div>
-                                <div style="color: #FFD700; font-weight: bold; font-size: 0.9em;">DARK</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">3.2kHz warm wash</div>
-                            </button>
+                    <!-- RIDE CYMBAL DROPDOWN -->
+                    <div class="drum-selector-container">
+                        <div class="drum-selector-header">
+                            <div class="drum-selector-title">
+                                <span class="drum-icon">🔔</span>
+                                <span class="drum-label">RIDE CYMBAL</span>
+                            </div>
+                            <button class="test-button" onclick="testDrumSound('ride')">▶️ TEST</button>
+                        </div>
+                        <div class="custom-dropdown">
+                            <div class="dropdown-button" onclick="toggleDropdown('ride-dropdown')">
+                                <div class="dropdown-current">
+                                    <span class="dropdown-icon" id="ride-icon">🔔</span>
+                                    <div class="dropdown-text">
+                                        <span class="dropdown-name" id="ride-name">CLASSIC RIDE</span>
+                                        <span class="dropdown-desc" id="ride-desc">4kHz bell tone</span>
+                                    </div>
+                                </div>
+                                <span class="dropdown-arrow">▼</span>
+                            </div>
+                            <div class="dropdown-menu" id="ride-dropdown">
+                                <div class="dropdown-option selected" onclick="selectDrumVariation('ride', 'classic', '🔔', 'CLASSIC RIDE', '4kHz bell tone • Balanced sustain')">
+                                    <span class="dropdown-option-icon">🔔</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">CLASSIC RIDE</div>
+                                        <div class="dropdown-option-desc">4kHz bell tone • Balanced sustain</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('ride', 'bright', '✨', 'BRIGHT RIDE', '5kHz shimmer • Crystal definition')">
+                                    <span class="dropdown-option-icon">✨</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">BRIGHT RIDE</div>
+                                        <div class="dropdown-option-desc">5kHz shimmer • Crystal definition</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('ride', 'dark', '🌙', 'DARK RIDE', '3.2kHz warm wash • Deep resonance')">
+                                    <span class="dropdown-option-icon">🌙</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">DARK RIDE</div>
+                                        <div class="dropdown-option-desc">3.2kHz warm wash • Deep resonance</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- CRASH CYMBAL VARIATIONS -->
-                    <div style="padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid #FFA500;">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                            <span>💥</span> CRASH CYMBAL VARIATIONS
-                        </h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
-                            <button class="modern-card" onclick="setDrumVariation('crash', 'classic'); testDrumSound('crash')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">💥</div>
-                                <div style="color: #FFA500; font-weight: bold; font-size: 0.9em;">CLASSIC CRASH</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">6kHz explosive</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('crash', 'splash'); testDrumSound('crash')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">💦</div>
-                                <div style="color: #FFA500; font-weight: bold; font-size: 0.9em;">SPLASH</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">7kHz bright burst</div>
-                            </button>
-                            <button class="modern-card" onclick="setDrumVariation('crash', 'dark'); testDrumSound('crash')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
-                                <div style="font-size: 1.5em; margin-bottom: 5px;">🌑</div>
-                                <div style="color: #FFA500; font-weight: bold; font-size: 0.9em;">DARK CRASH</div>
-                                <div style="font-size: 0.75em; color: var(--text-secondary);">5kHz deep wash</div>
-                            </button>
+                    <!-- CRASH CYMBAL DROPDOWN -->
+                    <div class="drum-selector-container">
+                        <div class="drum-selector-header">
+                            <div class="drum-selector-title">
+                                <span class="drum-icon">💥</span>
+                                <span class="drum-label">CRASH CYMBAL</span>
+                            </div>
+                            <button class="test-button" onclick="testDrumSound('crash')">▶️ TEST</button>
+                        </div>
+                        <div class="custom-dropdown">
+                            <div class="dropdown-button" onclick="toggleDropdown('crash-dropdown')">
+                                <div class="dropdown-current">
+                                    <span class="dropdown-icon" id="crash-icon">💥</span>
+                                    <div class="dropdown-text">
+                                        <span class="dropdown-name" id="crash-name">CLASSIC CRASH</span>
+                                        <span class="dropdown-desc" id="crash-desc">6kHz explosive</span>
+                                    </div>
+                                </div>
+                                <span class="dropdown-arrow">▼</span>
+                            </div>
+                            <div class="dropdown-menu" id="crash-dropdown">
+                                <div class="dropdown-option selected" onclick="selectDrumVariation('crash', 'classic', '💥', 'CLASSIC CRASH', '6kHz explosive • Powerful impact')">
+                                    <span class="dropdown-option-icon">💥</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">CLASSIC CRASH</div>
+                                        <div class="dropdown-option-desc">6kHz explosive • Powerful impact</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('crash', 'splash', '💦', 'SPLASH CRASH', '7kHz bright burst • Quick attack')">
+                                    <span class="dropdown-option-icon">💦</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">SPLASH CRASH</div>
+                                        <div class="dropdown-option-desc">7kHz bright burst • Quick attack</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                                <div class="dropdown-option" onclick="selectDrumVariation('crash', 'dark', '🌑', 'DARK CRASH', '5kHz deep wash • Long sustain')">
+                                    <span class="dropdown-option-icon">🌑</span>
+                                    <div class="dropdown-option-text">
+                                        <div class="dropdown-option-name">DARK CRASH</div>
+                                        <div class="dropdown-option-desc">5kHz deep wash • Long sustain</div>
+                                    </div>
+                                    <span class="dropdown-option-check">✓</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2739,6 +2873,9 @@
                 </button>
                 <button class="btn btn-magenta" onclick="clearTechnoPattern()" data-tooltip="Clear all steps">
                     🗑️ Clear
+                </button>
+                <button class="btn" onclick="openPresetManager()" style="background: linear-gradient(135deg, #9d4edd, #7209b7); color: #fff; font-weight: bold;" data-tooltip="Save & Load Presets">
+                    💾 Presets
                 </button>
                 <button class="btn" onclick="exportTechnoToRadio()" style="background: linear-gradient(135deg, #00ff00, #00ffff); color: #000; font-weight: bold;" data-tooltip="Send to Radio 24/7">
                     📻 Send to Radio
@@ -4896,6 +5033,287 @@
         });
 
         // ============================================
+        // PRESET MANAGER SYSTEM
+        // ============================================
+        
+        function openPresetManager() {
+            const modal = document.getElementById('presetModal');
+            modal.style.display = 'flex';
+            updatePresetList();
+        }
+        
+        function closePresetManager() {
+            const modal = document.getElementById('presetModal');
+            modal.style.display = 'none';
+            document.getElementById('presetName').value = '';
+        }
+        
+        function savePreset() {
+            const name = document.getElementById('presetName').value.trim();
+            
+            if (!name) {
+                alert('⚠️ Please enter a preset name');
+                return;
+            }
+            
+            // Get current pattern state
+            const preset = {
+                id: Date.now(),
+                name: name,
+                dateCreated: new Date().toISOString(),
+                bpm: document.getElementById('technoBpm') ? parseInt(document.getElementById('technoBpm').value) : 130,
+                mode: currentMode || 'basic',
+                pattern: {
+                    kick: [...technoPattern.kick],
+                    hat: [...technoPattern.hat],
+                    clap: [...technoPattern.clap],
+                    perc: [...technoPattern.perc],
+                    ride: [...technoPattern.ride],
+                    crash: [...technoPattern.crash]
+                },
+                drumVariations: {
+                    kick: currentDrumVariations.kick || 'classic',
+                    hat: currentDrumVariations.hat || 'classic',
+                    clap: currentDrumVariations.clap || 'classic',
+                    perc: currentDrumVariations.perc || 'tom',
+                    ride: currentDrumVariations.ride || 'classic',
+                    crash: currentDrumVariations.crash || 'classic'
+                }
+            };
+            
+            // Get existing presets
+            const presets = getPresets();
+            
+            // Add new preset
+            presets.push(preset);
+            
+            // Save to localStorage
+            localStorage.setItem('haos-techno-presets', JSON.stringify(presets));
+            
+            // Clear input
+            document.getElementById('presetName').value = '';
+            
+            // Update list
+            updatePresetList();
+            
+            // Visual feedback
+            const saveBtn = event.target;
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '✅ SAVED!';
+            saveBtn.style.background = 'linear-gradient(135deg, #00ff00, #00cc00)';
+            setTimeout(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.style.background = 'linear-gradient(135deg, #9d4edd, #7209b7)';
+            }, 1500);
+            
+            console.log(`💾 Saved preset: ${name}`);
+        }
+        
+        function getPresets() {
+            const saved = localStorage.getItem('haos-techno-presets');
+            return saved ? JSON.parse(saved) : [];
+        }
+        
+        function loadPreset(presetId) {
+            const presets = getPresets();
+            const preset = presets.find(p => p.id === presetId);
+            
+            if (!preset) {
+                console.error('Preset not found');
+                return;
+            }
+            
+            // Load pattern
+            technoPattern.kick = [...preset.pattern.kick];
+            technoPattern.hat = [...preset.pattern.hat];
+            technoPattern.clap = [...preset.pattern.clap];
+            technoPattern.perc = [...preset.pattern.perc];
+            technoPattern.ride = [...preset.pattern.ride];
+            technoPattern.crash = [...preset.pattern.crash];
+            
+            // Update grid display
+            updateTechnoGrid();
+            
+            // Set BPM
+            if (document.getElementById('technoBpm')) {
+                document.getElementById('technoBpm').value = preset.bpm || 130;
+            }
+            
+            // Set mode
+            if (preset.mode && typeof switchMode === 'function') {
+                switchMode(preset.mode);
+            }
+            
+            // Set drum variations
+            if (preset.drumVariations) {
+                Object.keys(preset.drumVariations).forEach(drum => {
+                    const variation = preset.drumVariations[drum];
+                    setDrumVariation(drum, variation);
+                });
+            }
+            
+            // Close modal
+            closePresetManager();
+            
+            console.log(`📂 Loaded preset: ${preset.name}`);
+            
+            // Show notification
+            alert(`✅ Loaded preset: ${preset.name}`);
+        }
+        
+        function deletePreset(presetId) {
+            if (!confirm('Are you sure you want to delete this preset?')) {
+                return;
+            }
+            
+            const presets = getPresets();
+            const filtered = presets.filter(p => p.id !== presetId);
+            localStorage.setItem('haos-techno-presets', JSON.stringify(filtered));
+            updatePresetList();
+            console.log('🗑️ Preset deleted');
+        }
+        
+        function updatePresetList() {
+            const presets = getPresets();
+            const listContainer = document.getElementById('presetList');
+            const countBadge = document.getElementById('presetCount');
+            
+            if (!listContainer) return;
+            
+            // Update count
+            if (countBadge) {
+                countBadge.textContent = presets.length;
+            }
+            
+            if (presets.length === 0) {
+                listContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-secondary); font-style: italic;">
+                        No presets saved yet. Create your first pattern preset!
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort by date (newest first)
+            presets.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated));
+            
+            // Build preset list HTML
+            listContainer.innerHTML = presets.map(preset => {
+                const modeEmojis = {
+                    'basic': '🎯',
+                    'pro': '🎛️',
+                    'advanced': '⚡'
+                };
+                
+                const modeEmoji = modeEmojis[preset.mode] || '🎵';
+                const date = new Date(preset.dateCreated);
+                
+                // Count active steps
+                const totalSteps = Object.values(preset.pattern).flat().filter(v => v).length;
+                
+                return `
+                    <div style="background: var(--bg-tertiary); border: 1px solid #9d4edd; border-radius: 10px; padding: 18px; margin-bottom: 15px; transition: all 0.3s;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; color: var(--text-primary); font-size: 1.15em; margin-bottom: 6px; font-family: var(--haos-font-mono);">
+                                    ${modeEmoji} ${preset.name}
+                                </div>
+                                <div style="display: flex; gap: 15px; font-size: 0.85em; color: var(--text-secondary); flex-wrap: wrap;">
+                                    <span>🎵 ${preset.bpm} BPM</span>
+                                    <span>📊 ${totalSteps} steps</span>
+                                    <span>🎛️ ${preset.mode.toUpperCase()}</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="loadPreset(${preset.id})" 
+                                        style="background: linear-gradient(135deg, #9d4edd, #7209b7); border: none; color: #fff; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s;"
+                                        title="Load this preset">
+                                    📂 LOAD
+                                </button>
+                                <button onclick="deletePreset(${preset.id})" 
+                                        style="background: var(--bg-secondary); border: 1px solid var(--border); color: #ff4444; padding: 10px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;"
+                                        title="Delete preset">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.75em; color: var(--text-secondary); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);">
+                            Created: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function exportAllPresets() {
+            const presets = getPresets();
+            
+            if (presets.length === 0) {
+                alert('⚠️ No presets to export');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(presets, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `haos-techno-presets-${Date.now()}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            console.log(`📤 Exported ${presets.length} presets`);
+        }
+        
+        function importPresets(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedPresets = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(importedPresets)) {
+                        alert('⚠️ Invalid preset file format');
+                        return;
+                    }
+                    
+                    // Get existing presets
+                    const existingPresets = getPresets();
+                    
+                    // Merge with imported presets (avoid duplicates by ID)
+                    const merged = [...existingPresets];
+                    let newCount = 0;
+                    
+                    importedPresets.forEach(preset => {
+                        if (!merged.find(p => p.id === preset.id)) {
+                            merged.push(preset);
+                            newCount++;
+                        }
+                    });
+                    
+                    // Save merged presets
+                    localStorage.setItem('haos-techno-presets', JSON.stringify(merged));
+                    
+                    // Update display
+                    updatePresetList();
+                    
+                    alert(`✅ Imported ${newCount} new presets!`);
+                    console.log(`📥 Imported ${newCount} presets`);
+                    
+                } catch (error) {
+                    alert('⚠️ Error importing presets: ' + error.message);
+                    console.error('Import error:', error);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        // ============================================
         // ARTIST MODAL & RADIO 24/7 INTEGRATION
         // ============================================
         
@@ -6734,6 +7152,76 @@ ESC       - Close modals`);
             <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 5px 0;">
                 <span style="background: #0a0a0a; color: #00ff00; padding: 2px 8px; border-radius: 4px; font-weight: bold;">H</span>
                 <span style="color: #00cc00;">Help</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preset Manager Modal -->
+    <div id="presetModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: linear-gradient(135deg, #0a0a0a, #1a1a1a); border: 2px solid #9d4edd; border-radius: 20px; max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 60px rgba(157, 78, 221, 0.5);">
+            <!-- Modal Header -->
+            <div style="background: linear-gradient(135deg, #9d4edd, #7209b7); padding: 25px; border-radius: 18px 18px 0 0; position: relative;">
+                <h2 style="margin: 0; color: #fff; font-size: 1.8em; display: flex; align-items: center; gap: 12px; font-family: var(--haos-font-display);">
+                    <span style="font-size: 1.5em;">💾</span>
+                    PATTERN PRESET MANAGER
+                </h2>
+                <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.8); font-size: 0.9em;">Save and load your techno patterns • Export & import presets</p>
+                <button onclick="closePresetManager()" style="position: absolute; top: 15px; right: 15px; background: rgba(0, 0, 0, 0.3); border: none; color: #fff; font-size: 1.5em; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div style="padding: 30px;">
+                <!-- Save New Preset Section -->
+                <div style="margin-bottom: 30px; padding: 20px; background: rgba(157, 78, 221, 0.1); border: 1px solid #9d4edd; border-radius: 12px;">
+                    <h3 style="color: #9d4edd; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                        <span>💾</span> Save Current Pattern
+                    </h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <input type="text" id="presetName" placeholder="Enter preset name (e.g., Hard Techno Loop)" 
+                               style="flex: 1; padding: 12px; background: var(--bg-tertiary); border: 2px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 1em; font-family: var(--haos-font-mono);"
+                               onfocus="this.style.borderColor='#9d4edd'"
+                               onblur="this.style.borderColor='var(--border)'">
+                        <button onclick="savePreset()" style="padding: 12px 24px; background: linear-gradient(135deg, #9d4edd, #7209b7); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4); transition: all 0.3s;">
+                            💾 SAVE
+                        </button>
+                    </div>
+                    <div style="font-size: 0.85em; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+                        <span>💡</span>
+                        <span>Saves current pattern, BPM, drum variations, and mode</span>
+                    </div>
+                </div>
+
+                <!-- Preset Library -->
+                <div>
+                    <h3 style="color: #9d4edd; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <span>📚</span>
+                        <span>Saved Presets</span>
+                        <span style="font-size: 0.7em; background: #9d4edd; color: #000; padding: 4px 10px; border-radius: 15px; font-weight: bold;" id="presetCount">0</span>
+                    </h3>
+                    <div id="presetList" style="max-height: 350px; overflow-y: auto;">
+                        <div style="text-align: center; padding: 40px; color: var(--text-secondary); font-style: italic;">
+                            No presets saved yet. Create your first pattern preset!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Import/Export Section -->
+                <div style="margin-top: 30px; padding-top: 25px; border-top: 2px solid var(--border);">
+                    <h3 style="color: #9d4edd; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                        <span>📤</span> Import / Export
+                    </h3>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="exportAllPresets()" style="flex: 1; min-width: 200px; padding: 12px; background: var(--bg-tertiary); border: 2px solid #9d4edd; color: var(--text-primary); border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                            📤 Export All Presets
+                        </button>
+                        <button onclick="document.getElementById('importFile').click()" style="flex: 1; min-width: 200px; padding: 12px; background: var(--bg-tertiary); border: 2px solid #9d4edd; color: var(--text-primary); border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                            📥 Import Presets
+                        </button>
+                        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importPresets(event)">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
