@@ -1439,6 +1439,24 @@
             </div>
             <div class="collapsible-content active" style="margin-bottom: 25px;">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                    <!-- T78 STYLE PRESETS -->
+                    <button class="btn" onclick="loadTechnoPreset('t78_rolling')" style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; background: linear-gradient(135deg, #ff0040, #ff4070); border: 2px solid #ff0040;">
+                        <span style="font-size: 2em;">🔥</span>
+                        <span style="font-weight: bold;">T78 Rolling</span>
+                        <span style="font-size: 0.8em; color: rgba(255,255,255,0.9);">148 BPM • Driving</span>
+                    </button>
+                    <button class="btn" onclick="loadTechnoPreset('t78_peak')" style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; background: linear-gradient(135deg, #ff006e, #ff3090); border: 2px solid #ff006e;">
+                        <span style="font-size: 2em;">💥</span>
+                        <span style="font-weight: bold;">T78 Peak Time</span>
+                        <span style="font-size: 0.8em; color: rgba(255,255,255,0.9);">150 BPM • Hard</span>
+                    </button>
+                    <button class="btn" onclick="loadTechnoPreset('t78_hypnotic')" style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; background: linear-gradient(135deg, #9d00ff, #bd30ff); border: 2px solid #9d00ff;">
+                        <span style="font-size: 2em;">🌀</span>
+                        <span style="font-weight: bold;">T78 Hypnotic</span>
+                        <span style="font-size: 0.8em; color: rgba(255,255,255,0.9);">146 BPM • Loop</span>
+                    </button>
+                    
+                    <!-- ORIGINAL PRESETS -->
                     <button class="btn btn-secondary" onclick="loadTechnoPreset('hard_techno')" style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px;">
                         <span style="font-size: 2em;">⚡</span>
                         <span style="font-weight: bold;">Hard Techno</span>
@@ -1515,6 +1533,7 @@
                 <div class="control-group">
                     <label for="technoSubgenre">Techno Subgenre:</label>
                     <select id="technoSubgenre">
+                        <option value="t78_style">T78 Style (Hard, Driving, 145-150 BPM)</option>
                         <option value="hard_techno">Hard Techno (Fast, Aggressive)</option>
                         <option value="acid_techno" selected>Acid Techno (303 Style)</option>
                         <option value="minimal">Minimal Techno (Hypnotic)</option>
@@ -4361,7 +4380,60 @@
             console.log(`🎵 Loading techno preset: ${preset}`);
             clearTechnoPattern();
             
+            // Set BPM based on preset style
+            const bpmSettings = {
+                t78_rolling: 148,
+                t78_peak: 150,
+                t78_hypnotic: 146,
+                hard_techno: 145,
+                minimal: 130,
+                industrial: 140,
+                acid_groove: 135,
+                dub_techno: 122
+            };
+            
+            if (bpmSettings[preset]) {
+                const bpmSlider = document.getElementById('technoBpmControl');
+                if (bpmSlider) {
+                    bpmSlider.value = bpmSettings[preset];
+                    updateTechnoBPM(bpmSettings[preset]);
+                }
+            }
+            
             const presets = {
+                // T78 STYLE PRESETS - High energy, driving techno
+                t78_rolling: {
+                    kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],  // Four on floor driving
+                    hat: [0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1],  // Rolling hi-hats (T78 signature)
+                    clap: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],  // Syncopated claps
+                    perc: [0,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0],  // Industrial percussion
+                    dub_chord: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  // Minimal chords
+                    bass: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],  // Driving bassline
+                    synth: [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],  // Sparse lead stabs
+                    fx: [0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0]      // Rhythmic FX
+                },
+                t78_peak: {
+                    kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],  // Relentless four on floor
+                    hat: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],  // Constant hi-hat energy
+                    clap: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],  // Classic placement
+                    perc: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],  // Dense percussion layer
+                    dub_chord: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  // No chords (peak energy)
+                    bass: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],  // Aggressive rolling bass
+                    synth: [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1],  // Stab pattern
+                    fx: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]      // Impact FX
+                },
+                t78_hypnotic: {
+                    kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],  // Steady foundation
+                    hat: [0,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0],  // Hypnotic hi-hat loop
+                    clap: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],  // Minimal claps
+                    perc: [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1],  // Repeating motif
+                    dub_chord: [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  // Long sustained chord
+                    bass: [1,0,0,0,1,0,1,0,1,0,0,0,1,0,1,0],  // Groovy bassline
+                    synth: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],  // Hypnotic loop
+                    fx: [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]      // Sparse atmospheric FX
+                },
+                
+                // ORIGINAL PRESETS
                 hard_techno: {
                     kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
                     hat: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],
@@ -4418,6 +4490,28 @@
             if (!pattern) {
                 console.error(`❌ Preset not found: ${preset}`);
                 return;
+            }
+            
+            // Set drum variations based on preset
+            const drumVariationSettings = {
+                t78_rolling: { kick: 'hard', hat: 'metallic', clap: 'tight', perc: 'rim' },
+                t78_peak: { kick: 'hard', hat: 'bright', clap: 'tight', perc: 'cowbell' },
+                t78_hypnotic: { kick: 'deep', hat: 'metallic', clap: 'classic', perc: 'tom' },
+                hard_techno: { kick: 'hard', hat: 'classic', clap: 'classic', perc: 'tom' },
+                industrial: { kick: 'industrial', hat: 'metallic', clap: 'snare', perc: 'rim' },
+                minimal: { kick: 'classic', hat: 'classic', clap: 'tight', perc: 'tom' },
+                acid_groove: { kick: 'classic', hat: 'bright', clap: 'classic', perc: 'tom' },
+                dub_techno: { kick: 'deep', hat: 'open', clap: 'reverb', perc: 'conga' }
+            };
+            
+            if (drumVariationSettings[preset]) {
+                const settings = drumVariationSettings[preset];
+                if (typeof setDrumVariation !== 'undefined') {
+                    setDrumVariation('kick', settings.kick);
+                    setDrumVariation('hat', settings.hat);
+                    setDrumVariation('clap', settings.clap);
+                    setDrumVariation('perc', settings.perc);
+                }
             }
             
             let stepsActivated = 0;
