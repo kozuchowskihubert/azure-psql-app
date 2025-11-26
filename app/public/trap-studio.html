@@ -13,11 +13,15 @@
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/images/haos-logo-white.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/haos-logo-white.png">
     
-    <title>🔥 HAOS.fm - Trap Studio 🔥</title>
+    <title>🔥 HAOS.fm - Trap Studio | 808 Bass Synthesis Lab</title>
     
     <!-- HAOS.fm Brand CSS -->
     <link rel="stylesheet" href="/css/haos-brand.css">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         * {
@@ -27,21 +31,45 @@
         }
 
         :root {
-            /* HAOS.fm Trap Theme - Vintage Heat */
+            /* HAOS.fm Trap Theme - Uses Brand Variables */
             --bg-primary: var(--haos-vinyl-black);
             --bg-secondary: var(--haos-tape-brown);
-            --bg-tertiary: #16213e;
+            --bg-tertiary: #1a1410;
             --accent-primary: var(--haos-oxide-red);
             --accent-secondary: var(--haos-groove-orange);
             --accent-cyan: var(--haos-909-cyan);
             --accent-magenta: #ff006e;
-            --accent-gold: #ffd700;
-            --text-primary: #eee;
-            --text-secondary: #a8a8a8;
+            --accent-gold: var(--haos-turntable-gold);
+            --text-primary: var(--haos-sepia-cream);
+            --text-secondary: var(--haos-dust-gray);
             --success: #00ff41;
             --warning: #ff9800;
-            --border: #2d2d44;
-            --glow: rgba(255, 46, 99, 0.5);
+            --border: var(--haos-dust-gray);
+            --glow: rgba(139, 38, 53, 0.6);
+        }
+
+        body {
+            font-family: var(--haos-font-body);
+            background: linear-gradient(135deg, var(--haos-vinyl-black) 0%, var(--haos-oxide-red) 50%, var(--haos-vinyl-black) 100%);
+            color: var(--haos-sepia-cream);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Vinyl texture overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+            opacity: 0.03;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 1;
         }
 
         /* ============================================
@@ -370,63 +398,99 @@
         .header {
             position: relative;
             z-index: 10;
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-            border-bottom: 2px solid var(--accent-primary);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            padding: 20px;
-            text-align: center;
+            background: linear-gradient(135deg, #0a0a0a 0%, var(--haos-tape-brown) 50%, #0a0a0a 100%);
+            border-bottom: 3px solid var(--haos-oxide-red);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.6),
+                0 0 60px rgba(139, 38, 53, 0.3),
+                inset 0 1px 0 rgba(255, 215, 0, 0.1);
+            padding: 25px 30px;
+            backdrop-filter: blur(10px);
         }
 
         .header h1 {
-            font-size: 2.5em;
-            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary), var(--accent-gold));
+            font-family: var(--haos-font-display);
+            font-size: 2.8em;
+            background: linear-gradient(45deg, var(--haos-oxide-red), var(--haos-groove-orange), var(--haos-turntable-gold));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 0 0 30px var(--glow);
-            margin-bottom: 10px;
-            animation: glow 2s ease-in-out infinite;
+            margin: 0;
+            letter-spacing: 2px;
+            font-weight: 900;
+            filter: drop-shadow(0 0 20px rgba(139, 38, 53, 0.6));
+            animation: glow 3s ease-in-out infinite;
         }
 
         @keyframes glow {
-            0%, 100% { filter: drop-shadow(0 0 10px var(--glow)); }
-            50% { filter: drop-shadow(0 0 20px var(--glow)); }
+            0%, 100% { filter: drop-shadow(0 0 15px rgba(139, 38, 53, 0.5)); }
+            50% { filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.7)); }
         }
 
         .header p {
-            color: var(--text-secondary);
-            font-size: 1.1em;
+            font-family: var(--haos-font-mono);
+            color: var(--haos-dust-gray);
+            font-size: 0.9em;
+            letter-spacing: 2px;
         }
 
         /* Main Container */
         .container {
             position: relative;
             z-index: 1;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 30px 20px;
         }
 
         /* Tool Cards */
         .tool-section {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 25px;
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.8), rgba(26, 20, 16, 0.8));
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+            border-radius: 16px;
+            padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(139, 38, 53, 0.2),
+                inset 0 1px 0 rgba(255, 215, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .tool-section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--haos-oxide-red), var(--haos-groove-orange), var(--haos-turntable-gold));
+            border-radius: 16px;
+            z-index: -1;
+            opacity: 0.5;
+            transition: opacity 0.3s;
         }
 
         .tool-section:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(255, 46, 99, 0.2);
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.6),
+                0 0 50px rgba(255, 107, 53, 0.4),
+                inset 0 1px 0 rgba(255, 215, 0, 0.2);
+        }
+
+        .tool-section:hover::before {
+            opacity: 1;
         }
 
         .tool-section h2 {
-            color: var(--accent-primary);
-            font-size: 2em;
-            margin-bottom: 15px;
+            font-family: var(--haos-font-display);
+            color: var(--haos-groove-orange);
+            font-size: 2.2em;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -440,40 +504,76 @@
 
         /* Buttons */
         .btn {
-            background: linear-gradient(135deg, var(--accent-primary), #d91e4e);
-            color: white;
+            background: linear-gradient(135deg, var(--haos-oxide-red), var(--haos-groove-orange));
+            color: var(--haos-vinyl-black);
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-family: var(--haos-font-mono);
+            font-size: 0.95em;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 46, 99, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 4px 15px rgba(255, 107, 53, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
         }
 
         .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 25px rgba(255, 46, 99, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 25px rgba(255, 107, 53, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:active {
-            transform: scale(0.98);
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
-            background: linear-gradient(135deg, var(--accent-secondary), #06b8b5);
+            background: linear-gradient(135deg, var(--haos-909-cyan), #06b8b5);
+            box-shadow: 
+                0 4px 15px rgba(8, 217, 214, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .btn-secondary:hover {
-            box-shadow: 0 6px 25px rgba(8, 217, 214, 0.5);
+            box-shadow: 
+                0 8px 25px rgba(8, 217, 214, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .btn-gold {
-            background: linear-gradient(135deg, var(--accent-gold), #ffed4e);
-            color: var(--bg-primary);
+            background: linear-gradient(135deg, var(--haos-turntable-gold), #ffed4e);
+            color: var(--haos-vinyl-black);
+            box-shadow: 
+                0 4px 15px rgba(255, 215, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-gold:hover {
+            box-shadow: 
+                0 8px 25px rgba(255, 215, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         /* Input Controls */
@@ -1881,43 +1981,64 @@
     </div>
 
     <div class="header">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
-            <!-- Logo/Title -->
-            <div style="flex: 1; min-width: 300px;">
-                <h1 style="font-size: 2.8em; background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary), var(--accent-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; font-weight: 800;">
-                    🔥 TRAP STUDIO
-                </h1>
-                <p style="color: var(--text-secondary); font-size: 1em; margin-bottom: 8px;">
-                    Professional 808 Design • Chord Progressions • Beat Sequencer
-                </p>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.85em; color: var(--accent-secondary);">
-                    <span style="padding: 4px 10px; background: rgba(255, 46, 99, 0.1); border-radius: 4px; border: 1px solid rgba(255, 46, 99, 0.3);">TRAP</span>
-                    <span style="padding: 4px 10px; background: rgba(8, 217, 214, 0.1); border-radius: 4px; border: 1px solid rgba(8, 217, 214, 0.3);">HIP-HOP</span>
-                    <span style="padding: 4px 10px; background: rgba(255, 215, 0, 0.1); border-radius: 4px; border: 1px solid rgba(255, 215, 0, 0.3);">808</span>
-                    <span style="padding: 4px 10px; background: rgba(255, 0, 110, 0.1); border-radius: 4px; border: 1px solid rgba(255, 0, 110, 0.3);">BEATS</span>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; max-width: 1800px; margin: 0 auto;">
+            <!-- Logo Section -->
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 12px; transition: transform 0.3s;">
+                    <img src="/images/haos-logo-white.png" alt="HAOS.fm Logo" style="height: 50px; width: auto; filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.5));">
+                </a>
+                <div style="width: 2px; height: 50px; background: linear-gradient(180deg, transparent, var(--haos-oxide-red), transparent);"></div>
+                <div>
+                    <h1 style="font-family: var(--haos-font-display); font-size: 2.8em; background: linear-gradient(45deg, var(--haos-oxide-red), var(--haos-groove-orange), var(--haos-turntable-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0; letter-spacing: 2px; font-weight: 900; line-height: 1;">
+                        TRAP STUDIO
+                    </h1>
+                    <p style="font-family: var(--haos-font-mono); color: var(--haos-dust-gray); font-size: 0.85em; margin: 5px 0 0 0; letter-spacing: 3px; text-transform: uppercase;">
+                        808 BASS SYNTHESIS LAB
+                    </p>
                 </div>
             </div>
-            
+
+            <!-- Navigation & Status -->
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <!-- Genre Tags -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.85em;">
+                    <span style="padding: 6px 12px; background: rgba(139, 38, 53, 0.2); border-radius: 6px; border: 1px solid var(--haos-oxide-red); color: var(--haos-oxide-red); font-family: var(--haos-font-mono); font-weight: 600;">TRAP</span>
+                    <span style="padding: 6px 12px; background: rgba(8, 217, 214, 0.2); border-radius: 6px; border: 1px solid var(--haos-909-cyan); color: var(--haos-909-cyan); font-family: var(--haos-font-mono); font-weight: 600;">HIP-HOP</span>
+                    <span style="padding: 6px 12px; background: rgba(255, 215, 0, 0.2); border-radius: 6px; border: 1px solid var(--haos-turntable-gold); color: var(--haos-turntable-gold); font-family: var(--haos-font-mono); font-weight: 600;">808</span>
+                </div>
+                
             <!-- Status & Controls -->
             <div style="display: flex; gap: 12px; align-items: center;">
-                <!-- Status Indicators -->
-                <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid var(--border);">
-                    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85em;">
-                        <div style="width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 10px var(--success); animation: pulse 2s infinite;"></div>
-                        <span style="color: var(--text-secondary);">READY</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85em;">
-                        <span style="color: var(--accent-gold);">BPM:</span>
-                        <span id="headerBpmDisplay" style="color: var(--accent-primary); font-weight: bold; min-width: 35px;">140</span>
+                <!-- Status Panel -->
+                <div style="padding: 12px 16px; background: rgba(10, 10, 10, 0.6); border-radius: 10px; border: 1px solid var(--haos-oxide-red); box-shadow: 0 0 20px rgba(139, 38, 53, 0.3);">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; align-items: center; gap: 10px; font-size: 0.9em;">
+                            <div style="width: 10px; height: 10px; background: var(--haos-acid-green); border-radius: 50%; box-shadow: 0 0 15px var(--haos-acid-green); animation: pulse 2s infinite;"></div>
+                            <span style="color: var(--haos-sepia-cream); font-family: var(--haos-font-mono); font-weight: 600;">STUDIO READY</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; font-size: 0.9em;">
+                            <span style="color: var(--haos-dust-gray); font-family: var(--haos-font-mono);">BPM:</span>
+                            <span id="headerBpmDisplay" style="color: var(--haos-groove-orange); font-weight: bold; font-family: var(--haos-font-mono); min-width: 40px; text-align: right;">140</span>
+                        </div>
                     </div>
                 </div>
                 
+                <!-- Navigation Buttons -->
+                <a href="/" style="padding: 12px 20px; background: linear-gradient(135deg, var(--haos-oxide-red), var(--haos-groove-orange)); color: var(--haos-vinyl-black); text-decoration: none; border-radius: 10px; font-family: var(--haos-font-mono); font-weight: 700; font-size: 0.9em; transition: all 0.3s; box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4); display: flex; align-items: center; gap: 8px; letter-spacing: 1px;">
+                    <span>🏠</span>
+                    <span>HOME</span>
+                </a>
+                
                 <!-- Icon Buttons -->
-                <button id="theme-toggle" style="width: 45px; height: 45px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px; color: var(--accent-secondary); font-size: 1.3em; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center;" 
+                <button id="theme-toggle" style="width: 48px; height: 48px; background: rgba(10, 10, 10, 0.6); border: 1px solid var(--haos-dust-gray); border-radius: 10px; color: var(--haos-groove-orange); font-size: 1.4em; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);" 
+                        onmouseover="this.style.borderColor='var(--haos-groove-orange)'; this.style.boxShadow='0 0 20px rgba(255, 107, 53, 0.5)';"
+                        onmouseout="this.style.borderColor='var(--haos-dust-gray)'; this.style.boxShadow='0 2px 10px rgba(0, 0, 0, 0.3)';"
                         data-tooltip="Toggle Theme" aria-label="Toggle theme">
                     🌙
                 </button>
-                <button onclick="showSettings()" style="width: 45px; height: 45px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px; color: var(--accent-cyan); font-size: 1.3em; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center;" 
+                <button onclick="showSettings()" style="width: 48px; height: 48px; background: rgba(10, 10, 10, 0.6); border: 1px solid var(--haos-dust-gray); border-radius: 10px; color: var(--haos-909-cyan); font-size: 1.4em; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);" 
+                        onmouseover="this.style.borderColor='var(--haos-909-cyan)'; this.style.boxShadow='0 0 20px rgba(8, 217, 214, 0.5)';"
+                        onmouseout="this.style.borderColor='var(--haos-dust-gray)'; this.style.boxShadow='0 2px 10px rgba(0, 0, 0, 0.3)';"
                         data-tooltip="Settings">
                     ⚙️
                 </button>
