@@ -3,10 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Collaborative Recording Studio - Record rap songs with multiple artists in real-time">
-    <meta name="theme-color" content="#8b5cf6">
+    <meta name="description" content="HAOS.fm Collaborative Recording Studio - Multi-artist real-time sessions">
+    <meta name="theme-color" content="#FF6B35">
     
-    <title>🎤 Collaborative Recording Studio 🎤</title>
+    <title>🎤 HAOS.fm Collaborative Studio 🎤</title>
+    
+    <!-- Google Fonts - HAOS.fm Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- HAOS.fm Brand CSS -->
+    <link rel="stylesheet" href="/css/haos-brand.css">
     
     <style>
         * {
@@ -16,21 +27,22 @@
         }
 
         :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #1a1a2e;
+            /* HAOS.fm Collaboration Theme */
+            --bg-primary: var(--haos-vinyl-black);
+            --bg-secondary: var(--haos-tape-brown);
             --bg-tertiary: #16213e;
-            --accent-primary: #8b5cf6;
-            --accent-secondary: #ec4899;
+            --accent-primary: var(--haos-acid-green);
+            --accent-secondary: var(--haos-groove-orange);
             --accent-success: #10b981;
             --accent-danger: #ef4444;
-            --text-primary: #f3f4f6;
-            --text-secondary: #9ca3af;
+            --text-primary: var(--haos-sepia-cream);
+            --text-secondary: var(--haos-dust-gray);
             --border: #374151;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            font-family: var(--haos-font-body);
+            background: linear-gradient(135deg, var(--haos-vinyl-black) 0%, var(--haos-tape-brown) 50%, var(--haos-vinyl-black) 100%);
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
@@ -45,8 +57,8 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
+                radial-gradient(circle at 20% 50%, rgba(57, 255, 20, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 107, 53, 0.15) 0%, transparent 50%);
             animation: pulse 8s ease-in-out infinite;
             pointer-events: none;
             z-index: 0;
@@ -61,26 +73,32 @@
         .header {
             position: relative;
             z-index: 10;
-            background: rgba(26, 26, 46, 0.95);
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.95) 0%, rgba(74, 60, 46, 0.95) 50%, rgba(10, 10, 10, 0.95) 100%);
             backdrop-filter: blur(10px);
-            border-bottom: 2px solid var(--accent-primary);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            padding: 20px;
-            text-align: center;
+            border-bottom: 3px solid var(--haos-groove-orange);
+            box-shadow: var(--haos-shadow-lg);
+            padding: 25px 20px;
         }
 
         .header h1 {
+            font-family: var(--haos-font-display);
             font-size: 2.5em;
-            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--haos-acid-green), var(--haos-909-cyan));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 10px;
+            text-align: center;
         }
 
         .header p {
+            font-family: var(--haos-font-mono);
             color: var(--text-secondary);
-            font-size: 1.1em;
+            font-size: 0.9em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
         }
 
         /* Main Container */
@@ -532,8 +550,27 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <h1>🎤 Collaborative Recording Studio 🎤</h1>
-        <p>Record rap songs with multiple artists in real-time</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; flex-wrap: wrap; gap: 20px;">
+            <!-- Logo and Title -->
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                    <a href="/" style="text-decoration: none;">
+                        <img src="/images/haos-logo-white.png" alt="HAOS.fm" style="height: 50px; width: auto; filter: drop-shadow(0 0 15px rgba(255, 107, 53, 0.6));">
+                    </a>
+                    <div style="border-left: 4px solid var(--haos-groove-orange); padding-left: 15px;">
+                        <h1><i class="fas fa-microphone-alt"></i> COLLABORATIVE STUDIO <i class="fas fa-users"></i></h1>
+                        <p>MULTI-ARTIST REAL-TIME RECORDING SESSIONS</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Home Button -->
+            <div>
+                <a href="/" class="haos-btn-secondary" style="display: inline-flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-home"></i> HOME
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- Main Container -->

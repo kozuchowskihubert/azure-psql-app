@@ -14,7 +14,7 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/images/haos-logo-white.png">
     
-    <title>📻 HAOS.fm - Radio 24/7</title>
+    <title>HAOS.fm - Radio 24/7 | Live Electronic Music Streaming</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -652,6 +652,8 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .artist-card:hover {
@@ -690,18 +692,25 @@
 </head>
 <body>
     <div class="header">
-        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; gap: 20px;">
             <div style="flex: 1;">
-                <h1 style="font-family: var(--haos-font-display, 'Bebas Neue', Arial, sans-serif); font-size: clamp(2rem, 5vw, 3rem);">
-                    📻 HAOS.FM RADIO 24/7
+                <h1 style="font-family: var(--haos-font-display, 'Bebas Neue', Arial, sans-serif); font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 2px;">
+                    <i class="fas fa-broadcast-tower" style="color: var(--accent-orange);"></i> HAOS.FM RADIO 24/7
                 </h1>
                 <p class="subtitle" style="font-family: var(--haos-font-body, 'Inter', Arial, sans-serif);">
                     Continuous Electronic Music • Live Streaming • Artist Library
                 </p>
             </div>
-            <button id="theme-toggle" style="padding: 12px 18px; background: var(--bg-tertiary); border: 2px solid var(--haos-acid-green); border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: all 0.3s; font-size: 1.2em;" aria-label="Toggle theme" title="Toggle Theme">
-                <i class="fas fa-adjust"></i>
-            </button>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <!-- User Badge -->
+                <div id="userBadge" style="padding: 10px 15px; background: var(--bg-tertiary); border: 2px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 0.9em; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-user-circle"></i> Loading...
+                </div>
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" style="padding: 12px 18px; background: var(--bg-tertiary); border: 2px solid var(--haos-acid-green); border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: all 0.3s; font-size: 1.2em;" aria-label="Toggle theme" title="Toggle Theme">
+                    <i class="fas fa-adjust"></i>
+                </button>
+            </div>
         </div>
         
         <!-- Navigation -->
@@ -717,10 +726,10 @@
         <!-- Channel Selector -->
         <div class="channel-selector">
             <button class="channel-btn techno active" onclick="switchChannel('techno')">
-                🎵 TECHNO RADIO
+                <i class="fas fa-music"></i> TECHNO RADIO
             </button>
             <button class="channel-btn rap" onclick="switchChannel('rap')">
-                🎤 RAP RADIO
+                <i class="fas fa-microphone"></i> RAP RADIO
             </button>
         </div>
 
@@ -747,7 +756,7 @@
         <!-- Player Section -->
         <div class="player-section">
             <div class="now-playing">
-                <h2>🎧 NOW PLAYING</h2>
+                <h2><i class="fas fa-headphones" style="color: var(--accent-cyan);"></i> NOW PLAYING</h2>
                 <div class="track-info">
                     <div class="track-title" id="currentTitle">No track playing</div>
                     <div class="track-artist" id="currentArtist">Select a channel to start</div>
@@ -773,37 +782,37 @@
             <!-- Player Controls -->
             <div class="player-controls">
                 <button class="control-btn" onclick="previousTrack()" title="Previous">
-                    ⏮️ Previous
+                    <i class="fas fa-step-backward"></i> Previous
                 </button>
                 <button class="control-btn play-pause" onclick="togglePlayPause()" id="playPauseBtn">
-                    ▶️ Play
+                    <i class="fas fa-play"></i> Play
                 </button>
                 <button class="control-btn" onclick="nextTrack()" title="Next">
-                    ⏭️ Next
+                    <i class="fas fa-step-forward"></i> Next
                 </button>
                 <button class="control-btn" onclick="toggleShuffle()" id="shuffleBtn" title="Shuffle">
-                    🔀 Shuffle
+                    <i class="fas fa-random"></i> Shuffle
                 </button>
                 <button class="control-btn" onclick="toggleRepeat()" id="repeatBtn" title="Repeat">
-                    🔁 Repeat
+                    <i class="fas fa-redo"></i> Repeat
                 </button>
             </div>
 
             <!-- Volume Control -->
             <div class="volume-control">
-                <span>🔈</span>
+                <i class="fas fa-volume-down" style="font-size: 1.2em; color: var(--text-secondary);"></i>
                 <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="70">
-                <span>🔊</span>
+                <i class="fas fa-volume-up" style="font-size: 1.2em; color: var(--text-secondary);"></i>
                 <span id="volumeValue" style="margin-left: 10px; color: var(--text-secondary);">70%</span>
             </div>
         </div>
 
         <!-- Upload Section -->
         <div class="upload-section">
-            <h2>📤 UPLOAD TRACKS</h2>
+            <h2><i class="fas fa-upload"></i> UPLOAD TRACKS</h2>
             <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                 <input type="file" id="fileInput" accept="audio/*" multiple>
-                <div class="upload-icon">🎵</div>
+                <div class="upload-icon"><i class="fas fa-music" style="font-size: 2em;"></i></div>
                 <div class="upload-text">Click to upload or drag & drop</div>
                 <div class="upload-hint">Supported formats: MP3, WAV, OGG, M4A</div>
             </div>
@@ -811,7 +820,7 @@
 
         <!-- Artist Library Section -->
         <div class="upload-section" id="artistLibrarySection">
-            <h2>⭐ YOUR ARTIST LIBRARY</h2>
+            <h2><i class="fas fa-star"></i> YOUR ARTIST LIBRARY</h2>
             <p style="color: var(--text-secondary); margin-bottom: 20px;">
                 Play music from your favorite artists added in Techno Creator or Trap Studio
             </p>
@@ -819,7 +828,7 @@
             <!-- Current Playing Artist -->
             <div id="currentArtistPlayer" style="display: none; margin-bottom: 25px; background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 2px solid var(--accent-techno);">
                 <h3 style="color: var(--accent-cyan); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                    <span>🎵</span>
+                    <i class="fas fa-music"></i>
                     <span>Now Playing from Library</span>
                 </h3>
                 <div id="youtubePlayerContainer" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 15px;">
@@ -830,16 +839,16 @@
                     </iframe>
                 </div>
                 <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
-                    <button class="control-btn" onclick="playPreviousArtist()">⏮️ Previous</button>
-                    <button class="control-btn" onclick="stopArtistPlayback()">⏹️ Stop</button>
-                    <button class="control-btn" onclick="playNextArtist()">⏭️ Next</button>
+                    <button class="control-btn" onclick="playPreviousArtist()"><i class="fas fa-step-backward"></i> Previous</button>
+                    <button class="control-btn" onclick="stopArtistPlayback()"><i class="fas fa-stop"></i> Stop</button>
+                    <button class="control-btn" onclick="playNextArtist()"><i class="fas fa-step-forward"></i> Next</button>
                 </div>
             </div>
 
             <!-- Artist Grid -->
             <div id="artistLibraryGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
                 <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-secondary); font-style: italic;">
-                    <div style="font-size: 3em; margin-bottom: 15px;">🎧</div>
+                    <div style="font-size: 3em; margin-bottom: 15px;"><i class="fas fa-headphones"></i></div>
                     <div>No artists in your library yet!</div>
                     <div style="margin-top: 10px; font-size: 0.9em;">
                         Add favorite artists in <a href="/techno-creator" style="color: var(--accent-techno);">Techno Creator</a> or <a href="/trap-studio" style="color: var(--accent-rap);">Trap Studio</a>
@@ -858,7 +867,7 @@
             </div>
             <div class="queue-list" id="queueList">
                 <div class="empty-state">
-                    <div class="empty-state-icon">🎵</div>
+                    <div class="empty-state-icon"><i class="fas fa-music"></i></div>
                     <div class="empty-state-text">No tracks in queue. Upload some tracks to get started!</div>
                 </div>
             </div>
@@ -869,6 +878,10 @@
         // ============================================
         // RADIO 24/7 - MAIN APPLICATION
         // ============================================
+
+        // User State
+        let currentUser = null;
+        let isGuestMode = true;
 
         // State
         let currentChannel = 'techno';
@@ -885,8 +898,13 @@
         let technoQueue = [];
         let rapQueue = [];
 
+        // Artist Library State
+        let artistLibrary = [];
+        let currentArtistIndex = -1;
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            initializeUser();
             initializeAudio();
             initializeUpload();
             initializeVisualizer();
@@ -895,6 +913,99 @@
             setupStudioIntegration();
             loadArtistLibrary();
         });
+
+        // ============================================
+        // USER AUTHENTICATION
+        // ============================================
+
+        /**
+         * Initialize user session
+         */
+        function initializeUser() {
+            // Try to get user from localStorage
+            const storedUser = localStorage.getItem('haos_user');
+            if (storedUser) {
+                try {
+                    currentUser = JSON.parse(storedUser);
+                    isGuestMode = false;
+                    console.log('User logged in:', currentUser.username);
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                    currentUser = null;
+                    isGuestMode = true;
+                }
+            } else {
+                // Generate guest ID
+                currentUser = {
+                    id: 'guest_' + Date.now(),
+                    username: 'Guest',
+                    isGuest: true
+                };
+                isGuestMode = true;
+                console.log('Guest mode active');
+            }
+            
+            updateUserUI();
+        }
+
+        /**
+         * Update user interface elements
+         */
+        function updateUserUI() {
+            const userBadge = document.getElementById('userBadge');
+            if (userBadge) {
+                if (isGuestMode) {
+                    userBadge.innerHTML = `
+                        <i class="fas fa-user-circle"></i> Guest Mode
+                        <button onclick="showLoginPrompt()" style="margin-left: 10px; padding: 5px 10px; background: var(--accent-techno); color: var(--bg-primary); border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em;">
+                            Login
+                        </button>
+                    `;
+                } else {
+                    userBadge.innerHTML = `
+                        <i class="fas fa-user"></i> ${currentUser.username}
+                        <button onclick="logout()" style="margin-left: 10px; padding: 5px 10px; background: var(--danger); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em;">
+                            Logout
+                        </button>
+                    `;
+                }
+            }
+        }
+
+        /**
+         * Show login prompt
+         */
+        function showLoginPrompt() {
+            const username = prompt('Enter your username:');
+            if (username && username.trim()) {
+                currentUser = {
+                    id: 'user_' + Date.now(),
+                    username: username.trim(),
+                    isGuest: false
+                };
+                isGuestMode = false;
+                localStorage.setItem('haos_user', JSON.stringify(currentUser));
+                updateUserUI();
+                showNotification('<i class="fas fa-check"></i> Welcome!', `Logged in as ${currentUser.username}`);
+            }
+        }
+
+        /**
+         * Logout user
+         */
+        function logout() {
+            if (confirm('Logout? Your queue will be saved locally.')) {
+                localStorage.removeItem('haos_user');
+                currentUser = {
+                    id: 'guest_' + Date.now(),
+                    username: 'Guest',
+                    isGuest: true
+                };
+                isGuestMode = true;
+                updateUserUI();
+                showNotification('<i class="fas fa-info-circle"></i> Logged Out', 'Switched to guest mode');
+            }
+        }
 
         // ============================================
         // STUDIO INTEGRATION
@@ -953,9 +1064,6 @@
         // ARTIST LIBRARY FUNCTIONS
         // ============================================
         
-        let currentArtistIndex = -1;
-        let artistLibrary = [];
-        
         /**
          * Load artist library from localStorage
          */
@@ -984,7 +1092,7 @@
             if (!artistLibrary || artistLibrary.length === 0) {
                 grid.innerHTML = `
                     <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-secondary); font-style: italic;">
-                        <div style="font-size: 3em; margin-bottom: 15px;">🎧</div>
+                        <div style="font-size: 3em; margin-bottom: 15px;"><i class="fas fa-headphones"></i></div>
                         <div>No artists in your library yet!</div>
                         <div style="margin-top: 10px; font-size: 0.9em;">
                             Add favorite artists in <a href="/techno-creator" style="color: var(--accent-techno);">Techno Creator</a> or <a href="/trap-studio" style="color: var(--accent-rap);">Trap Studio</a>
@@ -995,18 +1103,98 @@
             }
             
             grid.innerHTML = artistLibrary.map((artist, index) => `
-                <div class="artist-card" onclick="playArtist(${index})" style="cursor: pointer;">
-                    <div class="artist-image" style="background: linear-gradient(135deg, ${artist.color || '#00ff00'}, ${artist.color2 || '#ff00ff'}); height: 200px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 4em; margin-bottom: 12px;">
-                        ${artist.emoji || '🎵'}
+                <div class="artist-card" style="position: relative;">
+                    <div class="artist-image" style="background: linear-gradient(135deg, ${artist.color || '#00ff00'}, ${artist.color2 || '#ff00ff'}); height: 200px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 4em; margin-bottom: 12px; position: relative;">
+                        ${artist.emoji || '<i class="fas fa-music"></i>'}
+                        <!-- Quick Play Overlay -->
+                        <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;">
+                            <button onclick="event.stopPropagation(); playArtistNow(${index})" 
+                                    style="background: rgba(0,0,0,0.7); border: 2px solid var(--accent-techno); color: var(--accent-techno); padding: 8px 12px; border-radius: 50%; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(5px);" 
+                                    title="Play Now">
+                                <i class="fas fa-play" style="font-size: 1.2em;"></i>
+                            </button>
+                        </div>
                     </div>
                     <h3 style="color: var(--text-primary); margin-bottom: 5px; font-size: 1.1em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${artist.name}">${artist.name}</h3>
-                    <p style="color: var(--text-secondary); font-size: 0.9em; margin-bottom: 8px;">${artist.genre || 'Electronic'}</p>
-                    <div style="display: flex; align-items: center; gap: 5px; color: var(--accent-cyan); font-size: 0.85em;">
-                        <span>▶️</span>
-                        <span>Click to play</span>
+                    <p style="color: var(--text-secondary); font-size: 0.9em; margin-bottom: 12px;">${artist.genre || 'Electronic'}</p>
+                    
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 8px; margin-top: auto;">
+                        <button onclick="playArtist(${index})" 
+                                style="flex: 1; padding: 10px; background: linear-gradient(135deg, var(--accent-techno), var(--accent-cyan)); color: var(--bg-primary); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,255,0,0.4)'"
+                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                            <i class="fas fa-play"></i>
+                            <span>Play</span>
+                        </button>
+                        <button onclick="addArtistToQueue(${index})" 
+                                style="flex: 1; padding: 10px; background: var(--bg-tertiary); color: var(--text-primary); border: 2px solid var(--accent-cyan); border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                onmouseover="this.style.background='var(--accent-cyan)'; this.style.color='var(--bg-primary)'"
+                                onmouseout="this.style.background='var(--bg-tertiary)'; this.style.color='var(--text-primary)'">
+                            <i class="fas fa-plus"></i>
+                            <span>Queue</span>
+                        </button>
                     </div>
+                    
+                    <!-- User Info Badge -->
+                    ${!isGuestMode ? `<div style="margin-top: 8px; padding: 6px; background: rgba(0,255,0,0.1); border-radius: 6px; font-size: 0.75em; color: var(--text-secondary); text-align: center;">
+                        <i class="fas fa-user"></i> Added by ${currentUser.username}
+                    </div>` : ''}
                 </div>
             `).join('');
+        }
+        
+        /**
+         * Play artist immediately (quick play button)
+         */
+        function playArtistNow(index) {
+            playArtist(index);
+            showNotification('<i class="fas fa-play"></i> Playing Now', `${artistLibrary[index].name}`);
+        }
+        
+        /**
+         * Add artist to queue
+         */
+        function addArtistToQueue(index) {
+            if (index < 0 || index >= artistLibrary.length) return;
+            
+            const artist = artistLibrary[index];
+            
+            // Create a track object from artist
+            const track = {
+                title: `${artist.name} - Mix`,
+                artist: artist.name,
+                genre: artist.genre || 'Electronic',
+                url: artist.youtubeUrl || '',
+                duration: 180, // 3 minutes default
+                addedBy: currentUser.username,
+                userId: currentUser.id,
+                timestamp: Date.now(),
+                isArtistTrack: true
+            };
+            
+            // Add to current channel queue
+            const queue = currentChannel === 'techno' ? technoQueue : rapQueue;
+            queue.push(track);
+            
+            // Save to storage
+            saveQueueToStorage();
+            updateQueueUI();
+            
+            // Show notification
+            showNotification(
+                '<i class="fas fa-check"></i> Added to Queue', 
+                `${artist.name} added to ${currentChannel === 'techno' ? 'Techno' : 'Rap'} Radio queue`
+            );
+            
+            // If nothing is playing, offer to start
+            if (!isPlaying && queue.length === 1) {
+                setTimeout(() => {
+                    if (confirm(`Start playing ${artist.name} now?`)) {
+                        playTrack(queue.length - 1);
+                    }
+                }, 500);
+            }
         }
         
         /**
@@ -1044,7 +1232,7 @@
             playerContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
             // Show notification
-            showNotification('🎵 Now Playing', `${artist.name} - ${artist.genre || 'Electronic'}`);
+            showNotification('<i class="fas fa-music"></i> Now Playing', `${artist.name} - ${artist.genre || 'Electronic'}`);
         }
         
         /**
@@ -1260,7 +1448,7 @@
             `;
             
             prompt.innerHTML = `
-                <div style="font-size: 3em; margin-bottom: 15px;">🎵</div>
+                <div style="font-size: 3em; margin-bottom: 15px;"><i class="fas fa-music"></i></div>
                 <div style="margin-bottom: 10px;">Track Added to Queue!</div>
                 <div style="font-size: 0.8em; opacity: 0.9;">Click here or press Play to start listening</div>
             `;
@@ -1525,7 +1713,7 @@
             if (isPlaying) {
                 audio.pause();
                 isPlaying = false;
-                document.getElementById('playPauseBtn').innerHTML = '▶️ Play';
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i> Play';
             } else {
                 // Resume audio context first (handles autoplay policy)
                 resumeAudioContext().then(() => {
@@ -1534,7 +1722,7 @@
                     } else {
                         audio.play().then(() => {
                             isPlaying = true;
-                            document.getElementById('playPauseBtn').innerHTML = '⏸️ Pause';
+                            document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i> Pause';
                         }).catch(err => {
                             console.error('Play error:', err);
                             alert('Unable to play. Please try again.');
@@ -1548,7 +1736,7 @@
                     } else {
                         audio.play();
                         isPlaying = true;
-                        document.getElementById('playPauseBtn').innerHTML = '⏸️ Pause';
+                        document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i> Pause';
                     }
                 });
             }
@@ -1578,7 +1766,7 @@
             audio.src = track.url;
             audio.play().then(() => {
                 isPlaying = true;
-                document.getElementById('playPauseBtn').innerHTML = '⏸️ Pause';
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i> Pause';
                 updateNowPlaying(track);
                 updateQueueUI();
             }).catch(err => {
@@ -1623,7 +1811,7 @@
             } else if (!isRepeat) {
                 audio.pause();
                 isPlaying = false;
-                document.getElementById('playPauseBtn').innerHTML = '▶️ Play';
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i> Play';
             }
         }
 
@@ -1716,7 +1904,7 @@
             if (queue.length === 0) {
                 queueList.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">🎵</div>
+                        <div class="empty-state-icon"><i class="fas fa-music"></i></div>
                         <div class="empty-state-text">No tracks in queue. Upload some tracks to get started!</div>
                     </div>
                 `;
@@ -1731,8 +1919,8 @@
                         <div class="queue-track-meta">${track.artist || 'Unknown'} • ${formatTime(track.duration)}</div>
                     </div>
                     <div class="queue-actions">
-                        <button class="queue-btn" onclick="playTrack(${index})" title="Play">▶️</button>
-                        <button class="queue-btn danger" onclick="removeFromQueue(${index})" title="Remove">🗑️</button>
+                        <button class="queue-btn" onclick="playTrack(${index})" title="Play"><i class="fas fa-play"></i></button>
+                        <button class="queue-btn danger" onclick="removeFromQueue(${index})" title="Remove"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');

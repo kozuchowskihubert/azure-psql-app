@@ -427,7 +427,10 @@ class TR808 {
     }
 }
 
-// Export for use in modules
+// Export for use in ES6 modules
+export default TR808;
+
+// Also support CommonJS for Node.js
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = TR808;
 }

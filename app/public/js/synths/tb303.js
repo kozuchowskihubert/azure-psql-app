@@ -347,7 +347,10 @@ class TB303 {
     }
 }
 
-// Export for use in modules
+// Export for use in ES6 modules
+export default TB303;
+
+// Also support CommonJS for Node.js
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = TB303;
 }

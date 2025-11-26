@@ -17,6 +17,11 @@
     
     <title>🔥 HAOS.fm - Trap Studio | 808 Bass Synthesis Lab</title>
     
+    <!-- Google Fonts - HAOS.fm Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <!-- HAOS.fm Brand CSS -->
     <link rel="stylesheet" href="/css/haos-brand.css">
     
@@ -2025,7 +2030,7 @@
                 
                 <!-- Navigation Buttons -->
                 <a href="/" style="padding: 12px 20px; background: linear-gradient(135deg, var(--haos-oxide-red), var(--haos-groove-orange)); color: var(--haos-vinyl-black); text-decoration: none; border-radius: 10px; font-family: var(--haos-font-mono); font-weight: 700; font-size: 0.9em; transition: all 0.3s; box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4); display: flex; align-items: center; gap: 8px; letter-spacing: 1px;">
-                    <span>🏠</span>
+                    <i class="fas fa-home"></i>
                     <span>HOME</span>
                 </a>
                 
@@ -8167,6 +8172,14 @@ Cmd+Y     - Redo change
         </button>
     </div>
 
+    <!-- Synth Manager (must load first) -->
+    <script type="module" src="/js/synth-manager.js"></script>
+
+    <!-- Modular Synthesizer Modules -->
+    <script type="module" src="/js/synths/tb303.js"></script>
+    <script type="module" src="/js/synths/tr808.js"></script>
+    <script type="module" src="/js/synths/arp2600.js"></script>
+
     <!-- Theme Manager Script -->
     <script src="/js/theme-manager.js"></script>
     <script>
@@ -8176,6 +8189,18 @@ Cmd+Y     - Redo change
             showToast: true
         });
         themeManager.init();
+        
+        // Wait for synth manager to initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.synthManager) {
+                await window.synthManager.init();
+                console.log('🎹 Synth Manager ready in Trap Studio');
+                
+                // Log available presets
+                console.log('📦 TR-808 Presets:', Object.keys(window.synthManager.getTR808Presets()));
+                console.log('📦 TB-303 Presets:', Object.keys(window.synthManager.getTB303Presets()));
+            }
+        });
     </script>
 
 </body>

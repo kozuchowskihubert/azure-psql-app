@@ -17,6 +17,11 @@
     
     <title>⚡ HAOS.fm - Techno Creator | Industrial Synthesis Studio</title>
     
+    <!-- Google Fonts - HAOS.fm Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <!-- HAOS.fm Brand CSS -->
     <link rel="stylesheet" href="/css/haos-brand.css">
     
@@ -117,8 +122,9 @@
                 0 0 30px var(--glow);
             margin-bottom: 10px;
             animation: flicker 3s ease-in-out infinite;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
+            font-family: var(--haos-font-display), 'Bebas Neue', Arial, sans-serif;
+            font-weight: normal;
+            letter-spacing: 2px;
         }
 
         @keyframes flicker {
@@ -1768,12 +1774,12 @@
 
         <!-- Navigation -->
         <div class="nav-menu">
-            <a href="/">🏠 Home</a>
-            <a href="/trap-studio.html">🔥 Trap Studio</a>
-            <a href="/techno-creator.html" style="background: var(--accent-primary); color: var(--bg-primary);">⚡ Techno Creator</a>
-            <a href="/radio.html" style="background: linear-gradient(135deg, #ff00ff, #00ff00); color: #000; font-weight: bold;">📻 Radio 24/7</a>
+            <a href="/"><i class="fas fa-home"></i> Home</a>
+            <a href="/trap-studio.html"><i class="fas fa-fire"></i> Trap Studio</a>
+            <a href="/techno-creator.html" style="background: var(--accent-primary); color: var(--bg-primary);"><i class="fas fa-bolt"></i> Techno Creator</a>
+            <a href="/radio.html" style="background: linear-gradient(135deg, #ff00ff, #00ff00); color: #000; font-weight: bold;"><i class="fas fa-broadcast-tower"></i> Radio 24/7</a>
             <button onclick="openArtistModal()" style="background: linear-gradient(135deg, #ff006e, #8338ec); color: #fff; border: none; padding: 12px 24px; border-radius: 5px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 0, 110, 0.4); transition: all 0.3s;">
-                ⭐ Add Favorite Artist
+                <i class="fas fa-star"></i> Add Favorite Artist
             </button>
         </div>
 
@@ -2930,12 +2936,9 @@
                     📻 Send to Radio
                 </button>
             </div>
-        </div>
-
-        <!-- Tab Content: Generator -->
-        <div id="tab-generator" class="tab-content modern-card">
+            
             <!-- TB-303 ACID BASS SYNTHESIZER -->
-            <h2 style="color: var(--accent-cyan); margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+            <h2 style="color: var(--accent-cyan); margin-bottom: 20px; margin-top: 40px; display: flex; align-items: center; gap: 12px;">
                 <span style="font-size: 1.5em;">🧪</span>
                 TB-303 ACID BASS SYNTHESIZER
             </h2>
@@ -7951,6 +7954,14 @@ ESC       - Close modals`);
         </div>
     </div>
 
+    <!-- Synth Manager (must load first) -->
+    <script type="module" src="/js/synth-manager.js"></script>
+
+    <!-- Modular Synthesizer Modules -->
+    <script type="module" src="/js/synths/tb303.js"></script>
+    <script type="module" src="/js/synths/tr808.js"></script>
+    <script type="module" src="/js/synths/arp2600.js"></script>
+
     <!-- Theme Manager Script -->
     <script src="/js/theme-manager.js"></script>
     <script>
@@ -7960,6 +7971,19 @@ ESC       - Close modals`);
             showToast: true
         });
         themeManager.init();
+        
+        // Wait for synth manager to initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.synthManager) {
+                await window.synthManager.init();
+                console.log('🎹 Synth Manager ready in Techno Creator');
+                
+                // Log available presets
+                console.log('📦 TB-303 Presets:', Object.keys(window.synthManager.getTB303Presets()));
+                console.log('📦 TR-808 Presets:', Object.keys(window.synthManager.getTR808Presets()));
+                console.log('📦 ARP-2600 Presets:', Object.keys(window.synthManager.getARP2600Presets()));
+            }
+        });
     </script>
 
 </body>

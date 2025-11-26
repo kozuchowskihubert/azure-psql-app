@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAOS.fm - Code Velocity Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-green: #39FF14;
+            --neon-cyan: #00FFFF;
+            --neon-pink: #FF10F0;
+            --neon-orange: #FF6B35;
+            --dark-bg: #0A0A0A;
+            --grid-color: rgba(57, 255, 20, 0.1);
+        }
+
+        body {
+            font-family: 'Orbitron', 'Space Mono', monospace;
+            background: linear-gradient(135deg, #0A0A0A 0%, #1a1a2e 50%, #0A0A0A 100%);
+            color: var(--neon-green);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Grid Background */
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridScroll 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes gridScroll {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+        }
+
+        /* Scanline Effect */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                transparent 50%,
+                rgba(0, 255, 0, 0.03) 50%
+            );
+            background-size: 100% 4px;
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes scanline {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            padding: 20px;
+            background: rgba(10, 10, 10, 0.9);
+            border-bottom: 2px solid var(--neon-green);
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.5);
+        }
+
+        .header h1 {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 3em;
+            text-align: center;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-cyan), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 4px;
+            text-shadow: 0 0 30px rgba(57, 255, 20, 0.8);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 5px var(--neon-green)); }
+            50% { filter: drop-shadow(0 0 20px var(--neon-cyan)); }
+        }
+
+        .subtitle {
+            text-align: center;
+            font-family: 'Space Mono', monospace;
+            color: var(--neon-cyan);
+            font-size: 0.9em;
+            letter-spacing: 2px;
+            margin-top: 10px;
+        }
+
+        /* Dashboard Container */
+        .dashboard {
+            position: relative;
+            z-index: 5;
+            max-width: 1600px;
+            margin: 40px auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        /* Speedometer Card */
+        .speedometer-card {
+            background: rgba(10, 10, 10, 0.8);
+            border: 2px solid var(--neon-green);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .speedometer-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(57, 255, 20, 0.05),
+                transparent
+            );
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .card-title {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 1.8em;
+            color: var(--neon-orange);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Main Speedometer */
+        .speedometer {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+        }
+
+        .speed-circle {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .speed-track {
+            stroke: rgba(57, 255, 20, 0.2);
+            fill: none;
+            stroke-width: 20;
+        }
+
+        .speed-progress {
+            stroke: url(#gradient);
+            fill: none;
+            stroke-width: 20;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 0.5s ease;
+            filter: drop-shadow(0 0 10px var(--neon-green));
+        }
+
+        .speed-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .speed-number {
+            font-size: 4em;
+            font-weight: 900;
+            font-family: 'Orbitron', monospace;
+            color: var(--neon-green);
+            text-shadow: 0 0 20px var(--neon-green);
+            line-height: 1;
+        }
+
+        .speed-label {
+            font-size: 0.9em;
+            color: var(--neon-cyan);
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-item:hover {
+            background: rgba(0, 255, 255, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .stat-label {
+            font-size: 0.75em;
+            color: rgba(0, 255, 255, 0.7);
+            margin-top: 5px;
+            letter-spacing: 1px;
+        }
+
+        /* Progress Bars */
+        .progress-section {
+            position: relative;
+            z-index: 1;
+            margin-top: 20px;
+        }
+
+        .progress-item {
+            margin-bottom: 15px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+            color: var(--neon-green);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 25px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--neon-green);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--neon-green);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: progressShine 2s linear infinite;
+        }
+
+        @keyframes progressShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* File List */
+        .file-list {
+            position: relative;
+            z-index: 1;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--neon-pink);
+            border-radius: 10px;
+        }
+
+        .file-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .file-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+        }
+
+        .file-list::-webkit-scrollbar-thumb {
+            background: var(--neon-pink);
+            border-radius: 10px;
+        }
+
+        .file-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(255, 16, 240, 0.05);
+            border-left: 3px solid var(--neon-pink);
+            border-radius: 5px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+
+        .file-item:hover {
+            background: rgba(255, 16, 240, 0.15);
+            transform: translateX(5px);
+        }
+
+        .file-name {
+            color: var(--neon-pink);
+            font-weight: 700;
+        }
+
+        .file-lines {
+            color: var(--neon-cyan);
+            float: right;
+        }
+
+        /* Acceleration Meter */
+        .acceleration-meter {
+            position: relative;
+            height: 60px;
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--neon-orange);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .acceleration-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-orange), var(--neon-pink));
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 20px;
+            font-size: 1.5em;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Refresh Button */
+        .refresh-btn {
+            position: relative;
+            z-index: 1;
+            display: block;
+            margin: 30px auto;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 1.5em;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.5);
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.8);
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .speedometer {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .speed-number {
+                font-size: 3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-background"></div>
+    <div class="scanline"></div>
+
+    <div class="header">
+        <h1><i class="fas fa-code"></i> CODE VELOCITY DASHBOARD</h1>
+        <p class="subtitle">HAOS.fm Live Coding Statistics • Real-Time Metrics</p>
+    </div>
+
+    <div class="dashboard">
+        <!-- Total Lines Speedometer -->
+        <div class="speedometer-card">
+            <h2 class="card-title"><i class="fas fa-tachometer-alt"></i> TOTAL LINES</h2>
+            <div class="speedometer">
+                <svg class="speed-circle" viewBox="0 0 200 200">
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#39FF14;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#00FFFF;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#FF10F0;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <circle class="speed-track" cx="100" cy="100" r="85" />
+                    <circle class="speed-progress" id="totalLinesCircle" cx="100" cy="100" r="85" 
+                            stroke-dasharray="534" stroke-dashoffset="534" />
+                </svg>
+                <div class="speed-value">
+                    <div class="speed-number" id="totalLinesValue">0</div>
+                    <div class="speed-label">LINES</div>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="jsLines">0</div>
+                    <div class="stat-label">JAVASCRIPT</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="htmlLines">0</div>
+                    <div class="stat-label">HTML</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="cssLines">0</div>
+                    <div class="stat-label">CSS</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="pyLines">0</div>
+                    <div class="stat-label">PYTHON</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Acceleration -->
+        <div class="speedometer-card">
+            <h2 class="card-title"><i class="fas fa-rocket"></i> CODE ACCELERATION</h2>
+            <div class="speedometer">
+                <svg class="speed-circle" viewBox="0 0 200 200">
+                    <circle class="speed-track" cx="100" cy="100" r="85" />
+                    <circle class="speed-progress" id="filesCircle" cx="100" cy="100" r="85" 
+                            stroke-dasharray="534" stroke-dashoffset="534" />
+                </svg>
+                <div class="speed-value">
+                    <div class="speed-number" id="totalFiles">0</div>
+                    <div class="speed-label">FILES</div>
+                </div>
+            </div>
+            
+            <div class="acceleration-meter">
+                <div class="acceleration-fill" id="accelerationBar">
+                    <span id="accelerationValue">0</span>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="avgLines">0</div>
+                    <div class="stat-label">AVG/FILE</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="maxLines">0</div>
+                    <div class="stat-label">MAX FILE</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="minLines">0</div>
+                    <div class="stat-label">MIN FILE</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="codeQuality">A+</div>
+                    <div class="stat-label">QUALITY</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Language Breakdown -->
+        <div class="speedometer-card">
+            <h2 class="card-title"><i class="fas fa-chart-pie"></i> LANGUAGE BREAKDOWN</h2>
+            <div class="progress-section">
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>JavaScript</span>
+                        <span id="jsPercent">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="jsBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>HTML</span>
+                        <span id="htmlPercent">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="htmlBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>CSS</span>
+                        <span id="cssPercent">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="cssBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>Python</span>
+                        <span id="pyPercent">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="pyBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>Markdown</span>
+                        <span id="mdPercent">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="mdBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Largest Files -->
+        <div class="speedometer-card">
+            <h2 class="card-title"><i class="fas fa-file-code"></i> TOP FILES</h2>
+            <div class="file-list" id="topFilesList">
+                <div style="text-align: center; color: var(--neon-cyan);">
+                    <i class="fas fa-spinner fa-spin"></i> Calculating...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="calculateStats()">
+        <i class="fas fa-sync-alt"></i> REFRESH STATS
+    </button>
+
+    <script>
+        // Real-time code statistics via API
+        async function calculateStats() {
+            try {
+                // Fetch real data from backend API
+                const response = await fetch('/api/code-stats');
+                const apiData = await response.json();
+                
+                if (!apiData.success) {
+                    throw new Error(apiData.error || 'Failed to fetch stats');
+                }
+                
+                const apiStats = apiData.stats;
+                
+                // Convert API data format to expected format
+                const data = {
+                    files: apiStats.largestFiles || []
+                };
+            
+            // Calculate totals by type (use API data directly)
+            const stats = {
+                js: apiStats.js || 0,
+                html: apiStats.html || 0,
+                css: apiStats.css || 0,
+                py: apiStats.py || 0,
+                md: apiStats.md || 0,
+                total: apiStats.total || 0,
+                files: apiStats.files || 0
+            };
+
+            // Update speedometer
+            animateValue('totalLinesValue', 0, stats.total, 2000);
+            updateCircle('totalLinesCircle', stats.total, 100000);
+
+            // Update file count
+            animateValue('totalFiles', 0, stats.files, 1500);
+            updateCircle('filesCircle', stats.files, 500);
+
+            // Update language stats
+            animateValue('jsLines', 0, stats.js, 1500);
+            animateValue('htmlLines', 0, stats.html, 1500);
+            animateValue('cssLines', 0, stats.css, 1500);
+            animateValue('pyLines', 0, stats.py, 1500);
+
+            // Update percentages
+            updateLanguageBreakdown(stats);
+
+            // Update file statistics
+            const avg = apiStats.avgLinesPerFile || 0;
+            const max = apiStats.maxLines || 0;
+            const min = apiStats.minLines || 0;
+
+            animateValue('avgLines', 0, avg, 1500);
+            animateValue('maxLines', 0, max, 1500);
+            animateValue('minLines', 0, min, 1500);
+
+            // Calculate acceleration (lines per file ratio)
+            const acceleration = Math.min(100, Math.round((avg / 1000) * 100));
+            updateAcceleration(acceleration);
+
+            // Update top files list
+            updateTopFiles(data.files);
+
+            // Update quality
+            const quality = apiStats.quality?.grade || 'A';
+            document.getElementById('codeQuality').textContent = quality;
+                
+            } catch (error) {
+                console.error('Error fetching code stats:', error);
+                // Fallback to default display
+                document.getElementById('topFilesList').innerHTML = `
+                    <div style="text-align: center; color: var(--neon-pink);">
+                        <i class="fas fa-exclamation-triangle"></i><br>
+                        Error loading stats: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function animateValue(id, start, end, duration) {
+            const element = document.getElementById(id);
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.round(current).toLocaleString();
+            }, 16);
+        }
+
+        function updateCircle(id, value, max) {
+            const circle = document.getElementById(id);
+            const circumference = 534;
+            const percent = Math.min(value / max, 1);
+            const offset = circumference - (percent * circumference);
+            
+            setTimeout(() => {
+                circle.style.strokeDashoffset = offset;
+            }, 100);
+        }
+
+        function updateLanguageBreakdown(stats) {
+            const languages = [
+                { name: 'js', value: stats.js },
+                { name: 'html', value: stats.html },
+                { name: 'css', value: stats.css },
+                { name: 'py', value: stats.py },
+                { name: 'md', value: stats.md }
+            ];
+
+            languages.forEach(lang => {
+                const percent = Math.round((lang.value / stats.total) * 100);
+                document.getElementById(`${lang.name}Percent`).textContent = `${percent}%`;
+                setTimeout(() => {
+                    document.getElementById(`${lang.name}Bar`).style.width = `${percent}%`;
+                }, 100);
+            });
+        }
+
+        function updateAcceleration(value) {
+            const bar = document.getElementById('accelerationFill');
+            const valueDisplay = document.getElementById('accelerationValue');
+            
+            setTimeout(() => {
+                bar.style.width = `${value}%`;
+                
+                let current = 0;
+                const timer = setInterval(() => {
+                    current += 2;
+                    if (current >= value) {
+                        current = value;
+                        clearInterval(timer);
+                    }
+                    valueDisplay.textContent = `${current}%`;
+                }, 30);
+            }, 100);
+        }
+
+        function updateTopFiles(files) {
+            const sorted = [...files].sort((a, b) => b.lines - a.lines).slice(0, 10);
+            const list = document.getElementById('topFilesList');
+            
+            list.innerHTML = sorted.map(file => `
+                <div class="file-item">
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-lines">${file.lines.toLocaleString()} lines</span>
+                </div>
+            `).join('');
+        }
+
+        // Auto-calculate on load
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(calculateStats, 500);
+        });
+    </script>
+</body>
+</html>

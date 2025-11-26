@@ -472,7 +472,10 @@ class ARP2600 {
     }
 }
 
-// Export for use in modules
+// Export for use in ES6 modules
+export default ARP2600;
+
+// Also support CommonJS for Node.js
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ARP2600;
 }

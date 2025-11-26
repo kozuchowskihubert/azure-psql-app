@@ -208,6 +208,13 @@ app.use('/', pwaRouter);
  */
 app.use('/api', apiRouter); // /api/notes, /api/health
 
+/**
+ * Code Statistics API
+ * Real-time code metrics for development dashboard
+ */
+const { getCodeStatsHandler } = require('./utils/code-stats');
+app.get('/api/code-stats', getCodeStatsHandler);
+
 // ============================================================================
 // SPA Fallback
 // ============================================================================
