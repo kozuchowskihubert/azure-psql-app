@@ -13,11 +13,15 @@
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/images/haos-logo-white.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/haos-logo-white.png">
     
-    <title>⚡ HAOS.fm - Techno Creator ⚡</title>
+    <title>⚡ HAOS.fm - Techno Creator | Industrial Synthesis Studio</title>
     
     <!-- HAOS.fm Brand CSS -->
     <link rel="stylesheet" href="/css/haos-brand.css">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         * {
@@ -27,27 +31,45 @@
         }
 
         :root {
-            /* HAOS.fm Techno Theme - Vintage Industrial */
+            /* HAOS.fm Techno Theme - Uses Brand Variables */
             --bg-primary: var(--haos-vinyl-black);
             --bg-secondary: var(--haos-tape-brown);
-            --bg-tertiary: #2a2a2a;
+            --bg-tertiary: #1a1410;
             --accent-primary: var(--haos-acid-green);
             --accent-secondary: var(--haos-groove-orange);
             --accent-cyan: var(--haos-909-cyan);
-            --text-primary: #00ff00;
-            --text-secondary: #00cc00;
-            --success: #00ff00;
+            --accent-gold: var(--haos-turntable-gold);
+            --accent-magenta: #FF1493;
+            --text-primary: var(--haos-acid-green);
+            --text-secondary: var(--haos-sepia-cream);
+            --success: var(--haos-acid-green);
             --warning: #ffff00;
-            --border: #333;
-            --glow: rgba(0, 255, 0, 0.5);
+            --border: var(--haos-dust-gray);
+            --glow: rgba(57, 255, 20, 0.5);
         }
 
         body {
-            font-family: 'Courier New', monospace;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-            color: var(--text-primary);
+            font-family: var(--haos-font-body);
+            background: linear-gradient(135deg, var(--haos-vinyl-black) 0%, var(--haos-tape-brown) 50%, var(--haos-vinyl-black) 100%);
+            color: var(--haos-sepia-cream);
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Vinyl texture overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+            opacity: 0.03;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 1;
         }
 
         /* Animated Scanline Effect */
@@ -147,29 +169,53 @@
             box-shadow: 0 0 20px var(--glow);
         }
 
-        /* Tool Sections */
+        /* Tool Sections with HAOS Styling */
         .tool-section {
-            background: var(--bg-secondary);
-            border: 2px solid var(--accent-primary);
-            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(74, 60, 46, 0.4), rgba(10, 10, 10, 0.6));
+            border: 2px solid transparent;
+            border-radius: 16px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 
-                0 0 20px rgba(0, 255, 0, 0.2),
-                inset 0 0 20px rgba(0, 255, 0, 0.05);
+            box-shadow: var(--haos-shadow-lg);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tool-section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--haos-groove-orange), var(--haos-turntable-gold), var(--haos-acid-green));
+            border-radius: 16px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        .tool-section:hover::before {
+            opacity: 0.6;
         }
 
         .tool-section h2 {
-            color: var(--accent-primary);
+            font-family: var(--haos-font-display);
+            color: var(--haos-turntable-gold);
             margin-bottom: 15px;
-            font-size: 1.8em;
-            text-shadow: 0 0 10px var(--glow);
+            font-size: 2em;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         .tool-section h3 {
-            color: var(--accent-cyan);
+            font-family: var(--haos-font-display);
+            color: var(--haos-909-cyan);
             margin: 20px 0 10px 0;
-            font-size: 1.3em;
+            font-size: 1.4em;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         /* Form Controls */
@@ -213,39 +259,51 @@
             box-shadow: 0 0 10px var(--glow);
         }
 
-        /* Buttons */
+        /* Buttons with HAOS Styling */
         .btn {
             padding: 12px 30px;
-            background: linear-gradient(135deg, var(--accent-primary), #00cc00);
-            color: var(--bg-primary);
+            background: linear-gradient(135deg, var(--haos-groove-orange), #FF8C42);
+            color: var(--haos-vinyl-black);
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 1em;
             font-weight: bold;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
-            font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+            font-family: var(--haos-font-display);
             margin: 5px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px var(--glow);
+            box-shadow: 0 6px 25px rgba(255, 107, 53, 0.6);
+            background: linear-gradient(135deg, #FF8C42, var(--haos-groove-orange));
         }
 
         .btn-secondary {
-            background: linear-gradient(135deg, var(--bg-tertiary), var(--border));
-            color: var(--text-primary);
-            border: 1px solid var(--accent-primary);
+            background: linear-gradient(135deg, rgba(74, 60, 46, 0.6), rgba(26, 20, 16, 0.8));
+            color: var(--haos-sepia-cream);
+            border: 1px solid var(--haos-turntable-gold);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, rgba(74, 60, 46, 0.8), rgba(26, 20, 16, 0.9));
+            border-color: var(--haos-groove-orange);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
         }
 
         .btn-magenta {
-            background: linear-gradient(135deg, var(--accent-secondary), #cc00cc);
+            background: linear-gradient(135deg, #FF1493, #CC1177);
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
         }
 
         .btn-cyan {
-            background: linear-gradient(135deg, var(--accent-cyan), #00cccc);
+            background: linear-gradient(135deg, var(--haos-909-cyan), #00B8D4);
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.4);
         }
 
         /* Output Box */
@@ -1566,35 +1624,52 @@
         <span id="modeText">BASIC MODE</span>
     </div>
 
-    <!-- Modern Header -->
-    <div class="header" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%); border-bottom: 3px solid var(--accent-primary); padding: 25px 20px;">
+    <!-- Modern Header with HAOS Branding -->
+    <div class="header" style="background: linear-gradient(135deg, rgba(10, 10, 10, 0.95) 0%, rgba(74, 60, 46, 0.95) 50%, rgba(10, 10, 10, 0.95) 100%); border-bottom: 3px solid var(--haos-groove-orange); padding: 25px 20px; backdrop-filter: blur(10px); box-shadow: var(--haos-shadow-lg);">
         <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1800px; margin: 0 auto; flex-wrap: wrap; gap: 20px;">
+            <!-- Logo and Title -->
             <div style="flex: 1;">
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                    <div style="width: 4px; height: 60px; background: linear-gradient(180deg, var(--accent-primary), var(--accent-cyan)); border-radius: 2px;"></div>
-                    <div>
-                        <h1 style="font-size: 2.8em; margin: 0; background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">TECHNO STUDIO</h1>
-                        <p style="margin: 5px 0 0 0; color: var(--text-secondary); font-size: 0.95em; letter-spacing: 3px;">PROFESSIONAL PRODUCTION SUITE</p>
+                    <a href="/" style="text-decoration: none;">
+                        <img src="/images/haos-logo-white.png" alt="HAOS.fm" style="height: 50px; width: auto; filter: drop-shadow(0 0 15px rgba(255, 107, 53, 0.6));">
+                    </a>
+                    <div style="border-left: 4px solid var(--haos-groove-orange); padding-left: 15px;">
+                        <h1 class="haos-display-md" style="margin: 0; background: linear-gradient(135deg, var(--haos-acid-green), var(--haos-909-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                            TECHNO STUDIO
+                        </h1>
+                        <p class="haos-mono" style="margin: 5px 0 0 0; color: var(--haos-sepia-cream); font-size: 0.75rem; letter-spacing: 3px;">
+                            INDUSTRIAL SYNTHESIS • 303 ACID • T78 STYLE
+                        </p>
                     </div>
                 </div>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-left: 19px;">
-                    <span class="status-dot active"></span>
-                    <span style="font-size: 0.85em; color: var(--accent-primary);">HARD</span>
-                    <span style="color: var(--border);">•</span>
-                    <span style="font-size: 0.85em; color: var(--accent-cyan);">ACID</span>
-                    <span style="color: var(--border);">•</span>
-                    <span style="font-size: 0.85em; color: var(--accent-secondary);">MINIMAL</span>
-                    <span style="color: var(--border);">•</span>
-                    <span style="font-size: 0.85em; color: var(--accent-primary);">INDUSTRIAL</span>
-                    <span style="color: var(--border);">•</span>
-                    <span style="font-size: 0.85em; color: var(--accent-cyan);">DUB</span>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-left: 69px;">
+                    <span style="width: 8px; height: 8px; background: var(--haos-acid-green); border-radius: 50%; box-shadow: 0 0 10px var(--haos-acid-green); animation: pulse-dot 2s infinite;"></span>
+                    <span class="haos-label">HARD</span>
+                    <span style="color: var(--haos-dust-gray);">•</span>
+                    <span class="haos-label">ACID</span>
+                    <span style="color: var(--haos-dust-gray);">•</span>
+                    <span class="haos-label">MINIMAL</span>
+                    <span style="color: var(--haos-dust-gray);">•</span>
+                    <span class="haos-label">INDUSTRIAL</span>
+                    <span style="color: var(--haos-dust-gray);">•</span>
+                    <span class="haos-label">DUB</span>
                 </div>
             </div>
+            
+            <!-- Navigation Icons -->
             <div style="display: flex; gap: 12px; align-items: center;">
-                <button id="theme-toggle" class="icon-btn" data-tooltip="Toggle Theme" aria-label="Toggle theme">
+                <a href="/" class="icon-btn" data-tooltip="← Back to Home" style="padding: 12px 16px; background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(212, 175, 55, 0.2)); border: 1px solid var(--haos-groove-orange); border-radius: 8px; color: var(--haos-sepia-cream); text-decoration: none; transition: all 0.3s;">
+                    <i class="fas fa-home" style="margin-right: 8px;"></i>HOME
+                </a>
+                <button id="theme-toggle" class="icon-btn" data-tooltip="Toggle Theme" aria-label="Toggle theme" style="padding: 12px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--haos-turntable-gold); border-radius: 8px; cursor: pointer;">
                     <i class="fas fa-moon"></i>
                 </button>
-                <button class="icon-btn" data-tooltip="Settings" onclick="showTechnoNotification('⚙️ Settings coming soon!')">
+                <button class="icon-btn" data-tooltip="Settings" onclick="showTechnoNotification('⚙️ Settings coming soon!')" style="padding: 12px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--haos-turntable-gold); border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+    </div>
                     <i class="fas fa-cog"></i>
                 </button>
                 <button class="icon-btn" data-tooltip="Help" onclick="toggleGuidance()">
