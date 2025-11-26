@@ -2934,7 +2934,246 @@
 
         <!-- Tab Content: Generator -->
         <div id="tab-generator" class="tab-content modern-card">
-            <!-- Generator content will go here -->
+            <!-- TB-303 ACID BASS SYNTHESIZER -->
+            <h2 style="color: var(--accent-cyan); margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 1.5em;">🧪</span>
+                TB-303 ACID BASS SYNTHESIZER
+            </h2>
+            <p style="color: var(--text-secondary); margin-bottom: 25px;">
+                Classic Roland TB-303 Bass Line emulation (Behringer TD-3 style) • Create squelchy acid basslines
+            </p>
+
+            <!-- 303 Sequencer Section -->
+            <div class="collapsible-header active" onclick="toggleCollapsible(this)" style="margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2em;">🎹</span>
+                    <h3 style="margin: 0; color: var(--accent-primary);">ACID SEQUENCER (16 STEPS)</h3>
+                </div>
+                <span class="collapsible-icon">▼</span>
+            </div>
+            <div class="collapsible-content active" style="margin-bottom: 25px;">
+                <div style="padding: 20px; background: var(--bg-primary); border-radius: 8px;">
+                    
+                    <!-- Pattern Controls -->
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+                        <button class="btn-modern" onclick="play303Pattern()">▶️ Play Acid</button>
+                        <button class="btn btn-secondary" onclick="stop303Pattern()">⏹️ Stop</button>
+                        <button class="btn btn-cyan" onclick="randomize303()">🎲 Randomize</button>
+                        <button class="btn btn-magenta" onclick="clear303()">🗑️ Clear</button>
+                        
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="color: var(--text-secondary);">Tempo:</label>
+                            <input type="number" id="acid303Bpm" value="130" min="60" max="200" style="width: 70px; padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); border-radius: 5px;">
+                            <span style="color: var(--text-secondary);">BPM</span>
+                        </div>
+                    </div>
+
+                    <!-- 303 Step Grid -->
+                    <div id="acid303Grid" style="display: grid; grid-template-columns: repeat(16, 1fr); gap: 8px; margin-bottom: 25px;">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Note and Parameter Controls per Step -->
+                    <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <h4 style="color: var(--accent-cyan); margin-bottom: 15px;">SELECTED STEP CONTROLS</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            
+                            <div>
+                                <label style="color: var(--text-secondary); display: block; margin-bottom: 8px;">
+                                    Note <span id="selected303Step" style="color: var(--accent-primary);">#1</span>
+                                </label>
+                                <select id="acid303Note" onchange="update303Note()" style="width: 100%; padding: 10px; background: var(--bg-primary); border: 1px solid var(--accent-primary); color: var(--text-primary); border-radius: 5px;">
+                                    <option value="C2">C2 (65Hz)</option>
+                                    <option value="C#2">C#2 (69Hz)</option>
+                                    <option value="D2">D2 (73Hz)</option>
+                                    <option value="D#2">D#2 (78Hz)</option>
+                                    <option value="E2">E2 (82Hz)</option>
+                                    <option value="F2">F2 (87Hz)</option>
+                                    <option value="F#2">F#2 (92Hz)</option>
+                                    <option value="G2">G2 (98Hz)</option>
+                                    <option value="G#2">G#2 (104Hz)</option>
+                                    <option value="A2">A2 (110Hz)</option>
+                                    <option value="A#2">A#2 (117Hz)</option>
+                                    <option value="B2">B2 (123Hz)</option>
+                                    <option value="C3" selected>C3 (131Hz)</option>
+                                    <option value="C#3">C#3 (139Hz)</option>
+                                    <option value="D3">D3 (147Hz)</option>
+                                    <option value="D#3">D#3 (156Hz)</option>
+                                    <option value="E3">E3 (165Hz)</option>
+                                    <option value="F3">F3 (175Hz)</option>
+                                    <option value="F#3">F#3 (185Hz)</option>
+                                    <option value="G3">G3 (196Hz)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style="color: var(--text-secondary); display: block; margin-bottom: 8px;">
+                                    <input type="checkbox" id="acid303Accent" onchange="update303Accent()" style="margin-right: 8px;">
+                                    Accent (Emphasis)
+                                </label>
+                                <label style="color: var(--text-secondary); display: block; margin-bottom: 8px;">
+                                    <input type="checkbox" id="acid303Slide" onchange="update303Slide()" style="margin-right: 8px;">
+                                    Slide (Glide to next note)
+                                </label>
+                                <label style="color: var(--text-secondary); display: block; margin-bottom: 8px;">
+                                    <input type="checkbox" id="acid303Gate" onchange="update303Gate()" style="margin-right: 8px;">
+                                    Long Gate (Sustained)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 303 Synth Parameters -->
+            <div class="collapsible-header active" onclick="toggleCollapsible(this)" style="margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2em;">🎛️</span>
+                    <h3 style="margin: 0; color: var(--accent-primary);">SYNTHESIZER CONTROLS</h3>
+                </div>
+                <span class="collapsible-icon">▼</span>
+            </div>
+            <div class="collapsible-content active" style="margin-bottom: 25px;">
+                <div style="padding: 20px; background: var(--bg-primary); border-radius: 8px;">
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px;">
+                        
+                        <!-- VCF SECTION -->
+                        <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 8px; border: 2px solid var(--accent-cyan);">
+                            <h4 style="color: var(--accent-cyan); margin-bottom: 15px; text-align: center;">🔊 VCF (FILTER)</h4>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                                    Cutoff Frequency
+                                </label>
+                                <input type="range" id="acid303Cutoff" min="100" max="8000" value="800" step="10" 
+                                       oninput="update303Synth('cutoff', this.value)"
+                                       style="width: 100%;">
+                                <span id="acid303CutoffVal" style="color: var(--accent-cyan); font-weight: bold; font-size: 1.1em;">800 Hz</span>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                                    Resonance (Q)
+                                </label>
+                                <input type="range" id="acid303Resonance" min="0" max="30" value="15" step="0.5" 
+                                       oninput="update303Synth('resonance', this.value)"
+                                       style="width: 100%;">
+                                <span id="acid303ResonanceVal" style="color: var(--accent-cyan); font-weight: bold; font-size: 1.1em;">15.0</span>
+                            </div>
+                            
+                            <div>
+                                <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                                    Envelope Amount
+                                </label>
+                                <input type="range" id="acid303EnvMod" min="0" max="100" value="70" 
+                                       oninput="update303Synth('envMod', this.value)"
+                                       style="width: 100%;">
+                                <span id="acid303EnvModVal" style="color: var(--accent-cyan); font-weight: bold; font-size: 1.1em;">70%</span>
+                            </div>
+                        </div>
+
+                        <!-- VCA / ENVELOPE -->
+                        <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 8px; border: 2px solid var(--accent-primary);">
+                            <h4 style="color: var(--accent-primary); margin-bottom: 15px; text-align: center;">⚡ ENVELOPE</h4>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                                    Decay Time
+                                </label>
+                                <input type="range" id="acid303Decay" min="0.01" max="2.0" value="0.3" step="0.01" 
+                                       oninput="update303Synth('decay', this.value)"
+                                       style="width: 100%;">
+                                <span id="acid303DecayVal" style="color: var(--accent-primary); font-weight: bold; font-size: 1.1em;">0.30s</span>
+                            </div>
+                            
+                            <div>
+                                <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                                    Accent Level
+                                </label>
+                                <input type="range" id="acid303AccentLevel" min="0" max="100" value="50" 
+                                       oninput="update303Synth('accentLevel', this.value)"
+                                       style="width: 100%;">
+                                <span id="acid303AccentLevelVal" style="color: var(--accent-primary); font-weight: bold; font-size: 1.1em;">50%</span>
+                            </div>
+                        </div>
+
+                        <!-- WAVEFORM & TUNING -->
+                        <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 8px; border: 2px solid var(--accent-secondary);">
+                            <h4 style="color: var(--accent-secondary); margin-bottom: 15px; text-align: center;">🎵 OSCILLATOR</h4>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                                    Waveform
+                                </label>
+                                <select id="acid303Wave" onchange="update303Synth('waveform', this.value)" 
+                                        style="width: 100%; padding: 10px; background: var(--bg-primary); border: 1px solid var(--accent-secondary); color: var(--text-primary); border-radius: 5px;">
+                                    <option value="sawtooth" selected>Sawtooth (Classic)</option>
+                                    <option value="square">Square (Alternative)</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                                    Tuning (Fine)
+                                </label>
+                                <input type="range" id="acid303Tune" min="-100" max="100" value="0" 
+                                       oninput="update303Synth('tuning', this.value)"
+                                       style="width: 100%;">
+                                <span id="acid303TuneVal" style="color: var(--accent-secondary); font-weight: bold; font-size: 1.1em;">0 cents</span>
+                            </div>
+                            
+                            <div>
+                                <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                                    Volume
+                                </label>
+                                <input type="range" id="acid303Volume" min="0" max="100" value="70" 
+                                       oninput="update303Synth('volume', this.value)"
+                                       style="width: 100%;">
+                                <span id="acid303VolumeVal" style="color: var(--accent-secondary); font-weight: bold; font-size: 1.1em;">70%</span>
+                            </div>
+                        </div>
+
+                        <!-- DISTORTION & EFFECTS -->
+                        <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 8px; border: 2px solid #ff00ff;">
+                            <h4 style="color: #ff00ff; margin-bottom: 15px; text-align: center;">🔥 EFFECTS</h4>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                                    Distortion
+                                </label>
+                                <input type="range" id="acid303Distortion" min="0" max="100" value="20" 
+                                       oninput="update303Synth('distortion', this.value)"
+                                       style="width: 100%;">
+                                <span id="acid303DistortionVal" style="color: #ff00ff; font-weight: bold; font-size: 1.1em;">20%</span>
+                            </div>
+                            
+                            <div>
+                                <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                                    Delay Mix
+                                </label>
+                                <input type="range" id="acid303Delay" min="0" max="100" value="0" 
+                                       oninput="update303Synth('delay', this.value)"
+                                       style="width: 100%;">
+                                <span id="acid303DelayVal" style="color: #ff00ff; font-weight: bold; font-size: 1.1em;">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 303 Preset Patterns -->
+                    <div style="margin-top: 30px; padding-top: 25px; border-top: 2px solid var(--border);">
+                        <h4 style="color: var(--accent-cyan); margin-bottom: 15px;">🎹 CLASSIC ACID PATTERNS</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                            <button class="btn btn-secondary" onclick="load303Pattern('classic303')">🧪 Classic 303</button>
+                            <button class="btn btn-secondary" onclick="load303Pattern('squelch')">💦 Squelchy</button>
+                            <button class="btn btn-secondary" onclick="load303Pattern('driving')">⚡ Driving Bass</button>
+                            <button class="btn btn-secondary" onclick="load303Pattern('minimal')">⬜ Minimal</button>
+                            <button class="btn btn-secondary" onclick="load303Pattern('acidhouse')">🏠 Acid House</button>
+                            <button class="btn btn-secondary" onclick="load303Pattern('psy')">🌀 Psy Trance</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Tab Content: Synthesis (2600 Patching) -->
@@ -5553,6 +5792,355 @@
                 `;
             }).join('');
         }
+
+        // ============================================
+        // TB-303 ACID BASS SYNTHESIZER
+        // ============================================
+        
+        // 303 State
+        let acid303Pattern = [];
+        let acid303CurrentStep = 0;
+        let acid303IsPlaying = false;
+        let acid303Interval = null;
+        let acid303Synth = {
+            cutoff: 800,
+            resonance: 15,
+            envMod: 70,
+            decay: 0.3,
+            accentLevel: 50,
+            waveform: 'sawtooth',
+            tuning: 0,
+            volume: 70,
+            distortion: 20,
+            delay: 0
+        };
+
+        // Initialize 303 Pattern (16 steps)
+        function init303Pattern() {
+            acid303Pattern = Array(16).fill(null).map(() => ({
+                active: false,
+                note: 'C3',
+                accent: false,
+                slide: false,
+                gate: false
+            }));
+            render303Grid();
+        }
+
+        // Render 303 Step Grid
+        function render303Grid() {
+            const grid = document.getElementById('acid303Grid');
+            if (!grid) return;
+            
+            grid.innerHTML = acid303Pattern.map((step, index) => `
+                <div onclick="toggle303Step(${index})"
+                     style="position: relative; aspect-ratio: 1; background: ${step.active ? 'linear-gradient(135deg, var(--accent-primary), var(--accent-cyan))' : 'var(--bg-tertiary)'}; 
+                            border: 2px solid ${index === acid303CurrentStep && acid303IsPlaying ? '#ffff00' : 'var(--border)'}; 
+                            border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;
+                            transition: all 0.2s; box-shadow: ${step.active ? '0 4px 15px rgba(0, 255, 0, 0.3)' : 'none'};">
+                    <div style="font-size: 0.9em; font-weight: bold; color: ${step.active ? '#000' : 'var(--text-secondary)'};margin-bottom: 4px;">
+                        ${index + 1}
+                    </div>
+                    ${step.active ? `
+                        <div style="font-size: 0.75em; color: #000; font-weight: bold;">${step.note}</div>
+                        <div style="display: flex; gap: 2px; margin-top: 4px;">
+                            ${step.accent ? '<span style="font-size: 0.65em; background: #ff0000; color: white; padding: 2px 4px; border-radius: 3px;">A</span>' : ''}
+                            ${step.slide ? '<span style="font-size: 0.65em; background: #00ff00; color: black; padding: 2px 4px; border-radius: 3px;">S</span>' : ''}
+                            ${step.gate ? '<span style="font-size: 0.65em; background: #0000ff; color: white; padding: 2px 4px; border-radius: 3px;">G</span>' : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Toggle 303 Step
+        function toggle303Step(index) {
+            acid303Pattern[index].active = !acid303Pattern[index].active;
+            acid303CurrentStep = index;
+            render303Grid();
+            updateStepControls(index);
+        }
+
+        // Update Step Controls UI
+        function updateStepControls(index) {
+            document.getElementById('selected303Step').textContent = `#${index + 1}`;
+            document.getElementById('acid303Note').value = acid303Pattern[index].note;
+            document.getElementById('acid303Accent').checked = acid303Pattern[index].accent;
+            document.getElementById('acid303Slide').checked = acid303Pattern[index].slide;
+            document.getElementById('acid303Gate').checked = acid303Pattern[index].gate;
+        }
+
+        // Update Note for Current Step
+        function update303Note() {
+            const step = acid303CurrentStep;
+            acid303Pattern[step].note = document.getElementById('acid303Note').value;
+            render303Grid();
+        }
+
+        function update303Accent() {
+            const step = acid303CurrentStep;
+            acid303Pattern[step].accent = document.getElementById('acid303Accent').checked;
+            render303Grid();
+        }
+
+        function update303Slide() {
+            const step = acid303CurrentStep;
+            acid303Pattern[step].slide = document.getElementById('acid303Slide').checked;
+            render303Grid();
+        }
+
+        function update303Gate() {
+            const step = acid303CurrentStep;
+            acid303Pattern[step].gate = document.getElementById('acid303Gate').checked;
+            render303Grid();
+        }
+
+        // Update 303 Synth Parameters
+        function update303Synth(param, value) {
+            acid303Synth[param] = parseFloat(value);
+            
+            // Update display values
+            const displays = {
+                cutoff: 'acid303CutoffVal',
+                resonance: 'acid303ResonanceVal',
+                envMod: 'acid303EnvModVal',
+                decay: 'acid303DecayVal',
+                accentLevel: 'acid303AccentLevelVal',
+                tuning: 'acid303TuneVal',
+                volume: 'acid303VolumeVal',
+                distortion: 'acid303DistortionVal',
+                delay: 'acid303DelayVal'
+            };
+            
+            const suffixes = {
+                cutoff: ' Hz',
+                resonance: '',
+                envMod: '%',
+                decay: 's',
+                accentLevel: '%',
+                tuning: ' cents',
+                volume: '%',
+                distortion: '%',
+                delay: '%'
+            };
+            
+            if (displays[param]) {
+                const el = document.getElementById(displays[param]);
+                if (el) {
+                    el.textContent = value + (suffixes[param] || '');
+                }
+            }
+        }
+
+        // Play 303 Pattern
+        function play303Pattern() {
+            if (!audioContext) initAudio();
+            
+            acid303IsPlaying = true;
+            acid303CurrentStep = 0;
+            
+            const bpm = parseInt(document.getElementById('acid303Bpm')?.value || 130);
+            const stepTime = (60 / bpm) * 1000 / 4; // 16th notes
+            
+            if (acid303Interval) clearInterval(acid303Interval);
+            
+            acid303Interval = setInterval(() => {
+                const step = acid303Pattern[acid303CurrentStep];
+                
+                if (step.active) {
+                    play303Note(step, audioContext.currentTime);
+                }
+                
+                acid303CurrentStep = (acid303CurrentStep + 1) % 16;
+                render303Grid();
+            }, stepTime);
+            
+            console.log('🧪 303 Acid Bass Playing!');
+        }
+
+        // Stop 303 Pattern
+        function stop303Pattern() {
+            acid303IsPlaying = false;
+            if (acid303Interval) {
+                clearInterval(acid303Interval);
+                acid303Interval = null;
+            }
+            acid303CurrentStep = 0;
+            render303Grid();
+            console.log('⏹️ 303 Stopped');
+        }
+
+        // Play Individual 303 Note
+        function play303Note(step, time) {
+            if (!audioContext) return;
+            
+            // Note to frequency conversion
+            const noteFreqs = {
+                'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78, 'E2': 82.41, 'F2': 87.31,
+                'F#2': 92.50, 'G2': 98.00, 'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47,
+                'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81, 'F3': 174.61,
+                'F#3': 185.00, 'G3': 196.00
+            };
+            
+            const baseFreq = noteFreqs[step.note] || 130.81;
+            const freq = baseFreq * Math.pow(2, acid303Synth.tuning / 1200); // Apply tuning
+            
+            // VCO (Oscillator)
+            const osc = audioContext.createOscillator();
+            osc.type = acid303Synth.waveform;
+            osc.frequency.setValueAtTime(freq, time);
+            
+            // VCF (Filter)
+            const filter = audioContext.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.Q.setValueAtTime(acid303Synth.resonance, time);
+            
+            // Envelope modulation on filter
+            const envelopeAmount = (acid303Synth.envMod / 100) * (acid303Synth.cutoff * 2);
+            const accentMultiplier = step.accent ? (1 + acid303Synth.accentLevel / 100) : 1;
+            const peakCutoff = Math.min(acid303Synth.cutoff + (envelopeAmount * accentMultiplier), 8000);
+            
+            filter.frequency.setValueAtTime(peakCutoff, time);
+            filter.frequency.exponentialRampToValueAtTime(acid303Synth.cutoff, time + acid303Synth.decay);
+            
+            // VCA (Envelope)
+            const gainNode = audioContext.createGain();
+            const baseGain = (acid303Synth.volume / 100) * 0.3;
+            const accentedGain = baseGain * accentMultiplier;
+            const gateTime = step.gate ? 0.25 : 0.1;
+            
+            gainNode.gain.setValueAtTime(accentedGain, time);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, time + gateTime);
+            
+            // Distortion
+            let currentNode = filter;
+            if (acid303Synth.distortion > 0) {
+                const distortion = audioContext.createWaveShaper();
+                const amount = acid303Synth.distortion / 100;
+                const k = amount * 100;
+                const samples = 44100;
+                const curve = new Float32Array(samples);
+                for (let i = 0; i < samples; i++) {
+                    const x = (i * 2 / samples) - 1;
+                    curve[i] = (3 + k) * x * 20 * (Math.PI / 180) / (Math.PI + k * Math.abs(x));
+                }
+                distortion.curve = curve;
+                distortion.oversample = '4x';
+                currentNode.connect(distortion);
+                currentNode = distortion;
+            }
+            
+            // Connect chain
+            osc.connect(filter);
+            currentNode.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Start & Stop
+            osc.start(time);
+            osc.stop(time + gateTime + 0.1);
+        }
+
+        // Randomize 303
+        function randomize303() {
+            const notes = ['C2', 'C#2', 'D2', 'D#2', 'E2', 'F2', 'F#2', 'G2', 'G#2', 'A2', 'A#2', 'B2', 'C3', 'D3', 'E3', 'F3'];
+            acid303Pattern.forEach((step, i) => {
+                step.active = Math.random() > 0.4;
+                step.note = notes[Math.floor(Math.random() * notes.length)];
+                step.accent = Math.random() > 0.7;
+                step.slide = Math.random() > 0.85;
+                step.gate = Math.random() > 0.6;
+            });
+            render303Grid();
+            console.log('🎲 303 Pattern Randomized');
+        }
+
+        // Clear 303
+        function clear303() {
+            init303Pattern();
+            console.log('🗑️ 303 Pattern Cleared');
+        }
+
+        // Load 303 Preset Patterns
+        function load303Pattern(patternName) {
+            const patterns = {
+                'classic303': {
+                    steps: [
+                        { active: true, note: 'C3', accent: true, slide: false, gate: false },
+                        { active: false, note: 'C3', accent: false, slide: false, gate: false },
+                        { active: true, note: 'D#3', accent: false, slide: true, gate: false },
+                        { active: false, note: 'C3', accent: false, slide: false, gate: false },
+                        { active: true, note: 'C3', accent: false, slide: false, gate: false },
+                        { active: false, note: 'C3', accent: false, slide: false, gate: false },
+                        { active: true, note: 'G3', accent: true, slide: false, gate: true },
+                        { active: false, note: 'C3', accent: false, slide: false, gate: false },
+                        { active: true, note: 'C3', accent: false, slide: false, gate: false },
+                        { active: false, note: 'C3', accent: false, slide: false, gate: false },
+                        { active: true, note: 'D#3', accent: false, slide: true, gate: false },
+                        { active: false, note: 'C3', accent: false, slide: false, gate: false },
+                        { active: true, note: 'C3', accent: true, slide: false, gate: false },
+                        { active: false, note: 'C3', accent: false, slide: false, gate: false },
+                        { active: true, note: 'D3', accent: false, slide: false, gate: false },
+                        { active: false, note: 'C3', accent: false, slide: false, gate: false }
+                    ]
+                },
+                'squelch': {
+                    steps: Array(16).fill(null).map((_, i) => ({
+                        active: i % 2 === 0,
+                        note: ['C3', 'E3', 'G3', 'C3', 'F3', 'A#2', 'G3', 'C3'][i % 8],
+                        accent: i % 4 === 0,
+                        slide: i % 3 === 1,
+                        gate: false
+                    }))
+                },
+                'driving': {
+                    steps: Array(16).fill(null).map((_, i) => ({
+                        active: true,
+                        note: 'C3',
+                        accent: i % 4 === 0,
+                        slide: false,
+                        gate: i % 2 === 0
+                    }))
+                },
+                'minimal': {
+                    steps: Array(16).fill(null).map((_, i) => ({
+                        active: [0, 4, 8, 12].includes(i),
+                        note: 'C3',
+                        accent: i === 0,
+                        slide: false,
+                        gate: true
+                    }))
+                },
+                'acidhouse': {
+                    steps: Array(16).fill(null).map((_, i) => ({
+                        active: ![1, 5, 9, 13].includes(i),
+                        note: ['C3', 'D#3', 'F3', 'G3'][i % 4],
+                        accent: i % 8 === 0,
+                        slide: i % 5 === 2,
+                        gate: false
+                    }))
+                },
+                'psy': {
+                    steps: Array(16).fill(null).map((_, i) => ({
+                        active: true,
+                        note: ['C3', 'D3', 'E3', 'D3'][i % 4],
+                        accent: i % 3 === 0,
+                        slide: i % 4 === 3,
+                        gate: i % 2 === 1
+                    }))
+                }
+            };
+            
+            if (patterns[patternName]) {
+                acid303Pattern = patterns[patternName].steps;
+                render303Grid();
+                console.log(`🧪 Loaded 303 pattern: ${patternName}`);
+            }
+        }
+
+        // Initialize 303 on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            init303Pattern();
+        });
 
         // ============================================
         // KICK PATTERN VARIATIONS
