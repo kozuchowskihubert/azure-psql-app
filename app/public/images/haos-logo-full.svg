@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="800" height="300">
+  <defs>
+    <!-- Gradient for vinyl record -->
+    <radialGradient id="vinylGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#0a0a0a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Gradient for gold accents -->
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F4E8A0;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#D4AF37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B8960C;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Glow effect for orange elements -->
+    <filter id="orangeGlow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Vinyl Record Base -->
+  <g id="vinylRecord">
+    <!-- Outer ring -->
+    <circle cx="150" cy="150" r="130" fill="url(#vinylGradient)" stroke="url(#goldGradient)" stroke-width="3"/>
+    
+    <!-- Groove circles (multiple rings) -->
+    <circle cx="150" cy="150" r="120" fill="none" stroke="#1a1a1a" stroke-width="1" opacity="0.6"/>
+    <circle cx="150" cy="150" r="110" fill="none" stroke="#1a1a1a" stroke-width="1" opacity="0.5"/>
+    <circle cx="150" cy="150" r="100" fill="none" stroke="#1a1a1a" stroke-width="1" opacity="0.4"/>
+    <circle cx="150" cy="150" r="90" fill="none" stroke="#1a1a1a" stroke-width="1" opacity="0.3"/>
+    <circle cx="150" cy="150" r="80" fill="none" stroke="#1a1a1a" stroke-width="1" opacity="0.2"/>
+    
+    <!-- Label area (inner circle) -->
+    <circle cx="150" cy="150" r="50" fill="#FF6B35" opacity="0.9"/>
+    
+    <!-- Center hole -->
+    <circle cx="150" cy="150" r="15" fill="#0a0a0a" stroke="url(#goldGradient)" stroke-width="2"/>
+    
+    <!-- Waveform cutting through vinyl -->
+    <g id="waveform" filter="url(#orangeGlow)">
+      <path d="M 30,150 Q 40,120 50,150 T 70,150 Q 80,180 90,150 T 110,150 Q 120,120 130,150 T 150,150" 
+            fill="none" stroke="#FF6B35" stroke-width="4" stroke-linecap="round"/>
+      <path d="M 150,150 Q 160,180 170,150 T 190,150 Q 200,120 210,150 T 230,150 Q 240,180 250,150 T 270,150" 
+            fill="none" stroke="#FF6B35" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    
+    <!-- Grooves spiral effect (decorative lines) -->
+    <g opacity="0.15">
+      <circle cx="150" cy="150" r="115" fill="none" stroke="#fff" stroke-width="0.5"/>
+      <circle cx="150" cy="150" r="105" fill="none" stroke="#fff" stroke-width="0.5"/>
+      <circle cx="150" cy="150" r="95" fill="none" stroke="#fff" stroke-width="0.5"/>
+      <circle cx="150" cy="150" r="85" fill="none" stroke="#fff" stroke-width="0.5"/>
+      <circle cx="150" cy="150" r="75" fill="none" stroke="#fff" stroke-width="0.5"/>
+      <circle cx="150" cy="150" r="65" fill="none" stroke="#fff" stroke-width="0.5"/>
+    </g>
+  </g>
+  
+  <!-- HAOS Text -->
+  <g id="haosText">
+    <text x="320" y="120" font-family="'Bebas Neue', Arial, sans-serif" font-size="110" font-weight="bold" fill="#FF6B35" filter="url(#orangeGlow)">HAOS</text>
+    
+    <!-- Underline/accent -->
+    <rect x="320" y="135" width="280" height="4" fill="url(#goldGradient)" rx="2"/>
+  </g>
+  
+  <!-- .fm Text -->
+  <g id="fmText">
+    <text x="610" y="120" font-family="'Bebas Neue', Arial, sans-serif" font-size="110" font-weight="bold" fill="url(#goldGradient)">.fm</text>
+  </g>
+  
+  <!-- Tagline -->
+  <g id="tagline">
+    <text x="320" y="170" font-family="'Space Mono', 'Courier New', monospace" font-size="16" fill="#F4E8D8" letter-spacing="2">HARDWARE ANALOG OSCILLATOR SYNTHESIS</text>
+  </g>
+  
+  <!-- Decorative elements -->
+  <g id="decorations" opacity="0.6">
+    <!-- Left bracket -->
+    <path d="M 310,90 L 300,90 L 300,180 L 310,180" fill="none" stroke="url(#goldGradient)" stroke-width="2"/>
+    
+    <!-- Right bracket -->
+    <path d="M 770,90 L 780,90 L 780,180 L 770,180" fill="none" stroke="url(#goldGradient)" stroke-width="2"/>
+    
+    <!-- Small accent dots -->
+    <circle cx="295" cy="135" r="3" fill="#FF6B35"/>
+    <circle cx="785" cy="135" r="3" fill="#FF6B35"/>
+  </g>
+  
+  <!-- Subtitle/descriptor -->
+  <g id="subtitle">
+    <text x="150" y="250" font-family="'Inter', Arial, sans-serif" font-size="14" fill="#6B6B6B" text-anchor="middle" letter-spacing="1">WHERE CHAOS BECOMES CREATION</text>
+  </g>
+  
+  <!-- Version/est marker (optional detail) -->
+  <g id="versionMarker" opacity="0.4">
+    <text x="750" y="190" font-family="'VT323', monospace" font-size="12" fill="#D4AF37">EST.2025</text>
+  </g>
+</svg>

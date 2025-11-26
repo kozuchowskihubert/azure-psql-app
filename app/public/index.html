@@ -3,402 +3,352 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Creative Studio Hub - Music Production & Productivity Suite</title>
+    <title>HAOS.fm - Hardware Analog Oscillator Synthesis | Where Chaos Becomes Creation</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="description" content="Professional music production studio with trap, techno, synthesizers, notes, Excel, and collaboration tools - all in one platform!">
-    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="HAOS.fm - Professional vintage-inspired music production platform. Craft techno, trap, and experimental sounds with authentic analog synthesis and hardware-inspired controls.">
+    <meta name="theme-color" content="#FF6B35">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <!-- Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/haos-logo-white.png">
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png">
+    <link rel="icon" type="image/png" href="/images/haos-logo-white.png">
     
     <!-- External Resources -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- HAOS.fm Brand CSS -->
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    
     <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #1a1a2e; }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 10px; }
+        /* HAOS.fm Landing Page Styles */
         
-        /* Animations */
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
-        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.5); } 50% { box-shadow: 0 0 40px rgba(102, 126, 234, 0.8); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        
-        .animate-float { animation: float 6s ease-in-out infinite; }
-        .animate-glow { animation: glow 3s ease-in-out infinite; }
-        .animate-slide-up { animation: slideUp 0.6s ease-out forwards; }
-        .animate-fade-in { animation: fadeIn 0.8s ease-out; }
-        .animate-pulse-slow { animation: pulse 3s ease-in-out infinite; }
-        
-        /* Gradient Backgrounds */
-        .gradient-purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .gradient-fire { background: linear-gradient(135deg, #ff2e63 0%, #ff6b9d 100%); }
-        .gradient-cyber { background: linear-gradient(135deg, #00ff41 0%, #00d4ff 100%); }
-        .gradient-gold { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); }
-        .gradient-dark { background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); }
-        
-        /* Card Hover Effects */
-        .feature-card {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
+        /* Custom Scrollbar - Vintage Style */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: var(--haos-vinyl-black); }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, var(--haos-groove-orange), var(--haos-turntable-gold)); 
+            border-radius: 6px; 
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--haos-groove-orange);
         }
         
-        .feature-card::before {
-            content: '';
+        /* Additional vintage effects specific to landing page */
+        body {
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Vinyl scratch overlay */
+        .vinyl-scratch {
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii45IiBudW1PY3RhdmVzPSI0IiB0eXBlPSJmcmFjdGFsTm9pc2UiLz48ZmVDb2xvck1hdHJpeCB0eXBlPSJzYXR1cmF0ZSIgdmFsdWVzPSIwIi8+PGZlQ29tcG9uZW50VHJhbnNmZXI+PGZlRnVuY0EgdHlwZT0iZGlzY3JldGUiIHRhYmxlVmFsdWVzPSIwIDAuNSAxIi8+PC9mZUNvbXBvbmVudFRyYW5zZmVyPjwvZmlsdGVyPjwvZGVmcz48cmVjdCB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDMiLz48L3N2Zz4=');
             position: absolute;
             top: 0;
-            left: -100%;
+            left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: left 0.5s;
+            opacity: 0.02;
+            pointer-events: none;
+            mix-blend-mode: overlay;
         }
         
-        .feature-card:hover::before { left: 100%; }
-        .feature-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        
-        /* Category Headers */
-        .category-header {
-            background: linear-gradient(90deg, rgba(102,126,234,0.1), transparent);
-            border-left: 4px solid #667eea;
+        /* Animated waveform */
+        @keyframes waveform-pulse {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.2); }
         }
         
-        /* Glass morphism */
-        .glass {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .waveform-bar {
+            animation: waveform-pulse 1s ease-in-out infinite;
         }
         
-        /* Badge */
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
+        .waveform-bar:nth-child(2) { animation-delay: 0.1s; }
+        .waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+        .waveform-bar:nth-child(4) { animation-delay: 0.3s; }
+        .waveform-bar:nth-child(5) { animation-delay: 0.4s; }
+        
+        /* Logo glow effect */
+        .logo-glow {
+            filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.6));
         }
         
-        .badge-new { background: linear-gradient(135deg, #00ff41, #00d4ff); color: #000; }
-        .badge-hot { background: linear-gradient(135deg, #ff2e63, #ff6b9d); color: #fff; }
-        .badge-pro { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; }
-        
-        /* Hero Section */
-        .hero-pattern {
-            background-image: 
-                radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+        /* Rotating vinyl animation */
+        @keyframes vinyl-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         
-        /* ============================================
-           DARK MODE / LIGHT MODE THEME
-           ============================================ */
-        
-        :root {
-            /* Dark mode (default) */
-            --bg-primary: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            --bg-secondary: rgba(255, 255, 255, 0.1);
-            --text-primary: #ffffff;
-            --text-secondary: #9ca3af;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --card-bg: rgba(255, 255, 255, 0.1);
-            --hover-bg: rgba(255, 255, 255, 0.2);
+        .vinyl-rotating {
+            animation: vinyl-rotate 8s linear infinite;
         }
         
-        body.light-mode {
-            /* Light mode colors */
-            --bg-primary: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 50%, #dde3ef 100%);
-            --bg-secondary: rgba(0, 0, 0, 0.05);
-            --text-primary: #1a202c;
-            --text-secondary: #4a5568;
-            --border-color: rgba(0, 0, 0, 0.1);
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --hover-bg: rgba(0, 0, 0, 0.1);
+        /* Vintage scanlines (optional - can be toggled) */
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 0, 0, 0.05) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
         }
         
-        body.light-mode {
-            background: var(--bg-primary) !important;
-            color: var(--text-primary) !important;
+        /* Equipment rack meter animation */
+        @keyframes vu-bounce {
+            0%, 100% { width: 20%; }
+            50% { width: 85%; }
         }
         
-        body.light-mode .glass {
-            background: var(--card-bg);
-            border-color: var(--border-color);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        body.light-mode .text-gray-400 {
-            color: var(--text-secondary) !important;
-        }
-        
-        body.light-mode .feature-card {
-            background: rgba(255, 255, 255, 0.95);
-            color: var(--text-primary);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-        
-        body.light-mode .feature-card:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-        }
-        
-        body.light-mode h1, 
-        body.light-mode h2, 
-        body.light-mode h3, 
-        body.light-mode h4 {
-            color: var(--text-primary) !important;
-        }
-        
-        body.light-mode .category-header {
-            background: linear-gradient(90deg, rgba(102,126,234,0.15), transparent);
-        }
-        
-        /* Theme toggle button animation */
-        #theme-toggle i {
-            transition: transform 0.3s ease;
-        }
-        
-        #theme-toggle:hover i {
-            transform: rotate(20deg);
-        }
-        
-        body.light-mode #theme-toggle i::before {
-            content: "\f185"; /* Sun icon */
+        .vu-animate {
+            animation: vu-bounce 2s ease-in-out infinite;
         }
     </style>
 </head>
-<body class="bg-gradient-dark text-white min-h-screen">
+<body class="haos-theme">
+    <div class="vinyl-scratch"></div>
 
     <!-- ============================================================================
-         NAVIGATION HEADER
+         NAVIGATION HEADER - HAOS.fm BRANDED
          ============================================================================ -->
-    <header class="glass sticky top-0 z-50 border-b border-white/10">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 gradient-purple rounded-lg flex items-center justify-center animate-pulse-slow">
-                        <i class="fas fa-music text-white text-lg"></i>
-                    </div>
+    <header class="haos-card-glass sticky top-0 z-50" style="backdrop-filter: blur(20px);">
+        <div class="haos-container">
+            <div class="flex items-center justify-between h-20">
+                <!-- HAOS.fm Logo -->
+                <div class="flex items-center space-x-4">
+                    <img src="/images/haos-logo-white.png" alt="HAOS.fm" class="h-10 vinyl-rotating logo-glow" style="width: auto;">
                     <div>
-                        <h1 class="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            Creative Studio Hub
+                        <h1 class="haos-display-sm haos-text-gradient-orange" style="font-size: 1.5rem; line-height: 1;">
+                            HAOS.fm
                         </h1>
-                        <p class="text-xs text-gray-400">Pro Music & Productivity</p>
+                        <p class="haos-mono" style="font-size: 0.65rem; color: var(--haos-dust-gray); letter-spacing: 0.15em;">
+                            HARDWARE ANALOG OSCILLATOR SYNTHESIS
+                        </p>
                     </div>
                 </div>
                 
-                <!-- Quick Actions -->
-                <nav class="hidden md:flex items-center space-x-2">
-                    <a href="#music" class="px-4 py-2 rounded-lg hover:bg-white/10 transition-colors">
-                        <i class="fas fa-music mr-2"></i>Music
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="#studios" class="haos-label hover:text-orange-400 transition-colors">
+                        <i class="fas fa-sliders-h mr-2"></i>STUDIOS
                     </a>
-                    <a href="#productivity" class="px-4 py-2 rounded-lg hover:bg-white/10 transition-colors">
-                        <i class="fas fa-briefcase mr-2"></i>Productivity
+                    <a href="#radio" class="haos-label hover:text-orange-400 transition-colors">
+                        <i class="fas fa-broadcast-tower mr-2"></i>RADIO
                     </a>
-                    <a href="#tools" class="px-4 py-2 rounded-lg hover:bg-white/10 transition-colors">
-                        <i class="fas fa-tools mr-2"></i>Tools
+                    <a href="#tools" class="haos-label hover:text-orange-400 transition-colors">
+                        <i class="fas fa-toolbox mr-2"></i>TOOLS
                     </a>
-                    <button id="theme-toggle" class="px-4 py-2 rounded-lg hover:bg-white/10 transition-colors">
-                        <i class="fas fa-moon"></i>
-                    </button>
+                    <span class="haos-badge haos-badge-new">EST. 2025</span>
                 </nav>
                 
                 <!-- Mobile Menu -->
-                <button class="md:hidden px-3 py-2 rounded-lg hover:bg-white/10">
-                    <i class="fas fa-bars text-xl"></i>
+                <button class="md:hidden haos-btn-secondary px-4 py-2">
+                    <i class="fas fa-bars"></i>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- ============================================================================
-         HERO SECTION
+         HERO SECTION - VINTAGE VINYL AESTHETIC
          ============================================================================ -->
-    <section class="hero-pattern py-20 px-4">
-        <div class="container mx-auto text-center">
-            <div class="animate-slide-up">
-                <h1 class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
-                    Your Creative Studio
-                </h1>
-                <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-                    Professional music production, beat making, synthesizers, and productivity tools - all in one powerful platform
-                </p>
-                <div class="flex flex-wrap justify-center gap-4">
-                    <a href="/music-creator.html" class="gradient-purple px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform animate-glow">
-                        🎛️ Launch Music Creator
-                    </a>
-                    <a href="#music" class="gradient-fire px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform">
-                        🔥 Browse Studios
-                    </a>
-                    <a href="/radio.html" class="glass px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform">
-                        📻 Radio 24/7
-                    </a>
-                </div>
+    <section class="haos-section" style="background: linear-gradient(180deg, var(--haos-vinyl-black) 0%, var(--haos-tape-brown) 100%); position: relative; overflow: hidden;">
+        <!-- Animated waveform background -->
+        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; display: flex; align-items: flex-end; justify-content: center; gap: 4px; opacity: 0.1;">
+            <div class="waveform-bar" style="width: 8px; height: 60%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 80%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 40%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 90%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 70%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 50%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 85%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 65%; background: var(--haos-groove-orange);"></div>
+        </div>
+        
+        <div class="haos-container text-center haos-slide-up" style="position: relative; z-index: 10;">
+            <!-- Main Logo - Your Custom PNG -->
+            <div class="mb-8" style="max-width: 800px; margin: 0 auto;">
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm - Hardware Analog Oscillator Synthesis" class="w-full logo-glow" style="max-width: 600px; margin: 0 auto;">
             </div>
             
-            <!-- Stats -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-4xl mx-auto">
-                <div class="glass p-6 rounded-xl">
-                    <div class="text-4xl font-bold gradient-fire bg-clip-text text-transparent">10+</div>
-                    <div class="text-sm text-gray-400 mt-2">Music Tools</div>
-                </div>
-                <div class="glass p-6 rounded-xl">
-                    <div class="text-4xl font-bold gradient-cyber bg-clip-text text-transparent">5+</div>
-                    <div class="text-sm text-gray-400 mt-2">Synthesizers</div>
-                </div>
-                <div class="glass p-6 rounded-xl">
-                    <div class="text-4xl font-bold gradient-gold bg-clip-text text-transparent">24/7</div>
-                    <div class="text-sm text-gray-400 mt-2">Live Radio</div>
-                </div>
-                <div class="glass p-6 rounded-xl">
-                    <div class="text-4xl font-bold gradient-purple bg-clip-text text-transparent">∞</div>
-                    <div class="text-sm text-gray-400 mt-2">Possibilities</div>
+            <h2 class="haos-display-md haos-text-gradient-gold mb-4">
+                WHERE CHAOS BECOMES CREATION
+            </h2>
+            
+            <p class="haos-body-lg mb-8 max-w-3xl mx-auto" style="color: var(--haos-sepia-cream);">
+                Craft thunderous techno, experimental trap, and raw electronic sound with authentic analog-inspired synthesis. 
+                <br>From oscillator to dance floor.
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <a href="/music-creator.html" class="haos-btn haos-btn-primary">
+                    🎛️ FIRE IT UP
+                </a>
+                <a href="/techno-creator.html" class="haos-btn haos-btn-gold">
+                    ⚡ TECHNO CREATOR
+                </a>
+                <a href="/radio.html" class="haos-btn haos-btn-secondary">
+                    📻 RADIO 24/7
+                </a>
+            </div>
+
+            </div>
+            
+            
+            <!-- Stats - Equipment Rack Style -->
+            <div class="haos-rack" style="max-width: 900px; margin: var(--haos-space-3xl) auto 0;">
+                <div class="haos-rack-strip"></div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 85%;"></div>
+                        </div>
+                        <div class="haos-display-md haos-text-gradient-orange">10+</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream);">SYNTHESIS TOOLS</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 75%; animation-delay: 0.2s;"></div>
+                        </div>
+                        <div class="haos-display-md haos-text-gradient-orange">5+</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream);">ANALOG OSCILLATORS</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 100%; animation-delay: 0.4s;"></div>
+                        </div>
+                        <div class="haos-display-md haos-text-gradient-orange">24/7</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream);">LIVE BROADCAST</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 95%; animation-delay: 0.6s;"></div>
+                        </div>
+                        <div class="haos-display-md haos-text-gradient-orange">∞</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream);">SONIC CHAOS</div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- ============================================================================
-         MAIN CONTENT
+         SYNTHESIS STUDIOS
          ============================================================================ -->
-    <main class="container mx-auto px-4 py-12">
+    <main class="haos-container py-12">
 
         <!-- ========================================================================
-             MUSIC PRODUCTION SECTION
+             PRODUCTION STUDIOS - EQUIPMENT RACK
              ======================================================================== -->
-        <section id="music" class="mb-20">
-            <div class="category-header p-6 rounded-xl mb-8">
-                <h2 class="text-3xl font-bold mb-2">
-                    <i class="fas fa-music mr-3 text-purple-400"></i>Music Production Studios
+        <section id="studios" class="haos-section">
+            <div class="text-center mb-12">
+                <h2 class="haos-display-lg haos-text-gradient-gold mb-4">
+                    <i class="fas fa-sliders-h mr-3"></i>SYNTHESIS STUDIOS
                 </h2>
-                <p class="text-gray-400">Professional beat making, synthesis, and audio production tools</p>
+                <p class="haos-body-lg" style="color: var(--haos-sepia-cream);">
+                    Hardware-inspired tools for raw electronic sound creation
+                </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="haos-grid haos-grid-3">
                 
-                <!-- Music Creator Hub - FEATURED -->
-                <a href="/music-creator.html" class="feature-card glass p-6 rounded-2xl block group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl"></div>
-                    <div class="flex items-start justify-between mb-4 relative z-10">
-                        <div class="w-16 h-16 gradient-purple rounded-xl flex items-center justify-center text-3xl animate-pulse-slow">
-                            🎛️
-                        </div>
-                        <span class="badge badge-new">Start Here!</span>
+                <!-- Music Creator Hub -->
+                <a href="/music-creator.html" class="haos-studio-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="haos-vinyl-icon">🎛️</div>
+                        <span class="haos-badge haos-badge-new">START HERE</span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-2 group-hover:text-purple-400 transition-colors relative z-10">
-                        Music Creator Hub
+                    <h3 class="haos-display-sm haos-text-orange mb-3">
+                        MUSIC CREATOR HUB
                     </h3>
-                    <p class="text-gray-400 mb-4 relative z-10">
-                        Choose your experience level and studio type. Perfect for beginners to advanced producers!
+                    <p class="haos-body" style="color: var(--haos-sepia-cream); margin-bottom: var(--haos-space-md);">
+                        All-in-one production suite. Choose your path from beginner to pro with modular workflow.
                     </p>
-                    <div class="flex flex-wrap gap-2 relative z-10">
-                        <span class="text-xs px-2 py-1 bg-purple-500/20 rounded-full">All Modes</span>
-                        <span class="text-xs px-2 py-1 bg-purple-500/20 rounded-full">Beginner-Friendly</span>
-                        <span class="text-xs px-2 py-1 bg-purple-500/20 rounded-full">Modular System</span>
-                        <span class="text-xs px-2 py-1 bg-purple-500/20 rounded-full">Pro Tools</span>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="haos-tag">ALL MODES</span>
+                        <span class="haos-tag">MODULAR</span>
+                        <span class="haos-tag">BEGINNER-FRIENDLY</span>
                     </div>
                 </a>
                 
                 <!-- Trap Studio -->
-                <a href="/trap-studio.html" class="feature-card glass p-6 rounded-2xl block group">
+                <a href="/trap-studio.html" class="haos-studio-card">
                     <div class="flex items-start justify-between mb-4">
-                        <div class="w-16 h-16 gradient-fire rounded-xl flex items-center justify-center text-3xl animate-float">
-                            🔥
-                        </div>
-                        <span class="badge badge-hot">Hot</span>
+                        <div class="haos-vinyl-icon">🔥</div>
+                        <span class="haos-badge haos-badge-hot">HOT</span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-2 group-hover:text-pink-400 transition-colors">
-                        Trap Studio
+                    <h3 class="haos-display-sm haos-text-orange mb-3">
+                        TRAP STUDIO
                     </h3>
-                    <p class="text-gray-400 mb-4">
-                        Professional trap beat maker with 808s, patterns, intelligent beat generator, and DAW timeline
+                    <p class="haos-body" style="color: var(--haos-sepia-cream); margin-bottom: var(--haos-space-md);">
+                        808 bass destruction, pattern sequencing, and intelligent beat generation. Pure trap energy.
                     </p>
                     <div class="flex flex-wrap gap-2">
-                        <span class="text-xs px-2 py-1 bg-red-500/20 rounded-full">808 Bass</span>
-                        <span class="text-xs px-2 py-1 bg-red-500/20 rounded-full">Drum Patterns</span>
-                        <span class="text-xs px-2 py-1 bg-red-500/20 rounded-full">AI Generator</span>
-                        <span class="text-xs px-2 py-1 bg-red-500/20 rounded-full">Timeline</span>
+                        <span class="haos-tag">808 BASS</span>
+                        <span class="haos-tag">PATTERNS</span>
+                        <span class="haos-tag">AI GENERATOR</span>
                     </div>
                 </a>
 
                 <!-- Techno Creator -->
-                <a href="/techno-creator.html" class="feature-card glass p-6 rounded-2xl block group">
+                <a href="/techno-creator.html" class="haos-studio-card">
                     <div class="flex items-start justify-between mb-4">
-                        <div class="w-16 h-16 gradient-cyber rounded-xl flex items-center justify-center text-3xl animate-float" style="animation-delay: 0.2s">
-                            ⚡
-                        </div>
-                        <span class="badge badge-hot">Hot</span>
+                        <div class="haos-vinyl-icon">⚡</div>
+                        <span class="haos-badge haos-badge-hot">HOT</span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-2 group-hover:text-cyan-400 transition-colors">
-                        Techno Creator
+                    <h3 class="haos-display-sm haos-text-orange mb-3">
+                        TECHNO CREATOR
                     </h3>
-                    <p class="text-gray-400 mb-4">
-                        Industrial techno production with acid synthesis, sequencer, and intelligent pattern generation
+                    <p class="haos-body" style="color: var(--haos-sepia-cream); margin-bottom: var(--haos-space-md);">
+                        Industrial acid synthesis, 16-step sequencer, T78-style hard driving techno. Raw and relentless.
                     </p>
                     <div class="flex flex-wrap gap-2">
-                        <span class="text-xs px-2 py-1 bg-green-500/20 rounded-full">Acid Lines</span>
-                        <span class="text-xs px-2 py-1 bg-green-500/20 rounded-full">Sequencer</span>
-                        <span class="text-xs px-2 py-1 bg-green-500/20 rounded-full">AI Generator</span>
-                        <span class="text-xs px-2 py-1 bg-green-500/20 rounded-full">7 Styles</span>
+                        <span class="haos-tag">303 ACID</span>
+                        <span class="haos-tag">SEQUENCER</span>
+                        <span class="haos-tag">T78 STYLE</span>
                     </div>
                 </a>
 
-                <!-- 2600 Studio -->
-                <a href="/synth-2600-studio.html" class="feature-card glass p-6 rounded-2xl block group">
+                <!-- ARP 2600 Studio -->
+                <a href="/synth-2600-studio.html" class="haos-studio-card">
                     <div class="flex items-start justify-between mb-4">
-                        <div class="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center text-3xl animate-float" style="animation-delay: 0.4s">
-                            🎛️
-                        </div>
-                        <span class="badge badge-pro">Pro</span>
+                        <div class="haos-vinyl-icon">�️</div>
+                        <span class="haos-badge haos-badge-pro">PRO</span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-2 group-hover:text-cyan-400 transition-colors">
-                        ARP 2600 Studio
+                    <h3 class="haos-display-sm haos-text-orange mb-3">
+                        ARP 2600 STUDIO
                     </h3>
-                    <p class="text-gray-400 mb-4">
-                        Legendary analog synthesizer emulation with patch bay, sequencer, and preset browser
+                    <p class="haos-body" style="color: var(--haos-sepia-cream); margin-bottom: var(--haos-space-md);">
+                        Legendary analog modular synthesis. Patch bay, oscillators, filters. Vintage soul, modern power.
                     </p>
                     <div class="flex flex-wrap gap-2">
-                        <span class="text-xs px-2 py-1 bg-cyan-500/20 rounded-full">Modular</span>
-                        <span class="text-xs px-2 py-1 bg-cyan-500/20 rounded-full">Patch Bay</span>
-                        <span class="text-xs px-2 py-1 bg-cyan-500/20 rounded-full">Sequencer</span>
-                        <span class="text-xs px-2 py-1 bg-cyan-500/20 rounded-full">Presets</span>
+                        <span class="haos-tag">MODULAR</span>
+                        <span class="haos-tag">PATCH BAY</span>
+                        <span class="haos-tag">ANALOG</span>
                     </div>
                 </a>
 
                 <!-- Radio 24/7 -->
-                <a href="/radio.html" class="feature-card glass p-6 rounded-2xl block group">
+                <a href="/radio.html" class="haos-studio-card">
                     <div class="flex items-start justify-between mb-4">
-                        <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-500 rounded-xl flex items-center justify-center text-3xl animate-float" style="animation-delay: 0.6s">
-                            📻
-                        </div>
-                        <span class="badge badge-new">Live</span>
+                        <div class="haos-vinyl-icon">📻</div>
+                        <span class="haos-badge haos-badge-new">LIVE</span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-2 group-hover:text-pink-400 transition-colors">
-                        Radio 24/7
+                    <h3 class="haos-display-sm haos-text-orange mb-3">
+                        RADIO 24/7
                     </h3>
-                    <p class="text-gray-400 mb-4">
-                        Continuous music streaming with playlist, queue system, and direct exports from studios
+                    <p class="haos-body" style="color: var(--haos-sepia-cream); margin-bottom: var(--haos-space-md);">
+                        Non-stop streaming with live visualization. Direct studio exports. Always broadcasting chaos.
                     </p>
                     <div class="flex flex-wrap gap-2">
-                        <span class="text-xs px-2 py-1 bg-pink-500/20 rounded-full">Live Stream</span>
-                        <span class="text-xs px-2 py-1 bg-pink-500/20 rounded-full">Playlist</span>
-                        <span class="text-xs px-2 py-1 bg-pink-500/20 rounded-full">Visualizer</span>
-                        <span class="text-xs px-2 py-1 bg-pink-500/20 rounded-full">Queue</span>
+                        <span class="haos-tag">LIVE</span>
+                        <span class="haos-tag">PLAYLIST</span>
+                        <span class="haos-tag">VISUALIZER</span>
                     </div>
-                </a>
-
-                <!-- Collab Studio -->
+                </a>                <!-- Collab Studio -->
                 <a href="/collab-studio.html" class="feature-card glass p-6 rounded-2xl block group">
                     <div class="flex items-start justify-between mb-4">
                         <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-3xl animate-float" style="animation-delay: 0.8s">
