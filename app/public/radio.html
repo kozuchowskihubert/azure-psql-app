@@ -747,6 +747,45 @@
             </div>
         </div>
 
+        <!-- Artist Library Section -->
+        <div class="upload-section" id="artistLibrarySection">
+            <h2>⭐ YOUR ARTIST LIBRARY</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Play music from your favorite artists added in Techno Creator or Trap Studio
+            </p>
+            
+            <!-- Current Playing Artist -->
+            <div id="currentArtistPlayer" style="display: none; margin-bottom: 25px; background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 2px solid var(--accent-techno);">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    <span>🎵</span>
+                    <span>Now Playing from Library</span>
+                </h3>
+                <div id="youtubePlayerContainer" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 15px;">
+                    <iframe id="youtubePlayer" 
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
+                    <button class="control-btn" onclick="playPreviousArtist()">⏮️ Previous</button>
+                    <button class="control-btn" onclick="stopArtistPlayback()">⏹️ Stop</button>
+                    <button class="control-btn" onclick="playNextArtist()">⏭️ Next</button>
+                </div>
+            </div>
+
+            <!-- Artist Grid -->
+            <div id="artistLibraryGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-secondary); font-style: italic;">
+                    <div style="font-size: 3em; margin-bottom: 15px;">🎧</div>
+                    <div>No artists in your library yet!</div>
+                    <div style="margin-top: 10px; font-size: 0.9em;">
+                        Add favorite artists in <a href="/techno-creator" style="color: var(--accent-techno);">Techno Creator</a> or <a href="/trap-studio" style="color: var(--accent-rap);">Trap Studio</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Queue Section -->
         <div class="queue-section">
             <div class="queue-header">
@@ -792,6 +831,7 @@
             loadQueueFromStorage();
             updateUI();
             setupStudioIntegration();
+            loadArtistLibrary();
         });
 
         // ============================================
