@@ -1742,20 +1742,26 @@
     <div class="container">
         <!-- Mode Selector -->
         <div class="mode-selector" id="modeSelector">
-            <div class="mode-tab active" data-mode="basic" onclick="switchMode('basic')">
+            <div class="mode-tab active" data-mode="basic" onclick="switchMode('basic')" title="Perfect for beginners - Essential controls only">
                 <span class="mode-icon">🎯</span>
-                <span class="mode-name">BASIC</span>
-                <span class="mode-desc">Essential controls</span>
+                <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                    <span class="mode-name">BASIC</span>
+                    <span class="mode-desc">Essential controls • Quick start</span>
+                </div>
             </div>
-            <div class="mode-tab" data-mode="pro" onclick="switchMode('pro')">
+            <div class="mode-tab" data-mode="pro" onclick="switchMode('pro')" title="For intermediate producers - Advanced synthesis controls">
                 <span class="mode-icon">🎛️</span>
-                <span class="mode-name">PRO</span>
-                <span class="mode-desc">Production tools</span>
+                <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                    <span class="mode-name">PRO</span>
+                    <span class="mode-desc">Production tools • More parameters</span>
+                </div>
             </div>
-            <div class="mode-tab" data-mode="advanced" onclick="switchMode('advanced')">
+            <div class="mode-tab" data-mode="advanced" onclick="switchMode('advanced')" title="For experts - Full modular synthesis control">
                 <span class="mode-icon">⚡</span>
-                <span class="mode-name">ADVANCED</span>
-                <span class="mode-desc">Full control</span>
+                <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                    <span class="mode-name">ADVANCED</span>
+                    <span class="mode-desc">Full control • All features unlocked</span>
+                </div>
             </div>
         </div>
 
@@ -1765,6 +1771,9 @@
             <a href="/trap-studio.html">🔥 Trap Studio</a>
             <a href="/techno-creator.html" style="background: var(--accent-primary); color: var(--bg-primary);">⚡ Techno Creator</a>
             <a href="/radio.html" style="background: linear-gradient(135deg, #ff00ff, #00ff00); color: #000; font-weight: bold;">📻 Radio 24/7</a>
+            <button onclick="openArtistModal()" style="background: linear-gradient(135deg, #ff006e, #8338ec); color: #fff; border: none; padding: 12px 24px; border-radius: 5px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 0, 110, 0.4); transition: all 0.3s;">
+                ⭐ Add Favorite Artist
+            </button>
         </div>
 
         <!-- Modern Tab Navigation -->
@@ -4881,7 +4890,202 @@
         window.addEventListener('DOMContentLoaded', () => {
             const savedMode = localStorage.getItem('techno-creator-mode') || 'basic';
             switchMode(savedMode);
+            
+            // Load saved artists
+            updateArtistList();
         });
+
+        // ============================================
+        // ARTIST MODAL & RADIO 24/7 INTEGRATION
+        // ============================================
+        
+        function openArtistModal() {
+            const modal = document.getElementById('artistModal');
+            modal.style.display = 'flex';
+            updateArtistList();
+        }
+        
+        function closeArtistModal() {
+            const modal = document.getElementById('artistModal');
+            modal.style.display = 'none';
+            
+            // Clear form
+            document.getElementById('artistName').value = '';
+            document.getElementById('artistGenre').selectedIndex = 0;
+            document.getElementById('artistYoutubeLink').value = '';
+        }
+        
+        function saveArtist() {
+            const name = document.getElementById('artistName').value.trim();
+            const genre = document.getElementById('artistGenre').value;
+            const youtubeLink = document.getElementById('artistYoutubeLink').value.trim();
+            
+            // Validation
+            if (!name) {
+                alert('⚠️ Please enter artist name');
+                return;
+            }
+            
+            if (!youtubeLink) {
+                alert('⚠️ Please enter YouTube link');
+                return;
+            }
+            
+            // Validate YouTube URL
+            const youtubePattern = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+            if (!youtubePattern.test(youtubeLink)) {
+                alert('⚠️ Please enter a valid YouTube URL');
+                return;
+            }
+            
+            // Get existing artists
+            const artists = getArtists();
+            
+            // Create new artist object
+            const newArtist = {
+                id: Date.now(),
+                name: name,
+                genre: genre,
+                youtubeLink: youtubeLink,
+                dateAdded: new Date().toISOString(),
+                enabled: true
+            };
+            
+            // Add to array
+            artists.push(newArtist);
+            
+            // Save to localStorage
+            localStorage.setItem('haos-radio-artists', JSON.stringify(artists));
+            
+            // Clear form
+            document.getElementById('artistName').value = '';
+            document.getElementById('artistGenre').selectedIndex = 0;
+            document.getElementById('artistYoutubeLink').value = '';
+            
+            // Update list
+            updateArtistList();
+            
+            // Show success message
+            console.log(`✅ Added ${name} to Radio 24/7 playlist!`);
+            
+            // Optional: Show visual feedback
+            const saveBtn = event.target;
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '✅ SAVED!';
+            saveBtn.style.background = 'linear-gradient(135deg, #00ff00, #00cc00)';
+            setTimeout(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.style.background = 'linear-gradient(135deg, var(--accent-primary), var(--accent-cyan))';
+            }, 1500);
+        }
+        
+        function getArtists() {
+            const saved = localStorage.getItem('haos-radio-artists');
+            return saved ? JSON.parse(saved) : [];
+        }
+        
+        function deleteArtist(artistId) {
+            if (!confirm('Are you sure you want to remove this artist from your radio playlist?')) {
+                return;
+            }
+            
+            const artists = getArtists();
+            const filtered = artists.filter(artist => artist.id !== artistId);
+            localStorage.setItem('haos-radio-artists', JSON.stringify(filtered));
+            updateArtistList();
+            console.log('🗑️ Artist removed from playlist');
+        }
+        
+        function toggleArtist(artistId) {
+            const artists = getArtists();
+            const artist = artists.find(a => a.id === artistId);
+            if (artist) {
+                artist.enabled = !artist.enabled;
+                localStorage.setItem('haos-radio-artists', JSON.stringify(artists));
+                updateArtistList();
+            }
+        }
+        
+        function updateArtistList() {
+            const artists = getArtists();
+            const listContainer = document.getElementById('savedArtistsList');
+            const countBadge = document.getElementById('artistCount');
+            
+            if (!listContainer) return;
+            
+            // Update count
+            if (countBadge) {
+                countBadge.textContent = artists.length;
+            }
+            
+            if (artists.length === 0) {
+                listContainer.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: var(--text-secondary); font-style: italic;">
+                        No artists added yet. Add your first favorite artist!
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort by date added (newest first)
+            artists.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+            
+            // Build artist list HTML
+            listContainer.innerHTML = artists.map(artist => {
+                const genreEmojis = {
+                    'techno': '⚡',
+                    'trap': '🔥',
+                    'house': '🏠',
+                    'dnb': '🥁',
+                    'dubstep': '🎚️',
+                    'acid': '🧪',
+                    'industrial': '🏭',
+                    'minimal': '🎯',
+                    'other': '🎼'
+                };
+                
+                const emoji = genreEmojis[artist.genre] || '🎼';
+                const enabledStyle = artist.enabled ? 'opacity: 1' : 'opacity: 0.5';
+                const enabledBtn = artist.enabled 
+                    ? '<span style="color: var(--accent-primary);">✓</span>' 
+                    : '<span style="color: var(--text-secondary);">○</span>';
+                
+                return `
+                    <div style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px; padding: 15px; margin-bottom: 12px; ${enabledStyle}; transition: all 0.3s;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; color: var(--text-primary); font-size: 1.1em; margin-bottom: 5px; font-family: var(--haos-font-mono);">
+                                    ${emoji} ${artist.name}
+                                </div>
+                                <div style="color: var(--text-secondary); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px;">
+                                    ${artist.genre}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="toggleArtist(${artist.id})" 
+                                        title="${artist.enabled ? 'Disable in rotation' : 'Enable in rotation'}"
+                                        style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 1.2em; transition: all 0.2s;">
+                                    ${enabledBtn}
+                                </button>
+                                <a href="${artist.youtubeLink}" target="_blank" 
+                                   style="background: #ff0000; border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                                   title="Watch on YouTube">
+                                    ▶
+                                </a>
+                                <button onclick="deleteArtist(${artist.id})" 
+                                        style="background: var(--bg-secondary); border: 1px solid var(--border); color: #ff4444; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;"
+                                        title="Remove artist">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.75em; color: var(--text-secondary); margin-top: 8px;">
+                            Added: ${new Date(artist.dateAdded).toLocaleDateString()}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
 
         // ============================================
         // KICK PATTERN VARIATIONS
@@ -6530,6 +6734,94 @@ ESC       - Close modals`);
             <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 5px 0;">
                 <span style="background: #0a0a0a; color: #00ff00; padding: 2px 8px; border-radius: 4px; font-weight: bold;">H</span>
                 <span style="color: #00cc00;">Help</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Artist Modal for Radio 24/7 Integration -->
+    <div id="artistModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: linear-gradient(135deg, #0a0a0a, #1a1a1a); border: 2px solid var(--accent-primary); border-radius: 20px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 60px rgba(0, 255, 0, 0.5);">
+            <!-- Modal Header -->
+            <div style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan)); padding: 25px; border-radius: 18px 18px 0 0; position: relative;">
+                <h2 style="margin: 0; color: #000; font-size: 1.8em; display: flex; align-items: center; gap: 12px; font-family: var(--haos-font-display);">
+                    <span style="font-size: 1.5em;">⭐</span>
+                    ADD ARTIST TO RADIO 24/7
+                </h2>
+                <p style="margin: 8px 0 0 0; color: rgba(0, 0, 0, 0.7); font-size: 0.9em;">Customize your radio playlist with favorite artists from YouTube</p>
+                <button onclick="closeArtistModal()" style="position: absolute; top: 15px; right: 15px; background: rgba(0, 0, 0, 0.2); border: none; color: #000; font-size: 1.5em; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div style="padding: 30px;">
+                <!-- Artist Name -->
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; color: var(--accent-cyan); font-weight: bold; margin-bottom: 10px; font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
+                        <span>🎤</span> Artist Name
+                    </label>
+                    <input type="text" id="artistName" placeholder="e.g., Nina Kraviz, Adam Beyer, Charlotte de Witte" 
+                           style="width: 100%; padding: 15px; background: var(--bg-tertiary); border: 2px solid var(--border); border-radius: 10px; color: var(--text-primary); font-size: 1em; font-family: var(--haos-font-mono); transition: all 0.3s;"
+                           onfocus="this.style.borderColor='var(--accent-primary)'"
+                           onblur="this.style.borderColor='var(--border)'">
+                </div>
+
+                <!-- Genre -->
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; color: var(--accent-cyan); font-weight: bold; margin-bottom: 10px; font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
+                        <span>🎵</span> Genre
+                    </label>
+                    <select id="artistGenre" style="width: 100%; padding: 15px; background: var(--bg-tertiary); border: 2px solid var(--border); border-radius: 10px; color: var(--text-primary); font-size: 1em; cursor: pointer;">
+                        <option value="techno">⚡ Techno</option>
+                        <option value="trap">🔥 Trap</option>
+                        <option value="house">🏠 House</option>
+                        <option value="dnb">🥁 Drum & Bass</option>
+                        <option value="dubstep">🎚️ Dubstep</option>
+                        <option value="acid">🧪 Acid</option>
+                        <option value="industrial">🏭 Industrial</option>
+                        <option value="minimal">🎯 Minimal</option>
+                        <option value="other">🎼 Other</option>
+                    </select>
+                </div>
+
+                <!-- YouTube Link -->
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; color: var(--accent-cyan); font-weight: bold; margin-bottom: 10px; font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
+                        <span>📺</span> YouTube Mix/Set Link
+                    </label>
+                    <input type="url" id="artistYoutubeLink" placeholder="https://youtube.com/watch?v=..." 
+                           style="width: 100%; padding: 15px; background: var(--bg-tertiary); border: 2px solid var(--border); border-radius: 10px; color: var(--text-primary); font-size: 1em; font-family: var(--haos-font-mono); transition: all 0.3s;"
+                           onfocus="this.style.borderColor='var(--accent-primary)'"
+                           onblur="this.style.borderColor='var(--border)'">
+                    <div style="margin-top: 8px; font-size: 0.85em; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+                        <span>💡</span>
+                        <span>Tip: Use DJ sets, live mixes, or essential tracks compilations</span>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <button onclick="saveArtist()" style="flex: 1; padding: 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan)); color: #000; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1em; cursor: pointer; box-shadow: 0 4px 20px rgba(0, 255, 0, 0.4); transition: all 0.3s; font-family: var(--haos-font-mono); letter-spacing: 1px;">
+                        💾 SAVE TO RADIO
+                    </button>
+                    <button onclick="closeArtistModal()" style="flex: 0.5; padding: 16px; background: var(--bg-tertiary); color: var(--text-secondary); border: 2px solid var(--border); border-radius: 10px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                        CANCEL
+                    </button>
+                </div>
+
+                <!-- Saved Artists List -->
+                <div style="margin-top: 35px; padding-top: 25px; border-top: 2px solid var(--border);">
+                    <h3 style="color: var(--accent-cyan); margin-bottom: 15px; font-size: 1.3em; display: flex; align-items: center; gap: 10px;">
+                        <span>📻</span>
+                        <span>Your Radio Playlist</span>
+                        <span style="font-size: 0.7em; background: var(--accent-primary); color: #000; padding: 4px 10px; border-radius: 15px; font-weight: bold;" id="artistCount">0</span>
+                    </h3>
+                    <div id="savedArtistsList" style="max-height: 300px; overflow-y: auto;">
+                        <div style="text-align: center; padding: 30px; color: var(--text-secondary); font-style: italic;">
+                            No artists added yet. Add your first favorite artist!
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
