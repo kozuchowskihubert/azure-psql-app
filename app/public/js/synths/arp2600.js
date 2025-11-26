@@ -536,6 +536,7 @@ class ARP2600 {
      */
     loadPreset(presetName) {
         const presets = {
+            // BASS SOUNDS
             'bass': {
                 vco1: { waveform: 'sawtooth', octave: -1, enabled: true },
                 vco2: { waveform: 'square', octave: -1, fine: -7, enabled: true },
@@ -543,6 +544,30 @@ class ARP2600 {
                 vcf: { type: 'lowpass', cutoff: 800, resonance: 8, envAmount: 70 },
                 envelope: { attack: 0.01, decay: 0.2, sustain: 0.5, release: 0.3 }
             },
+            'sub-bass': {
+                vco1: { waveform: 'sine', octave: -2, enabled: true },
+                vco2: { waveform: 'triangle', octave: -1, fine: -12, enabled: true },
+                vco3: { enabled: false },
+                vcf: { type: 'lowpass', cutoff: 300, resonance: 2, envAmount: 20 },
+                envelope: { attack: 0.001, decay: 0.1, sustain: 0.9, release: 0.2 }
+            },
+            'acid-bass': {
+                vco1: { waveform: 'sawtooth', octave: -1, enabled: true },
+                vco2: { enabled: false },
+                vco3: { enabled: false },
+                vcf: { type: 'lowpass', cutoff: 1200, resonance: 25, envAmount: 95 },
+                envelope: { attack: 0.001, decay: 0.15, sustain: 0.3, release: 0.15 },
+                lfo: { rate: 8, amount: 0.4 }
+            },
+            'fat-bass': {
+                vco1: { waveform: 'sawtooth', octave: -1, enabled: true },
+                vco2: { waveform: 'sawtooth', octave: -1, fine: 5, enabled: true },
+                vco3: { waveform: 'square', octave: -2, enabled: true },
+                vcf: { type: 'lowpass', cutoff: 600, resonance: 12, envAmount: 65 },
+                envelope: { attack: 0.01, decay: 0.25, sustain: 0.7, release: 0.3 }
+            },
+            
+            // LEAD SOUNDS
             'lead': {
                 vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
                 vco2: { waveform: 'sawtooth', octave: 0, fine: 7, enabled: true },
@@ -551,6 +576,24 @@ class ARP2600 {
                 envelope: { attack: 0.05, decay: 0.3, sustain: 0.7, release: 0.5 },
                 lfo: { rate: 6, amount: 0.3 }
             },
+            'sync-lead': {
+                vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
+                vco2: { waveform: 'square', octave: 1, fine: 12, enabled: true },
+                vco3: { enabled: false },
+                vcf: { type: 'lowpass', cutoff: 4000, resonance: 18, envAmount: 85 },
+                envelope: { attack: 0.01, decay: 0.2, sustain: 0.6, release: 0.4 },
+                lfo: { rate: 7, amount: 0.5 }
+            },
+            'screaming-lead': {
+                vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
+                vco2: { waveform: 'square', octave: 0, fine: -3, enabled: true },
+                vco3: { waveform: 'sawtooth', octave: 1, enabled: true },
+                vcf: { type: 'lowpass', cutoff: 5000, resonance: 20, envAmount: 90 },
+                envelope: { attack: 0.001, decay: 0.15, sustain: 0.8, release: 0.3 },
+                lfo: { rate: 9, amount: 0.6 }
+            },
+            
+            // PAD SOUNDS
             'pad': {
                 vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
                 vco2: { waveform: 'square', octave: 0, fine: 5, enabled: true },
@@ -558,6 +601,31 @@ class ARP2600 {
                 vcf: { type: 'lowpass', cutoff: 2000, resonance: 5, envAmount: 40 },
                 envelope: { attack: 0.5, decay: 0.4, sustain: 0.8, release: 1.0 }
             },
+            'string-pad': {
+                vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
+                vco2: { waveform: 'sawtooth', octave: 0, fine: 8, enabled: true },
+                vco3: { waveform: 'sawtooth', octave: 0, fine: -8, enabled: true },
+                vcf: { type: 'lowpass', cutoff: 2500, resonance: 3, envAmount: 30 },
+                envelope: { attack: 0.8, decay: 0.5, sustain: 0.9, release: 1.5 },
+                lfo: { rate: 0.5, amount: 0.1 }
+            },
+            'dark-pad': {
+                vco1: { waveform: 'triangle', octave: 0, enabled: true },
+                vco2: { waveform: 'sine', octave: -1, fine: 7, enabled: true },
+                vco3: { waveform: 'square', octave: -2, enabled: true },
+                vcf: { type: 'lowpass', cutoff: 800, resonance: 2, envAmount: 25 },
+                envelope: { attack: 1.5, decay: 0.8, sustain: 0.85, release: 2.0 }
+            },
+            'evolving-pad': {
+                vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
+                vco2: { waveform: 'triangle', octave: 0, fine: 12, enabled: true },
+                vco3: { waveform: 'square', octave: -1, enabled: true },
+                vcf: { type: 'lowpass', cutoff: 1500, resonance: 8, envAmount: 50 },
+                envelope: { attack: 2.0, decay: 1.0, sustain: 0.7, release: 2.5 },
+                lfo: { rate: 0.3, amount: 0.4 }
+            },
+            
+            // PLUCK & PERCUSSIVE
             'pluck': {
                 vco1: { waveform: 'triangle', octave: 0, enabled: true },
                 vco2: { enabled: false },
@@ -565,12 +633,69 @@ class ARP2600 {
                 vcf: { type: 'lowpass', cutoff: 5000, resonance: 2, envAmount: 90 },
                 envelope: { attack: 0.001, decay: 0.15, sustain: 0.1, release: 0.2 }
             },
+            'marimba': {
+                vco1: { waveform: 'sine', octave: 0, enabled: true },
+                vco2: { waveform: 'sine', octave: 2, fine: 3, enabled: true },
+                vco3: { enabled: false },
+                vcf: { type: 'lowpass', cutoff: 3000, resonance: 1, envAmount: 70 },
+                envelope: { attack: 0.001, decay: 0.3, sustain: 0.05, release: 0.4 }
+            },
+            'kalimba': {
+                vco1: { waveform: 'triangle', octave: 1, enabled: true },
+                vco2: { waveform: 'sine', octave: 2, fine: 7, enabled: true },
+                vco3: { enabled: false },
+                vcf: { type: 'bandpass', cutoff: 2500, resonance: 5, envAmount: 80 },
+                envelope: { attack: 0.001, decay: 0.25, sustain: 0.0, release: 0.3 }
+            },
+            
+            // BRASS & WIND
             'brass': {
                 vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
                 vco2: { waveform: 'sawtooth', octave: 0, fine: -3, enabled: true },
                 vco3: { waveform: 'square', octave: 0, enabled: true },
                 vcf: { type: 'lowpass', cutoff: 1500, resonance: 10, envAmount: 60 },
                 envelope: { attack: 0.08, decay: 0.2, sustain: 0.9, release: 0.3 }
+            },
+            'soft-brass': {
+                vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
+                vco2: { waveform: 'triangle', octave: 0, fine: -5, enabled: true },
+                vco3: { enabled: false },
+                vcf: { type: 'lowpass', cutoff: 1800, resonance: 6, envAmount: 50 },
+                envelope: { attack: 0.15, decay: 0.3, sustain: 0.85, release: 0.4 }
+            },
+            'flute': {
+                vco1: { waveform: 'sine', octave: 1, enabled: true },
+                vco2: { waveform: 'triangle', octave: 1, fine: 2, enabled: true },
+                vco3: { enabled: false },
+                vcf: { type: 'lowpass', cutoff: 2000, resonance: 3, envAmount: 40 },
+                envelope: { attack: 0.1, decay: 0.15, sustain: 0.7, release: 0.2 },
+                lfo: { rate: 5, amount: 0.15 }
+            },
+            
+            // FX & EXPERIMENTAL
+            'sweep': {
+                vco1: { waveform: 'sawtooth', octave: -1, enabled: true },
+                vco2: { waveform: 'square', octave: -1, fine: 7, enabled: true },
+                vco3: { enabled: false },
+                vcf: { type: 'lowpass', cutoff: 200, resonance: 15, envAmount: 95 },
+                envelope: { attack: 0.01, decay: 2.0, sustain: 0.2, release: 0.5 },
+                lfo: { rate: 0.5, amount: 0.7 }
+            },
+            'wobble': {
+                vco1: { waveform: 'sawtooth', octave: -1, enabled: true },
+                vco2: { waveform: 'square', octave: -1, fine: -12, enabled: true },
+                vco3: { enabled: false },
+                vcf: { type: 'lowpass', cutoff: 500, resonance: 20, envAmount: 50 },
+                envelope: { attack: 0.01, decay: 0.3, sustain: 0.8, release: 0.3 },
+                lfo: { rate: 4, amount: 0.9 }
+            },
+            'space-sweep': {
+                vco1: { waveform: 'sine', octave: 0, enabled: true },
+                vco2: { waveform: 'triangle', octave: 1, fine: 19, enabled: true },
+                vco3: { waveform: 'sawtooth', octave: -2, enabled: true },
+                vcf: { type: 'lowpass', cutoff: 1000, resonance: 18, envAmount: 80 },
+                envelope: { attack: 1.0, decay: 1.5, sustain: 0.5, release: 2.0 },
+                lfo: { rate: 0.2, amount: 0.8 }
             }
         };
         
