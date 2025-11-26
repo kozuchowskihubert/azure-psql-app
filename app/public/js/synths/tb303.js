@@ -42,6 +42,32 @@ class TB303 {
         this.interval = null;
         this.bpm = 130;
         
+        // Enhanced modulation system
+        this.modulation = {
+            lfo: {
+                enabled: false,
+                rate: 5,           // Hz
+                depth: 0,          // 0-100
+                waveform: 'sine',  // sine, square, triangle, sawtooth
+                destination: 'cutoff' // cutoff, resonance, pitch, distortion
+            },
+            envelope: {
+                cutoffAmount: 70,  // Filter envelope amount (existing as envMod)
+                pitchAmount: 0,    // Pitch envelope amount
+                distortionAmount: 0 // Distortion envelope amount
+            },
+            external: {
+                enabled: false,
+                source: null,      // External audio node
+                amount: 0.5,
+                destination: 'cutoff'
+            }
+        };
+        
+        // LFO node (created on demand)
+        this.lfoNode = null;
+        this.lfoGain = null;
+        
         // Note frequency table
         this.noteFrequencies = {
             'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78, 'E2': 82.41, 'F2': 87.31,
@@ -61,6 +87,60 @@ class TB303 {
             return true;
         }
         return false;
+    }
+    
+    /**
+     * Set modulation parameter
+     */
+    setModulation(type, param, value) {
+        if (this.modulation[type] && this.modulation[type].hasOwnProperty(param)) {
+            this.modulation[type][param] = value;
+            
+            // Update LFO if it's running
+            if (type === 'lfo' && this.lfoNode) {
+                if (param === 'rate') {
+                    this.lfoNode.frequency.value = value;
+                } else if (param === 'waveform') {
+                    this.lfoNode.type = value;
+                } else if (param === 'depth' && this.lfoGain) {
+                    this.lfoGain.gain.value = value / 100;
+                }
+            }
+            
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Enable/disable LFO
+     */
+    setLFO(enabled) {
+        this.modulation.lfo.enabled = enabled;
+        
+        if (enabled && !this.lfoNode) {
+            this.lfoNode = this.audioContext.createOscillator();
+            this.lfoGain = this.audioContext.createGain();
+            this.lfoNode.type = this.modulation.lfo.waveform;
+            this.lfoNode.frequency.value = this.modulation.lfo.rate;
+            this.lfoGain.gain.value = this.modulation.lfo.depth / 100;
+            this.lfoNode.connect(this.lfoGain);
+            this.lfoNode.start();
+        } else if (!enabled && this.lfoNode) {
+            this.lfoNode.stop();
+            this.lfoNode = null;
+            this.lfoGain = null;
+        }
+    }
+    
+    /**
+     * Set external modulation source
+     */
+    setExternalModulation(enabled, source = null, amount = 0.5, destination = 'cutoff') {
+        this.modulation.external.enabled = enabled;
+        this.modulation.external.source = source;
+        this.modulation.external.amount = Math.max(0, Math.min(1, amount));
+        this.modulation.external.destination = destination;
     }
     
     /**
@@ -208,6 +288,19 @@ class TB303 {
         osc.type = this.params.waveform;
         osc.frequency.setValueAtTime(freq, startTime);
         
+        // Apply pitch modulation from envelope if enabled
+        if (this.modulation.envelope.pitchAmount > 0) {
+            const pitchEnv = this.modulation.envelope.pitchAmount * 2; // Semitones
+            const pitchFreq = freq * Math.pow(2, pitchEnv / 12);
+            osc.frequency.setValueAtTime(pitchFreq, startTime);
+            osc.frequency.exponentialRampToValueAtTime(freq, startTime + this.params.decay);
+        }
+        
+        // Apply LFO modulation if enabled
+        if (this.modulation.lfo.enabled && this.lfoGain && this.modulation.lfo.destination === 'pitch') {
+            this.lfoGain.connect(osc.frequency);
+        }
+        
         // VCF (Filter)
         const filter = this.audioContext.createBiquadFilter();
         filter.type = 'lowpass';
@@ -223,6 +316,24 @@ class TB303 {
             Math.max(this.params.cutoff, 50), 
             startTime + this.params.decay
         );
+        
+        // Apply LFO modulation to filter if enabled
+        if (this.modulation.lfo.enabled && this.lfoGain && this.modulation.lfo.destination === 'cutoff') {
+            const lfoDepth = this.audioContext.createGain();
+            lfoDepth.gain.value = this.params.cutoff * (this.modulation.lfo.depth / 100);
+            this.lfoGain.connect(lfoDepth);
+            lfoDepth.connect(filter.frequency);
+        }
+        
+        // Apply external modulation if enabled
+        if (this.modulation.external.enabled && this.modulation.external.source) {
+            if (this.modulation.external.destination === 'cutoff') {
+                const extModGain = this.audioContext.createGain();
+                extModGain.gain.value = this.params.cutoff * this.modulation.external.amount;
+                this.modulation.external.source.connect(extModGain);
+                extModGain.connect(filter.frequency);
+            }
+        }
         
         // VCA (Envelope)
         const gainNode = this.audioContext.createGain();

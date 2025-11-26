@@ -24,6 +24,78 @@ class TR808 {
         
         // Master volume
         this.masterVolume = 0.7;
+        
+        // Enhanced modulation per drum voice
+        this.modulation = {
+            kick: {
+                pitchDecay: 0.5,    // Pitch envelope decay time
+                punchAmount: 0,     // Extra attack transient
+                toneColor: 50,      // Tone/click balance
+                lfoAmount: 0        // LFO modulation depth
+            },
+            hat: {
+                decay: 0.1,
+                tone: 5000,         // High-pass frequency
+                metallic: 50        // Metallic character
+            },
+            clap: {
+                reverb: 0.3,
+                tightness: 50,
+                layers: 3
+            },
+            perc: {
+                pitch: 800,
+                decay: 0.2,
+                tone: 50
+            },
+            ride: {
+                decay: 1.0,
+                tone: 8000,
+                bell: 50
+            },
+            crash: {
+                decay: 2.0,
+                tone: 12000,
+                noise: 70
+            }
+        };
+        
+        // LFO for global modulation
+        this.lfo = {
+            enabled: false,
+            rate: 4,
+            depth: 0,
+            destination: 'pitch' // pitch, tone, decay
+        };
+    }
+    
+    /**
+     * Set modulation parameter for specific drum
+     */
+    setDrumModulation(drum, param, value) {
+        if (this.modulation[drum] && this.modulation[drum].hasOwnProperty(param)) {
+            this.modulation[drum][param] = value;
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Get modulation parameter
+     */
+    getDrumModulation(drum, param) {
+        return this.modulation[drum]?.[param];
+    }
+    
+    /**
+     * Set LFO parameters
+     */
+    setLFO(param, value) {
+        if (this.lfo.hasOwnProperty(param)) {
+            this.lfo[param] = value;
+            return true;
+        }
+        return false;
     }
     
     /**

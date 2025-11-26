@@ -96,8 +96,59 @@ class ARP2600 {
             destination: 'filter' // 'filter', 'pitch', 'amplitude'
         };
         
+        // Enhanced modulation matrix
+        this.modMatrix = {
+            env1ToFilter: 50,      // Envelope 1 -> Filter Cutoff
+            env1ToPitch: 0,        // Envelope 1 -> Pitch
+            env2ToAmplitude: 100,  // Envelope 2 -> VCA (standard ADSR)
+            lfoToFilter: 0,        // LFO -> Filter Cutoff
+            lfoToPitch: 0,         // LFO -> Pitch
+            lfoToAmplitude: 0,     // LFO -> Amplitude (tremolo)
+            lfoToPWM: 0,           // LFO -> Pulse Width Modulation
+            keyTrackToFilter: 50,  // Keyboard tracking to filter
+            velocityToFilter: 30,  // Velocity -> Filter
+            velocityToAmplitude: 50 // Velocity -> Amplitude
+        };
+        
+        // Second envelope generator
+        this.envelope2 = {
+            attack: 0.01,
+            decay: 0.3,
+            sustain: 0.7,
+            release: 0.5
+        };
+        
         // Active voices
         this.activeVoices = [];
+    }
+    
+    /**
+     * Set modulation matrix parameter
+     */
+    setModMatrix(param, value) {
+        if (this.modMatrix.hasOwnProperty(param)) {
+            this.modMatrix[param] = Math.max(0, Math.min(100, value));
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Get modulation matrix parameter
+     */
+    getModMatrix(param) {
+        return this.modMatrix[param];
+    }
+    
+    /**
+     * Set second envelope parameter
+     */
+    setEnvelope2(param, value) {
+        if (this.envelope2.hasOwnProperty(param)) {
+            this.envelope2[param] = value;
+            return true;
+        }
+        return false;
     }
     
     /**
@@ -205,9 +256,20 @@ class ARP2600 {
         
         const oscillators = [];
         
+        // Apply pitch envelope if enabled
+        const pitchEnvAmount = this.modMatrix.env1ToPitch / 100;
+        
         // VCO 1
         if (this.vco1.enabled) {
             const osc = this._createOscillator(this.vco1, frequency, startTime);
+            
+            // Apply pitch envelope modulation
+            if (pitchEnvAmount > 0) {
+                const pitchMod = pitchEnvAmount * frequency * 0.5; // Up to 50% pitch change
+                osc.frequency.setValueAtTime(frequency + pitchMod, startTime);
+                osc.frequency.exponentialRampToValueAtTime(frequency, startTime + this.envelope.attack + this.envelope.decay);
+            }
+            
             osc.connect(mixer);
             oscillators.push(osc);
         }
@@ -215,6 +277,14 @@ class ARP2600 {
         // VCO 2
         if (this.vco2.enabled) {
             const osc = this._createOscillator(this.vco2, frequency, startTime);
+            
+            // Apply pitch envelope modulation
+            if (pitchEnvAmount > 0) {
+                const pitchMod = pitchEnvAmount * frequency * 0.5;
+                osc.frequency.setValueAtTime(frequency + pitchMod, startTime);
+                osc.frequency.exponentialRampToValueAtTime(frequency, startTime + this.envelope.attack + this.envelope.decay);
+            }
+            
             osc.connect(mixer);
             oscillators.push(osc);
         }
@@ -222,6 +292,14 @@ class ARP2600 {
         // VCO 3
         if (this.vco3.enabled) {
             const osc = this._createOscillator(this.vco3, frequency, startTime);
+            
+            // Apply pitch envelope modulation
+            if (pitchEnvAmount > 0) {
+                const pitchMod = pitchEnvAmount * frequency * 0.5;
+                osc.frequency.setValueAtTime(frequency + pitchMod, startTime);
+                osc.frequency.exponentialRampToValueAtTime(frequency, startTime + this.envelope.attack + this.envelope.decay);
+            }
+            
             osc.connect(mixer);
             oscillators.push(osc);
         }
@@ -230,17 +308,47 @@ class ARP2600 {
             mixer.gain.value = 1.0 / oscillators.length;
         }
         
-        // Create filter
+        // Create filter with enhanced envelope modulation
         const filter = this._createFilter(startTime);
+        
+        // Apply filter envelope (Env1 -> Filter)
+        const filterEnvAmount = (this.modMatrix.env1ToFilter / 100) * this.vcf.cutoff * 2;
+        const velocityFilterMod = (this.modMatrix.velocityToFilter / 100) * this.vcf.cutoff * 0.5 * velocity;
+        const keyTrackMod = (this.modMatrix.keyTrackToFilter / 100) * (frequency - 440) * 2;
+        
+        const peakCutoff = Math.min(
+            this.vcf.cutoff + filterEnvAmount + velocityFilterMod + keyTrackMod,
+            20000
+        );
+        
+        filter.frequency.setValueAtTime(peakCutoff, startTime);
+        filter.frequency.exponentialRampToValueAtTime(
+            Math.max(this.vcf.cutoff, 50),
+            startTime + this.envelope.attack + this.envelope.decay
+        );
         
         // LFO modulation
         let lfo = null;
-        if (this.lfo.amount > 0) {
+        if (this.lfo.amount > 0 || this.modMatrix.lfoToFilter > 0 || this.modMatrix.lfoToPitch > 0) {
             lfo = this._createLFO(startTime);
-            const lfoGain = this.audioContext.createGain();
-            lfoGain.gain.value = this.lfo.amount * this.vcf.cutoff * 0.5;
-            lfo.connect(lfoGain);
-            lfoGain.connect(filter.frequency);
+            
+            // LFO -> Filter
+            if (this.modMatrix.lfoToFilter > 0) {
+                const lfoFilterGain = this.audioContext.createGain();
+                lfoFilterGain.gain.value = (this.modMatrix.lfoToFilter / 100) * this.vcf.cutoff * 0.3;
+                lfo.connect(lfoFilterGain);
+                lfoFilterGain.connect(filter.frequency);
+            }
+            
+            // LFO -> Pitch
+            if (this.modMatrix.lfoToPitch > 0) {
+                const lfoPitchGain = this.audioContext.createGain();
+                lfoPitchGain.gain.value = (this.modMatrix.lfoToPitch / 100) * frequency * 0.05;
+                oscillators.forEach(osc => {
+                    lfo.connect(lfoPitchGain);
+                    lfoPitchGain.connect(osc.frequency);
+                });
+            }
         }
         
         // External modulation (e.g., from string machine)
@@ -251,28 +359,37 @@ class ARP2600 {
             switch (this.externalMod.destination) {
                 case 'filter':
                     // Modulate filter cutoff
-                    this.externalMod.source.connect(modGain);
-                    modGain.connect(filter.frequency);
+                    const extFilterGain = this.audioContext.createGain();
+                    extFilterGain.gain.value = this.vcf.cutoff * this.externalMod.amount;
+                    this.externalMod.source.connect(extFilterGain);
+                    extFilterGain.connect(filter.frequency);
                     break;
                 case 'amplitude':
-                    // Modulate amplitude (will be connected later to VCA)
-                    // Store for later connection
-                    voice.externalModGain = modGain;
-                    this.externalMod.source.connect(modGain);
+                    // Will be connected to VCA
                     break;
                 case 'pitch':
                     // Modulate pitch of all oscillators
+                    const extPitchGain = this.audioContext.createGain();
+                    extPitchGain.gain.value = frequency * this.externalMod.amount * 0.1;
                     oscillators.forEach(osc => {
-                        this.externalMod.source.connect(modGain);
-                        modGain.connect(osc.frequency);
+                        this.externalMod.source.connect(extPitchGain);
+                        extPitchGain.connect(osc.frequency);
                     });
                     break;
             }
         }
         
-        // VCA with envelope
+        // VCA with envelope and velocity modulation
         const vca = this.audioContext.createGain();
         this._applyEnvelope(vca.gain, startTime, endTime, velocity);
+        
+        // LFO -> Amplitude (tremolo)
+        if (lfo && this.modMatrix.lfoToAmplitude > 0) {
+            const lfoAmpGain = this.audioContext.createGain();
+            lfoAmpGain.gain.value = (this.modMatrix.lfoToAmplitude / 100) * this.vca.level * 0.3;
+            lfo.connect(lfoAmpGain);
+            lfoAmpGain.connect(vca.gain);
+        }
         
         // Connect audio graph
         mixer.connect(filter);
