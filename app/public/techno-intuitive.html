@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ HAOS.fm Techno Creator - Intuitive Edition</title>
+    
+    <!-- HAOS.fm Brand CSS -->
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--haos-font-body);
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-bottom: 2px solid #39FF14;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-family: var(--haos-font-display);
+            font-size: 2em;
+            background: linear-gradient(135deg, #39FF14, #FF6B35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .transport {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .play-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #39FF14, #00D9FF);
+            color: #000;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(57, 255, 20, 0.4);
+        }
+        
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(57, 255, 20, 0.6);
+        }
+        
+        .play-btn.playing {
+            background: linear-gradient(135deg, #FF6B35, #FF1493);
+        }
+        
+        .bpm-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(57, 255, 20, 0.1);
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid #39FF14;
+        }
+        
+        .bpm-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #39FF14;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .bpm-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid #39FF14;
+            background: transparent;
+            color: #39FF14;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .bpm-btn:hover {
+            background: #39FF14;
+            color: #000;
+        }
+        
+        /* Main Layout */
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            min-height: calc(100vh - 100px);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: rgba(26, 26, 46, 0.9);
+            border-right: 2px solid #39FF14;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-section h3 {
+            color: #39FF14;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(57, 255, 20, 0.3);
+            padding-bottom: 8px;
+        }
+        
+        .instrument-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            font-size: 1em;
+        }
+        
+        .instrument-btn:hover {
+            border-color: #39FF14;
+            background: rgba(57, 255, 20, 0.1);
+        }
+        
+        .instrument-btn.active {
+            border-color: #39FF14;
+            background: linear-gradient(135deg, rgba(57, 255, 20, 0.2), rgba(0, 217, 255, 0.2));
+        }
+        
+        .instrument-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        
+        /* Main Area */
+        .main-area {
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        /* Step Sequencer */
+        .sequencer {
+            background: rgba(26, 26, 46, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #00D9FF;
+        }
+        
+        .sequencer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .sequencer-title {
+            font-size: 1.8em;
+            color: #00D9FF;
+        }
+        
+        .pattern-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .pattern-btn {
+            padding: 8px 16px;
+            background: rgba(0, 217, 255, 0.2);
+            border: 1px solid #00D9FF;
+            border-radius: 8px;
+            color: #00D9FF;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pattern-btn:hover {
+            background: #00D9FF;
+            color: #000;
+        }
+        
+        /* Grid */
+        .step-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .step {
+            aspect-ratio: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(57, 255, 20, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .step:hover {
+            border-color: #39FF14;
+            background: rgba(57, 255, 20, 0.2);
+        }
+        
+        .step.active {
+            background: linear-gradient(135deg, #39FF14, #00D9FF);
+            border-color: #39FF14;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.5);
+        }
+        
+        .step.playing {
+            animation: pulse 0.3s ease;
+            box-shadow: 0 0 25px #FF6B35;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .step-number {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 0.7em;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Controls Panel */
+        .controls-panel {
+            background: rgba(26, 26, 46, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #FF6B35;
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .control {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            color: #FFD700;
+            font-weight: 600;
+        }
+        
+        .control-value {
+            color: #39FF14;
+            font-family: var(--haos-font-mono);
+        }
+        
+        .knob-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+        }
+        
+        .knob {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a1a2e, #0a0a0a);
+            border: 3px solid #39FF14;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 2px 8px rgba(57, 255, 20, 0.2);
+        }
+        
+        .knob-indicator {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 35%;
+            background: #39FF14;
+            border-radius: 2px;
+            transform-origin: bottom center;
+            box-shadow: 0 0 10px #39FF14;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #39FF14, #00D9FF);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(57, 255, 20, 0.5);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #39FF14, #00D9FF);
+            cursor: pointer;
+            border: none;
+        }
+        
+        /* Preset Buttons */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .preset-btn {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #FF6B35;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.95em;
+        }
+        
+        .preset-btn:hover {
+            background: rgba(255, 107, 53, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+        }
+        
+        .preset-btn.active {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.3), rgba(255, 20, 147, 0.3));
+            border-color: #FF1493;
+        }
+        
+        /* Visual Feedback */
+        .visualizer {
+            height: 100px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            margin-top: 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            padding: 10px;
+            border: 1px solid rgba(57, 255, 20, 0.3);
+        }
+        
+        .viz-bar {
+            flex: 1;
+            background: linear-gradient(0deg, #39FF14, #00D9FF);
+            border-radius: 2px;
+            transition: height 0.1s;
+            min-height: 5px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                border-right: none;
+                border-bottom: 2px solid #39FF14;
+            }
+            
+            .step-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">⚡ HAOS.fm TECHNO CREATOR</div>
+        
+        <div class="transport">
+            <div class="bpm-control">
+                <button class="bpm-btn" onclick="changeBPM(-5)">-</button>
+                <div class="bpm-value" id="bpmDisplay">130</div>
+                <button class="bpm-btn" onclick="changeBPM(5)">+</button>
+                <span style="color: #39FF14; margin-left: 5px;">BPM</span>
+            </div>
+            
+            <button class="play-btn" id="playBtn" onclick="togglePlay()">
+                <i class="fas fa-play"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main Layout -->
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3>🎹 BASS SOUNDS</h3>
+                <button class="instrument-btn active" onclick="selectInstrument('bass-303')" data-instrument="bass-303">
+                    <span class="instrument-icon">🔊</span>
+                    <span>303 Acid Bass</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('bass-deep')" data-instrument="bass-deep">
+                    <span class="instrument-icon">🎚️</span>
+                    <span>Deep Sub Bass</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('bass-distorted')" data-instrument="bass-distorted">
+                    <span class="instrument-icon">⚡</span>
+                    <span>Distorted Bass</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('bass-techno')" data-instrument="bass-techno">
+                    <span class="instrument-icon">🎵</span>
+                    <span>Techno Rumble</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>🥁 DRUMS & PERCUSSION</h3>
+                <button class="instrument-btn" onclick="selectInstrument('drums-808')" data-instrument="drums-808">
+                    <span class="instrument-icon">🥁</span>
+                    <span>TR-808 Kit</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('drums-industrial')" data-instrument="drums-industrial">
+                    <span class="instrument-icon">🔨</span>
+                    <span>Industrial Kit</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('drums-minimal')" data-instrument="drums-minimal">
+                    <span class="instrument-icon">📍</span>
+                    <span>Minimal Perc</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>🎹 LEADS & SYNTHS</h3>
+                <button class="instrument-btn" onclick="selectInstrument('arp-lead')" data-instrument="arp-lead">
+                    <span class="instrument-icon">🎹</span>
+                    <span>2600 Sharp Lead</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-pluck')" data-instrument="arp-pluck">
+                    <span class="instrument-icon">🎸</span>
+                    <span>2600 Pluck</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-brass')" data-instrument="arp-brass">
+                    <span class="instrument-icon">🎺</span>
+                    <span>2600 Brass</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-bass')" data-instrument="arp-bass">
+                    <span class="instrument-icon">🎛️</span>
+                    <span>2600 Bass</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>🎻 PADS & STRINGS</h3>
+                <button class="instrument-btn" onclick="selectInstrument('string-lush')" data-instrument="string-lush">
+                    <span class="instrument-icon">🎻</span>
+                    <span>Lush Strings</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('string-pad')" data-instrument="string-pad">
+                    <span class="instrument-icon">🌊</span>
+                    <span>Techno Pad</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('string-dark')" data-instrument="string-dark">
+                    <span class="instrument-icon">🌑</span>
+                    <span>Dark Ambient</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('string-ethereal')" data-instrument="string-ethereal">
+                    <span class="instrument-icon">✨</span>
+                    <span>Ethereal Wash</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-pad')" data-instrument="arp-pad">
+                    <span class="instrument-icon">🌌</span>
+                    <span>2600 Pad</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>🎨 QUICK START STYLES</h3>
+                <div class="preset-grid">
+                    <button class="preset-btn" onclick="loadPreset('acid-minimal')">
+                        Acid Minimal
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('industrial-hard')">
+                        Industrial
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('detroit-classic')">
+                        Detroit Techno
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('berghain-style')">
+                        Berlin Tech
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('ambient-techno')">
+                        Ambient Tech
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('hypnotic')">
+                        Hypnotic
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('peak-time')">
+                        Peak Time
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('deep-minimal')">
+                        Deep Minimal
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Area -->
+        <div class="main-area">
+            <!-- Sequencer -->
+            <div class="sequencer">
+                <div class="sequencer-header">
+                    <h2 class="sequencer-title" id="sequencerTitle">TB-303 Bass Sequencer</h2>
+                    <div class="pattern-controls">
+                        <button class="pattern-btn" onclick="clearPattern()">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                        <button class="pattern-btn" onclick="randomPattern()">
+                            <i class="fas fa-dice"></i> Random
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 16-Step Grid -->
+                <div class="step-grid" id="stepGrid">
+                    <!-- Steps will be generated by JavaScript -->
+                </div>
+                
+                <!-- Visualizer -->
+                <div class="visualizer" id="visualizer">
+                    <!-- Bars will be generated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="controls-panel">
+                <h2 style="color: #FF6B35; margin-bottom: 10px;">🎛️ Sound Controls</h2>
+                <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Tweak the sound in real-time</p>
+                
+                <div class="controls-grid" id="controlsGrid">
+                    <!-- Controls will be generated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import TB303 from '/js/synths/tb303.js';
+        import TR808 from '/js/synths/tr808.js';
+        import ARP2600 from '/js/synths/arp2600.js';
+        import StringMachine from '/js/synths/string-machine.js';
+        import DAWEngine from '/js/daw-engine.js';
+        
+        // Initialize Audio
+        let audioContext;
+        let tb303, tr808, arp2600, stringMachine, daw;
+        let isPlaying = false;
+        let currentInstrument = 'bass-303';
+        let bpm = 130;
+        let currentStep = 0;
+        let intervalId = null;
+        
+        // Pattern storage - expanded for all variations
+        const patterns = {
+            // Bass variations
+            'bass-303': Array(16).fill(false),
+            'bass-deep': Array(16).fill(false),
+            'bass-distorted': Array(16).fill(false),
+            'bass-techno': Array(16).fill(false),
+            
+            // Drums variations
+            'drums-808': Array(16).fill(false),
+            'drums-industrial': Array(16).fill(false),
+            'drums-minimal': Array(16).fill(false),
+            
+            // ARP-2600 variations
+            'arp-lead': Array(16).fill(false),
+            'arp-pluck': Array(16).fill(false),
+            'arp-brass': Array(16).fill(false),
+            'arp-bass': Array(16).fill(false),
+            'arp-pad': Array(16).fill(false),
+            
+            // String Machine variations
+            'string-lush': Array(16).fill(false),
+            'string-pad': Array(16).fill(false),
+            'string-dark': Array(16).fill(false),
+            'string-ethereal': Array(16).fill(false)
+        };
+        
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                tb303 = new TB303(audioContext);
+                tr808 = new TR808(audioContext);
+                arp2600 = new ARP2600(audioContext);
+                stringMachine = new StringMachine(audioContext);
+                daw = new DAWEngine(audioContext);
+                
+                daw.setSynths({ tb303, tr808, arp2600, stringMachine });
+                
+                // Setup default TB-303
+                tb303.setParam('cutoff', 800);
+                tb303.setParam('resonance', 15);
+                tb303.setParam('envMod', 70);
+                tb303.loadPresetPattern('classic303');
+                
+                // Setup TR-808
+                tr808.setVolume(0.8);
+                
+                // Setup ARP-2600
+                arp2600.loadPreset('lead');
+                
+                console.log('✓ Audio initialized');
+            }
+            
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+        
+        // Initialize UI
+        function initUI() {
+            createStepGrid();
+            createControls();
+            createVisualizer();
+            updatePattern();
+        }
+        
+        // Create step grid
+        function createStepGrid() {
+            const grid = document.getElementById('stepGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 16; i++) {
+                const step = document.createElement('div');
+                step.className = 'step';
+                step.innerHTML = `<span class="step-number">${i + 1}</span>`;
+                step.onclick = () => toggleStep(i);
+                grid.appendChild(step);
+            }
+        }
+        
+        // Toggle step
+        window.toggleStep = function(index) {
+            patterns[currentInstrument][index] = !patterns[currentInstrument][index];
+            updatePattern();
+        };
+        
+        // Update pattern display
+        function updatePattern() {
+            const steps = document.querySelectorAll('.step');
+            const pattern = patterns[currentInstrument];
+            
+            steps.forEach((step, i) => {
+                if (pattern[i]) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+        
+        // Create controls
+        function createControls() {
+            const grid = document.getElementById('controlsGrid');
+            
+            // Determine which synth category this is
+            const synthType = currentInstrument.split('-')[0]; // 'bass', 'drums', 'arp', 'string'
+            
+            const controls = {
+                bass: [
+                    { label: 'Filter Cutoff', id: 'cutoff', min: 50, max: 5000, value: 800, unit: 'Hz' },
+                    { label: 'Resonance', id: 'resonance', min: 0, max: 30, value: 15, unit: '' },
+                    { label: 'Env Mod', id: 'envMod', min: 0, max: 100, value: 70, unit: '%' },
+                    { label: 'Accent', id: 'accent', min: 0, max: 100, value: 50, unit: '%' }
+                ],
+                drums: [
+                    { label: 'Volume', id: 'volume', min: 0, max: 100, value: 80, unit: '%' },
+                    { label: 'Kick Punch', id: 'kickPunch', min: 0, max: 100, value: 50, unit: '%' },
+                    { label: 'Hat Tone', id: 'hatTone', min: 0, max: 100, value: 50, unit: '%' },
+                    { label: 'Distortion', id: 'distortion', min: 0, max: 100, value: 30, unit: '%' }
+                ],
+                arp: [
+                    { label: 'Filter Cutoff', id: 'arpCutoff', min: 100, max: 10000, value: 3000, unit: 'Hz' },
+                    { label: 'Resonance', id: 'arpResonance', min: 0, max: 20, value: 8, unit: '' },
+                    { label: 'LFO Rate', id: 'lfoRate', min: 0, max: 20, value: 6, unit: 'Hz' },
+                    { label: 'LFO Depth', id: 'lfoDepth', min: 0, max: 100, value: 30, unit: '%' }
+                ],
+                string: [
+                    { label: 'Chorus Depth', id: 'chorusDepth', min: 0, max: 100, value: 50, unit: '%' },
+                    { label: 'Reverb Mix', id: 'reverbMix', min: 0, max: 100, value: 40, unit: '%' },
+                    { label: 'Attack', id: 'attack', min: 0, max: 3000, value: 800, unit: 'ms' },
+                    { label: 'Release', id: 'release', min: 0, max: 3000, value: 1200, unit: 'ms' }
+                ]
+            };
+            
+            const currentControls = controls[synthType] || controls.bass;
+            grid.innerHTML = currentControls.map(ctrl => `
+                <div class="control">
+                    <div class="control-label">
+                        <span>${ctrl.label}</span>
+                        <span class="control-value" id="${ctrl.id}-value">${ctrl.value}${ctrl.unit}</span>
+                    </div>
+                    <input type="range" 
+                           class="slider" 
+                           id="${ctrl.id}"
+                           min="${ctrl.min}" 
+                           max="${ctrl.max}" 
+                           value="${ctrl.value}"
+                           step="${ctrl.max > 100 ? 10 : 1}"
+                           oninput="updateControl('${ctrl.id}', this.value, '${ctrl.unit}')">
+                </div>
+            `).join('');
+        }
+        
+        // Update control
+        window.updateControl = function(id, value, unit) {
+            document.getElementById(`${id}-value`).textContent = value + unit;
+            
+            if (!audioContext) return;
+            
+            const synthType = currentInstrument.split('-')[0];
+            
+            // Apply to TB-303 bass synths
+            if (synthType === 'bass' && tb303) {
+                if (id === 'cutoff') tb303.setParam('cutoff', parseFloat(value));
+                if (id === 'resonance') tb303.setParam('resonance', parseFloat(value));
+                if (id === 'envMod') tb303.setParam('envMod', parseFloat(value));
+                if (id === 'accent') tb303.setParam('accentLevel', parseFloat(value));
+            } 
+            // Apply to TR-808 drums
+            else if (synthType === 'drums' && tr808) {
+                if (id === 'volume') tr808.setVolume(parseFloat(value) / 100);
+                if (id === 'distortion') {
+                    // Apply distortion to all drums
+                    ['kick', 'hat', 'clap'].forEach(drum => {
+                        tr808.setDrumModulation(drum, 'distortion', parseFloat(value));
+                    });
+                }
+            } 
+            // Apply to ARP-2600 synths
+            else if (synthType === 'arp' && arp2600) {
+                if (id === 'arpCutoff') arp2600.setVCF('cutoff', parseFloat(value));
+                if (id === 'arpResonance') arp2600.setVCF('resonance', parseFloat(value));
+                if (id === 'lfoRate') arp2600.setLFO('rate', parseFloat(value));
+                if (id === 'lfoDepth') arp2600.setLFO('amount', parseFloat(value) / 100);
+            }
+            // Apply to String Machine
+            else if (synthType === 'string' && stringMachine) {
+                if (id === 'chorusDepth') stringMachine.setChorus('depth', parseFloat(value) / 100);
+                if (id === 'reverbMix') stringMachine.setReverb('mix', parseFloat(value) / 100);
+                if (id === 'attack') stringMachine.setEnvelope('attack', parseFloat(value) / 1000);
+                if (id === 'release') stringMachine.setEnvelope('release', parseFloat(value) / 1000);
+            }
+        };
+        
+        // Create visualizer
+        function createVisualizer() {
+            const viz = document.getElementById('visualizer');
+            viz.innerHTML = '';
+            
+            for (let i = 0; i < 32; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'viz-bar';
+                bar.style.height = '10px';
+                viz.appendChild(bar);
+            }
+        }
+        
+        // Update visualizer
+        function updateVisualizer() {
+            if (!daw) return;
+            
+            const level = daw.getMasterLevel();
+            const bars = document.querySelectorAll('.viz-bar');
+            
+            bars.forEach((bar, i) => {
+                const height = Math.random() * 80 + (level * 100);
+                bar.style.height = height + 'px';
+            });
+        }
+        
+        // Select instrument
+        window.selectInstrument = function(instrument) {
+            currentInstrument = instrument;
+            
+            // Update UI
+            document.querySelectorAll('.instrument-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.instrument === instrument) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update title and apply preset
+            const instrumentConfig = {
+                // Bass variations
+                'bass-303': { title: '🔊 TB-303 Acid Bass', preset: 'classic303', synth: 'tb303', params: { cutoff: 800, resonance: 15, envMod: 70 } },
+                'bass-deep': { title: '🎚️ Deep Sub Bass', preset: 'deepbass', synth: 'tb303', params: { cutoff: 400, resonance: 5, envMod: 30 } },
+                'bass-distorted': { title: '⚡ Distorted Bass', preset: 'distorted', synth: 'tb303', params: { cutoff: 1200, resonance: 20, envMod: 90 } },
+                'bass-techno': { title: '🎵 Techno Rumble', preset: 'squelch', synth: 'tb303', params: { cutoff: 600, resonance: 18, envMod: 80 } },
+                
+                // Drums variations
+                'drums-808': { title: '🥁 TR-808 Drum Kit', synth: 'tr808', params: { volume: 80 } },
+                'drums-industrial': { title: '🔨 Industrial Kit', synth: 'tr808', params: { volume: 90, distortion: 60 } },
+                'drums-minimal': { title: '📍 Minimal Percussion', synth: 'tr808', params: { volume: 70 } },
+                
+                // ARP-2600 variations
+                'arp-lead': { title: '🎹 ARP-2600 Sharp Lead', preset: 'lead', synth: 'arp2600', params: { cutoff: 3000, resonance: 15 } },
+                'arp-pluck': { title: '🎸 ARP-2600 Pluck', preset: 'pluck', synth: 'arp2600', params: { cutoff: 5000, resonance: 2 } },
+                'arp-brass': { title: '🎺 ARP-2600 Brass', preset: 'brass', synth: 'arp2600', params: { cutoff: 1500, resonance: 10 } },
+                'arp-bass': { title: '🎛️ ARP-2600 Bass', preset: 'bass', synth: 'arp2600', params: { cutoff: 800, resonance: 8 } },
+                'arp-pad': { title: '🌌 ARP-2600 Pad', preset: 'pad', synth: 'arp2600', params: { cutoff: 2000, resonance: 5 } },
+                
+                // String Machine variations
+                'string-lush': { title: '🎻 Lush Strings', preset: 'lush_strings', synth: 'string', params: {} },
+                'string-pad': { title: '🌊 Techno Pad', preset: 'techno_pad', synth: 'string', params: {} },
+                'string-dark': { title: '🌑 Dark Ambient', preset: 'dark_ambient', synth: 'string', params: {} },
+                'string-ethereal': { title: '✨ Ethereal Wash', preset: 'ethereal_wash', synth: 'string', params: {} }
+            };
+            
+            const config = instrumentConfig[instrument];
+            if (config) {
+                document.getElementById('sequencerTitle').textContent = config.title;
+                
+                // Apply preset if available
+                if (audioContext) {
+                    if (config.synth === 'tb303' && tb303) {
+                        if (config.preset) tb303.loadPresetPattern(config.preset);
+                        Object.entries(config.params).forEach(([key, val]) => tb303.setParam(key, val));
+                    } else if (config.synth === 'arp2600' && arp2600) {
+                        if (config.preset) arp2600.loadPreset(config.preset);
+                        if (config.params.cutoff) arp2600.setVCF('cutoff', config.params.cutoff);
+                        if (config.params.resonance) arp2600.setVCF('resonance', config.params.resonance);
+                    } else if (config.synth === 'string' && stringMachine) {
+                        if (config.preset) stringMachine.loadPreset(config.preset);
+                    } else if (config.synth === 'tr808' && tr808) {
+                        tr808.setVolume(config.params.volume / 100);
+                    }
+                }
+            }
+            
+            // Update controls and pattern
+            createControls();
+            updatePattern();
+        };
+        
+        // Clear pattern
+        window.clearPattern = function() {
+            patterns[currentInstrument].fill(false);
+            updatePattern();
+        };
+        
+        // Random pattern
+        window.randomPattern = function() {
+            patterns[currentInstrument] = patterns[currentInstrument].map(() => Math.random() > 0.6);
+            updatePattern();
+        };
+        
+        // Load preset
+        window.loadPreset = function(preset) {
+            initAudio();
+            
+            const presets = {
+                'acid-minimal': () => {
+                    selectInstrument('bass-303');
+                    tb303.setParam('cutoff', 900);
+                    tb303.setParam('resonance', 18);
+                    tb303.setParam('envMod', 85);
+                    tb303.loadPresetPattern('classic303');
+                    patterns['bass-303'] = [true, false, true, false, true, false, true, true, true, false, true, false, true, false, false, false];
+                    patterns['drums-minimal'] = [true, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false];
+                },
+                'industrial-hard': () => {
+                    selectInstrument('bass-distorted');
+                    tb303.setParam('cutoff', 1400);
+                    tb303.setParam('resonance', 22);
+                    tb303.setParam('envMod', 95);
+                    patterns['bass-distorted'] = [true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false];
+                    patterns['drums-industrial'] = [true, false, false, false, false, false, true, false, true, false, false, false, false, false, true, false];
+                    patterns['arp-lead'] = [false, false, false, true, false, false, false, false, false, false, false, true, false, false, false, false];
+                },
+                'detroit-classic': () => {
+                    selectInstrument('bass-303');
+                    tb303.setParam('cutoff', 700);
+                    tb303.setParam('resonance', 12);
+                    tb303.setParam('envMod', 65);
+                    patterns['bass-303'] = [true, false, false, true, false, false, true, false, true, false, false, true, false, false, false, false];
+                    patterns['drums-808'] = [true, false, false, false, true, false, false, true, true, false, false, false, true, false, false, true];
+                    patterns['string-pad'] = [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+                },
+                'berghain-style': () => {
+                    selectInstrument('bass-techno');
+                    tb303.setParam('cutoff', 500);
+                    tb303.setParam('resonance', 8);
+                    tb303.setParam('envMod', 45);
+                    patterns['bass-techno'] = [true, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false];
+                    patterns['drums-808'] = [true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false];
+                    patterns['arp-brass'] = [false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false];
+                },
+                'ambient-techno': () => {
+                    selectInstrument('string-ethereal');
+                    patterns['string-ethereal'] = [true, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false];
+                    patterns['arp-pad'] = [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+                    patterns['bass-deep'] = [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+                    patterns['drums-minimal'] = [true, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false];
+                },
+                'hypnotic': () => {
+                    selectInstrument('bass-303');
+                    tb303.setParam('cutoff', 600);
+                    tb303.setParam('resonance', 16);
+                    tb303.setParam('envMod', 70);
+                    patterns['bass-303'] = [true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false];
+                    patterns['arp-pluck'] = [false, true, false, false, false, true, false, false, false, true, false, false, false, true, false, false];
+                    patterns['drums-808'] = [true, false, false, false, false, false, true, false, true, false, false, false, false, false, true, false];
+                },
+                'peak-time': () => {
+                    selectInstrument('bass-distorted');
+                    tb303.setParam('cutoff', 2000);
+                    tb303.setParam('resonance', 25);
+                    tb303.setParam('envMod', 90);
+                    patterns['bass-distorted'] = [true, true, false, true, true, false, true, true, true, true, false, true, true, false, true, false];
+                    patterns['drums-808'] = [true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false];
+                    patterns['arp-lead'] = [false, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false];
+                },
+                'deep-minimal': () => {
+                    selectInstrument('bass-deep');
+                    tb303.setParam('cutoff', 350);
+                    tb303.setParam('resonance', 6);
+                    tb303.setParam('envMod', 30);
+                    patterns['bass-deep'] = [true, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false];
+                    patterns['drums-minimal'] = [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+                    patterns['string-dark'] = [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+                }
+            };
+            
+            if (presets[preset]) {
+                presets[preset]();
+                createControls();
+                updatePattern();
+                
+                // Visual feedback
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                console.log(`✓ Loaded preset: ${preset}`);
+            }
+        };
+        
+        // Transport controls
+        window.togglePlay = function() {
+            initAudio();
+            
+            isPlaying = !isPlaying;
+            const playBtn = document.getElementById('playBtn');
+            
+            if (isPlaying) {
+                playBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                playBtn.classList.add('playing');
+                startSequencer();
+            } else {
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                playBtn.classList.remove('playing');
+                stopSequencer();
+            }
+        };
+        
+        function startSequencer() {
+            currentStep = 0;
+            const stepTime = (60 / bpm) * 1000 / 4; // 16th notes
+            
+            intervalId = setInterval(() => {
+                playStep(currentStep);
+                highlightStep(currentStep);
+                currentStep = (currentStep + 1) % 16;
+            }, stepTime);
+            
+            // Start visualizer
+            setInterval(updateVisualizer, 50);
+        }
+        
+        function stopSequencer() {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            
+            // Remove highlight
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('playing');
+            });
+        }
+        
+        function playStep(step) {
+            // Play bass if active
+            if (patterns.bass[step] && tb303) {
+                const bassStep = tb303.getStep(step);
+                if (bassStep && bassStep.active) {
+                    tb303.playNote(bassStep);
+                }
+            }
+            
+            // Play drums if active
+            if (patterns.drums[step] && tr808) {
+                if (step % 4 === 0) tr808.playKick('classic');
+                if (step % 2 === 1) tr808.playHat('closed');
+                if (step === 4 || step === 12) tr808.playClap('classic');
+            }
+            
+            // Play lead if active
+            if (patterns.lead[step] && arp2600) {
+                const notes = [440, 554.37, 659.25, 880];
+                arp2600.playNote(notes[step % 4], 0.3, 0.8);
+            }
+        }
+        
+        function highlightStep(step) {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((s, i) => {
+                if (i === step) {
+                    s.classList.add('playing');
+                } else {
+                    s.classList.remove('playing');
+                }
+            });
+        }
+        
+        window.changeBPM = function(delta) {
+            bpm = Math.max(60, Math.min(200, bpm + delta));
+            document.getElementById('bpmDisplay').textContent = bpm;
+            
+            if (tb303) tb303.setBPM(bpm);
+            if (daw) daw.setBPM(bpm);
+            
+            // Restart if playing
+            if (isPlaying) {
+                stopSequencer();
+                startSequencer();
+            }
+        };
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initUI();
+            console.log('🎵 HAOS.fm Techno Creator - Intuitive Edition loaded!');
+        });
+    </script>
+</body>
+</html>
