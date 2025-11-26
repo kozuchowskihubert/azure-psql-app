@@ -1973,7 +1973,7 @@
                     </div>
 
                     <!-- PERC VARIATIONS -->
-                    <div style="padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid var(--accent-secondary);">
+                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid var(--accent-secondary);">
                         <h4 style="color: var(--accent-cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                             <span>🔔</span> PERCUSSION VARIATIONS
                         </h4>
@@ -1997,6 +1997,54 @@
                                 <div style="font-size: 1.5em; margin-bottom: 5px;">🔔</div>
                                 <div style="color: var(--accent-secondary); font-weight: bold; font-size: 0.9em;">COWBELL</div>
                                 <div style="font-size: 0.75em; color: var(--text-secondary);">800Hz + harmonics</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- RIDE CYMBAL VARIATIONS -->
+                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid #FFD700;">
+                        <h4 style="color: var(--accent-cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <span>🥁</span> RIDE CYMBAL VARIATIONS
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                            <button class="modern-card" onclick="setDrumVariation('ride', 'classic'); testDrumSound('ride')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
+                                <div style="font-size: 1.5em; margin-bottom: 5px;">🔔</div>
+                                <div style="color: #FFD700; font-weight: bold; font-size: 0.9em;">CLASSIC RIDE</div>
+                                <div style="font-size: 0.75em; color: var(--text-secondary);">4kHz bell tone</div>
+                            </button>
+                            <button class="modern-card" onclick="setDrumVariation('ride', 'bright'); testDrumSound('ride')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
+                                <div style="font-size: 1.5em; margin-bottom: 5px;">✨</div>
+                                <div style="color: #FFD700; font-weight: bold; font-size: 0.9em;">BRIGHT</div>
+                                <div style="font-size: 0.75em; color: var(--text-secondary);">5kHz shimmer</div>
+                            </button>
+                            <button class="modern-card" onclick="setDrumVariation('ride', 'dark'); testDrumSound('ride')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
+                                <div style="font-size: 1.5em; margin-bottom: 5px;">🌙</div>
+                                <div style="color: #FFD700; font-weight: bold; font-size: 0.9em;">DARK</div>
+                                <div style="font-size: 0.75em; color: var(--text-secondary);">3.2kHz warm wash</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CRASH CYMBAL VARIATIONS -->
+                    <div style="padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid #FFA500;">
+                        <h4 style="color: var(--accent-cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <span>💥</span> CRASH CYMBAL VARIATIONS
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                            <button class="modern-card" onclick="setDrumVariation('crash', 'classic'); testDrumSound('crash')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
+                                <div style="font-size: 1.5em; margin-bottom: 5px;">💥</div>
+                                <div style="color: #FFA500; font-weight: bold; font-size: 0.9em;">CLASSIC CRASH</div>
+                                <div style="font-size: 0.75em; color: var(--text-secondary);">6kHz explosive</div>
+                            </button>
+                            <button class="modern-card" onclick="setDrumVariation('crash', 'splash'); testDrumSound('crash')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
+                                <div style="font-size: 1.5em; margin-bottom: 5px;">💦</div>
+                                <div style="color: #FFA500; font-weight: bold; font-size: 0.9em;">SPLASH</div>
+                                <div style="font-size: 0.75em; color: var(--text-secondary);">7kHz bright burst</div>
+                            </button>
+                            <button class="modern-card" onclick="setDrumVariation('crash', 'dark'); testDrumSound('crash')" style="cursor: pointer; padding: 12px; text-align: center; background: linear-gradient(145deg, #1a1a1a, #141414);">
+                                <div style="font-size: 1.5em; margin-bottom: 5px;">🌑</div>
+                                <div style="color: #FFA500; font-weight: bold; font-size: 0.9em;">DARK CRASH</div>
+                                <div style="font-size: 0.75em; color: var(--text-secondary);">5kHz deep wash</div>
                             </button>
                         </div>
                     </div>
@@ -2914,7 +2962,9 @@
             kick: 'classic',
             hat: 'classic',
             clap: 'classic',
-            perc: 'tom'
+            perc: 'tom',
+            ride: 'classic',
+            crash: 'classic'
         };
         
         function setDrumVariation(drumType, variation) {
@@ -2940,6 +2990,12 @@
                     break;
                 case 'perc':
                     playTechnoPerc2600(ctx, now);
+                    break;
+                case 'ride':
+                    playTechnoRide2600(ctx, now);
+                    break;
+                case 'crash':
+                    playTechnoCrash2600(ctx, now);
                     break;
             }
         }
@@ -3275,6 +3331,180 @@
                     tomOsc.start(startTime);
                     tomOsc.stop(startTime + 0.08);
             }
+        }
+
+        function playTechnoRide2600(ctx, startTime) {
+            const variation = drumVariations.ride;
+            
+            let tone, decay, bellAmount;
+            switch(variation) {
+                case 'bright':
+                    tone = 5000;
+                    decay = 1.3;
+                    bellAmount = 0.4;
+                    break;
+                case 'dark':
+                    tone = 3200;
+                    decay = 1.8;
+                    bellAmount = 0.2;
+                    break;
+                default: // classic
+                    tone = 4000;
+                    decay = 1.5;
+                    bellAmount = 0.3;
+            }
+            
+            // Create metallic ride sound using multiple square waves
+            const frequencies = [tone * 0.8, tone * 1.0, tone * 1.25, tone * 1.5];
+            const oscillators = frequencies.map(freq => {
+                const osc = ctx.createOscillator();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq, startTime);
+                return osc;
+            });
+            
+            // Bell component
+            const bellOsc = ctx.createOscillator();
+            bellOsc.type = 'sine';
+            bellOsc.frequency.setValueAtTime(tone * 2, startTime);
+            
+            // Noise for shimmer
+            const noise = createNoiseBuffer(ctx);
+            const noiseSource = ctx.createBufferSource();
+            noiseSource.buffer = noise;
+            
+            // Filters
+            const rideFilter = ctx.createBiquadFilter();
+            rideFilter.type = 'bandpass';
+            rideFilter.frequency.setValueAtTime(tone, startTime);
+            rideFilter.Q.setValueAtTime(1.5, startTime);
+            
+            const noiseFilter = ctx.createBiquadFilter();
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.setValueAtTime(tone * 1.5, startTime);
+            noiseFilter.Q.setValueAtTime(0.8, startTime);
+            
+            // Gains
+            const rideGain = ctx.createGain();
+            rideGain.gain.setValueAtTime(0.08, startTime);
+            rideGain.gain.exponentialRampToValueAtTime(0.001, startTime + decay);
+            
+            const bellGain = ctx.createGain();
+            bellGain.gain.setValueAtTime(bellAmount * 0.3, startTime);
+            bellGain.gain.exponentialRampToValueAtTime(0.001, startTime + decay * 0.4);
+            
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.15, startTime);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + decay);
+            
+            // Connect
+            oscillators.forEach(osc => osc.connect(rideGain));
+            rideGain.connect(rideFilter);
+            bellOsc.connect(bellGain);
+            noiseSource.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            rideFilter.connect(ctx.destination);
+            bellGain.connect(ctx.destination);
+            noiseGain.connect(ctx.destination);
+            
+            // Start/stop
+            oscillators.forEach(osc => osc.start(startTime));
+            bellOsc.start(startTime);
+            noiseSource.start(startTime);
+            
+            oscillators.forEach(osc => osc.stop(startTime + decay));
+            bellOsc.stop(startTime + decay * 0.4);
+            noiseSource.stop(startTime + decay);
+        }
+
+        function playTechnoCrash2600(ctx, startTime) {
+            const variation = drumVariations.crash;
+            
+            let tone, decay, splash;
+            switch(variation) {
+                case 'splash':
+                    tone = 7000;
+                    decay = 1.8;
+                    splash = 0.8;
+                    break;
+                case 'dark':
+                    tone = 5000;
+                    decay = 3.0;
+                    splash = 0.3;
+                    break;
+                default: // classic
+                    tone = 6000;
+                    decay = 2.5;
+                    splash = 0.5;
+            }
+            
+            // Create complex metallic crash using multiple square waves
+            const frequencies = [tone * 0.5, tone * 0.7, tone * 1.0, tone * 1.4, tone * 1.7, tone * 2.1];
+            const oscillators = frequencies.map(freq => {
+                const osc = ctx.createOscillator();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq, startTime);
+                return osc;
+            });
+            
+            // Noise for wash
+            const noise = createNoiseBuffer(ctx);
+            const noiseSource = ctx.createBufferSource();
+            noiseSource.buffer = noise;
+            
+            // Splash noise (higher frequency burst)
+            const splashNoise = createNoiseBuffer(ctx);
+            const splashSource = ctx.createBufferSource();
+            splashSource.buffer = splashNoise;
+            
+            // Filters
+            const crashFilter = ctx.createBiquadFilter();
+            crashFilter.type = 'highpass';
+            crashFilter.frequency.setValueAtTime(tone * 0.5, startTime);
+            crashFilter.Q.setValueAtTime(1, startTime);
+            
+            const noiseFilter = ctx.createBiquadFilter();
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.setValueAtTime(tone, startTime);
+            noiseFilter.Q.setValueAtTime(0.5, startTime);
+            
+            const splashFilter = ctx.createBiquadFilter();
+            splashFilter.type = 'highpass';
+            splashFilter.frequency.setValueAtTime(tone * 2, startTime);
+            splashFilter.Q.setValueAtTime(2, startTime);
+            
+            // Gains
+            const crashGain = ctx.createGain();
+            crashGain.gain.setValueAtTime(0.12, startTime);
+            crashGain.gain.exponentialRampToValueAtTime(0.001, startTime + decay);
+            
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.35, startTime);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + decay);
+            
+            const splashGain = ctx.createGain();
+            splashGain.gain.setValueAtTime(splash * 0.5, startTime);
+            splashGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
+            
+            // Connect
+            oscillators.forEach(osc => osc.connect(crashGain));
+            crashGain.connect(crashFilter);
+            noiseSource.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            splashSource.connect(splashFilter);
+            splashFilter.connect(splashGain);
+            crashFilter.connect(ctx.destination);
+            noiseGain.connect(ctx.destination);
+            splashGain.connect(ctx.destination);
+            
+            // Start/stop
+            oscillators.forEach(osc => osc.start(startTime));
+            noiseSource.start(startTime);
+            splashSource.start(startTime);
+            
+            oscillators.forEach(osc => osc.stop(startTime + decay));
+            noiseSource.stop(startTime + decay);
+            splashSource.stop(startTime + 0.3);
         }
 
         function updateGuidance(type, value) {

@@ -58,11 +58,103 @@ class Drums {
                 decay: options.percDecay || 0.08,
                 gain: options.percGain || 0.4,
                 ...options.perc
+            },
+            ride: {
+                decay: options.rideDecay || 1.5,
+                tone: options.rideTone || 4000,
+                gain: options.rideGain || 0.35,
+                bell: options.rideBell || 0.3,
+                ...options.ride
+            },
+            crash: {
+                decay: options.crashDecay || 2.5,
+                tone: options.crashTone || 6000,
+                gain: options.crashGain || 0.45,
+                splash: options.crashSplash || 0.5,
+                ...options.crash
             }
         };
 
         // Audio nodes (created dynamically per trigger)
         this.output = this.engine.createGain(1.0);
+
+        // Sound variations for each drum type
+        this.variations = {
+            kick: 'classic',
+            snare: 'classic',
+            hihat: 'classic',
+            clap: 'classic',
+            perc: 'tom',
+            ride: 'classic',
+            crash: 'classic'
+        };
+
+        // Variation definitions
+        this.variationLibrary = {
+            kick: {
+                classic: { pitch: 150, endPitch: 40, duration: 0.3, clickGain: 0.5, bodyGain: 1.0 },
+                deep: { pitch: 100, endPitch: 30, duration: 0.5, clickGain: 0.3, bodyGain: 1.2 },
+                hard: { pitch: 180, endPitch: 50, duration: 0.25, clickGain: 0.8, bodyGain: 1.0 },
+                industrial: { pitch: 150, endPitch: 40, duration: 0.3, clickGain: 1.0, bodyGain: 0.8, noise: true }
+            },
+            snare: {
+                classic: { pitch: 200, snap: 0.7, tone: 3000, decay: 0.12 },
+                tight: { pitch: 250, snap: 1.0, tone: 3500, decay: 0.08 },
+                bright: { pitch: 220, snap: 0.8, tone: 4000, decay: 0.1 }
+            },
+            hihat: {
+                classic: { tone: 8000, decay: 0.05, resonance: 1 },
+                bright: { tone: 12000, decay: 0.04, resonance: 1.5 },
+                metallic: { tone: 9000, decay: 0.06, resonance: 2 },
+                open: { tone: 7000, decay: 0.2, resonance: 0.8 }
+            },
+            clap: {
+                classic: { tone: 1500, decay: 0.1, layers: 3 },
+                tight: { tone: 2000, decay: 0.05, layers: 2 },
+                reverb: { tone: 1200, decay: 0.25, layers: 4 }
+            },
+            perc: {
+                tom: { pitch: 800, endPitch: 400, decay: 0.08 },
+                rim: { pitch: 2000, endPitch: 2000, decay: 0.02 },
+                conga: { pitch: 350, endPitch: 300, decay: 0.12 },
+                cowbell: { pitch: 800, endPitch: 800, decay: 0.15 }
+            },
+            ride: {
+                classic: { tone: 4000, decay: 1.5, bell: 0.3 },
+                bright: { tone: 5000, decay: 1.3, bell: 0.4 },
+                dark: { tone: 3200, decay: 1.8, bell: 0.2 }
+            },
+            crash: {
+                classic: { tone: 6000, decay: 2.5, splash: 0.5 },
+                splash: { tone: 7000, decay: 1.8, splash: 0.8 },
+                dark: { tone: 5000, decay: 3.0, splash: 0.3 }
+            }
+        };
+    }
+
+    /**
+     * Set drum variation
+     * @param {string} drumType - Drum type (kick, snare, hihat, clap, perc, ride, crash)
+     * @param {string} variation - Variation name
+     */
+    setVariation(drumType, variation) {
+        if (this.variationLibrary[drumType] && this.variationLibrary[drumType][variation]) {
+            this.variations[drumType] = variation;
+            console.log(`🥁 ${drumType} variation set to: ${variation}`);
+            return true;
+        }
+        console.warn(`Variation ${variation} not found for ${drumType}`);
+        return false;
+    }
+
+    /**
+     * Get current variation for a drum type
+     * @param {string} drumType - Drum type
+     * @returns {object} Variation parameters
+     */
+    getVariationParams(drumType) {
+        const variation = this.variations[drumType] || 'classic';
+        return this.variationLibrary[drumType][variation];
     }
 
     /**
@@ -367,6 +459,208 @@ class Drums {
     }
 
     /**
+     * Trigger ride cymbal (metallic sustain with bell component)
+     * @param {number} velocity - Note velocity 0-1
+     * @param {number} startTime - When to start (AudioContext time)
+     */
+    triggerRide(velocity = 1.0, startTime = null) {
+        const now = startTime || this.ctx.currentTime;
+        const params = this.params.ride;
+
+        // === Multiple square waves for metallic character ===
+        const frequencies = [
+            params.tone * 0.8,
+            params.tone * 1.0,
+            params.tone * 1.25,
+            params.tone * 1.5,
+            params.tone * 1.8
+        ];
+        const oscillators = frequencies.map(freq => {
+            const osc = this.engine.createOscillator('square', freq);
+            return osc;
+        });
+
+        // === Bell component (sine wave for ride bell) ===
+        const bellOsc = this.engine.createOscillator('sine', params.tone * 2);
+
+        // === Noise for shimmer ===
+        const noiseBuffer = this.engine.createNoiseBuffer(params.decay + 0.05, 'white');
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+
+        // === Filters ===
+        const oscFilter = this.engine.createFilter('bandpass', params.tone, 1.5);
+        const bellFilter = this.engine.createFilter('bandpass', params.tone * 2, 2);
+        const noiseFilter = this.engine.createFilter('bandpass', params.tone * 1.5, 0.8);
+
+        // === Gains ===
+        const oscGain = this.engine.createGain(0);
+        const bellGain = this.engine.createGain(0);
+        const noiseGain = this.engine.createGain(0);
+        const masterGain = this.engine.createGain(0);
+
+        // === Signal routing ===
+        oscillators.forEach(osc => osc.connect(oscGain));
+        bellOsc.connect(bellFilter);
+        bellFilter.connect(bellGain);
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        oscGain.connect(oscFilter);
+        oscFilter.connect(masterGain);
+        bellGain.connect(masterGain);
+        noiseGain.connect(masterGain);
+        masterGain.connect(this.output);
+
+        // === Oscillator envelope (long sustain) ===
+        const oscVelocity = 0.08 * velocity;
+        oscGain.gain.setValueAtTime(oscVelocity, now);
+        oscGain.gain.exponentialRampToValueAtTime(oscVelocity * 0.5, now + params.decay * 0.3);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + params.decay);
+
+        // === Bell envelope (quick attack with moderate sustain) ===
+        const bellVelocity = params.bell * velocity;
+        bellGain.gain.setValueAtTime(bellVelocity, now);
+        bellGain.gain.exponentialRampToValueAtTime(0.001, now + params.decay * 0.4);
+
+        // === Noise envelope (shimmering tail) ===
+        const noiseVelocity = 0.15 * velocity;
+        noiseGain.gain.setValueAtTime(noiseVelocity, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + params.decay);
+
+        // === Master gain ===
+        const masterVelocity = params.gain * velocity;
+        masterGain.gain.setValueAtTime(masterVelocity, now);
+        masterGain.gain.exponentialRampToValueAtTime(0.001, now + params.decay);
+
+        // === Start/stop ===
+        oscillators.forEach(osc => osc.start(now));
+        bellOsc.start(now);
+        noise.start(now);
+        
+        const stopTime = now + params.decay + 0.05;
+        oscillators.forEach(osc => osc.stop(stopTime));
+        bellOsc.stop(stopTime);
+        noise.stop(stopTime);
+
+        // Cleanup
+        oscillators[0].onended = () => {
+            oscillators.forEach(osc => osc.disconnect());
+            bellOsc.disconnect();
+            noise.disconnect();
+            oscFilter.disconnect();
+            bellFilter.disconnect();
+            noiseFilter.disconnect();
+            oscGain.disconnect();
+            bellGain.disconnect();
+            noiseGain.disconnect();
+            masterGain.disconnect();
+        };
+    }
+
+    /**
+     * Trigger crash cymbal (bright explosive wash)
+     * @param {number} velocity - Note velocity 0-1
+     * @param {number} startTime - When to start (AudioContext time)
+     */
+    triggerCrash(velocity = 1.0, startTime = null) {
+        const now = startTime || this.ctx.currentTime;
+        const params = this.params.crash;
+
+        // === Multiple square waves for complex metallic character ===
+        const frequencies = [
+            params.tone * 0.5,
+            params.tone * 0.7,
+            params.tone * 1.0,
+            params.tone * 1.4,
+            params.tone * 1.7,
+            params.tone * 2.1
+        ];
+        const oscillators = frequencies.map(freq => {
+            const osc = this.engine.createOscillator('square', freq);
+            return osc;
+        });
+
+        // === Noise for crash wash ===
+        const noiseBuffer = this.engine.createNoiseBuffer(params.decay + 0.1, 'white');
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+
+        // === Splash component (higher frequency burst) ===
+        const splashNoiseBuffer = this.engine.createNoiseBuffer(0.3, 'white');
+        const splashNoise = this.ctx.createBufferSource();
+        splashNoise.buffer = splashNoiseBuffer;
+
+        // === Filters ===
+        const oscFilter = this.engine.createFilter('highpass', params.tone * 0.5, 1);
+        const noiseFilter = this.engine.createFilter('bandpass', params.tone, 0.5);
+        const splashFilter = this.engine.createFilter('highpass', params.tone * 2, 2);
+
+        // === Gains ===
+        const oscGain = this.engine.createGain(0);
+        const noiseGain = this.engine.createGain(0);
+        const splashGain = this.engine.createGain(0);
+        const masterGain = this.engine.createGain(0);
+
+        // === Signal routing ===
+        oscillators.forEach(osc => osc.connect(oscGain));
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        splashNoise.connect(splashFilter);
+        splashFilter.connect(splashGain);
+        oscGain.connect(oscFilter);
+        oscFilter.connect(masterGain);
+        noiseGain.connect(masterGain);
+        splashGain.connect(masterGain);
+        masterGain.connect(this.output);
+
+        // === Oscillator envelope (explosive attack, long decay) ===
+        const oscVelocity = 0.12 * velocity;
+        oscGain.gain.setValueAtTime(oscVelocity, now);
+        oscGain.gain.exponentialRampToValueAtTime(oscVelocity * 0.6, now + 0.05);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + params.decay);
+
+        // === Noise envelope (long wash) ===
+        const noiseVelocity = 0.35 * velocity;
+        noiseGain.gain.setValueAtTime(noiseVelocity, now);
+        noiseGain.gain.exponentialRampToValueAtTime(noiseVelocity * 0.4, now + params.decay * 0.3);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + params.decay);
+
+        // === Splash envelope (bright initial burst) ===
+        const splashVelocity = params.splash * velocity;
+        splashGain.gain.setValueAtTime(splashVelocity, now);
+        splashGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+        // === Master gain ===
+        const masterVelocity = params.gain * velocity;
+        masterGain.gain.setValueAtTime(masterVelocity, now);
+        masterGain.gain.exponentialRampToValueAtTime(0.001, now + params.decay);
+
+        // === Start/stop ===
+        oscillators.forEach(osc => osc.start(now));
+        noise.start(now);
+        splashNoise.start(now);
+        
+        const stopTime = now + params.decay + 0.1;
+        oscillators.forEach(osc => osc.stop(stopTime));
+        noise.stop(stopTime);
+        splashNoise.stop(now + 0.3);
+
+        // Cleanup
+        oscillators[0].onended = () => {
+            oscillators.forEach(osc => osc.disconnect());
+            noise.disconnect();
+            splashNoise.disconnect();
+            oscFilter.disconnect();
+            noiseFilter.disconnect();
+            splashFilter.disconnect();
+            oscGain.disconnect();
+            noiseGain.disconnect();
+            splashGain.disconnect();
+            masterGain.disconnect();
+        };
+    }
+
+    /**
      * Trigger pattern (16-step grid)
      * @param {object} pattern - Pattern object with kick, snare, hihat, clap arrays
      * @param {number} bpm - Tempo in beats per minute
@@ -421,6 +715,24 @@ class Drums {
                 }
             });
         }
+
+        // Trigger ride
+        if (pattern.ride) {
+            pattern.ride.forEach((velocity, step) => {
+                if (velocity > 0) {
+                    this.triggerRide(velocity, now + (step * stepTime));
+                }
+            });
+        }
+
+        // Trigger crash
+        if (pattern.crash) {
+            pattern.crash.forEach((velocity, step) => {
+                if (velocity > 0) {
+                    this.triggerCrash(velocity, now + (step * stepTime));
+                }
+            });
+        }
     }
 
     /**
@@ -469,7 +781,9 @@ class Drums {
                 snare: { pitch: 200, decay: 0.12, snap: 0.8, gain: 0.7 },
                 hihat: { decay: 0.04, tone: 8000, gain: 0.35 },
                 clap: { decay: 0.1, tone: 1500, gain: 0.6 },
-                perc: { pitch: 800, decay: 0.08, gain: 0.4 }
+                perc: { pitch: 800, decay: 0.08, gain: 0.4 },
+                ride: { decay: 1.8, tone: 4200, bell: 0.25, gain: 0.3 },
+                crash: { decay: 2.2, tone: 6500, splash: 0.6, gain: 0.4 }
             },
             // Techno 909 style
             techno: {
@@ -477,7 +791,9 @@ class Drums {
                 snare: { pitch: 180, decay: 0.1, snap: 0.6, gain: 0.6 },
                 hihat: { decay: 0.05, tone: 9000, gain: 0.4 },
                 clap: { decay: 0.12, tone: 1800, gain: 0.5 },
-                perc: { pitch: 900, decay: 0.06, gain: 0.35 }
+                perc: { pitch: 900, decay: 0.06, gain: 0.35 },
+                ride: { decay: 1.5, tone: 4000, bell: 0.3, gain: 0.35 },
+                crash: { decay: 2.5, tone: 6000, splash: 0.5, gain: 0.45 }
             },
             // Classic 808
             '808': {
@@ -485,7 +801,9 @@ class Drums {
                 snare: { pitch: 220, decay: 0.15, snap: 0.9, gain: 0.6 },
                 hihat: { decay: 0.03, tone: 7000, gain: 0.3 },
                 clap: { decay: 0.08, tone: 1200, gain: 0.5 },
-                perc: { pitch: 850, decay: 0.1, gain: 0.4 }
+                perc: { pitch: 850, decay: 0.1, gain: 0.4 },
+                ride: { decay: 1.6, tone: 3800, bell: 0.2, gain: 0.3 },
+                crash: { decay: 2.0, tone: 5500, splash: 0.4, gain: 0.4 }
             },
             // 909 style
             '909': {
@@ -493,7 +811,9 @@ class Drums {
                 snare: { pitch: 150, decay: 0.08, snap: 0.5, gain: 0.65 },
                 hihat: { decay: 0.06, tone: 10000, gain: 0.45 },
                 clap: { decay: 0.15, tone: 2000, gain: 0.55 },
-                perc: { pitch: 1000, decay: 0.05, gain: 0.3 }
+                perc: { pitch: 1000, decay: 0.05, gain: 0.3 },
+                ride: { decay: 1.7, tone: 4500, bell: 0.35, gain: 0.4 },
+                crash: { decay: 2.8, tone: 6800, splash: 0.5, gain: 0.5 }
             },
             // Minimal
             minimal: {
@@ -501,7 +821,9 @@ class Drums {
                 snare: { pitch: 160, decay: 0.06, snap: 0.4, gain: 0.5 },
                 hihat: { decay: 0.08, tone: 11000, gain: 0.35 },
                 clap: { decay: 0.1, tone: 1600, gain: 0.45 },
-                perc: { pitch: 750, decay: 0.04, gain: 0.3 }
+                perc: { pitch: 750, decay: 0.04, gain: 0.3 },
+                ride: { decay: 1.3, tone: 3500, bell: 0.15, gain: 0.25 },
+                crash: { decay: 1.8, tone: 5000, splash: 0.3, gain: 0.35 }
             },
             // Hard
             hard: {
@@ -509,7 +831,9 @@ class Drums {
                 snare: { pitch: 250, decay: 0.14, snap: 1.0, gain: 0.8 },
                 hihat: { decay: 0.035, tone: 8500, gain: 0.5 },
                 clap: { decay: 0.12, tone: 1400, gain: 0.7 },
-                perc: { pitch: 950, decay: 0.09, gain: 0.5 }
+                perc: { pitch: 950, decay: 0.09, gain: 0.5 },
+                ride: { decay: 1.4, tone: 4200, bell: 0.4, gain: 0.35 },
+                crash: { decay: 2.3, tone: 6200, splash: 0.6, gain: 0.45 }
             }
         };
 
