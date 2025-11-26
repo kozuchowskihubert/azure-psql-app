@@ -1801,6 +1801,10 @@
                 <span>🎻</span>
                 <span>Strings</span>
             </button>
+            <button class="tab-button" onclick="switchTab('recorder')" data-tab="recorder">
+                <span>🎙️</span>
+                <span>Recorder</span>
+            </button>
             <button class="tab-button" onclick="switchTab('daw')" data-tab="daw">
                 <span>🎬</span>
                 <span>DAW Builder</span>
@@ -3530,6 +3534,94 @@
                     <button class="btn btn-secondary" onclick="playStringProgression()">
                         🎵 Play Progression
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Recorder -->
+        <div id="tab-recorder" class="tab-content modern-card">
+            <h2 style="color: var(--accent-magenta); margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 1.5em;">🎙️</span>
+                AUDIO RECORDER
+            </h2>
+            
+            <p style="color: var(--text-secondary); margin-bottom: 25px;">
+                Record audio with beat matching and store recordings for synchronized playback
+            </p>
+
+            <!-- Recorder Controls -->
+            <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 12px; margin-bottom: 25px; border: 2px solid var(--accent-magenta);">
+                <h3 style="color: var(--accent-primary); margin-bottom: 20px;">⚙️ Recording Settings</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label style="color: var(--accent-secondary); display: block; margin-bottom: 8px;">BPM</label>
+                        <input type="number" id="recorderBPM" value="135" min="60" max="200" 
+                               style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--accent-primary); color: var(--text-primary); border-radius: 6px;">
+                    </div>
+                    
+                    <div>
+                        <label style="color: var(--accent-secondary); display: block; margin-bottom: 8px;">Time Signature</label>
+                        <select id="recorderTimeSig" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--accent-primary); color: var(--text-primary); border-radius: 6px;">
+                            <option value="4">4/4</option>
+                            <option value="3">3/4</option>
+                            <option value="6">6/8</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="color: var(--accent-secondary); display: block; margin-bottom: 8px;">
+                            <input type="checkbox" id="recorderQuantize" checked style="margin-right: 8px;">
+                            Quantize to Beat
+                        </label>
+                        <label style="color: var(--accent-secondary); display: block; margin-top: 10px;">
+                            <input type="checkbox" id="recorderMetronome" style="margin-right: 8px;">
+                            Metronome Click
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Input Level Meter -->
+                <div style="margin-bottom: 20px;">
+                    <label style="color: var(--accent-secondary); display: block; margin-bottom: 8px;">Input Level</label>
+                    <div style="height: 20px; background: rgba(0,0,0,0.5); border-radius: 10px; overflow: hidden; border: 1px solid var(--accent-primary);">
+                        <div id="recorderLevelBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); transition: width 0.1s; box-shadow: 0 0 10px var(--accent-primary);"></div>
+                    </div>
+                </div>
+                
+                <!-- Status Display -->
+                <div id="recorderStatus" style="text-align: center; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 10px; margin-bottom: 20px; border: 2px solid var(--accent-cyan);">
+                    <div id="recorderTime" style="font-size: 2.5em; font-family: var(--haos-font-mono); color: var(--accent-primary); margin-bottom: 10px;">00:00:00</div>
+                    <div id="recorderStatusText" style="color: rgba(255,255,255,0.7);">Ready to Record</div>
+                    <div id="recorderBeatInfo" style="color: var(--accent-secondary); margin-top: 10px; font-family: var(--haos-font-mono);"></div>
+                </div>
+                
+                <!-- Control Buttons -->
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                    <button id="recorderInitBtn" class="btn btn-secondary" onclick="initRecorder()">
+                        🎤 Initialize Microphone
+                    </button>
+                    <button id="recorderStartBtn" class="btn" onclick="startRecording()" disabled style="background: linear-gradient(135deg, #FF1493, #FF6B35);">
+                        ⏺ Start Recording
+                    </button>
+                    <button id="recorderPauseBtn" class="btn btn-secondary" onclick="pauseRecording()" disabled>
+                        ⏸ Pause
+                    </button>
+                    <button id="recorderStopBtn" class="btn btn-cyan" onclick="stopRecording()" disabled>
+                        ⏹ Stop
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recordings List -->
+            <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 12px; border: 2px solid var(--accent-cyan);">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 20px;">💿 Your Recordings</h3>
+                <div id="recordingsList" style="display: grid; gap: 15px;">
+                    <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
+                        <div style="font-size: 3em; margin-bottom: 15px;">🎙️</div>
+                        <h4>No Recordings Yet</h4>
+                        <p>Start recording to see your tracks here</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -8146,6 +8238,235 @@ ESC       - Close modals`);
     <script type="module" src="/js/synths/tr808.js"></script>
     <script type="module" src="/js/synths/arp2600.js"></script>
     <script type="module" src="/js/synths/string-machine.js"></script>
+
+    <!-- Audio Recorder Module -->
+    <script type="module">
+        import AudioRecorder from '/js/audio-recorder.js';
+        
+        let audioRecorder = null;
+        let recorderLevelInterval = null;
+        let recorderTimeInterval = null;
+        let recorderStartTime = null;
+        
+        // Initialize recorder when audio context is ready
+        window.initRecorder = async function() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            if (!audioRecorder) {
+                audioRecorder = new AudioRecorder(audioContext);
+            }
+            
+            const result = await audioRecorder.initializeRecording();
+            
+            if (result.success) {
+                document.getElementById('recorderInitBtn').disabled = true;
+                document.getElementById('recorderStartBtn').disabled = false;
+                document.getElementById('recorderStatusText').textContent = 'Microphone Ready ✓';
+                
+                // Start level monitoring
+                recorderLevelInterval = setInterval(() => {
+                    const level = audioRecorder.getInputLevel();
+                    const percentage = Math.min(level * 100, 100);
+                    document.getElementById('recorderLevelBar').style.width = percentage + '%';
+                }, 50);
+                
+                showToast('✓ Microphone initialized successfully', 'success');
+            } else {
+                showToast('✗ ' + result.message, 'error');
+            }
+        };
+        
+        window.startRecording = async function() {
+            const bpm = parseInt(document.getElementById('recorderBPM').value) || technoBPM;
+            const beatsPerBar = parseInt(document.getElementById('recorderTimeSig').value);
+            const quantize = document.getElementById('recorderQuantize').checked;
+            const metronome = document.getElementById('recorderMetronome').checked;
+            
+            audioRecorder.metronomeEnabled = metronome;
+            
+            const result = await audioRecorder.startRecording({
+                bpm,
+                beatsPerBar,
+                quantize,
+                sequencer: technoIsPlaying ? { isPlaying: true } : null
+            });
+            
+            if (result.success) {
+                document.getElementById('recorderStartBtn').disabled = true;
+                document.getElementById('recorderPauseBtn').disabled = false;
+                document.getElementById('recorderStopBtn').disabled = false;
+                document.getElementById('recorderStatus').style.borderColor = '#FF1493';
+                document.getElementById('recorderStatus').style.animation = 'pulse 1s infinite';
+                document.getElementById('recorderStatusText').textContent = '⏺ RECORDING...';
+                
+                recorderStartTime = Date.now();
+                recorderTimeInterval = setInterval(updateRecorderTime, 100);
+                
+                showToast('⏺ Recording started', 'info');
+            }
+        };
+        
+        window.pauseRecording = function() {
+            const result = audioRecorder.pauseRecording();
+            if (result.success) {
+                const btn = document.getElementById('recorderPauseBtn');
+                btn.textContent = '▶ Resume';
+                btn.onclick = resumeRecording;
+                document.getElementById('recorderStatusText').textContent = '⏸ PAUSED';
+                showToast('⏸ Recording paused', 'info');
+            }
+        };
+        
+        window.resumeRecording = function() {
+            const result = audioRecorder.resumeRecording();
+            if (result.success) {
+                const btn = document.getElementById('recorderPauseBtn');
+                btn.textContent = '⏸ Pause';
+                btn.onclick = pauseRecording;
+                document.getElementById('recorderStatusText').textContent = '⏺ RECORDING...';
+                showToast('▶ Recording resumed', 'info');
+            }
+        };
+        
+        window.stopRecording = function() {
+            const result = audioRecorder.stopRecording();
+            if (result.success) {
+                clearInterval(recorderTimeInterval);
+                document.getElementById('recorderStartBtn').disabled = false;
+                document.getElementById('recorderPauseBtn').disabled = true;
+                document.getElementById('recorderStopBtn').disabled = true;
+                document.getElementById('recorderStatus').style.borderColor = 'var(--accent-cyan)';
+                document.getElementById('recorderStatus').style.animation = 'none';
+                document.getElementById('recorderStatusText').textContent = 'Recording Saved ✓';
+                document.getElementById('recorderTime').textContent = '00:00:00';
+                document.getElementById('recorderBeatInfo').textContent = '';
+                
+                showToast('✓ Recording saved!', 'success');
+            }
+        };
+        
+        function updateRecorderTime() {
+            const elapsed = (Date.now() - recorderStartTime) / 1000;
+            const hours = Math.floor(elapsed / 3600);
+            const minutes = Math.floor((elapsed % 3600) / 60);
+            const seconds = Math.floor(elapsed % 60);
+            
+            const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('recorderTime').textContent = timeStr;
+            
+            // Update beat info
+            const bpm = parseInt(document.getElementById('recorderBPM').value) || technoBPM;
+            const beatsPerBar = parseInt(document.getElementById('recorderTimeSig').value);
+            const beatDuration = 60 / bpm;
+            const currentBeat = Math.floor(elapsed / beatDuration) % beatsPerBar;
+            const currentBar = Math.floor(elapsed / (beatDuration * beatsPerBar));
+            
+            document.getElementById('recorderBeatInfo').textContent = `Bar ${currentBar + 1} | Beat ${currentBeat + 1}`;
+        }
+        
+        window.playRecording = async function(id) {
+            const result = await audioRecorder.playRecording(id, {
+                volume: 1.0,
+                quantize: true,
+                sequencer: technoIsPlaying ? { isPlaying: true } : null,
+                bpm: technoBPM
+            });
+            if (result.success) {
+                showToast('▶ Playing recording', 'info');
+            }
+        };
+        
+        window.stopPlayback = function(id) {
+            audioRecorder.stopPlayback(id);
+            showToast('⏹ Playback stopped', 'info');
+        };
+        
+        window.downloadRecording = function(id) {
+            audioRecorder.exportRecording(id);
+            showToast('💾 Downloading recording', 'info');
+        };
+        
+        window.deleteRecording = function(id) {
+            if (confirm('Delete this recording?')) {
+                audioRecorder.deleteRecording(id);
+                loadRecordingsList();
+                showToast('🗑️ Recording deleted', 'info');
+            }
+        };
+        
+        function loadRecordingsList() {
+            if (!audioRecorder) return;
+            
+            const recordings = audioRecorder.getAllRecordings();
+            const container = document.getElementById('recordingsList');
+            
+            if (recordings.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
+                        <div style="font-size: 3em; margin-bottom: 15px;">🎙️</div>
+                        <h4>No Recordings Yet</h4>
+                        <p>Start recording to see your tracks here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = recordings.map(recording => `
+                <div style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; border-left: 4px solid var(--accent-primary);">
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center;">
+                        <div>
+                            <h4 style="color: var(--accent-secondary); margin-bottom: 10px;">${recording.name}</h4>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.9em;">
+                                <span style="background: rgba(57,255,20,0.2); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--accent-primary);">
+                                    ⏱ ${formatDuration(recording.duration)}
+                                </span>
+                                <span style="background: rgba(255,107,53,0.2); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--accent-secondary);">
+                                    🎵 ${recording.bpm} BPM
+                                </span>
+                                <span style="background: rgba(0,255,255,0.2); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--accent-cyan);">
+                                    📊 ${recording.bars} bars
+                                </span>
+                                ${recording.quantized ? '<span style="background: rgba(255,215,0,0.2); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--accent-gold);">🎯 Quantized</span>' : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-small" onclick="playRecording(${recording.id})" title="Play">
+                                ▶️
+                            </button>
+                            <button class="btn btn-small btn-cyan" onclick="downloadRecording(${recording.id})" title="Download">
+                                💾
+                            </button>
+                            <button class="btn btn-small" onclick="deleteRecording(${recording.id})" title="Delete" style="background: #FF1493;">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function formatDuration(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${String(secs).padStart(2, '0')}`;
+        }
+        
+        // Listen for recording complete events
+        window.addEventListener('recordingComplete', (e) => {
+            loadRecordingsList();
+            showToast('✓ Recording saved: ' + e.detail.name, 'success');
+        });
+        
+        // Sync BPM with techno creator
+        window.addEventListener('DOMContentLoaded', () => {
+            const bpmInput = document.getElementById('recorderBPM');
+            if (bpmInput) {
+                bpmInput.value = technoBPM || 135;
+            }
+        });
+    </script>
 
     <!-- Theme Manager Script -->
     <script src="/js/theme-manager.js"></script>
