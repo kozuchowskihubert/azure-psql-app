@@ -302,6 +302,17 @@
             box-shadow: 0 0 10px var(--glow);
         }
 
+        .step.playing {
+            border: 2px solid var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+            animation: pulse 0.3s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
         .step:hover {
             border-color: var(--accent-primary);
         }
@@ -2561,13 +2572,31 @@
         }
 
         function playTechnoPattern() {
-            if (technoIsPlaying) return;
+            console.log('🎵 Play button clicked');
             
+            if (technoIsPlaying) {
+                console.log('⚠️ Already playing, ignoring');
+                return;
+            }
+            
+            // Check if there's a pattern to play
+            const hasPattern = Object.keys(technoPattern).some(key => 
+                technoPattern[key].some(val => val === true)
+            );
+            
+            if (!hasPattern) {
+                console.warn('⚠️ No pattern to play! Load a preset or create a pattern first.');
+                showTechnoNotification('⚠️ No pattern! Load a preset first.');
+                return;
+            }
+            
+            console.log('✅ Pattern found, initializing audio...');
             initAudio();
             technoIsPlaying = true;
             technoCurrentStep = 0;
             
             const stepDuration = (60 / technoBPM) / 4 * 1000; // 16th notes
+            console.log(`▶️ Playing at ${technoBPM} BPM (${stepDuration.toFixed(2)}ms per step)`);
             
             technoIntervalId = setInterval(() => {
                 const ctx = audioContext;
@@ -2578,16 +2607,28 @@
                 if (technoPattern.clap[technoCurrentStep]) playTechnoClap(ctx, time);
                 if (technoPattern.perc[technoCurrentStep]) playTechnoPerc(ctx, time);
                 
+                // Highlight current step
+                document.querySelectorAll('.step').forEach(el => el.classList.remove('playing'));
+                document.querySelectorAll(`[data-step="${technoCurrentStep}"]`).forEach(el => {
+                    el.classList.add('playing');
+                });
+                
                 technoCurrentStep = (technoCurrentStep + 1) % 16;
             }, stepDuration);
         }
 
         function stopTechnoPattern() {
+            console.log('⏹️ Stop button clicked');
             technoIsPlaying = false;
             if (technoIntervalId) {
                 clearInterval(technoIntervalId);
                 technoIntervalId = null;
             }
+            technoCurrentStep = 0;
+            
+            // Remove playing highlights
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('playing'));
+            console.log('✅ Playback stopped');
         }
 
         function clearTechnoPattern() {
@@ -2611,6 +2652,7 @@
         }
 
         function loadTechnoPreset(preset) {
+            console.log(`🎵 Loading techno preset: ${preset}`);
             clearTechnoPattern();
             
             const presets = {
@@ -2641,20 +2683,61 @@
             };
             
             const pattern = presets[preset];
-            if (!pattern) return;
+            if (!pattern) {
+                console.error(`❌ Preset not found: ${preset}`);
+                return;
+            }
             
+            let stepsActivated = 0;
             Object.keys(pattern).forEach(key => {
                 pattern[key].forEach((val, i) => {
                     technoPattern[key][i] = val === 1;
                     const step = document.querySelector(`[data-instrument="${key}"][data-step="${i}"]`);
-                    if (step && val === 1) step.classList.add('active');
+                    if (step) {
+                        if (val === 1) {
+                            step.classList.add('active');
+                            stepsActivated++;
+                        }
+                    } else {
+                        console.warn(`⚠️ Step element not found: ${key}[${i}]`);
+                    }
                 });
             });
+            
+            console.log(`✅ Preset loaded: ${stepsActivated} steps activated`);
+            
+            // Show visual feedback
+            showTechnoNotification(`${preset.replace('_', ' ').toUpperCase()} loaded! Click ▶️ to play.`);
         }
 
         function updateTechnoBPM(value) {
             technoBPM = parseInt(value);
             document.getElementById('technoBpmValue').textContent = value;
+        }
+
+        // Show notification helper
+        function showTechnoNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #00ff00, #00ffff);
+                color: #000;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0, 255, 0, 0.3);
+                z-index: 9999;
+                font-weight: bold;
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 2500);
         }
 
         // ============================================
