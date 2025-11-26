@@ -16,6 +16,11 @@
     
     <title>📻 HAOS.fm - Radio 24/7</title>
     
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -31,25 +36,30 @@
 
         :root {
             /* HAOS.fm Radio Theme */
-            --bg-primary: var(--haos-vinyl-black);
-            --bg-secondary: var(--haos-tape-brown);
+            --bg-primary: #0A0A0A;
+            --bg-secondary: #4A3C2E;
             --bg-tertiary: #2a2a2a;
             --bg-card: #1e1e1e;
-            --accent-techno: var(--haos-acid-green);
+            --accent-techno: #39FF14;
             --accent-rap: #ff00ff;
-            --accent-cyan: #00ffff;
-            --accent-orange: #ff6b00;
-            --text-primary: #ffffff;
+            --accent-cyan: #00D9FF;
+            --accent-orange: #FF6B35;
+            --text-primary: #F4E8D8;
             --text-secondary: #b0b0b0;
             --text-muted: #666;
             --border: #333;
             --success: #00ff41;
             --danger: #ff3366;
             --warning: #ffaa00;
+            
+            /* HAOS.fm Brand Fonts */
+            --haos-font-display: 'Bebas Neue', Arial, sans-serif;
+            --haos-font-body: 'Inter', Arial, sans-serif;
+            --haos-font-mono: 'Space Mono', 'Courier New', monospace;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: var(--haos-font-body), 'Inter', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, var(--bg-primary) 0%, #0f0f1e 100%);
             color: var(--text-primary);
             min-height: 100vh;
@@ -171,13 +181,17 @@
         }
 
         .channel-btn.techno {
-            background: linear-gradient(135deg, #00ff00, #00cc00);
-            color: #000;
+            background: linear-gradient(135deg, #39FF14, #00cc00);
+            color: #0A0A0A;
+            font-family: var(--haos-font-display);
+            letter-spacing: 1px;
         }
 
         .channel-btn.rap {
-            background: linear-gradient(135deg, #ff00ff, #cc00cc);
-            color: #000;
+            background: linear-gradient(135deg, #FF6B35, #cc00cc);
+            color: #0A0A0A;
+            font-family: var(--haos-font-display);
+            letter-spacing: 1px;
         }
 
         .channel-btn.active {
@@ -628,26 +642,74 @@
         .empty-state-text {
             font-size: 1.2em;
         }
+
+        /* Artist Card Styles */
+        .artist-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .artist-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-techno);
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .artist-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent-techno) 0%, var(--accent-rap) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .artist-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .artist-image {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .artist-card:hover .artist-image {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto;">
             <div style="flex: 1;">
-                <h1>📻 24/7 MUSIC RADIO</h1>
-                <p class="subtitle">Continuous Techno & Rap • Upload Tracks • Manage Queue</p>
+                <h1 style="font-family: var(--haos-font-display, 'Bebas Neue', Arial, sans-serif); font-size: clamp(2rem, 5vw, 3rem);">
+                    📻 HAOS.FM RADIO 24/7
+                </h1>
+                <p class="subtitle" style="font-family: var(--haos-font-body, 'Inter', Arial, sans-serif);">
+                    Continuous Electronic Music • Live Streaming • Artist Library
+                </p>
             </div>
-            <button id="theme-toggle" style="padding: 12px 18px; background: var(--bg-tertiary); border: 1px solid var(--accent-techno); border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: all 0.3s; font-size: 1.2em;" aria-label="Toggle theme">
-                <i class="fas fa-moon"></i>
+            <button id="theme-toggle" style="padding: 12px 18px; background: var(--bg-tertiary); border: 2px solid var(--haos-acid-green); border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: all 0.3s; font-size: 1.2em;" aria-label="Toggle theme" title="Toggle Theme">
+                <i class="fas fa-adjust"></i>
             </button>
         </div>
         
         <!-- Navigation -->
         <div class="nav-links">
-            <a href="/">🏠 Home</a>
-            <a href="/trap-studio">🔥 Trap Studio</a>
-            <a href="/techno-creator">⚡ Techno Creator</a>
-            <a href="/radio" class="active">📻 Radio 24/7</a>
+            <a href="/"><i class="fas fa-home"></i> Home</a>
+            <a href="/trap-studio"><i class="fas fa-fire"></i> Trap Studio</a>
+            <a href="/techno-creator"><i class="fas fa-bolt"></i> Techno Creator</a>
+            <a href="/radio" class="active"><i class="fas fa-broadcast-tower"></i> Radio 24/7</a>
         </div>
     </div>
 
@@ -885,6 +947,209 @@
                     addStudioTrackToQueue(track);
                 }
             });
+        }
+
+        // ============================================
+        // ARTIST LIBRARY FUNCTIONS
+        // ============================================
+        
+        let currentArtistIndex = -1;
+        let artistLibrary = [];
+        
+        /**
+         * Load artist library from localStorage
+         */
+        function loadArtistLibrary() {
+            try {
+                const stored = localStorage.getItem('haos-radio-artists');
+                if (stored) {
+                    artistLibrary = JSON.parse(stored);
+                    renderArtistLibrary();
+                } else {
+                    // Show empty state
+                    renderArtistLibrary();
+                }
+            } catch (e) {
+                console.error('Error loading artist library:', e);
+                renderArtistLibrary();
+            }
+        }
+        
+        /**
+         * Render artist library grid
+         */
+        function renderArtistLibrary() {
+            const grid = document.getElementById('artistLibraryGrid');
+            
+            if (!artistLibrary || artistLibrary.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-secondary); font-style: italic;">
+                        <div style="font-size: 3em; margin-bottom: 15px;">🎧</div>
+                        <div>No artists in your library yet!</div>
+                        <div style="margin-top: 10px; font-size: 0.9em;">
+                            Add favorite artists in <a href="/techno-creator" style="color: var(--accent-techno);">Techno Creator</a> or <a href="/trap-studio" style="color: var(--accent-rap);">Trap Studio</a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = artistLibrary.map((artist, index) => `
+                <div class="artist-card" onclick="playArtist(${index})" style="cursor: pointer;">
+                    <div class="artist-image" style="background: linear-gradient(135deg, ${artist.color || '#00ff00'}, ${artist.color2 || '#ff00ff'}); height: 200px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 4em; margin-bottom: 12px;">
+                        ${artist.emoji || '🎵'}
+                    </div>
+                    <h3 style="color: var(--text-primary); margin-bottom: 5px; font-size: 1.1em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${artist.name}">${artist.name}</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.9em; margin-bottom: 8px;">${artist.genre || 'Electronic'}</p>
+                    <div style="display: flex; align-items: center; gap: 5px; color: var(--accent-cyan); font-size: 0.85em;">
+                        <span>▶️</span>
+                        <span>Click to play</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        /**
+         * Play artist from library
+         */
+        function playArtist(index) {
+            if (index < 0 || index >= artistLibrary.length) return;
+            
+            currentArtistIndex = index;
+            const artist = artistLibrary[index];
+            
+            // Show player
+            const playerContainer = document.getElementById('currentArtistPlayer');
+            playerContainer.style.display = 'block';
+            
+            // Extract YouTube ID from URL
+            let youtubeId = '';
+            if (artist.youtubeUrl) {
+                const match = artist.youtubeUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+                if (match && match[1]) {
+                    youtubeId = match[1];
+                }
+            }
+            
+            // Update YouTube iframe
+            const iframe = document.getElementById('youtubePlayer');
+            if (youtubeId) {
+                iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
+            } else {
+                iframe.src = '';
+                showNotification('⚠️ No YouTube URL', `Artist "${artist.name}" doesn't have a YouTube link yet.`);
+            }
+            
+            // Scroll to player
+            playerContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Show notification
+            showNotification('🎵 Now Playing', `${artist.name} - ${artist.genre || 'Electronic'}`);
+        }
+        
+        /**
+         * Play next artist in library
+         */
+        function playNextArtist() {
+            if (artistLibrary.length === 0) return;
+            
+            currentArtistIndex = (currentArtistIndex + 1) % artistLibrary.length;
+            playArtist(currentArtistIndex);
+        }
+        
+        /**
+         * Play previous artist in library
+         */
+        function playPreviousArtist() {
+            if (artistLibrary.length === 0) return;
+            
+            currentArtistIndex = currentArtistIndex - 1;
+            if (currentArtistIndex < 0) {
+                currentArtistIndex = artistLibrary.length - 1;
+            }
+            playArtist(currentArtistIndex);
+        }
+        
+        /**
+         * Stop artist playback
+         */
+        function stopArtistPlayback() {
+            const playerContainer = document.getElementById('currentArtistPlayer');
+            const iframe = document.getElementById('youtubePlayer');
+            
+            iframe.src = '';
+            playerContainer.style.display = 'none';
+            currentArtistIndex = -1;
+            
+            showNotification('⏹️ Stopped', 'Artist playback stopped');
+        }
+        
+        /**
+         * Show notification toast
+         */
+        function showNotification(title, message) {
+            // Check if notification container exists, if not create it
+            let container = document.getElementById('notificationContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'notificationContainer';
+                container.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px;';
+                document.body.appendChild(container);
+            }
+            
+            // Create notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                background: linear-gradient(135deg, var(--haos-vinyl-black), var(--haos-tape-brown));
+                border: 2px solid var(--haos-acid-green);
+                border-radius: 12px;
+                padding: 15px 20px;
+                color: white;
+                min-width: 300px;
+                max-width: 400px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                animation: slideIn 0.3s ease;
+                cursor: pointer;
+            `;
+            
+            notification.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 5px; color: var(--haos-acid-green);">${title}</div>
+                <div style="font-size: 0.9em; color: var(--haos-groove-orange);">${message}</div>
+            `;
+            
+            // Add slide-in animation
+            if (!document.getElementById('notificationStyles')) {
+                const style = document.createElement('style');
+                style.id = 'notificationStyles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from {
+                            transform: translateX(400px);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Click to dismiss
+            notification.addEventListener('click', () => {
+                notification.remove();
+            });
+            
+            container.appendChild(notification);
+            
+            // Auto-remove after 4 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(400px)';
+                notification.style.transition = 'all 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
         }
 
         /**
