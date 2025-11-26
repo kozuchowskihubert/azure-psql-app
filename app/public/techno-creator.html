@@ -1797,6 +1797,10 @@
                 <span>🔊</span>
                 <span>Synthesis</span>
             </button>
+            <button class="tab-button" onclick="switchTab('strings')" data-tab="strings">
+                <span>🎻</span>
+                <span>Strings</span>
+            </button>
             <button class="tab-button" onclick="switchTab('daw')" data-tab="daw">
                 <span>🎬</span>
                 <span>DAW Builder</span>
@@ -3347,6 +3351,186 @@
                 <button class="btn btn-secondary" onclick="apply2600ToSequencer()">
                     ➕ Add to Sequencer
                 </button>
+            </div>
+        </div>
+
+        <!-- Tab Content: String Machine -->
+        <div id="tab-strings" class="tab-content modern-card">
+            <h2 style="color: var(--accent-cyan); margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 1.5em;">🎻</span>
+                STRING MACHINE - LUSH ENSEMBLE SYNTHESIS
+            </h2>
+            <p style="color: var(--text-secondary); margin-bottom: 25px;">
+                Classic string synthesizer emulation • Rich chorused textures for ambient techno
+            </p>
+
+            <!-- String Preset Library -->
+            <div class="collapsible-header active" onclick="toggleCollapsible(this)" style="margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2em;">🎼</span>
+                    <h3 style="margin: 0; color: var(--accent-primary);">STRING PRESETS</h3>
+                </div>
+                <span class="collapsible-icon">▼</span>
+            </div>
+            <div class="collapsible-content active" style="margin-bottom: 25px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 20px; background: var(--bg-primary); border-radius: 8px;">
+                    
+                    <div class="modern-card" onclick="loadStringPreset('lush_strings')" style="cursor: pointer; padding: 20px; text-align: center;">
+                        <div style="font-size: 3em; margin-bottom: 10px;">🎻</div>
+                        <h4 style="color: var(--accent-primary); margin-bottom: 8px;">LUSH STRINGS</h4>
+                        <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 12px;">
+                            Classic ensemble<br>Violin + Viola + Cello
+                        </p>
+                        <div style="background: rgba(0, 255, 0, 0.1); padding: 6px; border-radius: 4px; font-size: 0.8em; color: var(--accent-primary);">
+                            3 Sections • Chorus
+                        </div>
+                    </div>
+
+                    <div class="modern-card" onclick="loadStringPreset('techno_pad')" style="cursor: pointer; padding: 20px; text-align: center;">
+                        <div style="font-size: 3em; margin-bottom: 10px;">🌊</div>
+                        <h4 style="color: var(--accent-primary); margin-bottom: 8px;">TECHNO PAD</h4>
+                        <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 12px;">
+                            Wide detuned layers<br>Perfect for buildups
+                        </p>
+                        <div style="background: rgba(0, 255, 255, 0.1); padding: 6px; border-radius: 4px; font-size: 0.8em; color: var(--accent-cyan);">
+                            Heavy Chorus • Slow Attack
+                        </div>
+                    </div>
+
+                    <div class="modern-card" onclick="loadStringPreset('dark_ambient')" style="cursor: pointer; padding: 20px; text-align: center;">
+                        <div style="font-size: 3em; margin-bottom: 10px;">🌑</div>
+                        <h4 style="color: var(--accent-primary); margin-bottom: 8px;">DARK AMBIENT</h4>
+                        <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 12px;">
+                            Low frequency wash<br>Viola + Cello only
+                        </p>
+                        <div style="background: rgba(255, 0, 255, 0.1); padding: 6px; border-radius: 4px; font-size: 0.8em; color: var(--accent-secondary);">
+                            Dark • Deep Reverb
+                        </div>
+                    </div>
+
+                    <div class="modern-card" onclick="loadStringPreset('brass_section')" style="cursor: pointer; padding: 20px; text-align: center;">
+                        <div style="font-size: 3em; margin-bottom: 10px;">🎺</div>
+                        <h4 style="color: var(--accent-primary); margin-bottom: 8px;">BRASS SECTION</h4>
+                        <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 12px;">
+                            Bright brass stabs<br>Punchy attack
+                        </p>
+                        <div style="background: rgba(255, 255, 0, 0.1); padding: 6px; border-radius: 4px; font-size: 0.8em; color: var(--accent-gold);">
+                            Fast Attack • Vibrato
+                        </div>
+                    </div>
+
+                    <div class="modern-card" onclick="loadStringPreset('ethereal_wash')" style="cursor: pointer; padding: 20px; text-align: center;">
+                        <div style="font-size: 3em; margin-bottom: 10px;">✨</div>
+                        <h4 style="color: var(--accent-primary); margin-bottom: 8px;">ETHEREAL WASH</h4>
+                        <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 12px;">
+                            Spacious atmosphere<br>Heavy reverb + chorus
+                        </p>
+                        <div style="background: rgba(0, 255, 255, 0.1); padding: 6px; border-radius: 4px; font-size: 0.8em; color: var(--accent-cyan);">
+                            Very Slow • Ambient
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- String Controls -->
+            <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 2px solid var(--accent-cyan); margin-bottom: 25px;">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 15px;">🎚️ STRING CONTROLS</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                            <input type="checkbox" id="stringViolin" checked onchange="updateStringSection('violin', this.checked)"> Violin
+                        </label>
+                        <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                            <input type="checkbox" id="stringViola" checked onchange="updateStringSection('viola', this.checked)"> Viola
+                        </label>
+                        <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                            <input type="checkbox" id="stringCello" checked onchange="updateStringSection('cello', this.checked)"> Cello
+                        </label>
+                        <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">
+                            <input type="checkbox" id="stringBrass" onchange="updateStringSection('brass', this.checked)"> Brass
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">Attack Time</label>
+                        <input type="range" id="stringAttack" min="0.01" max="3" value="0.8" step="0.01" oninput="updateStringEnvelope()">
+                        <span id="stringAttackVal" style="color: var(--accent-primary); font-weight: bold;">0.8s</span>
+                    </div>
+                    
+                    <div>
+                        <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">Release Time</label>
+                        <input type="range" id="stringRelease" min="0.01" max="4" value="1.2" step="0.01" oninput="updateStringEnvelope()">
+                        <span id="stringReleaseVal" style="color: var(--accent-primary); font-weight: bold;">1.2s</span>
+                    </div>
+                    
+                    <div>
+                        <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">Chorus Depth</label>
+                        <input type="range" id="stringChorus" min="0" max="1" value="0.5" step="0.01" oninput="updateStringChorus()">
+                        <span id="stringChorusVal" style="color: var(--accent-cyan); font-weight: bold;">50%</span>
+                    </div>
+                    
+                    <div>
+                        <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">Reverb Mix</label>
+                        <input type="range" id="stringReverb" min="0" max="1" value="0.35" step="0.01" oninput="updateStringReverb()">
+                        <span id="stringReverbVal" style="color: var(--accent-cyan); font-weight: bold;">35%</span>
+                    </div>
+                    
+                    <div>
+                        <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">Master Volume</label>
+                        <input type="range" id="stringVolume" min="0" max="1" value="0.7" step="0.01" oninput="updateStringVolume()">
+                        <span id="stringVolumeVal" style="color: var(--accent-primary); font-weight: bold;">70%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modulation Control -->
+            <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 2px dashed var(--accent-magenta); margin-bottom: 25px;">
+                <h3 style="color: var(--accent-magenta); margin-bottom: 15px;">🔗 MODULATE ARP-2600 WITH STRINGS</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.9em;">
+                    Use the string output to modulate the ARP-2600 filter cutoff for dynamic timbral changes
+                </p>
+                
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 8px; color: var(--text-primary); cursor: pointer;">
+                        <input type="checkbox" id="enableStringMod" onchange="toggleStringModulation(this.checked)" style="width: 20px; height: 20px;">
+                        <span style="font-weight: bold;">Enable Modulation</span>
+                    </label>
+                    
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 8px;">Modulation Amount</label>
+                        <input type="range" id="stringModAmount" min="0" max="1" value="0.5" step="0.01" oninput="updateStringModAmount()">
+                        <span id="stringModAmountVal" style="color: var(--accent-magenta); font-weight: bold;">50%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Chords -->
+            <div style="text-align: center;">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 15px;">🎹 TEST CHORDS</h3>
+                <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn-modern" onclick="playStringChord('Cm')">
+                        Cm (Minor)
+                    </button>
+                    <button class="btn-modern" onclick="playStringChord('Am')">
+                        Am (Minor)
+                    </button>
+                    <button class="btn-modern" onclick="playStringChord('Dm')">
+                        Dm (Minor)
+                    </button>
+                    <button class="btn btn-cyan" onclick="playStringChord('C')">
+                        C (Major)
+                    </button>
+                    <button class="btn btn-cyan" onclick="playStringChord('F')">
+                        F (Major)
+                    </button>
+                    <button class="btn btn-cyan" onclick="playStringChord('G')">
+                        G (Major)
+                    </button>
+                    <button class="btn btn-secondary" onclick="playStringProgression()">
+                        🎵 Play Progression
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -7961,6 +8145,7 @@ ESC       - Close modals`);
     <script type="module" src="/js/synths/tb303.js"></script>
     <script type="module" src="/js/synths/tr808.js"></script>
     <script type="module" src="/js/synths/arp2600.js"></script>
+    <script type="module" src="/js/synths/string-machine.js"></script>
 
     <!-- Theme Manager Script -->
     <script src="/js/theme-manager.js"></script>
@@ -7972,6 +8157,124 @@ ESC       - Close modals`);
         });
         themeManager.init();
         
+        // String Machine Functions
+        function loadStringPreset(presetName) {
+            if (window.synthManager && window.synthManager.loadStringMachinePreset) {
+                window.synthManager.loadStringMachinePreset(presetName);
+                showTechnoNotification(`🎻 Loaded: ${presetName.replace(/_/g, ' ').toUpperCase()}`);
+                console.log('🎻 String preset loaded:', presetName);
+            }
+        }
+        
+        function updateStringSection(section, enabled) {
+            if (window.synthManager && window.synthManager.getStringMachine) {
+                const strings = window.synthManager.getStringMachine();
+                strings.setSection(section, enabled);
+                console.log(`🎻 ${section}: ${enabled ? 'ON' : 'OFF'}`);
+            }
+        }
+        
+        function updateStringEnvelope() {
+            const attack = parseFloat(document.getElementById('stringAttack').value);
+            const release = parseFloat(document.getElementById('stringRelease').value);
+            document.getElementById('stringAttackVal').textContent = attack.toFixed(2) + 's';
+            document.getElementById('stringReleaseVal').textContent = release.toFixed(2) + 's';
+            
+            if (window.synthManager && window.synthManager.getStringMachine) {
+                const strings = window.synthManager.getStringMachine();
+                strings.setEnvelope(attack, release);
+            }
+        }
+        
+        function updateStringChorus() {
+            const depth = parseFloat(document.getElementById('stringChorus').value);
+            document.getElementById('stringChorusVal').textContent = Math.round(depth * 100) + '%';
+            
+            if (window.synthManager && window.synthManager.getStringMachine) {
+                const strings = window.synthManager.getStringMachine();
+                strings.setChorus(true, depth);
+            }
+        }
+        
+        function updateStringReverb() {
+            const mix = parseFloat(document.getElementById('stringReverb').value);
+            document.getElementById('stringReverbVal').textContent = Math.round(mix * 100) + '%';
+            
+            if (window.synthManager && window.synthManager.getStringMachine) {
+                const strings = window.synthManager.getStringMachine();
+                strings.setReverb(true, undefined, mix);
+            }
+        }
+        
+        function updateStringVolume() {
+            const volume = parseFloat(document.getElementById('stringVolume').value);
+            document.getElementById('stringVolumeVal').textContent = Math.round(volume * 100) + '%';
+            
+            if (window.synthManager && window.synthManager.getStringMachine) {
+                const strings = window.synthManager.getStringMachine();
+                strings.setVolume(volume);
+            }
+        }
+        
+        function toggleStringModulation(enabled) {
+            const amount = parseFloat(document.getElementById('stringModAmount').value);
+            
+            if (window.synthManager) {
+                window.synthManager.modulateARP2600WithStrings(enabled, amount);
+                showTechnoNotification(enabled ? '🔗 ARP-2600 modulation enabled' : '❌ Modulation disabled');
+            }
+        }
+        
+        function updateStringModAmount() {
+            const amount = parseFloat(document.getElementById('stringModAmount').value);
+            document.getElementById('stringModAmountVal').textContent = Math.round(amount * 100) + '%';
+            
+            const enabled = document.getElementById('enableStringMod').checked;
+            if (enabled && window.synthManager) {
+                window.synthManager.modulateARP2600WithStrings(true, amount);
+            }
+        }
+        
+        function playStringChord(chordName) {
+            if (!window.synthManager) {
+                console.error('Synth Manager not initialized');
+                return;
+            }
+            
+            // Chord definitions (frequencies in Hz)
+            const chords = {
+                'Cm': [130.81, 155.56, 196.00],  // C3, Eb3, G3
+                'Am': [110.00, 130.81, 164.81],  // A2, C3, E3
+                'Dm': [146.83, 174.61, 220.00],  // D3, F3, A3
+                'C': [130.81, 164.81, 196.00],   // C3, E3, G3
+                'F': [174.61, 220.00, 261.63],   // F3, A3, C4
+                'G': [196.00, 246.94, 293.66]    // G3, B3, D4
+            };
+            
+            const frequencies = chords[chordName];
+            if (frequencies) {
+                window.synthManager.playStringChord(frequencies, 3.0, 0.7);
+                showTechnoNotification(`🎻 Playing: ${chordName} chord`);
+            }
+        }
+        
+        function playStringProgression() {
+            if (!window.synthManager) return;
+            
+            // Play a simple progression: Cm → Am → Dm → G
+            const progression = ['Cm', 'Am', 'Dm', 'G'];
+            let delay = 0;
+            
+            progression.forEach((chord, index) => {
+                setTimeout(() => {
+                    playStringChord(chord);
+                }, delay);
+                delay += 3000; // 3 seconds per chord
+            });
+            
+            showTechnoNotification('🎵 Playing chord progression');
+        }
+        
         // Wait for synth manager to initialize
         document.addEventListener('DOMContentLoaded', async () => {
             if (window.synthManager) {
@@ -7982,6 +8285,7 @@ ESC       - Close modals`);
                 console.log('📦 TB-303 Presets:', Object.keys(window.synthManager.getTB303Presets()));
                 console.log('📦 TR-808 Presets:', Object.keys(window.synthManager.getTR808Presets()));
                 console.log('📦 ARP-2600 Presets:', Object.keys(window.synthManager.getARP2600Presets()));
+                console.log('📦 String Machine Presets:', Object.keys(window.synthManager.getStringMachinePresets()));
             }
         });
     </script>

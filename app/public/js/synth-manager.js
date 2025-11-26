@@ -6,11 +6,13 @@
  * - TB-303 Acid Bass
  * - TR-808 Drum Machine
  * - ARP-2600 Modular Synth
+ * - String Machine (Ensemble Strings)
  */
 
 import TB303 from './synths/tb303.js';
 import TR808 from './synths/tr808.js';
 import ARP2600 from './synths/arp2600.js';
+import StringMachine from './synths/string-machine.js';
 
 class SynthManager {
     constructor() {
@@ -36,6 +38,7 @@ class SynthManager {
             this.synths.tb303 = new TB303(this.audioContext);
             this.synths.tr808 = new TR808(this.audioContext);
             this.synths.arp2600 = new ARP2600(this.audioContext);
+            this.synths.stringMachine = new StringMachine(this.audioContext);
             
             this.initialized = true;
             console.log('✅ Synth Manager initialized with:', Object.keys(this.synths));
@@ -79,6 +82,41 @@ class SynthManager {
      */
     getARP2600() {
         return this.synths.arp2600;
+    }
+    
+    /**
+     * Get String Machine instance
+     */
+    getStringMachine() {
+        return this.synths.stringMachine;
+    }
+    
+    /**
+     * Play string chord (convenience method)
+     */
+    playStringChord(notes, duration = 2.0, velocity = 0.7) {
+        const stringMachine = this.getStringMachine();
+        return stringMachine.playChord(notes, duration, velocity);
+    }
+    
+    /**
+     * Modulate ARP-2600 with String Machine output
+     */
+    modulateARP2600WithStrings(enabled = true, amount = 0.5) {
+        const arp = this.getARP2600();
+        const strings = this.getStringMachine();
+        
+        if (enabled) {
+            // Create a gain node from string machine that can modulate the ARP
+            const modSource = this.audioContext.createGain();
+            modSource.gain.value = amount;
+            
+            arp.setExternalModulation(true, modSource, amount, 'filter');
+            console.log('✅ ARP-2600 modulated by String Machine');
+        } else {
+            arp.setExternalModulation(false);
+            console.log('❌ ARP-2600 modulation disabled');
+        }
     }
 
     /**
@@ -246,6 +284,13 @@ class SynthManager {
             }
         };
     }
+    
+    /**
+     * Get presets for String Machine
+     */
+    getStringMachinePresets() {
+        return StringMachine.getPresets();
+    }
 
     /**
      * Load and apply a TB-303 preset
@@ -303,6 +348,22 @@ class SynthManager {
         
         console.log('✅ Loaded ARP-2600 preset:', preset.name);
         return true;
+    }
+    
+    /**
+     * Load and apply a String Machine preset
+     */
+    loadStringMachinePreset(presetName) {
+        const synth = this.getStringMachine();
+        const success = synth.loadPreset(presetName);
+        
+        if (success) {
+            console.log('✅ Loaded String Machine preset:', presetName);
+        } else {
+            console.error('String Machine preset not found:', presetName);
+        }
+        
+        return success;
     }
 }
 

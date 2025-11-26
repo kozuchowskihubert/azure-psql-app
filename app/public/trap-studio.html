@@ -2068,6 +2068,9 @@
             <button class="tab-button" onclick="switchTab('melody')" data-tooltip="Create melodies">
                 🎵 MELODY
             </button>
+            <button class="tab-button" onclick="switchTab('strings')" data-tooltip="String synthesizer pads">
+                🎻 STRINGS
+            </button>
             <button class="tab-button" onclick="switchTab('arrangement')" data-tooltip="Arrange your track">
                 🎛️ ARRANGEMENT
             </button>
@@ -2237,6 +2240,119 @@
             <div style="color: var(--text-secondary); padding: 40px; text-align: center; background: rgba(6,255,165,0.05); border-radius: 10px; border: 1px dashed #06ffa5;">
                 <p style="font-size: 1.1em; margin-bottom: 10px;">🎵 Melody Creator Integration</p>
                 <p style="font-size: 0.9em;">Melody creation tools will appear here...</p>
+            </div>
+        </div>
+        
+        <!-- Tab Content: String Machine -->
+        <div id="tab-strings" class="tab-content modern-card" style="padding: 25px;">
+            <h2 style="color: var(--accent-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 1.5em;">🎻</span>
+                STRING MACHINE - TRAP ATMOSPHERE PADS
+            </h2>
+            <p style="color: var(--text-secondary); margin-bottom: 25px;">
+                Lush string textures for emotional trap atmospheres • Classic ensemble synthesis
+            </p>
+
+            <!-- String Presets -->
+            <div style="margin-bottom: 25px;">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    <span>🎼</span> String Presets
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                    <button class="modern-button" onclick="loadTrapStringPreset('lush_strings')" style="padding: 20px;">
+                        <div style="font-size: 2em;">🎻</div>
+                        <div style="font-weight: bold; margin-top: 8px;">Lush Strings</div>
+                        <div style="font-size: 0.8em; opacity: 0.7;">Full ensemble</div>
+                    </button>
+                    <button class="modern-button" onclick="loadTrapStringPreset('dark_ambient')" style="padding: 20px;">
+                        <div style="font-size: 2em;">🌑</div>
+                        <div style="font-weight: bold; margin-top: 8px;">Dark Ambient</div>
+                        <div style="font-size: 0.8em; opacity: 0.7;">Low frequency</div>
+                    </button>
+                    <button class="modern-button" onclick="loadTrapStringPreset('ethereal_wash')" style="padding: 20px;">
+                        <div style="font-size: 2em;">✨</div>
+                        <div style="font-weight: bold; margin-top: 8px;">Ethereal Wash</div>
+                        <div style="font-size: 0.8em; opacity: 0.7;">Spacious reverb</div>
+                    </button>
+                    <button class="modern-button" onclick="loadTrapStringPreset('brass_section')" style="padding: 20px;">
+                        <div style="font-size: 2em;">🎺</div>
+                        <div style="font-weight: bold; margin-top: 8px;">Brass Section</div>
+                        <div style="font-size: 0.8em; opacity: 0.7;">Punchy brass</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- String Controls -->
+            <div style="background: rgba(255,0,110,0.1); padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 15px;">🎚️ String Controls</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div>
+                        <h4 style="color: var(--accent-primary); margin-bottom: 10px; font-size: 0.9em;">SECTIONS</h4>
+                        <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: var(--text-primary); cursor: pointer;">
+                            <input type="checkbox" id="trapStringViolin" checked onchange="updateTrapStringSection('violin', this.checked)">
+                            Violin (High)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: var(--text-primary); cursor: pointer;">
+                            <input type="checkbox" id="trapStringViola" checked onchange="updateTrapStringSection('viola', this.checked)">
+                            Viola (Mid)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: var(--text-primary); cursor: pointer;">
+                            <input type="checkbox" id="trapStringCello" checked onchange="updateTrapStringSection('cello', this.checked)">
+                            Cello (Low)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; color: var(--text-primary); cursor: pointer;">
+                            <input type="checkbox" id="trapStringBrass" onchange="updateTrapStringSection('brass', this.checked)">
+                            Brass
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <h4 style="color: var(--accent-primary); margin-bottom: 10px; font-size: 0.9em;">ENVELOPE</h4>
+                        <label style="color: var(--text-secondary); font-size: 0.85em; display: block; margin-bottom: 5px;">
+                            Attack: <span id="trapStringAttackVal" style="color: var(--accent-primary);">0.8s</span>
+                        </label>
+                        <input type="range" id="trapStringAttack" min="0.01" max="3" value="0.8" step="0.01" oninput="updateTrapStringEnvelope()" style="width: 100%; margin-bottom: 12px;">
+                        
+                        <label style="color: var(--text-secondary); font-size: 0.85em; display: block; margin-bottom: 5px;">
+                            Release: <span id="trapStringReleaseVal" style="color: var(--accent-primary);">1.2s</span>
+                        </label>
+                        <input type="range" id="trapStringRelease" min="0.01" max="4" value="1.2" step="0.01" oninput="updateTrapStringEnvelope()" style="width: 100%;">
+                    </div>
+                    
+                    <div>
+                        <h4 style="color: var(--accent-primary); margin-bottom: 10px; font-size: 0.9em;">EFFECTS</h4>
+                        <label style="color: var(--text-secondary); font-size: 0.85em; display: block; margin-bottom: 5px;">
+                            Chorus: <span id="trapStringChorusVal" style="color: var(--accent-cyan);">50%</span>
+                        </label>
+                        <input type="range" id="trapStringChorus" min="0" max="1" value="0.5" step="0.01" oninput="updateTrapStringChorus()" style="width: 100%; margin-bottom: 12px;">
+                        
+                        <label style="color: var(--text-secondary); font-size: 0.85em; display: block; margin-bottom: 5px;">
+                            Reverb: <span id="trapStringReverbVal" style="color: var(--accent-cyan);">35%</span>
+                        </label>
+                        <input type="range" id="trapStringReverb" min="0" max="1" value="0.35" step="0.01" oninput="updateTrapStringReverb()" style="width: 100%; margin-bottom: 12px;">
+                        
+                        <label style="color: var(--text-secondary); font-size: 0.85em; display: block; margin-bottom: 5px;">
+                            Volume: <span id="trapStringVolumeVal" style="color: var(--accent-primary);">70%</span>
+                        </label>
+                        <input type="range" id="trapStringVolume" min="0" max="1" value="0.7" step="0.01" oninput="updateTrapStringVolume()" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Chords -->
+            <div style="text-align: center;">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 15px;">🎹 Test Trap Chords</h3>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button class="modern-button" onclick="playTrapStringChord('Am')">Am</button>
+                    <button class="modern-button" onclick="playTrapStringChord('Dm')">Dm</button>
+                    <button class="modern-button" onclick="playTrapStringChord('Em')">Em</button>
+                    <button class="modern-button" onclick="playTrapStringChord('F')">F</button>
+                    <button class="modern-button" onclick="playTrapStringChord('G')">G</button>
+                    <button class="modern-button" onclick="playTrapStringChord('C')">C</button>
+                    <button class="action-button" onclick="playTrapStringProgression()" style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-magenta));">
+                        🎵 Play Progression
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -8179,6 +8295,7 @@ Cmd+Y     - Redo change
     <script type="module" src="/js/synths/tb303.js"></script>
     <script type="module" src="/js/synths/tr808.js"></script>
     <script type="module" src="/js/synths/arp2600.js"></script>
+    <script type="module" src="/js/synths/string-machine.js"></script>
 
     <!-- Theme Manager Script -->
     <script src="/js/theme-manager.js"></script>
@@ -8190,6 +8307,96 @@ Cmd+Y     - Redo change
         });
         themeManager.init();
         
+        // Trap String Machine Functions
+        function loadTrapStringPreset(presetName) {
+            if (window.synthManager && window.synthManager.loadStringMachinePreset) {
+                window.synthManager.loadStringMachinePreset(presetName);
+                showNotification(`🎻 Loaded: ${presetName.replace(/_/g, ' ').toUpperCase()}`);
+            }
+        }
+        
+        function updateTrapStringSection(section, enabled) {
+            if (window.synthManager && window.synthManager.getStringMachine) {
+                const strings = window.synthManager.getStringMachine();
+                strings.setSection(section, enabled);
+            }
+        }
+        
+        function updateTrapStringEnvelope() {
+            const attack = parseFloat(document.getElementById('trapStringAttack').value);
+            const release = parseFloat(document.getElementById('trapStringRelease').value);
+            document.getElementById('trapStringAttackVal').textContent = attack.toFixed(2) + 's';
+            document.getElementById('trapStringReleaseVal').textContent = release.toFixed(2) + 's';
+            
+            if (window.synthManager && window.synthManager.getStringMachine) {
+                const strings = window.synthManager.getStringMachine();
+                strings.setEnvelope(attack, release);
+            }
+        }
+        
+        function updateTrapStringChorus() {
+            const depth = parseFloat(document.getElementById('trapStringChorus').value);
+            document.getElementById('trapStringChorusVal').textContent = Math.round(depth * 100) + '%';
+            
+            if (window.synthManager && window.synthManager.getStringMachine) {
+                const strings = window.synthManager.getStringMachine();
+                strings.setChorus(true, depth);
+            }
+        }
+        
+        function updateTrapStringReverb() {
+            const mix = parseFloat(document.getElementById('trapStringReverb').value);
+            document.getElementById('trapStringReverbVal').textContent = Math.round(mix * 100) + '%';
+            
+            if (window.synthManager && window.synthManager.getStringMachine) {
+                const strings = window.synthManager.getStringMachine();
+                strings.setReverb(true, undefined, mix);
+            }
+        }
+        
+        function updateTrapStringVolume() {
+            const volume = parseFloat(document.getElementById('trapStringVolume').value);
+            document.getElementById('trapStringVolumeVal').textContent = Math.round(volume * 100) + '%';
+            
+            if (window.synthManager && window.synthManager.getStringMachine) {
+                const strings = window.synthManager.getStringMachine();
+                strings.setVolume(volume);
+            }
+        }
+        
+        function playTrapStringChord(chordName) {
+            if (!window.synthManager) return;
+            
+            const chords = {
+                'Am': [110.00, 130.81, 164.81],  // A2, C3, E3
+                'Dm': [146.83, 174.61, 220.00],  // D3, F3, A3
+                'Em': [164.81, 196.00, 246.94],  // E3, G3, B3
+                'C': [130.81, 164.81, 196.00],   // C3, E3, G3
+                'F': [174.61, 220.00, 261.63],   // F3, A3, C4
+                'G': [196.00, 246.94, 293.66]    // G3, B3, D4
+            };
+            
+            const frequencies = chords[chordName];
+            if (frequencies) {
+                window.synthManager.playStringChord(frequencies, 3.0, 0.7);
+                showNotification(`🎻 ${chordName} chord`);
+            }
+        }
+        
+        function playTrapStringProgression() {
+            if (!window.synthManager) return;
+            
+            const progression = ['Am', 'F', 'C', 'G'];
+            let delay = 0;
+            
+            progression.forEach((chord) => {
+                setTimeout(() => playTrapStringChord(chord), delay);
+                delay += 3000;
+            });
+            
+            showNotification('🎵 Playing trap progression');
+        }
+        
         // Wait for synth manager to initialize
         document.addEventListener('DOMContentLoaded', async () => {
             if (window.synthManager) {
@@ -8199,6 +8406,7 @@ Cmd+Y     - Redo change
                 // Log available presets
                 console.log('📦 TR-808 Presets:', Object.keys(window.synthManager.getTR808Presets()));
                 console.log('📦 TB-303 Presets:', Object.keys(window.synthManager.getTB303Presets()));
+                console.log('📦 String Machine Presets:', Object.keys(window.synthManager.getStringMachinePresets()));
             }
         });
     </script>

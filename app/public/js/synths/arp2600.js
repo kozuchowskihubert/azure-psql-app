@@ -88,8 +88,26 @@ class ARP2600 {
         // Patch connections (virtual patch bay)
         this.patches = [];
         
+        // External modulation sources
+        this.externalMod = {
+            enabled: false,
+            source: null,  // External audio node
+            amount: 0.5,
+            destination: 'filter' // 'filter', 'pitch', 'amplitude'
+        };
+        
         // Active voices
         this.activeVoices = [];
+    }
+    
+    /**
+     * Connect external modulation source (for string machine etc)
+     */
+    setExternalModulation(enabled, source = null, amount = 0.5, destination = 'filter') {
+        this.externalMod.enabled = enabled;
+        this.externalMod.source = source;
+        this.externalMod.amount = Math.max(0, Math.min(1, amount));
+        this.externalMod.destination = destination;
     }
     
     /**
@@ -223,6 +241,33 @@ class ARP2600 {
             lfoGain.gain.value = this.lfo.amount * this.vcf.cutoff * 0.5;
             lfo.connect(lfoGain);
             lfoGain.connect(filter.frequency);
+        }
+        
+        // External modulation (e.g., from string machine)
+        if (this.externalMod.enabled && this.externalMod.source) {
+            const modGain = this.audioContext.createGain();
+            modGain.gain.value = this.externalMod.amount;
+            
+            switch (this.externalMod.destination) {
+                case 'filter':
+                    // Modulate filter cutoff
+                    this.externalMod.source.connect(modGain);
+                    modGain.connect(filter.frequency);
+                    break;
+                case 'amplitude':
+                    // Modulate amplitude (will be connected later to VCA)
+                    // Store for later connection
+                    voice.externalModGain = modGain;
+                    this.externalMod.source.connect(modGain);
+                    break;
+                case 'pitch':
+                    // Modulate pitch of all oscillators
+                    oscillators.forEach(osc => {
+                        this.externalMod.source.connect(modGain);
+                        modGain.connect(osc.frequency);
+                    });
+                    break;
+            }
         }
         
         // VCA with envelope
