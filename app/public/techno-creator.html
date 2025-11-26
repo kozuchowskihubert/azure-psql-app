@@ -3524,7 +3524,7 @@
         
         let technoPresets = {};
         
-        function saveTechnoPreset(slot) {
+        function saveTechnoUserPreset(slot) {
             const presetName = prompt(`💾 Name your techno preset (Slot ${slot}):`, `Techno ${slot}`);
             if (!presetName) return;
             
@@ -3544,7 +3544,7 @@
             showTechnoToast(`✅ Preset "${presetName}" saved!`, 'success');
         }
 
-        function loadTechnoPreset(slot) {
+        function loadTechnoUserPreset(slot) {
             const preset = technoPresets[`slot${slot}`];
             if (!preset) {
                 showTechnoToast(`❌ No preset in slot ${slot}`, 'error');
@@ -3603,7 +3603,7 @@
                 if (e.ctrlKey || e.metaKey) return;
                 const slot = prompt('Save to slot (1-9):', '1');
                 if (slot && /^[1-9]$/.test(slot)) {
-                    saveTechnoPreset(parseInt(slot));
+                    saveTechnoUserPreset(parseInt(slot));
                 }
             },
             'g': () => { // G - Generate sequence
@@ -3624,7 +3624,7 @@ ESC       - Close modals`);
 
         // Number keys for techno presets
         for (let i = 1; i <= 9; i++) {
-            technoShortcuts[i.toString()] = () => loadTechnoPreset(i);
+            technoShortcuts[i.toString()] = () => loadTechnoUserPreset(i);
         }
 
         document.addEventListener('keydown', (e) => {
@@ -3646,7 +3646,7 @@ ESC       - Close modals`);
 
     <!-- Techno Quick Actions -->
     <div style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 998;">
-        <button onclick="saveTechnoPreset(prompt('Slot (1-9):', '1'))" 
+        <button onclick="saveTechnoUserPreset(prompt('Slot (1-9):', '1'))" 
                 style="padding: 15px 25px; background: linear-gradient(135deg, #00ff00, #00ffff); color: #000; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); font-family: 'Courier New', monospace;">
             💾 SAVE
         </button>
