@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feature Flag Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #00ff00;
+        }
+        .test-result.error {
+            border-left-color: #ff0000;
+            color: #ff0000;
+        }
+        .test-result.success {
+            border-left-color: #00ff00;
+            color: #00ff00;
+        }
+        pre {
+            background: #000;
+            padding: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Feature Flag System Test</h1>
+    <div id="results"></div>
+
+    <script src="/js/feature-flags.js"></script>
+    <script>
+        const results = document.getElementById('results');
+
+        function addResult(message, isSuccess = true) {
+            const div = document.createElement('div');
+            div.className = `test-result ${isSuccess ? 'success' : 'error'}`;
+            div.textContent = isSuccess ? '✅ ' + message : '❌ ' + message;
+            results.appendChild(div);
+        }
+
+        function addPre(content) {
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(content, null, 2);
+            results.appendChild(pre);
+        }
+
+        async function runTests() {
+            try {
+                // Test 1: Load features
+                addResult('Test 1: Loading feature flags...');
+                await FeatureFlags.loadFeatures();
+                addResult('Feature flags loaded successfully', true);
+
+                // Test 2: Check if MIDI export is enabled
+                addResult('Test 2: Checking midi_export feature...');
+                const midiEnabled = FeatureFlags.isEnabled('haos_platform.midi_export');
+                if (midiEnabled) {
+                    addResult('midi_export is ENABLED', true);
+                } else {
+                    addResult('midi_export is DISABLED', false);
+                }
+
+                // Test 3: Check if audio recording is enabled
+                addResult('Test 3: Checking audio_recording feature...');
+                const recordingEnabled = FeatureFlags.isEnabled('haos_platform.audio_recording');
+                if (recordingEnabled) {
+                    addResult('audio_recording is ENABLED', true);
+                } else {
+                    addResult('audio_recording is DISABLED', false);
+                }
+
+                // Test 4: Get all enabled features
+                addResult('Test 4: Getting all enabled features...');
+                const enabledFeatures = FeatureFlags.getEnabledFeatures('haos_platform');
+                addResult(`Found ${enabledFeatures.length} enabled features`, true);
+                addPre(enabledFeatures);
+
+                // Test 5: Check beta features
+                addResult('Test 5: Checking beta features visibility...');
+                const showBeta = FeatureFlags.showBetaFeatures();
+                addResult(`Beta features visibility: ${showBeta}`, true);
+
+                // Test 6: Check advanced_modulation (should be disabled)
+                addResult('Test 6: Checking advanced_modulation (beta feature)...');
+                const advancedMod = FeatureFlags.isEnabled('haos_platform.advanced_modulation');
+                if (!advancedMod) {
+                    addResult('advanced_modulation is correctly DISABLED', true);
+                } else {
+                    addResult('advanced_modulation is ENABLED (unexpected)', false);
+                }
+
+                // Test 7: Debug features
+                addResult('Test 7: Running debugFeatures()...');
+                FeatureFlags.debugFeatures();
+                addResult('Check browser console for debug output', true);
+
+                // Test 8: Test cache
+                addResult('Test 8: Testing cache functionality...');
+                const cached = FeatureFlags.getCachedConfig();
+                if (cached) {
+                    addResult('Cache is working', true);
+                    addPre({ cached: true, timestamp: cached.timestamp });
+                } else {
+                    addResult('No cache found (first load)', true);
+                }
+
+                addResult('🎉 ALL TESTS COMPLETED', true);
+
+            } catch (error) {
+                addResult(`FATAL ERROR: ${error.message}`, false);
+                console.error('Test error:', error);
+            }
+        }
+
+        // Run tests on page load
+        runTests();
+    </script>
+</body>
+</html>
