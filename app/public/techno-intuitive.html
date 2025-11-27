@@ -424,21 +424,67 @@
                 grid-template-columns: repeat(8, 1fr);
             }
         }
+        
+        /* Notification System */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #39FF14;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+        }
+        
+        .notification.success {
+            border-color: #39FF14;
+        }
+        
+        .notification.error {
+            border-color: #FF6B35;
+        }
+        
+        .notification.info {
+            border-color: #00D9FF;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⚡ HAOS.fm TECHNO CREATOR</div>
+        <div class="logo">
+            ⚡ HAOS.fm INTUITIVE CREATOR
+            <div style="font-size: 0.4em; color: #39FF14; font-family: 'Space Mono', monospace; margin-top: 5px;" id="system-status">
+                ● LOADING...
+            </div>
+        </div>
         
         <div class="transport">
-            <button class="bpm-btn" onclick="initAudio()" id="startAudioBtn" style="background: linear-gradient(135deg, #39FF14, #00D9FF); color: #000; font-weight: bold; padding: 10px 20px; margin-right: 15px; border-radius: 8px;">
-                🔊 Start Audio
+            <button class="bpm-btn" onclick="initHAOSSystem()" id="startAudioBtn" style="background: linear-gradient(135deg, #39FF14, #00D9FF); color: #000; font-weight: bold; padding: 10px 20px; margin-right: 15px; border-radius: 8px;">
+                � START SYSTEM
             </button>
             
             <div class="bpm-control">
                 <button class="bpm-btn" onclick="changeBPM(-5)">-</button>
-                <div class="bpm-value" id="bpmDisplay">130</div>
+                <div class="bpm-value" id="bpmDisplay">135</div>
                 <button class="bpm-btn" onclick="changeBPM(5)">+</button>
                 <span style="color: #39FF14; margin-left: 5px;">BPM</span>
             </div>
@@ -882,58 +928,139 @@
             'string-ethereal': Array(16).fill(false)
         };
         
-        function initAudio() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                tb303 = new TB303(audioContext);
-                tr808 = new TR808(audioContext);
-                arp2600 = new ARP2600(audioContext);
-                stringMachine = new StringMachine(audioContext);
-                daw = new DAWEngine(audioContext);
-                
-                // Initialize AI Patch Designer
-                aiDesigner = new AIPatchDesigner(audioContext);
-                aiDesigner.setSynths({ tb303, tr808, arp2600, stringMachine });
-                
-                // Initialize Track Integrator
-                trackIntegrator = new TrackIntegrator(audioContext, daw, aiDesigner);
-                
-                daw.setSynths({ tb303, tr808, arp2600, stringMachine });
-                
-                // Setup default TB-303
-                tb303.setParam('cutoff', 800);
-                tb303.setParam('resonance', 15);
-                tb303.setParam('envMod', 70);
-                tb303.loadPresetPattern('classic303');
-                
-                // Setup TR-808
-                tr808.setVolume(0.8);
-                
-                // Setup ARP-2600
-                arp2600.loadPreset('lead');
-                
-                // Hide start button and show success message
-                const startBtn = document.getElementById('startAudioBtn');
-                if (startBtn) {
-                    startBtn.textContent = '✅ Audio Ready!';
-                    startBtn.style.background = 'linear-gradient(135deg, #39FF14, #00FF00)';
-                    setTimeout(() => {
-                        startBtn.style.display = 'none';
-                    }, 1500);
+        // ========================================
+        // HAOS MASTER SYSTEM INITIALIZATION
+        // ========================================
+        
+        async function initHAOSSystem() {
+            console.log('🚀 Initializing HAOS Master System...');
+            
+            const statusElement = document.getElementById('system-status');
+            const startBtn = document.getElementById('startAudioBtn');
+            
+            try {
+                // Update status
+                if (statusElement) {
+                    statusElement.textContent = '● INITIALIZING...';
+                    statusElement.style.color = '#FFD700';
                 }
                 
-                console.log('✓ Audio initialized');
-                console.log('✓ AI Patch Designer ready');
-                console.log('✓ Track Integrator ready');
+                // Initialize HAOS Master System
+                if (!HAOS.initialized) {
+                    await HAOS.init();
+                }
+                
+                // Load all synthesis engines
+                const tb303Engine = HAOS.engineManager.createTB303();
+                const tr808Engine = HAOS.engineManager.createTR808();
+                const arp2600Engine = HAOS.engineManager.createARP2600();
+                const stringEngine = HAOS.engineManager.createStringMachine();
+                const dawEngine = HAOS.engineManager.createDAWEngine();
+                
+                // Initialize AI components
+                HAOS.aiSystem.initPatchDesigner();
+                HAOS.aiSystem.initTrackIntegrator();
+                
+                // Set global references for backward compatibility
+                window.audioContext = HAOS.audioContext;
+                window.tb303 = tb303Engine;
+                window.tr808 = tr808Engine;
+                window.arp2600 = arp2600Engine;
+                window.stringMachine = stringEngine;
+                window.daw = dawEngine;
+                window.aiDesigner = HAOS.aiComponents.patchDesigner;
+                window.trackIntegrator = HAOS.aiComponents.trackIntegrator;
+                
+                // Setup default sounds
+                if (tb303Engine) {
+                    tb303Engine.setParam('cutoff', 800);
+                    tb303Engine.setParam('resonance', 15);
+                    tb303Engine.setParam('envMod', 70);
+                    tb303Engine.loadPresetPattern('classic303');
+                }
+                
+                if (tr808Engine) {
+                    tr808Engine.setVolume(0.8);
+                }
+                
+                if (arp2600Engine) {
+                    arp2600Engine.loadPreset('lead');
+                }
+                
+                // Set default BPM
+                HAOS.setBPM(135);
+                
+                // Update UI
+                if (statusElement) {
+                    statusElement.textContent = '● SYSTEM READY';
+                    statusElement.style.color = '#39FF14';
+                }
+                
+                if (startBtn) {
+                    startBtn.textContent = '✅ SYSTEM ACTIVE';
+                    startBtn.style.background = 'linear-gradient(135deg, #39FF14, #00FF00)';
+                    startBtn.style.cursor = 'default';
+                    startBtn.disabled = true;
+                }
+                
+                // Log system info
+                console.log('✅ HAOS Master System initialized!');
+                console.log('System Info:', HAOS.getSystemInfo());
+                
+                // Show welcome message
+                showNotification('🎵 HAOS System Ready! All features unlocked.', 'success');
+                
+            } catch (error) {
+                console.error('❌ HAOS System initialization failed:', error);
+                
+                if (statusElement) {
+                    statusElement.textContent = '● SYSTEM ERROR';
+                    statusElement.style.color = '#FF6B35';
+                }
+                
+                if (startBtn) {
+                    startBtn.textContent = '❌ INIT FAILED';
+                    startBtn.style.background = 'linear-gradient(135deg, #FF6B35, #FF0000)';
+                }
+                
+                showNotification('System initialization failed. Check console for details.', 'error');
             }
-            
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
+        }
+        
+        // Expose globally
+        window.initHAOSSystem = initHAOSSystem;
+        
+        // Legacy support - redirect old initAudio to new system
+        function initAudio() {
+            return initHAOSSystem();
         }
         
         // Expose initAudio globally
         window.initAudio = initAudio;
+        
+        // ========================================
+        // NOTIFICATION SYSTEM
+        // ========================================
+        
+        function showNotification(message, type = 'info', duration = 3000) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                notification.style.transform = 'translateX(400px)';
+                notification.style.opacity = '0';
+                
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, duration);
+        }
+        
+        window.showNotification = showNotification;
         
         // Initialize UI
         function initUI() {
@@ -1780,5 +1907,40 @@
     <script src="/js/daw-engine.js"></script>
     <script src="/js/ai-patch-designer.js"></script>
     <script src="/js/track-integrator.js"></script>
+    
+    <!-- Load HAOS Master System (Unified Architecture) -->
+    <script src="/js/haos-master-system.js"></script>
+    
+    <script>
+        // Initialize HAOS Master System on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🎵 Initializing HAOS Master System...');
+            
+            try {
+                // Initialize the unified system
+                await HAOS.init();
+                
+                // System is now ready!
+                console.log('✅ HAOS Master System ready!');
+                console.log('   All engines, AI components, and systems loaded');
+                console.log('   Type HAOS.getSystemInfo() to see system status');
+                
+                // Update UI to show system is ready
+                const statusElement = document.getElementById('system-status');
+                if (statusElement) {
+                    statusElement.textContent = '● SYSTEM READY';
+                    statusElement.style.color = '#39FF14';
+                }
+            } catch (error) {
+                console.error('❌ Failed to initialize HAOS Master System:', error);
+                
+                const statusElement = document.getElementById('system-status');
+                if (statusElement) {
+                    statusElement.textContent = '● SYSTEM ERROR';
+                    statusElement.style.color = '#FF6B35';
+                }
+            }
+        });
+    </script>
 </body>
 </html>
