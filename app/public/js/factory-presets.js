@@ -588,5 +588,7 @@ const FACTORY_PRESETS = {
     ]
 };
 
-// Make available globally
-window.FACTORY_PRESETS = FACTORY_PRESETS;
+// Make available globally (browser only)
+if (typeof window !== 'undefined') {
+    window.FACTORY_PRESETS = FACTORY_PRESETS;
+}
