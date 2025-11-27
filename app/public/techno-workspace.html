@@ -656,6 +656,9 @@
                 </button>
                 <button id="play-btn" class="transport-btn">▶ PLAY</button>
                 <button id="stop-btn" class="transport-btn">■ STOP</button>
+                <button id="record-btn" class="transport-btn" title="Record Audio">⏺ RECORD</button>
+                <button id="export-midi-btn" class="transport-btn" title="Export as MIDI">💾 MIDI</button>
+                <button id="export-project-btn" class="transport-btn" title="Export Project">📦 PROJECT</button>
                 <div class="bpm-display">
                     <span id="bpm-value">135</span> BPM
                 </div>
@@ -919,6 +922,23 @@
                         <span class="knob-label">TONE</span>
                         <div class="effect-slider" data-effect="dist-tone" style="--value: 70%"></div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Spectrum Analyzer -->
+            <div class="module-panel">
+                <div class="module-header">
+                    <div class="module-title">SPECTRUM ANALYZER</div>
+                    <div class="module-icon">📊</div>
+                </div>
+                
+                <canvas id="spectrum-canvas" width="300" height="200" style="width: 100%; height: 200px; background: rgba(0,0,0,0.5); border-radius: 8px; border: 1px solid var(--haos-border);"></canvas>
+                
+                <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: space-between; font-family: var(--font-mono); font-size: 0.7rem; color: var(--haos-dim);">
+                    <span>20Hz</span>
+                    <span>200Hz</span>
+                    <span>2kHz</span>
+                    <span>20kHz</span>
                 </div>
             </div>
 
@@ -2022,6 +2042,292 @@
         window.tb303Presets = tb303Presets;
         
         console.log('🎵 Sound Playback System loaded - Click any TEST button or preset slot!');
+
+        // ═══════════════════════════════════════════════════════════
+        // 🎹 MIDI EXPORT SYSTEM
+        // ═══════════════════════════════════════════════════════════
+
+        function exportToMIDI() {
+            // Get active steps from all sequencer tracks
+            const tracks = {
+                kick: Array.from(document.querySelectorAll('[data-track="kick"]'))
+                    .map((el, i) => ({ step: i, active: el.classList.contains('active') }))
+                    .filter(s => s.active),
+                snare: Array.from(document.querySelectorAll('[data-track="snare"]'))
+                    .map((el, i) => ({ step: i, active: el.classList.contains('active') }))
+                    .filter(s => s.active),
+                hihat: Array.from(document.querySelectorAll('[data-track="hihat"]'))
+                    .map((el, i) => ({ step: i, active: el.classList.contains('active') }))
+                    .filter(s => s.active),
+                bass: Array.from(document.querySelectorAll('[data-track="bass"]'))
+                    .map((el, i) => ({ step: i, active: el.classList.contains('active') }))
+                    .filter(s => s.active)
+            };
+
+            // Create MIDI file content (simplified format)
+            const midiData = {
+                format: 1,
+                bpm: parseInt(document.getElementById('bpm-value').textContent),
+                tracks: [
+                    {
+                        name: 'Kick',
+                        instrument: 'Acoustic Bass Drum',
+                        midiNote: 36,
+                        steps: tracks.kick.map(s => s.step)
+                    },
+                    {
+                        name: 'Snare',
+                        instrument: 'Acoustic Snare',
+                        midiNote: 38,
+                        steps: tracks.snare.map(s => s.step)
+                    },
+                    {
+                        name: 'Hi-Hat',
+                        instrument: 'Closed Hi-Hat',
+                        midiNote: 42,
+                        steps: tracks.hihat.map(s => s.step)
+                    },
+                    {
+                        name: 'Bass',
+                        instrument: 'TB-303 Bass',
+                        midiNote: 36, // C2
+                        steps: tracks.bass.map(s => s.step)
+                    }
+                ],
+                timestamp: new Date().toISOString(),
+                creator: 'HAOS.fm Techno Workspace'
+            };
+
+            // Convert to JSON for now (full MIDI binary export would need a library)
+            const blob = new Blob([JSON.stringify(midiData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `haos-pattern-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showNotification('💾 MIDI Pattern Exported!');
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // ⏺ AUDIO RECORDING SYSTEM
+        // ═══════════════════════════════════════════════════════════
+
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+
+        async function startRecording() {
+            try {
+                // Get audio from HAOS master output
+                if (!HAOS.audioContext || !HAOS.initialized) {
+                    await HAOS.init();
+                }
+
+                // Create MediaRecorder from Web Audio API
+                const dest = HAOS.audioContext.createMediaStreamDestination();
+                
+                // Connect master output to destination
+                if (HAOS.masterGain) {
+                    HAOS.masterGain.connect(dest);
+                }
+
+                mediaRecorder = new MediaRecorder(dest.stream, {
+                    mimeType: 'audio/webm;codecs=opus'
+                });
+
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `haos-recording-${Date.now()}.webm`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    
+                    showNotification('🎵 Recording Saved!');
+                    isRecording = false;
+                    document.getElementById('record-btn').classList.remove('active');
+                    document.getElementById('record-btn').textContent = '⏺ RECORD';
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                document.getElementById('record-btn').classList.add('active');
+                document.getElementById('record-btn').textContent = '⏹ RECORDING...';
+                
+                showNotification('🔴 Recording Started!');
+
+            } catch (error) {
+                console.error('Recording error:', error);
+                showNotification('⚠️ Recording failed: ' + error.message);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 📊 SPECTRUM ANALYZER
+        // ═══════════════════════════════════════════════════════════
+
+        let analyser = null;
+        let spectrumAnimationId = null;
+
+        function initSpectrumAnalyzer() {
+            if (!HAOS.audioContext || !HAOS.initialized) {
+                setTimeout(initSpectrumAnalyzer, 500);
+                return;
+            }
+
+            analyser = HAOS.audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+            analyser.smoothingTimeConstant = 0.8;
+
+            // Connect master output to analyzer
+            if (HAOS.masterGain) {
+                HAOS.masterGain.connect(analyser);
+            }
+
+            const canvas = document.getElementById('spectrum-canvas');
+            const ctx = canvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+
+            function drawSpectrum() {
+                spectrumAnimationId = requestAnimationFrame(drawSpectrum);
+
+                analyser.getByteFrequencyData(dataArray);
+
+                ctx.fillStyle = 'rgba(10, 10, 10, 0.3)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = (dataArray[i] / 255) * canvas.height;
+
+                    // HAOS brand gradient
+                    const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
+                    gradient.addColorStop(0, '#FF6B35'); // Orange
+                    gradient.addColorStop(0.5, '#FF8C42'); // Bright orange
+                    gradient.addColorStop(1, '#FFD700'); // Gold
+
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                    x += barWidth + 1;
+                }
+            }
+
+            drawSpectrum();
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 📦 PROJECT EXPORT
+        // ═══════════════════════════════════════════════════════════
+
+        function exportProject() {
+            const project = {
+                version: '1.0.0',
+                name: 'HAOS Techno Workspace Project',
+                bpm: parseInt(document.getElementById('bpm-value').textContent),
+                timestamp: new Date().toISOString(),
+                
+                // Sequencer patterns
+                patterns: {
+                    kick: Array.from(document.querySelectorAll('[data-track="kick"]'))
+                        .map(el => el.classList.contains('active')),
+                    snare: Array.from(document.querySelectorAll('[data-track="snare"]'))
+                        .map(el => el.classList.contains('active')),
+                    hihat: Array.from(document.querySelectorAll('[data-track="hihat"]'))
+                        .map(el => el.classList.contains('active')),
+                    bass: Array.from(document.querySelectorAll('[data-track="bass"]'))
+                        .map(el => el.classList.contains('active'))
+                },
+                
+                // Current preset state
+                presets: {
+                    tb303: tb303Presets,
+                    activePreset: null
+                },
+                
+                // Live parameters
+                parameters: typeof liveParams !== 'undefined' ? liveParams.snapshot() : {},
+                
+                // Preset morphing state
+                morphState: typeof presetMorph !== 'undefined' ? {
+                    presetA: presetMorph.presets.A,
+                    presetB: presetMorph.presets.B,
+                    morphPosition: presetMorph.morphPosition
+                } : null
+            };
+
+            const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `haos-project-${Date.now()}.haos`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showNotification('📦 Project Exported!');
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 🎛️ WIRE UP EXPORT BUTTONS
+        // ═══════════════════════════════════════════════════════════
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // MIDI Export
+            const exportMidiBtn = document.getElementById('export-midi-btn');
+            if (exportMidiBtn) {
+                exportMidiBtn.addEventListener('click', exportToMIDI);
+            }
+
+            // Audio Recording
+            const recordBtn = document.getElementById('record-btn');
+            if (recordBtn) {
+                recordBtn.addEventListener('click', () => {
+                    if (isRecording) {
+                        stopRecording();
+                    } else {
+                        startRecording();
+                    }
+                });
+            }
+
+            // Project Export
+            const exportProjectBtn = document.getElementById('export-project-btn');
+            if (exportProjectBtn) {
+                exportProjectBtn.addEventListener('click', exportProject);
+            }
+
+            // Initialize spectrum analyzer
+            setTimeout(initSpectrumAnalyzer, 1000);
+        });
+
+        // Expose globally
+        window.exportToMIDI = exportToMIDI;
+        window.startRecording = startRecording;
+        window.stopRecording = stopRecording;
+        window.exportProject = exportProject;
+
+        console.log('🎹 Export System loaded - MIDI, Audio Recording, and Project Export ready!');
     </script>
 </body>
 </html>
