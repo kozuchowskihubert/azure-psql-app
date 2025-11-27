@@ -1641,25 +1641,25 @@
                             <!-- Track Labels -->
                             <div style="display: grid; grid-template-columns: 80px repeat(16, 1fr); gap: 8px; margin-bottom: 30px;">
                                 <!-- Row: Kick -->
-                                <div style="display: flex; align-items: center; justify-content: flex-start; color: var(--orange-primary); font-family: var(--font-mono); font-size: 0.85em; font-weight: bold;">
+                                <div style="display: flex; align-items: center; justify-content: flex-start; color: rgba(255, 255, 255, 0.5); font-family: var(--font-mono); font-size: 0.85em; font-weight: bold;">
                                     KICK
                                 </div>
                                 ${this.renderSequencerSteps('kick', 16)}
                                 
                                 <!-- Row: Snare -->
-                                <div style="display: flex; align-items: center; justify-content: flex-start; color: #00D9FF; font-family: var(--font-mono); font-size: 0.85em; font-weight: bold;">
+                                <div style="display: flex; align-items: center; justify-content: flex-start; color: rgba(255, 255, 255, 0.5); font-family: var(--font-mono); font-size: 0.85em; font-weight: bold;">
                                     SNARE
                                 </div>
                                 ${this.renderSequencerSteps('snare', 16)}
                                 
                                 <!-- Row: Hi-Hat -->
-                                <div style="display: flex; align-items: center; justify-content: flex-start; color: #39FF14; font-family: var(--font-mono); font-size: 0.85em; font-weight: bold;">
+                                <div style="display: flex; align-items: center; justify-content: flex-start; color: rgba(255, 255, 255, 0.5); font-family: var(--font-mono); font-size: 0.85em; font-weight: bold;">
                                     HI-HAT
                                 </div>
                                 ${this.renderSequencerSteps('hihat', 16)}
                                 
                                 <!-- Row: Clap -->
-                                <div style="display: flex; align-items: center; justify-content: flex-start; color: #FF006E; font-family: var(--font-mono); font-size: 0.85em; font-weight: bold;">
+                                <div style="display: flex; align-items: center; justify-content: flex-start; color: rgba(255, 255, 255, 0.5); font-family: var(--font-mono); font-size: 0.85em; font-weight: bold;">
                                     CLAP
                                 </div>
                                 ${this.renderSequencerSteps('clap', 16)}
@@ -1679,25 +1679,37 @@
                         <!-- CONTROL BUTTONS -->
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px;">
                             <button onclick="HAOS.playSequencer()"
-                                    style="padding: 18px; background: linear-gradient(135deg, #39FF14, #2ECC00); 
-                                           border: none; border-radius: 12px; color: black; font-size: 1.1em; cursor: pointer; 
+                                    style="padding: 18px; background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright)); 
+                                           border: none; border-radius: 8px; color: black; font-size: 1.1em; cursor: pointer; 
                                            font-weight: bold; font-family: var(--font-display); letter-spacing: 2px; text-transform: uppercase;
-                                           box-shadow: 0 4px 15px rgba(57,255,20,0.4); transition: all 0.3s;">
+                                           box-shadow: 0 4px 15px rgba(255,107,53,0.4); transition: all 0.3s;">
                                 ▶️ PLAY
                             </button>
                             
                             <button onclick="HAOS.stopSequencer()"
-                                    style="padding: 18px; background: linear-gradient(135deg, #FF4444, #CC0000); 
-                                           border: none; border-radius: 12px; color: white; font-size: 1.1em; cursor: pointer; 
+                                    style="padding: 18px; background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1)); 
+                                           border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 1.1em; cursor: pointer; 
                                            font-weight: bold; font-family: var(--font-display); letter-spacing: 2px; text-transform: uppercase;
-                                           box-shadow: 0 4px 15px rgba(255,68,68,0.4); transition: all 0.3s;">
+                                           box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: all 0.3s;">
                                 ⏹️ STOP
                             </button>
                             
                             <button onclick="HAOS.randomizeSequencer()"
-                                    style="padding: 18px; background: linear-gradient(135deg, #00D9FF, #00AACC); 
-                                           border: none; border-radius: 12px; color: white; font-size: 1.1em; cursor: pointer; 
+                                    style="padding: 18px; background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1)); 
+                                           border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 1.1em; cursor: pointer; 
                                            font-weight: bold; font-family: var(--font-display); letter-spacing: 2px; text-transform: uppercase;
+                                           box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: all 0.3s;">
+                                🎲 RANDOMIZE
+                            </button>
+                            
+                            <button onclick="HAOS.clearSequencer()"
+                                    style="padding: 18px; background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1)); 
+                                           border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: rgba(255,255,255,0.7); font-size: 1.1em; cursor: pointer; 
+                                           font-weight: bold; font-family: var(--font-display); letter-spacing: 2px; text-transform: uppercase;
+                                           box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: all 0.3s;">
+                                🗑️ CLEAR
+                            </button>
+                        </div>
                                            box-shadow: 0 4px 15px rgba(0,217,255,0.4); transition: all 0.3s;">
                                 🎲 RANDOM
                             </button>
@@ -1712,8 +1724,8 @@
                         </div>
 
                         <!-- PATTERN MANAGEMENT -->
-                        <div style="background: rgba(0,0,0,0.4); padding: 25px; border-radius: 12px; border: 2px solid #39FF14; margin-bottom: 30px;">
-                            <h3 style="color: #39FF14; margin-bottom: 20px; font-family: var(--font-display); display: flex; align-items: center; gap: 10px;">
+                        <div style="background: rgba(0,0,0,0.4); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); margin-bottom: 30px;">
+                            <h3 style="color: rgba(255,255,255,0.9); margin-bottom: 20px; font-family: var(--font-display); display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 1.5em;">💾</span>
                                 PATTERN MANAGEMENT
                             </h3>
@@ -1722,19 +1734,19 @@
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                                 <div>
                                     <input type="text" id="pattern-name" placeholder="Pattern Name..." 
-                                           style="width: 100%; padding: 12px; background: var(--haos-panel); border: 2px solid #39FF14; border-radius: 8px; color: var(--haos-text); font-family: var(--font-mono); margin-bottom: 10px;">
+                                           style="width: 100%; padding: 12px; background: var(--haos-panel); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: var(--haos-text); font-family: var(--font-mono); margin-bottom: 10px;">
                                     <button onclick="HAOS.saveCurrentPattern()" 
-                                            style="width: 100%; padding: 15px; background: linear-gradient(135deg, #39FF14, #2ECC00); border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; font-family: var(--font-display);">
+                                            style="width: 100%; padding: 15px; background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright)); border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; font-family: var(--font-display);">
                                         💾 SAVE PATTERN
                                     </button>
                                 </div>
                                 <div>
                                     <select id="saved-patterns" 
-                                            style="width: 100%; padding: 12px; background: var(--haos-panel); border: 2px solid #39FF14; border-radius: 8px; color: var(--haos-text); font-family: var(--font-mono); margin-bottom: 10px;">
+                                            style="width: 100%; padding: 12px; background: var(--haos-panel); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: var(--haos-text); font-family: var(--font-mono); margin-bottom: 10px;">
                                         <option value="">Select saved pattern...</option>
                                     </select>
                                     <button onclick="HAOS.loadSavedPattern()" 
-                                            style="width: 100%; padding: 15px; background: linear-gradient(135deg, #00D9FF, #00AACC); border: none; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer; font-family: var(--font-display);">
+                                            style="width: 100%; padding: 15px; background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright)); border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; font-family: var(--font-display);">
                                         📂 LOAD PATTERN
                                     </button>
                                 </div>
@@ -1743,15 +1755,15 @@
                             <!-- Export/Import/Share -->
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
                                 <button onclick="HAOS.exportPattern()" 
-                                        style="padding: 15px; background: rgba(255, 107, 53, 0.2); border: 2px solid var(--haos-orange); border-radius: 8px; color: var(--haos-orange); font-weight: bold; cursor: pointer; font-family: var(--font-mono);">
+                                        style="padding: 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: rgba(255,255,255,0.8); font-weight: bold; cursor: pointer; font-family: var(--font-mono);">
                                     📤 EXPORT JSON
                                 </button>
                                 <button onclick="document.getElementById('pattern-import').click()" 
-                                        style="padding: 15px; background: rgba(0, 217, 255, 0.2); border: 2px solid #00D9FF; border-radius: 8px; color: #00D9FF; font-weight: bold; cursor: pointer; font-family: var(--font-mono);">
+                                        style="padding: 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: rgba(255,255,255,0.8); font-weight: bold; cursor: pointer; font-family: var(--font-mono);">
                                     📥 IMPORT JSON
                                 </button>
                                 <button onclick="HAOS.sharePattern()" 
-                                        style="padding: 15px; background: rgba(255, 0, 110, 0.2); border: 2px solid #FF006E; border-radius: 8px; color: #FF006E; font-weight: bold; cursor: pointer; font-family: var(--font-mono);">
+                                        style="padding: 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: rgba(255,255,255,0.8); font-weight: bold; cursor: pointer; font-family: var(--font-mono);">
                                     🔗 SHARE URL
                                 </button>
                             </div>
@@ -1801,20 +1813,20 @@
                         .seq-step {
                             width: 100%;
                             aspect-ratio: 1;
-                            border: 2px solid rgba(255,255,255,0.2);
-                            border-radius: 6px;
-                            background: rgba(0,0,0,0.3);
+                            border: 1px solid rgba(255,255,255,0.15);
+                            border-radius: 4px;
+                            background: rgba(255,255,255,0.08);
                             cursor: pointer;
                             transition: all 0.15s;
                         }
                         .seq-step:hover {
-                            border-color: var(--orange-primary);
-                            background: rgba(255,107,53,0.2);
+                            border-color: rgba(255,255,255,0.3);
+                            background: rgba(255,255,255,0.15);
                         }
                         .seq-step.active {
-                            background: var(--orange-primary);
-                            border-color: var(--orange-primary);
-                            box-shadow: 0 0 15px rgba(255,107,53,0.6);
+                            background: #FFFFFF;
+                            border-color: #FFFFFF;
+                            box-shadow: 0 0 12px rgba(255,255,255,0.5);
                         }
                         .seq-step.playing {
                             animation: stepPulse 0.2s ease;
