@@ -209,6 +209,36 @@ app.use('/', pwaRouter);
 app.use('/api', apiRouter); // /api/notes, /api/health
 
 /**
+ * Root-level health endpoint for Azure App Service
+ * Azure may check /health instead of /api/health
+ */
+app.get('/health', async (req, res) => {
+  try {
+    const client = await pool.connect();
+    try {
+      await client.query('SELECT 1');
+      res.json({
+        status: 'healthy',
+        database: 'connected',
+        timestamp: new Date().toISOString(),
+        app: 'HAOS.fm Music Platform',
+      });
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    // Return 200 even if DB is down, so Azure doesn't kill the app
+    res.json({
+      status: 'degraded',
+      database: 'disconnected',
+      timestamp: new Date().toISOString(),
+      app: 'HAOS.fm Music Platform',
+      note: 'App running but database unavailable',
+    });
+  }
+});
+
+/**
  * Code Statistics API
  * Real-time code metrics for development dashboard
  */
