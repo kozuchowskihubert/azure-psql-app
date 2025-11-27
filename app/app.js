@@ -261,11 +261,27 @@ app.get('/api/code-stats', getCodeStatsHandler);
 // ============================================================================
 
 /**
+ * Platform alias - Redirect /platform to /haos-platform
+ * Route: /platform (backward compatibility)
+ */
+app.get('/platform', (req, res) => {
+  res.redirect(301, '/haos-platform');
+});
+
+/**
  * HAOS Platform - Main integrated studio
  * Route: /haos-platform (cleaner URL without .html)
  */
 app.get('/haos-platform', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'haos-platform.html'));
+});
+
+/**
+ * Workspace alias - Redirect /workspace to /techno-workspace
+ * Route: /workspace (backward compatibility)
+ */
+app.get('/workspace', (req, res) => {
+  res.redirect(301, '/techno-workspace');
 });
 
 /**
