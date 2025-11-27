@@ -1753,7 +1753,7 @@
                             </div>
                             
                             <!-- Export/Import/Share -->
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px;">
                                 <button onclick="HAOS.exportPattern()" 
                                         style="padding: 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: rgba(255,255,255,0.8); font-weight: bold; cursor: pointer; font-family: var(--font-mono);">
                                     📤 EXPORT JSON
@@ -1766,8 +1766,41 @@
                                         style="padding: 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: rgba(255,255,255,0.8); font-weight: bold; cursor: pointer; font-family: var(--font-mono);">
                                     🔗 SHARE URL
                                 </button>
+                                <button onclick="HAOS.exportMIDI()" 
+                                        style="padding: 15px; background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright)); border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; font-family: var(--font-mono); box-shadow: 0 4px 15px rgba(255,107,53,0.3);">
+                                    🎹 EXPORT MIDI
+                                </button>
                             </div>
                             <input type="file" id="pattern-import" accept=".json" style="display: none;" onchange="HAOS.importPattern(event)">
+                        </div>
+
+                        <!-- AUDIO RECORDING -->
+                        <div style="background: rgba(0,0,0,0.4); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); margin-bottom: 30px;">
+                            <h3 style="color: rgba(255,255,255,0.9); margin-bottom: 20px; font-family: var(--font-display); display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.5em;">🎙️</span>
+                                AUDIO RECORDING
+                            </h3>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                                <button id="record-btn" onclick="HAOS.startRecording()" 
+                                        style="padding: 18px; background: linear-gradient(135deg, #FF4444, #CC0000); border: none; border-radius: 8px; color: white; font-size: 1.1em; cursor: pointer; font-weight: bold; font-family: var(--font-display); letter-spacing: 2px; text-transform: uppercase; box-shadow: 0 4px 15px rgba(255,68,68,0.4); transition: all 0.3s;">
+                                    ● RECORD
+                                </button>
+                                
+                                <button id="stop-record-btn" onclick="HAOS.stopRecording()" disabled
+                                        style="padding: 18px; background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1)); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: rgba(255,255,255,0.5); font-size: 1.1em; cursor: not-allowed; font-weight: bold; font-family: var(--font-display); letter-spacing: 2px; text-transform: uppercase; transition: all 0.3s;">
+                                    ⏹️ STOP
+                                </button>
+                                
+                                <button id="download-record-btn" onclick="HAOS.downloadRecording()" disabled
+                                        style="padding: 18px; background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1)); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: rgba(255,255,255,0.5); font-size: 1.1em; cursor: not-allowed; font-weight: bold; font-family: var(--font-display); letter-spacing: 2px; text-transform: uppercase; transition: all 0.3s;">
+                                    💾 DOWNLOAD
+                                </button>
+                            </div>
+                            
+                            <div id="recording-status" style="margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; font-family: var(--font-mono); font-size: 0.9em; color: rgba(255,255,255,0.6); text-align: center;">
+                                Ready to record
+                            </div>
                         </div>
 
                         <!-- PRESET PATTERNS -->
@@ -2578,6 +2611,147 @@
                     // Fallback: show URL in prompt
                     prompt('Share this URL:', url);
                 });
+            },
+            
+            exportMIDI() {
+                if (!AudioEngine || !AudioEngine.initialized) {
+                    this.showToast('⚠️ Audio engine not initialized');
+                    return;
+                }
+                
+                const pattern = this.sequencerState.pattern;
+                const tb303Params = AudioEngine.tb303 ? AudioEngine.tb303.params : {};
+                const bpm = this.sequencerState.bpm || 120;
+                
+                // Generate filename with timestamp
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const filename = `haos-pattern-${timestamp}.mid`;
+                
+                try {
+                    AudioEngine.downloadMIDI(pattern, tb303Params, bpm, filename);
+                    this.showToast('🎹 MIDI file exported successfully!');
+                } catch (error) {
+                    console.error('MIDI export failed:', error);
+                    this.showToast('❌ MIDI export failed');
+                }
+            },
+            
+            // ===== AUDIO RECORDING =====
+            
+            async startRecording() {
+                if (!AudioEngine || !AudioEngine.initialized) {
+                    this.showToast('⚠️ Audio engine not initialized');
+                    return;
+                }
+                
+                try {
+                    await AudioEngine.startRecording();
+                    
+                    // Update UI
+                    const recordBtn = document.getElementById('record-btn');
+                    const stopBtn = document.getElementById('stop-record-btn');
+                    const downloadBtn = document.getElementById('download-record-btn');
+                    
+                    recordBtn.disabled = true;
+                    recordBtn.style.opacity = '0.5';
+                    recordBtn.style.cursor = 'not-allowed';
+                    
+                    stopBtn.disabled = false;
+                    stopBtn.style.background = 'linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright))';
+                    stopBtn.style.color = '#000';
+                    stopBtn.style.cursor = 'pointer';
+                    stopBtn.style.boxShadow = '0 4px 15px rgba(255,107,53,0.4)';
+                    
+                    downloadBtn.disabled = true;
+                    
+                    // Start recording timer
+                    this.recordingStartTime = Date.now();
+                    this.recordingTimer = setInterval(() => {
+                        const elapsed = ((Date.now() - this.recordingStartTime) / 1000).toFixed(1);
+                        document.getElementById('recording-status').innerHTML = `
+                            <span style="color: #FF4444;">● RECORDING</span> - ${elapsed}s
+                        `;
+                    }, 100);
+                    
+                    this.showToast('🎙️ Recording started');
+                    
+                } catch (error) {
+                    console.error('Recording failed:', error);
+                    this.showToast('❌ Recording failed to start');
+                }
+            },
+            
+            async stopRecording() {
+                if (!AudioEngine) return;
+                
+                try {
+                    await AudioEngine.stopRecording();
+                    
+                    // Stop timer
+                    if (this.recordingTimer) {
+                        clearInterval(this.recordingTimer);
+                        this.recordingTimer = null;
+                    }
+                    
+                    // Update UI
+                    const recordBtn = document.getElementById('record-btn');
+                    const stopBtn = document.getElementById('stop-record-btn');
+                    const downloadBtn = document.getElementById('download-record-btn');
+                    
+                    recordBtn.disabled = false;
+                    recordBtn.style.opacity = '1';
+                    recordBtn.style.cursor = 'pointer';
+                    
+                    stopBtn.disabled = true;
+                    stopBtn.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1))';
+                    stopBtn.style.color = 'rgba(255,255,255,0.5)';
+                    stopBtn.style.cursor = 'not-allowed';
+                    stopBtn.style.boxShadow = 'none';
+                    
+                    downloadBtn.disabled = false;
+                    downloadBtn.style.background = 'linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright))';
+                    downloadBtn.style.color = '#000';
+                    downloadBtn.style.cursor = 'pointer';
+                    downloadBtn.style.boxShadow = '0 4px 15px rgba(255,107,53,0.4)';
+                    
+                    const status = AudioEngine.getRecordingStatus();
+                    const sizeKB = (status.size / 1024).toFixed(2);
+                    document.getElementById('recording-status').innerHTML = `
+                        ✅ Recording complete - ${sizeKB} KB - Click DOWNLOAD to save
+                    `;
+                    
+                    this.showToast('🎙️ Recording stopped');
+                    
+                } catch (error) {
+                    console.error('Stop recording failed:', error);
+                    this.showToast('❌ Failed to stop recording');
+                }
+            },
+            
+            downloadRecording() {
+                if (!AudioEngine) return;
+                
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const filename = `haos-recording-${timestamp}.webm`;
+                
+                try {
+                    AudioEngine.downloadRecording(filename);
+                    this.showToast('💾 Recording downloaded!');
+                    
+                    // Reset download button
+                    const downloadBtn = document.getElementById('download-record-btn');
+                    downloadBtn.disabled = true;
+                    downloadBtn.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1))';
+                    downloadBtn.style.color = 'rgba(255,255,255,0.5)';
+                    downloadBtn.style.cursor = 'not-allowed';
+                    downloadBtn.style.boxShadow = 'none';
+                    
+                    document.getElementById('recording-status').textContent = 'Ready to record';
+                    
+                } catch (error) {
+                    console.error('Download failed:', error);
+                    this.showToast('❌ Download failed');
+                }
             },
             
             loadTB303Preset(presetName) {

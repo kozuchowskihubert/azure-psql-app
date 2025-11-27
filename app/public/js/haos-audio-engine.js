@@ -579,6 +579,459 @@ class HAOSPatternManager {
         }
         return null;
     }
+    
+    // ===== MIDI EXPORT =====
+    
+    /**
+     * Export pattern as MIDI file
+     * @param {Object} pattern - Sequencer pattern {kick: [], snare: [], hihat: [], clap: []}
+     * @param {Object} tb303Params - TB-303 parameters for bassline
+     * @param {number} bpm - Tempo in beats per minute
+     * @returns {Blob} - MIDI file blob
+     */
+    exportMIDI(pattern, tb303Params = {}, bpm = 120) {
+        // MIDI file structure: Header + Track chunks
+        const tracks = [];
+        
+        // Track 1: Tempo and metadata
+        const tempoTrack = this.createTempoTrack(bpm);
+        tracks.push(tempoTrack);
+        
+        // Track 2: TB-303 Bassline (MIDI channel 1)
+        const bassTrack = this.createTB303MIDITrack(tb303Params, bpm);
+        tracks.push(bassTrack);
+        
+        // Track 3: TR-909 Drums (MIDI channel 10 - standard drum channel)
+        const drumTrack = this.createDrumMIDITrack(pattern, bpm);
+        tracks.push(drumTrack);
+        
+        // Assemble MIDI file
+        const midiFile = this.assembleMIDIFile(tracks);
+        
+        return new Blob([midiFile], { type: 'audio/midi' });
+    }
+    
+    createTempoTrack(bpm) {
+        const events = [];
+        
+        // Tempo meta event (FF 51 03 tttttt)
+        const microsecondsPerBeat = Math.floor(60000000 / bpm);
+        events.push({
+            deltaTime: 0,
+            type: 'meta',
+            metaType: 0x51, // Set Tempo
+            data: [
+                (microsecondsPerBeat >> 16) & 0xFF,
+                (microsecondsPerBeat >> 8) & 0xFF,
+                microsecondsPerBeat & 0xFF
+            ]
+        });
+        
+        // Track name
+        events.push({
+            deltaTime: 0,
+            type: 'meta',
+            metaType: 0x03,
+            data: this.stringToBytes('HAOS.fm Pattern')
+        });
+        
+        // End of track
+        events.push({
+            deltaTime: 0,
+            type: 'meta',
+            metaType: 0x2F,
+            data: []
+        });
+        
+        return this.encodeTrack(events);
+    }
+    
+    createTB303MIDITrack(tb303Params, bpm) {
+        const events = [];
+        
+        // Track name
+        events.push({
+            deltaTime: 0,
+            type: 'meta',
+            metaType: 0x03,
+            data: this.stringToBytes('TB-303 Bass')
+        });
+        
+        // Program change to synth bass
+        events.push({
+            deltaTime: 0,
+            type: 'program',
+            channel: 0,
+            program: 38 // Synth Bass 1
+        });
+        
+        // Generate simple bassline pattern (can be enhanced with actual notes)
+        const bassPattern = this.generateTB303Pattern(tb303Params);
+        const ticksPerStep = this.calculateTicksPerStep(bpm);
+        
+        bassPattern.forEach((note, step) => {
+            if (note.active) {
+                // Note On
+                events.push({
+                    deltaTime: step === 0 ? 0 : ticksPerStep,
+                    type: 'noteOn',
+                    channel: 0,
+                    note: note.pitch,
+                    velocity: note.velocity || 100
+                });
+                
+                // Note Off
+                events.push({
+                    deltaTime: ticksPerStep - 1,
+                    type: 'noteOff',
+                    channel: 0,
+                    note: note.pitch,
+                    velocity: 0
+                });
+            }
+        });
+        
+        // End of track
+        events.push({
+            deltaTime: 0,
+            type: 'meta',
+            metaType: 0x2F,
+            data: []
+        });
+        
+        return this.encodeTrack(events);
+    }
+    
+    createDrumMIDITrack(pattern, bpm) {
+        const events = [];
+        
+        // Track name
+        events.push({
+            deltaTime: 0,
+            type: 'meta',
+            metaType: 0x03,
+            data: this.stringToBytes('TR-909 Drums')
+        });
+        
+        // GM Drum map (MIDI channel 10)
+        const drumMap = {
+            kick: 36,   // Bass Drum 1
+            snare: 38,  // Acoustic Snare
+            hihat: 42,  // Closed Hi-Hat
+            clap: 39    // Hand Clap
+        };
+        
+        const ticksPerStep = this.calculateTicksPerStep(bpm);
+        let currentTick = 0;
+        
+        // Process 16 steps
+        for (let step = 0; step < 16; step++) {
+            let hasEventsAtStep = false;
+            
+            // Check each drum track
+            Object.keys(drumMap).forEach(drum => {
+                if (pattern[drum] && pattern[drum][step]) {
+                    // Note On
+                    events.push({
+                        deltaTime: hasEventsAtStep ? 0 : (step === 0 ? 0 : ticksPerStep),
+                        type: 'noteOn',
+                        channel: 9, // Channel 10 (0-indexed = 9)
+                        note: drumMap[drum],
+                        velocity: 100
+                    });
+                    
+                    // Note Off (short duration for drums)
+                    events.push({
+                        deltaTime: 10,
+                        type: 'noteOff',
+                        channel: 9,
+                        note: drumMap[drum],
+                        velocity: 0
+                    });
+                    
+                    hasEventsAtStep = true;
+                }
+            });
+        }
+        
+        // End of track
+        events.push({
+            deltaTime: 0,
+            type: 'meta',
+            metaType: 0x2F,
+            data: []
+        });
+        
+        return this.encodeTrack(events);
+    }
+    
+    generateTB303Pattern(tb303Params) {
+        // Simple 16-step bassline (can be enhanced with actual melody)
+        const baseNote = 36; // C2
+        const pattern = [];
+        
+        for (let i = 0; i < 16; i++) {
+            pattern.push({
+                active: i % 4 === 0, // Play on beats 1, 5, 9, 13
+                pitch: baseNote,
+                velocity: 100
+            });
+        }
+        
+        return pattern;
+    }
+    
+    calculateTicksPerStep(bpm) {
+        // Standard MIDI: 480 ticks per quarter note
+        // 16 steps = 1 bar (4 beats)
+        // Each step = 1/16 note = 1/4 beat
+        return 120; // 480 / 4 = 120 ticks per 16th note
+    }
+    
+    encodeTrack(events) {
+        const trackData = [];
+        
+        events.forEach(event => {
+            // Delta time (variable length)
+            trackData.push(...this.encodeVariableLength(event.deltaTime));
+            
+            // Event data
+            if (event.type === 'meta') {
+                trackData.push(0xFF, event.metaType, event.data.length, ...event.data);
+            } else if (event.type === 'noteOn') {
+                trackData.push(0x90 | event.channel, event.note, event.velocity);
+            } else if (event.type === 'noteOff') {
+                trackData.push(0x80 | event.channel, event.note, event.velocity);
+            } else if (event.type === 'program') {
+                trackData.push(0xC0 | event.channel, event.program);
+            }
+        });
+        
+        return new Uint8Array(trackData);
+    }
+    
+    assembleMIDIFile(tracks) {
+        const chunks = [];
+        
+        // MIDI Header Chunk
+        const header = new Uint8Array([
+            0x4D, 0x54, 0x68, 0x64, // 'MThd'
+            0x00, 0x00, 0x00, 0x06, // Chunk length = 6
+            0x00, 0x01,             // Format 1 (multiple tracks)
+            0x00, tracks.length,    // Number of tracks
+            0x01, 0xE0              // Ticks per quarter note = 480
+        ]);
+        chunks.push(header);
+        
+        // Track Chunks
+        tracks.forEach(trackData => {
+            const trackHeader = new Uint8Array([
+                0x4D, 0x54, 0x72, 0x6B, // 'MTrk'
+                (trackData.length >> 24) & 0xFF,
+                (trackData.length >> 16) & 0xFF,
+                (trackData.length >> 8) & 0xFF,
+                trackData.length & 0xFF
+            ]);
+            chunks.push(trackHeader);
+            chunks.push(trackData);
+        });
+        
+        // Concatenate all chunks
+        const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+        const midiFile = new Uint8Array(totalLength);
+        let offset = 0;
+        
+        chunks.forEach(chunk => {
+            midiFile.set(chunk, offset);
+            offset += chunk.length;
+        });
+        
+        return midiFile;
+    }
+    
+    encodeVariableLength(value) {
+        const bytes = [];
+        bytes.push(value & 0x7F);
+        
+        value >>= 7;
+        while (value > 0) {
+            bytes.unshift((value & 0x7F) | 0x80);
+            value >>= 7;
+        }
+        
+        return bytes;
+    }
+    
+    stringToBytes(str) {
+        return Array.from(str).map(c => c.charCodeAt(0));
+    }
+    
+    /**
+     * Download MIDI file
+     * @param {Object} pattern - Sequencer pattern
+     * @param {Object} tb303Params - TB-303 parameters
+     * @param {number} bpm - Tempo
+     * @param {string} filename - Output filename
+     */
+    downloadMIDI(pattern, tb303Params, bpm, filename = 'haos-pattern.mid') {
+        const midiBlob = this.exportMIDI(pattern, tb303Params, bpm);
+        const url = URL.createObjectURL(midiBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        console.log(`🎹 MIDI file exported: ${filename}`);
+    }
+    
+    // ===== AUDIO RECORDING =====
+    
+    /**
+     * Start recording audio output
+     * @returns {Promise} - Resolves when recording starts
+     */
+    startRecording() {
+        if (this.recording) {
+            console.warn('⚠️ Recording already in progress');
+            return Promise.reject(new Error('Recording already in progress'));
+        }
+        
+        // Create media stream destination
+        this.recordingDestination = this.context.createMediaStreamDestination();
+        
+        // Connect master output to recording destination
+        this.masterGain.connect(this.recordingDestination);
+        
+        // Setup MediaRecorder
+        const options = {
+            mimeType: 'audio/webm;codecs=opus',
+            audioBitsPerSecond: 128000
+        };
+        
+        // Fallback for Safari
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            options.mimeType = 'audio/mp4';
+        }
+        
+        try {
+            this.mediaRecorder = new MediaRecorder(this.recordingDestination.stream, options);
+            this.recordedChunks = [];
+            
+            this.mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    this.recordedChunks.push(event.data);
+                }
+            };
+            
+            this.mediaRecorder.onstop = () => {
+                const blob = new Blob(this.recordedChunks, {
+                    type: this.mediaRecorder.mimeType
+                });
+                this.recordedBlob = blob;
+                console.log(`🎙️ Recording stopped. Size: ${(blob.size / 1024).toFixed(2)} KB`);
+            };
+            
+            this.mediaRecorder.start(100); // Collect data every 100ms
+            this.recording = true;
+            this.recordingStartTime = Date.now();
+            
+            console.log(`🎙️ Recording started (${options.mimeType})`);
+            return Promise.resolve();
+            
+        } catch (error) {
+            console.error('❌ Recording failed:', error);
+            return Promise.reject(error);
+        }
+    }
+    
+    /**
+     * Stop recording and return the audio blob
+     * @returns {Promise<Blob>} - Recorded audio blob
+     */
+    stopRecording() {
+        return new Promise((resolve, reject) => {
+            if (!this.recording || !this.mediaRecorder) {
+                reject(new Error('No recording in progress'));
+                return;
+            }
+            
+            this.mediaRecorder.onstop = () => {
+                const blob = new Blob(this.recordedChunks, {
+                    type: this.mediaRecorder.mimeType
+                });
+                
+                this.recordedBlob = blob;
+                this.recording = false;
+                
+                // Disconnect recording destination
+                if (this.recordingDestination) {
+                    this.masterGain.disconnect(this.recordingDestination);
+                }
+                
+                const duration = (Date.now() - this.recordingStartTime) / 1000;
+                console.log(`🎙️ Recording stopped. Duration: ${duration.toFixed(2)}s, Size: ${(blob.size / 1024).toFixed(2)} KB`);
+                
+                resolve(blob);
+            };
+            
+            this.mediaRecorder.stop();
+        });
+    }
+    
+    /**
+     * Download recorded audio
+     * @param {string} filename - Output filename
+     * @param {string} format - 'webm' or 'wav' (webm by default)
+     */
+    async downloadRecording(filename = 'haos-recording.webm', format = 'webm') {
+        if (!this.recordedBlob) {
+            console.error('❌ No recording available');
+            return;
+        }
+        
+        let blob = this.recordedBlob;
+        
+        // If WAV conversion requested (future enhancement)
+        if (format === 'wav') {
+            console.log('⚠️ WAV conversion not yet implemented, downloading as WebM');
+        }
+        
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        console.log(`💾 Audio downloaded: ${filename}`);
+    }
+    
+    /**
+     * Get recording status
+     * @returns {Object} - {recording: boolean, duration: number, size: number}
+     */
+    getRecordingStatus() {
+        return {
+            recording: this.recording || false,
+            duration: this.recording ? (Date.now() - this.recordingStartTime) / 1000 : 0,
+            size: this.recordedChunks ? this.recordedChunks.reduce((sum, chunk) => sum + chunk.size, 0) : 0,
+            hasRecording: !!this.recordedBlob
+        };
+    }
+    
+    /**
+     * Clear recorded audio
+     */
+    clearRecording() {
+        this.recordedBlob = null;
+        this.recordedChunks = [];
+        console.log('🗑️ Recording cleared');
+    }
 }
 
 /**
