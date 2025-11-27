@@ -1,232 +1,1039 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>HAOS.fm - Hardware Analog Oscillator Synthesis | Electronic Music Production</title>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="description" content="HAOS.fm - Professional hardware-inspired synthesis platform. Create electronic music with authentic TB-303, TR-808, ARP 2600, and modular synthesis engines. Real analog sound in your browser.">
-    <meta name="theme-color" content="#FF6B35">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <!-- Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/haos-logo-white.png">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" href="/images/haos-logo-white.png">
-    
-    <!-- Google Fonts - HAOS.fm Typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- External Resources -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- HAOS.fm Brand CSS -->
-    <link rel="stylesheet" href="/css/haos-brand.css">
-    
-    <style>
-        /* HAOS.fm Landing Page Styles */
-        
-        /* Custom Scrollbar - Vintage Style */
-        ::-webkit-scrollbar { width: 12px; }
-        ::-webkit-scrollbar-track { background: var(--haos-vinyl-black); }
-        ::-webkit-scrollbar-thumb { 
-            background: linear-gradient(180deg, var(--haos-groove-orange), var(--haos-turntable-gold)); 
-            border-radius: 6px; 
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--haos-groove-orange);
-        }
-        
-        /* Additional vintage effects specific to landing page */
-        body {
-            min-height: 100vh;
-            position: relative;
-        }
-        
-        /* Vinyl scratch overlay */
-        .vinyl-scratch {
-            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii45IiBudW1PY3RhdmVzPSI0IiB0eXBlPSJmcmFjdGFsTm9pc2UiLz48ZmVDb2xvck1hdHJpeCB0eXBlPSJzYXR1cmF0ZSIgdmFsdWVzPSIwIi8+PGZlQ29tcG9uZW50VHJhbnNmZXI+PGZlRnVuY0EgdHlwZT0iZGlzY3JldGUiIHRhYmxlVmFsdWVzPSIwIDAuNSAxIi8+PC9mZUNvbXBvbmVudFRyYW5zZmVyPjwvZmlsdGVyPjwvZGVmcz48cmVjdCB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDMiLz48L3N2Zz4=');
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.02;
-            pointer-events: none;
-            mix-blend-mode: overlay;
-        }
-        
-        /* Animated waveform */
-        @keyframes waveform-pulse {
-            0%, 100% { transform: scaleY(1); }
-            50% { transform: scaleY(1.2); }
-        }
-        
-        .waveform-bar {
-            animation: waveform-pulse 1s ease-in-out infinite;
-        }
-        
-        .waveform-bar:nth-child(2) { animation-delay: 0.1s; }
-        .waveform-bar:nth-child(3) { animation-delay: 0.2s; }
-        .waveform-bar:nth-child(4) { animation-delay: 0.3s; }
-        .waveform-bar:nth-child(5) { animation-delay: 0.4s; }
-        
-        /* Logo glow effect */
-        .logo-glow {
-            filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.6));
-        }
-        
-        /* Rotating vinyl animation */
-        @keyframes vinyl-rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .vinyl-rotating {
-            animation: vinyl-rotate 8s linear infinite;
-        }
-        
-        /* Vintage scanlines (optional - can be toggled) */
-        .scanlines {
-            background: linear-gradient(
-                to bottom,
-                transparent 50%,
-                rgba(0, 0, 0, 0.05) 50%
-            );
-            background-size: 100% 4px;
-            pointer-events: none;
-        }
-        
-        /* Equipment rack meter animation */
-        @keyframes vu-bounce {
-            0%, 100% { width: 20%; }
-            50% { width: 85%; }
-        }
-        
-        .vu-animate {
-            animation: vu-bounce 2s ease-in-out infinite;
-        }
-    </style>
-</head>
-<body class="haos-theme">
-    <div class="vinyl-scratch"></div>
+<!DOCTYPE html><!DOCTYPE html>
 
-    <!-- ============================================================================
-         NAVIGATION HEADER - HAOS.fm BRANDED
-         ============================================================================ -->
-    <header class="haos-card-glass sticky top-0 z-50" style="backdrop-filter: blur(20px);">
-        <div class="haos-container">
-            <div class="flex items-center justify-between h-20">
-                <!-- HAOS.fm Logo -->
-                <div class="flex items-center space-x-4">
-                    <img src="/images/haos-logo-white.png" alt="HAOS.fm" class="h-10 vinyl-rotating logo-glow" style="width: auto;">
-                    <div>
-                        <h1 class="haos-display-sm haos-text-gradient-orange" style="font-size: 1.5rem; line-height: 1;">
-                            HAOS.fm
-                        </h1>
-                        <p class="haos-mono" style="font-size: 0.65rem; color: var(--haos-dust-gray); letter-spacing: 0.15em;">
-                            HARDWARE ANALOG OSCILLATOR SYNTHESIS
-                        </p>
-                    </div>
-                </div>
-                
-                <!-- Navigation -->
-                <nav class="hidden md:flex items-center space-x-6">
-                    <a href="/techno-intuitive.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
-                        <i class="fas fa-bolt mr-2"></i>INTUITIVE CREATOR
-                    </a>
-                    <a href="/synth-2600-studio.html" class="haos-label hover:text-orange-400 transition-colors">
-                        <i class="fas fa-sliders-h mr-2"></i>ARP 2600 STUDIO
-                    </a>
-                    <a href="#radio" class="haos-label hover:text-orange-400 transition-colors">
-                        <i class="fas fa-broadcast-tower mr-2"></i>RADIO
-                    </a>
-                    <span class="haos-badge haos-badge-new">SYNTHESIS</span>
-                </nav>
-                
-                <!-- Mobile Menu -->
-                <button class="md:hidden haos-btn-secondary px-4 py-2">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
-    </header>
+<html lang="en"><html lang="en">
 
-    <!-- ============================================================================
-         HERO SECTION - VINTAGE VINYL AESTHETIC
-         ============================================================================ -->
-    <section class="haos-section" style="background: linear-gradient(180deg, var(--haos-vinyl-black) 0%, var(--haos-tape-brown) 100%); position: relative; overflow: hidden;">
-        <!-- Animated waveform background -->
-        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; display: flex; align-items: flex-end; justify-content: center; gap: 4px; opacity: 0.1;">
-            <div class="waveform-bar" style="width: 8px; height: 60%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 80%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 40%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 90%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 70%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 50%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 85%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 65%; background: var(--haos-groove-orange);"></div>
-        </div>
+<head><head>
+
+    <meta charset="UTF-8">    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>HAOS.fm | Hardware Analog Operating System</title>    <title>HAOS.fm | Hardware Analog Operating System</title>
+
         
-        <div class="haos-container text-center haos-slide-up" style="position: relative; z-index: 10;">
-            <!-- Main Logo - Your Custom PNG -->
-            <div class="mb-8" style="max-width: 800px; margin: 0 auto;">
-                <img src="/images/haos-logo-white.png" alt="HAOS.fm - Hardware Analog Oscillator Synthesis" class="w-full logo-glow" style="max-width: 600px; margin: 0 auto;">
+
+    <!-- PWA Meta Tags -->    <!-- PWA Meta Tags -->
+
+    <meta name="description" content="HAOS.fm - Hardware Analog Operating System. Choose your workflow: Techno OS for acid & drums, Hip-Hop OS for beats & samples. FM = Future Modulation.">    <meta name="description" content="HAOS.fm - Hardware Analog Operating System. Choose your workflow: Techno OS for acid & drums, Hip-Hop OS for beats & samples. FM = Future Modulation.">
+
+    <meta name="theme-color" content="#FF6B35">    <meta name="theme-color" content="#FF6B35">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+        
+
+    <!-- Icons -->    <!-- Icons -->
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/haos-logo-white.png">    <link rel="apple-touch-icon" sizes="180x180" href="/images/haos-logo-white.png">
+
+    <link rel="manifest" href="/manifest.json">    <link rel="manifest" href="/manifest.json">
+
+    <link rel="icon" type="image/png" href="/images/haos-logo-white.png">    <link rel="icon" type="image/png" href="/images/haos-logo-white.png">
+
+        
+
+    <!-- Fonts -->    <!-- Fonts -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+        
+
+    <style>    <style>
+
+        :root {        :root {
+
+            /* HAOS Brand Colors */            /* HAOS Brand Colors */
+
+            --haos-black: #0a0a0a;            --haos-black: #0a0a0a;
+
+            --haos-panel: rgba(20, 20, 25, 0.85);            --haos-panel: rgba(20, 20, 25, 0.85);
+
+            --haos-orange: #FF6B35;            --haos-orange: #FF6B35;
+
+            --haos-orange-bright: #FF8C42;            --haos-orange-bright: #FF8C42;
+
+            --haos-orange-dark: #E55A2B;            --haos-orange-dark: #E55A2B;
+
+            --haos-green: #39FF14;            --haos-green: #39FF14;
+
+            --haos-cyan: #00D9FF;            --haos-cyan: #00D9FF;
+
+            --haos-pink: #FF006E;            --haos-pink: #FF006E;
+
+            --haos-text: #e0e0e0;            --haos-text: #e0e0e0;
+
+            --haos-dim: #888;            --haos-dim: #888;
+
+            --haos-border: rgba(255, 107, 53, 0.2);            --haos-border: rgba(255, 107, 53, 0.2);
+
+                        
+
+            /* Typography */            /* Typography */
+
+            --font-display: 'Bebas Neue', sans-serif;            --font-display: 'Bebas Neue', sans-serif;
+
+            --font-mono: 'Space Mono', monospace;            --font-mono: 'Space Mono', monospace;
+
+            --font-body: 'Inter', sans-serif;            --font-body: 'Inter', sans-serif;
+
+        }        }
+
+
+
+        * {        * {
+
+            margin: 0;            margin: 0;
+
+            padding: 0;            padding: 0;
+
+            box-sizing: border-box;            box-sizing: border-box;
+
+        }        }
+
+                
+
+        body {        body {
+
+            font-family: var(--font-body);            font-family: var(--font-body);
+
+            background: var(--haos-black);            background: var(--haos-black);
+
+            background-image:             background-image: 
+
+                radial-gradient(circle at 20% 30%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),                radial-gradient(circle at 20% 30%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+
+                radial-gradient(circle at 80% 70%, rgba(255, 140, 66, 0.06) 0%, transparent 50%);                radial-gradient(circle at 80% 70%, rgba(255, 140, 66, 0.06) 0%, transparent 50%);
+
+            color: var(--haos-text);            color: var(--haos-text);
+
+            min-height: 100vh;            min-height: 100vh;
+
+            overflow-x: hidden;            overflow-x: hidden;
+
+        }        }
+
+
+
+        /* Header */        /* Header */
+
+        .haos-header {        .haos-header {
+
+            position: sticky;            position: sticky;
+
+            top: 0;            top: 0;
+
+            z-index: 1000;            z-index: 1000;
+
+            background: rgba(10, 10, 10, 0.95);            background: rgba(10, 10, 10, 0.95);
+
+            backdrop-filter: blur(12px);            backdrop-filter: blur(12px);
+
+            border-bottom: 1px solid var(--haos-border);            border-bottom: 1px solid var(--haos-border);
+
+            padding: 20px 30px;            padding: 20px 30px;
+
+        }        }
+
+
+
+        .header-content {        .header-content {
+
+            max-width: 1400px;            max-width: 1400px;
+
+            margin: 0 auto;            margin: 0 auto;
+
+            display: flex;            display: flex;
+
+            align-items: center;            align-items: center;
+
+            justify-content: space-between;            justify-content: space-between;
+
+            gap: 30px;            gap: 30px;
+
+        }        }
+
+
+
+        .logo-section {        .logo-section {
+
+            display: flex;            display: flex;
+
+            align-items: center;            align-items: center;
+
+            gap: 20px;            gap: 20px;
+
+        }        }
+
+
+
+        .logo-section img {        .logo-section img {
+
+            height: 50px;            height: 50px;
+
+            filter: drop-shadow(0 2px 10px rgba(255, 107, 53, 0.3));            filter: drop-shadow(0 2px 10px rgba(255, 107, 53, 0.3));
+
+            animation: rotate 20s linear infinite;            animation: rotate 20s linear infinite;
+
+        }        }
+
+
+
+        @keyframes rotate {        @keyframes rotate {
+
+            from { transform: rotate(0deg); }            from { transform: rotate(0deg); }
+
+            to { transform: rotate(360deg); }            to { transform: rotate(360deg); }
+
+        }        }
+
+
+
+        .brand-text {        .brand-text {
+
+            display: flex;            display: flex;
+
+            flex-direction: column;            flex-direction: column;
+
+            gap: 2px;            gap: 2px;
+
+        }        }
+
+
+
+        .brand-name {        .brand-name {
+
+            font-family: var(--font-display);            font-family: var(--font-display);
+
+            font-size: 1.8rem;            font-size: 1.8rem;
+
+            letter-spacing: 2px;            letter-spacing: 2px;
+
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+
+            -webkit-background-clip: text;            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;            -webkit-text-fill-color: transparent;
+
+            background-clip: text;            background-clip: text;
+
+        }        }
+
+
+
+        .brand-tagline {        .brand-tagline {
+
+            font-family: var(--font-mono);            font-family: var(--font-mono);
+
+            font-size: 0.65rem;            font-size: 0.65rem;
+
+            letter-spacing: 3px;            letter-spacing: 3px;
+
+            color: var(--haos-orange);            color: var(--haos-orange);
+
+            text-transform: uppercase;            text-transform: uppercase;
+
+        }        }
+
+
+
+        .status-indicator {        .status-indicator {
+
+            display: flex;            display: flex;
+
+            align-items: center;            align-items: center;
+
+            gap: 8px;            gap: 8px;
+
+            padding: 8px 14px;            padding: 8px 14px;
+
+            border-radius: 20px;            border-radius: 20px;
+
+            border: 1px solid var(--haos-border);            border: 1px solid var(--haos-border);
+
+            background: rgba(0, 0, 0, 0.4);            background: rgba(0, 0, 0, 0.4);
+
+            font-family: var(--font-mono);            font-family: var(--font-mono);
+
+            font-size: 0.7rem;            font-size: 0.7rem;
+
+            letter-spacing: 1px;            letter-spacing: 1px;
+
+        }        }
+
+
+
+        .status-dot {        .status-dot {
+
+            width: 8px;            width: 8px;
+
+            height: 8px;            height: 8px;
+
+            border-radius: 50%;            border-radius: 50%;
+
+            background: var(--haos-orange);            background: var(--haos-orange);
+
+            animation: pulse 2s infinite;            animation: pulse 2s infinite;
+
+            box-shadow: 0 0 10px var(--haos-orange);            box-shadow: 0 0 10px var(--haos-orange);
+
+        }        }
+
+
+
+        @keyframes pulse {        @keyframes pulse {
+
+            0%, 100% { opacity: 1; }            0%, 100% { opacity: 1; }
+
+            50% { opacity: 0.4; }            50% { opacity: 0.4; }
+
+        }        }
+
+
+
+        /* Main Container */        /* Main Container */
+
+        .haos-main {        .haos-main {
+
+            max-width: 1400px;            max-width: 1400px;
+
+            margin: 0 auto;            margin: 0 auto;
+
+            padding: 40px 30px;            padding: 40px 30px;
+
+        }        }
+
+
+
+        /* Hero Welcome */        /* Hero Welcome */
+
+        .hero-welcome {        .hero-welcome {
+
+            text-align: center;            text-align: center;
+
+            padding: 60px 30px 40px;            padding: 60px 30px 40px;
+
+            margin-bottom: 50px;            margin-bottom: 50px;
+
+        }        }
+
+
+
+        .hero-title {        .hero-title {
+
+            font-family: var(--font-display);            font-family: var(--font-display);
+
+            font-size: 4rem;            font-size: 4rem;
+
+            letter-spacing: 4px;            letter-spacing: 4px;
+
+            margin-bottom: 15px;            margin-bottom: 15px;
+
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright), var(--haos-orange));            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright), var(--haos-orange));
+
+            -webkit-background-clip: text;            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;            -webkit-text-fill-color: transparent;
+
+            background-clip: text;            background-clip: text;
+
+            animation: glow 3s ease-in-out infinite;            animation: glow 3s ease-in-out infinite;
+
+        }        }
+
+
+
+        @keyframes glow {        @keyframes glow {
+
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.3)); }            0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.3)); }
+
+            50% { filter: drop-shadow(0 0 40px rgba(255, 107, 53, 0.6)); }            50% { filter: drop-shadow(0 0 40px rgba(255, 107, 53, 0.6)); }
+
+        }        }
+
+
+
+        .hero-subtitle {        .hero-subtitle {
+
+            font-family: var(--font-mono);            font-family: var(--font-mono);
+
+            font-size: 0.9rem;            font-size: 0.9rem;
+
+            letter-spacing: 2px;            letter-spacing: 2px;
+
+            color: var(--haos-dim);            color: var(--haos-dim);
+
+            text-transform: uppercase;            text-transform: uppercase;
+
+            margin-bottom: 10px;            margin-bottom: 10px;
+
+        }        }
+
+
+
+        .hero-description {        .hero-description {
+
+            font-size: 1.1rem;            font-size: 1.1rem;
+
+            color: var(--haos-text);            color: var(--haos-text);
+
+            max-width: 700px;            max-width: 700px;
+
+            margin: 0 auto 30px;            margin: 0 auto 30px;
+
+            line-height: 1.6;            line-height: 1.6;
+
+        }        }
+
+
+
+        /* OS Selection Cards */        /* OS Selection Cards */
+
+        .os-selection {        .os-selection {
+
+            margin-bottom: 60px;            margin-bottom: 60px;
+
+        }        }
+
+
+
+        .os-selection-title {        .os-selection-title {
+
+            font-family: var(--font-display);            font-family: var(--font-display);
+
+            font-size: 2.5rem;            font-size: 2.5rem;
+
+            text-align: center;            text-align: center;
+
+            margin-bottom: 40px;            margin-bottom: 40px;
+
+            letter-spacing: 3px;            letter-spacing: 3px;
+
+            color: var(--haos-orange);            color: var(--haos-orange);
+
+        }        }
+
+
+
+        .os-cards {        .os-cards {
+
+            display: grid;            display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+
+            gap: 30px;            gap: 30px;
+
+            margin-bottom: 40px;            margin-bottom: 40px;
+
+        }        }
+
+
+
+        .os-card {        .os-card {
+
+            position: relative;            position: relative;
+
+            background: var(--haos-panel);            background: var(--haos-panel);
+
+            backdrop-filter: blur(10px);            backdrop-filter: blur(10px);
+
+            border: 2px solid var(--haos-border);            border: 2px solid var(--haos-border);
+
+            border-radius: 20px;            border-radius: 20px;
+
+            padding: 40px;            padding: 40px;
+
+            cursor: pointer;            cursor: pointer;
+
+            transition: all 0.3s ease;            transition: all 0.3s ease;
+
+            overflow: hidden;            overflow: hidden;
+
+        }        }
+
+
+
+        .os-card::before {        .os-card::before {
+
+            content: '';            content: '';
+
+            position: absolute;            position: absolute;
+
+            top: 0;            top: 0;
+
+            left: 0;            left: 0;
+
+            right: 0;            right: 0;
+
+            bottom: 0;            bottom: 0;
+
+            background: linear-gradient(135deg, transparent, rgba(255, 107, 53, 0.05));            background: linear-gradient(135deg, transparent, rgba(255, 107, 53, 0.05));
+
+            opacity: 0;            opacity: 0;
+
+            transition: opacity 0.3s ease;            transition: opacity 0.3s ease;
+
+        }        }
+
+
+
+        .os-card:hover {        .os-card:hover {
+
+            transform: translateY(-5px);            transform: translateY(-5px);
+
+            border-color: var(--haos-orange);            border-color: var(--haos-orange);
+
+            box-shadow: 0 10px 40px rgba(255, 107, 53, 0.3);            box-shadow: 0 10px 40px rgba(255, 107, 53, 0.3);
+
+        }        }
+
+
+
+        .os-card:hover::before {        .os-card:hover::before {
+
+            opacity: 1;            opacity: 1;
+
+        }        }
+
+
+
+        .os-card.techno {        .os-card.techno {
+
+            border-color: var(--haos-orange);            border-color: var(--haos-orange);
+
+        }        }
+
+
+
+        .os-card.hiphop {        .os-card.hiphop {
+
+            border-color: var(--haos-cyan);            border-color: var(--haos-cyan);
+
+        }        }
+
+
+
+        .os-card-header {        .os-card-header {
+
+            display: flex;            display: flex;
+
+            align-items: center;            align-items: center;
+
+            justify-content: space-between;            justify-content: space-between;
+
+            margin-bottom: 20px;            margin-bottom: 20px;
+
+        }        }
+
+
+
+        .os-icon {        .os-icon {
+
+            font-size: 3rem;            font-size: 3rem;
+
+        }        }
+
+
+
+        .os-badge {        .os-badge {
+
+            padding: 6px 12px;            padding: 6px 12px;
+
+            border-radius: 12px;            border-radius: 12px;
+
+            font-family: var(--font-mono);            font-family: var(--font-mono);
+
+            font-size: 0.7rem;            font-size: 0.7rem;
+
+            font-weight: bold;            font-weight: bold;
+
+            letter-spacing: 1px;            letter-spacing: 1px;
+
+        }        }
+
+
+
+        .os-badge.focus {        .os-badge.focus {
+
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+
+            color: #000;            color: #000;
+
+        }        }
+
+
+
+        .os-badge.soon {        .os-badge.soon {
+
+            background: rgba(255, 255, 255, 0.1);            background: rgba(255, 255, 255, 0.1);
+
+            color: var(--haos-dim);            color: var(--haos-dim);
+
+        }        }
+
+
+
+        .os-title {        .os-title {
+
+            font-family: var(--font-display);            font-family: var(--font-display);
+
+            font-size: 2.5rem;            font-size: 2.5rem;
+
+            letter-spacing: 2px;            letter-spacing: 2px;
+
+            margin-bottom: 10px;            margin-bottom: 10px;
+
+        }        }
+
+
+
+        .os-title.techno {        .os-title.techno {
+
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+
+            -webkit-background-clip: text;            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;            -webkit-text-fill-color: transparent;
+
+            background-clip: text;            background-clip: text;
+
+        }        }
+
+
+
+        .os-title.hiphop {        .os-title.hiphop {
+
+            background: linear-gradient(135deg, var(--haos-cyan), var(--haos-green));            background: linear-gradient(135deg, var(--haos-cyan), var(--haos-green));
+
+            -webkit-background-clip: text;            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;            -webkit-text-fill-color: transparent;
+
+            background-clip: text;            background-clip: text;
+
+        }        }
+
+
+
+        .os-description {        .os-description {
+
+            color: var(--haos-text);            color: var(--haos-text);
+
+            line-height: 1.6;            line-height: 1.6;
+
+            margin-bottom: 20px;            margin-bottom: 20px;
+
+        }        }
+
+
+
+        .os-tools {        .os-tools {
+
+            display: flex;            display: flex;
+
+            flex-wrap: wrap;            flex-wrap: wrap;
+
+            gap: 8px;            gap: 8px;
+
+            margin-bottom: 25px;            margin-bottom: 25px;
+
+        }        }
+
+
+
+        .tool-tag {        .tool-tag {
+
+            padding: 6px 12px;            padding: 6px 12px;
+
+            border-radius: 8px;            border-radius: 8px;
+
+            font-family: var(--font-mono);            font-family: var(--font-mono);
+
+            font-size: 0.7rem;            font-size: 0.7rem;
+
+            background: rgba(255, 107, 53, 0.15);            background: rgba(255, 107, 53, 0.15);
+
+            color: var(--haos-orange-bright);            color: var(--haos-orange-bright);
+
+            border: 1px solid rgba(255, 107, 53, 0.3);            border: 1px solid rgba(255, 107, 53, 0.3);
+
+        }        }
+
+
+
+        .os-button {        .os-button {
+
+            width: 100%;            width: 100%;
+
+            padding: 15px;            padding: 15px;
+
+            border: none;            border: none;
+
+            border-radius: 12px;            border-radius: 12px;
+
+            font-family: var(--font-display);            font-family: var(--font-display);
+
+            font-size: 1.3rem;            font-size: 1.3rem;
+
+            letter-spacing: 2px;            letter-spacing: 2px;
+
+            cursor: pointer;            cursor: pointer;
+
+            transition: all 0.3s ease;            transition: all 0.3s ease;
+
+            text-decoration: none;            text-decoration: none;
+
+            display: block;            display: block;
+
+            text-align: center;            text-align: center;
+
+        }        }
+
+
+
+        .os-button.techno {        .os-button.techno {
+
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+
+            color: #000;            color: #000;
+
+        }        }
+
+
+
+        .os-button.techno:hover {        .os-button.techno:hover {
+
+            transform: scale(1.02);            transform: scale(1.02);
+
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.5);            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.5);
+
+        }        }
+
+
+
+        .os-button.hiphop {        .os-button.hiphop {
+
+            background: rgba(255, 255, 255, 0.05);            background: rgba(255, 255, 255, 0.05);
+
+            color: var(--haos-dim);            color: var(--haos-dim);
+
+            border: 2px solid rgba(255, 255, 255, 0.1);            border: 2px solid rgba(255, 255, 255, 0.1);
+
+        }        }
+
+
+
+        .os-button.hiphop:hover {        .os-button.hiphop:hover {
+
+            background: rgba(255, 255, 255, 0.08);            background: rgba(255, 255, 255, 0.08);
+
+        }        }
+
+
+
+        /* Info Section */        /* Info Section */
+
+        .info-section {        .info-section {
+
+            text-align: center;            text-align: center;
+
+            padding: 40px 30px;            padding: 40px 30px;
+
+            background: var(--haos-panel);            background: var(--haos-panel);
+
+            border-radius: 20px;            border-radius: 20px;
+
+            border: 1px solid var(--haos-border);            border: 1px solid var(--haos-border);
+
+        }        }
+
+
+
+        .info-title {        .info-title {
+
+            font-family: var(--font-display);            font-family: var(--font-display);
+
+            font-size: 2rem;            font-size: 2rem;
+
+            letter-spacing: 2px;            letter-spacing: 2px;
+
+            margin-bottom: 15px;            margin-bottom: 15px;
+
+            color: var(--haos-orange);            color: var(--haos-orange);
+
+        }        }
+
+
+
+        .info-text {        .info-text {
+
+            color: var(--haos-text);            color: var(--haos-text);
+
+            line-height: 1.8;            line-height: 1.8;
+
+            max-width: 800px;            max-width: 800px;
+
+            margin: 0 auto;            margin: 0 auto;
+
+        }        }
+
+
+
+        .info-text strong {        .info-text strong {
+
+            color: var(--haos-orange-bright);            color: var(--haos-orange-bright);
+
+            font-weight: 600;            font-weight: 600;
+
+        }        }
+
+
+
+        /* Responsive */        /* Responsive */
+
+        @media (max-width: 768px) {        @media (max-width: 768px) {
+
+            .hero-title {            .hero-title {
+
+                font-size: 2.5rem;                font-size: 2.5rem;
+
+            }            }
+
+
+
+            .os-cards {            .os-cards {
+
+                grid-template-columns: 1fr;                grid-template-columns: 1fr;
+
+            }            }
+
+
+
+            .header-content {            .header-content {
+
+                flex-direction: column;                flex-direction: column;
+
+                gap: 15px;                gap: 15px;
+
+            }            }
+
+        }        }
+
+    </style>    </style>
+
+</head></head>
+
+<body><body>
+
+    <!-- Header -->            background-size: 100% 4px;
+
+    <header class="haos-header">            pointer-events: none;
+
+        <div class="header-content">        }
+
+            <div class="logo-section">        
+
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm Logo">        /* Equipment rack meter animation */
+
+                <div class="brand-text">        @keyframes vu-bounce {
+
+                    <div class="brand-name">HAOS.FM</div>            0%, 100% { width: 20%; }
+
+                    <div class="brand-tagline">Hardware Analog Operating System</div>            50% { width: 85%; }
+
+                </div>        }
+
+            </div>        
+
+                    .vu-animate {
+
+            <div class="status-indicator">            animation: vu-bounce 2s ease-in-out infinite;
+
+                <div class="status-dot"></div>        }
+
+                <span>SYSTEM ONLINE</span>    </style>
+
+            </div></head>
+
+        </div><body>
+
+    </header>    <!-- Header -->
+
+    <header class="haos-header">
+
+    <!-- Main Content -->        <div class="header-content">
+
+    <main class="haos-main">            <div class="logo-section">
+
+        <!-- Hero Welcome -->                <img src="/images/haos-logo-white.png" alt="HAOS.fm Logo">
+
+        <section class="hero-welcome">                <div class="brand-text">
+
+            <div class="hero-subtitle">FM = FUTURE MODULATION</div>                    <div class="brand-name">HAOS.FM</div>
+
+            <h1 class="hero-title">CHOOSE YOUR OPERATING SYSTEM</h1>                    <div class="brand-tagline">Hardware Analog Operating System</div>
+
+            <p class="hero-description">                </div>
+
+                HAOS.fm is a dual-OS music creation platform. Select your workflow:             </div>
+
+                <strong>Techno OS</strong> for acid bass & drum machines, or             
+
+                <strong>Hip-Hop OS</strong> for beats & sampling (coming soon).            <div class="status-indicator">
+
+            </p>                <div class="status-dot"></div>
+
+        </section>                <span>SYSTEM ONLINE</span>
+
             </div>
-            
-            <h2 class="haos-display-md haos-text-gradient-gold mb-4">
-                HARDWARE ANALOG SYNTHESIS
-            </h2>
-            
-            <p class="haos-body-lg mb-8 max-w-3xl mx-auto" style="color: var(--haos-sepia-cream);">
-                Create electronic music with authentic hardware-inspired synthesis engines. 
-                <br>TB-303 acid bass, TR-808 drums, ARP 2600 modular, and more - all in your browser.
-            </p>
-            
-            <div class="flex flex-wrap justify-center gap-4 mb-12">
-                <a href="/techno-intuitive.html" class="haos-btn haos-btn-primary" style="font-size: 1.2em; padding: 18px 36px;">
-                    ⚡ START CREATING NOW
-                </a>
-                <a href="/synth-2600-studio.html" class="haos-btn haos-btn-gold">
-                    🎹 ARP 2600 STUDIO
-                </a>
-                    ⚡ TECHNO CREATOR
-                </a>
-                <a href="/radio.html" class="haos-btn haos-btn-secondary">
-                    📻 RADIO 24/7
-                </a>
+
+        <!-- OS Selection -->        </div>
+
+        <section class="os-selection">    </header>
+
+            <div class="os-cards">
+
+                <!-- TECHNO OS -->    <!-- ============================================================================
+
+                <div class="os-card techno" onclick="window.location.href='haos-platform.html'">         HERO SECTION - VINTAGE VINYL AESTHETIC
+
+                    <div class="os-card-header">         ============================================================================ -->
+
+                        <div class="os-icon">🎛️</div>    <section class="haos-section" style="background: linear-gradient(180deg, var(--haos-vinyl-black) 0%, var(--haos-tape-brown) 100%); position: relative; overflow: hidden;">
+
+                        <div class="os-badge focus">AVAILABLE NOW</div>        <!-- Animated waveform background -->
+
+                    </div>        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; display: flex; align-items: flex-end; justify-content: center; gap: 4px; opacity: 0.1;">
+
+                    <h2 class="os-title techno">TECHNO OS</h2>            <div class="waveform-bar" style="width: 8px; height: 60%; background: var(--haos-groove-orange);"></div>
+
+                    <p class="os-description">            <div class="waveform-bar" style="width: 8px; height: 80%; background: var(--haos-groove-orange);"></div>
+
+                        Hardware-inspired synthesis platform for electronic music. Create acid basslines,             <div class="waveform-bar" style="width: 8px; height: 40%; background: var(--haos-groove-orange);"></div>
+
+                        program drum patterns, and design sequences with authentic TB-303 and TR-909 engines.            <div class="waveform-bar" style="width: 8px; height: 90%; background: var(--haos-groove-orange);"></div>
+
+                    </p>            <div class="waveform-bar" style="width: 8px; height: 70%; background: var(--haos-groove-orange);"></div>
+
+                    <div class="os-tools">            <div class="waveform-bar" style="width: 8px; height: 50%; background: var(--haos-groove-orange);"></div>
+
+                        <span class="tool-tag">🧪 TB-303 ACID LAB</span>            <div class="waveform-bar" style="width: 8px; height: 85%; background: var(--haos-groove-orange);"></div>
+
+                        <span class="tool-tag">🥁 TR-909 DRUMS</span>            <div class="waveform-bar" style="width: 8px; height: 65%; background: var(--haos-groove-orange);"></div>
+
+                        <span class="tool-tag">🎵 TR-808 DRUMS</span>        </div>
+
+                        <span class="tool-tag">⏱️ 16-STEP SEQUENCER</span>        
+
+                        <span class="tool-tag">🎚️ LIVE PATCHING</span>        <div class="haos-container text-center haos-slide-up" style="position: relative; z-index: 10;">
+
+                    </div>            <!-- Main Logo - Your Custom PNG -->
+
+                    <a href="haos-platform.html" class="os-button techno">LAUNCH TECHNO OS</a>            <div class="mb-8" style="max-width: 800px; margin: 0 auto;">
+
+                </div>                <img src="/images/haos-logo-white.png" alt="HAOS.fm - Hardware Analog Oscillator Synthesis" class="w-full logo-glow" style="max-width: 600px; margin: 0 auto;">
+
             </div>
-            
-            <!-- Stats - Equipment Rack Style -->
-            <div class="haos-rack" style="max-width: 900px; margin: var(--haos-space-3xl) auto 0;">
-                <div class="haos-rack-strip"></div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
-                    <div class="text-center">
-                        <div class="haos-vu-meter mb-3">
-                            <div class="haos-vu-fill vu-animate" style="width: 85%;"></div>
-                        </div>
-                        <div class="haos-display-md haos-text-gradient-orange">10+</div>
-                        <div class="haos-label" style="color: var(--haos-sepia-cream);">SYNTHESIS TOOLS</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="haos-vu-meter mb-3">
+
+                <!-- HIP-HOP OS -->            
+
+                <div class="os-card hiphop">            <h2 class="haos-display-md haos-text-gradient-gold mb-4">
+
+                    <div class="os-card-header">                HARDWARE ANALOG SYNTHESIS
+
+                        <div class="os-icon">🎤</div>            </h2>
+
+                        <div class="os-badge soon">COMING SOON</div>            
+
+                    </div>            <p class="haos-body-lg mb-8 max-w-3xl mx-auto" style="color: var(--haos-sepia-cream);">
+
+                    <h2 class="os-title hiphop">HIP-HOP OS</h2>                Create electronic music with authentic hardware-inspired synthesis engines. 
+
+                    <p class="os-description">                <br>TB-303 acid bass, TR-808 drums, ARP 2600 modular, and more - all in your browser.
+
+                        Beat production platform for hip-hop & sampling. MPC-style drum pads, sample manipulation,             </p>
+
+                        groove quantization, and boom-bap workflow. Under development.            
+
+                    </p>            <div class="flex flex-wrap justify-center gap-4 mb-12">
+
+                    <div class="os-tools">                <a href="/techno-intuitive.html" class="haos-btn haos-btn-primary" style="font-size: 1.2em; padding: 18px 36px;">
+
+                        <span class="tool-tag">🎹 MPC DRUMS</span>                    ⚡ START CREATING NOW
+
+                        <span class="tool-tag">🎼 SAMPLE SLICER</span>                </a>
+
+                        <span class="tool-tag">📼 TAPE DECK</span>                <a href="/synth-2600-studio.html" class="haos-btn haos-btn-gold">
+
+                        <span class="tool-tag">🎚️ GROOVE ENGINE</span>                    🎹 ARP 2600 STUDIO
+
+                        <span class="tool-tag">🔊 808 BASS</span>                </a>
+
+                    </div>                    ⚡ TECHNO CREATOR
+
+                    <button class="os-button hiphop" disabled>COMING SOON</button>                </a>
+
+                </div>                <a href="/radio.html" class="haos-btn haos-btn-secondary">
+
+            </div>                    📻 RADIO 24/7
+
+        </section>                </a>
+
+            </div>
+
+        <!-- Info Section -->            
+
+        <section class="info-section">            <!-- Stats - Equipment Rack Style -->
+
+            <h3 class="info-title">WHAT IS HAOS.FM?</h3>            <div class="haos-rack" style="max-width: 900px; margin: var(--haos-space-3xl) auto 0;">
+
+            <p class="info-text">                <div class="haos-rack-strip"></div>
+
+                <strong>HAOS</strong> = Hardware Analog Operating System<br>                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
+
+                <strong>FM</strong> = Future Modulation<br><br>                    <div class="text-center">
+
+                A modular synthesis platform inspired by legendary hardware. Create electronic music with                         <div class="haos-vu-meter mb-3">
+
+                authentic TB-303 acid bass, TR-808/909 drum machines, and advanced sequencing. All running                             <div class="haos-vu-fill vu-animate" style="width: 85%;"></div>
+
+                in your browser with WebAudio API. <strong>No installation required.</strong><br><br>                        </div>
+
+                Choose <strong>Techno OS</strong> for classic electronic workflow, or wait for                         <div class="haos-display-md haos-text-gradient-orange">10+</div>
+
+                <strong>Hip-Hop OS</strong> for sampling & beat production.                        <div class="haos-label" style="color: var(--haos-sepia-cream);">SYNTHESIS TOOLS</div>
+
+            </p>                    </div>
+
+        </section>                    <div class="text-center">
+
+    </main>                        <div class="haos-vu-meter mb-3">
+
                             <div class="haos-vu-fill vu-animate" style="width: 75%; animation-delay: 0.2s;"></div>
-                        </div>
-                        <div class="haos-display-md haos-text-gradient-orange">5+</div>
-                        <div class="haos-label" style="color: var(--haos-sepia-cream);">ANALOG OSCILLATORS</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="haos-vu-meter mb-3">
-                            <div class="haos-vu-fill vu-animate" style="width: 100%; animation-delay: 0.4s;"></div>
-                        </div>
-                        <div class="haos-display-md haos-text-gradient-orange">24/7</div>
-                        <div class="haos-label" style="color: var(--haos-sepia-cream);">LIVE BROADCAST</div>
-                    </div>
+
+    <script>                        </div>
+
+        // Store OS selection                        <div class="haos-display-md haos-text-gradient-orange">5+</div>
+
+        function selectOS(os) {                        <div class="haos-label" style="color: var(--haos-sepia-cream);">ANALOG OSCILLATORS</div>
+
+            localStorage.setItem('haos_os', os);                    </div>
+
+            if (os === 'techno') {                    <div class="text-center">
+
+                window.location.href = 'haos-platform.html';                        <div class="haos-vu-meter mb-3">
+
+            }                            <div class="haos-vu-fill vu-animate" style="width: 100%; animation-delay: 0.4s;"></div>
+
+        }                        </div>
+
+    </script>                        <div class="haos-display-md haos-text-gradient-orange">24/7</div>
+
+</body>                        <div class="haos-label" style="color: var(--haos-sepia-cream);">LIVE BROADCAST</div>
+
+</html>                    </div>
+
                     <div class="text-center">
                         <div class="haos-vu-meter mb-3">
                             <div class="haos-vu-fill vu-animate" style="width: 95%; animation-delay: 0.6s;"></div>

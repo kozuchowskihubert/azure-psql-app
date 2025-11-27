@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAOS.fm | Hardware Analog Operating System</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* HAOS Brand Colors */
+            --haos-black: #0a0a0a;
+            --haos-panel: rgba(20, 20, 25, 0.85);
+            --haos-orange: #FF6B35;
+            --haos-orange-bright: #FF8C42;
+            --haos-orange-dark: #E55A2B;
+            --haos-green: #39FF14;
+            --haos-cyan: #00D9FF;
+            --haos-pink: #FF006E;
+            --haos-text: #e0e0e0;
+            --haos-dim: #888;
+            --haos-border: rgba(255, 107, 53, 0.2);
+            
+            /* Typography */
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            background: var(--haos-black);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 140, 66, 0.06) 0%, transparent 50%);
+            color: var(--haos-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .haos-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--haos-border);
+            padding: 20px 30px;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-section img {
+            height: 50px;
+            filter: drop-shadow(0 2px 10px rgba(255, 255, 255, 0.2));
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand-name {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-tagline {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            color: var(--haos-orange);
+            text-transform: uppercase;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--haos-border);
+            background: rgba(0, 0, 0, 0.4);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--haos-orange);
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px var(--haos-orange);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Main Container */
+        .haos-main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        /* Hero Welcome */
+        .hero-welcome {
+            text-align: center;
+            padding: 60px 30px 40px;
+            margin-bottom: 50px;
+        }
+
+        .hero-welcome h1 {
+            font-family: var(--font-display);
+            font-size: 4.5rem;
+            line-height: 1;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, var(--haos-orange) 40%, var(--haos-orange-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            color: var(--haos-orange);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            color: var(--haos-dim);
+            line-height: 1.7;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        /* OS Selection */
+        .os-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .os-card {
+            position: relative;
+            background: var(--haos-panel);
+            backdrop-filter: blur(12px);
+            border: 2px solid var(--haos-border);
+            border-radius: 24px;
+            padding: 50px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+
+        .os-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--os-color);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .os-card:hover::before {
+            opacity: 1;
+        }
+
+        .os-card.techno {
+            --os-color: var(--haos-orange);
+        }
+
+        .os-card.hiphop {
+            --os-color: var(--haos-orange-bright);
+        }
+
+        .os-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--os-color);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                        0 0 40px var(--os-color);
+        }
+
+        .os-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            filter: grayscale(0.3);
+            transition: filter 0.3s ease;
+        }
+
+        .os-card:hover .os-icon {
+            filter: grayscale(0);
+        }
+
+        .os-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            color: var(--os-color);
+        }
+
+        .os-tagline {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: var(--haos-dim);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .os-features {
+            text-align: left;
+            margin: 25px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .os-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .os-features li {
+            padding: 8px 0;
+            color: var(--haos-text);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .os-features li::before {
+            content: '▸';
+            color: var(--os-color);
+            font-size: 1.2rem;
+        }
+
+        .os-btn {
+            margin-top: 20px;
+            padding: 14px 30px;
+            border-radius: 8px;
+            border: 2px solid var(--os-color);
+            background: transparent;
+            color: var(--os-color);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .os-btn:hover {
+            background: var(--os-color);
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        /* OS Mode Active State */
+        .os-mode-active {
+            display: none;
+        }
+
+        body[data-os="techno"] .os-mode-active.techno-mode,
+        body[data-os="hiphop"] .os-mode-active.hiphop-mode {
+            display: block;
+        }
+
+        body[data-os="techno"] .os-selector,
+        body[data-os="hiphop"] .os-selector {
+            display: none;
+        }
+
+        /* Mode Header */
+        .mode-header {
+            background: var(--haos-panel);
+            border: 1px solid var(--haos-border);
+            border-radius: 16px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mode-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mode-title h2 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: var(--os-color);
+        }
+
+        .mode-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--os-color);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: var(--os-color);
+            text-transform: uppercase;
+        }
+
+        .switch-os-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--haos-border);
+            background: transparent;
+            color: var(--haos-dim);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .switch-os-btn:hover {
+            border-color: var(--haos-orange);
+            color: var(--haos-orange);
+        }
+
+        /* Creator Panel */
+        .creator-panel {
+            background: var(--haos-panel);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--haos-border);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--haos-border);
+        }
+
+        .panel-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            letter-spacing: 1px;
+            color: var(--haos-orange);
+        }
+
+        .panel-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: var(--haos-orange);
+            text-transform: uppercase;
+        }
+
+        .panel-content {
+            display: grid;
+            gap: 25px;
+        }
+
+        .control-group {
+            display: grid;
+            gap: 15px;
+        }
+
+        .control-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: var(--haos-dim);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .control-description {
+            color: var(--haos-dim);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(255, 107, 53, 0.6);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--haos-text);
+            border: 1px solid var(--haos-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--haos-orange);
+            color: var(--haos-orange);
+        }
+
+        /* Action Grid */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .action-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--haos-border);
+            border-radius: 16px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+            border-color: var(--haos-orange);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
+        }
+
+        .action-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .action-title {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--haos-orange);
+        }
+
+        .action-description {
+            color: var(--haos-dim);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Info Bar */
+        .info-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            border: 1px solid var(--haos-border);
+            margin-top: 30px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--haos-dim);
+            text-transform: uppercase;
+        }
+
+        .info-value {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: var(--haos-orange);
+        }
+
+        /* Footer */
+        .haos-footer {
+            margin-top: 80px;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid var(--haos-border);
+        }
+
+        .footer-text {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--haos-dim);
+            letter-spacing: 1px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-welcome h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .os-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-bar {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="haos-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm Logo">
+                <div class="brand-text">
+                    <div class="brand-name">HAOS.FM</div>
+                    <div class="brand-tagline">Future Modulation</div>
+                </div>
+            </div>
+            <div class="header-status">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span>System Ready</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="haos-main">
+        
+        <!-- Hero Section -->
+        <section class="hero-welcome">
+            <div class="hero-subtitle">Hardware Analog Operating System</div>
+            <h1>FUTURE MODULATION</h1>
+            <p class="hero-description">
+                Choose your sonic universe. Each operating system is purpose-built for its genre with dedicated tools, workflows, and sound design philosophy.
+            </p>
+
+            <!-- OS Selection -->
+            <div class="os-selector">
+                <div class="os-card techno" data-os-select="techno">
+                    <div class="os-icon">⚡</div>
+                    <h2 class="os-title">TECHNO OS</h2>
+                    <p class="os-tagline">Industrial · Hypnotic · Relentless</p>
+                    <div class="os-features">
+                        <ul>
+                            <li>TB-303 Acid Bass Engine</li>
+                            <li>TR-909 Drum Machine</li>
+                            <li>Modular Step Sequencer</li>
+                            <li>Industrial FX Chain</li>
+                            <li>BPM: 120-150 optimized</li>
+                        </ul>
+                    </div>
+                    <button class="os-btn">Enter Techno OS</button>
+                </div>
+
+                <div class="os-card hiphop" data-os-select="hiphop">
+                    <div class="os-icon">🔥</div>
+                    <h2 class="os-title">HIP-HOP OS</h2>
+                    <p class="os-tagline">Rhythmic · Layered · Dynamic</p>
+                    <div class="os-features">
+                        <ul>
+                            <li>TR-808 Drum Synthesis</li>
+                            <li>Sample Chopper & Slicer</li>
+                            <li>Swing & Groove Engine</li>
+                            <li>Vinyl Saturation FX</li>
+                            <li>BPM: 60-100 optimized</li>
+                        </ul>
+                    </div>
+                    <button class="os-btn">Enter Hip-Hop OS</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TECHNO OS MODE -->
+        <section class="os-mode-active techno-mode">
+            <div class="mode-header">
+                <div class="mode-title">
+                    <span style="font-size: 2rem;">⚡</span>
+                    <h2>TECHNO OS</h2>
+                    <span class="mode-badge">Active</span>
+                </div>
+                <button class="switch-os-btn" onclick="HAOS.switchOS(null)">Switch OS</button>
+            </div>
+
+            <div class="creator-panel" style="--os-color: var(--haos-green);">
+                <div class="panel-header">
+                    <h2 class="panel-title">Techno Studio</h2>
+                    <span class="panel-badge">Industrial Tools</span>
+                </div>
+                
+                <div class="panel-content">
+                    <div class="control-group">
+                        <div class="control-label">Techno Workflow</div>
+                        <p class="control-description">
+                            Build hypnotic loops with acid basslines, industrial drums, and evolving modulation.
+                            The Techno OS is optimized for repetitive, driving rhythms and squelchy 303 sequences.
+                        </p>
+                        
+                        <div class="action-grid">
+                            <div class="action-card" onclick="HAOS.openPanel('acid-lab')" style="cursor: pointer;">
+                                <div class="action-icon">🎛️</div>
+                                <h3 class="action-title">TB-303 Acid Lab</h3>
+                                <p class="action-description">
+                                    Classic acid bassline synthesis with resonance, envelope, and slide controls.
+                                </p>
+                            </div>
+                            
+                            <div class="action-card" onclick="HAOS.openPanel('drums-909')" style="cursor: pointer;">
+                                <div class="action-icon">🥁</div>
+                                <h3 class="action-title">TR-909 Drums</h3>
+                                <p class="action-description">
+                                    Legendary kick, snare, hi-hats, and cymbals for driving techno rhythms.
+                                </p>
+                            </div>
+                            
+                            <div class="action-card" onclick="HAOS.openPanel('sequencer')" style="cursor: pointer;">
+                                <div class="action-icon">⚙️</div>
+                                <h3 class="action-title">Modular Sequencer</h3>
+                                <p class="action-description">
+                                    16-step pattern programming with automation and randomization.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="HAOS.openPanel('acid-lab')">Launch Studio</button>
+                        <button class="btn btn-secondary" onclick="console.log('Available:', HAOS.getAvailablePanels())">View Available Tools</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HIP-HOP OS MODE -->
+        <section class="os-mode-active hiphop-mode">
+            <div class="mode-header">
+                <div class="mode-title">
+                    <span style="font-size: 2rem;">🔥</span>
+                    <h2>HIP-HOP OS</h2>
+                    <span class="mode-badge" style="--os-color: var(--haos-pink);">Active</span>
+                </div>
+                <button class="switch-os-btn" onclick="HAOS.switchOS(null)">Switch OS</button>
+            </div>
+
+            <div class="creator-panel" style="--os-color: var(--haos-pink);">
+                <div class="panel-header">
+                    <h2 class="panel-title" style="color: var(--haos-pink);">Hip-Hop Studio</h2>
+                    <span class="panel-badge" style="border-color: var(--haos-pink); color: var(--haos-pink);">Boom Bap Tools</span>
+                </div>
+                
+                <div class="panel-content">
+                    <div class="control-group">
+                        <div class="control-label">Hip-Hop Workflow</div>
+                        <p class="control-description">
+                            Craft hard-hitting beats with punchy 808s, layered samples, and swung grooves.
+                            The Hip-Hop OS emphasizes rhythm, texture, and dynamic sample manipulation.
+                        </p>
+                        
+                        <div class="action-grid">
+                            <div class="action-card">
+                                <div class="action-icon">�️</div>
+                                <h3 class="action-title" style="color: var(--haos-pink);">TR-808 Engine</h3>
+                                <p class="action-description">
+                                    Iconic 808 kick, snare, clap, and hi-hat synthesis for boom-bap beats.
+                                </p>
+                            </div>
+                            
+                            <div class="action-card">
+                                <div class="action-icon">✂️</div>
+                                <h3 class="action-title" style="color: var(--haos-pink);">Sample Chopper</h3>
+                                <p class="action-description">
+                                    Slice, dice, and rearrange samples with swing and groove quantization.
+                                </p>
+                            </div>
+                            
+                            <div class="action-card">
+                                <div class="action-icon">🎚️</div>
+                                <h3 class="action-title" style="color: var(--haos-pink);">MPC-Style Pads</h3>
+                                <p class="action-description">
+                                    16-pad controller with velocity sensitivity and live performance mode.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button class="btn btn-primary" style="background: var(--haos-orange-bright);" onclick="HAOS.openPanel('drums-808')">Launch Studio</button>
+                        <button class="btn btn-secondary" onclick="console.log('Available:', HAOS.getAvailablePanels())">View Available Tools</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Info -->
+        <div class="info-bar">
+            <div class="info-item">
+                <span class="info-label">Platform Status</span>
+                <span class="info-value">Online</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Modules Loaded</span>
+                <span class="info-value">3</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">DSP Engine</span>
+                <span class="info-value">Active</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Sample Rate</span>
+                <span class="info-value">48kHz</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="haos-footer">
+        <p class="footer-text">
+            HAOS.FM · Hardware Analog Operating System · Future Modulation Platform
+        </p>
+    </footer>
+
+    <!-- Minimal JavaScript -->
+    <script>
+        // HAOS Audio Engine
+        const AudioEngine = {
+            context: null,
+            masterGain: null,
+            initialized: false,
+            
+            init() {
+                if (this.initialized) return;
+                
+                this.context = new (window.AudioContext || window.webkitAudioContext)();
+                this.masterGain = this.context.createGain();
+                this.masterGain.gain.value = 0.7;
+                this.masterGain.connect(this.context.destination);
+                
+                this.initialized = true;
+                console.log('🔊 Audio Engine initialized at', this.context.sampleRate, 'Hz');
+            },
+            
+            playNote(frequency, duration = 0.3, type = 'sine') {
+                if (!this.initialized) this.init();
+                
+                const osc = this.context.createOscillator();
+                const gain = this.context.createGain();
+                
+                osc.type = type;
+                osc.frequency.value = frequency;
+                
+                gain.gain.setValueAtTime(0.3, this.context.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+                
+                osc.start(this.context.currentTime);
+                osc.stop(this.context.currentTime + duration);
+            },
+            
+            playKick() {
+                if (!this.initialized) this.init();
+                
+                const osc = this.context.createOscillator();
+                const gain = this.context.createGain();
+                
+                osc.frequency.setValueAtTime(150, this.context.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, this.context.currentTime + 0.1);
+                
+                gain.gain.setValueAtTime(1, this.context.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.5);
+                
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+                
+                osc.start(this.context.currentTime);
+                osc.stop(this.context.currentTime + 0.5);
+            },
+            
+            playSnare() {
+                if (!this.initialized) this.init();
+                
+                const noise = this.context.createBufferSource();
+                const noiseBuffer = this.context.createBuffer(1, this.context.sampleRate * 0.2, this.context.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                
+                for (let i = 0; i < output.length; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+                
+                noise.buffer = noiseBuffer;
+                
+                const noiseFilter = this.context.createBiquadFilter();
+                noiseFilter.type = 'highpass';
+                noiseFilter.frequency.value = 1000;
+                
+                const noiseGain = this.context.createGain();
+                noiseGain.gain.setValueAtTime(1, this.context.currentTime);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.2);
+                
+                noise.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(this.masterGain);
+                
+                noise.start(this.context.currentTime);
+            },
+            
+            playHiHat(closed = true) {
+                if (!this.initialized) this.init();
+                
+                const noise = this.context.createBufferSource();
+                const duration = closed ? 0.05 : 0.15;
+                const noiseBuffer = this.context.createBuffer(1, this.context.sampleRate * duration, this.context.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                
+                for (let i = 0; i < output.length; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+                
+                noise.buffer = noiseBuffer;
+                
+                const bandpass = this.context.createBiquadFilter();
+                bandpass.type = 'bandpass';
+                bandpass.frequency.value = 10000;
+                
+                const highpass = this.context.createBiquadFilter();
+                highpass.type = 'highpass';
+                highpass.frequency.value = 7000;
+                
+                const gain = this.context.createGain();
+                gain.gain.setValueAtTime(0.3, this.context.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + duration);
+                
+                noise.connect(bandpass);
+                bandpass.connect(highpass);
+                highpass.connect(gain);
+                gain.connect(this.masterGain);
+                
+                noise.start(this.context.currentTime);
+            }
+        };
+        
+        // HAOS Platform Core
+        const HAOS = {
+            version: '1.0',
+            initialized: false,
+            currentOS: null,
+            currentPanel: null,
+            
+            // Panel Registry - defines all available panels per OS
+            panels: {
+                techno: {
+                    home: {
+                        id: 'home',
+                        title: 'Techno Studio',
+                        icon: '⚡',
+                        available: true,
+                        tools: ['acid-lab', 'drums-909', 'sequencer']
+                    },
+                    'acid-lab': {
+                        id: 'acid-lab',
+                        title: 'TB-303 Acid Lab',
+                        icon: '🎛️',
+                        parent: 'home',
+                        available: true,
+                        description: 'Classic acid bassline synthesis'
+                    },
+                    'drums-909': {
+                        id: 'drums-909',
+                        title: 'TR-909 Drums',
+                        icon: '🥁',
+                        parent: 'home',
+                        available: true,
+                        description: 'Legendary techno drum machine'
+                    },
+                    'sequencer': {
+                        id: 'sequencer',
+                        title: 'Modular Sequencer',
+                        icon: '⚙️',
+                        parent: 'home',
+                        available: true,
+                        description: '16-step pattern programming'
+                    }
+                },
+                hiphop: {
+                    home: {
+                        id: 'home',
+                        title: 'Hip-Hop Studio',
+                        icon: '🔥',
+                        available: true,
+                        tools: ['drums-808', 'sample-chopper', 'mpc-pads']
+                    },
+                    'drums-808': {
+                        id: 'drums-808',
+                        title: 'TR-808 Engine',
+                        icon: '🎛️',
+                        parent: 'home',
+                        available: true,
+                        description: 'Iconic 808 drum synthesis'
+                    },
+                    'sample-chopper': {
+                        id: 'sample-chopper',
+                        title: 'Sample Chopper',
+                        icon: '✂️',
+                        parent: 'home',
+                        available: true,
+                        description: 'Slice and rearrange samples'
+                    },
+                    'mpc-pads': {
+                        id: 'mpc-pads',
+                        title: 'MPC-Style Pads',
+                        icon: '🎚️',
+                        parent: 'home',
+                        available: true,
+                        description: '16-pad controller'
+                    }
+                }
+            },
+            
+            init() {
+                console.log('🎛️ HAOS.FM Platform Initializing...');
+                this.setupEventListeners();
+                this.loadSavedOS();
+                this.initialized = true;
+                console.log('✓ HAOS.FM Ready - Future Modulation Online');
+                console.log('📋 Panel Registry:', this.panels);
+            },
+            
+            setupEventListeners() {
+                // OS Selection Cards
+                document.querySelectorAll('[data-os-select]').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        const os = card.dataset.osSelect;
+                        this.switchOS(os);
+                    });
+                });
+                
+                // Initialize audio on first user interaction
+                document.addEventListener('click', () => {
+                    if (!AudioEngine.initialized) {
+                        AudioEngine.init();
+                    }
+                }, { once: true });
+            },
+            
+            switchOS(os) {
+                if (os === null) {
+                    // Return to selection screen
+                    document.body.removeAttribute('data-os');
+                    this.currentOS = null;
+                    this.currentPanel = null;
+                    localStorage.removeItem('haos-os');
+                    this.showToast('OS selection reset');
+                } else {
+                    // Switch to specific OS
+                    document.body.setAttribute('data-os', os);
+                    this.currentOS = os;
+                    this.currentPanel = 'home';
+                    localStorage.setItem('haos-os', os);
+                    const osName = os === 'techno' ? 'Techno OS' : 'Hip-Hop OS';
+                    this.showToast(`${osName} activated`);
+                    console.log(`🎛️ Switched to ${osName}`);
+                    console.log(`📋 Available panels:`, Object.keys(this.panels[os]));
+                    
+                    // Play welcome sound
+                    AudioEngine.playNote(440, 0.1, 'sawtooth');
+                }
+            },
+            
+            loadSavedOS() {
+                const savedOS = localStorage.getItem('haos-os');
+                if (savedOS && (savedOS === 'techno' || savedOS === 'hiphop')) {
+                    this.switchOS(savedOS);
+                }
+            },
+            
+            openPanel(panelId) {
+                if (!this.currentOS) {
+                    console.warn('No OS selected');
+                    return;
+                }
+                
+                const panel = this.panels[this.currentOS][panelId];
+                if (!panel) {
+                    console.warn(`Panel ${panelId} not found`);
+                    return;
+                }
+                
+                if (!panel.available) {
+                    this.showToast('This panel is locked. Complete prerequisites first.');
+                    return;
+                }
+                
+                this.currentPanel = panelId;
+                this.showToast(`Opening ${panel.title}...`);
+                console.log(`📂 Opened panel:`, panel);
+                
+                // Demo the tool with audio
+                this.demoPanel(panelId);
+            },
+            
+            demoPanel(panelId) {
+                // Play a quick demo based on the panel
+                switch(panelId) {
+                    case 'acid-lab':
+                        setTimeout(() => AudioEngine.playNote(55, 0.2, 'sawtooth'), 100);
+                        setTimeout(() => AudioEngine.playNote(65, 0.2, 'sawtooth'), 300);
+                        setTimeout(() => AudioEngine.playNote(82, 0.2, 'sawtooth'), 500);
+                        break;
+                    case 'drums-909':
+                    case 'drums-808':
+                        setTimeout(() => AudioEngine.playKick(), 0);
+                        setTimeout(() => AudioEngine.playSnare(), 200);
+                        setTimeout(() => AudioEngine.playHiHat(true), 100);
+                        setTimeout(() => AudioEngine.playHiHat(true), 300);
+                        break;
+                    case 'sequencer':
+                    case 'mpc-pads':
+                        for (let i = 0; i < 4; i++) {
+                            setTimeout(() => AudioEngine.playNote(220 + i * 50, 0.1, 'square'), i * 150);
+                        }
+                        break;
+                }
+            },
+            
+            getAvailablePanels() {
+                if (!this.currentOS) return [];
+                return Object.values(this.panels[this.currentOS])
+                    .filter(p => p.available);
+            },
+            
+            showToast(message) {
+                // Simple toast notification
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    bottom: 30px;
+                    right: 30px;
+                    padding: 15px 25px;
+                    background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+                    color: #000;
+                    border-radius: 8px;
+                    font-family: 'Space Mono', monospace;
+                    font-size: 0.85rem;
+                    font-weight: bold;
+                    box-shadow: 0 10px 30px rgba(255, 107, 53, 0.5);
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease;
+                `;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        };
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            HAOS.init();
+        });
+        
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+
+</body>
+</html>

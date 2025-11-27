@@ -12,7 +12,7 @@
  * - Session management
  */
 
-export class DAWEngine {
+class DAWEngine {
     constructor(audioContext) {
         this.audioContext = audioContext;
         
@@ -20,6 +20,7 @@ export class DAWEngine {
         this.synths = {
             tb303: null,
             tr808: null,
+            tr909: null,
             arp2600: null,
             stringMachine: null
         };
@@ -527,6 +528,14 @@ export class DAWEngine {
                 if (step.drum) {
                     synth[`play${step.drum.charAt(0).toUpperCase() + step.drum.slice(1)}`](null, time);
                 }
+            } else if (track.synth === 'tr909') {
+                if (step.drum) {
+                    // TR-909 uses playKick, playSnare, etc. similar to 808
+                    const method = `play${step.drum.charAt(0).toUpperCase() + step.drum.slice(1)}`;
+                    if (typeof synth[method] === 'function') {
+                        synth[method](null, time);
+                    }
+                }
             } else if (track.synth === 'arp2600') {
                 const freq = this.noteToFrequency(step.note);
                 synth.playNote(freq, step.duration || 0.5, step.velocity || 1.0, time);
@@ -630,4 +639,3 @@ export class DAWEngine {
     }
 }
 
-export default DAWEngine;

@@ -120,8 +120,21 @@ class ARP2600 {
         
         // Active voices
         this.activeVoices = [];
+
+        // Sequencer
+        this.pattern = Array(16).fill(false);
+        this.isPlaying = false;
+        this.currentStep = 0;
+        this.bpm = 135;
+        this.interval = null;
+        this.noteToPlay = 'C3'; // Default note for the sequencer
+        this.noteFrequencies = {
+            'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81, 'F3': 174.61,
+            'F#3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'A3': 220.00, 'A#3': 233.08, 'B3': 246.94,
+            'C4': 261.63
+        };
     }
-    
+
     /**
      * Set modulation matrix parameter
      */
@@ -723,9 +736,9 @@ class ARP2600 {
     }
     
     /**
-     * Export current settings
+     * Get current patch settings
      */
-    exportSettings() {
+    getPatch() {
         return {
             vco1: { ...this.vco1 },
             vco2: { ...this.vco2 },
@@ -741,9 +754,9 @@ class ARP2600 {
     }
     
     /**
-     * Import settings
+     * Load patch from settings object
      */
-    importSettings(settings) {
+    setPatch(settings) {
         if (settings.vco1) this.vco1 = { ...this.vco1, ...settings.vco1 };
         if (settings.vco2) this.vco2 = { ...this.vco2, ...settings.vco2 };
         if (settings.vco3) this.vco3 = { ...this.vco3, ...settings.vco3 };
@@ -758,9 +771,6 @@ class ARP2600 {
         return true;
     }
 }
-
-// Export for use in ES6 modules
-export default ARP2600;
 
 // Also support CommonJS for Node.js
 if (typeof module !== 'undefined' && module.exports) {

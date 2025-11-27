@@ -151,6 +151,54 @@ class TB303 {
     }
     
     /**
+     * Exports the current synth state as a patch object.
+     * @returns {object} A patch object containing params, pattern, and modulation settings.
+     */
+    getPatch() {
+        return {
+            params: { ...this.params },
+            pattern: JSON.parse(JSON.stringify(this.pattern)), // Deep copy
+            modulation: JSON.parse(JSON.stringify(this.modulation)) // Deep copy
+        };
+    }
+
+    /**
+     * Imports a patch object to configure the synth's state.
+     * @param {object} patch - A patch object containing params, pattern, and/or modulation settings.
+     */
+    setPatch(patch) {
+        if (!patch) return;
+
+        if (patch.params) {
+            Object.keys(patch.params).forEach(key => {
+                if (this.params.hasOwnProperty(key)) {
+                    this.setParam(key, patch.params[key]);
+                }
+            });
+        }
+
+        if (patch.pattern) {
+            // Ensure pattern is a deep copy and has the correct structure
+            this.pattern = JSON.parse(JSON.stringify(patch.pattern));
+        }
+
+        if (patch.modulation) {
+            // A simple deep copy for modulation settings
+            this.modulation = JSON.parse(JSON.stringify(patch.modulation));
+            
+            // Re-apply LFO settings to activate or deactivate the LFO node
+            this.setLFO(this.modulation.lfo.enabled);
+            if (this.lfoNode) {
+                this.lfoNode.frequency.value = this.modulation.lfo.rate;
+                this.lfoNode.type = this.modulation.lfo.waveform;
+                if (this.lfoGain) {
+                    this.lfoGain.gain.value = this.modulation.lfo.depth / 100;
+                }
+            }
+        }
+    }
+
+    /**
      * Set pattern step
      */
     setStep(index, data) {
@@ -457,9 +505,6 @@ class TB303 {
         return true;
     }
 }
-
-// Export for use in ES6 modules
-export default TB303;
 
 // Also support CommonJS for Node.js
 if (typeof module !== 'undefined' && module.exports) {

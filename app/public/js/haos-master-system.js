@@ -27,6 +27,7 @@ class HAOSMasterSystem {
         this.engines = {
             tb303: null,
             tr808: null,
+            tr909: null,
             arp2600: null,
             stringMachine: null,
             dawEngine: null
@@ -145,8 +146,8 @@ class HAOSMasterSystem {
         this.engineManager = {
             // TB-303 Bass Synthesizer
             createTB303: () => {
-                if (!this.engines.tb303 && typeof TB303Synth !== 'undefined') {
-                    this.engines.tb303 = new TB303Synth(this.audioContext);
+                if (!this.engines.tb303 && typeof TB303 !== 'undefined') {
+                    this.engines.tb303 = new TB303(this.audioContext);
                     console.log('✅ TB-303 Engine loaded');
                 }
                 return this.engines.tb303;
@@ -159,6 +160,15 @@ class HAOSMasterSystem {
                     console.log('✅ TR-808 Engine loaded');
                 }
                 return this.engines.tr808;
+            },
+            
+            // TR-909 Drum Machine
+            createTR909: () => {
+                if (!this.engines.tr909 && typeof TR909 !== 'undefined') {
+                    this.engines.tr909 = new TR909(this.audioContext);
+                    console.log('✅ TR-909 Engine loaded');
+                }
+                return this.engines.tr909;
             },
             
             // ARP 2600 Modular Synth

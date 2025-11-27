@@ -547,6 +547,32 @@
                     🎩 808 HI-HAT
                 </button>
                 
+                <!-- TR-909 Drums (Advanced Techno) -->
+                <button onclick="playInstantSound('909kick')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    💥 909 KICK
+                </button>
+                <button onclick="playInstantSound('909snare')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    💥 909 SNARE
+                </button>
+                <button onclick="playInstantSound('909hatclosed')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    ⚡ 909 HH CLOSED
+                </button>
+                <button onclick="playInstantSound('909hatopen')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    ⚡ 909 HH OPEN
+                </button>
+                <button onclick="playInstantSound('909ride')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    🔔 909 RIDE
+                </button>
+                <button onclick="playInstantSound('909crash')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    💫 909 CRASH
+                </button>
+                <button onclick="playInstantSound('909rim')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    📍 909 RIMSHOT
+                </button>
+                <button onclick="playInstantSound('909tom')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    🎵 909 TOM
+                </button>
+                
                 <!-- ARP-2600 Leads -->
                 <button onclick="playInstantSound('lead', 'C4')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FFD700, #FF6B35); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
                     🎹 2600 LEAD C4
@@ -578,6 +604,35 @@
             
             <div style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.85em; margin-top: 10px;">
                 💡 Tip: Click "START SYSTEM" first, then try these sounds! | Use keyboard: Q/W/E/R = Bass, A/S/D/F = Drums, Z/X/C/V = Leads
+            </div>
+            
+            <!-- Drum Machine Switcher -->
+            <div style="display: flex; gap: 15px; justify-content: center; align-items: center; margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(57, 255, 20, 0.3);">
+                <span style="color: #39FF14; font-weight: bold; font-size: 1em;">🥁 DRUM MACHINE:</span>
+                <button id="drum-808-btn" onclick="switchDrumMachine('808')" data-drum-machine="808" style="padding: 10px 24px; background: linear-gradient(135deg, #39FF14, #00D9FF); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.95em; transition: all 0.3s; box-shadow: 0 0 20px rgba(57, 255, 20, 0.8); transform: scale(1.05);">
+                    TR-808 CLASSIC
+                </button>
+                <button id="drum-909-btn" onclick="switchDrumMachine('909')" data-drum-machine="909" style="padding: 10px 24px; background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.95em; transition: all 0.3s;">
+                    TR-909 MODERN
+                </button>
+                <span id="drum-machine-indicator" style="color: #FFD700; font-size: 0.9em; font-weight: bold;">Active: 808</span>
+            </div>
+            
+            <!-- Pattern Library -->
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                <span style="color: #00D9FF; font-weight: bold; margin-right: 10px; align-self: center;">🎼 PATTERNS:</span>
+                <button onclick="loadPattern('techno')" style="padding: 8px 16px; background: linear-gradient(135deg, #FF6B35, #FF1493); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                    TECHNO 4/4
+                </button>
+                <button onclick="loadPattern('minimal')" style="padding: 8px 16px; background: linear-gradient(135deg, #9D4EDD, #00D9FF); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                    MINIMAL
+                </button>
+                <button onclick="loadPattern('acid')" style="padding: 8px 16px; background: linear-gradient(135deg, #FFD700, #39FF14); color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                    ACID 303
+                </button>
+                <button onclick="loadPattern('industrial')" style="padding: 8px 16px; background: linear-gradient(135deg, #666, #FF0000); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                    INDUSTRIAL
+                </button>
             </div>
             
             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
@@ -964,13 +1019,14 @@
     <script type="module">
         import TB303 from '/js/synths/tb303.js';
         import TR808 from '/js/synths/tr808.js';
+        import TR909 from '/js/synths/tr909.js';
         import ARP2600 from '/js/synths/arp2600.js';
         import StringMachine from '/js/synths/string-machine.js';
         import DAWEngine from '/js/daw-engine.js';
         
         // Initialize Audio
         let audioContext;
-        let tb303, tr808, arp2600, stringMachine, daw;
+        let tb303, tr808, tr909, arp2600, stringMachine, daw;
         let aiDesigner; // AI Patch Designer
         let trackIntegrator; // Complete Track Integration
         let isPlaying = false;
@@ -978,6 +1034,21 @@
         let bpm = 130;
         let currentStep = 0;
         let intervalId = null;
+        
+        // Advanced features
+        let currentDrumMachine = '808'; // '808' or '909'
+        let mixerLevels = {
+            bass: 0.8,
+            drums: 0.8,
+            lead: 0.7,
+            pad: 0.6
+        };
+        let effectsChain = {
+            reverb: null,
+            delay: null,
+            compressor: null,
+            filter: null
+        };
         
         // Pattern storage - expanded for all variations
         const patterns = {
@@ -1052,6 +1123,7 @@
                 // Load all synthesis engines
                 const tb303Engine = HAOS.engineManager.createTB303();
                 const tr808Engine = HAOS.engineManager.createTR808();
+                const tr909Engine = HAOS.engineManager.createTR909();
                 const arp2600Engine = HAOS.engineManager.createARP2600();
                 const stringEngine = HAOS.engineManager.createStringMachine();
                 const dawEngine = HAOS.engineManager.createDAWEngine();
@@ -1064,11 +1136,15 @@
                 window.audioContext = HAOS.audioContext;
                 window.tb303 = tb303Engine;
                 window.tr808 = tr808Engine;
+                window.tr909 = tr909Engine;
                 window.arp2600 = arp2600Engine;
                 window.stringMachine = stringEngine;
                 window.daw = dawEngine;
                 window.aiDesigner = HAOS.aiComponents.patchDesigner;
                 window.trackIntegrator = HAOS.aiComponents.trackIntegrator;
+                
+                // Initialize effects chain
+                initEffectsChain();
                 
                 // Setup default sounds
                 if (tb303Engine) {
@@ -1080,6 +1156,13 @@
                 
                 if (tr808Engine) {
                     tr808Engine.setVolume(0.8);
+                }
+                
+                if (tr909Engine) {
+                    tr909Engine.setVolume(0.8);
+                    tr909Engine.setParam('kick', 'tune', 0);
+                    tr909Engine.setParam('kick', 'decay', 0.5);
+                    tr909Engine.setParam('snare', 'snappy', 0.7);
                 }
                 
                 if (arp2600Engine) {
@@ -1128,6 +1211,291 @@
         
         // Expose globally
         window.initHAOSSystem = initHAOSSystem;
+        
+        // ========================================
+        // EFFECTS CHAIN INITIALIZATION
+        // ========================================
+        
+        function initEffectsChain() {
+            if (!audioContext) return;
+            
+            try {
+                // Create reverb
+                effectsChain.reverb = audioContext.createConvolver();
+                const reverbBuffer = createReverbImpulse(2.5, 2);
+                effectsChain.reverb.buffer = reverbBuffer;
+                
+                // Create delay
+                effectsChain.delay = audioContext.createDelay(1.0);
+                effectsChain.delay.delayTime.value = 0.375; // 3/16 note at 130 BPM
+                
+                const delayFeedback = audioContext.createGain();
+                delayFeedback.gain.value = 0.4;
+                
+                effectsChain.delay.connect(delayFeedback);
+                delayFeedback.connect(effectsChain.delay);
+                
+                // Create compressor (master)
+                effectsChain.compressor = audioContext.createDynamicsCompressor();
+                effectsChain.compressor.threshold.value = -24;
+                effectsChain.compressor.knee.value = 30;
+                effectsChain.compressor.ratio.value = 12;
+                effectsChain.compressor.attack.value = 0.003;
+                effectsChain.compressor.release.value = 0.25;
+                
+                // Create filter
+                effectsChain.filter = audioContext.createBiquadFilter();
+                effectsChain.filter.type = 'lowpass';
+                effectsChain.filter.frequency.value = 20000;
+                effectsChain.filter.Q.value = 1;
+                
+                console.log('✅ Effects chain initialized');
+            } catch (error) {
+                console.error('Error initializing effects:', error);
+            }
+        }
+        
+        function createReverbImpulse(duration, decay) {
+            const sampleRate = audioContext.sampleRate;
+            const length = sampleRate * duration;
+            const impulse = audioContext.createBuffer(2, length, sampleRate);
+            const left = impulse.getChannelData(0);
+            const right = impulse.getChannelData(1);
+            
+            for (let i = 0; i < length; i++) {
+                const n = length - i;
+                left[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
+                right[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
+            }
+            
+            return impulse;
+        }
+        
+        // ========================================
+        // MIXER CONTROLS
+        // ========================================
+        
+        function setMixerLevel(channel, level) {
+            mixerLevels[channel] = Math.max(0, Math.min(1, level));
+            
+            // Update synth volumes based on channel
+            switch(channel) {
+                case 'bass':
+                    if (tb303) tb303.setParam('volume', mixerLevels.bass);
+                    break;
+                case 'drums':
+                    if (tr808) tr808.setVolume(mixerLevels.drums);
+                    if (tr909) tr909.setVolume(mixerLevels.drums);
+                    break;
+                case 'lead':
+                    if (arp2600) arp2600.setParam('volume', mixerLevels.lead);
+                    break;
+                case 'pad':
+                    if (stringMachine) stringMachine.setParam('volume', mixerLevels.pad);
+                    break;
+            }
+            
+            showNotification(`${channel.toUpperCase()} level: ${Math.round(level * 100)}%`, 'info', 1000);
+        }
+        
+        window.setMixerLevel = setMixerLevel;
+        
+        // ========================================
+        // DRUM MACHINE SWITCHER
+        // ========================================
+        
+        function switchDrumMachine(machine) {
+            currentDrumMachine = machine;
+            showNotification(`Switched to TR-${machine}`, 'success');
+            
+            // Update UI to show active drum machine
+            const drumButtons = document.querySelectorAll('[data-drum-machine]');
+            drumButtons.forEach(btn => {
+                if (btn.dataset.drumMachine === machine) {
+                    btn.style.boxShadow = '0 0 20px rgba(57, 255, 20, 0.8)';
+                    btn.style.transform = 'scale(1.05)';
+                } else {
+                    btn.style.boxShadow = '';
+                    btn.style.transform = '';
+                }
+            });
+        }
+        
+        window.switchDrumMachine = switchDrumMachine;
+        
+        // ========================================
+        // ADVANCED SEQUENCER FEATURES
+        // ========================================
+        
+        function createTechnoPattern() {
+            // Create a classic techno 4/4 pattern
+            const pattern = {
+                kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+                snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+                hat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+                hatOpen: [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+                bass: ['C2', '', '', '', 'D#2', '', '', '', 'C2', '', '', '', 'F2', '', '', '']
+            };
+            return pattern;
+        }
+        
+        function createMinimalPattern() {
+            // Minimal techno pattern
+            const pattern = {
+                kick: [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+                snare: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+                hat: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+                bass: ['C2', '', '', '', '', '', 'C2', '', '', '', '', '', '', '', '', '']
+            };
+            return pattern;
+        }
+        
+        function createAcidPattern() {
+            // Acid techno pattern with 303 focus
+            const pattern = {
+                kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+                bass: ['C2', '', 'C3', '', 'D#2', '', '', 'C2', '', 'F2', '', '', 'G2', '', 'D#2', '']
+            };
+            return pattern;
+        }
+        
+        function createIndustrialPattern() {
+            // Hard industrial techno pattern
+            const pattern = {
+                kick: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+                snare: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+                hat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                bass: ['C2', '', '', '', 'C2', '', '', '', 'D#2', '', '', '', 'C2', '', '', '']
+            };
+            return pattern;
+        }
+        
+        window.createTechnoPattern = createTechnoPattern;
+        window.createMinimalPattern = createMinimalPattern;
+        window.createAcidPattern = createAcidPattern;
+        window.createIndustrialPattern = createIndustrialPattern;
+        
+        // ========================================
+        // PATTERN LOADER
+        // ========================================
+        
+        function loadPattern(patternName) {
+            if (!audioContext) {
+                showNotification('⚠️ Initialize system first!', 'error');
+                return;
+            }
+            
+            let pattern;
+            switch(patternName) {
+                case 'techno':
+                    pattern = createTechnoPattern();
+                    showNotification('🎵 Loaded: Classic Techno 4/4', 'success');
+                    break;
+                case 'minimal':
+                    pattern = createMinimalPattern();
+                    showNotification('🎵 Loaded: Minimal Pattern', 'success');
+                    break;
+                case 'acid':
+                    pattern = createAcidPattern();
+                    showNotification('🎵 Loaded: Acid 303 Pattern', 'success');
+                    break;
+                case 'industrial':
+                    pattern = createIndustrialPattern();
+                    showNotification('🎵 Loaded: Industrial Pattern', 'success');
+                    break;
+                default:
+                    showNotification('❌ Unknown pattern', 'error');
+                    return;
+            }
+            
+            // Apply pattern to sequencer (if sequencer exists)
+            if (typeof applyPatternToSequencer === 'function') {
+                applyPatternToSequencer(pattern);
+            } else {
+                // Play pattern demo
+                playPatternDemo(pattern);
+            }
+        }
+        
+        window.loadPattern = loadPattern;
+        
+        // ========================================
+        // PATTERN DEMO PLAYER
+        // ========================================
+        
+        function playPatternDemo(pattern) {
+            const stepTime = 60 / bpm / 4; // 16th note duration
+            let currentStep = 0;
+            
+            showNotification('▶️ Playing pattern demo...', 'info', 5000);
+            
+            const playStep = () => {
+                if (currentStep >= 16) {
+                    showNotification('✅ Pattern demo complete!', 'success');
+                    return;
+                }
+                
+                const now = audioContext.currentTime;
+                
+                // Play kick
+                if (pattern.kick && pattern.kick[currentStep] === 1) {
+                    const drumMachine = currentDrumMachine === '909' ? tr909 : tr808;
+                    if (drumMachine) drumMachine.playKick('classic', now);
+                }
+                
+                // Play snare
+                if (pattern.snare && pattern.snare[currentStep] === 1) {
+                    const drumMachine = currentDrumMachine === '909' ? tr909 : tr808;
+                    if (drumMachine) drumMachine.playSnare('classic', now);
+                }
+                
+                // Play hat
+                if (pattern.hat && pattern.hat[currentStep] === 1) {
+                    const drumMachine = currentDrumMachine === '909' ? tr909 : tr808;
+                    if (drumMachine && drumMachine.playHatClosed) {
+                        drumMachine.playHatClosed('classic', now);
+                    } else if (drumMachine && drumMachine.playHat) {
+                        drumMachine.playHat('closed', now);
+                    }
+                }
+                
+                // Play open hat
+                if (pattern.hatOpen && pattern.hatOpen[currentStep] === 1) {
+                    const drumMachine = currentDrumMachine === '909' ? tr909 : tr808;
+                    if (drumMachine && drumMachine.playHatOpen) {
+                        drumMachine.playHatOpen('classic', now);
+                    } else if (drumMachine && drumMachine.playHat) {
+                        drumMachine.playHat('open', now);
+                    }
+                }
+                
+                // Play bass
+                if (pattern.bass && pattern.bass[currentStep] && pattern.bass[currentStep] !== '') {
+                    const noteToFreq = {
+                        'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78,
+                        'E2': 82.41, 'F2': 87.31, 'F#2': 92.50, 'G2': 98.00,
+                        'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47,
+                        'C3': 130.81
+                    };
+                    const freq = noteToFreq[pattern.bass[currentStep]];
+                    if (tb303 && freq) {
+                        tb303.playNote({
+                            frequency: freq,
+                            duration: stepTime,
+                            accent: currentStep % 4 === 0,
+                            slide: false
+                        }, now);
+                    }
+                }
+                
+                currentStep++;
+                setTimeout(playStep, stepTime * 1000);
+            };
+            
+            playStep();
+        }
+        
+        window.playPatternDemo = playPatternDemo;
         
         // Legacy support - redirect old initAudio to new system
         function initAudio() {
@@ -1233,6 +1601,58 @@
                         if (!tr808) return;
                         tr808.playHat('closed', now);
                         flashButton('Hi-Hat');
+                        break;
+                    
+                    // TR-909 Drums
+                    case '909kick':
+                        if (!tr909) {
+                            showNotification('TR-909 not initialized', 'error');
+                            return;
+                        }
+                        tr909.playKick('classic', now);
+                        flashButton('909 Kick');
+                        break;
+                        
+                    case '909snare':
+                        if (!tr909) return;
+                        tr909.playSnare('classic', now);
+                        flashButton('909 Snare');
+                        break;
+                        
+                    case '909hatclosed':
+                        if (!tr909) return;
+                        tr909.playHatClosed('classic', now);
+                        flashButton('909 HH Closed');
+                        break;
+                        
+                    case '909hatopen':
+                        if (!tr909) return;
+                        tr909.playHatOpen('classic', now);
+                        flashButton('909 HH Open');
+                        break;
+                        
+                    case '909ride':
+                        if (!tr909) return;
+                        tr909.playRide(now);
+                        flashButton('909 Ride');
+                        break;
+                        
+                    case '909crash':
+                        if (!tr909) return;
+                        tr909.playCrash(now);
+                        flashButton('909 Crash');
+                        break;
+                        
+                    case '909rim':
+                        if (!tr909) return;
+                        tr909.playRimshot(now);
+                        flashButton('909 Rimshot');
+                        break;
+                        
+                    case '909tom':
+                        if (!tr909) return;
+                        tr909.playTom('mid', now);
+                        flashButton('909 Tom');
                         break;
                         
                     case 'lead':

@@ -448,9 +448,6 @@ class StringMachine {
     }
 }
 
-// Export for ES6 modules
-export default StringMachine;
-
 // Also support CommonJS for compatibility
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = StringMachine;
