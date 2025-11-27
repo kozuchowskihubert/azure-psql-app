@@ -893,12 +893,12 @@
     <!-- Header -->
     <div class="haos-header">
         <div class="header-content">
-            <div class="logo-section">
+            <a href="/" class="logo-section" style="text-decoration: none; cursor: pointer;">
                 <div class="brand-text">
                     <div class="brand-name">HAOS.FM STUDIO</div>
                     <div class="subtitle">UNIFIED MUSIC PRODUCTION</div>
                 </div>
-            </div>
+            </a>
             
             <div class="transport-controls">
                 <button class="transport-btn" id="quick-radio-btn" style="background: var(--haos-orange-primary); color: var(--haos-bg-dark); border: none; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);">
@@ -2980,6 +2980,21 @@
                 document.querySelector(`[data-channel="${prevChannel}"]`).click();
             }
         }
+    </script>
+
+    <!-- HAOS State Manager for Cross-Page Sync -->
+    <script src="/js/state-manager.js"></script>
+    <script>
+        // Listen for state changes from other pages
+        window.addEventListener('haos:state-synced', (e) => {
+            console.log('📡 State synced from API:', e.detail);
+            // TODO: Update UI with synced presets/patterns
+        });
+
+        window.addEventListener('haos:preset-saved', (e) => {
+            console.log('💾 New preset saved:', e.detail);
+            // TODO: Add to preset list UI
+        });
     </script>
 </body>
 </html>
