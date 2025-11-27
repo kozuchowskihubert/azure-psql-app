@@ -1527,6 +1527,62 @@
     <div class="tab-content" id="tab-sequencer">
         <div class="workspace-container">
             <div class="main-workspace">
+                <!-- Preset Controls Panel -->
+                <div class="panel" style="margin-bottom: 20px;">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Sequencer Presets</h2>
+                        <span class="panel-badge">FACTORY + CUSTOM</span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px;">
+                        <!-- Preset Selection -->
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; color: var(--haos-orange-primary); font-family: var(--font-display); font-size: 0.9rem; letter-spacing: 1px;">LOAD PRESET</label>
+                            <select id="seq-preset-select" style="width: 100%; padding: 12px; background: var(--haos-bg-elevated); border: 2px solid var(--haos-border); border-radius: 8px; color: var(--haos-text-primary); font-family: var(--font-mono); font-size: 0.9rem;">
+                                <option value="">-- Select Pattern --</option>
+                                <optgroup label="🎹 Acid / Bass">
+                                    <option value="acid-bass-1">Acid Bass Classic</option>
+                                    <option value="acid-bass-2">Rolling Acid</option>
+                                    <option value="acid-bass-3">Deep Bassline</option>
+                                </optgroup>
+                                <optgroup label="🔊 Techno">
+                                    <option value="techno-1">Berlin Minimal</option>
+                                    <option value="techno-2">Hard Techno</option>
+                                    <option value="techno-3">Driving 4/4</option>
+                                    <option value="techno-4">Peak Time</option>
+                                </optgroup>
+                                <optgroup label="🎵 House">
+                                    <option value="house-1">Deep House</option>
+                                    <option value="house-2">Classic Chicago</option>
+                                    <option value="house-3">Funky Grooves</option>
+                                </optgroup>
+                                <optgroup label="🎤 Hip-Hop / Trap">
+                                    <option value="hiphop-1">Boom Bap</option>
+                                    <option value="hiphop-2">Trap 808</option>
+                                    <option value="hiphop-3">Lo-Fi Beat</option>
+                                </optgroup>
+                                <optgroup label="⚡ Breakbeat">
+                                    <option value="breaks-1">Amen Break</option>
+                                    <option value="breaks-2">Jungle Chop</option>
+                                </optgroup>
+                            </select>
+                            <button id="load-preset-btn" class="tool-btn" style="width: 100%; margin-top: 10px; background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-bright)); font-weight: bold;">
+                                📥 LOAD PRESET
+                            </button>
+                        </div>
+                        
+                        <!-- Save Custom Preset -->
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; color: var(--haos-orange-primary); font-family: var(--font-display); font-size: 0.9rem; letter-spacing: 1px;">SAVE CUSTOM</label>
+                            <input type="text" id="custom-preset-name" placeholder="My Pattern Name" style="width: 100%; padding: 12px; background: var(--haos-bg-elevated); border: 2px solid var(--haos-border); border-radius: 8px; color: var(--haos-text-primary); font-family: var(--font-mono); font-size: 0.9rem; margin-bottom: 10px;">
+                            <button id="save-custom-preset-btn" class="tool-btn" style="width: 100%; background: linear-gradient(135deg, #00D9FF, #0099CC); font-weight: bold;">
+                                💾 SAVE AS CUSTOM
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sequencer Grid Panel -->
                 <div class="panel">
                     <div class="panel-header">
                         <h2 class="panel-title">16-Step Sequencer</h2>
@@ -1565,6 +1621,85 @@
                             <div class="track-label">HI-HAT</div>
                             <div class="step-grid" id="hihat-steps"></div>
                             <button class="tool-btn" style="margin-left: 90px; margin-top: 5px;" id="randomize-hihat">🎲</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Effects Channel Panel -->
+                <div class="panel" style="margin-top: 20px;">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Effects Channel</h2>
+                        <span class="panel-badge">DELAY / REVERB / DISTORTION</span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 20px;">
+                        <!-- Delay -->
+                        <div style="background: rgba(255, 107, 53, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(255, 107, 53, 0.2);">
+                            <h3 style="font-family: var(--font-display); font-size: 1.1rem; color: var(--haos-orange-primary); margin-bottom: 15px; letter-spacing: 1px;">⏱️ DELAY</h3>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--haos-text-dim);">Time</label>
+                                <input type="range" id="delay-time" min="0" max="1000" value="375" style="width: 100%;">
+                                <span id="delay-time-value" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-text-secondary);">375ms</span>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--haos-text-dim);">Feedback</label>
+                                <input type="range" id="delay-feedback" min="0" max="100" value="40" style="width: 100%;">
+                                <span id="delay-feedback-value" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-text-secondary);">40%</span>
+                            </div>
+                            
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--haos-text-dim);">Mix</label>
+                                <input type="range" id="delay-mix" min="0" max="100" value="30" style="width: 100%;">
+                                <span id="delay-mix-value" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-text-secondary);">30%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Reverb -->
+                        <div style="background: rgba(0, 217, 255, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 217, 255, 0.2);">
+                            <h3 style="font-family: var(--font-display); font-size: 1.1rem; color: #00D9FF; margin-bottom: 15px; letter-spacing: 1px;">🌊 REVERB</h3>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--haos-text-dim);">Room Size</label>
+                                <input type="range" id="reverb-size" min="0" max="100" value="50" style="width: 100%;">
+                                <span id="reverb-size-value" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-text-secondary);">50%</span>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--haos-text-dim);">Decay</label>
+                                <input type="range" id="reverb-decay" min="0" max="100" value="60" style="width: 100%;">
+                                <span id="reverb-decay-value" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-text-secondary);">60%</span>
+                            </div>
+                            
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--haos-text-dim);">Mix</label>
+                                <input type="range" id="reverb-mix" min="0" max="100" value="25" style="width: 100%;">
+                                <span id="reverb-mix-value" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-text-secondary);">25%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Distortion -->
+                        <div style="background: rgba(255, 20, 147, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(255, 20, 147, 0.2);">
+                            <h3 style="font-family: var(--font-display); font-size: 1.1rem; color: #FF1493; margin-bottom: 15px; letter-spacing: 1px;">🔥 DISTORTION</h3>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--haos-text-dim);">Drive</label>
+                                <input type="range" id="dist-drive" min="0" max="100" value="40" style="width: 100%;">
+                                <span id="dist-drive-value" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-text-secondary);">40%</span>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--haos-text-dim);">Tone</label>
+                                <input type="range" id="dist-tone" min="0" max="100" value="50" style="width: 100%;">
+                                <span id="dist-tone-value" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-text-secondary);">50%</span>
+                            </div>
+                            
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--haos-text-dim);">Mix</label>
+                                <input type="range" id="dist-mix" min="0" max="100" value="20" style="width: 100%;">
+                                <span id="dist-mix-value" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-text-secondary);">20%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2000,9 +2135,30 @@
                         step.className = 'step-button';
                         step.dataset.track = track;
                         step.dataset.step = i;
+                        step.dataset.velocity = '100'; // Default velocity
+                        step.style.setProperty('--velocity', '100%');
+                        
+                        // Left click to toggle
                         step.addEventListener('click', () => {
                             step.classList.toggle('active');
+                            saveProject();
                         });
+                        
+                        // Right click to adjust velocity
+                        step.addEventListener('contextmenu', (e) => {
+                            e.preventDefault();
+                            if (step.classList.contains('active')) {
+                                const currentVel = parseInt(step.dataset.velocity);
+                                const newVel = currentVel >= 100 ? 25 : currentVel + 25;
+                                step.dataset.velocity = newVel;
+                                step.style.setProperty('--velocity', `${newVel}%`);
+                                // Visual feedback with opacity
+                                step.style.opacity = 0.25 + (newVel / 100) * 0.75;
+                                showNotification(`${track.toUpperCase()} Step ${i + 1}: ${newVel}% velocity`);
+                                saveProject();
+                            }
+                        });
+                        
                         container.appendChild(step);
                     }
                 }
@@ -2014,6 +2170,209 @@
         let isPlaying = false;
         let currentBPM = 120;
         let isRecording = false;
+        let sequencerInterval = null;
+        let currentStep = 0;
+        
+        // Sequencer Preset Library
+        const sequencerPresets = {
+            'acid-bass-1': {
+                name: 'Acid Bass Classic',
+                tb303: [1,0,0,0,1,0,0,0,1,0,0,1,0,0,1,0],
+                kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                hihat: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]
+            },
+            'acid-bass-2': {
+                name: 'Rolling Acid',
+                tb303: [1,0,1,0,1,0,0,1,1,0,1,0,0,1,0,0],
+                kick: [1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0],
+                snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
+                hihat: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+            },
+            'acid-bass-3': {
+                name: 'Deep Bassline',
+                tb303: [1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0],
+                kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                hihat: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]
+            },
+            'techno-1': {
+                name: 'Berlin Minimal',
+                tb303: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                hihat: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]
+            },
+            'techno-2': {
+                name: 'Hard Techno',
+                tb303: [1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0],
+                kick: [1,0,0,0,1,0,1,0,1,0,0,0,1,0,1,0],
+                snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                hihat: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+            },
+            'techno-3': {
+                name: 'Driving 4/4',
+                tb303: [1,0,0,0,1,0,1,0,1,0,0,0,1,0,1,0],
+                kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                hihat: [0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1]
+            },
+            'techno-4': {
+                name: 'Peak Time',
+                tb303: [1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,0],
+                kick: [1,0,0,1,1,0,0,0,1,0,0,1,1,0,0,0],
+                snare: [0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1],
+                hihat: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+            },
+            'house-1': {
+                name: 'Deep House',
+                tb303: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                kick: [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                hihat: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]
+            },
+            'house-2': {
+                name: 'Classic Chicago',
+                tb303: [1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0],
+                kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                hihat: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]
+            },
+            'house-3': {
+                name: 'Funky Grooves',
+                tb303: [1,0,1,1,0,0,1,0,1,0,0,1,0,1,0,0],
+                kick: [1,0,0,0,1,0,0,1,1,0,0,0,1,0,0,0],
+                snare: [0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0],
+                hihat: [1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1]
+            },
+            'hiphop-1': {
+                name: 'Boom Bap',
+                tb303: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                kick: [1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0],
+                snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                hihat: [1,0,1,1,0,1,0,1,1,0,1,1,0,1,0,1]
+            },
+            'hiphop-2': {
+                name: 'Trap 808',
+                tb303: [1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0],
+                kick: [1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],
+                snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                hihat: [1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0]
+            },
+            'hiphop-3': {
+                name: 'Lo-Fi Beat',
+                tb303: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0],
+                kick: [1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],
+                snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
+                hihat: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0]
+            },
+            'breaks-1': {
+                name: 'Amen Break',
+                tb303: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                kick: [1,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0],
+                snare: [0,0,0,0,1,0,0,1,0,0,1,0,1,0,0,1],
+                hihat: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+            },
+            'breaks-2': {
+                name: 'Jungle Chop',
+                tb303: [1,0,1,0,1,0,0,1,1,0,1,0,0,1,0,1],
+                kick: [1,0,0,1,0,0,1,0,1,0,0,0,1,0,0,0],
+                snare: [0,0,1,0,1,0,0,1,0,1,0,1,0,0,1,0],
+                hihat: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+            }
+        };
+        
+        // Load preset function
+        function loadSequencerPreset(presetId) {
+            const preset = sequencerPresets[presetId];
+            if (!preset) {
+                showNotification('❌ Preset not found');
+                return;
+            }
+            
+            const tracks = ['tb303', 'kick', 'snare', 'hihat'];
+            tracks.forEach(track => {
+                const container = document.getElementById(`${track}-steps`);
+                if (container && preset[track]) {
+                    const steps = container.querySelectorAll('.step-button');
+                    preset[track].forEach((active, i) => {
+                        if (steps[i]) {
+                            if (active) {
+                                steps[i].classList.add('active');
+                                steps[i].dataset.velocity = '100';
+                                steps[i].style.setProperty('--velocity', '100%');
+                                steps[i].style.opacity = '1';
+                            } else {
+                                steps[i].classList.remove('active');
+                            }
+                        }
+                    });
+                }
+            });
+            
+            showNotification(`📥 Loaded: ${preset.name}`);
+            saveProject();
+        }
+        
+        // Save custom preset
+        function saveCustomPreset(name) {
+            const tracks = ['tb303', 'kick', 'snare', 'hihat'];
+            const customPreset = { name };
+            
+            tracks.forEach(track => {
+                const container = document.getElementById(`${track}-steps`);
+                if (container) {
+                    customPreset[track] = Array.from(container.querySelectorAll('.step-button'))
+                        .map(s => s.classList.contains('active') ? 1 : 0);
+                }
+            });
+            
+            // Save to localStorage
+            const customPresets = JSON.parse(localStorage.getItem('haos-custom-presets') || '{}');
+            const presetId = 'custom-' + Date.now();
+            customPresets[presetId] = customPreset;
+            localStorage.setItem('haos-custom-presets', JSON.stringify(customPresets));
+            
+            showNotification(`💾 Saved custom preset: ${name}`);
+            
+            // Add to dropdown
+            const select = document.getElementById('seq-preset-select');
+            let customGroup = select.querySelector('optgroup[label="💾 Custom Presets"]');
+            if (!customGroup) {
+                customGroup = document.createElement('optgroup');
+                customGroup.label = '💾 Custom Presets';
+                select.appendChild(customGroup);
+            }
+            const option = document.createElement('option');
+            option.value = presetId;
+            option.textContent = name;
+            customGroup.appendChild(option);
+        }
+        
+        // Load custom presets on init
+        function loadCustomPresets() {
+            const customPresets = JSON.parse(localStorage.getItem('haos-custom-presets') || '{}');
+            const select = document.getElementById('seq-preset-select');
+            
+            if (Object.keys(customPresets).length > 0) {
+                let customGroup = select.querySelector('optgroup[label="💾 Custom Presets"]');
+                if (!customGroup) {
+                    customGroup = document.createElement('optgroup');
+                    customGroup.label = '💾 Custom Presets';
+                    select.appendChild(customGroup);
+                }
+                
+                Object.entries(customPresets).forEach(([id, preset]) => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = preset.name;
+                    customGroup.appendChild(option);
+                    
+                    // Add to preset library
+                    sequencerPresets[id] = preset;
+                });
+            }
+        }
         
         async function initAudio() {
             if (!audioEngine && typeof HAOSAudioEngine !== 'undefined') {
@@ -2207,27 +2566,109 @@
             saveProject();
         }
         
-        // Play/Stop controls
+        // Play/Stop controls with improved sequencer engine
         document.getElementById('play-btn').addEventListener('click', async () => {
             await initAudio();
             if (!isPlaying && audioEngine) {
-                audioEngine.start();
                 isPlaying = true;
                 document.getElementById('play-btn').classList.add('active');
                 document.getElementById('stop-btn').classList.remove('active');
+                startSequencer();
                 showNotification('▶ Playing');
             }
         });
         
         document.getElementById('stop-btn').addEventListener('click', () => {
             if (isPlaying && audioEngine) {
-                audioEngine.stop();
                 isPlaying = false;
+                stopSequencer();
                 document.getElementById('play-btn').classList.remove('active');
                 document.getElementById('stop-btn').classList.add('active');
                 showNotification('■ Stopped');
             }
         });
+        
+        // Sequencer engine with proper timing and playback
+        function startSequencer() {
+            const stepTime = (60 / currentBPM) / 4 * 1000; // 16th note in ms
+            currentStep = 0;
+            
+            sequencerInterval = setInterval(() => {
+                playSequencerStep(currentStep);
+                currentStep = (currentStep + 1) % 16;
+            }, stepTime);
+        }
+        
+        function stopSequencer() {
+            if (sequencerInterval) {
+                clearInterval(sequencerInterval);
+                sequencerInterval = null;
+            }
+            currentStep = 0;
+            
+            // Clear all playing indicators
+            document.querySelectorAll('.step-button').forEach(el => {
+                el.classList.remove('playing');
+            });
+        }
+        
+        function playSequencerStep(step) {
+            const now = audioEngine?.audioContext?.currentTime || 0;
+            
+            // Highlight current step
+            document.querySelectorAll('.step-button').forEach(el => {
+                if (parseInt(el.dataset.step) === step) {
+                    el.classList.add('playing');
+                    setTimeout(() => el.classList.remove('playing'), 100);
+                }
+            });
+            
+            // Play active steps
+            const tracks = ['tb303', 'kick', 'snare', 'hihat'];
+            tracks.forEach(track => {
+                const stepEl = document.querySelector(`[data-track="${track}"][data-step="${step}"]`);
+                if (stepEl && stepEl.classList.contains('active')) {
+                    const velocity = (parseInt(stepEl.dataset.velocity) || 100) / 100;
+                    playSequencerSound(track, velocity, now);
+                }
+            });
+        }
+        
+        function playSequencerSound(track, velocity = 1.0, time = 0) {
+            if (!audioEngine) return;
+            
+            try {
+                switch(track) {
+                    case 'tb303':
+                        if (audioEngine.tb303) {
+                            audioEngine.tb303.playNote({
+                                frequency: 65.41, // C2
+                                duration: 0.2,
+                                accent: velocity > 0.7,
+                                velocity: velocity
+                            });
+                        }
+                        break;
+                    case 'kick':
+                        if (audioEngine.tr909) {
+                            audioEngine.tr909.playKick('classic', time);
+                        }
+                        break;
+                    case 'snare':
+                        if (audioEngine.tr909) {
+                            audioEngine.tr909.playSnare('classic', time);
+                        }
+                        break;
+                    case 'hihat':
+                        if (audioEngine.tr909) {
+                            audioEngine.tr909.playHatClosed('classic', time);
+                        }
+                        break;
+                }
+            } catch (err) {
+                console.error(`Error playing ${track}:`, err);
+            }
+        }
         
         document.getElementById('record-btn').addEventListener('click', () => {
             isRecording = !isRecording;
@@ -2263,6 +2704,56 @@
         document.getElementById('randomize-kick')?.addEventListener('click', () => randomizePattern('kick'));
         document.getElementById('randomize-snare')?.addEventListener('click', () => randomizePattern('snare'));
         document.getElementById('randomize-hihat')?.addEventListener('click', () => randomizePattern('hihat'));
+        
+        // Preset controls
+        document.getElementById('load-preset-btn')?.addEventListener('click', () => {
+            const select = document.getElementById('seq-preset-select');
+            const presetId = select.value;
+            if (presetId) {
+                loadSequencerPreset(presetId);
+            } else {
+                showNotification('⚠️ Please select a preset');
+            }
+        });
+        
+        document.getElementById('save-custom-preset-btn')?.addEventListener('click', () => {
+            const input = document.getElementById('custom-preset-name');
+            const name = input.value.trim();
+            if (name) {
+                saveCustomPreset(name);
+                input.value = '';
+            } else {
+                showNotification('⚠️ Please enter a preset name');
+            }
+        });
+        
+        // Effects controls - update displays
+        ['delay-time', 'delay-feedback', 'delay-mix', 'reverb-size', 'reverb-decay', 'reverb-mix', 'dist-drive', 'dist-tone', 'dist-mix'].forEach(id => {
+            const slider = document.getElementById(id);
+            const display = document.getElementById(id + '-value');
+            if (slider && display) {
+                slider.addEventListener('input', (e) => {
+                    const value = e.target.value;
+                    if (id === 'delay-time') {
+                        display.textContent = value + 'ms';
+                    } else {
+                        display.textContent = value + '%';
+                    }
+                    
+                    // Apply effect (basic implementation, can be enhanced)
+                    if (audioEngine) {
+                        applyEffect(id, parseFloat(value));
+                    }
+                });
+            }
+        });
+        
+        // Apply audio effects
+        function applyEffect(effectId, value) {
+            // This is a placeholder - actual implementation would route through audioEngine
+            console.log(`Effect ${effectId} set to ${value}`);
+            // TODO: Implement actual effect routing in HAOS Audio Engine
+        }
         
         // Auto-save every 10 seconds
         setInterval(saveProject, 10000);
@@ -2475,8 +2966,10 @@
         // Initialize on load
         window.addEventListener('DOMContentLoaded', () => {
             initSequencer();
+            loadCustomPresets(); // Load user's saved presets
             console.log('HAOS Studio initialized - Orange theme activated 🔥');
-            console.log('Features: Pattern gen, MIDI export, Auto-save, Keyboard shortcuts');
+            console.log('Features: Pattern gen, MIDI export, Auto-save, Keyboard shortcuts, Sequencer presets');
+            console.log('📊 16 Factory Presets + Custom Presets Available');
         });
         
         // Comprehensive keyboard shortcuts
