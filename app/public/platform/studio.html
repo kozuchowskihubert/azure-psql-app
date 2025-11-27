@@ -1266,11 +1266,26 @@
             <div class="main-workspace">
                 <div class="panel">
                     <div class="panel-header">
-                        <h2 class="panel-title">HAOS.FM Radio - 24/7 Stream</h2>
+                        <h2 class="panel-title">HAOS.FM Radio & Music</h2>
                         <span class="panel-badge" id="radio-status">OFFLINE</span>
                     </div>
                     
-                    <div style="text-align: center; padding: 40px 20px;">
+                    <!-- Radio Source Tabs -->
+                    <div style="display: flex; gap: 10px; justify-content: center; padding: 20px; border-bottom: 2px solid var(--haos-border);">
+                        <button class="radio-source-btn active" data-source="live" style="flex: 1; max-width: 200px; padding: 15px; 
+                                background: var(--haos-orange-primary); color: var(--haos-bg-dark); border: none; border-radius: 8px;
+                                font-family: var(--font-display); font-size: 1rem; cursor: pointer; transition: all 0.3s;">
+                            📻 LIVE RADIO
+                        </button>
+                        <button class="radio-source-btn" data-source="spotify" style="flex: 1; max-width: 200px; padding: 15px; 
+                                background: var(--haos-bg-elevated); color: var(--haos-text-primary); border: 2px solid var(--haos-border); 
+                                border-radius: 8px; font-family: var(--font-display); font-size: 1rem; cursor: pointer; transition: all 0.3s;">
+                            🎵 SPOTIFY PLAYLISTS
+                        </button>
+                    </div>
+                    
+                    <!-- Live Radio Section -->
+                    <div class="radio-source-content" id="radio-source-live" style="text-align: center; padding: 40px 20px;">
                         <div style="font-size: 6rem; margin-bottom: 30px;">📻</div>
                         
                         <h3 style="font-family: var(--font-display); font-size: 2rem; color: var(--haos-orange-primary); margin-bottom: 15px;">
@@ -1346,6 +1361,228 @@
                             <p style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--haos-text-dim); margin-top: 10px;">
                                 Listen anywhere - Compatible with all media players
                             </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Spotify Playlists Section -->
+                    <div class="radio-source-content" id="radio-source-spotify" style="display: none; padding: 40px 20px;">
+                        <div style="font-size: 6rem; margin-bottom: 30px; text-align: center;">🎵</div>
+                        
+                        <h3 style="font-family: var(--font-display); font-size: 2rem; color: var(--haos-orange-primary); margin-bottom: 15px; text-align: center;">
+                            HAOS SPOTIFY PLAYLISTS
+                        </h3>
+                        
+                        <p style="color: var(--haos-text-secondary); margin-bottom: 40px; font-size: 1.1rem; text-align: center;">
+                            Curated techno & electronic music collections
+                        </p>
+                        
+                        <!-- Playlist Grid -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto;">
+                            
+                            <!-- Playlist 1: HAOS Techno Essentials -->
+                            <div class="spotify-playlist-card">
+                                <div style="background: var(--haos-bg-elevated); border: 2px solid var(--haos-border); border-radius: 12px; 
+                                            padding: 20px; transition: all 0.3s; cursor: pointer; height: 100%;"
+                                     onmouseover="this.style.borderColor='var(--haos-orange-primary)'; this.style.transform='translateY(-5px)';"
+                                     onmouseout="this.style.borderColor='var(--haos-border)'; this.style.transform='translateY(0)';">
+                                    <div style="font-size: 3rem; margin-bottom: 15px; text-align: center;">⚡</div>
+                                    <h4 style="font-family: var(--font-display); color: var(--haos-orange-primary); font-size: 1.3rem; margin-bottom: 10px;">
+                                        HAOS Techno Essentials
+                                    </h4>
+                                    <p style="color: var(--haos-text-dim); font-size: 0.9rem; margin-bottom: 20px;">
+                                        Detroit techno, acid, and industrial bangers. Pure underground energy.
+                                    </p>
+                                    <iframe style="border-radius: 12px; width: 100%; height: 152px;" 
+                                            src="https://open.spotify.com/embed/playlist/37i9dQZF1DX6J5NfMJS675?utm_source=generator" 
+                                            frameborder="0" allowfullscreen="" 
+                                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                            loading="lazy"></iframe>
+                                    <div style="margin-top: 15px; text-align: center;">
+                                        <a href="https://open.spotify.com/playlist/37i9dQZF1DX6J5NfMJS675" target="_blank" 
+                                           style="color: var(--haos-orange-primary); text-decoration: none; font-family: var(--font-mono); 
+                                                  font-size: 0.85rem; border: 2px solid var(--haos-orange-primary); padding: 8px 16px; 
+                                                  border-radius: 6px; display: inline-block; transition: all 0.3s;"
+                                           onmouseover="this.style.background='var(--haos-orange-primary)'; this.style.color='var(--haos-bg-dark)';"
+                                           onmouseout="this.style.background='transparent'; this.style.color='var(--haos-orange-primary)';">
+                                            OPEN IN SPOTIFY →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Playlist 2: Dark Techno -->
+                            <div class="spotify-playlist-card">
+                                <div style="background: var(--haos-bg-elevated); border: 2px solid var(--haos-border); border-radius: 12px; 
+                                            padding: 20px; transition: all 0.3s; cursor: pointer; height: 100%;"
+                                     onmouseover="this.style.borderColor='var(--haos-orange-primary)'; this.style.transform='translateY(-5px)';"
+                                     onmouseout="this.style.borderColor='var(--haos-border)'; this.style.transform='translateY(0)';">
+                                    <div style="font-size: 3rem; margin-bottom: 15px; text-align: center;">🌑</div>
+                                    <h4 style="font-family: var(--font-display); color: var(--haos-orange-primary); font-size: 1.3rem; margin-bottom: 10px;">
+                                        Dark Techno Sessions
+                                    </h4>
+                                    <p style="color: var(--haos-text-dim); font-size: 0.9rem; margin-bottom: 20px;">
+                                        Deep, hypnotic, and industrial. For late-night production sessions.
+                                    </p>
+                                    <iframe style="border-radius: 12px; width: 100%; height: 152px;" 
+                                            src="https://open.spotify.com/embed/playlist/37i9dQZF1DX692WcMwL2yW?utm_source=generator" 
+                                            frameborder="0" allowfullscreen="" 
+                                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                            loading="lazy"></iframe>
+                                    <div style="margin-top: 15px; text-align: center;">
+                                        <a href="https://open.spotify.com/playlist/37i9dQZF1DX692WcMwL2yW" target="_blank" 
+                                           style="color: var(--haos-orange-primary); text-decoration: none; font-family: var(--font-mono); 
+                                                  font-size: 0.85rem; border: 2px solid var(--haos-orange-primary); padding: 8px 16px; 
+                                                  border-radius: 6px; display: inline-block; transition: all 0.3s;"
+                                           onmouseover="this.style.background='var(--haos-orange-primary)'; this.style.color='var(--haos-bg-dark)';"
+                                           onmouseout="this.style.background='transparent'; this.style.color='var(--haos-orange-primary)';">
+                                            OPEN IN SPOTIFY →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Playlist 3: Acid House -->
+                            <div class="spotify-playlist-card">
+                                <div style="background: var(--haos-bg-elevated); border: 2px solid var(--haos-border); border-radius: 12px; 
+                                            padding: 20px; transition: all 0.3s; cursor: pointer; height: 100%;"
+                                     onmouseover="this.style.borderColor='var(--haos-orange-primary)'; this.style.transform='translateY(-5px)';"
+                                     onmouseout="this.style.borderColor='var(--haos-border)'; this.style.transform='translateY(0)';">
+                                    <div style="font-size: 3rem; margin-bottom: 15px; text-align: center;">🧪</div>
+                                    <h4 style="font-family: var(--font-display); color: var(--haos-orange-primary); font-size: 1.3rem; margin-bottom: 10px;">
+                                        Acid House Classics
+                                    </h4>
+                                    <p style="color: var(--haos-text-dim); font-size: 0.9rem; margin-bottom: 20px;">
+                                        TB-303 acid squelches and classic house grooves. Pure nostalgia.
+                                    </p>
+                                    <iframe style="border-radius: 12px; width: 100%; height: 152px;" 
+                                            src="https://open.spotify.com/embed/playlist/37i9dQZF1DWWMCLnv4vIkI?utm_source=generator" 
+                                            frameborder="0" allowfullscreen="" 
+                                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                            loading="lazy"></iframe>
+                                    <div style="margin-top: 15px; text-align: center;">
+                                        <a href="https://open.spotify.com/playlist/37i9dQZF1DWWMCLnv4vIkI" target="_blank" 
+                                           style="color: var(--haos-orange-primary); text-decoration: none; font-family: var(--font-mono); 
+                                                  font-size: 0.85rem; border: 2px solid var(--haos-orange-primary); padding: 8px 16px; 
+                                                  border-radius: 6px; display: inline-block; transition: all 0.3s;"
+                                           onmouseover="this.style.background='var(--haos-orange-primary)'; this.style.color='var(--haos-bg-dark)';"
+                                           onmouseout="this.style.background='transparent'; this.style.color='var(--haos-orange-primary)';">
+                                            OPEN IN SPOTIFY →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Playlist 4: Electronic Focus -->
+                            <div class="spotify-playlist-card">
+                                <div style="background: var(--haos-bg-elevated); border: 2px solid var(--haos-border); border-radius: 12px; 
+                                            padding: 20px; transition: all 0.3s; cursor: pointer; height: 100%;"
+                                     onmouseover="this.style.borderColor='var(--haos-orange-primary)'; this.style.transform='translateY(-5px)';"
+                                     onmouseout="this.style.borderColor='var(--haos-border)'; this.style.transform='translateY(0)';">
+                                    <div style="font-size: 3rem; margin-bottom: 15px; text-align: center;">🎧</div>
+                                    <h4 style="font-family: var(--font-display); color: var(--haos-orange-primary); font-size: 1.3rem; margin-bottom: 10px;">
+                                        Electronic Focus
+                                    </h4>
+                                    <p style="color: var(--haos-text-dim); font-size: 0.9rem; margin-bottom: 20px;">
+                                        Downtempo electronic beats for focused production work.
+                                    </p>
+                                    <iframe style="border-radius: 12px; width: 100%; height: 152px;" 
+                                            src="https://open.spotify.com/embed/playlist/37i9dQZF1DX1N5uK98ms5p?utm_source=generator" 
+                                            frameborder="0" allowfullscreen="" 
+                                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                            loading="lazy"></iframe>
+                                    <div style="margin-top: 15px; text-align: center;">
+                                        <a href="https://open.spotify.com/playlist/37i9dQZF1DX1N5uK98ms5p" target="_blank" 
+                                           style="color: var(--haos-orange-primary); text-decoration: none; font-family: var(--font-mono); 
+                                                  font-size: 0.85rem; border: 2px solid var(--haos-orange-primary); padding: 8px 16px; 
+                                                  border-radius: 6px; display: inline-block; transition: all 0.3s;"
+                                           onmouseover="this.style.background='var(--haos-orange-primary)'; this.style.color='var(--haos-bg-dark)';"
+                                           onmouseout="this.style.background='transparent'; this.style.color='var(--haos-orange-primary)';">
+                                            OPEN IN SPOTIFY →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Playlist 5: Minimal Techno -->
+                            <div class="spotify-playlist-card">
+                                <div style="background: var(--haos-bg-elevated); border: 2px solid var(--haos-border); border-radius: 12px; 
+                                            padding: 20px; transition: all 0.3s; cursor: pointer; height: 100%;"
+                                     onmouseover="this.style.borderColor='var(--haos-orange-primary)'; this.style.transform='translateY(-5px)';"
+                                     onmouseout="this.style.borderColor='var(--haos-border)'; this.style.transform='translateY(0)';">
+                                    <div style="font-size: 3rem; margin-bottom: 15px; text-align: center;">〰️</div>
+                                    <h4 style="font-family: var(--font-display); color: var(--haos-orange-primary); font-size: 1.3rem; margin-bottom: 10px;">
+                                        Minimal Grooves
+                                    </h4>
+                                    <p style="color: var(--haos-text-dim); font-size: 0.9rem; margin-bottom: 20px;">
+                                        Stripped-down beats and subtle progressions. Less is more.
+                                    </p>
+                                    <iframe style="border-radius: 12px; width: 100%; height: 152px;" 
+                                            src="https://open.spotify.com/embed/playlist/37i9dQZF1DX8tZsk68tuDw?utm_source=generator" 
+                                            frameborder="0" allowfullscreen="" 
+                                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                            loading="lazy"></iframe>
+                                    <div style="margin-top: 15px; text-align: center;">
+                                        <a href="https://open.spotify.com/playlist/37i9dQZF1DX8tZsk68tuDw" target="_blank" 
+                                           style="color: var(--haos-orange-primary); text-decoration: none; font-family: var(--font-mono); 
+                                                  font-size: 0.85rem; border: 2px solid var(--haos-orange-primary); padding: 8px 16px; 
+                                                  border-radius: 6px; display: inline-block; transition: all 0.3s;"
+                                           onmouseover="this.style.background='var(--haos-orange-primary)'; this.style.color='var(--haos-bg-dark)';"
+                                           onmouseout="this.style.background='transparent'; this.style.color='var(--haos-orange-primary)';">
+                                            OPEN IN SPOTIFY →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Playlist 6: Peak Time Techno -->
+                            <div class="spotify-playlist-card">
+                                <div style="background: var(--haos-bg-elevated); border: 2px solid var(--haos-border); border-radius: 12px; 
+                                            padding: 20px; transition: all 0.3s; cursor: pointer; height: 100%;"
+                                     onmouseover="this.style.borderColor='var(--haos-orange-primary)'; this.style.transform='translateY(-5px)';"
+                                     onmouseout="this.style.borderColor='var(--haos-border)'; this.style.transform='translateY(0)';">
+                                    <div style="font-size: 3rem; margin-bottom: 15px; text-align: center;">🔥</div>
+                                    <h4 style="font-family: var(--font-display); color: var(--haos-orange-primary); font-size: 1.3rem; margin-bottom: 10px;">
+                                        Peak Time Bangers
+                                    </h4>
+                                    <p style="color: var(--haos-text-dim); font-size: 0.9rem; margin-bottom: 20px;">
+                                        High-energy techno for maximum impact. Dancefloor destroyers.
+                                    </p>
+                                    <iframe style="border-radius: 12px; width: 100%; height: 152px;" 
+                                            src="https://open.spotify.com/embed/playlist/37i9dQZF1DX6mvEU1S6INL?utm_source=generator" 
+                                            frameborder="0" allowfullscreen="" 
+                                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                            loading="lazy"></iframe>
+                                    <div style="margin-top: 15px; text-align: center;">
+                                        <a href="https://open.spotify.com/playlist/37i9dQZF1DX6mvEU1S6INL" target="_blank" 
+                                           style="color: var(--haos-orange-primary); text-decoration: none; font-family: var(--font-mono); 
+                                                  font-size: 0.85rem; border: 2px solid var(--haos-orange-primary); padding: 8px 16px; 
+                                                  border-radius: 6px; display: inline-block; transition: all 0.3s;"
+                                           onmouseover="this.style.background='var(--haos-orange-primary)'; this.style.color='var(--haos-bg-dark)';"
+                                           onmouseout="this.style.background='transparent'; this.style.color='var(--haos-orange-primary)';">
+                                            OPEN IN SPOTIFY →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                        <div style="margin-top: 60px; text-align: center; padding: 30px; background: rgba(255, 107, 53, 0.1); 
+                                    border-radius: 12px; border: 2px solid var(--haos-border); max-width: 800px; margin-left: auto; margin-right: auto;">
+                            <h4 style="font-family: var(--font-display); color: var(--haos-orange-primary); font-size: 1.5rem; margin-bottom: 15px;">
+                                🎵 FOLLOW HAOS ON SPOTIFY
+                            </h4>
+                            <p style="color: var(--haos-text-secondary); margin-bottom: 20px;">
+                                Get updates on new playlists and exclusive mixes
+                            </p>
+                            <a href="https://open.spotify.com/user/haos.fm" target="_blank" 
+                               style="display: inline-block; background: var(--haos-orange-primary); color: var(--haos-bg-dark); 
+                                      padding: 15px 40px; border-radius: 8px; text-decoration: none; font-family: var(--font-display); 
+                                      font-size: 1.1rem; transition: all 0.3s; box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);"
+                               onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 53, 0.4)';"
+                               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 107, 53, 0.3)';">
+                                FOLLOW ON SPOTIFY →
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -1786,6 +2023,39 @@
             const volumeDisplay = document.getElementById('radio-volume-display');
             const statusBadge = document.getElementById('radio-status');
             const nowPlayingDiv = document.getElementById('radio-now-playing');
+            
+            // Radio source switching
+            const radioSourceBtns = document.querySelectorAll('.radio-source-btn');
+            radioSourceBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const source = btn.dataset.source;
+                    
+                    // Update button states
+                    radioSourceBtns.forEach(b => {
+                        b.classList.remove('active');
+                        b.style.background = 'var(--haos-bg-elevated)';
+                        b.style.color = 'var(--haos-text-primary)';
+                        b.style.border = '2px solid var(--haos-border)';
+                    });
+                    btn.classList.add('active');
+                    btn.style.background = 'var(--haos-orange-primary)';
+                    btn.style.color = 'var(--haos-bg-dark)';
+                    btn.style.border = 'none';
+                    
+                    // Show/hide content
+                    document.querySelectorAll('.radio-source-content').forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    document.getElementById(`radio-source-${source}`).style.display = 'block';
+                    
+                    // Stop radio if switching to Spotify
+                    if (source === 'spotify' && radioPlaying) {
+                        stopBtn.click();
+                    }
+                    
+                    showNotification(source === 'live' ? '📻 Switched to Live Radio' : '🎵 Switched to Spotify Playlists');
+                });
+            });
             
             // Create audio element
             radioAudio = new Audio();
