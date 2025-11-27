@@ -388,6 +388,25 @@ jobs:
           app-name: notesapp-dev-music-app
           images: ${{ needs.build-and-push.outputs.image-full }}
 
+      - name: ⚙️ Configure Web App Settings
+        run: |
+          echo "Configuring startup command and app settings..."
+          az webapp config set \
+            --name notesapp-dev-music-app \
+            --resource-group notesapp-dev-rg \
+            --startup-file "node server.js"
+          
+          # Set environment variables for production
+          az webapp config appsettings set \
+            --name notesapp-dev-music-app \
+            --resource-group notesapp-dev-rg \
+            --settings \
+              NODE_ENV=production \
+              PORT=8080 \
+              WEBSITES_PORT=8080
+          
+          echo "✅ Web app configuration complete"
+
       - name: 🔄 Restart Music Web App
         run: |
           echo "Restarting music production app for clean deployment..."
