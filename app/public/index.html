@@ -138,6 +138,37 @@
         .metric-value {
             animation: counter-glow 2s ease-in-out infinite;
         }
+        
+        /* Music Player Animations */
+        @keyframes music-bounce {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.5); }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(100%); opacity: 0; }
+        }
+        
+        .music-bar {
+            transition: height 0.3s ease;
+        }
+        
+        /* Player visible state */
+        #background-music-player.visible {
+            transform: translateY(0) !important;
+        }
+        
+        /* Show player button visible state */
+        #show-player-btn.visible {
+            opacity: 1 !important;
+            pointer-events: all !important;
+        }
     </style>
 </head>
 <body class="haos-theme">
@@ -151,12 +182,12 @@
             <div class="flex items-center justify-between h-20">
                 <!-- HAOS.fm Logo -->
                 <div class="flex items-center space-x-4">
-                    <img src="/images/haos-logo-white.png" alt="HAOS.fm" class="h-10 vinyl-rotating logo-glow" style="width: auto;">
+                    <img src="/images/haos-logo-white.png" alt="HAOS.fm" class="h-14 md:h-16 vinyl-rotating logo-glow" style="width: auto;">
                     <div>
-                        <h1 class="haos-display-sm haos-text-gradient-orange" style="font-size: 1.5rem; line-height: 1;">
+                        <h1 class="haos-display-sm haos-text-gradient-orange" style="font-size: 1.8rem; line-height: 1;">
                             HAOS.fm
                         </h1>
-                        <p class="haos-mono" style="font-size: 0.65rem; color: var(--haos-dust-gray); letter-spacing: 0.15em;">
+                        <p class="haos-mono" style="font-size: 0.7rem; color: var(--haos-dust-gray); letter-spacing: 0.15em;">
                             HARDWARE ANALOG OSCILLATOR SYNTHESIS
                         </p>
                     </div>
@@ -205,11 +236,11 @@
         
         <div class="haos-container text-center haos-slide-up" style="position: relative; z-index: 10;">
             <!-- Main Logo - Your Custom PNG -->
-            <div class="mb-8" style="max-width: 800px; margin: 0 auto;">
-                <img src="/images/haos-logo-white.png" alt="HAOS.fm - Hardware Analog Oscillator Synthesis" class="w-full logo-glow" style="max-width: 600px; margin: 0 auto;">
+            <div class="mb-8" style="max-width: 900px; margin: 0 auto;">
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm - Hardware Analog Oscillator Synthesis" class="w-full logo-glow" style="max-width: 700px; margin: 0 auto; filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.8));">
             </div>
             
-            <h2 class="haos-display-md haos-text-gradient-gold mb-4">
+            <h2 class="haos-display-md haos-text-gradient-gold mb-4" style="font-size: 3rem;">
                 HARDWARE ANALOG SYNTHESIS
             </h2>
             
@@ -797,6 +828,79 @@
 
     </main>
 
+    <!-- ============================================================================
+         LIVE BACKGROUND MUSIC PLAYER - STICKY BOTTOM BAR
+         ============================================================================ -->
+    <div id="background-music-player" class="fixed bottom-0 left-0 right-0 z-50 transform translate-y-full transition-transform duration-500" style="background: linear-gradient(135deg, rgba(26, 26, 46, 0.98), rgba(0, 0, 0, 0.98)); backdrop-filter: blur(20px); border-top: 3px solid rgba(255, 107, 53, 0.6); box-shadow: 0 -10px 40px rgba(255, 107, 53, 0.3);">
+        <div class="haos-container py-4">
+            <div class="flex items-center justify-between gap-6">
+                <!-- Now Playing Info -->
+                <div class="flex items-center gap-4 flex-1 min-w-0">
+                    <div class="w-14 h-14 rounded-lg bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center flex-shrink-0 animate-pulse">
+                        <i class="fas fa-music text-2xl text-white"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-bold text-lg truncate" style="color: #FF6B35; font-family: 'Bebas Neue', sans-serif;">
+                            <span id="track-title">HAOS.FM - 24/7 Techno Radio</span>
+                        </h4>
+                        <p class="text-sm truncate" style="color: var(--haos-dust-gray);">
+                            <span id="track-artist">Live Electronic Music Stream</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Visualizer Bars -->
+                <div class="hidden md:flex items-end gap-1 h-12" style="width: 120px;">
+                    <div class="bg-gradient-to-t from-orange-500 to-orange-300 w-2 rounded-t music-bar" style="height: 60%; animation: music-bounce 0.8s ease-in-out infinite;"></div>
+                    <div class="bg-gradient-to-t from-orange-500 to-orange-300 w-2 rounded-t music-bar" style="height: 80%; animation: music-bounce 0.8s ease-in-out infinite 0.1s;"></div>
+                    <div class="bg-gradient-to-t from-orange-500 to-orange-300 w-2 rounded-t music-bar" style="height: 40%; animation: music-bounce 0.8s ease-in-out infinite 0.2s;"></div>
+                    <div class="bg-gradient-to-t from-orange-500 to-orange-300 w-2 rounded-t music-bar" style="height: 90%; animation: music-bounce 0.8s ease-in-out infinite 0.3s;"></div>
+                    <div class="bg-gradient-to-t from-orange-500 to-orange-300 w-2 rounded-t music-bar" style="height: 70%; animation: music-bounce 0.8s ease-in-out infinite 0.4s;"></div>
+                    <div class="bg-gradient-to-t from-orange-500 to-orange-300 w-2 rounded-t music-bar" style="height: 50%; animation: music-bounce 0.8s ease-in-out infinite 0.5s;"></div>
+                </div>
+
+                <!-- Player Controls -->
+                <div class="flex items-center gap-3">
+                    <button id="player-prev" class="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-white/10" style="color: var(--haos-dust-gray);">
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button id="player-play-pause" class="w-12 h-12 rounded-full flex items-center justify-center transition-all" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);">
+                        <i class="fas fa-play text-white"></i>
+                    </button>
+                    <button id="player-next" class="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-white/10" style="color: var(--haos-dust-gray);">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                </div>
+
+                <!-- Volume Control -->
+                <div class="hidden lg:flex items-center gap-3" style="width: 150px;">
+                    <i class="fas fa-volume-up" style="color: var(--haos-dust-gray);"></i>
+                    <input type="range" id="player-volume" min="0" max="100" value="70" class="flex-1" style="accent-color: #FF6B35;">
+                </div>
+
+                <!-- Close Button -->
+                <button id="player-close" class="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-white/10" style="color: var(--haos-dust-gray);">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mt-3 h-1 bg-white/10 rounded-full overflow-hidden">
+                <div id="player-progress" class="h-full bg-gradient-to-r from-orange-500 to-purple-600 rounded-full transition-all" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <!-- Hidden Audio Element -->
+        <audio id="background-audio" preload="metadata">
+            <source src="https://stream.zeno.fm/f3wvbbqmdg8uv" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- Show Player Button (appears after scroll) -->
+    <button id="show-player-btn" class="fixed bottom-6 right-6 z-40 w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-all hover:scale-110" style="background: linear-gradient(135deg, #FF6B35, #9D4EDD); opacity: 0; pointer-events: none;">
+        <i class="fas fa-music text-2xl text-white"></i>
+    </button>
+
     <!-- Scripts -->
     <script>
         // ============================================
@@ -1073,6 +1177,117 @@
             card.style.transition = 'all 0.6s ease-out';
             observer.observe(card);
         });
+        
+        // ============================================
+        // BACKGROUND MUSIC PLAYER
+        // ============================================
+        
+        const musicPlayer = document.getElementById('background-music-player');
+        const showPlayerBtn = document.getElementById('show-player-btn');
+        const audio = document.getElementById('background-audio');
+        const playPauseBtn = document.getElementById('player-play-pause');
+        const volumeSlider = document.getElementById('player-volume');
+        const progressBar = document.getElementById('player-progress');
+        const closePlayerBtn = document.getElementById('player-close');
+        
+        let isPlaying = false;
+        
+        // Show player after scroll
+        let playerShown = false;
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300 && !playerShown) {
+                showPlayerBtn.classList.add('visible');
+            }
+        });
+        
+        // Show player on button click
+        showPlayerBtn.addEventListener('click', () => {
+            musicPlayer.classList.add('visible');
+            showPlayerBtn.classList.remove('visible');
+            playerShown = true;
+            // Auto-play
+            if (!isPlaying) {
+                playPauseBtn.click();
+            }
+        });
+        
+        // Close player
+        closePlayerBtn.addEventListener('click', () => {
+            musicPlayer.classList.remove('visible');
+            showPlayerBtn.classList.add('visible');
+            playerShown = false;
+            // Pause audio
+            if (isPlaying) {
+                playPauseBtn.click();
+            }
+        });
+        
+        // Play/Pause
+        playPauseBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                audio.pause();
+                playPauseBtn.innerHTML = '<i class="fas fa-play text-white"></i>';
+                isPlaying = false;
+            } else {
+                audio.play().catch(err => {
+                    console.log('Audio playback failed:', err);
+                });
+                playPauseBtn.innerHTML = '<i class="fas fa-pause text-white"></i>';
+                isPlaying = true;
+            }
+        });
+        
+        // Volume control
+        volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value / 100;
+        });
+        
+        // Set initial volume
+        audio.volume = 0.7;
+        
+        // Update progress (for streams, show animated progress)
+        setInterval(() => {
+            if (isPlaying) {
+                const currentProgress = parseInt(progressBar.style.width) || 0;
+                progressBar.style.width = ((currentProgress + 1) % 100) + '%';
+            }
+        }, 1000);
+        
+        // Previous/Next (cycle through stations)
+        const stations = [
+            { name: 'HAOS.FM - Techno Radio', artist: 'Live Electronic Music', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv' },
+            { name: 'Underground Techno', artist: 'Dark & Industrial', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv' },
+            { name: 'Acid House Classics', artist: 'TB-303 Madness', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv' }
+        ];
+        
+        let currentStation = 0;
+        
+        function loadStation(index) {
+            const station = stations[index];
+            document.getElementById('track-title').textContent = station.name;
+            document.getElementById('track-artist').textContent = station.artist;
+            audio.src = station.url;
+            if (isPlaying) {
+                audio.play();
+            }
+        }
+        
+        document.getElementById('player-next').addEventListener('click', () => {
+            currentStation = (currentStation + 1) % stations.length;
+            loadStation(currentStation);
+        });
+        
+        document.getElementById('player-prev').addEventListener('click', () => {
+            currentStation = (currentStation - 1 + stations.length) % stations.length;
+            loadStation(currentStation);
+        });
+        
+        // Auto-show player after 3 seconds
+        setTimeout(() => {
+            if (!playerShown) {
+                showPlayerBtn.classList.add('visible');
+            }
+        }, 3000);
     </script>
 </body>
 </html>
