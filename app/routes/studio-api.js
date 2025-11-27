@@ -10,11 +10,25 @@
 
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
+
+// Load factory presets on startup
+let factoryPresets = [];
+try {
+  const factoryPresetsPath = path.join(__dirname, '../data/factory-presets.json');
+  if (fs.existsSync(factoryPresetsPath)) {
+    factoryPresets = JSON.parse(fs.readFileSync(factoryPresetsPath, 'utf8'));
+    console.log(`✅ Loaded ${factoryPresets.length} factory presets`);
+  }
+} catch (error) {
+  console.warn('⚠️  Could not load factory presets:', error.message);
+}
 
 // In-memory storage (will persist to database later if needed)
 // This ensures data survives between page refreshes
 const storage = {
-  presets: [],
+  presets: [...factoryPresets], // Initialize with factory presets
   patterns: [],
   settings: {}
 };
@@ -25,13 +39,39 @@ const storage = {
 
 /**
  * GET /api/studio/presets
- * Retrieve all saved presets
+ * Retrieve all saved presets with optional filtering
+ * Query params:
+ *   - type: 'tb303' | 'tr909' | 'tr808'
+ *   - category: 'Bass' | 'Techno' | 'Classic' | etc.
+ *   - search: text search in name/description
  */
 router.get('/presets', (req, res) => {
+  let filteredPresets = storage.presets;
+  
+  // Filter by type
+  if (req.query.type) {
+    filteredPresets = filteredPresets.filter(p => p.type === req.query.type);
+  }
+  
+  // Filter by category
+  if (req.query.category) {
+    filteredPresets = filteredPresets.filter(p => p.category === req.query.category);
+  }
+  
+  // Search in name/description
+  if (req.query.search) {
+    const search = req.query.search.toLowerCase();
+    filteredPresets = filteredPresets.filter(p => 
+      p.name.toLowerCase().includes(search) || 
+      (p.description && p.description.toLowerCase().includes(search))
+    );
+  }
+  
   res.json({
     success: true,
-    count: storage.presets.length,
-    presets: storage.presets
+    count: filteredPresets.length,
+    total: storage.presets.length,
+    presets: filteredPresets
   });
 });
 
@@ -89,6 +129,43 @@ router.get('/presets/:id', (req, res) => {
   res.json({
     success: true,
     preset
+  });
+});
+
+/**
+ * GET /api/studio/presets/stats/summary
+ * Get preset statistics and categories
+ */
+router.get('/presets/stats/summary', (req, res) => {
+  const stats = {
+    total: storage.presets.length,
+    byType: {},
+    byCategory: {},
+    categories: new Set(),
+    types: new Set()
+  };
+  
+  storage.presets.forEach(preset => {
+    // Count by type
+    stats.byType[preset.type] = (stats.byType[preset.type] || 0) + 1;
+    stats.types.add(preset.type);
+    
+    // Count by category
+    if (preset.category) {
+      stats.byCategory[preset.category] = (stats.byCategory[preset.category] || 0) + 1;
+      stats.categories.add(preset.category);
+    }
+  });
+  
+  res.json({
+    success: true,
+    stats: {
+      total: stats.total,
+      byType: stats.byType,
+      byCategory: stats.byCategory,
+      categories: Array.from(stats.categories),
+      types: Array.from(stats.types)
+    }
   });
 });
 
