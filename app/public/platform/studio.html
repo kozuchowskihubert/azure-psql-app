@@ -901,6 +901,9 @@
             </div>
             
             <div class="transport-controls">
+                <button class="transport-btn" id="quick-radio-btn" style="background: var(--haos-orange-primary); color: var(--haos-bg-dark); border: none; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);">
+                    📻 RADIO
+                </button>
                 <div class="bpm-control">
                     <span class="bpm-label">BPM</span>
                     <span class="bpm-value" id="bpm-display">120</span>
@@ -913,6 +916,309 @@
                 <button class="transport-btn" id="play-btn">▶ PLAY</button>
                 <button class="transport-btn" id="stop-btn">■ STOP</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Radio Modal -->
+    <div id="radio-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                                  background: rgba(0, 0, 0, 0.9); z-index: 10000; backdrop-filter: blur(10px);
+                                  overflow-y: auto; padding: 20px;">
+        <div style="max-width: 1400px; margin: 0 auto; position: relative;">
+            <button id="close-radio-modal" style="position: absolute; top: 20px; right: 20px; background: var(--haos-bg-elevated); 
+                                                   border: 2px solid var(--haos-orange-primary); color: var(--haos-orange-primary); 
+                                                   font-size: 2rem; width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
+                                                   display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                ×
+            </button>
+            
+            <div style="text-align: center; margin-bottom: 40px; margin-top: 60px;">
+                <h1 style="font-family: 'Bebas Neue', sans-serif; font-size: 4rem; color: var(--haos-orange-primary); 
+                           letter-spacing: 3px; margin-bottom: 10px;">
+                    HAOS.FM RADIO
+                </h1>
+                <p style="font-family: 'Space Mono', monospace; color: #999; font-size: 1.1rem;">
+                    24/7 Techno & Electronic Music - Listen while you create
+                </p>
+            </div>
+            
+            <!-- Source Selection -->
+            <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap;">
+                <button class="radio-modal-source active" data-source="spotify" style="padding: 15px 40px; 
+                        background: var(--haos-orange-primary); color: var(--haos-bg-dark); border: none; 
+                        border-radius: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; 
+                        letter-spacing: 1px; cursor: pointer; transition: all 0.3s;">
+                    🎵 SPOTIFY PLAYLISTS
+                </button>
+                <button class="radio-modal-source" data-source="youtube" style="padding: 15px 40px; 
+                        background: var(--haos-bg-elevated); color: var(--haos-text-primary); 
+                        border: 2px solid var(--haos-border); border-radius: 8px; 
+                        font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 1px; 
+                        cursor: pointer; transition: all 0.3s;">
+                    📺 YOUTUBE MIXES
+                </button>
+                <button class="radio-modal-source" data-source="live" style="padding: 15px 40px; 
+                        background: var(--haos-bg-elevated); color: var(--haos-text-primary); 
+                        border: 2px solid var(--haos-border); border-radius: 8px; 
+                        font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 1px; 
+                        cursor: pointer; transition: all 0.3s;">
+                    📻 LIVE STREAM
+                </button>
+            </div>
+            
+            <!-- Spotify Content -->
+            <div id="modal-spotify-content" class="modal-radio-content">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px;">
+                    
+                    <div style="background: var(--haos-bg-elevated); border: 2px solid rgba(255, 107, 53, 0.3); 
+                                border-radius: 12px; padding: 25px; transition: all 0.3s;">
+                        <h3 style="font-family: 'Bebas Neue', sans-serif; color: var(--haos-orange-primary); 
+                                   font-size: 1.5rem; margin-bottom: 15px;">⚡ Techno Essentials</h3>
+                        <iframe style="border-radius: 12px; width: 100%; height: 152px;" 
+                                src="https://open.spotify.com/embed/playlist/37i9dQZF1DX6J5NfMJS675?utm_source=generator" 
+                                frameborder="0" allowfullscreen="" 
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                loading="lazy"></iframe>
+                    </div>
+                    
+                    <div style="background: var(--haos-bg-elevated); border: 2px solid rgba(255, 107, 53, 0.3); 
+                                border-radius: 12px; padding: 25px; transition: all 0.3s;">
+                        <h3 style="font-family: 'Bebas Neue', sans-serif; color: var(--haos-orange-primary); 
+                                   font-size: 1.5rem; margin-bottom: 15px;">🌑 Dark Techno</h3>
+                        <iframe style="border-radius: 12px; width: 100%; height: 152px;" 
+                                src="https://open.spotify.com/embed/playlist/37i9dQZF1DX692WcMwL2yW?utm_source=generator" 
+                                frameborder="0" allowfullscreen="" 
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                loading="lazy"></iframe>
+                    </div>
+                    
+                    <div style="background: var(--haos-bg-elevated); border: 2px solid rgba(255, 107, 53, 0.3); 
+                                border-radius: 12px; padding: 25px; transition: all 0.3s;">
+                        <h3 style="font-family: 'Bebas Neue', sans-serif; color: var(--haos-orange-primary); 
+                                   font-size: 1.5rem; margin-bottom: 15px;">🧪 Acid House</h3>
+                        <iframe style="border-radius: 12px; width: 100%; height: 152px;" 
+                                src="https://open.spotify.com/embed/playlist/37i9dQZF1DWWMCLnv4vIkI?utm_source=generator" 
+                                frameborder="0" allowfullscreen="" 
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                loading="lazy"></iframe>
+                    </div>
+                    
+                    <div style="background: var(--haos-bg-elevated); border: 2px solid rgba(255, 107, 53, 0.3); 
+                                border-radius: 12px; padding: 25px; transition: all 0.3s;">
+                        <h3 style="font-family: 'Bebas Neue', sans-serif; color: var(--haos-orange-primary); 
+                                   font-size: 1.5rem; margin-bottom: 15px;">〰️ Minimal</h3>
+                        <iframe style="border-radius: 12px; width: 100%; height: 152px;" 
+                                src="https://open.spotify.com/embed/playlist/37i9dQZF1DX8tZsk68tuDw?utm_source=generator" 
+                                frameborder="0" allowfullscreen="" 
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                loading="lazy"></iframe>
+                    </div>
+                    
+                    <div style="background: var(--haos-bg-elevated); border: 2px solid rgba(255, 107, 53, 0.3); 
+                                border-radius: 12px; padding: 25px; transition: all 0.3s;">
+                        <h3 style="font-family: 'Bebas Neue', sans-serif; color: var(--haos-orange-primary); 
+                                   font-size: 1.5rem; margin-bottom: 15px;">🔥 Peak Time</h3>
+                        <iframe style="border-radius: 12px; width: 100%; height: 152px;" 
+                                src="https://open.spotify.com/embed/playlist/37i9dQZF1DX6mvEU1S6INL?utm_source=generator" 
+                                frameborder="0" allowfullscreen="" 
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                loading="lazy"></iframe>
+                    </div>
+                    
+                    <div style="background: var(--haos-bg-elevated); border: 2px solid rgba(255, 107, 53, 0.3); 
+                                border-radius: 12px; padding: 25px; transition: all 0.3s;">
+                        <h3 style="font-family: 'Bebas Neue', sans-serif; color: var(--haos-orange-primary); 
+                                   font-size: 1.5rem; margin-bottom: 15px;">🎧 Focus</h3>
+                        <iframe style="border-radius: 12px; width: 100%; height: 152px;" 
+                                src="https://open.spotify.com/embed/playlist/37i9dQZF1DX1N5uK98ms5p?utm_source=generator" 
+                                frameborder="0" allowfullscreen="" 
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                loading="lazy"></iframe>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- YouTube Content -->
+            <div id="modal-youtube-content" class="modal-radio-content" style="display: none;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 25px;">
+                    
+                    <div style="background: var(--haos-bg-elevated); border: 2px solid rgba(255, 107, 53, 0.3); 
+                                border-radius: 12px; padding: 25px;">
+                        <h3 style="font-family: 'Bebas Neue', sans-serif; color: var(--haos-orange-primary); 
+                                   font-size: 1.5rem; margin-bottom: 15px;">🎛️ Techno Mix 24/7</h3>
+                        <iframe width="100%" height="200" style="border-radius: 12px;"
+                                src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=0" 
+                                frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen></iframe>
+                    </div>
+                    
+                    <div style="background: var(--haos-bg-elevated); border: 2px solid rgba(255, 107, 53, 0.3); 
+                                border-radius: 12px; padding: 25px;">
+                        <h3 style="font-family: 'Bebas Neue', sans-serif; color: var(--haos-orange-primary); 
+                                   font-size: 1.5rem; margin-bottom: 15px;">🔊 Deep House</h3>
+                        <iframe width="100%" height="200" style="border-radius: 12px;"
+                                src="https://www.youtube.com/embed/FfqwhPMmA5M?autoplay=1&mute=0" 
+                                frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen></iframe>
+                    </div>
+                    
+                    <div style="background: var(--haos-bg-elevated); border: 2px solid rgba(255, 107, 53, 0.3); 
+                                border-radius: 12px; padding: 25px;">
+                        <h3 style="font-family: 'Bebas Neue', sans-serif; color: var(--haos-orange-primary); 
+                                   font-size: 1.5rem; margin-bottom: 15px;">⚡ Detroit Techno</h3>
+                        <iframe width="100%" height="200" style="border-radius: 12px;"
+                                src="https://www.youtube.com/embed/GDXCiJ5qxKQ?autoplay=1&mute=0" 
+                                frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen></iframe>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- Live Stream Content -->
+            <div id="modal-live-content" class="modal-radio-content" style="display: none;">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    
+                    <!-- Live Radio Player -->
+                    <div style="background: var(--haos-bg-elevated); border: 2px solid var(--haos-orange-primary); 
+                                border-radius: 20px; padding: 40px; margin-bottom: 30px;">
+                        
+                        <!-- Channel Selector -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 40px;">
+                            <button class="live-channel-btn active" data-channel="techno" 
+                                    style="background: var(--haos-orange-primary); color: var(--haos-bg-dark); border: none; 
+                                           padding: 15px 20px; border-radius: 10px; font-family: 'Bebas Neue', sans-serif; 
+                                           font-size: 1.2rem; cursor: pointer; transition: all 0.3s;">
+                                🎛️ TECHNO
+                            </button>
+                            <button class="live-channel-btn" data-channel="house" 
+                                    style="background: rgba(255, 107, 53, 0.2); color: var(--haos-orange-primary); 
+                                           border: 2px solid var(--haos-orange-primary); padding: 15px 20px; border-radius: 10px; 
+                                           font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; cursor: pointer; transition: all 0.3s;">
+                                🏠 HOUSE
+                            </button>
+                            <button class="live-channel-btn" data-channel="acid" 
+                                    style="background: rgba(255, 107, 53, 0.2); color: var(--haos-orange-primary); 
+                                           border: 2px solid var(--haos-orange-primary); padding: 15px 20px; border-radius: 10px; 
+                                           font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; cursor: pointer; transition: all 0.3s;">
+                                🧪 ACID
+                            </button>
+                            <button class="live-channel-btn" data-channel="minimal" 
+                                    style="background: rgba(255, 107, 53, 0.2); color: var(--haos-orange-primary); 
+                                           border: 2px solid var(--haos-orange-primary); padding: 15px 20px; border-radius: 10px; 
+                                           font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; cursor: pointer; transition: all 0.3s;">
+                                〰️ MINIMAL
+                            </button>
+                        </div>
+                        
+                        <!-- Now Playing -->
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <div style="width: 200px; height: 200px; margin: 0 auto 20px; 
+                                        background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-bright)); 
+                                        border-radius: 20px; display: flex; align-items: center; justify-content: center; 
+                                        font-size: 5rem; box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);">
+                                🎵
+                            </div>
+                            <h3 id="live-track-title" style="font-family: 'Bebas Neue', sans-serif; font-size: 2rem; 
+                                                             color: var(--haos-orange-primary); margin-bottom: 10px;">
+                                HAOS.FM LIVE RADIO
+                            </h3>
+                            <p id="live-track-artist" style="color: #999; font-size: 1.2rem; margin-bottom: 20px;">
+                                Select a channel and press play
+                            </p>
+                            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                                <span style="background: rgba(255, 107, 53, 0.2); padding: 8px 16px; border-radius: 8px; 
+                                             font-family: 'Space Mono', monospace; font-size: 0.9rem;">
+                                    🎵 BPM: <strong id="live-bpm" style="color: var(--haos-orange-primary);">128</strong>
+                                </span>
+                                <span style="background: rgba(255, 107, 53, 0.2); padding: 8px 16px; border-radius: 8px; 
+                                             font-family: 'Space Mono', monospace; font-size: 0.9rem;">
+                                    🎧 Channel: <strong id="live-channel-name" style="color: var(--haos-orange-primary);">TECHNO</strong>
+                                </span>
+                                <span style="background: rgba(255, 107, 53, 0.2); padding: 8px 16px; border-radius: 8px; 
+                                             font-family: 'Space Mono', monospace; font-size: 0.9rem;">
+                                    👥 Listeners: <strong id="live-listeners" style="color: var(--haos-orange-primary);">247</strong>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Visualizer -->
+                        <div id="live-visualizer" style="height: 120px; background: rgba(0,0,0,0.5); border-radius: 12px; 
+                                                          margin-bottom: 30px; display: flex; align-items: flex-end; 
+                                                          justify-content: space-around; padding: 10px; gap: 3px;">
+                            <!-- Bars will be created dynamically -->
+                        </div>
+                        
+                        <!-- Player Controls -->
+                        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 20px;">
+                            <button id="live-prev" style="width: 50px; height: 50px; border-radius: 50%; border: none; 
+                                                          background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-bright)); 
+                                                          color: var(--haos-bg-dark); font-size: 1.2rem; cursor: pointer; 
+                                                          transition: all 0.3s;">
+                                ⏮
+                            </button>
+                            <button id="live-play-btn" style="width: 70px; height: 70px; border-radius: 50%; border: none; 
+                                                              background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-bright)); 
+                                                              color: var(--haos-bg-dark); font-size: 2rem; cursor: pointer; 
+                                                              transition: all 0.3s; box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);">
+                                ▶
+                            </button>
+                            <button id="live-next" style="width: 50px; height: 50px; border-radius: 50%; border: none; 
+                                                         background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-bright)); 
+                                                         color: var(--haos-bg-dark); font-size: 1.2rem; cursor: pointer; 
+                                                         transition: all 0.3s;">
+                                ⏭
+                            </button>
+                        </div>
+                        
+                        <!-- Volume Control -->
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                            <span style="font-size: 1.2rem;">🔉</span>
+                            <input type="range" id="live-volume" min="0" max="100" value="70" 
+                                   style="width: 200px; height: 6px; -webkit-appearance: none; appearance: none; 
+                                          background: rgba(255, 107, 53, 0.2); border-radius: 10px; outline: none; cursor: pointer;">
+                            <span style="font-size: 1.2rem;">🔊</span>
+                        </div>
+                        
+                        <style>
+                            #live-volume::-webkit-slider-thumb {
+                                -webkit-appearance: none;
+                                appearance: none;
+                                width: 20px;
+                                height: 20px;
+                                border-radius: 50%;
+                                background: var(--haos-orange-primary);
+                                cursor: pointer;
+                                box-shadow: 0 2px 8px rgba(255, 107, 53, 0.5);
+                            }
+                            #live-volume::-moz-range-thumb {
+                                width: 20px;
+                                height: 20px;
+                                border-radius: 50%;
+                                background: var(--haos-orange-primary);
+                                cursor: pointer;
+                                border: none;
+                                box-shadow: 0 2px 8px rgba(255, 107, 53, 0.5);
+                            }
+                            .live-channel-btn:hover {
+                                transform: translateY(-2px);
+                                box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+                            }
+                            #live-play-btn:hover, #live-prev:hover, #live-next:hover {
+                                transform: scale(1.1);
+                            }
+                        </style>
+                        
+                    </div>
+                    
+                    <!-- Info Section -->
+                    <div style="text-align: center; color: #666; font-family: 'Space Mono', monospace; font-size: 0.9rem;">
+                        <p>📻 Broadcasting 24/7 from HAOS Studios | Stream URL: https://stream.haos.fm/radio</p>
+                    </div>
+                    
+                </div>
+            </div>
+            
         </div>
     </div>
 
@@ -2224,7 +2530,238 @@
         // Initialize radio player when page loads
         window.addEventListener('load', () => {
             initRadioPlayer();
+            initRadioModal();
         });
+        
+        // ========================================
+        // Radio Modal Functionality
+        // ========================================
+        function initRadioModal() {
+            const quickRadioBtn = document.getElementById('quick-radio-btn');
+            const radioModal = document.getElementById('radio-modal');
+            const closeModalBtn = document.getElementById('close-radio-modal');
+            const sourceBtns = document.querySelectorAll('.radio-modal-source');
+            
+            // Open modal
+            quickRadioBtn.addEventListener('click', () => {
+                radioModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Close modal
+            closeModalBtn.addEventListener('click', () => {
+                radioModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Close on backdrop click
+            radioModal.addEventListener('click', (e) => {
+                if (e.target === radioModal) {
+                    radioModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Source switching
+            sourceBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const source = btn.dataset.source;
+                    
+                    // Update button states
+                    sourceBtns.forEach(b => {
+                        if (b === btn) {
+                            b.style.background = 'var(--haos-orange-primary)';
+                            b.style.color = 'var(--haos-bg-dark)';
+                            b.style.border = 'none';
+                            b.classList.add('active');
+                        } else {
+                            b.style.background = 'var(--haos-bg-elevated)';
+                            b.style.color = 'var(--haos-text-primary)';
+                            b.style.border = '2px solid var(--haos-border)';
+                            b.classList.remove('active');
+                        }
+                    });
+                    
+                    // Show/hide content
+                    document.querySelectorAll('.modal-radio-content').forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    document.getElementById(`modal-${source}-content`).style.display = 'block';
+                });
+            });
+            
+            // Close modal with ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && radioModal.style.display === 'block') {
+                    radioModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Hover effect for close button
+            closeModalBtn.addEventListener('mouseover', () => {
+                closeModalBtn.style.transform = 'rotate(90deg)';
+            });
+            closeModalBtn.addEventListener('mouseout', () => {
+                closeModalBtn.style.transform = 'rotate(0deg)';
+            });
+            
+            // Initialize Live Player
+            initLivePlayer();
+        }
+        
+        // Live Radio Player
+        // ========================================
+        function initLivePlayer() {
+            const playBtn = document.getElementById('live-play-btn');
+            const prevBtn = document.getElementById('live-prev');
+            const nextBtn = document.getElementById('live-next');
+            const volumeSlider = document.getElementById('live-volume');
+            const visualizer = document.getElementById('live-visualizer');
+            const channelBtns = document.querySelectorAll('.live-channel-btn');
+            
+            let isPlaying = false;
+            let currentChannel = 'techno';
+            let audioContext = null;
+            let analyser = null;
+            let dataArray = null;
+            let animationId = null;
+            
+            // Channel data
+            const channels = {
+                techno: { name: 'TECHNO', bpm: '128-140', url: 'techno-stream', icon: '🎛️' },
+                house: { name: 'HOUSE', bpm: '120-128', url: 'house-stream', icon: '🏠' },
+                acid: { name: 'ACID', bpm: '130-138', url: 'acid-stream', icon: '🧪' },
+                minimal: { name: 'MINIMAL', bpm: '125-132', url: 'minimal-stream', icon: '〰️' }
+            };
+            
+            // Create visualizer bars
+            for (let i = 0; i < 48; i++) {
+                const bar = document.createElement('div');
+                bar.style.flex = '1';
+                bar.style.background = 'linear-gradient(0deg, var(--haos-orange-primary), var(--haos-orange-bright))';
+                bar.style.borderRadius = '3px';
+                bar.style.height = '10px';
+                bar.style.transition = 'height 0.1s';
+                visualizer.appendChild(bar);
+            }
+            
+            // Channel switching
+            channelBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentChannel = this.dataset.channel;
+                    
+                    // Update button states
+                    channelBtns.forEach(b => {
+                        if (b === this) {
+                            b.style.background = 'var(--haos-orange-primary)';
+                            b.style.color = 'var(--haos-bg-dark)';
+                            b.style.border = 'none';
+                            b.classList.add('active');
+                        } else {
+                            b.style.background = 'rgba(255, 107, 53, 0.2)';
+                            b.style.color = 'var(--haos-orange-primary)';
+                            b.style.border = '2px solid var(--haos-orange-primary)';
+                            b.classList.remove('active');
+                        }
+                    });
+                    
+                    // Update channel info
+                    const channel = channels[currentChannel];
+                    document.getElementById('live-channel-name').textContent = channel.name;
+                    document.getElementById('live-bpm').textContent = channel.bpm.split('-')[0];
+                    document.getElementById('live-track-title').innerHTML = `${channel.icon} ${channel.name} RADIO`;
+                    
+                    // Simulate listener update
+                    document.getElementById('live-listeners').textContent = Math.floor(Math.random() * 300) + 100;
+                });
+            });
+            
+            // Play/Pause
+            playBtn.addEventListener('click', () => {
+                if (!isPlaying) {
+                    startPlaying();
+                } else {
+                    stopPlaying();
+                }
+            });
+            
+            // Previous/Next channel
+            prevBtn.addEventListener('click', () => switchToPrevChannel());
+            nextBtn.addEventListener('click', () => switchToNextChannel());
+            
+            // Volume control
+            volumeSlider.addEventListener('input', (e) => {
+                const volume = e.target.value / 100;
+                // Audio volume would be controlled here
+                console.log('Volume:', volume);
+            });
+            
+            function startPlaying() {
+                isPlaying = true;
+                playBtn.innerHTML = '⏸';
+                document.getElementById('live-track-artist').textContent = `Now Playing: ${channels[currentChannel].name} Channel`;
+                
+                // Initialize audio context for visualizer
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 128;
+                    const bufferLength = analyser.frequencyBinCount;
+                    dataArray = new Uint8Array(bufferLength);
+                }
+                
+                // Start visualizer animation
+                animateVisualizer();
+                
+                // Simulate listener updates
+                setInterval(() => {
+                    document.getElementById('live-listeners').textContent = Math.floor(Math.random() * 300) + 100;
+                }, 5000);
+            }
+            
+            function stopPlaying() {
+                isPlaying = false;
+                playBtn.innerHTML = '▶';
+                document.getElementById('live-track-artist').textContent = 'Paused';
+                
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                }
+            }
+            
+            function animateVisualizer() {
+                const bars = visualizer.children;
+                
+                // Generate random visualization data (simulated)
+                for (let i = 0; i < bars.length; i++) {
+                    const value = Math.random() * 100 + 10;
+                    bars[i].style.height = value + 'px';
+                }
+                
+                if (isPlaying) {
+                    animationId = requestAnimationFrame(animateVisualizer);
+                }
+            }
+            
+            function switchToNextChannel() {
+                const channelKeys = Object.keys(channels);
+                const currentIndex = channelKeys.indexOf(currentChannel);
+                const nextIndex = (currentIndex + 1) % channelKeys.length;
+                const nextChannel = channelKeys[nextIndex];
+                
+                document.querySelector(`[data-channel="${nextChannel}"]`).click();
+            }
+            
+            function switchToPrevChannel() {
+                const channelKeys = Object.keys(channels);
+                const currentIndex = channelKeys.indexOf(currentChannel);
+                const prevIndex = (currentIndex - 1 + channelKeys.length) % channelKeys.length;
+                const prevChannel = channelKeys[prevIndex];
+                
+                document.querySelector(`[data-channel="${prevChannel}"]`).click();
+            }
+        }
     </script>
 </body>
 </html>
