@@ -1082,12 +1082,13 @@
                     console.log('📊 API Response:', data);
                     
                     if (data.tracks && data.tracks.length > 0) {
-                        // Load uploaded tracks as default
+                        // Load uploaded tracks as default - ensure full URLs
+                        const baseUrl = window.location.origin;
                         this.playlists['uploaded'] = data.tracks.map(track => ({
                             title: track.title,
                             artist: track.artist,
                             duration: track.duration,
-                            url: track.url
+                            url: track.url.startsWith('http') ? track.url : baseUrl + track.url
                         }));
                         this.currentPlaylist = 'uploaded';
                         this.currentTrackIndex = 0;
