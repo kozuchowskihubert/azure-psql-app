@@ -205,19 +205,23 @@
             
             <form id="track-upload-form" enctype="multipart/form-data">
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">Track Title *</label>
-                    <input type="text" id="track-title" name="title" required 
+                    <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">
+                        Track Title <span style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">(Optional for multiple files - will use filename)</span>
+                    </label>
+                    <input type="text" id="track-title" name="title"
                            minlength="1" maxlength="100"
                            style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,85,0,0.3); border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 0.9rem;"
-                           placeholder="Enter track name...">
+                           placeholder="Enter track name or leave empty for auto-name...">
                 </div>
                 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">Artist Name *</label>
-                    <input type="text" id="track-artist" name="artist" required 
+                    <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">
+                        Artist Name <span style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">(Optional - defaults to "Unknown Artist")</span>
+                    </label>
+                    <input type="text" id="track-artist" name="artist"
                            minlength="1" maxlength="100"
                            style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,85,0,0.3); border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 0.9rem;"
-                           placeholder="Your artist name...">
+                           placeholder="Your artist name or leave empty...">
                 </div>
                 
                 <div style="margin-bottom: 15px;">
@@ -236,8 +240,8 @@
                 </div>
                 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">Audio File * (.mp3, .wav, .ogg)</label>
-                    <input type="file" id="track-file" name="audioFile" accept="audio/mp3,audio/wav,audio/ogg,audio/mpeg" required
+                    <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">Audio Files * (.mp3, .wav, .ogg) - Multiple files allowed</label>
+                    <input type="file" id="track-file" name="audioFile" accept="audio/mp3,audio/wav,audio/ogg,audio/mpeg" required multiple
                            style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,85,0,0.3); border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 0.85rem;">
                     <div id="file-info" style="margin-top: 5px; font-size: 0.75rem; color: rgba(255,255,255,0.5); font-family: var(--font-mono);"></div>
                 </div>
@@ -1569,33 +1573,47 @@
 
             // File input change - show file info
             fileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                    fileInfo.textContent = `📁 ${file.name} (${sizeMB} MB)`;
-                    fileInfo.style.color = '#FF5500';
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                    if (files.length === 1) {
+                        const file = files[0];
+                        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        fileInfo.textContent = `📁 ${file.name} (${sizeMB} MB)`;
+                        fileInfo.style.color = '#FF5500';
+                    } else {
+                        let totalSize = 0;
+                        for (let i = 0; i < files.length; i++) {
+                            totalSize += files[i].size;
+                        }
+                        const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+                        fileInfo.innerHTML = `📁 <strong>${files.length} files</strong> selected (${totalSizeMB} MB total)<br>`;
+                        fileInfo.innerHTML += `<div style="margin-top:5px; max-height:100px; overflow-y:auto;">`;
+                        for (let i = 0; i < files.length; i++) {
+                            const sizeMB = (files[i].size / (1024 * 1024)).toFixed(2);
+                            fileInfo.innerHTML += `<div style="font-size:0.7rem; opacity:0.8;">• ${files[i].name} (${sizeMB} MB)</div>`;
+                        }
+                        fileInfo.innerHTML += `</div>`;
+                        fileInfo.style.color = '#FF5500';
+                    }
                 }
             });
 
-            // Form submission
+            // Form submission - handle single or multiple files
             uploadForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
-                // Check form validity
-                if (!uploadForm.checkValidity()) {
-                    uploadForm.reportValidity();
-                    return;
-                }
-                
-                // Validate file is selected
-                if (!fileInput.files || !fileInput.files[0]) {
+                // Validate files are selected
+                if (!fileInput.files || fileInput.files.length === 0) {
                     uploadStatus.style.display = 'block';
                     uploadStatus.style.color = '#FF0000';
-                    uploadStatus.textContent = '❌ Please select an audio file';
+                    uploadStatus.textContent = '❌ Please select at least one audio file';
                     return;
                 }
 
-                const formData = new FormData(uploadForm);
+                const files = Array.from(fileInput.files);
+                const title = document.getElementById('track-title').value.trim();
+                const artist = document.getElementById('track-artist').value.trim();
+                const genre = document.getElementById('track-genre').value;
                 
                 // Disable submit button
                 submitBtn.disabled = true;
@@ -1605,46 +1623,120 @@
                 // Show status
                 uploadStatus.style.display = 'block';
                 uploadStatus.style.color = '#FFD700';
-                uploadStatus.textContent = '⏳ Uploading track to HAOS.fm...';
-
-                try {
-                    const response = await fetch('/api/tracks/upload', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok) {
-                        uploadStatus.style.color = '#00FF00';
-                        uploadStatus.innerHTML = `✅ <strong>Success!</strong><br>Track "${result.track.title}" uploaded successfully!<br>Duration: ${result.track.duration}s`;
-                        
-                        // Automatically load and play uploaded tracks
-                        if (window.EUPHONY && typeof EUPHONY.loadUploadedTracks === 'function') {
-                            await EUPHONY.loadUploadedTracks();
-                        }
-                        
-                        // Reset form after 3 seconds
-                        setTimeout(() => {
-                            uploadForm.reset();
-                            fileInfo.textContent = '';
-                            uploadStatus.style.display = 'none';
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = '🎵 UPLOAD TRACK';
-                            submitBtn.style.opacity = '1';
-                        }, 3000);
-                    } else {
-                        throw new Error(result.error || 'Upload failed');
-                    }
-                } catch (error) {
-                    console.error('Upload error:', error);
-                    uploadStatus.style.color = '#FF0000';
-                    uploadStatus.textContent = `❌ Upload failed: ${error.message}`;
+                
+                if (files.length === 1) {
+                    // Single file upload
+                    uploadStatus.textContent = '⏳ Uploading track to HAOS.fm...';
                     
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🎵 UPLOAD TRACK';
-                    submitBtn.style.opacity = '1';
+                    const formData = new FormData();
+                    formData.append('audioFile', files[0]);
+                    formData.append('title', title || files[0].name.replace(/\.[^/.]+$/, ''));
+                    formData.append('artist', artist || 'Unknown Artist');
+                    formData.append('genre', genre);
+
+                    try {
+                        const response = await fetch('/api/tracks/upload', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            uploadStatus.style.color = '#00FF00';
+                            uploadStatus.innerHTML = `✅ <strong>Success!</strong><br>Track "${result.track.title}" uploaded successfully!<br>Duration: ${result.track.duration}s`;
+                            
+                            // Reload uploaded tracks in radio player
+                            if (window.HAOS_BG_RADIO) {
+                                await window.HAOS_BG_RADIO.loadDefaultPlaylist();
+                                window.HAOS_BG_RADIO.updateDisplay();
+                            }
+                            
+                            // Reset form after 3 seconds
+                            setTimeout(() => {
+                                uploadForm.reset();
+                                fileInfo.textContent = '';
+                                uploadPanel.style.display = 'none';
+                            }, 3000);
+                        } else {
+                            throw new Error(result.error || 'Upload failed');
+                        }
+                    } catch (error) {
+                        uploadStatus.style.color = '#FF0000';
+                        uploadStatus.textContent = '❌ Upload failed: ' + error.message;
+                    }
+                } else {
+                    // Multiple files - bulk upload
+                    uploadStatus.innerHTML = `⏳ Uploading ${files.length} tracks...<br><div id="bulk-progress" style="margin-top:8px;"></div>`;
+                    const progressDiv = document.getElementById('bulk-progress');
+                    
+                    let successCount = 0;
+                    let failCount = 0;
+                    
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const fileName = file.name.replace(/\.[^/.]+$/, '');
+                        
+                        progressDiv.innerHTML += `<div style="font-size:0.75rem; opacity:0.8;">⏳ Uploading ${i + 1}/${files.length}: ${file.name}...</div>`;
+                        
+                        const formData = new FormData();
+                        formData.append('audioFile', file);
+                        formData.append('title', title || fileName);
+                        formData.append('artist', artist || 'Unknown Artist');
+                        formData.append('genre', genre);
+
+                        try {
+                            const response = await fetch('/api/tracks/upload', {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                successCount++;
+                                progressDiv.lastChild.innerHTML = `✅ ${i + 1}/${files.length}: ${result.track.title} (${result.track.duration}s)`;
+                                progressDiv.lastChild.style.color = '#00FF00';
+                            } else {
+                                failCount++;
+                                progressDiv.lastChild.innerHTML = `❌ ${i + 1}/${files.length}: ${file.name} - ${result.error}`;
+                                progressDiv.lastChild.style.color = '#FF6B6B';
+                            }
+                        } catch (error) {
+                            failCount++;
+                            progressDiv.lastChild.innerHTML = `❌ ${i + 1}/${files.length}: ${file.name} - ${error.message}`;
+                            progressDiv.lastChild.style.color = '#FF6B6B';
+                        }
+                    }
+                    
+                    // Final status
+                    uploadStatus.style.color = successCount > 0 ? '#00FF00' : '#FF0000';
+                    uploadStatus.innerHTML = `<strong>${successCount > 0 ? '✅ Bulk Upload Complete!' : '❌ Upload Failed'}</strong><br>✅ ${successCount} succeeded, ❌ ${failCount} failed<br>${progressDiv.innerHTML}`;
+                    
+                    // Reload uploaded tracks in radio player
+                    if (successCount > 0 && window.HAOS_BG_RADIO) {
+                        await window.HAOS_BG_RADIO.loadDefaultPlaylist();
+                        window.HAOS_BG_RADIO.updateDisplay();
+                        if (!window.HAOS_BG_RADIO.isPlaying) {
+                            window.HAOS_BG_RADIO.play();
+                        }
+                    }
+                    
+                    // Reset form after 5 seconds for bulk uploads
+                    setTimeout(() => {
+                        uploadForm.reset();
+                        fileInfo.textContent = '';
+                        uploadStatus.style.display = 'none';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🎵 UPLOAD TRACK';
+                        submitBtn.style.opacity = '1';
+                    }, 5000);
                 }
+                
+                // Re-enable button for error cases
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🎵 UPLOAD TRACK';
+                submitBtn.style.opacity = '1';
             });
 
             console.log('🎧 Track upload system initialized');
