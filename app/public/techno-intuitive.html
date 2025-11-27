@@ -2509,12 +2509,45 @@ ${Object.values(testResults).every(r => r === '✅') ? '✅ All engines working!
     <script src="/js/haos-master-system.js"></script>
     
     <script>
+        // Auto-initialize flag
+        let autoInitialized = false;
+        
+        // Auto-initialize HAOS system on first user interaction
+        async function autoInitHAOS() {
+            if (autoInitialized) return;
+            autoInitialized = true;
+            
+            console.log('👆 User interaction detected - auto-initializing audio...');
+            
+            // Call the initialization function
+            if (typeof initHAOSSystem === 'function') {
+                try {
+                    await initHAOSSystem();
+                    console.log('✅ Audio auto-initialized successfully');
+                } catch (error) {
+                    console.error('❌ Auto-initialization failed:', error);
+                }
+            }
+        }
+        
+        // Listen for first click or key press anywhere on the page
+        document.addEventListener('click', autoInitHAOS, { once: true });
+        document.addEventListener('keydown', autoInitHAOS, { once: true });
+        
         // Initialize HAOS Master System on page load
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('🎵 Initializing HAOS Master System...');
+            console.log('🎵 Page loaded - waiting for user interaction...');
+            console.log('👆 Click anywhere or press any key to initialize audio');
+            
+            // Show a helpful message
+            setTimeout(() => {
+                if (!autoInitialized) {
+                    showNotification('👆 Click anywhere to enable audio!', 'info', 5000);
+                }
+            }, 1000);
             
             try {
-                // Initialize the unified system
+                // Initialize the unified system (non-audio parts)
                 await HAOS.init();
                 
                 // System is now ready!
@@ -2525,8 +2558,8 @@ ${Object.values(testResults).every(r => r === '✅') ? '✅ All engines working!
                 // Update UI to show system is ready
                 const statusElement = document.getElementById('system-status');
                 if (statusElement) {
-                    statusElement.textContent = '● SYSTEM READY';
-                    statusElement.style.color = '#39FF14';
+                    statusElement.textContent = '● SYSTEM READY (Click to enable audio)';
+                    statusElement.style.color = '#FFD700';
                 }
             } catch (error) {
                 console.error('❌ Failed to initialize HAOS Master System:', error);
