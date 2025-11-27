@@ -112,23 +112,120 @@ router.post('/presets', (req, res) => {
   });
 });
 
+// ============================================================================
+// ARP 2600 Specific Endpoints (must be before /:id route)
+// ============================================================================
+
 /**
- * GET /api/studio/presets/:id
- * Get a specific preset by ID
+ * GET /api/studio/presets/arp2600
+ * Get all ARP 2600 patches
  */
-router.get('/presets/:id', (req, res) => {
-  const preset = storage.presets.find(p => p.id === req.params.id);
+router.get('/presets/arp2600', (req, res) => {
+  const arp2600Presets = storage.presets.filter(p => p.type === 'arp2600');
+  
+  res.json({
+    success: true,
+    count: arp2600Presets.length,
+    presets: arp2600Presets
+  });
+});
+
+/**
+ * GET /api/studio/presets/arp2600/categories
+ * Get available ARP 2600 patch categories
+ */
+router.get('/presets/arp2600/categories', (req, res) => {
+  const arp2600Presets = storage.presets.filter(p => p.type === 'arp2600');
+  const categories = [...new Set(arp2600Presets.map(p => p.category).filter(Boolean))];
+  
+  res.json({
+    success: true,
+    categories: categories,
+    count: categories.length
+  });
+});
+
+/**
+ * POST /api/studio/presets/arp2600/apply/:id
+ * Apply an ARP 2600 patch to the synth engine
+ */
+router.post('/presets/arp2600/apply/:id', (req, res) => {
+  const preset = storage.presets.find(p => p.id === req.params.id && p.type === 'arp2600');
   
   if (!preset) {
     return res.status(404).json({
       success: false,
-      error: 'Preset not found'
+      error: 'ARP 2600 preset not found'
     });
   }
 
+  // Log the application (in real scenario, this would trigger synth engine update)
+  console.log(`🎹 Applying ARP 2600 preset: ${preset.name}`);
+
   res.json({
     success: true,
-    preset
+    message: `ARP 2600 preset "${preset.name}" applied`,
+    preset: preset,
+    parameters: preset.parameters
+  });
+});
+
+// ============================================================================
+// TB-303 Specific Endpoints (must be before /:id route)
+// ============================================================================
+
+/**
+ * GET /api/studio/presets/tb303
+ * Get all TB-303 presets
+ */
+router.get('/presets/tb303', (req, res) => {
+  const tb303Presets = storage.presets.filter(p => p.type === 'tb303');
+  
+  res.json({
+    success: true,
+    count: tb303Presets.length,
+    presets: tb303Presets
+  });
+});
+
+/**
+ * GET /api/studio/presets/tb303/categories
+ * Get available TB-303 preset categories
+ */
+router.get('/presets/tb303/categories', (req, res) => {
+  const tb303Presets = storage.presets.filter(p => p.type === 'tb303');
+  const categories = [...new Set(tb303Presets.map(p => p.category).filter(Boolean))];
+  
+  res.json({
+    success: true,
+    categories: categories,
+    count: categories.length
+  });
+});
+
+/**
+ * POST /api/studio/presets/tb303/apply/:id
+ * Apply a TB-303 preset to the synth engine
+ */
+router.post('/presets/tb303/apply/:id', (req, res) => {
+  const preset = storage.presets.find(p => p.id === req.params.id && p.type === 'tb303');
+  
+  if (!preset) {
+    return res.status(404).json({
+      success: false,
+      error: 'TB-303 preset not found'
+    });
+  }
+
+  // Log the application (in real scenario, this would trigger synth engine update)
+  console.log(`🔊 Applying TB-303 preset: ${preset.name}`);
+  console.log(`   Cutoff: ${preset.parameters.cutoff}Hz, Resonance: ${preset.parameters.resonance}, EnvMod: ${preset.parameters.envMod}`);
+
+  res.json({
+    success: true,
+    message: `TB-303 preset "${preset.name}" applied`,
+    preset: preset,
+    parameters: preset.parameters
   });
 });
 
@@ -166,6 +263,26 @@ router.get('/presets/stats/summary', (req, res) => {
       categories: Array.from(stats.categories),
       types: Array.from(stats.types)
     }
+  });
+});
+
+/**
+ * GET /api/studio/presets/:id
+ * Get a specific preset by ID
+ */
+router.get('/presets/:id', (req, res) => {
+  const preset = storage.presets.find(p => p.id === req.params.id);
+  
+  if (!preset) {
+    return res.status(404).json({
+      success: false,
+      error: 'Preset not found'
+    });
+  }
+
+  res.json({
+    success: true,
+    preset
   });
 });
 

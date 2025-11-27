@@ -226,6 +226,7 @@
             padding: 20px;
             gap: 20px;
             min-height: calc(100vh - 200px);
+            overflow-y: auto;
         }
 
         .sidebar {
@@ -240,6 +241,7 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            overflow-y: visible;
         }
 
         /* Panel Styles */
@@ -287,6 +289,7 @@
         /* Tab Content */
         .tab-content {
             display: none;
+            min-height: calc(100vh - 150px);
         }
 
         .tab-content.active {
@@ -294,6 +297,7 @@
             flex-direction: column;
             gap: 20px;
             animation: fadeIn 0.3s ease;
+            overflow-y: auto;
         }
 
         @keyframes fadeIn {
@@ -563,6 +567,32 @@
             margin-top: 5px;
         }
 
+        /* Preset Category Buttons */
+        .preset-category-btn {
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--haos-border);
+            border-radius: 6px;
+            color: var(--haos-text-secondary);
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .preset-category-btn:hover {
+            border-color: var(--haos-orange-primary);
+            background: rgba(255, 107, 53, 0.1);
+            color: var(--haos-orange-primary);
+        }
+
+        .preset-category-btn.active {
+            border-color: var(--haos-orange-bright);
+            background: var(--haos-orange-primary);
+            color: var(--haos-bg-dark);
+            font-weight: bold;
+        }
+
         /* Footer */
         .haos-footer {
             background: var(--haos-bg-panel);
@@ -729,6 +759,28 @@
             50% { opacity: 0.8; transform: scale(1.05); }
         }
 
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
         /* Collapsible Sections */
         .collapsible-section {
             margin-bottom: 20px;
@@ -782,8 +834,8 @@
         }
 
         .section-content {
-            max-height: 2000px;
-            overflow: hidden;
+            max-height: none;
+            overflow: visible;
             transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
             opacity: 1;
             padding: 20px 0;
@@ -793,6 +845,7 @@
             max-height: 0;
             opacity: 0;
             padding: 0;
+            overflow: hidden;
         }
 
         .section-badge {
@@ -1426,28 +1479,51 @@
                     <div class="section-header collapsed" onclick="toggleSection('presets-section')">
                         <div class="section-title">
                             <span class="section-icon">💾</span>
-                            <span>PRESETS</span>
-                            <span class="section-badge">4 SAVED</span>
+                            <span>MODULAR PRESETS</span>
+                            <span class="section-badge" id="preset-count">36 FACTORY</span>
                         </div>
                         <span class="collapse-icon">▼</span>
                     </div>
                     <div class="section-content collapsed" id="presets-section">
                         <div class="panel">
-                            <div class="preset-grid" style="padding: 20px;">
-                                <div class="preset-slot active">
-                                    <div class="preset-number">1</div>
-                                    <div class="preset-name">Acid Lead</div>
+                            <!-- Preset Categories -->
+                            <div style="padding: 20px; padding-bottom: 10px;">
+                                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                                    <button class="preset-category-btn active" data-category="all" onclick="filterPresets('all')">
+                                        All
+                                    </button>
+                                    <button class="preset-category-btn" data-category="Classic" onclick="filterPresets('Classic')">
+                                        Classic
+                                    </button>
+                                    <button class="preset-category-btn" data-category="Modern" onclick="filterPresets('Modern')">
+                                        Modern
+                                    </button>
+                                    <button class="preset-category-btn" data-category="Experimental" onclick="filterPresets('Experimental')">
+                                        Experimental
+                                    </button>
+                                    <button class="preset-category-btn" data-category="tb303" onclick="filterPresets('tb303')">
+                                        TB-303
+                                    </button>
+                                    <button class="preset-category-btn" data-category="tr909" onclick="filterPresets('tr909')">
+                                        TR-909
+                                    </button>
                                 </div>
-                                <div class="preset-slot">
-                                    <div class="preset-number">2</div>
-                                    <div class="preset-name">Deep Bass</div>
+                                
+                                <!-- Search -->
+                                <input type="text" id="preset-search" placeholder="🔍 Search presets..." 
+                                    oninput="searchPresets(this.value)"
+                                    style="width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 2px solid var(--haos-border); border-radius: 8px; color: white; font-family: var(--font-mono); margin-bottom: 20px;">
+                            </div>
+                            
+                            <!-- Preset Grid -->
+                            <div id="preset-browser" class="preset-grid" style="padding: 0 20px 20px; max-height: 400px; overflow-y: auto;">
+                                <div style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px; font-family: var(--font-mono);">
+                                    Loading presets...
                                 </div>
-                                <div class="preset-slot">
-                                    <div class="preset-number">3</div>
-                                    <div class="preset-name">Squelchy</div>
-                                </div>
-                                <div class="preset-slot">
-                                    <div class="preset-number">4</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                                     <div class="preset-name">Custom</div>
                                 </div>
                             </div>
@@ -1831,28 +1907,220 @@
 
     <!-- Tab Content: Radio -->
     <div class="tab-content" id="tab-radio">
-        <div class="workspace-container" style="padding: 0;">
-            <div class="main-workspace" style="padding: 0; height: calc(100vh - 120px);">
-                <!-- Embedded Full-Featured Radio -->
-                <iframe 
-                    src="/radio.html" 
-                    style="width: 100%; height: 100%; border: none; border-radius: 12px;"
-                    title="HAOS.fm Radio 24/7"
-                    allow="autoplay; fullscreen"
-                    loading="lazy">
-                </iframe>
-                
-                <div style="text-align: center; padding: 20px; background: rgba(255, 107, 53, 0.1); 
-                            border-top: 2px solid var(--haos-border); font-family: var(--font-mono); 
-                            font-size: 0.9rem; color: var(--haos-text-secondary);">
-                    <p>
-                        📻 <strong style="color: var(--haos-orange-primary);">HAOS.fm Radio 24/7</strong> - 
-                        Multi-channel electronic music with visualizer, chat, and queue management
+        <div class="workspace-container" style="padding: 20px; overflow-y: auto; max-height: calc(100vh - 120px);">
+            <div class="main-workspace">
+                <!-- HAOS Radio Studio with Playlists -->
+                <div style="padding: 30px; max-width: 1600px; margin: 0 auto;">
+                    <h2 style="color: var(--haos-orange-primary); margin-bottom: 10px; font-family: var(--font-display); font-size: 2.5em; text-align: center;">
+                        📻 24/7 RADIO STUDIO
+                    </h2>
+                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 30px; text-align: center; font-size: 1.1em;">
+                        Live streaming with HAOS playlists • Queue management • YouTube integration
                     </p>
-                    <p style="margin-top: 10px; font-size: 0.8rem; color: var(--haos-text-dim);">
-                        Open in new tab: <a href="/radio.html" target="_blank" 
-                        style="color: var(--haos-orange-primary); text-decoration: underline;">radio.html</a>
-                    </p>
+
+                    <!-- PLAYER CONTROLS -->
+                    <div style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 107, 53, 0.05)); padding: 30px; border-radius: 16px; margin-bottom: 30px; border: 2px solid var(--haos-border); box-shadow: 0 10px 40px rgba(255, 107, 53, 0.2);">
+                        <div style="text-align: center; margin-bottom: 25px;">
+                            <h3 style="color: var(--haos-orange-primary); font-family: var(--font-display); font-size: 1.8em; margin-bottom: 10px;">
+                                🎵 NOW PLAYING
+                            </h3>
+                            <div id="studio-radio-now-playing" style="color: rgba(255,255,255,0.9); font-family: var(--font-mono); font-size: 1.2em; min-height: 30px;">
+                                Select a track to begin streaming...
+                            </div>
+                        </div>
+                        
+                        <!-- Audio Visualizer -->
+                        <div style="background: rgba(0,0,0,0.4); border-radius: 12px; padding: 20px; margin-bottom: 25px; height: 120px; display: flex; align-items: center; justify-content: center;">
+                            <canvas id="studio-radio-visualizer" width="800" height="80" style="width: 100%; max-width: 800px; height: 80px; border-radius: 8px;"></canvas>
+                        </div>
+                        
+                        <!-- Transport Controls -->
+                        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+                            <button onclick="StudioRadio.previous()" 
+                                style="padding: 18px 30px; background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-hover)); border: none; border-radius: 12px; color: white; font-size: 1.3em; cursor: pointer; font-family: var(--font-display); box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);">
+                                ⏮️ PREV
+                            </button>
+                            <button id="studio-radio-play-btn" onclick="StudioRadio.play()" 
+                                style="padding: 18px 50px; background: linear-gradient(135deg, var(--haos-green), #2EFF00); border: none; border-radius: 12px; color: #000; font-size: 1.5em; cursor: pointer; font-family: var(--font-display); font-weight: bold; box-shadow: 0 5px 20px rgba(57,255,20,0.4);">
+                                ▶ PLAY
+                            </button>
+                            <button onclick="StudioRadio.next()" 
+                                style="padding: 18px 30px; background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-hover)); border: none; border-radius: 12px; color: white; font-size: 1.3em; cursor: pointer; font-family: var(--font-display); box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);">
+                                ⏭️ NEXT
+                            </button>
+                        </div>
+                        
+                        <!-- Volume & Quality Controls -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <label style="color: rgba(255,255,255,0.8); font-family: var(--font-mono); font-size: 0.9em; margin-bottom: 10px; display: block;">
+                                    VOLUME
+                                </label>
+                                <input type="range" id="studio-radio-volume" min="0" max="100" value="70" 
+                                    oninput="StudioRadio.setVolume(this.value)"
+                                    style="width: 100%; height: 8px;">
+                                <div id="studio-radio-volume-value" style="text-align: center; color: var(--haos-orange-primary); font-weight: bold; margin-top: 8px;">70%</div>
+                            </div>
+                            <div>
+                                <label style="color: rgba(255,255,255,0.8); font-family: var(--font-mono); font-size: 0.9em; margin-bottom: 10px; display: block;">
+                                    AUDIO QUALITY
+                                </label>
+                                <select id="studio-radio-quality" onchange="StudioRadio.setQuality(this.value)"
+                                    style="width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 2px solid var(--haos-border); border-radius: 8px; color: white; font-family: var(--font-mono);">
+                                    <option value="high">🔊 High (320kbps)</option>
+                                    <option value="medium" selected>🔉 Medium (192kbps)</option>
+                                    <option value="low">🔈 Low (128kbps)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HAOS PLAYLISTS -->
+                    <div style="background: rgba(0,0,0,0.4); padding: 30px; border-radius: 12px; margin-bottom: 30px; border: 2px solid var(--haos-border);">
+                        <h3 style="color: var(--haos-orange-primary); font-family: var(--font-display); font-size: 1.6em; margin-bottom: 20px; text-align: center;">
+                            🎬 HAOS PLAYLISTS
+                        </h3>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                            <!-- Playlist: Technobot Detroit -->
+                            <div class="haos-playlist-card" onclick="StudioRadio.loadPlaylist('technobot-detroit')" style="background: var(--haos-bg-elevated); border: 2px solid var(--haos-border); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s;">
+                                <div style="font-size: 3rem; margin-bottom: 15px; text-align: center;">🏭</div>
+                                <h4 style="font-family: var(--font-display); color: var(--haos-orange-primary); font-size: 1.3rem; margin-bottom: 10px;">
+                                    Technobot Detroit
+                                </h4>
+                                <p style="color: var(--haos-text-dim); font-size: 0.9rem; margin-bottom: 15px;">
+                                    2 hours • 24 tracks • Detroit techno classics
+                                </p>
+                                <div style="display: flex; gap: 10px;">
+                                    <button onclick="StudioRadio.loadPlaylist('technobot-detroit'); event.stopPropagation();" 
+                                        style="flex: 1; padding: 10px; background: var(--haos-orange-primary); border: none; border-radius: 6px; color: white; cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem;">
+                                        ▶ PLAY NOW
+                                    </button>
+                                    <button onclick="StudioRadio.queuePlaylist('technobot-detroit'); event.stopPropagation();" 
+                                        style="flex: 1; padding: 10px; background: rgba(255, 107, 53, 0.2); border: 2px solid var(--haos-orange-primary); border-radius: 6px; color: var(--haos-orange-primary); cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem;">
+                                        ➕ QUEUE
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Playlist: Industrial Techno -->
+                            <div class="haos-playlist-card" onclick="StudioRadio.loadPlaylist('industrial-techno')" style="background: var(--haos-bg-elevated); border: 2px solid var(--haos-border); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s;">
+                                <div style="font-size: 3rem; margin-bottom: 15px; text-align: center;">⚙️</div>
+                                <h4 style="font-family: var(--font-display); color: var(--haos-orange-primary); font-size: 1.3rem; margin-bottom: 10px;">
+                                    Industrial Techno
+                                </h4>
+                                <p style="color: var(--haos-text-dim); font-size: 0.9rem; margin-bottom: 15px;">
+                                    3 hours • 36 tracks • Hard industrial sound
+                                </p>
+                                <div style="display: flex; gap: 10px;">
+                                    <button onclick="StudioRadio.loadPlaylist('industrial-techno'); event.stopPropagation();" 
+                                        style="flex: 1; padding: 10px; background: var(--haos-orange-primary); border: none; border-radius: 6px; color: white; cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem;">
+                                        ▶ PLAY NOW
+                                    </button>
+                                    <button onclick="StudioRadio.queuePlaylist('industrial-techno'); event.stopPropagation();" 
+                                        style="flex: 1; padding: 10px; background: rgba(255, 107, 53, 0.2); border: 2px solid var(--haos-orange-primary); border-radius: 6px; color: var(--haos-orange-primary); cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem;">
+                                        ➕ QUEUE
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Playlist: Acid Classics -->
+                            <div class="haos-playlist-card" onclick="StudioRadio.loadPlaylist('acid-classics')" style="background: var(--haos-bg-elevated); border: 2px solid var(--haos-border); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s;">
+                                <div style="font-size: 3rem; margin-bottom: 15px; text-align: center;">🎛️</div>
+                                <h4 style="font-family: var(--font-display); color: var(--haos-orange-primary); font-size: 1.3rem; margin-bottom: 10px;">
+                                    Acid Classics
+                                </h4>
+                                <p style="color: var(--haos-text-dim); font-size: 0.9rem; margin-bottom: 15px;">
+                                    90 min • 18 tracks • TB-303 anthology
+                                </p>
+                                <div style="display: flex; gap: 10px;">
+                                    <button onclick="StudioRadio.loadPlaylist('acid-classics'); event.stopPropagation();" 
+                                        style="flex: 1; padding: 10px; background: var(--haos-orange-primary); border: none; border-radius: 6px; color: white; cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem;">
+                                        ▶ PLAY NOW
+                                    </button>
+                                    <button onclick="StudioRadio.queuePlaylist('acid-classics'); event.stopPropagation();" 
+                                        style="flex: 1; padding: 10px; background: rgba(255, 107, 53, 0.2); border: 2px solid var(--haos-orange-primary); border-radius: 6px; color: var(--haos-orange-primary); cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem;">
+                                        ➕ QUEUE
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Playlist: Deep Techno -->
+                            <div class="haos-playlist-card" onclick="StudioRadio.loadPlaylist('deep-techno')" style="background: var(--haos-bg-elevated); border: 2px solid var(--haos-border); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s;">
+                                <div style="font-size: 3rem; margin-bottom: 15px; text-align: center;">🌊</div>
+                                <h4 style="font-family: var(--font-display); color: var(--haos-orange-primary); font-size: 1.3rem; margin-bottom: 10px;">
+                                    Deep Techno Mix
+                                </h4>
+                                <p style="color: var(--haos-text-dim); font-size: 0.9rem; margin-bottom: 15px;">
+                                    4 hours • 48 tracks • Hypnotic grooves
+                                </p>
+                                <div style="display: flex; gap: 10px;">
+                                    <button onclick="StudioRadio.loadPlaylist('deep-techno'); event.stopPropagation();" 
+                                        style="flex: 1; padding: 10px; background: var(--haos-orange-primary); border: none; border-radius: 6px; color: white; cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem;">
+                                        ▶ PLAY NOW
+                                    </button>
+                                    <button onclick="StudioRadio.queuePlaylist('deep-techno'); event.stopPropagation();" 
+                                        style="flex: 1; padding: 10px; background: rgba(255, 107, 53, 0.2); border: 2px solid var(--haos-orange-primary); border-radius: 6px; color: var(--haos-orange-primary); cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem;">
+                                        ➕ QUEUE
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Custom YouTube URL -->
+                        <div style="background: rgba(255, 107, 53, 0.05); padding: 20px; border-radius: 12px; border: 2px dashed var(--haos-border);">
+                            <input type="text" id="studio-youtube-url" placeholder="Paste YouTube playlist URL or video URL..."
+                                style="width: 100%; padding: 15px; background: rgba(0,0,0,0.4); border: 2px solid var(--haos-border); border-radius: 8px; color: white; font-family: var(--font-mono); margin-bottom: 15px;">
+                            <button onclick="StudioRadio.loadYouTubePlaylist()" 
+                                style="width: 100%; padding: 15px; background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-hover)); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-family: var(--font-display); font-size: 1.1em;">
+                                ➕ ADD TO QUEUE
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- QUEUE MANAGEMENT -->
+                    <div style="background: rgba(0,0,0,0.4); padding: 30px; border-radius: 12px; margin-bottom: 30px; border: 2px solid var(--haos-border);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="color: var(--haos-orange-primary); font-family: var(--font-display); font-size: 1.6em; margin: 0;">
+                                📋 PLAY QUEUE
+                            </h3>
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="StudioRadio.shuffle()" 
+                                    style="padding: 10px 20px; background: rgba(255, 107, 53, 0.2); border: 2px solid var(--haos-orange-primary); border-radius: 8px; color: var(--haos-orange-primary); cursor: pointer; font-family: var(--font-mono);">
+                                    🎲 SHUFFLE
+                                </button>
+                                <button onclick="StudioRadio.clearQueue()" 
+                                    style="padding: 10px 20px; background: rgba(255, 107, 53, 0.2); border: 2px solid var(--haos-orange-primary); border-radius: 8px; color: var(--haos-orange-primary); cursor: pointer; font-family: var(--font-mono);">
+                                    🗑️ CLEAR
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="studio-radio-queue" style="max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 15px;">
+                            <div style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px; font-family: var(--font-mono);">
+                                Queue is empty. Add tracks from playlists above.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RADIO STATS & INFO -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div style="background: rgba(255, 107, 53, 0.1); padding: 20px; border-radius: 12px; border: 2px solid var(--haos-border); text-align: center;">
+                            <div style="font-size: 2.5em; margin-bottom: 10px;">🎵</div>
+                            <div style="color: var(--haos-orange-primary); font-size: 2em; font-weight: bold; font-family: var(--font-display);" id="studio-radio-track-count">0</div>
+                            <div style="color: rgba(255,255,255,0.6); font-family: var(--font-mono); font-size: 0.9em;">Tracks in Queue</div>
+                        </div>
+                        <div style="background: rgba(255, 107, 53, 0.1); padding: 20px; border-radius: 12px; border: 2px solid var(--haos-border); text-align: center;">
+                            <div style="font-size: 2.5em; margin-bottom: 10px;">⏱️</div>
+                            <div style="color: var(--haos-orange-primary); font-size: 2em; font-weight: bold; font-family: var(--font-display);" id="studio-radio-duration">0:00</div>
+                            <div style="color: rgba(255,255,255,0.6); font-family: var(--font-mono); font-size: 0.9em;">Total Duration</div>
+                        </div>
+                        <div style="background: rgba(255, 107, 53, 0.1); padding: 20px; border-radius: 12px; border: 2px solid var(--haos-border); text-align: center;">
+                            <div style="font-size: 2.5em; margin-bottom: 10px;">🔥</div>
+                            <div style="color: var(--haos-orange-primary); font-size: 2em; font-weight: bold; font-family: var(--font-display);">LIVE</div>
+                            <div style="color: rgba(255,255,255,0.6); font-family: var(--font-mono); font-size: 0.9em;">Streaming Status</div>
+                        </div>
+                    </div>
                 </div>
                     
                     <!-- Spotify Playlists Section -->
@@ -3416,6 +3684,753 @@
             console.log('💾 New preset saved:', e.detail);
             // TODO: Add to preset list UI
         });
+
+        // ===== STUDIO RADIO IMPLEMENTATION =====
+        const StudioRadio = {
+            state: {
+                isPlaying: false,
+                currentTrack: null,
+                queue: [],
+                volume: 70,
+                quality: 'medium',
+                playlists: {
+                    'technobot-detroit': [
+                        { title: 'Detroit Techno Mix 01', artist: 'Various Artists', duration: 420 },
+                        { title: 'Underground Resistance Set', artist: 'UR', duration: 380 },
+                        { title: 'Juan Atkins - Classics', artist: 'Juan Atkins', duration: 360 }
+                    ],
+                    'industrial-techno': [
+                        { title: 'Hard Industrial Mix', artist: 'Various Artists', duration: 480 },
+                        { title: 'Berghain Sound', artist: 'Various Artists', duration: 420 },
+                        { title: 'Dark Techno Selection', artist: 'Various Artists', duration: 390 }
+                    ],
+                    'acid-classics': [
+                        { title: 'TB-303 Anthology', artist: 'Various Artists', duration: 300 },
+                        { title: 'Acid House Classics', artist: 'Various Artists', duration: 330 },
+                        { title: 'Squelchy Basslines', artist: 'Various Artists', duration: 290 }
+                    ],
+                    'deep-techno': [
+                        { title: 'Deep Techno Journey', artist: 'Various Artists', duration: 540 },
+                        { title: 'Hypnotic Grooves', artist: 'Various Artists', duration: 480 },
+                        { title: 'Minimal Deep Set', artist: 'Various Artists', duration: 510 }
+                    ]
+                },
+                visualizerContext: null,
+                visualizerAnimationId: null
+            },
+
+            loadPlaylist(playlistId) {
+                const playlist = this.state.playlists[playlistId];
+                if (!playlist) {
+                    console.warn('Playlist not found:', playlistId);
+                    return;
+                }
+                
+                // Clear queue and add playlist
+                this.state.queue = [...playlist];
+                this.updateQueue();
+                this.showNotification(`🎵 Loaded playlist: ${playlistId}`);
+                
+                // Auto-play first track
+                this.play();
+            },
+
+            queuePlaylist(playlistId) {
+                const playlist = this.state.playlists[playlistId];
+                if (!playlist) {
+                    console.warn('Playlist not found:', playlistId);
+                    return;
+                }
+                
+                // Add to queue
+                this.state.queue.push(...playlist);
+                this.updateQueue();
+                this.showNotification(`➕ Added ${playlist.length} tracks to queue`);
+            },
+
+            loadYouTubePlaylist() {
+                const input = document.getElementById('studio-youtube-url');
+                const url = input ? input.value : '';
+                
+                if (!url) {
+                    this.showNotification('⚠️ Please enter a YouTube URL');
+                    return;
+                }
+                
+                // Mock YouTube playlist loading (in production, use YouTube API)
+                const mockTrack = {
+                    title: 'YouTube Track from URL',
+                    artist: 'YouTube',
+                    duration: 300,
+                    url: url
+                };
+                
+                this.state.queue.push(mockTrack);
+                this.updateQueue();
+                this.showNotification('✅ YouTube track added to queue');
+                
+                if (input) input.value = '';
+            },
+
+            play() {
+                if (this.state.queue.length === 0) {
+                    this.showNotification('⚠️ Queue is empty. Add tracks first.');
+                    return;
+                }
+                
+                if (!this.state.isPlaying) {
+                    this.state.isPlaying = true;
+                    this.state.currentTrack = this.state.queue[0];
+                    
+                    // Update UI
+                    const nowPlaying = document.getElementById('studio-radio-now-playing');
+                    if (nowPlaying) {
+                        nowPlaying.textContent = `${this.state.currentTrack.title} - ${this.state.currentTrack.artist}`;
+                    }
+                    
+                    const playBtn = document.getElementById('studio-radio-play-btn');
+                    if (playBtn) {
+                        playBtn.innerHTML = '⏸️ PAUSE';
+                        playBtn.onclick = () => StudioRadio.pause();
+                    }
+                    
+                    // Start visualizer
+                    this.startVisualizer();
+                    
+                    this.showNotification('▶ Playing: ' + this.state.currentTrack.title);
+                } else {
+                    this.pause();
+                }
+            },
+
+            pause() {
+                this.state.isPlaying = false;
+                
+                const playBtn = document.getElementById('studio-radio-play-btn');
+                if (playBtn) {
+                    playBtn.innerHTML = '▶ PLAY';
+                    playBtn.onclick = () => StudioRadio.play();
+                }
+                
+                this.showNotification('⏸️ Paused');
+            },
+
+            next() {
+                if (this.state.queue.length > 1) {
+                    this.state.queue.shift(); // Remove first track
+                    this.updateQueue();
+                    
+                    if (this.state.isPlaying) {
+                        this.play();
+                    }
+                }
+            },
+
+            previous() {
+                // In real implementation, maintain history
+                this.showNotification('⏮️ Previous track (history not implemented)');
+            },
+
+            setVolume(value) {
+                this.state.volume = parseInt(value);
+                const display = document.getElementById('studio-radio-volume-value');
+                if (display) {
+                    display.textContent = value + '%';
+                }
+            },
+
+            setQuality(quality) {
+                this.state.quality = quality;
+                const qualityLabels = {
+                    high: '🔊 High (320kbps)',
+                    medium: '🔉 Medium (192kbps)',
+                    low: '🔈 Low (128kbps)'
+                };
+                this.showNotification('Quality: ' + qualityLabels[quality]);
+            },
+
+            shuffle() {
+                for (let i = this.state.queue.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [this.state.queue[i], this.state.queue[j]] = 
+                    [this.state.queue[j], this.state.queue[i]];
+                }
+                this.updateQueue();
+                this.showNotification('🎲 Queue shuffled');
+            },
+
+            clearQueue() {
+                this.state.queue = [];
+                this.state.isPlaying = false;
+                this.state.currentTrack = null;
+                this.updateQueue();
+                
+                const nowPlaying = document.getElementById('studio-radio-now-playing');
+                if (nowPlaying) {
+                    nowPlaying.textContent = 'Select a track to begin streaming...';
+                }
+                
+                const playBtn = document.getElementById('studio-radio-play-btn');
+                if (playBtn) {
+                    playBtn.innerHTML = '▶ PLAY';
+                    playBtn.onclick = () => StudioRadio.play();
+                }
+                
+                this.showNotification('🗑️ Queue cleared');
+            },
+
+            updateQueue() {
+                const queueEl = document.getElementById('studio-radio-queue');
+                const trackCountEl = document.getElementById('studio-radio-track-count');
+                const durationEl = document.getElementById('studio-radio-duration');
+                
+                if (this.state.queue.length === 0) {
+                    if (queueEl) {
+                        queueEl.innerHTML = `
+                            <div style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px; font-family: var(--font-mono);">
+                                Queue is empty. Add tracks from playlists above.
+                            </div>
+                        `;
+                    }
+                    if (trackCountEl) trackCountEl.textContent = '0';
+                    if (durationEl) durationEl.textContent = '0:00';
+                    return;
+                }
+                
+                // Update track count
+                if (trackCountEl) {
+                    trackCountEl.textContent = this.state.queue.length;
+                }
+                
+                // Update total duration
+                const totalSeconds = this.state.queue.reduce((sum, track) => sum + track.duration, 0);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                if (durationEl) {
+                    durationEl.textContent = hours > 0 ? `${hours}:${minutes.toString().padStart(2, '0')}` : `${minutes}:00`;
+                }
+                
+                // Render queue items
+                if (queueEl) {
+                    queueEl.innerHTML = this.state.queue.map((track, index) => `
+                        <div style="background: rgba(255, 107, 53, ${index === 0 ? '0.2' : '0.05'}); border: 2px solid ${index === 0 ? 'var(--haos-orange-primary)' : 'var(--haos-border)'}; border-radius: 8px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <div style="color: var(--haos-orange-primary); font-family: var(--font-display); font-size: 1.1em; margin-bottom: 5px;">
+                                    ${index === 0 ? '▶ ' : `${index + 1}. `}${track.title}
+                                </div>
+                                <div style="color: rgba(255,255,255,0.6); font-family: var(--font-mono); font-size: 0.9em;">
+                                    ${track.artist} • ${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}
+                                </div>
+                            </div>
+                            <button onclick="StudioRadio.removeTrack(${index}); event.stopPropagation();" 
+                                style="padding: 8px 16px; background: rgba(255,0,0,0.2); border: 2px solid rgba(255,0,0,0.5); border-radius: 6px; color: rgba(255,0,0,0.8); cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem;">
+                                🗑️
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            },
+
+            removeTrack(index) {
+                this.state.queue.splice(index, 1);
+                this.updateQueue();
+                this.showNotification('🗑️ Track removed');
+            },
+
+            startVisualizer() {
+                const canvas = document.getElementById('studio-radio-visualizer');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                this.state.visualizerContext = ctx;
+                
+                const animate = () => {
+                    if (!this.state.isPlaying) return;
+                    
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Draw animated bars
+                    const barCount = 64;
+                    const barWidth = canvas.width / barCount;
+                    
+                    for (let i = 0; i < barCount; i++) {
+                        const height = Math.random() * canvas.height * 0.8;
+                        const x = i * barWidth;
+                        const hue = 15 + (i / barCount) * 30; // Orange gradient
+                        
+                        ctx.fillStyle = `hsla(${hue}, 100%, 50%, 0.8)`;
+                        ctx.fillRect(x, canvas.height - height, barWidth - 2, height);
+                    }
+                    
+                    this.state.visualizerAnimationId = requestAnimationFrame(animate);
+                };
+                
+                animate();
+            },
+
+            showNotification(message) {
+                console.log('🎵 Studio Radio:', message);
+                // Could integrate with a toast notification system
+            },
+
+            init() {
+                console.log('🎵 Studio Radio initialized');
+                // Add hover effects to playlist cards
+                const playlistCards = document.querySelectorAll('.haos-playlist-card');
+                playlistCards.forEach(card => {
+                    card.addEventListener('mouseenter', () => {
+                        card.style.borderColor = 'var(--haos-orange-primary)';
+                        card.style.transform = 'translateY(-5px)';
+                        card.style.boxShadow = '0 10px 30px rgba(255, 107, 53, 0.3)';
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        card.style.borderColor = 'var(--haos-border)';
+                        card.style.transform = 'translateY(0)';
+                        card.style.boxShadow = 'none';
+                    });
+                });
+            }
+        };
+
+        // Initialize Studio Radio when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => StudioRadio.init());
+        } else {
+            StudioRadio.init();
+        }
+
+        // ===== PRESET BROWSER IMPLEMENTATION =====
+        let currentPresetFilter = 'all';
+        let allPresets = [];
+
+        /**
+         * Initialize preset browser when audio engine is ready
+         */
+        async function initPresetBrowser() {
+            // Wait for audio engine to load presets
+            if (typeof audioEngine === 'undefined' || !audioEngine.presetsLoaded) {
+                setTimeout(initPresetBrowser, 500);
+                return;
+            }
+            
+            allPresets = audioEngine.getPresets();
+            console.log(`📚 Loaded ${allPresets.length} presets for browser`);
+            
+            // Update preset count badge
+            const badge = document.getElementById('preset-count');
+            if (badge) {
+                badge.textContent = `${allPresets.length} FACTORY`;
+            }
+            
+            // Render all presets initially
+            renderPresets(allPresets);
+        }
+
+        /**
+         * Filter presets by category or type
+         */
+        function filterPresets(filter) {
+            currentPresetFilter = filter;
+            
+            // Update active button
+            document.querySelectorAll('.preset-category-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.category === filter) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Filter presets
+            let filtered = allPresets;
+            if (filter !== 'all') {
+                filtered = allPresets.filter(p => 
+                    p.category === filter || p.type === filter
+                );
+            }
+            
+            renderPresets(filtered);
+        }
+
+        /**
+         * Search presets by name, description, or tags
+         */
+        function searchPresets(query) {
+            if (!query || query.trim() === '') {
+                filterPresets(currentPresetFilter);
+                return;
+            }
+            
+            const lowerQuery = query.toLowerCase();
+            const results = allPresets.filter(p => 
+                p.name.toLowerCase().includes(lowerQuery) ||
+                (p.description && p.description.toLowerCase().includes(lowerQuery)) ||
+                (p.tags && p.tags.some(tag => tag.toLowerCase().includes(lowerQuery)))
+            );
+            
+            renderPresets(results);
+        }
+
+        /**
+         * Render presets to the browser grid
+         */
+        function renderPresets(presets) {
+            const browser = document.getElementById('preset-browser');
+            if (!browser) return;
+            
+            if (presets.length === 0) {
+                browser.innerHTML = `
+                    <div style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px; font-family: var(--font-mono);">
+                        No presets found
+                    </div>
+                `;
+                return;
+            }
+            
+            browser.innerHTML = presets.map((preset, index) => {
+                const icon = getPresetIcon(preset.type);
+                const color = getPresetColor(preset.category);
+                
+                return `
+                    <div class="preset-slot" onclick="applyPreset('${preset.id}')" 
+                         style="border-color: ${color}20;"
+                         onmouseenter="this.style.borderColor='${color}'; this.style.boxShadow='0 5px 20px ${color}40';"
+                         onmouseleave="this.style.borderColor='${color}20'; this.style.boxShadow='none';">
+                        <div style="font-size: 2em; margin-bottom: 8px;">${icon}</div>
+                        <div class="preset-name" style="font-size: 0.95rem; color: white; font-weight: bold; margin-bottom: 5px;">
+                            ${preset.name}
+                        </div>
+                        <div style="font-size: 0.75rem; color: ${color}; font-family: var(--font-mono); margin-bottom: 8px;">
+                            ${preset.category || preset.type}
+                        </div>
+                        <div class="preset-name" style="font-size: 0.7rem; line-height: 1.3;">
+                            ${preset.description || 'Classic sound'}
+                        </div>
+                        ${preset.tags ? `
+                            <div style="margin-top: 8px; display: flex; gap: 4px; flex-wrap: wrap; justify-content: center;">
+                                ${preset.tags.slice(0, 3).map(tag => `
+                                    <span style="font-size: 0.65rem; padding: 2px 6px; background: rgba(255,107,53,0.2); border-radius: 3px; color: var(--haos-orange-primary);">
+                                        ${tag}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /**
+         * Apply preset to the synth
+         */
+        async function applyPreset(presetId) {
+            if (typeof audioEngine === 'undefined') {
+                console.error('❌ Audio engine not initialized');
+                return;
+            }
+            
+            const preset = allPresets.find(p => p.id === presetId);
+            if (!preset) {
+                console.error('❌ Preset not found:', presetId);
+                return;
+            }
+            
+            // Apply based on type
+            if (preset.type === 'tb303') {
+                const success = audioEngine.applyTB303Preset(presetId);
+                if (success) {
+                    showPresetNotification(`✅ Applied: ${preset.name}`, preset.category);
+                    
+                    // Update UI knobs to reflect new values
+                    updateKnobsFromPreset(preset);
+                }
+            } else {
+                console.log('ℹ️  Preset type not yet supported:', preset.type);
+                showPresetNotification(`⚠️  ${preset.type.toUpperCase()} presets coming soon`, 'info');
+            }
+        }
+
+        /**
+         * Update knob UI to match preset values
+         */
+        function updateKnobsFromPreset(preset) {
+            if (!preset.parameters) return;
+            
+            const params = preset.parameters;
+            
+            // Update cutoff
+            if (params.cutoff && document.getElementById('cutoff-knob')) {
+                updateKnobValue('cutoff-knob', params.cutoff, 200, 5000, `${params.cutoff} Hz`);
+            }
+            
+            // Update resonance
+            if (params.resonance && document.getElementById('resonance-knob')) {
+                updateKnobValue('resonance-knob', params.resonance, 0, 30, `${Math.round(params.resonance * 3.33)}%`);
+            }
+            
+            // Update envelope
+            if (params.envMod && document.getElementById('envelope-knob')) {
+                updateKnobValue('envelope-knob', params.envMod, 0, 1, `${Math.round(params.envMod * 100)}%`);
+            }
+            
+            // Update decay
+            if (params.decay && document.getElementById('decay-knob')) {
+                updateKnobValue('decay-knob', params.decay, 0.1, 2, `${Math.round(params.decay * 1000)} ms`);
+            }
+        }
+
+        /**
+         * Update a knob's visual position and value display
+         */
+        function updateKnobValue(knobId, value, min, max, displayText) {
+            const knob = document.getElementById(knobId);
+            if (!knob) return;
+            
+            const normalized = (value - min) / (max - min);
+            const rotation = normalized * 270 - 135;
+            
+            const indicator = knob.querySelector('.knob-indicator');
+            if (indicator) {
+                indicator.style.transform = `rotate(${rotation}deg)`;
+            }
+            
+            const valueDisplay = knob.parentElement.querySelector('.knob-value');
+            if (valueDisplay) {
+                valueDisplay.textContent = displayText;
+            }
+        }
+
+        /**
+         * Show preset notification
+         */
+        function showPresetNotification(message, category) {
+            console.log('🎛️', message);
+            
+            // Create toast notification
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-hover));
+                color: white;
+                padding: 15px 25px;
+                border-radius: 8px;
+                font-family: var(--font-mono);
+                font-size: 0.9rem;
+                box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        /**
+         * Get icon for preset type
+         */
+        function getPresetIcon(type) {
+            const icons = {
+                'tb303': '🎸',
+                'tr909': '🥁',
+                'tr808': '🎛️',
+                'arp2600': '🎹',
+                'string': '🎻',
+                'pad': '🌊',
+                'lead': '⚡',
+                'bass': '🔊'
+            };
+            return icons[type] || '🎵';
+        }
+
+        /**
+         * Get color for preset category
+         */
+        function getPresetColor(category) {
+            const colors = {
+                'Classic': '#39FF14',
+                'Modern': '#FF6B35',
+                'Experimental': '#9370DB',
+                'Vintage': '#FFD700',
+                'Hard': '#FF1493',
+                'Soft': '#00D9FF'
+            };
+            return colors[category] || '#FF6B35';
+        }
+
+        // Initialize preset browser when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPresetBrowser);
+        } else {
+            initPresetBrowser();
+        }
+    </script>
+
+    <script>
+        /**
+         * Load and display presets from the audio engine
+         */
+        async function loadPresetBrowser() {
+            // Wait for audio engine to initialize and load presets
+            if (!window.audioEngine || !window.audioEngine.presetsLoaded) {
+                setTimeout(loadPresetBrowser, 500);
+                return;
+            }
+
+            allPresets = window.audioEngine.getPresets();
+            console.log(`📦 Loaded ${allPresets.length} presets for browser`);
+            
+            // Update preset count badge
+            const badge = document.getElementById('preset-count');
+            if (badge) {
+                badge.textContent = `${allPresets.length} FACTORY`;
+            }
+            
+            renderPresets(allPresets);
+        }
+
+        /**
+         * Render presets in the grid
+         */
+        function renderPresets(presets) {
+            const browser = document.getElementById('preset-browser');
+            if (!browser) return;
+
+            if (presets.length === 0) {
+                browser.innerHTML = `
+                    <div style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px; font-family: var(--font-mono);">
+                        No presets found
+                    </div>
+                `;
+                return;
+            }
+
+            browser.innerHTML = presets.map(preset => `
+                <div class="preset-slot" onclick="applyPreset('${preset.id}')" 
+                     style="cursor: pointer; transition: all 0.3s;"
+                     onmouseenter="this.style.borderColor='var(--haos-orange-primary)'; this.style.transform='translateY(-3px)'"
+                     onmouseleave="this.style.borderColor='var(--haos-border)'; this.style.transform='translateY(0)'">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <div class="preset-number" style="font-size: 1.2em;">
+                            ${getPresetIcon(preset.type)}
+                        </div>
+                        <div class="preset-name" style="flex: 1; font-family: var(--font-display); font-size: 1.1em; color: var(--haos-orange-primary);">
+                            ${preset.name}
+                        </div>
+                    </div>
+                    <div style="color: rgba(255,255,255,0.6); font-size: 0.85em; font-family: var(--font-mono); margin-bottom: 8px;">
+                        ${preset.description || 'No description'}
+                    </div>
+                    <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                        <span style="background: rgba(255, 107, 53, 0.2); padding: 4px 8px; border-radius: 4px; font-size: 0.75em; font-family: var(--font-mono); color: var(--haos-orange-primary);">
+                            ${preset.category || 'Uncategorized'}
+                        </span>
+                        ${preset.tags ? preset.tags.slice(0, 2).map(tag => `
+                            <span style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px; font-size: 0.75em; font-family: var(--font-mono); color: rgba(255,255,255,0.6);">
+                                ${tag}
+                            </span>
+                        `).join('') : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * Get icon for preset type
+         */
+        function getPresetIcon(type) {
+            const icons = {
+                'tb303': '🎹',
+                'tb-303': '🎹',
+                'tr909': '🥁',
+                'tr-909': '🥁',
+                'tr808': '🥁',
+                'tr-808': '🥁',
+                'arp2600': '🎛️',
+                'synth': '🎵'
+            };
+            return icons[type] || '🎵';
+        }
+
+        /**
+         * Filter presets by category
+         */
+        function filterPresets(category) {
+            currentPresetFilter = category;
+            
+            // Update active button
+            document.querySelectorAll('.preset-category-btn').forEach(btn => {
+                if (btn.dataset.category === category) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Filter presets
+            let filtered = allPresets;
+            if (category !== 'all') {
+                filtered = allPresets.filter(p => 
+                    p.category === category || p.type === category
+                );
+            }
+            
+            renderPresets(filtered);
+        }
+
+        /**
+         * Search presets
+         */
+        function searchPresets(query) {
+            if (!query || query.trim() === '') {
+                filterPresets(currentPresetFilter);
+                return;
+            }
+
+            const results = window.audioEngine.searchPresets(query);
+            renderPresets(results);
+        }
+
+        /**
+         * Apply a preset to the synth
+         */
+        function applyPreset(presetId) {
+            if (!window.audioEngine) {
+                console.warn('❌ Audio engine not initialized');
+                return;
+            }
+
+            const success = window.audioEngine.applyTB303Preset(presetId);
+            
+            if (success) {
+                // Visual feedback
+                showPresetNotification(`✅ Applied preset: ${presetId}`);
+                
+                // Update UI to reflect new parameters
+                // TODO: Update knob values if needed
+            }
+        }
+
+        /**
+         * Show preset notification
+         */
+        function showPresetNotification(message) {
+            console.log('🎵', message);
+            // Could add a toast notification here
+        }
+
+        // Initialize preset browser when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadPresetBrowser);
+        } else {
+            loadPresetBrowser();
+        }
     </script>
 </body>
 </html>

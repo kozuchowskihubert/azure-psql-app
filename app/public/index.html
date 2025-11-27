@@ -207,6 +207,7 @@
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">Track Title *</label>
                     <input type="text" id="track-title" name="title" required 
+                           minlength="1" maxlength="100"
                            style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,85,0,0.3); border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 0.9rem;"
                            placeholder="Enter track name...">
                 </div>
@@ -214,6 +215,7 @@
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">Artist Name *</label>
                     <input type="text" id="track-artist" name="artist" required 
+                           minlength="1" maxlength="100"
                            style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,85,0,0.3); border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 0.9rem;"
                            placeholder="Your artist name...">
                 </div>
@@ -259,9 +261,9 @@
     </div>
 
     <!-- ============================================================================
-         EUPHONY ASSISTANT - AI Music Intelligence
+         EUPHONY ASSISTANT - Hidden from basic view
          ============================================================================ -->
-    <div id="euphony-assistant" style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; width: 400px; max-width: 90vw;">
+    <div id="euphony-assistant" style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; width: 400px; max-width: 90vw; display: none;">
         <!-- Euphony Panel -->
         <div id="euphony-panel" style="background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,10,30,0.98)); border: 2px solid #9370DB; border-radius: 12px; padding: 15px; backdrop-filter: blur(10px); box-shadow: 0 10px 40px rgba(147,112,219,0.4);">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
@@ -360,9 +362,9 @@
     </style>
 
     <!-- ============================================================================
-         BACKGROUND MUSIC PLAYER - Auto-play on page load
+         BACKGROUND MUSIC PLAYER - Hidden by default
          ============================================================================ -->
-    <div id="haos-bg-music-player" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 400px; max-width: 90vw;">
+    <div id="haos-bg-music-player" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 400px; max-width: 90vw; display: none;">
         <!-- Control Panel -->
         <div id="haos-music-controls" style="background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,20,0.98)); border: 2px solid var(--haos-orange-primary); border-radius: 12px; padding: 15px; backdrop-filter: blur(10px); box-shadow: 0 10px 40px rgba(255,107,53,0.3);">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
@@ -623,16 +625,16 @@
                         <span class="haos-badge haos-badge-new" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-size: 1.2rem; padding: 0.5rem 1rem;">HAOS PLATFORM</span>
                     </div>
                     <h3 class="text-4xl md:text-5xl font-bold mb-4" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                        HAOS DUAL-OS PLATFORM
+                        HAOS Platform & Workspace
                     </h3>
                     <p class="text-xl haos-body mb-6" style="color: var(--haos-sepia-cream);">
-                        Hardware Analog Operating System with dual workflows: <strong>Techno OS</strong> for TB-303 acid bass, TR-909 drums & sequencing, or <strong>Hip-Hop OS</strong> for MPC beats & sampling. Choose your sonic universe.
+                        Complete modular synthesis environment with <strong>TB-303 Acid Bass</strong>, <strong>TR-909 Drums</strong>, <strong>16-Step Sequencer</strong>, and <strong>Visual Patch Routing</strong>. Build your sonic architecture with hardware-inspired workflow.
                     </p>
                     <div class="flex flex-wrap gap-3 mb-4">
-                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🧪 TB-303 ACID LAB</span>
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🧪 TB-303 ACID</span>
                         <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🥁 TR-909 DRUMS</span>
-                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">⏱️ 16-STEP SEQUENCER</span>
-                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🎚️ LIVE PATCHING</span>
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">⏱️ SEQUENCER</span>
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🔌 PATCH MATRIX</span>
                     </div>
                     <div class="text-2xl font-bold" style="color: #FF6B35;">
                         ▶ LAUNCH HAOS PLATFORM
@@ -640,8 +642,8 @@
                 </a>
             </div>
 
-            <!-- SECONDARY: Radio -->
-            <div class="haos-grid haos-grid-2 mb-12">
+            <!-- SECONDARY: Radio - Hidden from main page -->
+            <div class="haos-grid haos-grid-2 mb-12" style="display: none;">
                 <a href="/radio.html" class="haos-studio-card">
                     <div class="flex items-start justify-between mb-4">
                         <div class="text-5xl"><i class="fas fa-broadcast-tower" style="color: #39FF14;"></i></div>
@@ -681,11 +683,11 @@
                             <span class="haos-badge" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-weight: 700;">MODULAR</span>
                         </div>
                         <h5 class="text-2xl font-bold mb-2" style="color: #FF6B35;">Modular Workspace</h5>
-                        <p class="haos-body text-sm mb-3">Eurorack-style modular synthesis with visual patch routing</p>
+                        <p class="haos-body text-sm mb-3">Eurorack-inspired modular environment with drag-and-drop patch cables, CV routing, and real-time signal flow visualization</p>
                         <div class="flex flex-wrap gap-2">
-                            <span class="haos-tag text-xs">PATCHING</span>
-                            <span class="haos-tag text-xs">EFFECTS</span>
-                            <span class="haos-tag text-xs">ROUTING</span>
+                            <span class="haos-tag text-xs">PATCH CABLES</span>
+                            <span class="haos-tag text-xs">CV ROUTING</span>
+                            <span class="haos-tag text-xs">VISUAL FLOW</span>
                         </div>
                     </a>
 
@@ -726,11 +728,11 @@
                             <span class="haos-badge" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-weight: 700;">ADVANCED</span>
                         </div>
                         <h5 class="text-2xl font-bold mb-2" style="color: #FF6B35;">Patch Sequencer</h5>
-                        <p class="haos-body text-sm mb-3">Visual patch routing system for advanced modular synthesis</p>
+                        <p class="haos-body text-sm mb-3">Advanced 16-step sequencer with visual patch matrix, parameter automation, and modulation routing for complex generative patterns</p>
                         <div class="flex flex-wrap gap-2">
-                            <span class="haos-tag text-xs">VISUAL</span>
-                            <span class="haos-tag text-xs">ROUTING</span>
-                            <span class="haos-tag text-xs">SEQUENCING</span>
+                            <span class="haos-tag text-xs">16-STEP SEQ</span>
+                            <span class="haos-tag text-xs">AUTOMATION</span>
+                            <span class="haos-tag text-xs">MODULATION</span>
                         </div>
                     </a>
                 </div>
@@ -1443,6 +1445,20 @@
             // Form submission
             uploadForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+
+                // Check form validity
+                if (!uploadForm.checkValidity()) {
+                    uploadForm.reportValidity();
+                    return;
+                }
+                
+                // Validate file is selected
+                if (!fileInput.files || !fileInput.files[0]) {
+                    uploadStatus.style.display = 'block';
+                    uploadStatus.style.color = '#FF0000';
+                    uploadStatus.textContent = '❌ Please select an audio file';
+                    return;
+                }
 
                 const formData = new FormData(uploadForm);
                 

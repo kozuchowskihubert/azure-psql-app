@@ -21,6 +21,11 @@ class HAOSAudioEngine {
         this.tb303 = null;
         this.tr909 = null;
         this.sequencer = null;
+        
+        // Preset libraries
+        this.factoryPresets = [];
+        this.arp2600Presets = [];
+        this.presetsLoaded = false;
     }
     
     async init() {
@@ -41,6 +46,9 @@ class HAOSAudioEngine {
         this.tr909 = new HAOSTR909(this.audioContext, this.masterGain);
         this.sequencer = new HAOSSequencer(this.audioContext, this.tr909);
         
+        // Load presets asynchronously (don't block initialization)
+        this.loadPresets().catch(err => console.warn('⚠️  Preset loading failed:', err));
+        
         this.initialized = true;
         
         console.log('✅ HAOS Audio Engine initialized');
@@ -48,6 +56,97 @@ class HAOSAudioEngine {
         console.log(`   State: ${this.audioContext.state}`);
         
         return true;
+    }
+    
+    /**
+     * Load factory presets (TB-303, TR-909, TR-808) and ARP 2600 presets
+     */
+    async loadPresets() {
+        try {
+            // Load factory presets (TB-303, drums, etc.)
+            const factoryResponse = await fetch('/data/factory-presets.json');
+            if (factoryResponse.ok) {
+                this.factoryPresets = await factoryResponse.json();
+                console.log(`✅ Loaded ${this.factoryPresets.length} factory presets`);
+            }
+        } catch (err) {
+            console.warn('⚠️  Could not load factory presets:', err.message);
+        }
+        
+        // Try to load ARP 2600 presets if available
+        try {
+            const arp2600Response = await fetch('/data/preset_library.json');
+            if (arp2600Response.ok) {
+                this.arp2600Presets = await fetch('/data/preset_library.json');
+                console.log(`✅ Loaded ${this.arp2600Presets.length} ARP 2600 presets`);
+            }
+        } catch (err) {
+            console.log('ℹ️  ARP 2600 presets not available');
+        }
+        
+        this.presetsLoaded = true;
+    }
+    
+    /**
+     * Get all available presets
+     */
+    getPresets(type = null) {
+        const allPresets = [...this.factoryPresets, ...this.arp2600Presets];
+        
+        if (!type) return allPresets;
+        
+        return allPresets.filter(p => p.type === type);
+    }
+    
+    /**
+     * Get presets by category
+     */
+    getPresetsByCategory(category) {
+        return [...this.factoryPresets, ...this.arp2600Presets]
+            .filter(p => p.category === category);
+    }
+    
+    /**
+     * Apply a preset to the TB-303 synth
+     */
+    applyTB303Preset(presetId) {
+        const preset = this.factoryPresets.find(p => p.id === presetId);
+        
+        if (!preset) {
+            console.warn('❌ Preset not found:', presetId);
+            return false;
+        }
+        
+        if (preset.type !== 'tb303') {
+            console.warn('❌ Not a TB-303 preset:', presetId);
+            return false;
+        }
+        
+        // Apply parameters to TB-303
+        if (preset.parameters) {
+            Object.keys(preset.parameters).forEach(param => {
+                if (this.tb303.params.hasOwnProperty(param)) {
+                    this.tb303.params[param] = preset.parameters[param];
+                }
+            });
+            
+            console.log(`✅ Applied TB-303 preset: ${preset.name}`);
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Search presets by name or tags
+     */
+    searchPresets(query) {
+        const lowerQuery = query.toLowerCase();
+        return [...this.factoryPresets, ...this.arp2600Presets].filter(p => 
+            p.name.toLowerCase().includes(lowerQuery) ||
+            (p.tags && p.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) ||
+            (p.description && p.description.toLowerCase().includes(lowerQuery))
+        );
     }
     
     // Resume audio context (required for browser autoplay policies)
@@ -106,6 +205,37 @@ class HAOSTB303 {
     setParam(param, value) {
         this.params[param] = parseFloat(value);
         console.log(`TB-303 ${param}:`, this.params[param]);
+    }
+    
+    /**
+     * Apply a preset to the TB-303
+     * @param {Object} preset - Preset object with parameters
+     */
+    applyPreset(preset) {
+        if (!preset || !preset.parameters) {
+            console.warn('❌ Invalid preset format');
+            return false;
+        }
+        
+        // Apply each parameter from the preset
+        Object.keys(preset.parameters).forEach(param => {
+            if (this.params.hasOwnProperty(param)) {
+                this.params[param] = preset.parameters[param];
+            }
+        });
+        
+        // Update LFO if waveform changed
+        if (preset.parameters.lfoWaveform && this.lfo) {
+            this.lfo.type = preset.parameters.lfoWaveform;
+        }
+        
+        // Update LFO rate if changed
+        if (preset.parameters.lfoRate && this.lfo) {
+            this.lfo.frequency.value = preset.parameters.lfoRate;
+        }
+        
+        console.log(`✅ Applied TB-303 preset: ${preset.name || 'Unknown'}`);
+        return true;
     }
     
     playNote(note) {
