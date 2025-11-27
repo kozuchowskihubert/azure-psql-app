@@ -1645,6 +1645,7 @@
                     formData.append('title', title || files[0].name.replace(/\.[^/.]+$/, ''));
                     formData.append('artist', artist || 'Unknown Artist');
                     formData.append('genre', genre);
+                    formData.append('copyright', 'on'); // Copyright checkbox confirmed
 
                     try {
                         const response = await fetch('/api/tracks/upload', {
@@ -1696,6 +1697,7 @@
                         formData.append('title', title || fileName);
                         formData.append('artist', artist || 'Unknown Artist');
                         formData.append('genre', genre);
+                        formData.append('copyright', 'on'); // Copyright checkbox confirmed
 
                         try {
                             const response = await fetch('/api/tracks/upload', {

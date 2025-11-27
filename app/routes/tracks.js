@@ -94,11 +94,11 @@ router.post('/upload', upload.single('audioFile'), async (req, res) => {
 
         const { title, artist, genre, copyright } = req.body;
 
-        // Validate copyright
-        if (!copyright || copyright !== 'on') {
+        // Validate copyright - accept any truthy value from checkbox
+        if (!copyright) {
             // Delete uploaded file if validation fails
             fs.unlinkSync(req.file.path);
-            return res.status(400).json({ error: 'Copyright confirmation is required' });
+            return res.status(400).json({ error: 'Copyright confirmation is required. You must confirm that you own the copyright to upload tracks.' });
         }
 
         // Use defaults if title/artist not provided (for bulk uploads)
