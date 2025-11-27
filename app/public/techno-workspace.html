@@ -69,6 +69,12 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .logo-section:hover {
+            transform: scale(1.05);
+            opacity: 0.8;
         }
 
         .logo-section img {
@@ -444,8 +450,178 @@
             height: 8px;
             background: linear-gradient(to right, var(--haos-cyan), var(--haos-orange));
             border-radius: 4px;
-            position: relative;
             cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .morph-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--haos-orange);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.6);
+        }
+
+        .morph-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--haos-orange);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.6);
+        }
+
+        .morph-display {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--haos-orange);
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        /* Preset Controls */
+        .preset-controls {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .preset-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .preset-btn {
+            padding: 8px 12px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            border: 1px solid var(--haos-border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--haos-text);
+        }
+
+        .preset-btn-a {
+            border-color: var(--haos-cyan);
+            color: var(--haos-cyan);
+        }
+
+        .preset-btn-a:hover {
+            background: var(--haos-cyan);
+            color: var(--haos-black);
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.4);
+        }
+
+        .preset-btn-b {
+            border-color: var(--haos-orange);
+            color: var(--haos-orange);
+        }
+
+        .preset-btn-b:hover {
+            background: var(--haos-orange);
+            color: var(--haos-black);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .preset-btn-morph {
+            border-color: var(--haos-pink);
+            color: var(--haos-pink);
+        }
+
+        .preset-btn-morph:hover {
+            background: var(--haos-pink);
+            color: var(--haos-black);
+            box-shadow: 0 0 15px rgba(255, 0, 110, 0.4);
+        }
+
+        /* Preset Bank */
+        .preset-bank {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--haos-border);
+            border-radius: 8px;
+        }
+
+        .bank-header {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--haos-orange);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .bank-slots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .bank-slot {
+            aspect-ratio: 1;
+            padding: 12px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: 2px solid var(--haos-border);
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--haos-dim);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bank-slot:hover {
+            border-color: var(--haos-orange);
+            color: var(--haos-orange);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .bank-slot.filled {
+            background: rgba(255, 107, 53, 0.1);
+            border-color: var(--haos-orange);
+            color: var(--haos-orange);
+        }
+
+        .bank-slot.active {
+            background: var(--haos-orange);
+            color: var(--haos-black);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.6);
+        }
+
+        .bank-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .bank-action-btn {
+            padding: 10px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            border: 1px solid var(--haos-orange);
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--haos-orange);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bank-action-btn:hover {
+            background: var(--haos-orange);
+            color: var(--haos-black);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
         }
 
         .morph-thumb {
@@ -466,16 +642,16 @@
     <!-- Header -->
     <header class="haos-header">
         <div class="header-content">
-            <div class="logo-section">
+            <a href="/" class="logo-section" style="text-decoration: none; cursor: pointer;">
                 <img src="/images/haos-logo-white.png" alt="HAOS.fm Logo">
                 <div class="brand-text">
                     <div class="brand-name">TECHNO WORKSPACE</div>
                     <div class="brand-tagline">Live Modular System</div>
                 </div>
-            </div>
+            </a>
             
             <div class="transport">
-                <button class="back-btn" onclick="window.location.href='haos-platform.html'">
+                <button class="back-btn" onclick="window.location.href='/haos-platform.html'">
                     ← BACK TO HUB
                 </button>
                 <button id="play-btn" class="transport-btn">▶ PLAY</button>
@@ -534,11 +710,46 @@
                 <!-- Preset Morphing -->
                 <div class="morph-slider-container">
                     <div class="morph-label">
-                        <span>PRESET A: Acid Squelch</span>
-                        <span>PRESET B: Deep Bass</span>
+                        <span id="preset-a-name">PRESET A: Empty</span>
+                        <span id="preset-b-name">PRESET B: Empty</span>
                     </div>
-                    <div class="morph-slider">
-                        <div class="morph-thumb"></div>
+                    <input type="range" id="morph-slider" class="morph-slider" min="0" max="1" step="0.01" value="0">
+                    <div id="morph-display" class="morph-display">100% A | 0% B</div>
+                </div>
+
+                <!-- Preset Controls -->
+                <div class="preset-controls">
+                    <div class="preset-column">
+                        <button id="capture-a" class="preset-btn preset-btn-a">📸 CAPTURE A</button>
+                        <button id="recall-a" class="preset-btn preset-btn-a">▶ RECALL A</button>
+                    </div>
+                    <div class="preset-column">
+                        <button id="crossfade-a" class="preset-btn preset-btn-morph">← A</button>
+                        <button id="swap-ab" class="preset-btn preset-btn-morph">⇄ SWAP</button>
+                        <button id="crossfade-b" class="preset-btn preset-btn-morph">B →</button>
+                    </div>
+                    <div class="preset-column">
+                        <button id="capture-b" class="preset-btn preset-btn-b">📸 CAPTURE B</button>
+                        <button id="recall-b" class="preset-btn preset-btn-b">▶ RECALL B</button>
+                    </div>
+                </div>
+
+                <!-- Preset Bank -->
+                <div class="preset-bank">
+                    <div class="bank-header">PRESET BANK</div>
+                    <div class="bank-slots">
+                        <button class="bank-slot" data-slot="1">1</button>
+                        <button class="bank-slot" data-slot="2">2</button>
+                        <button class="bank-slot" data-slot="3">3</button>
+                        <button class="bank-slot" data-slot="4">4</button>
+                        <button class="bank-slot" data-slot="5">5</button>
+                        <button class="bank-slot" data-slot="6">6</button>
+                        <button class="bank-slot" data-slot="7">7</button>
+                        <button class="bank-slot" data-slot="8">8</button>
+                    </div>
+                    <div class="bank-actions">
+                        <button id="save-to-bank" class="bank-action-btn">💾 SAVE</button>
+                        <button id="load-from-bank" class="bank-action-btn">📂 LOAD</button>
                     </div>
                 </div>
             </div>
@@ -880,11 +1091,9 @@
             const param = knob.dataset.param;
             const value = parseFloat(knob.dataset.value);
             
-            // Update synth parameters
-            if (param?.startsWith('tb303-')) {
-                // Handle TB-303 parameters
-            } else if (param?.startsWith('tr909-')) {
-                // Handle TR-909 parameters
+            // Update live params system if initialized
+            if (window.liveParams && param) {
+                window.liveParams.setValue(param, value, true);
             }
             
             // Update value display
@@ -892,6 +1101,12 @@
             if (valueEl) {
                 valueEl.textContent = formatParamValue(param, value);
             }
+
+            // Add visual feedback - glow effect when changing
+            knob.style.boxShadow = '0 0 20px rgba(255, 107, 53, 0.8)';
+            setTimeout(() => {
+                knob.style.boxShadow = '';
+            }, 150);
         }
 
         function formatParamValue(param, value) {
@@ -905,11 +1120,53 @@
             }
         }
 
+        // Sync knobs with parameter values (called when morphing)
+        function syncKnobsWithParams() {
+            if (!window.liveParams) return;
+
+            document.querySelectorAll('.knob').forEach(knob => {
+                const param = knob.dataset.param;
+                if (param && window.liveParams.parameters.has(param)) {
+                    const value = window.liveParams.getValue(param);
+                    knob.dataset.value = value;
+                    updateKnobVisual(knob, value);
+                    
+                    // Update value display
+                    const valueEl = knob.parentElement.querySelector('.knob-value');
+                    if (valueEl) {
+                        valueEl.textContent = formatParamValue(param, value);
+                    }
+                }
+            });
+        }
+
+        // Listen for parameter changes and update knobs
+        window.addEventListener('parameterChanged', (e) => {
+            const { param, value } = e.detail;
+            const knob = document.querySelector(`.knob[data-param="${param}"]`);
+            if (knob) {
+                knob.dataset.value = value;
+                updateKnobVisual(knob, value);
+                
+                const valueEl = knob.parentElement.querySelector('.knob-value');
+                if (valueEl) {
+                    valueEl.textContent = formatParamValue(param, value);
+                }
+            }
+        });
+
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
             initSequencer();
             initKnobs();
             console.log('🎛️ Techno Workspace initialized');
+            
+            // Sync knobs every 100ms during morphing
+            setInterval(() => {
+                if (window.presetMorph && window.presetMorph.morphing && window.presetMorph.morphing.size > 0) {
+                    syncKnobsWithParams();
+                }
+            }, 100);
         });
 
         // Auto-init audio on first interaction
@@ -919,6 +1176,625 @@
                 console.log('🔊 Audio system ready');
             }
         }, { once: true });
+    </script>
+
+    <!-- Live Parameter System -->
+    <script src="/js/live-params.js"></script>
+    <script src="/js/preset-morph.js"></script>
+    <script src="/js/cable-router.js"></script>
+    <script src="/js/macro-system.js"></script>
+
+    <!-- Integration Script -->
+    <script>
+        // Global systems
+        let liveParams;
+        let presetMorph;
+        let cableRouter;
+        let macroSystem;
+
+        // Initialize modular systems
+        function initModularSystems() {
+            // 1. Live Parameters
+            liveParams = new LiveParams();
+            console.log('✅ Live Parameters initialized');
+
+            // Register TB-303 parameters
+            registerTB303Params();
+
+            // Register TR-909 parameters
+            registerTR909Params();
+
+            // 2. Preset Morphing
+            presetMorph = new PresetMorph(liveParams);
+            console.log('✅ Preset Morph initialized');
+
+            // 3. Macro System
+            macroSystem = new MacroSystem(liveParams);
+            console.log('✅ Macro System initialized');
+            console.log(`   📊 ${macroSystem.getMacros().length} default macros loaded`);
+
+            // 4. Cable Router
+            const canvas = document.getElementById('patch-canvas');
+            if (canvas) {
+                cableRouter = new CableRouter(canvas);
+                console.log('✅ Cable Router initialized');
+                
+                // Register connection points
+                registerPatchPoints();
+            }
+
+            // Wire up UI controls
+            wireupMorphControls();
+            wireupPresetControls();
+            wireupMacroControls();
+            
+            console.log('🎛️ All modular systems online');
+        }
+
+        // Register TB-303 parameters
+        function registerTB303Params() {
+            liveParams.register('tb303-cutoff', {
+                value: 0.5,
+                min: 0,
+                max: 1,
+                curve: 'exponential',
+                label: 'Cutoff',
+                unit: 'Hz',
+                onChange: (val) => {
+                    const freq = 100 + val * 7900;
+                    if (window.HAOS?.tb303?.filter) {
+                        window.HAOS.tb303.filter.frequency.value = freq;
+                    }
+                }
+            });
+
+            liveParams.register('tb303-resonance', {
+                value: 0.7,
+                min: 0,
+                max: 0.95,
+                label: 'Resonance',
+                onChange: (val) => {
+                    if (window.HAOS?.tb303?.filter) {
+                        window.HAOS.tb303.filter.Q.value = 1 + val * 29;
+                    }
+                }
+            });
+
+            liveParams.register('tb303-envmod', {
+                value: 0.6,
+                min: 0,
+                max: 1,
+                label: 'Env Mod',
+                onChange: (val) => {
+                    if (window.HAOS?.tb303) {
+                        window.HAOS.tb303.envMod = val;
+                    }
+                }
+            });
+
+            liveParams.register('tb303-decay', {
+                value: 0.3,
+                min: 0,
+                max: 1,
+                label: 'Decay',
+                unit: 's',
+                onChange: (val) => {
+                    if (window.HAOS?.tb303) {
+                        window.HAOS.tb303.decay = 0.01 + val * 1.99;
+                    }
+                }
+            });
+
+            liveParams.register('tb303-accent', {
+                value: 0.5,
+                min: 0,
+                max: 1,
+                label: 'Accent',
+                onChange: (val) => {
+                    if (window.HAOS?.tb303) {
+                        window.HAOS.tb303.accent = val;
+                    }
+                }
+            });
+
+            liveParams.register('tb303-distortion', {
+                value: 0.2,
+                min: 0,
+                max: 1,
+                label: 'Distortion',
+                onChange: (val) => {
+                    if (window.HAOS?.tb303?.distortion) {
+                        window.HAOS.tb303.distortion.curve = makeDistortionCurve(val * 100);
+                    }
+                }
+            });
+        }
+
+        // Register TR-909 parameters
+        function registerTR909Params() {
+            liveParams.register('tr909-kick-punch', {
+                value: 0.7,
+                min: 0,
+                max: 1,
+                label: 'Kick Punch',
+                onChange: (val) => {
+                    if (window.HAOS?.tr909) {
+                        window.HAOS.tr909.kickPunch = val;
+                    }
+                }
+            });
+
+            liveParams.register('tr909-snare-snap', {
+                value: 0.6,
+                min: 0,
+                max: 1,
+                label: 'Snare Snap',
+                onChange: (val) => {
+                    if (window.HAOS?.tr909) {
+                        window.HAOS.tr909.snareSnap = val;
+                    }
+                }
+            });
+
+            liveParams.register('tr909-hat-decay', {
+                value: 0.4,
+                min: 0,
+                max: 1,
+                label: 'Hat Decay',
+                onChange: (val) => {
+                    if (window.HAOS?.tr909) {
+                        window.HAOS.tr909.hatDecay = val;
+                    }
+                }
+            });
+        }
+
+        // Register patch points
+        function registerPatchPoints() {
+            // TB-303 outputs
+            cableRouter.registerOutput('tb303-audio-out', 150, 200, 'audio', 'OUT');
+            cableRouter.registerOutput('tb303-env-out', 150, 240, 'cv', 'ENV');
+
+            // TR-909 outputs
+            cableRouter.registerOutput('tr909-audio-out', 150, 400, 'audio', 'OUT');
+            cableRouter.registerOutput('tr909-trigger', 150, 440, 'gate', 'TRIG');
+
+            // Sequencer outputs
+            cableRouter.registerOutput('seq-gate', 550, 350, 'gate', 'GATE');
+            cableRouter.registerOutput('seq-cv', 550, 390, 'cv', 'CV');
+
+            // Master inputs
+            cableRouter.registerInput('master-ch1', 850, 200, 'audio', 'CH1');
+            cableRouter.registerInput('master-ch2', 850, 240, 'audio', 'CH2');
+            cableRouter.registerInput('master-ch3', 850, 280, 'audio', 'CH3');
+            cableRouter.registerInput('master-ch4', 850, 320, 'audio', 'CH4');
+
+            // Effects inputs
+            cableRouter.registerInput('delay-in', 850, 400, 'audio', 'DELAY');
+            cableRouter.registerInput('reverb-in', 850, 440, 'audio', 'REVERB');
+
+            // Listen for cable connections
+            window.addEventListener('haos-cable-connect', (e) => {
+                console.log('Cable connected:', e.detail);
+                handleCableConnection(e.detail);
+            });
+
+            window.addEventListener('haos-cable-disconnect', (e) => {
+                console.log('Cable disconnected:', e.detail);
+                handleCableDisconnection(e.detail);
+            });
+        }
+
+        // Handle cable connections
+        function handleCableConnection(detail) {
+            const { output, input } = detail;
+            
+            // Route audio based on connection
+            if (output.id.includes('tb303') && input.id.includes('master')) {
+                console.log('Routing TB-303 to master');
+                // Actual audio routing would happen here
+            } else if (output.id.includes('tr909') && input.id.includes('master')) {
+                console.log('Routing TR-909 to master');
+            }
+        }
+
+        // Handle cable disconnections
+        function handleCableDisconnection(detail) {
+            console.log('Disconnecting:', detail);
+        }
+
+        // Wire up morph controls
+        function wireupMorphControls() {
+            // Morph slider
+            const morphSlider = document.getElementById('morph-slider');
+            if (morphSlider) {
+                morphSlider.addEventListener('input', (e) => {
+                    const position = parseFloat(e.target.value);
+                    presetMorph.setMorphPosition(position, 0);
+                });
+            }
+
+            // Listen for morph position changes
+            window.addEventListener('morphPositionChanged', (e) => {
+                const { position, presetA, presetB } = e.detail;
+                
+                // Update UI
+                const display = document.getElementById('morph-display');
+                if (display) {
+                    const percentage = Math.round(position * 100);
+                    display.textContent = `${100 - percentage}% A | ${percentage}% B`;
+                }
+            });
+        }
+
+        // Wire up preset controls
+        function wireupPresetControls() {
+            // Capture A button
+            const captureA = document.getElementById('capture-a');
+            if (captureA) {
+                captureA.addEventListener('click', () => {
+                    const name = prompt('Preset A name:', 'Preset A');
+                    if (name) {
+                        presetMorph.captureA(name);
+                        showNotification('Captured Preset A');
+                        updatePresetNames();
+                    }
+                });
+            }
+
+            // Capture B button
+            const captureB = document.getElementById('capture-b');
+            if (captureB) {
+                captureB.addEventListener('click', () => {
+                    const name = prompt('Preset B name:', 'Preset B');
+                    if (name) {
+                        presetMorph.captureB(name);
+                        showNotification('Captured Preset B');
+                        updatePresetNames();
+                    }
+                });
+            }
+
+            // Recall A button
+            const recallA = document.getElementById('recall-a');
+            if (recallA) {
+                recallA.addEventListener('click', () => {
+                    presetMorph.recallA(500);
+                    showNotification('Recalled Preset A');
+                });
+            }
+
+            // Recall B button
+            const recallB = document.getElementById('recall-b');
+            if (recallB) {
+                recallB.addEventListener('click', () => {
+                    presetMorph.recallB(500);
+                    showNotification('Recalled Preset B');
+                });
+            }
+
+            // Crossfade buttons
+            const crossfadeA = document.getElementById('crossfade-a');
+            if (crossfadeA) {
+                crossfadeA.addEventListener('click', () => {
+                    presetMorph.crossfadeToA(2000);
+                });
+            }
+
+            const crossfadeB = document.getElementById('crossfade-b');
+            if (crossfadeB) {
+                crossfadeB.addEventListener('click', () => {
+                    presetMorph.crossfadeToB(2000);
+                });
+            }
+
+            // Swap A/B
+            const swapAB = document.getElementById('swap-ab');
+            if (swapAB) {
+                swapAB.addEventListener('click', () => {
+                    presetMorph.swapAB();
+                    showNotification('Swapped A ⇄ B');
+                });
+            }
+
+            // Preset Bank slots
+            let selectedBankSlot = null;
+            const bankSlots = document.querySelectorAll('.bank-slot');
+            bankSlots.forEach(slot => {
+                slot.addEventListener('click', () => {
+                    // Deselect all
+                    bankSlots.forEach(s => s.classList.remove('active'));
+                    
+                    // Select this one
+                    slot.classList.add('active');
+                    selectedBankSlot = parseInt(slot.dataset.slot);
+                    
+                    showNotification(`Slot ${selectedBankSlot} selected`);
+                });
+
+                // Double-click to quick load
+                slot.addEventListener('dblclick', () => {
+                    const slotNum = parseInt(slot.dataset.slot);
+                    const preset = presetMorph.loadFromBank(slotNum, 'current', 500);
+                    if (preset) {
+                        showNotification(`Loaded: ${preset.name}`);
+                        updateBankUI();
+                    }
+                });
+            });
+
+            // Save to bank
+            const saveToBank = document.getElementById('save-to-bank');
+            if (saveToBank) {
+                saveToBank.addEventListener('click', () => {
+                    if (selectedBankSlot === null) {
+                        showNotification('⚠️ Select a slot first', 2000);
+                        return;
+                    }
+
+                    const name = prompt('Preset name:', `Preset ${selectedBankSlot}`);
+                    if (name) {
+                        const preset = {
+                            name,
+                            parameters: liveParams.snapshot(),
+                            timestamp: Date.now()
+                        };
+                        presetMorph.saveToBank(selectedBankSlot, preset);
+                        showNotification(`💾 Saved to slot ${selectedBankSlot}`);
+                        updateBankUI();
+                    }
+                });
+            }
+
+            // Load from bank
+            const loadFromBank = document.getElementById('load-from-bank');
+            if (loadFromBank) {
+                loadFromBank.addEventListener('click', () => {
+                    if (selectedBankSlot === null) {
+                        showNotification('⚠️ Select a slot first', 2000);
+                        return;
+                    }
+
+                    // Show load options
+                    const target = prompt('Load to:\nA = Preset A\nB = Preset B\nC = Current (immediate)\n', 'C');
+                    if (!target) return;
+
+                    let targetKey = 'current';
+                    if (target.toUpperCase() === 'A') targetKey = 'A';
+                    else if (target.toUpperCase() === 'B') targetKey = 'B';
+
+                    const preset = presetMorph.loadFromBank(selectedBankSlot, targetKey, 500);
+                    if (preset) {
+                        showNotification(`📂 Loaded: ${preset.name}`);
+                        updatePresetNames();
+                        updateBankUI();
+                    }
+                });
+            }
+
+            // Update bank UI
+            function updateBankUI() {
+                const contents = presetMorph.getCurrentBankContents();
+                bankSlots.forEach(slot => {
+                    const slotNum = parseInt(slot.dataset.slot);
+                    const preset = contents.find(p => p.slot === slotNum);
+                    
+                    if (preset) {
+                        slot.classList.add('filled');
+                        slot.title = `${preset.name}\n${preset.paramCount} parameters\n${new Date(preset.timestamp).toLocaleString()}`;
+                    } else {
+                        slot.classList.remove('filled');
+                        slot.title = 'Empty slot';
+                    }
+                });
+            }
+
+            // Update preset names in UI
+            function updatePresetNames() {
+                const presetAName = document.getElementById('preset-a-name');
+                const presetBName = document.getElementById('preset-b-name');
+                
+                if (presetAName && presetMorph.presetA) {
+                    presetAName.textContent = `PRESET A: ${presetMorph.presetA.name}`;
+                }
+                if (presetBName && presetMorph.presetB) {
+                    presetBName.textContent = `PRESET B: ${presetMorph.presetB.name}`;
+                }
+            }
+
+            // Initial bank UI update
+            setTimeout(() => {
+                updateBankUI();
+            }, 100);
+        }
+
+        // Wire up macro controls
+        function wireupMacroControls() {
+            // Expose macros globally for console debugging
+            window.macros = macroSystem;
+
+            // Log available macros
+            console.log('📊 Available Macros:');
+            macroSystem.getMacros().forEach(macro => {
+                console.log(`   • ${macro.label} (${macro.mappings.length} params)`);
+            });
+
+            // Listen for macro changes
+            window.addEventListener('macroChanged', (e) => {
+                const { macroId, value, macro } = e.detail;
+                console.log(`Macro "${macro.label}": ${Math.round(value * 100)}%`);
+                
+                // Sync knobs when macro changes
+                syncKnobsWithParams();
+            });
+
+            // Example: Bind keyboard shortcuts to macros
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) return; // Ignore if Ctrl/Cmd is held
+                
+                switch(e.key) {
+                    case '1':
+                        macroSystem.morphMacro('tb303-intensity', Math.random(), 1000);
+                        showNotification('🎛️ TB-303 Intensity randomized');
+                        break;
+                    case '2':
+                        macroSystem.morphMacro('tb303-darkness', Math.random(), 1000);
+                        showNotification('🎛️ TB-303 Darkness randomized');
+                        break;
+                    case '3':
+                        macroSystem.morphMacro('tr909-punch', Math.random(), 1000);
+                        showNotification('🎛️ TR-909 Punch randomized');
+                        break;
+                    case '0':
+                        macroSystem.resetAll(1000);
+                        showNotification('🔄 All macros reset');
+                        break;
+                }
+            });
+
+            console.log('✅ Macro controls wired (Keys: 1=Intensity, 2=Darkness, 3=Punch, 0=Reset)');
+        }
+
+        // Utility: Show notification
+        function showNotification(message, duration = 2000) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 30px;
+                background: rgba(255, 107, 53, 0.95);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-family: var(--font-mono);
+                font-size: 0.9rem;
+                z-index: 10000;
+                box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+                animation: slideInRight 0.3s ease-out;
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => notification.remove(), 300);
+            }, duration);
+        }
+
+        // Utility: Distortion curve
+        function makeDistortionCurve(amount) {
+            const samples = 44100;
+            const curve = new Float32Array(samples);
+            const deg = Math.PI / 180;
+            
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2 / samples) - 1;
+                curve[i] = (3 + amount) * x * 20 * deg / (Math.PI + amount * Math.abs(x));
+            }
+            
+            return curve;
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize all systems when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait a bit for HAOS to be ready
+            setTimeout(() => {
+                initModularSystems();
+            }, 500);
+        });
+
+        // Expose systems globally for debugging
+        window.HAOS_SYSTEMS = {
+            liveParams,
+            presetMorph,
+            cableRouter,
+            macroSystem
+        };
+        
+        // Console helpers
+        window.HAOS_HELP = () => {
+            console.log(`
+%c🎛️ HAOS TECHNO WORKSPACE - CONSOLE COMMANDS %c
+
+%cLIVE PARAMETERS:%c
+  liveParams.morph('tb303-cutoff', 0.8, 1000)
+  liveParams.morphMultiple({...}, 1000)
+  liveParams.snapshot()
+  liveParams.restore(state, 500)
+
+%cPRESET MORPHING:%c
+  presetMorph.captureA('Acid')
+  presetMorph.captureB('Bass')
+  presetMorph.crossfadeToB(2000)
+  presetMorph.setMorphPosition(0.5)
+  presetMorph.saveToBank(1)
+  presetMorph.loadFromBank(1)
+
+%cMACRO SYSTEM:%c
+  macroSystem.setMacro('tb303-intensity', 0.8)
+  macroSystem.morphMacro('global-energy', 1.0, 2000)
+  macroSystem.randomizeAll(0.5, 1000)
+  macroSystem.resetAll()
+  macroSystem.getMacros()
+
+%cCABLE ROUTER:%c
+  cableRouter.connect('tb303-audio-out', 'master-ch1')
+  cableRouter.disconnect(cableId)
+  cableRouter.exportPatch()
+  cableRouter.importPatch(patchData)
+
+%cKEYBOARD SHORTCUTS:%c
+  1 = Randomize TB-303 Intensity
+  2 = Randomize TB-303 Darkness
+  3 = Randomize TR-909 Punch
+  0 = Reset all macros
+
+%cGLOBAL ACCESS:%c
+  window.HAOS_SYSTEMS.liveParams
+  window.HAOS_SYSTEMS.presetMorph
+  window.HAOS_SYSTEMS.macroSystem
+  window.HAOS_SYSTEMS.cableRouter
+            `, 
+            'background: #FF6B35; color: white; padding: 10px; font-size: 14px; font-weight: bold',
+            '',
+            'color: #FF6B35; font-weight: bold', '',
+            'color: #00D9FF; font-weight: bold', '',
+            'color: #39FF14; font-weight: bold', '',
+            'color: #FF006E; font-weight: bold', '',
+            'color: #FFD700; font-weight: bold', '',
+            'color: #888; font-weight: bold', ''
+            );
+        };
+        
+        console.log('%c🎛️ Type HAOS_HELP() for available commands', 'color: #FF6B35; font-size: 12px; font-weight: bold');
     </script>
 </body>
 </html>
