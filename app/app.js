@@ -257,6 +257,34 @@ const { getCodeStatsHandler } = require('./utils/code-stats');
 app.get('/api/code-stats', getCodeStatsHandler);
 
 // ============================================================================
+// Custom Routes - Better URLs
+// ============================================================================
+
+/**
+ * HAOS Platform - Main integrated studio
+ * Route: /haos-platform (cleaner URL without .html)
+ */
+app.get('/haos-platform', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'haos-platform.html'));
+});
+
+/**
+ * Techno Workspace - Modular synthesis environment
+ * Route: /techno-workspace (cleaner URL without .html)
+ */
+app.get('/techno-workspace', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'techno-workspace.html'));
+});
+
+/**
+ * Trap Studio - 808 bass production
+ * Route: /trap-studio (cleaner URL without .html)
+ */
+app.get('/trap-studio', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'trap-studio.html'));
+});
+
+// ============================================================================
 // SPA Fallback
 // ============================================================================
 

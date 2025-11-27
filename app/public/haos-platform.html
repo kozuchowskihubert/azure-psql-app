@@ -296,24 +296,52 @@
         }
 
         .os-btn {
-            margin-top: 20px;
-            padding: 14px 30px;
-            border-radius: 8px;
-            border: 2px solid var(--os-color);
-            background: transparent;
-            color: var(--os-color);
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            letter-spacing: 1px;
+            margin-top: 30px;
+            padding: 25px 60px;
+            border-radius: 16px;
+            border: 3px solid var(--haos-orange-primary);
+            background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,107,53,0.05));
+            color: var(--haos-orange-primary);
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
             text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(255,107,53,0.3), 0 0 20px rgba(255,107,53,0.2);
+        }
+
+        .os-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: var(--haos-orange-primary);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .os-btn:hover::before {
+            width: 300%;
+            height: 300%;
         }
 
         .os-btn:hover {
-            background: var(--os-color);
             color: #000;
-            transform: scale(1.05);
+            transform: scale(1.08) translateY(-5px);
+            border-color: var(--haos-orange-bright);
+            box-shadow: 0 20px 60px rgba(255,107,53,0.5), 0 0 40px rgba(255,107,53,0.4);
+        }
+
+        .os-btn span {
+            position: relative;
+            z-index: 1;
         }
 
         /* OS Mode Active State */
@@ -720,17 +748,45 @@
     <main class="haos-main">
         
         <!-- Simplified Hero - Direct Access -->
-        <section class="hero-welcome" style="padding: 40px 30px; text-align: center;">
-            <div class="hero-subtitle">Hardware Analog Operating System</div>
-            <h1>TECHNO STUDIO</h1>
-            <p class="hero-description" style="max-width: 700px; margin: 20px auto;">
+        <section class="hero-welcome" style="padding: 80px 30px 100px; text-align: center; background: linear-gradient(180deg, rgba(255,107,53,0.05), transparent);">
+            <div class="hero-subtitle" style="font-size: 1rem; margin-bottom: 15px;">Hardware Analog Operating System</div>
+            <h1 style="font-size: 4.5rem; margin-bottom: 20px; background: linear-gradient(135deg, #FF6B35, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">TECHNO STUDIO</h1>
+            <p class="hero-description" style="max-width: 800px; margin: 25px auto; font-size: 1.2rem; line-height: 1.8; color: rgba(255,255,255,0.8);">
                 Complete production environment with TB-303 acid bass, TR-909 drums, and 16-step sequencer.
                 Everything you need to create hypnotic techno loops in one integrated workspace.
             </p>
-            <button class="os-btn" onclick="document.querySelector('.techno-mode').style.display='block'; document.querySelector('.hero-welcome').style.display='none';" 
-                    style="margin-top: 20px; font-size: 1.2rem; padding: 15px 40px;">
-                🎛️ Launch Studio
+            
+            <!-- Feature Highlights -->
+            <div style="display: flex; justify-content: center; gap: 40px; margin: 40px auto 50px; max-width: 900px; flex-wrap: wrap;">
+                <div style="text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 8px;">🎛️</div>
+                    <div style="font-family: var(--font-mono); color: var(--haos-orange-primary); font-size: 0.9rem; font-weight: bold;">15+ Modules</div>
+                    <div style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">Loaded & Ready</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 8px;">🎵</div>
+                    <div style="font-family: var(--font-mono); color: var(--haos-orange-primary); font-size: 0.9rem; font-weight: bold;">100+ Presets</div>
+                    <div style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">Instant Access</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 8px;">⚡</div>
+                    <div style="font-family: var(--font-mono); color: var(--haos-orange-primary); font-size: 0.9rem; font-weight: bold;">Real-Time</div>
+                    <div style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">Web Audio API</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 8px;">🔥</div>
+                    <div style="font-family: var(--font-mono); color: var(--haos-orange-primary); font-size: 0.9rem; font-weight: bold;">HOT</div>
+                    <div style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">Featured Studio</div>
+                </div>
+            </div>
+            
+            <button class="os-btn" onclick="document.querySelector('.techno-mode').style.display='block'; document.querySelector('.hero-welcome').style.display='none';">
+                <span>🎛️ Launch Studio</span>
             </button>
+            
+            <div style="margin-top: 30px; font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255,255,255,0.4);">
+                ✨ Professional-grade synthesis tools | Zero installation | Browser-based
+            </div>
         </section>
 
         <!-- INTEGRATED TECHNO WORKSPACE -->
