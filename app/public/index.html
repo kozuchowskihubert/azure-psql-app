@@ -169,6 +169,18 @@
             opacity: 1 !important;
             pointer-events: all !important;
         }
+        
+        /* Button pulse animation */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 8px 30px rgba(255, 107, 53, 0.6);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 12px 40px rgba(255, 107, 53, 0.8);
+            }
+        }
     </style>
 </head>
 <body class="haos-theme">
@@ -195,14 +207,17 @@
                 
                 <!-- Navigation -->
                 <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/platform/studio.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
+                        <i class="fas fa-sliders-h mr-2"></i>UNIFIED STUDIO
+                    </a>
                     <a href="/haos-platform.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
                         <i class="fas fa-cubes mr-2"></i>HAOS PLATFORM
                     </a>
                     <a href="/techno-workspace.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
                         <i class="fas fa-project-diagram mr-2"></i>WORKSPACE
                     </a>
-                    <a href="#features" class="haos-label hover:text-orange-400 transition-colors">
-                        <i class="fas fa-star mr-2"></i>FEATURES
+                    <a href="#studios" class="haos-label hover:text-orange-400 transition-colors">
+                        <i class="fas fa-music mr-2"></i>STUDIOS
                     </a>
                     <a href="#radio" class="haos-label hover:text-orange-400 transition-colors">
                         <i class="fas fa-broadcast-tower mr-2"></i>RADIO
@@ -250,8 +265,11 @@
             </p>
             
             <div class="flex flex-wrap justify-center gap-4 mb-12">
-                <a href="/haos-platform.html" class="haos-btn haos-btn-primary" style="font-size: 1.2em; padding: 18px 36px; background: linear-gradient(135deg, #FF6B35, #FF8C42);">
-                    🎛️ ENTER HAOS PLATFORM
+                <a href="/platform/studio.html" class="haos-btn haos-btn-primary" style="font-size: 1.3em; padding: 20px 50px; background: linear-gradient(135deg, #FF6B35, #FF8C42); box-shadow: 0 8px 30px rgba(255, 107, 53, 0.6); animation: pulse 2s ease-in-out infinite;">
+                    🎛️ ENTER UNIFIED STUDIO
+                </a>
+                <a href="/haos-platform.html" class="haos-btn haos-btn-primary" style="font-size: 1.2em; padding: 18px 36px; background: linear-gradient(135deg, #9D4EDD, #7209B7);">
+                    🎹 HAOS PLATFORM
                 </a>
                 <a href="/techno-workspace.html" class="haos-btn haos-btn-primary" style="font-size: 1.2em; padding: 18px 36px;">
                     🔧 MODULAR WORKSPACE
@@ -316,32 +334,97 @@
                 </p>
             </div>
 
-            <!-- FEATURED: HAOS Platform - Dual OS System -->
+            <!-- FEATURED: Unified Studio - All-in-One Platform -->
             <div class="mb-12">
-                <a href="/haos-platform.html" class="haos-studio-card block" style="border: 3px solid #FF6B35; box-shadow: 0 0 40px rgba(255, 107, 53, 0.5); background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 140, 66, 0.1));">
+                <a href="/platform/studio.html" class="haos-studio-card block" style="border: 3px solid #FF6B35; box-shadow: 0 0 40px rgba(255, 107, 53, 0.5); background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 140, 66, 0.1));">
                     <div class="flex items-start justify-between mb-6">
                         <div class="text-6xl">🎛️</div>
-                        <span class="haos-badge haos-badge-new" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-size: 1.2rem; padding: 0.5rem 1rem;">HAOS PLATFORM</span>
+                        <span class="haos-badge haos-badge-new" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-size: 1.2rem; padding: 0.5rem 1rem;">UNIFIED STUDIO</span>
                     </div>
                     <h3 class="text-4xl md:text-5xl font-bold mb-4" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                        HAOS DUAL-OS PLATFORM
+                        HAOS UNIFIED STUDIO
                     </h3>
                     <p class="text-xl haos-body mb-6" style="color: var(--haos-sepia-cream);">
-                        Hardware Analog Operating System with dual workflows: <strong>Techno OS</strong> for TB-303 acid bass, TR-909 drums & sequencing, or <strong>Hip-Hop OS</strong> for MPC beats & sampling. Choose your sonic universe.
+                        <strong>All-in-One Music Production Platform</strong> - Complete integration of TB-303 acid bass, TR-909 drums, 16-step sequencer, live radio streaming, and HAOS artist features. Everything you need in one unified interface.
                     </p>
-                    <div class="flex flex-wrap gap-3 mb-4">
-                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🧪 TB-303 ACID LAB</span>
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🧪 TB-303 SYNTHESIS</span>
                         <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🥁 TR-909 DRUMS</span>
                         <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">⏱️ 16-STEP SEQUENCER</span>
-                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🎚️ LIVE PATCHING</span>
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">📻 LIVE RADIO</span>
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🎵 HAOS ARTIST</span>
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">💾 AUTO-SAVE</span>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-6 rounded-xl" style="background: rgba(0, 0, 0, 0.3);">
+                        <div class="text-center">
+                            <div class="text-3xl mb-2">🎹</div>
+                            <div class="font-bold text-orange-400">6 Knobs</div>
+                            <div class="text-sm text-gray-400">TB-303 Controls</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl mb-2">🥁</div>
+                            <div class="font-bold text-orange-400">4 Drums</div>
+                            <div class="text-sm text-gray-400">TR-909 Engine</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl mb-2">📻</div>
+                            <div class="font-bold text-orange-400">3 Tabs</div>
+                            <div class="text-sm text-gray-400">Radio Sources</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl mb-2">⚡</div>
+                            <div class="font-bold text-orange-400">Live</div>
+                            <div class="text-sm text-gray-400">Real-time Audio</div>
+                        </div>
                     </div>
                     <div class="text-2xl font-bold" style="color: #FF6B35;">
-                        ▶ LAUNCH HAOS PLATFORM
+                        ▶ LAUNCH UNIFIED STUDIO
                     </div>
                 </a>
             </div>
 
-            <!-- SECONDARY: Radio -->
+            <!-- SECONDARY: Specialized Platforms -->
+            <div class="haos-grid haos-grid-2 mb-12">
+                <!-- HAOS Platform -->
+                <a href="/haos-platform.html" class="haos-studio-card" style="border: 2px solid #9D4EDD;">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="text-5xl">🎹</div>
+                        <span class="haos-badge" style="background: #9D4EDD; color: #fff;">PLATFORM</span>
+                    </div>
+                    <h3 class="haos-display-sm mb-3" style="color: #9D4EDD;">
+                        HAOS PLATFORM
+                    </h3>
+                    <p class="haos-body mb-4" style="color: var(--haos-sepia-cream);">
+                        Standalone synthesis platform with TB-303, TR-909, and advanced sequencing. Dual-OS workflow for Techno and Hip-Hop production.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="haos-tag">STANDALONE</span>
+                        <span class="haos-tag">DUAL-OS</span>
+                        <span class="haos-tag">SYNTHESIS</span>
+                    </div>
+                </a>
+
+                <!-- Techno Workspace -->
+                <a href="/techno-workspace.html" class="haos-studio-card" style="border: 2px solid #00D9FF;">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="text-5xl">🔧</div>
+                        <span class="haos-badge" style="background: #00D9FF; color: #000;">WORKSPACE</span>
+                    </div>
+                    <h3 class="haos-display-sm mb-3" style="color: #00D9FF;">
+                        MODULAR WORKSPACE
+                    </h3>
+                    <p class="haos-body mb-4" style="color: var(--haos-sepia-cream);">
+                        Advanced configuration and system monitoring. Professional workspace with performance analytics and resource optimization.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="haos-tag">CONFIG</span>
+                        <span class="haos-tag">ANALYTICS</span>
+                        <span class="haos-tag">PRO TOOLS</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Radio -->
             <div class="haos-grid haos-grid-2 mb-12">
                 <a href="/radio.html" class="haos-studio-card">
                     <div class="flex items-start justify-between mb-4">
