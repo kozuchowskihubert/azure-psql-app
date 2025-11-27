@@ -113,28 +113,9 @@ router.post('/presets', (req, res) => {
 });
 
 /**
- * GET /api/studio/presets/:id
- * Get a specific preset by ID
- */
-router.get('/presets/:id', (req, res) => {
-  const preset = storage.presets.find(p => p.id === req.params.id);
-  
-  if (!preset) {
-    return res.status(404).json({
-      success: false,
-      error: 'Preset not found'
-    });
-  }
-
-  res.json({
-    success: true,
-    preset
-  });
-});
-
-/**
  * GET /api/studio/presets/stats/summary
  * Get preset statistics and categories
+ * NOTE: Must be before /:id route to avoid matching "stats" as an ID
  */
 router.get('/presets/stats/summary', (req, res) => {
   const stats = {
@@ -166,6 +147,26 @@ router.get('/presets/stats/summary', (req, res) => {
       categories: Array.from(stats.categories),
       types: Array.from(stats.types)
     }
+  });
+});
+
+/**
+ * GET /api/studio/presets/:id
+ * Get a specific preset by ID
+ */
+router.get('/presets/:id', (req, res) => {
+  const preset = storage.presets.find(p => p.id === req.params.id);
+  
+  if (!preset) {
+    return res.status(404).json({
+      success: false,
+      error: 'Preset not found'
+    });
+  }
+
+  res.json({
+    success: true,
+    preset
   });
 });
 
