@@ -473,7 +473,234 @@ class HAOSSequencer {
             this.start();
         }
     }
+    
+    clearPattern() {
+        this.pattern.kick.fill(false);
+        this.pattern.snare.fill(false);
+        this.pattern.hihat.fill(false);
+        this.pattern.clap.fill(false);
+    }
+    
+    randomizePattern() {
+        // Kick on 1, 5, 9, 13 + random
+        this.pattern.kick = Array(16).fill(false).map((_, i) => 
+            i % 4 === 0 || Math.random() > 0.7
+        );
+        
+        // Snare on 4, 12 + random
+        this.pattern.snare = Array(16).fill(false).map((_, i) => 
+            (i === 4 || i === 12) || Math.random() > 0.8
+        );
+        
+        // Hi-hats every other step + random
+        this.pattern.hihat = Array(16).fill(false).map((_, i) => 
+            i % 2 === 0 || Math.random() > 0.6
+        );
+        
+        // Clap sparse
+        this.pattern.clap = Array(16).fill(false).map(() => Math.random() > 0.9);
+    }
+    
+    getPattern() {
+        return JSON.parse(JSON.stringify(this.pattern));
+    }
 }
 
-// Export as global for easy access
+/**
+ * Pattern Management System
+ * Handles save/load/share functionality
+ */
+class HAOSPatternManager {
+    constructor() {
+        this.storageKey = 'haos_patterns';
+    }
+    
+    savePattern(name, pattern, tb303Params = {}) {
+        const patterns = this.loadAllPatterns();
+        patterns[name] = {
+            pattern: pattern,
+            tb303: tb303Params,
+            timestamp: Date.now(),
+            version: '1.0'
+        };
+        localStorage.setItem(this.storageKey, JSON.stringify(patterns));
+        console.log(`💾 Pattern "${name}" saved`);
+    }
+    
+    loadPattern(name) {
+        const patterns = this.loadAllPatterns();
+        return patterns[name] || null;
+    }
+    
+    loadAllPatterns() {
+        const data = localStorage.getItem(this.storageKey);
+        return data ? JSON.parse(data) : {};
+    }
+    
+    deletePattern(name) {
+        const patterns = this.loadAllPatterns();
+        delete patterns[name];
+        localStorage.setItem(this.storageKey, JSON.stringify(patterns));
+    }
+    
+    exportPattern(pattern, tb303Params) {
+        return {
+            pattern: pattern,
+            tb303: tb303Params,
+            app: 'HAOS.fm',
+            version: '1.0',
+            timestamp: Date.now()
+        };
+    }
+    
+    importPattern(data) {
+        if (!data.pattern || !data.version) {
+            throw new Error('Invalid pattern data');
+        }
+        return data;
+    }
+    
+    patternToURL(pattern, tb303Params) {
+        const data = this.exportPattern(pattern, tb303Params);
+        const encoded = btoa(JSON.stringify(data));
+        return `${window.location.origin}${window.location.pathname}?pattern=${encoded}`;
+    }
+    
+    patternFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        const encoded = params.get('pattern');
+        if (encoded) {
+            try {
+                const data = JSON.parse(atob(encoded));
+                return this.importPattern(data);
+            } catch (e) {
+                console.error('Failed to load pattern from URL:', e);
+            }
+        }
+        return null;
+    }
+}
+
+/**
+ * TB-303 Preset Bank
+ * Classic acid bass presets
+ */
+class HAOSTB303Presets {
+    constructor() {
+        this.presets = {
+            'Classic Acid': {
+                cutoff: 800,
+                resonance: 18,
+                envMod: 70,
+                decay: 0.3,
+                waveform: 'sawtooth',
+                distortion: 20,
+                accentLevel: 50
+            },
+            'Deep Bass': {
+                cutoff: 400,
+                resonance: 8,
+                envMod: 40,
+                decay: 0.6,
+                waveform: 'sawtooth',
+                distortion: 10,
+                accentLevel: 30
+            },
+            'Squelchy': {
+                cutoff: 1200,
+                resonance: 25,
+                envMod: 90,
+                decay: 0.2,
+                waveform: 'sawtooth',
+                distortion: 35,
+                accentLevel: 70
+            },
+            'Hard Attack': {
+                cutoff: 1500,
+                resonance: 20,
+                envMod: 60,
+                decay: 0.15,
+                waveform: 'square',
+                distortion: 45,
+                accentLevel: 80
+            },
+            'Minimal': {
+                cutoff: 600,
+                resonance: 5,
+                envMod: 30,
+                decay: 0.4,
+                waveform: 'sawtooth',
+                distortion: 5,
+                accentLevel: 20
+            },
+            'Detroit': {
+                cutoff: 900,
+                resonance: 15,
+                envMod: 75,
+                decay: 0.35,
+                waveform: 'sawtooth',
+                distortion: 25,
+                accentLevel: 60
+            },
+            'Aggressive': {
+                cutoff: 2000,
+                resonance: 22,
+                envMod: 85,
+                decay: 0.18,
+                waveform: 'square',
+                distortion: 60,
+                accentLevel: 90
+            },
+            'Warm Sub': {
+                cutoff: 350,
+                resonance: 3,
+                envMod: 20,
+                decay: 0.8,
+                waveform: 'sawtooth',
+                distortion: 0,
+                accentLevel: 15
+            },
+            'Techno Stab': {
+                cutoff: 1800,
+                resonance: 28,
+                envMod: 95,
+                decay: 0.12,
+                waveform: 'square',
+                distortion: 50,
+                accentLevel: 100
+            },
+            'Bubbles': {
+                cutoff: 1400,
+                resonance: 30,
+                envMod: 100,
+                decay: 0.25,
+                waveform: 'sawtooth',
+                distortion: 15,
+                accentLevel: 40
+            }
+        };
+    }
+    
+    getPreset(name) {
+        return this.presets[name] ? {...this.presets[name]} : null;
+    }
+    
+    getAllPresets() {
+        return Object.keys(this.presets);
+    }
+    
+    applyPreset(tb303Instance, presetName) {
+        const preset = this.getPreset(presetName);
+        if (preset && tb303Instance) {
+            Object.assign(tb303Instance.params, preset);
+            console.log(`🎛️ Applied preset: ${presetName}`);
+            return preset;
+        }
+        return null;
+    }
+}
+
+// Export all classes as globals for easy access
 window.HAOSAudioEngine = HAOSAudioEngine;
+window.HAOSPatternManager = HAOSPatternManager;
+window.HAOSTB303Presets = HAOSTB303Presets;

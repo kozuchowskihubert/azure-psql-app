@@ -1076,8 +1076,44 @@
                 console.log('🎛️ HAOS.FM Platform Initializing...');
                 this.setupEventListeners();
                 this.loadSavedOS();
+                
+                // Initialize pattern management
+                this.patternManager = new HAOSPatternManager();
+                this.tb303Presets = new HAOSTB303Presets();
+                
+                // Check for pattern in URL
+                this.loadPatternFromURL();
+                
                 this.initialized = true;
                 console.log('✓ HAOS.FM Ready - Future Modulation Online');
+            },
+            
+            loadPatternFromURL() {
+                if (!this.patternManager) return;
+                
+                const urlPattern = this.patternManager.patternFromURL();
+                if (urlPattern) {
+                    console.log('📥 Loading pattern from URL...');
+                    setTimeout(() => {
+                        // Load pattern after sequencer is ready
+                        if (urlPattern.pattern && this.sequencerState) {
+                            Object.keys(urlPattern.pattern).forEach(track => {
+                                if (this.sequencerState.pattern[track]) {
+                                    urlPattern.pattern[track].forEach((active, i) => {
+                                        this.sequencerState.pattern[track][i] = active;
+                                    });
+                                }
+                            });
+                        }
+                        
+                        // Load TB-303 params
+                        if (urlPattern.tb303 && AudioEngine.tb303) {
+                            Object.assign(AudioEngine.tb303.params, urlPattern.tb303);
+                        }
+                        
+                        this.showToast('📥 Pattern loaded from URL');
+                    }, 1000);
+                }
             },
             
             setupEventListeners() {
@@ -1209,6 +1245,11 @@
                 studioTitle.textContent = panel.title;
                 studioBody.innerHTML = this.renderPanelContent(panelId, panel);
                 studioPanel.style.display = 'flex';
+                
+                // Update saved patterns dropdown when opening sequencer
+                if (panelId === 'sequencer') {
+                    setTimeout(() => this.updateSavedPatternsDropdown(), 100);
+                }
                 
                 // Play demo after panel opens
                 setTimeout(() => this.playPanelDemo(panelId), 300);
@@ -1368,10 +1409,18 @@
                                 PRESETS
                             </label>
                             <select id="tb303-preset" onchange="HAOS.loadTB303Preset(this.value)"
-                                style="padding: 12px 20px; background: var(--haos-panel); border: 2px solid var(--haos-orange); border-radius: 8px; color: var(--haos-text); font-family: var(--font-mono); font-size: 0.9rem; min-width: 200px;">
+                                style="padding: 12px 20px; background: var(--haos-panel); border: 2px solid var(--haos-orange); border-radius: 8px; color: var(--haos-text); font-family: var(--font-mono); font-size: 0.9rem; min-width: 250px;">
                                 <option value="">Select Preset...</option>
-                                <option value="Acid Squelch">🔊 Acid Squelch</option>
-                                <option value="Subtle Groove">🎵 Subtle Groove</option>
+                                <option value="Classic Acid">🎛️ Classic Acid</option>
+                                <option value="Deep Bass">🔊 Deep Bass</option>
+                                <option value="Squelchy">� Squelchy</option>
+                                <option value="Hard Attack">⚡ Hard Attack</option>
+                                <option value="Minimal">🎵 Minimal</option>
+                                <option value="Detroit">🏭 Detroit</option>
+                                <option value="Aggressive">🔥 Aggressive</option>
+                                <option value="Warm Sub">� Warm Sub</option>
+                                <option value="Techno Stab">⚙️ Techno Stab</option>
+                                <option value="Bubbles">💫 Bubbles</option>
                             </select>
                         </div>
                         
@@ -1660,6 +1709,53 @@
                                            box-shadow: 0 4px 15px rgba(100,100,100,0.4); transition: all 0.3s;">
                                 🗑️ CLEAR
                             </button>
+                        </div>
+
+                        <!-- PATTERN MANAGEMENT -->
+                        <div style="background: rgba(0,0,0,0.4); padding: 25px; border-radius: 12px; border: 2px solid #39FF14; margin-bottom: 30px;">
+                            <h3 style="color: #39FF14; margin-bottom: 20px; font-family: var(--font-display); display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.5em;">💾</span>
+                                PATTERN MANAGEMENT
+                            </h3>
+                            
+                            <!-- Save/Load Pattern -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                                <div>
+                                    <input type="text" id="pattern-name" placeholder="Pattern Name..." 
+                                           style="width: 100%; padding: 12px; background: var(--haos-panel); border: 2px solid #39FF14; border-radius: 8px; color: var(--haos-text); font-family: var(--font-mono); margin-bottom: 10px;">
+                                    <button onclick="HAOS.saveCurrentPattern()" 
+                                            style="width: 100%; padding: 15px; background: linear-gradient(135deg, #39FF14, #2ECC00); border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; font-family: var(--font-display);">
+                                        💾 SAVE PATTERN
+                                    </button>
+                                </div>
+                                <div>
+                                    <select id="saved-patterns" 
+                                            style="width: 100%; padding: 12px; background: var(--haos-panel); border: 2px solid #39FF14; border-radius: 8px; color: var(--haos-text); font-family: var(--font-mono); margin-bottom: 10px;">
+                                        <option value="">Select saved pattern...</option>
+                                    </select>
+                                    <button onclick="HAOS.loadSavedPattern()" 
+                                            style="width: 100%; padding: 15px; background: linear-gradient(135deg, #00D9FF, #00AACC); border: none; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer; font-family: var(--font-display);">
+                                        📂 LOAD PATTERN
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Export/Import/Share -->
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                                <button onclick="HAOS.exportPattern()" 
+                                        style="padding: 15px; background: rgba(255, 107, 53, 0.2); border: 2px solid var(--haos-orange); border-radius: 8px; color: var(--haos-orange); font-weight: bold; cursor: pointer; font-family: var(--font-mono);">
+                                    📤 EXPORT JSON
+                                </button>
+                                <button onclick="document.getElementById('pattern-import').click()" 
+                                        style="padding: 15px; background: rgba(0, 217, 255, 0.2); border: 2px solid #00D9FF; border-radius: 8px; color: #00D9FF; font-weight: bold; cursor: pointer; font-family: var(--font-mono);">
+                                    📥 IMPORT JSON
+                                </button>
+                                <button onclick="HAOS.sharePattern()" 
+                                        style="padding: 15px; background: rgba(255, 0, 110, 0.2); border: 2px solid #FF006E; border-radius: 8px; color: #FF006E; font-weight: bold; cursor: pointer; font-family: var(--font-mono);">
+                                    🔗 SHARE URL
+                                </button>
+                            </div>
+                            <input type="file" id="pattern-import" accept=".json" style="display: none;" onchange="HAOS.importPattern(event)">
                         </div>
 
                         <!-- PRESET PATTERNS -->
@@ -2273,6 +2369,312 @@
                 });
                 
                 this.showToast(`Loaded: ${patternName}`);
+            },
+            
+            // ===== PATTERN MANAGEMENT FUNCTIONS =====
+            saveCurrentPattern() {
+                const nameInput = document.getElementById('pattern-name');
+                const name = nameInput.value.trim();
+                
+                if (!name) {
+                    this.showToast('❌ Please enter a pattern name');
+                    return;
+                }
+                
+                if (!this.patternManager) {
+                    this.patternManager = new HAOSPatternManager();
+                }
+                
+                // Get current pattern from sequencer
+                const pattern = this.sequencerState.pattern;
+                
+                // Get current TB-303 params if available
+                const tb303Params = AudioEngine.tb303 ? AudioEngine.tb303.params : {};
+                
+                // Save to localStorage
+                this.patternManager.savePattern(name, pattern, tb303Params);
+                
+                // Update saved patterns dropdown
+                this.updateSavedPatternsDropdown();
+                
+                // Clear input
+                nameInput.value = '';
+                
+                this.showToast(`💾 Saved: ${name}`);
+            },
+            
+            loadSavedPattern() {
+                const select = document.getElementById('saved-patterns');
+                const name = select.value;
+                
+                if (!name) {
+                    this.showToast('❌ Please select a pattern');
+                    return;
+                }
+                
+                if (!this.patternManager) {
+                    this.patternManager = new HAOSPatternManager();
+                }
+                
+                const data = this.patternManager.loadPattern(name);
+                
+                if (!data) {
+                    this.showToast('❌ Pattern not found');
+                    return;
+                }
+                
+                // Load the pattern into sequencer
+                if (data.pattern) {
+                    Object.keys(data.pattern).forEach(track => {
+                        data.pattern[track].forEach((active, i) => {
+                            this.sequencerState.pattern[track][i] = active;
+                            
+                            const button = document.getElementById(`seq-${track}-${i}`);
+                            if (button) {
+                                if (active) {
+                                    button.classList.add('active');
+                                } else {
+                                    button.classList.remove('active');
+                                }
+                            }
+                        });
+                    });
+                }
+                
+                // Load TB-303 params if available
+                if (data.tb303 && AudioEngine.tb303) {
+                    Object.assign(AudioEngine.tb303.params, data.tb303);
+                    this.updateTB303UI();
+                }
+                
+                this.showToast(`📂 Loaded: ${name}`);
+            },
+            
+            updateSavedPatternsDropdown() {
+                if (!this.patternManager) {
+                    this.patternManager = new HAOSPatternManager();
+                }
+                
+                const select = document.getElementById('saved-patterns');
+                if (!select) return;
+                
+                const patterns = this.patternManager.loadAllPatterns();
+                
+                // Clear current options except first
+                select.innerHTML = '<option value="">Select saved pattern...</option>';
+                
+                // Add saved patterns
+                Object.keys(patterns).sort().forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    select.appendChild(option);
+                });
+            },
+            
+            exportPattern() {
+                if (!this.patternManager) {
+                    this.patternManager = new HAOSPatternManager();
+                }
+                
+                const pattern = this.sequencerState.pattern;
+                const tb303Params = AudioEngine.tb303 ? AudioEngine.tb303.params : {};
+                
+                const data = this.patternManager.exportPattern(pattern, tb303Params);
+                
+                // Create download link
+                const json = JSON.stringify(data, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `haos-pattern-${Date.now()}.json`;
+                a.click();
+                
+                URL.revokeObjectURL(url);
+                
+                this.showToast('📤 Pattern exported');
+            },
+            
+            importPattern(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const json = e.target.result;
+                        const data = JSON.parse(json);
+                        
+                        if (!this.patternManager) {
+                            this.patternManager = new HAOSPatternManager();
+                        }
+                        
+                        const imported = this.patternManager.importPattern(data);
+                        
+                        // Load the pattern
+                        if (imported.pattern) {
+                            Object.keys(imported.pattern).forEach(track => {
+                                imported.pattern[track].forEach((active, i) => {
+                                    this.sequencerState.pattern[track][i] = active;
+                                    
+                                    const button = document.getElementById(`seq-${track}-${i}`);
+                                    if (button) {
+                                        if (active) {
+                                            button.classList.add('active');
+                                        } else {
+                                            button.classList.remove('active');
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                        
+                        // Load TB-303 params
+                        if (imported.tb303 && AudioEngine.tb303) {
+                            Object.assign(AudioEngine.tb303.params, imported.tb303);
+                            this.updateTB303UI();
+                        }
+                        
+                        this.showToast('📥 Pattern imported');
+                    } catch (error) {
+                        console.error('Import error:', error);
+                        this.showToast('❌ Invalid pattern file');
+                    }
+                };
+                reader.readAsText(file);
+                
+                // Reset file input
+                event.target.value = '';
+            },
+            
+            sharePattern() {
+                if (!this.patternManager) {
+                    this.patternManager = new HAOSPatternManager();
+                }
+                
+                const pattern = this.sequencerState.pattern;
+                const tb303Params = AudioEngine.tb303 ? AudioEngine.tb303.params : {};
+                
+                const url = this.patternManager.patternToURL(pattern, tb303Params);
+                
+                // Copy to clipboard
+                navigator.clipboard.writeText(url).then(() => {
+                    this.showToast('🔗 URL copied to clipboard!');
+                }).catch(() => {
+                    // Fallback: show URL in prompt
+                    prompt('Share this URL:', url);
+                });
+            },
+            
+            loadTB303Preset(presetName) {
+                if (!presetName) return;
+                
+                if (!this.tb303Presets) {
+                    this.tb303Presets = new HAOSTB303Presets();
+                }
+                
+                const preset = this.tb303Presets.applyPreset(AudioEngine.tb303, presetName);
+                
+                if (preset) {
+                    this.updateTB303UI();
+                    this.showToast(`🎛️ Loaded: ${presetName}`);
+                }
+            },
+            
+            updateTB303UI() {
+                // Update all TB-303 sliders to match current params
+                if (!AudioEngine.tb303) return;
+                
+                const params = AudioEngine.tb303.params;
+                
+                // Update cutoff
+                const cutoffSlider = document.getElementById('tb303-cutoff');
+                if (cutoffSlider) {
+                    cutoffSlider.value = params.cutoff;
+                    document.getElementById('tb303-cutoff-value').textContent = `${params.cutoff} Hz`;
+                }
+                
+                // Update resonance
+                const resSlider = document.getElementById('tb303-resonance');
+                if (resSlider) {
+                    resSlider.value = params.resonance;
+                    document.getElementById('tb303-resonance-value').textContent = params.resonance.toFixed(1);
+                }
+                
+                // Update envmod
+                const envSlider = document.getElementById('tb303-envmod');
+                if (envSlider) {
+                    envSlider.value = params.envMod;
+                    document.getElementById('tb303-envmod-value').textContent = `${params.envMod}%`;
+                }
+                
+                // Update decay
+                const decaySlider = document.getElementById('tb303-decay');
+                if (decaySlider) {
+                    decaySlider.value = params.decay;
+                    document.getElementById('tb303-decay-value').textContent = `${params.decay.toFixed(2)}s`;
+                }
+                
+                // Update distortion
+                const distSlider = document.getElementById('tb303-distortion');
+                if (distSlider) {
+                    distSlider.value = params.distortion;
+                    document.getElementById('tb303-distortion-value').textContent = `${params.distortion}%`;
+                }
+                
+                // Update accent
+                const accentSlider = document.getElementById('tb303-accent');
+                if (accentSlider) {
+                    accentSlider.value = params.accentLevel;
+                    document.getElementById('tb303-accent-value').textContent = `${params.accentLevel}%`;
+                }
+            },
+            
+            randomizeSequencer() {
+                if (this.sequencer) {
+                    this.sequencer.randomizePattern();
+                    
+                    // Update UI
+                    const pattern = this.sequencer.getPattern();
+                    Object.keys(pattern).forEach(track => {
+                        pattern[track].forEach((active, i) => {
+                            this.sequencerState.pattern[track][i] = active;
+                            
+                            const button = document.getElementById(`seq-${track}-${i}`);
+                            if (button) {
+                                if (active) {
+                                    button.classList.add('active');
+                                } else {
+                                    button.classList.remove('active');
+                                }
+                            }
+                        });
+                    });
+                    
+                    this.showToast('🎲 Pattern randomized');
+                } else {
+                    // Fallback if sequencer object not available
+                    const tracks = ['kick', 'snare', 'hihat', 'clap'];
+                    tracks.forEach(track => {
+                        for (let i = 0; i < 16; i++) {
+                            const active = Math.random() > 0.7;
+                            this.sequencerState.pattern[track][i] = active;
+                            
+                            const button = document.getElementById(`seq-${track}-${i}`);
+                            if (button) {
+                                if (active) {
+                                    button.classList.add('active');
+                                } else {
+                                    button.classList.remove('active');
+                                }
+                            }
+                        }
+                    });
+                    
+                    this.showToast('🎲 Pattern randomized');
+                }
             },
             
             // ===== UTILITY FUNCTIONS =====
