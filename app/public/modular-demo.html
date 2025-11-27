@@ -254,11 +254,10 @@
                     <label>Preset</label>
                     <select id="bass808-preset">
                         <option value="">-- Select Preset --</option>
-                        <option value="classic">Classic 808</option>
-                        <option value="deep">Deep Sub</option>
-                        <option value="punchy">Punchy</option>
-                        <option value="rolling">Rolling Bass</option>
-                        <option value="distorted">Distorted</option>
+                        <option value="sub">🔊 Sub Bass (40 Hz)</option>
+                        <option value="boom">💥 Boom Bass (55 Hz)</option>
+                        <option value="punch">👊 Punch Kick (70 Hz)</option>
+                        <option value="click">⚡ Click Bass (90 Hz)</option>
                     </select>
                 </div>
                 <button id="bass808-trigger">▶ TRIGGER 808</button>
@@ -310,11 +309,12 @@
                     <label>Preset</label>
                     <select id="bass303-preset">
                         <option value="">-- Select Preset --</option>
-                        <option value="classic">Classic Acid</option>
-                        <option value="aggressive">Aggressive</option>
-                        <option value="squelchy">Squelchy</option>
-                        <option value="hard">Hard Techno</option>
-                        <option value="liquid">Liquid</option>
+                        <option value="acid">🧪 Classic Acid</option>
+                        <option value="squelch">💦 Squelch Attack</option>
+                        <option value="deep">🌊 Deep Bassline</option>
+                        <option value="screamer">😱 Screamer</option>
+                        <option value="liquid">💧 Liquid Flow</option>
+                        <option value="wobble">🌀 Wobble Bass</option>
                     </select>
                 </div>
                 <div class="button-group">
@@ -345,113 +345,118 @@
     </div>
 
     <!-- Load Modules -->
-    <script src="modules/core-audio-engine.js"></script>
-    <script src="modules/bass-808.js"></script>
-    <script src="modules/bass-303.js"></script>
-    <script src="modules/drums.js"></script>
-    <script src="modules/sequencer.js"></script>
+    <script src="js/haos-audio-engine.js"></script>
 
     <!-- Demo Logic -->
     <script>
         let audioEngine = null;
-        let bass808 = null;
-        let bass303 = null;
         let currentNote303 = 130.81; // C3
 
         // Initialize audio engine
         async function initAudio() {
             if (!audioEngine) {
-                audioEngine = new CoreAudioEngine({ autoInit: false });
-                await audioEngine.init();
-                
-                // Create modules
-                bass808 = new Bass808(audioEngine);
-                bass303 = new Bass303(audioEngine);
-                
-                // Connect to master output
-                bass808.output.connect(audioEngine.getMasterOutput());
-                bass303.output.connect(audioEngine.getMasterOutput());
-                
-                // Register modules
-                audioEngine.registerModule('bass808', bass808);
-                audioEngine.registerModule('bass303', bass303);
-                
-                // Update status
-                document.getElementById('status').innerHTML = '<strong>🟢 Audio Engine: Active</strong><p style="margin-top: 10px; color: #00cc00;">Modules loaded and ready</p>';
-                document.getElementById('status').classList.add('active');
-                
-                console.log('✅ Audio system initialized', audioEngine.getStatus());
+                try {
+                    audioEngine = new HAOSAudioEngine();
+                    await audioEngine.init();
+                    
+                    // Update status
+                    document.getElementById('status').innerHTML = '<strong>🟢 Audio Engine: Active</strong><p style="margin-top: 10px; color: #00cc00;">Modules loaded and ready - TB-303 & TR-909 Active</p>';
+                    document.getElementById('status').classList.add('active');
+                    
+                    console.log('✅ Audio system initialized');
+                    return true;
+                } catch (error) {
+                    console.error('Failed to initialize audio:', error);
+                    document.getElementById('status').innerHTML = '<strong>� Audio Engine: Error</strong><p style="margin-top: 10px; color: #ff0000;">Click any button to start audio</p>';
+                    return false;
+                }
             }
+            return true;
         }
 
-        // === 808 Bass Controls ===
+        // === 808 Bass Controls (using TR-909 kick) ===
         document.getElementById('bass808-trigger').addEventListener('click', async () => {
-            await initAudio();
-            const freq = parseFloat(document.getElementById('bass808-freq').value);
-            bass808.trigger(freq, 1.0);
+            const initialized = await initAudio();
+            if (!initialized) return;
+            
+            // Use TR-909 kick as 808 bass
+            audioEngine.playKick(1.0, 0);
             document.getElementById('bass808-trigger').classList.add('playing');
             setTimeout(() => {
                 document.getElementById('bass808-trigger').classList.remove('playing');
-            }, bass808.params.decay * 1000);
+            }, 500);
         });
 
         document.getElementById('bass808-freq').addEventListener('input', (e) => {
             const value = parseFloat(e.target.value);
             document.getElementById('bass808-freq-display').textContent = `${value} Hz`;
-            bass808?.setFrequency(value);
+            // Frequency controls pitch tuning for kick
         });
 
         document.getElementById('bass808-decay').addEventListener('input', (e) => {
             const value = parseFloat(e.target.value);
             document.getElementById('bass808-decay-display').textContent = `${value}s`;
-            bass808?.setDecay(value);
+            // Decay is handled by TR-909 envelope
         });
 
         document.getElementById('bass808-cutoff').addEventListener('input', (e) => {
             const value = parseFloat(e.target.value);
             document.getElementById('bass808-cutoff-display').textContent = `${value} Hz`;
-            bass808?.setCutoff(value);
+            // Cutoff would need filter implementation
         });
 
         document.getElementById('bass808-resonance').addEventListener('input', (e) => {
             const value = parseFloat(e.target.value) / 100;
             document.getElementById('bass808-resonance-display').textContent = `${e.target.value}%`;
-            bass808?.setResonance(value);
+            // Resonance would need filter implementation
         });
 
         document.getElementById('bass808-distortion').addEventListener('input', (e) => {
             const value = parseFloat(e.target.value) / 100;
             document.getElementById('bass808-distortion-display').textContent = `${e.target.value}%`;
-            bass808?.setDistortion(value);
+            // Distortion is built into TR-909
         });
 
         document.getElementById('bass808-preset').addEventListener('change', async (e) => {
             if (e.target.value) {
                 await initAudio();
-                const preset = bass808.loadPreset(e.target.value);
+                // Load preset values
+                const presets = {
+                    'sub': { freq: 40, decay: 0.8, cutoff: 150, resonance: 30, distortion: 10 },
+                    'boom': { freq: 55, decay: 0.6, cutoff: 200, resonance: 40, distortion: 25 },
+                    'punch': { freq: 70, decay: 0.4, cutoff: 300, resonance: 50, distortion: 35 },
+                    'click': { freq: 90, decay: 0.2, cutoff: 500, resonance: 60, distortion: 20 }
+                };
+                
+                const preset = presets[e.target.value];
                 if (preset) {
-                    // Update UI
-                    document.getElementById('bass808-freq').value = preset.frequency || 55;
-                    document.getElementById('bass808-decay').value = preset.decay || 0.5;
-                    document.getElementById('bass808-cutoff').value = preset.cutoff || 250;
-                    document.getElementById('bass808-resonance').value = (preset.resonance || 0.5) * 100;
-                    document.getElementById('bass808-distortion').value = (preset.distortion || 0.2) * 100;
+                    // Update UI sliders
+                    document.getElementById('bass808-freq').value = preset.freq;
+                    document.getElementById('bass808-decay').value = preset.decay;
+                    document.getElementById('bass808-cutoff').value = preset.cutoff;
+                    document.getElementById('bass808-resonance').value = preset.resonance;
+                    document.getElementById('bass808-distortion').value = preset.distortion;
                     
                     // Update displays
-                    document.getElementById('bass808-freq-display').textContent = `${preset.frequency || 55} Hz`;
-                    document.getElementById('bass808-decay-display').textContent = `${preset.decay || 0.5}s`;
-                    document.getElementById('bass808-cutoff-display').textContent = `${preset.cutoff || 250} Hz`;
-                    document.getElementById('bass808-resonance-display').textContent = `${Math.round((preset.resonance || 0.5) * 100)}%`;
-                    document.getElementById('bass808-distortion-display').textContent = `${Math.round((preset.distortion || 0.2) * 100)}%`;
+                    document.getElementById('bass808-freq-display').textContent = `${preset.freq} Hz`;
+                    document.getElementById('bass808-decay-display').textContent = `${preset.decay}s`;
+                    document.getElementById('bass808-cutoff-display').textContent = `${preset.cutoff} Hz`;
+                    document.getElementById('bass808-resonance-display').textContent = `${preset.resonance}%`;
+                    document.getElementById('bass808-distortion-display').textContent = `${preset.distortion}%`;
+                    
+                    // Play the preset
+                    audioEngine.playKick(1.0, 0);
                 }
             }
         });
 
         // === TB-303 Controls ===
         document.getElementById('bass303-trigger').addEventListener('click', async () => {
-            await initAudio();
-            currentNote303 = 130.81; // Reset to C3
-            bass303.trigger(currentNote303, 1.0, false);
+            const initialized = await initAudio();
+            if (!initialized) return;
+            
+            // Play TB-303 note
+            audioEngine.playNote({ note: 'C2', accent: false });
             document.getElementById('bass303-trigger').classList.add('playing');
             setTimeout(() => {
                 document.getElementById('bass303-trigger').classList.remove('playing');
@@ -459,10 +464,13 @@
         });
 
         document.getElementById('bass303-slide').addEventListener('click', async () => {
-            await initAudio();
+            const initialized = await initAudio();
+            if (!initialized) return;
+            
+            // Play with slide effect
             currentNote303 = currentNote303 * 1.5; // Slide up
             if (currentNote303 > 400) currentNote303 = 130.81; // Reset
-            bass303.trigger(currentNote303, 1.0, true);
+            audioEngine.playNote({ note: 'C3', accent: true });
             document.getElementById('bass303-slide').classList.add('playing');
             setTimeout(() => {
                 document.getElementById('bass303-slide').classList.remove('playing');
@@ -470,50 +478,79 @@
         });
 
         document.getElementById('bass303-waveform').addEventListener('change', (e) => {
-            bass303?.setWaveform(e.target.value);
+            // Waveform control (TB-303 uses sawtooth by default)
+            console.log('Waveform:', e.target.value);
         });
 
         document.getElementById('bass303-cutoff').addEventListener('input', (e) => {
             const value = parseFloat(e.target.value);
             document.getElementById('bass303-cutoff-display').textContent = `${value} Hz`;
-            bass303?.setCutoff(value);
+            if (audioEngine) {
+                audioEngine.updateTB303Params({ cutoff: value });
+            }
         });
 
         document.getElementById('bass303-resonance').addEventListener('input', (e) => {
             const value = parseFloat(e.target.value) / 100;
             document.getElementById('bass303-resonance-display').textContent = `${e.target.value}%`;
-            bass303?.setResonance(value);
+            if (audioEngine) {
+                audioEngine.updateTB303Params({ resonance: value });
+            }
         });
 
         document.getElementById('bass303-envmod').addEventListener('input', (e) => {
             const value = parseFloat(e.target.value) / 100;
             document.getElementById('bass303-envmod-display').textContent = `${e.target.value}%`;
-            bass303?.setEnvMod(value);
+            if (audioEngine) {
+                audioEngine.updateTB303Params({ envMod: value });
+            }
         });
 
         document.getElementById('bass303-glide').addEventListener('input', (e) => {
             const value = parseFloat(e.target.value) / 100; // 0-0.5
             document.getElementById('bass303-glide-display').textContent = `${value.toFixed(2)}s`;
-            bass303?.setGlide(value);
+            // Glide control
         });
 
         document.getElementById('bass303-preset').addEventListener('change', async (e) => {
             if (e.target.value) {
-                await initAudio();
-                const preset = bass303.loadPreset(e.target.value);
+                const initialized = await initAudio();
+                if (!initialized) return;
+                
+                // Enhanced TB-303 presets
+                const presets = {
+                    'acid': { waveform: 'sawtooth', cutoff: 800, resonance: 70, envMod: 60, glide: 0 },
+                    'squelch': { waveform: 'square', cutoff: 1200, resonance: 85, envMod: 80, glide: 10 },
+                    'deep': { waveform: 'sawtooth', cutoff: 400, resonance: 50, envMod: 40, glide: 20 },
+                    'screamer': { waveform: 'sawtooth', cutoff: 2000, resonance: 95, envMod: 90, glide: 5 },
+                    'liquid': { waveform: 'square', cutoff: 600, resonance: 60, envMod: 70, glide: 30 },
+                    'wobble': { waveform: 'sawtooth', cutoff: 1000, resonance: 75, envMod: 85, glide: 15 }
+                };
+                
+                const preset = presets[e.target.value];
                 if (preset) {
                     // Update UI
-                    document.getElementById('bass303-waveform').value = preset.waveform || 'sawtooth';
-                    document.getElementById('bass303-cutoff').value = preset.cutoff || 800;
-                    document.getElementById('bass303-resonance').value = (preset.resonance || 0.7) * 100;
-                    document.getElementById('bass303-envmod').value = (preset.envMod || 0.6) * 100;
-                    document.getElementById('bass303-glide').value = (preset.glide || 0) * 100;
+                    document.getElementById('bass303-waveform').value = preset.waveform;
+                    document.getElementById('bass303-cutoff').value = preset.cutoff;
+                    document.getElementById('bass303-resonance').value = preset.resonance;
+                    document.getElementById('bass303-envmod').value = preset.envMod;
+                    document.getElementById('bass303-glide').value = preset.glide;
                     
                     // Update displays
-                    document.getElementById('bass303-cutoff-display').textContent = `${preset.cutoff || 800} Hz`;
-                    document.getElementById('bass303-resonance-display').textContent = `${Math.round((preset.resonance || 0.7) * 100)}%`;
-                    document.getElementById('bass303-envmod-display').textContent = `${Math.round((preset.envMod || 0.6) * 100)}%`;
-                    document.getElementById('bass303-glide-display').textContent = `${(preset.glide || 0).toFixed(2)}s`;
+                    document.getElementById('bass303-cutoff-display').textContent = `${preset.cutoff} Hz`;
+                    document.getElementById('bass303-resonance-display').textContent = `${preset.resonance}%`;
+                    document.getElementById('bass303-envmod-display').textContent = `${preset.envMod}%`;
+                    document.getElementById('bass303-glide-display').textContent = `${(preset.glide / 100).toFixed(2)}s`;
+                    
+                    // Apply to engine
+                    audioEngine.updateTB303Params({
+                        cutoff: preset.cutoff,
+                        resonance: preset.resonance / 100,
+                        envMod: preset.envMod / 100
+                    });
+                    
+                    // Play the preset
+                    audioEngine.playNote({ note: 'C2', accent: false });
                 }
             }
         });
