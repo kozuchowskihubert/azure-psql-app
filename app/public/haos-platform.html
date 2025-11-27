@@ -691,6 +691,9 @@
 </head>
 <body>
 
+    <!-- Load Feature Flags First -->
+    <script src="/js/feature-flags.js"></script>
+    
     <!-- Load HAOS Audio Engine -->
     <script src="/js/haos-audio-engine.js"></script>
     
@@ -942,6 +945,18 @@
                 
                 try {
                     console.log('🎛️ Initializing HAOS Audio Engine...');
+                    
+                    // Load feature flags first
+                    if (typeof FeatureFlags !== 'undefined') {
+                        await FeatureFlags.loadFeatures();
+                        console.log('✅ Feature flags loaded');
+                        
+                        // Log enabled features
+                        const enabled = FeatureFlags.getEnabledFeatures('haos_platform');
+                        console.log(`📦 Enabled features (${enabled.length}):`, enabled.map(f => f.key).join(', '));
+                    } else {
+                        console.warn('⚠️ Feature flags not available, all features enabled');
+                    }
                     
                     // Initialize HAOS Audio Engine
                     this.engine = new HAOSAudioEngine();
