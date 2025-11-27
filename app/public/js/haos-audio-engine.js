@@ -75,8 +75,32 @@ class HAOSTB303 {
             decay: 0.3,
             distortion: 20,
             accentLevel: 50,
-            waveform: 'sawtooth'
+            waveform: 'sawtooth',
+            // Advanced modulation
+            lfoRate: 4,
+            lfoDepth: 0,
+            lfoTarget: 'filter', // 'filter', 'pitch', 'amp'
+            lfoWaveform: 'sine',
+            portamento: 0.05,
+            slide: false
         };
+        
+        // LFO
+        this.lfo = null;
+        this.lfoGain = null;
+        this.initLFO();
+    }
+    
+    initLFO() {
+        this.lfo = this.context.createOscillator();
+        this.lfo.type = this.params.lfoWaveform;
+        this.lfo.frequency.value = this.params.lfoRate;
+        
+        this.lfoGain = this.context.createGain();
+        this.lfoGain.gain.value = this.params.lfoDepth;
+        
+        this.lfo.connect(this.lfoGain);
+        this.lfo.start();
     }
     
     setParam(param, value) {
@@ -86,14 +110,36 @@ class HAOSTB303 {
     
     playNote(note) {
         const now = this.context.currentTime;
-        const freq = typeof note === 'string' ? this.noteToFreq(note.note || note) : note;
-        const accent = note.accent || false;
-        const slide = note.slide || false;
+        
+        // Handle different input formats
+        let freq, accent, slide;
+        if (typeof note === 'object') {
+            // Object format: { note: 'C2', accent: true, slide: false }
+            freq = this.noteToFreq(note.note);
+            accent = note.accent || false;
+            slide = note.slide || false;
+        } else if (typeof note === 'string') {
+            // String format: 'C2'
+            freq = this.noteToFreq(note);
+            accent = false;
+            slide = false;
+        } else {
+            // Number format: frequency in Hz
+            freq = note;
+            accent = false;
+            slide = false;
+        }
         
         // Oscillator
         const osc = this.context.createOscillator();
         osc.type = this.params.waveform;
         osc.frequency.value = freq;
+        
+        // Apply LFO to pitch if target is 'pitch'
+        if (this.params.lfoTarget === 'pitch' && this.params.lfoDepth > 0) {
+            this.lfoGain.gain.value = freq * (this.params.lfoDepth / 100) * 0.1; // 10% max deviation
+            this.lfoGain.connect(osc.frequency);
+        }
         
         // Filter
         const filter = this.context.createBiquadFilter();
@@ -108,6 +154,12 @@ class HAOSTB303 {
         filter.frequency.setValueAtTime(cutoffPeak, now);
         filter.frequency.exponentialRampToValueAtTime(cutoffBase, now + this.params.decay);
         
+        // Apply LFO to filter if target is 'filter'
+        if (this.params.lfoTarget === 'filter' && this.params.lfoDepth > 0) {
+            this.lfoGain.gain.value = cutoffBase * (this.params.lfoDepth / 100) * 0.5; // 50% max deviation
+            this.lfoGain.connect(filter.frequency);
+        }
+        
         // Amplitude envelope
         const env = this.context.createGain();
         const attackTime = 0.005;
@@ -118,6 +170,13 @@ class HAOSTB303 {
         env.gain.setValueAtTime(0, now);
         env.gain.linearRampToValueAtTime(peakLevel, now + attackTime);
         env.gain.exponentialRampToValueAtTime(0.01, now + this.params.decay + 0.1);
+        
+        // Apply LFO to amplitude if target is 'amp'
+        if (this.params.lfoTarget === 'amp' && this.params.lfoDepth > 0) {
+            const lfoAmpGain = this.context.createGain();
+            lfoAmpGain.gain.value = peakLevel * (this.params.lfoDepth / 100) * 0.3; // 30% max tremolo
+            this.lfoGain.connect(lfoAmpGain.gain);
+        }
         
         // Distortion (waveshaper)
         const distortion = this.context.createWaveShaper();
@@ -181,25 +240,26 @@ class HAOSTR909 {
         };
     }
     
-    playKick() {
+    playKick(velocity = 1.0, tune = 0) {
         const now = this.context.currentTime;
         
         // Oscillator for body
         const osc = this.context.createOscillator();
-        osc.frequency.setValueAtTime(150, now);
-        osc.frequency.exponentialRampToValueAtTime(40, now + 0.1);
+        const pitchMult = Math.pow(2, tune / 12); // Semitone tuning
+        osc.frequency.setValueAtTime(150 * pitchMult, now);
+        osc.frequency.exponentialRampToValueAtTime(40 * pitchMult, now + 0.1);
         
         // Click oscillator
         const clickOsc = this.context.createOscillator();
-        clickOsc.frequency.value = 1000;
+        clickOsc.frequency.value = 1000 * pitchMult;
         
-        // Envelopes
+        // Envelopes with velocity
         const env = this.context.createGain();
-        env.gain.setValueAtTime(1, now);
+        env.gain.setValueAtTime(1 * velocity, now);
         env.gain.exponentialRampToValueAtTime(0.01, now + this.params.kickDecay);
         
         const clickEnv = this.context.createGain();
-        clickEnv.gain.setValueAtTime(0.5, now);
+        clickEnv.gain.setValueAtTime(0.5 * velocity, now);
         clickEnv.gain.exponentialRampToValueAtTime(0.01, now + 0.01);
         
         // Connect
@@ -215,31 +275,32 @@ class HAOSTR909 {
         clickOsc.stop(now + 0.02);
     }
     
-    playSnare() {
+    playSnare(velocity = 1.0, tune = 0) {
         const now = this.context.currentTime;
         
         // Noise for snare body
         const noise = this.context.createBufferSource();
         noise.buffer = this.createNoiseBuffer();
         
-        // Tone oscillators
+        // Tone oscillators with tuning
+        const pitchMult = Math.pow(2, tune / 12);
         const osc1 = this.context.createOscillator();
         const osc2 = this.context.createOscillator();
-        osc1.frequency.value = this.params.snareTone;
-        osc2.frequency.value = this.params.snareTone * 1.6;
+        osc1.frequency.value = this.params.snareTone * pitchMult;
+        osc2.frequency.value = this.params.snareTone * 1.6 * pitchMult;
         
         // Filter for noise
         const filter = this.context.createBiquadFilter();
         filter.type = 'highpass';
         filter.frequency.value = 2000;
         
-        // Envelope
+        // Envelope with velocity
         const env = this.context.createGain();
-        env.gain.setValueAtTime(0.8, now);
+        env.gain.setValueAtTime(0.8 * velocity, now);
         env.gain.exponentialRampToValueAtTime(0.01, now + this.params.snareDecay);
         
         const toneEnv = this.context.createGain();
-        toneEnv.gain.setValueAtTime(0.3, now);
+        toneEnv.gain.setValueAtTime(0.3 * velocity, now);
         toneEnv.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
         
         // Connect
@@ -259,19 +320,20 @@ class HAOSTR909 {
         osc2.stop(now + 0.1);
     }
     
-    playHatClosed() {
-        this.playHiHat(this.params.hihatDecay);
+    playHatClosed(velocity = 1.0, tune = 0) {
+        this.playHiHat(this.params.hihatDecay, velocity, tune);
     }
     
-    playHatOpen() {
-        this.playHiHat(this.params.hihatDecay * 8);
+    playHatOpen(velocity = 1.0, tune = 0) {
+        this.playHiHat(this.params.hihatDecay * 8, velocity, tune);
     }
     
-    playHiHat(decay) {
+    playHiHat(decay, velocity = 1.0, tune = 0) {
         const now = this.context.currentTime;
         
-        // Multiple oscillators for metallic sound
-        const frequencies = [296, 371, 438, 589, 774];
+        // Multiple oscillators for metallic sound with tuning
+        const pitchMult = Math.pow(2, tune / 12);
+        const frequencies = [296, 371, 438, 589, 774].map(f => f * pitchMult);
         const oscs = frequencies.map(freq => {
             const osc = this.context.createOscillator();
             osc.frequency.value = freq;
@@ -284,9 +346,9 @@ class HAOSTR909 {
         filter.type = 'highpass';
         filter.frequency.value = 7000;
         
-        // Envelope
+        // Envelope with velocity
         const env = this.context.createGain();
-        env.gain.setValueAtTime(0.3, now);
+        env.gain.setValueAtTime(0.3 * velocity, now);
         env.gain.exponentialRampToValueAtTime(0.01, now + decay);
         
         // Connect
@@ -301,14 +363,15 @@ class HAOSTR909 {
         });
     }
     
-    playRimshot() {
+    playRimshot(velocity = 1.0, tune = 0) {
         const now = this.context.currentTime;
         
         const osc = this.context.createOscillator();
-        osc.frequency.value = 400;
+        const pitchMult = Math.pow(2, tune / 12);
+        osc.frequency.value = 400 * pitchMult;
         
         const env = this.context.createGain();
-        env.gain.setValueAtTime(0.5, now);
+        env.gain.setValueAtTime(0.5 * velocity, now);
         env.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
         
         osc.connect(env);
@@ -318,7 +381,7 @@ class HAOSTR909 {
         osc.stop(now + 0.06);
     }
     
-    playClap() {
+    playClap(velocity = 1.0, tune = 0) {
         // Clap is multiple short bursts of noise
         for (let i = 0; i < 3; i++) {
             setTimeout(() => {
@@ -328,10 +391,11 @@ class HAOSTR909 {
                 
                 const filter = this.context.createBiquadFilter();
                 filter.type = 'bandpass';
-                filter.frequency.value = 1500;
+                const pitchMult = Math.pow(2, tune / 12);
+                filter.frequency.value = 1500 * pitchMult;
                 
                 const env = this.context.createGain();
-                env.gain.setValueAtTime(0.6, now);
+                env.gain.setValueAtTime(0.6 * velocity, now);
                 env.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
                 
                 noise.connect(filter);
@@ -415,13 +479,91 @@ class HAOSSequencer {
         this.currentStep = 0;
         this.intervalId = null;
         
-        // Pattern storage
-        this.pattern = {
-            kick: Array(16).fill(false),
-            snare: Array(16).fill(false),
-            hihat: Array(16).fill(false),
-            clap: Array(16).fill(false)
+        // Advanced sequencer features
+        this.swing = 0; // 0-100 swing amount
+        this.currentBank = 'A'; // A, B, C, D
+        this.patternChain = []; // Array of pattern bank letters to chain
+        this.chainPosition = 0;
+        
+        // Pattern banks (4 patterns: A, B, C, D)
+        this.banks = {
+            A: this.createEmptyPattern(),
+            B: this.createEmptyPattern(),
+            C: this.createEmptyPattern(),
+            D: this.createEmptyPattern()
         };
+        
+        // Legacy alias for current pattern
+        Object.defineProperty(this, 'pattern', {
+            get: () => this.banks[this.currentBank]
+        });
+    }
+    
+    createEmptyPattern() {
+        return {
+            kick: Array(16).fill(false).map(() => ({ active: false, velocity: 100, tune: 0 })),
+            snare: Array(16).fill(false).map(() => ({ active: false, velocity: 100, tune: 0 })),
+            hihat: Array(16).fill(false).map(() => ({ active: false, velocity: 100, tune: 0 })),
+            clap: Array(16).fill(false).map(() => ({ active: false, velocity: 100, tune: 0 }))
+        };
+    }
+    
+    // Pattern bank management
+    switchBank(bank) {
+        if (['A', 'B', 'C', 'D'].includes(bank)) {
+            this.currentBank = bank;
+            console.log(`📁 Switched to pattern bank ${bank}`);
+            return true;
+        }
+        return false;
+    }
+    
+    copyBank(from, to) {
+        if (['A', 'B', 'C', 'D'].includes(from) && ['A', 'B', 'C', 'D'].includes(to)) {
+            this.banks[to] = JSON.parse(JSON.stringify(this.banks[from]));
+            console.log(`📋 Copied pattern ${from} to ${to}`);
+            return true;
+        }
+        return false;
+    }
+    
+    // Pattern chaining
+    setChain(chain) {
+        // chain is array like ['A', 'B', 'A', 'C']
+        if (Array.isArray(chain) && chain.every(b => ['A', 'B', 'C', 'D'].includes(b))) {
+            this.patternChain = chain;
+            this.chainPosition = 0;
+            console.log(`⛓️ Pattern chain set: ${chain.join(' → ')}`);
+            return true;
+        }
+        return false;
+    }
+    
+    clearChain() {
+        this.patternChain = [];
+        this.chainPosition = 0;
+    }
+    
+    advanceChain() {
+        if (this.patternChain.length > 0) {
+            this.chainPosition = (this.chainPosition + 1) % this.patternChain.length;
+            this.currentBank = this.patternChain[this.chainPosition];
+            console.log(`⛓️ Chain advanced to ${this.currentBank} (${this.chainPosition + 1}/${this.patternChain.length})`);
+        }
+    }
+    
+    // Swing/shuffle timing
+    setSwing(amount) {
+        this.swing = Math.max(0, Math.min(100, amount));
+        console.log(`🎵 Swing set to ${this.swing}%`);
+    }
+    
+    getSwingDelay(step) {
+        // Apply swing to off-beats (odd steps)
+        if (step % 2 === 1) {
+            return (this.swing / 100) * ((60 / this.bpm) * 250 * 0.3); // Up to 30% delay
+        }
+        return 0;
     }
     
     start() {
@@ -433,8 +575,22 @@ class HAOSSequencer {
         const stepTime = (60 / this.bpm) * 250; // 16th notes in ms
         
         this.intervalId = setInterval(() => {
-            this.playStep(this.currentStep);
-            this.currentStep = (this.currentStep + 1) % 16;
+            // Apply swing delay
+            const swingDelay = this.getSwingDelay(this.currentStep);
+            
+            setTimeout(() => {
+                this.playStep(this.currentStep);
+            }, swingDelay);
+            
+            this.currentStep++;
+            
+            // Handle pattern chaining
+            if (this.currentStep >= 16) {
+                this.currentStep = 0;
+                if (this.patternChain.length > 0) {
+                    this.advanceChain();
+                }
+            }
         }, stepTime);
         
         console.log(`▶️ Sequencer started at ${this.bpm} BPM`);
@@ -451,19 +607,67 @@ class HAOSSequencer {
     }
     
     playStep(step) {
-        if (this.pattern.kick[step]) this.drums.playKick();
-        if (this.pattern.snare[step]) this.drums.playSnare();
-        if (this.pattern.hihat[step]) this.drums.playHatClosed();
-        if (this.pattern.clap[step]) this.drums.playClap();
+        const pattern = this.banks[this.currentBank];
+        
+        // Play with velocity and tuning
+        if (pattern.kick[step] && (pattern.kick[step].active || pattern.kick[step] === true)) {
+            const vel = pattern.kick[step].velocity || 100;
+            const tune = pattern.kick[step].tune || 0;
+            this.drums.playKick(vel / 100, tune);
+        }
+        if (pattern.snare[step] && (pattern.snare[step].active || pattern.snare[step] === true)) {
+            const vel = pattern.snare[step].velocity || 100;
+            const tune = pattern.snare[step].tune || 0;
+            this.drums.playSnare(vel / 100, tune);
+        }
+        if (pattern.hihat[step] && (pattern.hihat[step].active || pattern.hihat[step] === true)) {
+            const vel = pattern.hihat[step].velocity || 100;
+            const tune = pattern.hihat[step].tune || 0;
+            this.drums.playHatClosed(vel / 100, tune);
+        }
+        if (pattern.clap[step] && (pattern.clap[step].active || pattern.clap[step] === true)) {
+            const vel = pattern.clap[step].velocity || 100;
+            const tune = pattern.clap[step].tune || 0;
+            this.drums.playClap(vel / 100, tune);
+        }
     }
     
-    toggleStep(track, step) {
-        this.pattern[track][step] = !this.pattern[track][step];
-        return this.pattern[track][step];
+    toggleStep(track, step, velocity = 100, tune = 0) {
+        const pattern = this.banks[this.currentBank];
+        
+        // Support both old boolean format and new object format
+        if (typeof pattern[track][step] === 'boolean') {
+            pattern[track][step] = !pattern[track][step];
+        } else if (pattern[track][step].active !== undefined) {
+            pattern[track][step].active = !pattern[track][step].active;
+        } else {
+            // Convert old format to new
+            pattern[track][step] = { active: true, velocity, tune };
+        }
+        
+        return pattern[track][step];
+    }
+    
+    setStepVelocity(track, step, velocity) {
+        const pattern = this.banks[this.currentBank];
+        if (pattern[track][step]) {
+            if (typeof pattern[track][step] === 'object') {
+                pattern[track][step].velocity = velocity;
+            }
+        }
+    }
+    
+    setStepTune(track, step, tune) {
+        const pattern = this.banks[this.currentBank];
+        if (pattern[track][step]) {
+            if (typeof pattern[track][step] === 'object') {
+                pattern[track][step].tune = tune;
+            }
+        }
     }
     
     loadPattern(patternData) {
-        Object.assign(this.pattern, patternData);
+        Object.assign(this.banks[this.currentBank], patternData);
     }
     
     setBPM(bpm) {

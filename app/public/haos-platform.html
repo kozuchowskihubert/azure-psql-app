@@ -812,6 +812,14 @@
                                     16-step pattern programming with automation and randomization.
                                 </p>
                             </div>
+                            
+                            <div class="action-card" onclick="HAOS.openPanel('workspace')" style="cursor: pointer;">
+                                <div class="action-icon">💾</div>
+                                <h3 class="action-title">Preset Workspace</h3>
+                                <p class="action-description">
+                                    Browse, preview, and load TB-303 and sequencer presets instantly.
+                                </p>
+                            </div>
                         </div>
                     </div>
 
@@ -1015,6 +1023,7 @@
             initialized: false,
             currentOS: null,
             currentPanel: null,
+            currentBank: 'A', // Active pattern bank for sequencer
             
             // Panel Registry - defines all available panels per OS
             panels: {
@@ -1049,6 +1058,14 @@
                         parent: 'home',
                         available: true,
                         description: '16-step pattern programming'
+                    },
+                    'workspace': {
+                        id: 'workspace',
+                        title: 'Preset Workspace',
+                        icon: '💾',
+                        parent: 'home',
+                        available: true,
+                        description: 'Browse, preview, and load presets'
                     }
                 },
                 hiphop: {
@@ -1285,6 +1302,7 @@
                     'drums-909': () => this.renderTR909Studio(),
                     'drums-808': () => this.renderTR808Studio(),
                     'sequencer': () => this.renderSequencerStudio(),
+                    'workspace': () => this.renderWorkspace(),
                 };
                 
                 const renderer = renderers[panelId];
@@ -1437,6 +1455,87 @@
                                 <option value="Techno Stab">⚙️ Techno Stab</option>
                                 <option value="Bubbles">💫 Bubbles</option>
                             </select>
+                        </div>
+                        
+                        <!-- LFO MODULATION (ADVANCED) -->
+                        <div style="margin-bottom: 30px; background: rgba(57, 255, 20, 0.05); padding: 20px; border-radius: 12px; border: 2px solid rgba(57, 255, 20, 0.2);">
+                            <label style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--haos-green); display: block; margin-bottom: 20px; text-align: center;">
+                                🌊 LFO MODULATION
+                            </label>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 15px;">
+                                <!-- LFO Rate -->
+                                <div class="synth-control">
+                                    <label style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-green); margin-bottom: 8px; display: block;">
+                                        RATE (Hz)
+                                    </label>
+                                    <input type="range" id="tb303-lfo-rate" min="0.1" max="20" value="4" step="0.1"
+                                        style="width: 100%; margin-bottom: 8px;"
+                                        oninput="HAOS.updateTB303Param('lfoRate', this.value)">
+                                    <div id="tb303-lfo-rate-value" style="text-align: center; color: var(--haos-text); font-size: 1rem;">
+                                        4.0 Hz
+                                    </div>
+                                </div>
+                                
+                                <!-- LFO Depth -->
+                                <div class="synth-control">
+                                    <label style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-green); margin-bottom: 8px; display: block;">
+                                        DEPTH
+                                    </label>
+                                    <input type="range" id="tb303-lfo-depth" min="0" max="100" value="0"
+                                        style="width: 100%; margin-bottom: 8px;"
+                                        oninput="HAOS.updateTB303Param('lfoDepth', this.value)">
+                                    <div id="tb303-lfo-depth-value" style="text-align: center; color: var(--haos-text); font-size: 1rem;">
+                                        0%
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- LFO Target -->
+                            <div style="margin-bottom: 15px;">
+                                <label style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-green); display: block; margin-bottom: 10px; text-align: center;">
+                                    TARGET
+                                </label>
+                                <div style="display: flex; gap: 10px; justify-content: center;">
+                                    <button onclick="HAOS.updateTB303Param('lfoTarget', 'filter')" 
+                                        style="padding: 10px 20px; background: var(--haos-green); border: none; border-radius: 6px; color: #000; font-family: var(--font-mono); cursor: pointer; font-size: 0.9rem;">
+                                        FILTER
+                                    </button>
+                                    <button onclick="HAOS.updateTB303Param('lfoTarget', 'pitch')" 
+                                        style="padding: 10px 20px; background: rgba(57, 255, 20, 0.2); border: 2px solid var(--haos-green); border-radius: 6px; color: var(--haos-green); font-family: var(--font-mono); cursor: pointer; font-size: 0.9rem;">
+                                        PITCH
+                                    </button>
+                                    <button onclick="HAOS.updateTB303Param('lfoTarget', 'amp')" 
+                                        style="padding: 10px 20px; background: rgba(57, 255, 20, 0.2); border: 2px solid var(--haos-green); border-radius: 6px; color: var(--haos-green); font-family: var(--font-mono); cursor: pointer; font-size: 0.9rem;">
+                                        AMP
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- LFO Waveform -->
+                            <div>
+                                <label style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-green); display: block; margin-bottom: 10px; text-align: center;">
+                                    WAVEFORM
+                                </label>
+                                <div style="display: flex; gap: 8px; justify-content: center;">
+                                    <button onclick="HAOS.updateTB303Param('lfoWaveform', 'sine')" 
+                                        style="padding: 8px 15px; background: var(--haos-green); border: none; border-radius: 6px; color: #000; font-family: var(--font-mono); cursor: pointer; font-size: 0.85rem;">
+                                        SINE
+                                    </button>
+                                    <button onclick="HAOS.updateTB303Param('lfoWaveform', 'triangle')" 
+                                        style="padding: 8px 15px; background: rgba(57, 255, 20, 0.2); border: 2px solid var(--haos-green); border-radius: 6px; color: var(--haos-green); font-family: var(--font-mono); cursor: pointer; font-size: 0.85rem;">
+                                        TRI
+                                    </button>
+                                    <button onclick="HAOS.updateTB303Param('lfoWaveform', 'square')" 
+                                        style="padding: 8px 15px; background: rgba(57, 255, 20, 0.2); border: 2px solid var(--haos-green); border-radius: 6px; color: var(--haos-green); font-family: var(--font-mono); cursor: pointer; font-size: 0.85rem;">
+                                        SQR
+                                    </button>
+                                    <button onclick="HAOS.updateTB303Param('lfoWaveform', 'sawtooth')" 
+                                        style="padding: 8px 15px; background: rgba(57, 255, 20, 0.2); border: 2px solid var(--haos-green); border-radius: 6px; color: var(--haos-green); font-family: var(--font-mono); cursor: pointer; font-size: 0.85rem;">
+                                        SAW
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         
                         <!-- Play Test Note -->
@@ -1622,6 +1721,137 @@
                                           drums, 'var(--haos-pink)', '🎛️');
             },
             
+            renderWorkspace() {
+                return `
+                    <div style="padding: 30px; max-width: 1600px; margin: 0 auto;">
+                        <h2 style="color: var(--haos-green); margin-bottom: 10px; font-family: var(--font-display); font-size: 2.5em; text-align: center;">
+                            💾 PRESET WORKSPACE
+                        </h2>
+                        <p style="color: rgba(255,255,255,0.7); margin-bottom: 30px; text-align: center; font-size: 1.1em;">
+                            Browse, preview, and load presets instantly • One-click sound design
+                        </p>
+
+                        <!-- QUICK ACTIONS BAR -->
+                        <div style="background: rgba(57, 255, 20, 0.1); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 2px solid rgba(57, 255, 20, 0.3); display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                            <button onclick="HAOS.openPanel('acid-lab')" 
+                                style="padding: 15px 30px; background: var(--haos-orange); border: none; border-radius: 8px; color: #000; font-family: var(--font-display); cursor: pointer; font-weight: bold; font-size: 1.1rem;">
+                                🎛️ OPEN TB-303
+                            </button>
+                            <button onclick="HAOS.openPanel('drums-909')" 
+                                style="padding: 15px 30px; background: #00D9FF; border: none; border-radius: 8px; color: #000; font-family: var(--font-display); cursor: pointer; font-weight: bold; font-size: 1.1rem;">
+                                🥁 OPEN TR-909
+                            </button>
+                            <button onclick="HAOS.openPanel('sequencer')" 
+                                style="padding: 15px 30px; background: var(--orange-primary); border: none; border-radius: 8px; color: #000; font-family: var(--font-display); cursor: pointer; font-weight: bold; font-size: 1.1rem;">
+                                ⚙️ OPEN SEQUENCER
+                            </button>
+                            <button onclick="HAOS.exportWorkspace()" 
+                                style="padding: 15px 30px; background: rgba(57, 255, 20, 0.2); border: 2px solid var(--haos-green); border-radius: 8px; color: var(--haos-green); font-family: var(--font-display); cursor: pointer; font-weight: bold; font-size: 1.1rem;">
+                                📤 EXPORT ALL
+                            </button>
+                        </div>
+
+                        <!-- TB-303 PRESETS SECTION -->
+                        <div style="background: rgba(0,0,0,0.4); padding: 30px; border-radius: 12px; margin-bottom: 30px; border: 2px solid var(--haos-orange);">
+                            <h3 style="color: var(--haos-orange); margin-bottom: 20px; font-family: var(--font-display); font-size: 1.8em; text-align: center;">
+                                🎛️ TB-303 ACID PRESETS
+                            </h3>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                                ${this.renderPresetCard('Classic Acid', '🎛️', {
+                                    cutoff: 1200,
+                                    resonance: 15,
+                                    envMod: 70,
+                                    decay: 0.3,
+                                    distortion: 20,
+                                    accentLevel: 50
+                                }, 'Classic squelchy 303 sound', 'tb303')}
+                                
+                                ${this.renderPresetCard('Deep Bass', '🔊', {
+                                    cutoff: 400,
+                                    resonance: 8,
+                                    envMod: 30,
+                                    decay: 1.2,
+                                    distortion: 15,
+                                    accentLevel: 60
+                                }, 'Deep, rumbling bass', 'tb303')}
+                                
+                                ${this.renderPresetCard('Squelchy', '💧', {
+                                    cutoff: 2000,
+                                    resonance: 25,
+                                    envMod: 90,
+                                    decay: 0.2,
+                                    distortion: 35,
+                                    accentLevel: 70
+                                }, 'High resonance squelch', 'tb303')}
+                                
+                                ${this.renderPresetCard('Hard Attack', '⚡', {
+                                    cutoff: 1500,
+                                    resonance: 20,
+                                    envMod: 80,
+                                    decay: 0.15,
+                                    distortion: 50,
+                                    accentLevel: 80
+                                }, 'Aggressive stab sound', 'tb303')}
+                                
+                                ${this.renderPresetCard('Minimal', '🎵', {
+                                    cutoff: 800,
+                                    resonance: 10,
+                                    envMod: 40,
+                                    decay: 0.6,
+                                    distortion: 10,
+                                    accentLevel: 40
+                                }, 'Minimal techno bass', 'tb303')}
+                                
+                                ${this.renderPresetCard('Detroit', '🏭', {
+                                    cutoff: 1000,
+                                    resonance: 18,
+                                    envMod: 60,
+                                    decay: 0.4,
+                                    distortion: 25,
+                                    accentLevel: 55
+                                }, 'Detroit techno classic', 'tb303')}
+                            </div>
+                        </div>
+
+                        <!-- SEQUENCER PATTERN PRESETS -->
+                        <div style="background: rgba(0,0,0,0.4); padding: 30px; border-radius: 12px; margin-bottom: 30px; border: 2px solid var(--orange-primary);">
+                            <h3 style="color: var(--orange-primary); margin-bottom: 20px; font-family: var(--font-display); font-size: 1.8em; text-align: center;">
+                                ⚙️ SEQUENCER PATTERNS
+                            </h3>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                                ${this.renderPatternCard('Four Floor', '💥', 'fourFloor', 'Classic 4/4 techno beat')}
+                                ${this.renderPatternCard('Techno Basic', '⚡', 'technoBasic', 'Industrial techno groove')}
+                                ${this.renderPatternCard('Industrial', '⚙️', 'industrial', 'Hard industrial pattern')}
+                                ${this.renderPatternCard('Minimal', '🎵', 'minimal', 'Minimal techno rhythm')}
+                            </div>
+                        </div>
+
+                        <!-- WORKSPACE INFO -->
+                        <div style="background: rgba(57, 255, 20, 0.05); padding: 25px; border-radius: 12px; border: 2px solid rgba(57, 255, 20, 0.2); text-align: center;">
+                            <h4 style="color: var(--haos-green); font-family: var(--font-display); margin-bottom: 15px;">
+                                💡 HOW TO USE THIS WORKSPACE
+                            </h4>
+                            <div style="color: rgba(255,255,255,0.7); font-family: var(--font-mono); font-size: 0.95rem; max-width: 800px; margin: 0 auto; line-height: 1.6;">
+                                <p style="margin-bottom: 10px;">
+                                    <strong style="color: var(--haos-green);">1. PREVIEW:</strong> Click any preset card to hear a quick demo
+                                </p>
+                                <p style="margin-bottom: 10px;">
+                                    <strong style="color: var(--haos-green);">2. LOAD:</strong> Click "LOAD" to apply preset to your synth
+                                </p>
+                                <p style="margin-bottom: 10px;">
+                                    <strong style="color: var(--haos-green);">3. EDIT:</strong> Open the synth panel to tweak loaded preset
+                                </p>
+                                <p>
+                                    <strong style="color: var(--haos-green);">4. SAVE:</strong> Export your workspace settings for later use
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+            
             renderSequencerStudio() {
                 return `
                     <div style="padding: 30px; max-width: 1400px; margin: 0 auto;">
@@ -1642,6 +1872,84 @@
                                            style="width: 200px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 5px; cursor: pointer;">
                                     <div id="seq-bpm-value" style="color: var(--orange-primary); font-weight: bold; font-size: 1.5em; font-family: var(--font-display); min-width: 80px;">
                                         135 BPM
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ADVANCED SEQUENCER CONTROLS -->
+                        <div style="background: rgba(57, 255, 20, 0.05); padding: 25px; border-radius: 12px; margin-bottom: 30px; border: 2px solid rgba(57, 255, 20, 0.2);">
+                            <h3 style="color: var(--haos-green); margin-bottom: 20px; font-family: var(--font-display); text-align: center; font-size: 1.5em;">
+                                🎛️ ADVANCED CONTROLS
+                            </h3>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                                <!-- Pattern Banks -->
+                                <div>
+                                    <label style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--haos-green); display: block; margin-bottom: 12px; text-align: center;">
+                                        PATTERN BANKS
+                                    </label>
+                                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px;">
+                                        <button onclick="HAOS.switchPatternBank('A')" 
+                                            style="padding: 15px; background: var(--haos-green); border: none; border-radius: 8px; color: #000; font-family: var(--font-display); cursor: pointer; font-weight: bold; font-size: 1.2rem;">
+                                            A
+                                        </button>
+                                        <button onclick="HAOS.switchPatternBank('B')" 
+                                            style="padding: 15px; background: rgba(57, 255, 20, 0.2); border: 2px solid var(--haos-green); border-radius: 8px; color: var(--haos-green); font-family: var(--font-display); cursor: pointer; font-weight: bold; font-size: 1.2rem;">
+                                            B
+                                        </button>
+                                        <button onclick="HAOS.switchPatternBank('C')" 
+                                            style="padding: 15px; background: rgba(57, 255, 20, 0.2); border: 2px solid var(--haos-green); border-radius: 8px; color: var(--haos-green); font-family: var(--font-display); cursor: pointer; font-weight: bold; font-size: 1.2rem;">
+                                            C
+                                        </button>
+                                        <button onclick="HAOS.switchPatternBank('D')" 
+                                            style="padding: 15px; background: rgba(57, 255, 20, 0.2); border: 2px solid var(--haos-green); border-radius: 8px; color: var(--haos-green); font-family: var(--font-display); cursor: pointer; font-weight: bold; font-size: 1.2rem;">
+                                            D
+                                        </button>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                        <button onclick="HAOS.copyPatternBank()" 
+                                            style="padding: 10px; background: rgba(57, 255, 20, 0.15); border: 1px solid rgba(57, 255, 20, 0.3); border-radius: 6px; color: var(--haos-green); font-family: var(--font-mono); cursor: pointer; font-size: 0.85rem;">
+                                            COPY
+                                        </button>
+                                        <button onclick="HAOS.clearPatternBank()" 
+                                            style="padding: 10px; background: rgba(57, 255, 20, 0.15); border: 1px solid rgba(57, 255, 20, 0.3); border-radius: 6px; color: var(--haos-green); font-family: var(--font-mono); cursor: pointer; font-size: 0.85rem;">
+                                            CLEAR
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Swing Control -->
+                                <div>
+                                    <label style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--haos-green); display: block; margin-bottom: 12px; text-align: center;">
+                                        SWING / SHUFFLE
+                                    </label>
+                                    <div style="text-align: center; margin-bottom: 15px;">
+                                        <input type="range" id="seq-swing" min="0" max="100" value="0" step="5"
+                                            style="width: 100%; margin-bottom: 12px;"
+                                            oninput="HAOS.updateSwing(this.value)">
+                                        <div id="seq-swing-value" style="color: var(--haos-green); font-weight: bold; font-size: 1.8rem; font-family: var(--font-display);">
+                                            0%
+                                        </div>
+                                        <div style="color: rgba(255,255,255,0.5); font-family: var(--font-mono); font-size: 0.75rem; margin-top: 8px;">
+                                            Delays off-beat steps for groove
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Preset Swing Values -->
+                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                                        <button onclick="HAOS.updateSwing(0)" 
+                                            style="padding: 8px; background: rgba(57, 255, 20, 0.15); border: 1px solid rgba(57, 255, 20, 0.3); border-radius: 6px; color: var(--haos-green); font-family: var(--font-mono); cursor: pointer; font-size: 0.75rem;">
+                                            STRAIGHT
+                                        </button>
+                                        <button onclick="HAOS.updateSwing(33)" 
+                                            style="padding: 8px; background: rgba(57, 255, 20, 0.15); border: 1px solid rgba(57, 255, 20, 0.3); border-radius: 6px; color: var(--haos-green); font-family: var(--font-mono); cursor: pointer; font-size: 0.75rem;">
+                                            LIGHT
+                                        </button>
+                                        <button onclick="HAOS.updateSwing(66)" 
+                                            style="padding: 8px; background: rgba(57, 255, 20, 0.15); border: 1px solid rgba(57, 255, 20, 0.3); border-radius: 6px; color: var(--haos-green); font-family: var(--font-mono); cursor: pointer; font-size: 0.75rem;">
+                                            HEAVY
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1722,18 +2030,6 @@
                                            border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: rgba(255,255,255,0.7); font-size: 1.1em; cursor: pointer; 
                                            font-weight: bold; font-family: var(--font-display); letter-spacing: 2px; text-transform: uppercase;
                                            box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: all 0.3s;">
-                                🗑️ CLEAR
-                            </button>
-                        </div>
-                                           box-shadow: 0 4px 15px rgba(0,217,255,0.4); transition: all 0.3s;">
-                                🎲 RANDOM
-                            </button>
-                            
-                            <button onclick="HAOS.clearSequencer()"
-                                    style="padding: 18px; background: linear-gradient(135deg, #666, #444); 
-                                           border: none; border-radius: 12px; color: white; font-size: 1.1em; cursor: pointer; 
-                                           font-weight: bold; font-family: var(--font-display); letter-spacing: 2px; text-transform: uppercase;
-                                           box-shadow: 0 4px 15px rgba(100,100,100,0.4); transition: all 0.3s;">
                                 🗑️ CLEAR
                             </button>
                         </div>
@@ -2048,10 +2344,15 @@
                     case 'envMod':
                     case 'accentLevel':
                     case 'distortion':
+                    case 'lfoDepth':
                         return Math.round(value) + '%';
+                    case 'lfoRate':
+                        return parseFloat(value).toFixed(1) + ' Hz';
                     case 'resonance':
                         return parseFloat(value).toFixed(1);
                     case 'waveform':
+                    case 'lfoWaveform':
+                    case 'lfoTarget':
                         return value.toUpperCase();
                     default:
                         return value;
@@ -2265,6 +2566,137 @@
                     this.stopSequencer();
                     setTimeout(() => this.playSequencer(), 100);
                 }
+            },
+            
+            // ===== ADVANCED SEQUENCER FUNCTIONS =====
+            
+            switchPatternBank(bank) {
+                if (!AudioEngine.sequencer) {
+                    console.warn('Sequencer not initialized');
+                    return;
+                }
+                
+                // Save current pattern before switching
+                if (this.currentBank) {
+                    this.savePatternToBank(this.currentBank);
+                }
+                
+                // Switch bank in audio engine
+                AudioEngine.sequencer.switchBank(bank);
+                this.currentBank = bank;
+                
+                // Load pattern from new bank
+                this.loadPatternFromBank(bank);
+                
+                // Update UI - highlight active bank button
+                ['A', 'B', 'C', 'D'].forEach(b => {
+                    const btns = document.querySelectorAll(`button[onclick="HAOS.switchPatternBank('${b}')"]`);
+                    btns.forEach(btn => {
+                        if (b === bank) {
+                            btn.style.background = 'var(--haos-green)';
+                            btn.style.color = '#000';
+                        } else {
+                            btn.style.background = 'rgba(57, 255, 20, 0.2)';
+                            btn.style.color = 'var(--haos-green)';
+                            btn.style.border = '2px solid var(--haos-green)';
+                        }
+                    });
+                });
+                
+                this.showToast(`📦 Switched to Pattern Bank ${bank}`);
+                console.log('Pattern bank switched to:', bank);
+            },
+            
+            savePatternToBank(bank) {
+                if (!AudioEngine.sequencer) return;
+                
+                const tracks = ['kick', 'snare', 'hihat', 'clap'];
+                tracks.forEach(track => {
+                    for (let i = 0; i < 16; i++) {
+                        const isActive = this.sequencerState.pattern[track][i];
+                        AudioEngine.sequencer.banks[bank][track][i] = {
+                            active: isActive,
+                            velocity: 100,
+                            tune: 0
+                        };
+                    }
+                });
+            },
+            
+            loadPatternFromBank(bank) {
+                if (!AudioEngine.sequencer) return;
+                
+                const tracks = ['kick', 'snare', 'hihat', 'clap'];
+                tracks.forEach(track => {
+                    for (let i = 0; i < 16; i++) {
+                        const stepData = AudioEngine.sequencer.banks[bank][track][i];
+                        const isActive = stepData.active || false;
+                        
+                        this.sequencerState.pattern[track][i] = isActive;
+                        
+                        // Update UI
+                        const button = document.getElementById(`seq-${track}-${i}`);
+                        if (button) {
+                            if (isActive) {
+                                button.classList.add('active');
+                            } else {
+                                button.classList.remove('active');
+                            }
+                        }
+                    }
+                });
+            },
+            
+            copyPatternBank() {
+                if (!AudioEngine.sequencer || !this.currentBank) return;
+                
+                const banks = ['A', 'B', 'C', 'D'];
+                const targetBanks = banks.filter(b => b !== this.currentBank);
+                
+                const target = prompt(`Copy Bank ${this.currentBank} to which bank?\n(${targetBanks.join(', ')})`);
+                if (!target || !banks.includes(target)) {
+                    return;
+                }
+                
+                AudioEngine.sequencer.copyBank(this.currentBank, target);
+                this.showToast(`📋 Copied Bank ${this.currentBank} → ${target}`);
+            },
+            
+            clearPatternBank() {
+                if (!AudioEngine.sequencer || !this.currentBank) return;
+                
+                if (!confirm(`Clear all patterns in Bank ${this.currentBank}?`)) {
+                    return;
+                }
+                
+                this.clearSequencer();
+                this.savePatternToBank(this.currentBank);
+                this.showToast(`🗑️ Bank ${this.currentBank} cleared`);
+            },
+            
+            updateSwing(value) {
+                if (!AudioEngine.sequencer) {
+                    console.warn('Sequencer not initialized');
+                    return;
+                }
+                
+                const swingAmount = parseInt(value);
+                AudioEngine.sequencer.setSwing(swingAmount);
+                
+                // Update display
+                const display = document.getElementById('seq-swing-value');
+                if (display) {
+                    display.textContent = `${swingAmount}%`;
+                }
+                
+                // Update slider
+                const slider = document.getElementById('seq-swing');
+                if (slider) {
+                    slider.value = swingAmount;
+                }
+                
+                console.log('Swing set to:', swingAmount + '%');
+                this.showToast(`🎵 Swing: ${swingAmount}%`);
             },
             
             toggleSequencerStep(track, step) {
@@ -2895,6 +3327,185 @@
                 if (!this.currentOS) return [];
                 return Object.values(this.panels[this.currentOS])
                     .filter(p => p.available);
+            },
+            
+            // ===== WORKSPACE HELPER FUNCTIONS =====
+            
+            renderPresetCard(name, icon, params, description, type) {
+                const paramsJson = JSON.stringify(params).replace(/"/g, '&quot;');
+                return `
+                    <div style="background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,107,53,0.05)); 
+                                padding: 25px; border-radius: 12px; border: 2px solid rgba(255,107,53,0.3);
+                                transition: all 0.3s; cursor: pointer;"
+                         onmouseenter="this.style.transform='translateY(-5px)'; this.style.borderColor='var(--haos-orange)';"
+                         onmouseleave="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255,107,53,0.3)';">
+                        
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 3em; margin-bottom: 10px;">${icon}</div>
+                            <h4 style="color: var(--haos-orange); font-family: var(--font-display); font-size: 1.4em; margin-bottom: 8px;">
+                                ${name}
+                            </h4>
+                            <p style="color: rgba(255,255,255,0.6); font-size: 0.9em; font-family: var(--font-mono);">
+                                ${description}
+                            </p>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <button onclick="HAOS.previewPreset('${type}', '${name}', \`${paramsJson}\`); event.stopPropagation();" 
+                                style="flex: 1; padding: 12px; background: var(--haos-green); border: none; border-radius: 8px; color: #000; font-family: var(--font-display); cursor: pointer; font-weight: bold;">
+                                ▶ PREVIEW
+                            </button>
+                            <button onclick="HAOS.loadPresetFromWorkspace('${type}', '${name}', \`${paramsJson}\`); event.stopPropagation();" 
+                                style="flex: 1; padding: 12px; background: var(--haos-orange); border: none; border-radius: 8px; color: #000; font-family: var(--font-display); cursor: pointer; font-weight: bold;">
+                                📥 LOAD
+                            </button>
+                        </div>
+                        
+                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.75em; color: rgba(255,255,255,0.5);">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <div>Cutoff: ${params.cutoff}Hz</div>
+                                <div>Res: ${params.resonance}</div>
+                                <div>Env: ${params.envMod}%</div>
+                                <div>Dist: ${params.distortion}%</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+            
+            renderPatternCard(name, icon, patternId, description) {
+                return `
+                    <div style="background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,107,53,0.05)); 
+                                padding: 25px; border-radius: 12px; border: 2px solid rgba(255,107,53,0.3);
+                                transition: all 0.3s; cursor: pointer;"
+                         onmouseenter="this.style.transform='translateY(-5px)'; this.style.borderColor='var(--orange-primary)';"
+                         onmouseleave="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255,107,53,0.3)';">
+                        
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 3em; margin-bottom: 10px;">${icon}</div>
+                            <h4 style="color: var(--orange-primary); font-family: var(--font-display); font-size: 1.4em; margin-bottom: 8px;">
+                                ${name}
+                            </h4>
+                            <p style="color: rgba(255,255,255,0.6); font-size: 0.9em; font-family: var(--font-mono);">
+                                ${description}
+                            </p>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="HAOS.previewPattern('${patternId}'); event.stopPropagation();" 
+                                style="flex: 1; padding: 12px; background: var(--haos-green); border: none; border-radius: 8px; color: #000; font-family: var(--font-display); cursor: pointer; font-weight: bold;">
+                                ▶ PREVIEW
+                            </button>
+                            <button onclick="HAOS.loadPatternFromWorkspace('${patternId}'); event.stopPropagation();" 
+                                style="flex: 1; padding: 12px; background: var(--orange-primary); border: none; border-radius: 8px; color: #000; font-family: var(--font-display); cursor: pointer; font-weight: bold;">
+                                📥 LOAD
+                            </button>
+                        </div>
+                    </div>
+                `;
+            },
+            
+            // ===== WORKSPACE ACTIONS =====
+            
+            previewPreset(type, name, paramsJson) {
+                console.log('🎧 Previewing preset:', name);
+                
+                // Parse params
+                const params = JSON.parse(paramsJson.replace(/&quot;/g, '"'));
+                
+                // Apply to synth temporarily
+                if (type === 'tb303' && AudioEngine.tb303) {
+                    Object.keys(params).forEach(param => {
+                        AudioEngine.tb303.setParam(param, params[param]);
+                    });
+                    
+                    // Play a test note
+                    setTimeout(() => {
+                        AudioEngine.tb303.playNote({ note: 'C2', accent: false, slide: false });
+                    }, 100);
+                    
+                    setTimeout(() => {
+                        AudioEngine.tb303.playNote({ note: 'D#2', accent: true, slide: true });
+                    }, 300);
+                    
+                    setTimeout(() => {
+                        AudioEngine.tb303.playNote({ note: 'F2', accent: false, slide: false });
+                    }, 500);
+                }
+                
+                this.showToast(`🎧 Previewing: ${name}`);
+            },
+            
+            loadPresetFromWorkspace(type, name, paramsJson) {
+                console.log('📥 Loading preset:', name);
+                
+                const params = JSON.parse(paramsJson.replace(/&quot;/g, '"'));
+                
+                if (type === 'tb303' && AudioEngine.tb303) {
+                    Object.keys(params).forEach(param => {
+                        AudioEngine.tb303.setParam(param, params[param]);
+                    });
+                    
+                    this.showToast(`✅ Loaded: ${name}`);
+                    
+                    // Switch to TB-303 panel
+                    setTimeout(() => {
+                        this.openPanel('acid-lab');
+                    }, 500);
+                }
+            },
+            
+            previewPattern(patternId) {
+                console.log('🎧 Previewing pattern:', patternId);
+                
+                // Load the pattern
+                this.loadSequencerPattern(patternId);
+                
+                // Play it briefly
+                setTimeout(() => {
+                    this.playSequencer();
+                }, 100);
+                
+                // Stop after 4 bars
+                setTimeout(() => {
+                    this.stopSequencer();
+                }, 4000);
+                
+                this.showToast(`🎧 Previewing: ${patternId}`);
+            },
+            
+            loadPatternFromWorkspace(patternId) {
+                console.log('📥 Loading pattern:', patternId);
+                
+                this.loadSequencerPattern(patternId);
+                this.showToast(`✅ Pattern loaded: ${patternId}`);
+                
+                // Switch to sequencer panel
+                setTimeout(() => {
+                    this.openPanel('sequencer');
+                }, 500);
+            },
+            
+            exportWorkspace() {
+                const workspace = {
+                    version: this.version,
+                    timestamp: new Date().toISOString(),
+                    tb303: AudioEngine.tb303 ? AudioEngine.tb303.params : null,
+                    sequencer: this.sequencerState ? this.sequencerState.pattern : null,
+                    bpm: this.sequencerState ? this.sequencerState.bpm : 135
+                };
+                
+                const json = JSON.stringify(workspace, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `haos-workspace-${Date.now()}.json`;
+                a.click();
+                
+                this.showToast('💾 Workspace exported!');
+                console.log('📤 Workspace exported:', workspace);
             },
             
             showToast(message) {
