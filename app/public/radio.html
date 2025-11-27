@@ -1211,6 +1211,16 @@
             document.getElementById('trackCount').textContent = stats.totalTracks;
         }
         
+        // Auto-play on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (!radio.isPlaying) {
+                    radio.play();
+                    document.getElementById('playBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                }
+            }, 1000); // Small delay to ensure everything is loaded
+        });
+        
         function formatTime(seconds) {
             if (!seconds || isNaN(seconds)) return '0:00';
             const mins = Math.floor(seconds / 60);
