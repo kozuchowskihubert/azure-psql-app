@@ -58,7 +58,7 @@ const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 50 * 1024 * 1024 // 50MB max file size
+        fileSize: 300 * 1024 * 1024 // 300MB max file size (increased for large DJ sets)
     }
 });
 

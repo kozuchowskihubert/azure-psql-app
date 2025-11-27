@@ -67,14 +67,16 @@ app.use('/api/', limiter);
 /**
  * Body parser for JSON payloads
  * Parses incoming request bodies in JSON format
+ * Increased limit to 350MB for large audio file uploads
  */
-app.use(express.json());
+app.use(express.json({ limit: '350mb' }));
 
 /**
  * Body parser for URL-encoded payloads
  * Parses incoming request bodies in URL-encoded format (form data)
+ * Increased limit to 350MB for large audio file uploads
  */
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '350mb' }));
 
 // ============================================================================
 // Static Files
