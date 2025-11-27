@@ -246,12 +246,30 @@
             position: absolute;
             top: 5px;
             left: 50%;
-            transform: translateX(-50%) rotate(var(--rotation, -135deg));
-            transform-origin: center 25px;
-            width: 3px;
+            width: 4px;
             height: 25px;
             background: var(--haos-orange-bright);
             border-radius: 2px;
+            box-shadow: 0 0 8px var(--haos-orange-bright);
+            transform-origin: center 25px;
+            transform: translateX(-50%) rotate(var(--rotation, -135deg));
+            transition: none; /* Disable transition for smooth real-time control */
+        }
+
+        /* Knob marker dot for better visual feedback */
+        .knob::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: #FFD700;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #FFD700, inset 0 1px 2px rgba(255,255,255,0.5);
+            transform-origin: center 22px;
+            transform: translateX(-50%) rotate(var(--rotation, -135deg));
+            transition: none;
         }
 
         .knob-label {
@@ -372,15 +390,23 @@
             background: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--haos-border);
             border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .effect-slot:hover {
+            border-color: var(--haos-orange);
         }
 
         .effect-name {
             font-family: var(--font-display);
-            font-size: 1rem;
-            color: var(--haos-orange);
-            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: var(--haos-orange-bright);
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 2px;
         }
 
         .effect-controls {
@@ -719,6 +745,34 @@
             height: var(--velocity, 100%);
         }
 
+        .seq-step.playing {
+            border-color: var(--haos-cyan) !important;
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.8), inset 0 0 10px rgba(0, 217, 255, 0.3);
+            animation: step-pulse 0.1s ease-out;
+        }
+
+        @keyframes step-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        /* Step number overlay for better tracking */
+        .seq-step::before {
+            content: attr(data-step);
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 0.5rem;
+            font-family: var(--font-mono);
+            color: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+
+        .seq-step.active::before {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
         .seq-step.active {
             background: linear-gradient(145deg, rgba(255, 107, 53, 0.4), rgba(255, 140, 66, 0.2));
             border-color: var(--haos-orange);
@@ -798,6 +852,195 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
+
+        /* Sequencer Control Buttons */
+        .seq-control-btn {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 6px 12px;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid var(--haos-orange);
+            border-radius: 6px;
+            color: var(--haos-orange);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .seq-control-btn:hover {
+            background: rgba(255, 107, 53, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+
+        .seq-control-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Instrument Selection Dropdown */
+        .instrument-select {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 107, 53, 0.4);
+            border-radius: 6px;
+            color: var(--haos-orange);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 120px;
+        }
+
+        .instrument-select:hover {
+            background: rgba(0, 0, 0, 0.7);
+            border-color: var(--haos-orange);
+            box-shadow: 0 0 8px rgba(255, 107, 53, 0.4);
+        }
+
+        .instrument-select:focus {
+            outline: none;
+            border-color: var(--haos-orange);
+            box-shadow: 0 0 12px rgba(255, 107, 53, 0.6);
+        }
+
+        .instrument-select option {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 4px 8px;
+        }
+
+        .instrument-select optgroup {
+            background: #0a0a0a;
+            color: var(--haos-orange);
+            font-weight: bold;
+            font-size: 0.7rem;
+        }
+
+        /* Track Control Buttons */
+        .track-btn {
+            font-size: 0.75rem;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 4px;
+            color: var(--haos-orange);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .track-btn:hover {
+            background: rgba(255, 107, 53, 0.25);
+            border-color: var(--haos-orange);
+            transform: scale(1.1);
+        }
+
+        .track-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* BPM Controls */
+        .bpm-control-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 107, 53, 0.15);
+            border: 1px solid var(--haos-orange);
+            border-radius: 6px;
+            color: var(--haos-orange);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bpm-control-btn:hover {
+            background: rgba(255, 107, 53, 0.3);
+            transform: scale(1.05);
+        }
+
+        .bpm-control-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Pattern Preset Buttons */
+        .pattern-preset-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: linear-gradient(145deg, rgba(255,107,53,0.15), rgba(255,140,66,0.08));
+            border: 1px solid rgba(255,107,53,0.4);
+            border-radius: 8px;
+            color: var(--haos-orange);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pattern-preset-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,107,53,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .pattern-preset-btn:hover::before {
+            left: 100%;
+        }
+
+        .pattern-preset-btn:hover {
+            background: linear-gradient(145deg, rgba(255,107,53,0.25), rgba(255,140,66,0.15));
+            border-color: var(--haos-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,107,53,0.4);
+        }
+
+        .pattern-preset-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(255,107,53,0.3);
+        }
+
+        .pattern-preset-btn.hiphop {
+            background: linear-gradient(145deg, rgba(147,112,219,0.15), rgba(186,85,211,0.08));
+            border-color: rgba(147,112,219,0.4);
+            color: #BA55D3;
+        }
+
+        .pattern-preset-btn.hiphop:hover {
+            background: linear-gradient(145deg, rgba(147,112,219,0.25), rgba(186,85,211,0.15));
+            border-color: #9370DB;
+            box-shadow: 0 4px 12px rgba(147,112,219,0.4);
+        }
+
+        .pattern-preset-btn.hiphop::before {
+            background: linear-gradient(90deg, transparent, rgba(147,112,219,0.3), transparent);
+        }
+
+        .pattern-icon {
+            font-size: 1.2rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        .pattern-name {
+            flex: 1;
+            text-align: left;
+            letter-spacing: 0.5px;
+        }
+
 
         .bank-slot:hover::before,
         .bank-slot.filled::before {
@@ -908,8 +1151,12 @@
                 </div>
                 <button id="export-midi-btn" class="transport-btn" title="Export as MIDI">💾 MIDI</button>
                 <button id="export-project-btn" class="transport-btn" title="Export Project">📦 PROJECT</button>
-                <div class="bpm-display">
-                    <span id="bpm-value">135</span> BPM
+                <div class="bpm-display" style="display: flex; align-items: center; gap: 6px;">
+                    <button id="bpm-down" class="bpm-control-btn" title="Decrease BPM">−</button>
+                    <div style="text-align: center;">
+                        <span id="bpm-value">135</span> BPM
+                    </div>
+                    <button id="bpm-up" class="bpm-control-btn" title="Increase BPM">+</button>
                 </div>
                 <div style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--haos-dim); padding: 5px 10px; border: 1px solid var(--haos-border); border-radius: 6px;">
                     ⌨️ Press SPACE to play/stop
@@ -931,32 +1178,32 @@
                 
                 <div class="knob-grid">
                     <div class="knob-wrapper">
-                        <div class="knob" id="tb303-cutoff" data-param="cutoff" data-value="0.5"></div>
+                        <div class="knob" id="tb303-cutoff" data-param="tb303-cutoff" data-value="0.5"></div>
                         <div class="knob-label">CUTOFF</div>
-                        <div class="knob-value">800 Hz</div>
+                        <div class="knob-value">2025 Hz</div>
                     </div>
                     <div class="knob-wrapper">
-                        <div class="knob" id="tb303-resonance" data-param="resonance" data-value="0.5"></div>
+                        <div class="knob" id="tb303-resonance" data-param="tb303-resonance" data-value="0.5"></div>
                         <div class="knob-label">RESONANCE</div>
-                        <div class="knob-value">10</div>
+                        <div class="knob-value">15</div>
                     </div>
                     <div class="knob-wrapper">
-                        <div class="knob" id="tb303-envmod" data-param="envmod" data-value="0.5"></div>
+                        <div class="knob" id="tb303-envmod" data-param="tb303-envmod" data-value="0.5"></div>
                         <div class="knob-label">ENV MOD</div>
                         <div class="knob-value">50%</div>
                     </div>
                     <div class="knob-wrapper">
-                        <div class="knob" id="tb303-decay" data-param="decay" data-value="0.5"></div>
+                        <div class="knob" id="tb303-decay" data-param="tb303-decay" data-value="0.5"></div>
                         <div class="knob-label">DECAY</div>
-                        <div class="knob-value">0.5s</div>
+                        <div class="knob-value">1.0s</div>
                     </div>
                     <div class="knob-wrapper">
-                        <div class="knob" id="tb303-dist" data-param="distortion" data-value="0.3"></div>
+                        <div class="knob" id="tb303-dist" data-param="tb303-distortion" data-value="0.3"></div>
                         <div class="knob-label">DISTORTION</div>
                         <div class="knob-value">30%</div>
                     </div>
                     <div class="knob-wrapper">
-                        <div class="knob" id="tb303-accent" data-param="accent" data-value="0.7"></div>
+                        <div class="knob" id="tb303-accent" data-param="tb303-accent" data-value="0.7"></div>
                         <div class="knob-label">ACCENT</div>
                         <div class="knob-value">70%</div>
                     </div>
@@ -1105,24 +1352,655 @@
                     <div class="module-icon">⏱️</div>
                 </div>
                 
-                <div class="track-label">KICK</div>
-                <div class="sequencer-grid" id="seq-kick">
-                    <!-- 16 steps will be generated by JS -->
+                <!-- Sequencer Controls -->
+                <div style="display: flex; gap: 8px; margin-bottom: 12px; align-items: center;">
+                    <button id="seq-length-btn" class="seq-control-btn" title="Toggle 8/16 steps">16 STEPS</button>
+                    <button id="swing-btn" class="seq-control-btn" title="Toggle swing (0%, 33%, 66%)">SWING: 0%</button>
+                    <button id="save-pattern-btn" class="seq-control-btn" style="background: rgba(57,255,20,0.2); border-color: #39FF14; color: #39FF14;">💾 SAVE</button>
+                    <button id="load-pattern-btn" class="seq-control-btn" style="background: rgba(0,217,255,0.2); border-color: #00D9FF; color: #00D9FF;">📂 LOAD</button>
+                </div>
+                
+                <!-- KICK Track -->
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="track-label">KICK</div>
+                            <select id="instrument-kick" class="instrument-select" onchange="changeInstrument('kick', this.value)">
+                                <optgroup label="🥁 DRUMS">
+                                    <option value="kick" selected>Kick Drum</option>
+                                    <option value="perc_snare">Snare (ARP)</option>
+                                    <option value="perc_hihat">Hi-Hat (ARP)</option>
+                                </optgroup>
+                                <optgroup label="🎹 PIANO">
+                                    <option value="piano_bright">Bright Piano</option>
+                                    <option value="piano_electric">Electric Piano</option>
+                                    <option value="piano_soft">Soft Piano</option>
+                                </optgroup>
+                                <optgroup label="🎻 STRINGS">
+                                    <option value="strings_ensemble">String Ensemble</option>
+                                    <option value="strings_lush">Lush Strings</option>
+                                    <option value="strings_staccato">Staccato Strings</option>
+                                    <option value="violin_solo">Solo Violin</option>
+                                    <option value="violin_tremolo">Tremolo Violin</option>
+                                    <option value="cello_warm">Warm Cello</option>
+                                </optgroup>
+                                <optgroup label="🎺 BRASS & WINDS">
+                                    <option value="brass_section">Brass Section</option>
+                                    <option value="brass_stab">Brass Stab</option>
+                                    <option value="flute_breathy">Breathy Flute</option>
+                                </optgroup>
+                                <optgroup label="� ORGAN">
+                                    <option value="organ_hammond">Hammond Organ</option>
+                                    <option value="organ_church">Church Organ</option>
+                                </optgroup>
+                                <optgroup label="🌊 PADS">
+                                    <option value="pad_warm">Warm Pad</option>
+                                    <option value="pad_dark">Dark Atmosphere</option>
+                                    <option value="pad_shimmer">Shimmer Pad</option>
+                                    <option value="pad_sweeping">Sweeping Pad</option>
+                                    <option value="pad_ethereal">Ethereal Pad</option>
+                                    <option value="pad_analog">Analog Pad</option>
+                                </optgroup>
+                                <optgroup label="🎸 BASS">
+                                    <option value="bass_fat">Fat Bass</option>
+                                    <option value="bass_sub">Sub 808</option>
+                                    <option value="bass_acid">Acid 303</option>
+                                    <option value="bass_reese">Reese Bass</option>
+                                    <option value="bass_wobble">Wobble Bass</option>
+                                </optgroup>
+                                <optgroup label="🎵 LEAD">
+                                    <option value="lead_vintage">Vintage Lead</option>
+                                    <option value="lead_bright">Bright Arp</option>
+                                </optgroup>
+                                <optgroup label="✨ FX">
+                                    <option value="fx_space">Space FX</option>
+                                    <option value="fx_phaser">Phaser Swirl</option>
+                                    <option value="fx_riser">Riser FX</option>
+                                    <option value="fx_sweep">Filter Sweep</option>
+                                    <option value="fx_laser">Laser Zap</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="track-btn" onclick="randomizePattern('kick')" title="Randomize">🎲</button>
+                            <button class="track-btn" onclick="shiftPattern('kick', -1)" title="Shift left">←</button>
+                            <button class="track-btn" onclick="shiftPattern('kick', 1)" title="Shift right">→</button>
+                            <button class="track-btn" onclick="clearPattern('kick')" title="Clear">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="sequencer-grid" id="seq-kick">
+                        <!-- 16 steps will be generated by JS -->
+                    </div>
                 </div>
 
-                <div class="track-label">SNARE</div>
-                <div class="sequencer-grid" id="seq-snare">
-                    <!-- 16 steps -->
+                <!-- SNARE Track -->
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="track-label">SNARE</div>
+                            <select id="instrument-snare" class="instrument-select" onchange="changeInstrument('snare', this.value)">
+                                <optgroup label="🥁 DRUMS">
+                                    <option value="snare" selected>Snare Drum</option>
+                                    <option value="perc_snare">Snare (ARP)</option>
+                                    <option value="perc_hihat">Hi-Hat (ARP)</option>
+                                </optgroup>
+                                <optgroup label="🎹 PIANO">
+                                    <option value="piano_bright">Bright Piano</option>
+                                    <option value="piano_electric">Electric Piano</option>
+                                    <option value="piano_soft">Soft Piano</option>
+                                </optgroup>
+                                <optgroup label="🎻 STRINGS">
+                                    <option value="strings_ensemble">String Ensemble</option>
+                                    <option value="strings_lush">Lush Strings</option>
+                                    <option value="strings_staccato">Staccato Strings</option>
+                                    <option value="violin_solo">Solo Violin</option>
+                                    <option value="violin_tremolo">Tremolo Violin</option>
+                                    <option value="cello_warm">Warm Cello</option>
+                                </optgroup>
+                                <optgroup label="🎺 BRASS & WINDS">
+                                    <option value="brass_section">Brass Section</option>
+                                    <option value="brass_stab">Brass Stab</option>
+                                    <option value="flute_breathy">Breathy Flute</option>
+                                </optgroup>
+                                <optgroup label="� ORGAN">
+                                    <option value="organ_hammond">Hammond Organ</option>
+                                    <option value="organ_church">Church Organ</option>
+                                </optgroup>
+                                <optgroup label="🌊 PADS">
+                                    <option value="pad_warm">Warm Pad</option>
+                                    <option value="pad_dark">Dark Atmosphere</option>
+                                    <option value="pad_shimmer">Shimmer Pad</option>
+                                    <option value="pad_sweeping">Sweeping Pad</option>
+                                    <option value="pad_ethereal">Ethereal Pad</option>
+                                    <option value="pad_analog">Analog Pad</option>
+                                </optgroup>
+                                <optgroup label="🎸 BASS">
+                                    <option value="bass_fat">Fat Bass</option>
+                                    <option value="bass_sub">Sub 808</option>
+                                    <option value="bass_acid">Acid 303</option>
+                                    <option value="bass_reese">Reese Bass</option>
+                                    <option value="bass_wobble">Wobble Bass</option>
+                                </optgroup>
+                                <optgroup label="🎵 LEAD">
+                                    <option value="lead_vintage">Vintage Lead</option>
+                                    <option value="lead_bright">Bright Arp</option>
+                                </optgroup>
+                                <optgroup label="✨ FX">
+                                    <option value="fx_space">Space FX</option>
+                                    <option value="fx_phaser">Phaser Swirl</option>
+                                    <option value="fx_riser">Riser FX</option>
+                                    <option value="fx_sweep">Filter Sweep</option>
+                                    <option value="fx_laser">Laser Zap</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="track-btn" onclick="randomizePattern('snare')" title="Randomize">🎲</button>
+                            <button class="track-btn" onclick="shiftPattern('snare', -1)" title="Shift left">←</button>
+                            <button class="track-btn" onclick="shiftPattern('snare', 1)" title="Shift right">→</button>
+                            <button class="track-btn" onclick="clearPattern('snare')" title="Clear">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="sequencer-grid" id="seq-snare">
+                        <!-- 16 steps -->
+                    </div>
                 </div>
 
-                <div class="track-label">HI-HAT</div>
-                <div class="sequencer-grid" id="seq-hihat">
-                    <!-- 16 steps -->
+                <!-- HI-HAT Track -->
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="track-label">HI-HAT</div>
+                            <select id="instrument-hihat" class="instrument-select" onchange="changeInstrument('hihat', this.value)">
+                                <optgroup label="🥁 DRUMS">
+                                    <option value="hihat" selected>Hi-Hat</option>
+                                    <option value="perc_hihat">Hi-Hat (ARP)</option>
+                                    <option value="perc_snare">Snare (ARP)</option>
+                                </optgroup>
+                                <optgroup label="🎹 PIANO">
+                                    <option value="piano_bright">Bright Piano</option>
+                                    <option value="piano_electric">Electric Piano</option>
+                                    <option value="piano_soft">Soft Piano</option>
+                                </optgroup>
+                                <optgroup label="🎻 STRINGS">
+                                    <option value="strings_ensemble">String Ensemble</option>
+                                    <option value="strings_lush">Lush Strings</option>
+                                    <option value="strings_staccato">Staccato Strings</option>
+                                    <option value="violin_solo">Solo Violin</option>
+                                    <option value="violin_tremolo">Tremolo Violin</option>
+                                    <option value="cello_warm">Warm Cello</option>
+                                </optgroup>
+                                <optgroup label="🎺 BRASS & WINDS">
+                                    <option value="brass_section">Brass Section</option>
+                                    <option value="brass_stab">Brass Stab</option>
+                                    <option value="flute_breathy">Breathy Flute</option>
+                                </optgroup>
+                                <optgroup label="� ORGAN">
+                                    <option value="organ_hammond">Hammond Organ</option>
+                                    <option value="organ_church">Church Organ</option>
+                                </optgroup>
+                                <optgroup label="🌊 PADS">
+                                    <option value="pad_warm">Warm Pad</option>
+                                    <option value="pad_dark">Dark Atmosphere</option>
+                                    <option value="pad_shimmer">Shimmer Pad</option>
+                                    <option value="pad_sweeping">Sweeping Pad</option>
+                                    <option value="pad_ethereal">Ethereal Pad</option>
+                                    <option value="pad_analog">Analog Pad</option>
+                                </optgroup>
+                                <optgroup label="🎸 BASS">
+                                    <option value="bass_fat">Fat Bass</option>
+                                    <option value="bass_sub">Sub 808</option>
+                                    <option value="bass_acid">Acid 303</option>
+                                    <option value="bass_reese">Reese Bass</option>
+                                    <option value="bass_wobble">Wobble Bass</option>
+                                </optgroup>
+                                <optgroup label="🎵 LEAD">
+                                    <option value="lead_vintage">Vintage Lead</option>
+                                    <option value="lead_bright">Bright Arp</option>
+                                </optgroup>
+                                <optgroup label="✨ FX">
+                                    <option value="fx_space">Space FX</option>
+                                    <option value="fx_phaser">Phaser Swirl</option>
+                                    <option value="fx_riser">Riser FX</option>
+                                    <option value="fx_sweep">Filter Sweep</option>
+                                    <option value="fx_laser">Laser Zap</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="track-btn" onclick="randomizePattern('hihat')" title="Randomize">🎲</button>
+                            <button class="track-btn" onclick="shiftPattern('hihat', -1)" title="Shift left">←</button>
+                            <button class="track-btn" onclick="shiftPattern('hihat', 1)" title="Shift right">→</button>
+                            <button class="track-btn" onclick="clearPattern('hihat')" title="Clear">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="sequencer-grid" id="seq-hihat">
+                        <!-- 16 steps -->
+                    </div>
                 </div>
 
-                <div class="track-label">BASS</div>
-                <div class="sequencer-grid" id="seq-bass">
-                    <!-- 16 steps -->
+                <!-- BASS Track -->
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="track-label">BASS</div>
+                            <select id="instrument-bass" class="instrument-select" onchange="changeInstrument('bass', this.value)">
+                                <optgroup label="🎹 BASS">
+                                    <option value="bass" selected>Bass Synth</option>
+                                    <option value="bass_fat">Fat Bass</option>
+                                    <option value="bass_sub">Sub 808</option>
+                                    <option value="bass_acid">Acid 303</option>
+                                    <option value="bass_reese">Reese Bass</option>
+                                    <option value="bass_wobble">Wobble Bass</option>
+                                </optgroup>
+                                <optgroup label="🥁 DRUMS">
+                                    <option value="kick">Kick Drum</option>
+                                    <option value="perc_snare">Snare (ARP)</option>
+                                    <option value="perc_hihat">Hi-Hat (ARP)</option>
+                                </optgroup>
+                                <optgroup label="� PIANO">
+                                    <option value="piano_bright">Bright Piano</option>
+                                    <option value="piano_electric">Electric Piano</option>
+                                    <option value="piano_soft">Soft Piano</option>
+                                </optgroup>
+                                <optgroup label="🎻 STRINGS">
+                                    <option value="strings_ensemble">String Ensemble</option>
+                                    <option value="strings_lush">Lush Strings</option>
+                                    <option value="strings_staccato">Staccato Strings</option>
+                                    <option value="violin_solo">Solo Violin</option>
+                                    <option value="violin_tremolo">Tremolo Violin</option>
+                                    <option value="cello_warm">Warm Cello</option>
+                                </optgroup>
+                                <optgroup label="🎺 BRASS & WINDS">
+                                    <option value="brass_section">Brass Section</option>
+                                    <option value="brass_stab">Brass Stab</option>
+                                    <option value="flute_breathy">Breathy Flute</option>
+                                </optgroup>
+                                <optgroup label="🎹 ORGAN">
+                                    <option value="organ_hammond">Hammond Organ</option>
+                                    <option value="organ_church">Church Organ</option>
+                                </optgroup>
+                                <optgroup label="🌊 PADS">
+                                    <option value="pad_warm">Warm Pad</option>
+                                    <option value="pad_dark">Dark Atmosphere</option>
+                                    <option value="pad_shimmer">Shimmer Pad</option>
+                                    <option value="pad_sweeping">Sweeping Pad</option>
+                                    <option value="pad_ethereal">Ethereal Pad</option>
+                                    <option value="pad_analog">Analog Pad</option>
+                                </optgroup>
+                                <optgroup label="🎵 LEAD">
+                                    <option value="lead_vintage">Vintage Lead</option>
+                                    <option value="lead_bright">Bright Arp</option>
+                                </optgroup>
+                                <optgroup label="✨ FX">
+                                    <option value="fx_space">Space FX</option>
+                                    <option value="fx_phaser">Phaser Swirl</option>
+                                    <option value="fx_riser">Riser FX</option>
+                                    <option value="fx_sweep">Filter Sweep</option>
+                                    <option value="fx_laser">Laser Zap</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="track-btn" onclick="randomizePattern('bass')" title="Randomize">🎲</button>
+                            <button class="track-btn" onclick="shiftPattern('bass', -1)" title="Shift left">←</button>
+                            <button class="track-btn" onclick="shiftPattern('bass', 1)" title="Shift right">→</button>
+                            <button class="track-btn" onclick="clearPattern('bass')" title="Clear">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="sequencer-grid" id="seq-bass">
+                        <!-- 16 steps -->
+                    </div>
+                </div>
+
+                <!-- PIANO/KEYS Track -->
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="track-label">KEYS</div>
+                            <select id="instrument-keys" class="instrument-select" onchange="changeInstrument('keys', this.value)">
+                                <optgroup label="🎹 PIANO">
+                                    <option value="piano_bright" selected>Bright Piano</option>
+                                    <option value="piano_electric">Electric Piano</option>
+                                    <option value="piano_soft">Soft Piano</option>
+                                </optgroup>
+                                <optgroup label="🎹 ORGAN">
+                                    <option value="organ_hammond">Hammond Organ</option>
+                                    <option value="organ_church">Church Organ</option>
+                                </optgroup>
+                                <optgroup label="🎻 STRINGS">
+                                    <option value="strings_ensemble">String Ensemble</option>
+                                    <option value="strings_lush">Lush Strings</option>
+                                    <option value="strings_staccato">Staccato Strings</option>
+                                    <option value="violin_solo">Solo Violin</option>
+                                    <option value="violin_tremolo">Tremolo Violin</option>
+                                    <option value="cello_warm">Warm Cello</option>
+                                </optgroup>
+                                <optgroup label="🎺 BRASS & WINDS">
+                                    <option value="brass_section">Brass Section</option>
+                                    <option value="brass_stab">Brass Stab</option>
+                                    <option value="flute_breathy">Breathy Flute</option>
+                                </optgroup>
+                                <optgroup label="🌊 PADS">
+                                    <option value="pad_warm">Warm Pad</option>
+                                    <option value="pad_dark">Dark Atmosphere</option>
+                                    <option value="pad_shimmer">Shimmer Pad</option>
+                                    <option value="pad_sweeping">Sweeping Pad</option>
+                                    <option value="pad_ethereal">Ethereal Pad</option>
+                                    <option value="pad_analog">Analog Pad</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="track-btn" onclick="randomizePattern('keys')" title="Randomize">🎲</button>
+                            <button class="track-btn" onclick="shiftPattern('keys', -1)" title="Shift left">←</button>
+                            <button class="track-btn" onclick="shiftPattern('keys', 1)" title="Shift right">→</button>
+                            <button class="track-btn" onclick="clearPattern('keys')" title="Clear">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="sequencer-grid" id="seq-keys">
+                        <!-- 16 steps -->
+                    </div>
+                </div>
+
+                <!-- LEAD Track -->
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="track-label">LEAD</div>
+                            <select id="instrument-lead" class="instrument-select" onchange="changeInstrument('lead', this.value)">
+                                <optgroup label="🎵 LEAD">
+                                    <option value="lead_vintage" selected>Vintage Lead</option>
+                                    <option value="lead_bright">Bright Arp</option>
+                                </optgroup>
+                                <optgroup label="🎸 BASS">
+                                    <option value="bass_fat">Fat Bass</option>
+                                    <option value="bass_sub">Sub 808</option>
+                                    <option value="bass_acid">Acid 303</option>
+                                    <option value="bass_reese">Reese Bass</option>
+                                    <option value="bass_wobble">Wobble Bass</option>
+                                </optgroup>
+                                <optgroup label="🎹 PIANO">
+                                    <option value="piano_bright">Bright Piano</option>
+                                    <option value="piano_electric">Electric Piano</option>
+                                    <option value="piano_soft">Soft Piano</option>
+                                </optgroup>
+                                <optgroup label="🎺 BRASS & WINDS">
+                                    <option value="brass_section">Brass Section</option>
+                                    <option value="brass_stab">Brass Stab</option>
+                                    <option value="flute_breathy">Breathy Flute</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="track-btn" onclick="randomizePattern('lead')" title="Randomize">🎲</button>
+                            <button class="track-btn" onclick="shiftPattern('lead', -1)" title="Shift left">←</button>
+                            <button class="track-btn" onclick="shiftPattern('lead', 1)" title="Shift right">→</button>
+                            <button class="track-btn" onclick="clearPattern('lead')" title="Clear">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="sequencer-grid" id="seq-lead">
+                        <!-- 16 steps -->
+                    </div>
+                </div>
+
+                <!-- FX Track -->
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="track-label">FX</div>
+                            <select id="instrument-fx" class="instrument-select" onchange="changeInstrument('fx', this.value)">
+                                <optgroup label="✨ FX">
+                                    <option value="fx_space" selected>Space FX</option>
+                                    <option value="fx_phaser">Phaser Swirl</option>
+                                    <option value="fx_riser">Riser FX</option>
+                                    <option value="fx_sweep">Filter Sweep</option>
+                                    <option value="fx_laser">Laser Zap</option>
+                                </optgroup>
+                                <optgroup label="🥁 PERCUSSION">
+                                    <option value="perc_snare">Snare (ARP)</option>
+                                    <option value="perc_hihat">Hi-Hat (ARP)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="track-btn" onclick="randomizePattern('fx')" title="Randomize">🎲</button>
+                            <button class="track-btn" onclick="shiftPattern('fx', -1)" title="Shift left">←</button>
+                            <button class="track-btn" onclick="shiftPattern('fx', 1)" title="Shift right">→</button>
+                            <button class="track-btn" onclick="clearPattern('fx')" title="Clear">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="sequencer-grid" id="seq-fx">
+                        <!-- 16 steps -->
+                    </div>
+                </div>
+
+                <!-- PERC Track -->
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="track-label">PERC</div>
+                            <select id="instrument-perc" class="instrument-select" onchange="changeInstrument('perc', this.value)">
+                                <optgroup label="🥁 PERCUSSION">
+                                    <option value="perc_snare" selected>Snare (ARP)</option>
+                                    <option value="perc_hihat">Hi-Hat (ARP)</option>
+                                </optgroup>
+                                <optgroup label="🥁 DRUMS">
+                                    <option value="kick">Kick Drum</option>
+                                    <option value="snare">Snare Drum</option>
+                                    <option value="hihat">Hi-Hat</option>
+                                </optgroup>
+                                <optgroup label="✨ FX">
+                                    <option value="fx_space">Space FX</option>
+                                    <option value="fx_phaser">Phaser Swirl</option>
+                                    <option value="fx_riser">Riser FX</option>
+                                    <option value="fx_sweep">Filter Sweep</option>
+                                    <option value="fx_laser">Laser Zap</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="track-btn" onclick="randomizePattern('perc')" title="Randomize">🎲</button>
+                            <button class="track-btn" onclick="shiftPattern('perc', -1)" title="Shift left">←</button>
+                            <button class="track-btn" onclick="shiftPattern('perc', 1)" title="Shift right">→</button>
+                            <button class="track-btn" onclick="clearPattern('perc')" title="Clear">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="sequencer-grid" id="seq-perc">
+                        <!-- 16 steps -->
+                    </div>
+                </div>
+
+                <!-- Pattern Info -->
+                <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--haos-dim); text-align: center; margin-top: 8px; padding: 6px; border-top: 1px solid var(--haos-border);">
+                    💡 LEFT-CLICK: Toggle | RIGHT-CLICK: Velocity | DOUBLE-CLICK: Random Vel
+                </div>
+            </div>
+
+            <!-- Pattern Presets Library -->
+            <div class="module-panel">
+                <div class="module-header">
+                    <div class="module-title">PATTERN LIBRARY</div>
+                    <div class="module-icon">📚</div>
+                </div>
+
+                <!-- TECHNO SUITE -->
+                <div class="preset-section">
+                    <div class="preset-section-header" style="background: linear-gradient(135deg, rgba(255,107,53,0.2), rgba(255,140,66,0.1)); border-left: 3px solid var(--haos-orange); padding: 8px 12px; margin-bottom: 8px; border-radius: 6px;">
+                        <span style="font-family: var(--font-display); font-size: 1rem; letter-spacing: 1px; color: var(--haos-orange);">🔊 TECHNO SUITE</span>
+                    </div>
+                    <div class="pattern-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px;">
+                        <button class="pattern-preset-btn" onclick="loadPatternPreset('minimal')" title="Minimal Techno - Sparse kick pattern">
+                            <span class="pattern-icon">🎯</span>
+                            <span class="pattern-name">MINIMAL</span>
+                        </button>
+                        <button class="pattern-preset-btn" onclick="loadPatternPreset('techno')" title="Classic Techno - 4/4 groove">
+                            <span class="pattern-icon">⚡</span>
+                            <span class="pattern-name">TECHNO</span>
+                        </button>
+                        <button class="pattern-preset-btn" onclick="loadPatternPreset('industrial')" title="Industrial - Heavy distorted">
+                            <span class="pattern-icon">⚙️</span>
+                            <span class="pattern-name">INDUSTRIAL</span>
+                        </button>
+                        <button class="pattern-preset-btn" onclick="loadPatternPreset('acid')" title="Acid House - TB-303 squelch">
+                            <span class="pattern-icon">🧪</span>
+                            <span class="pattern-name">ACID</span>
+                        </button>
+                        <button class="pattern-preset-btn" onclick="loadPatternPreset('detroit')" title="Detroit Techno - Futuristic">
+                            <span class="pattern-icon">🏭</span>
+                            <span class="pattern-name">DETROIT</span>
+                        </button>
+                        <button class="pattern-preset-btn" onclick="loadPatternPreset('tribal')" title="Tribal Techno - Percussive">
+                            <span class="pattern-icon">🥁</span>
+                            <span class="pattern-name">TRIBAL</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- HIPHOP BUNDLE -->
+                <div class="preset-section">
+                    <div class="preset-section-header" style="background: linear-gradient(135deg, rgba(147,112,219,0.2), rgba(186,85,211,0.1)); border-left: 3px solid #9370DB; padding: 8px 12px; margin-bottom: 8px; border-radius: 6px;">
+                        <span style="font-family: var(--font-display); font-size: 1rem; letter-spacing: 1px; color: #BA55D3;">🎤 HIPHOP BUNDLE</span>
+                    </div>
+                    <div class="pattern-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                        <button class="pattern-preset-btn hiphop" onclick="loadPatternPreset('trap')" title="Trap - Hi-hat rolls & 808">
+                            <span class="pattern-icon">💎</span>
+                            <span class="pattern-name">TRAP</span>
+                        </button>
+                        <button class="pattern-preset-btn hiphop" onclick="loadPatternPreset('hiphop')" title="Classic Hip-Hop Boom Bap">
+                            <span class="pattern-icon">🎧</span>
+                            <span class="pattern-name">HIP-HOP</span>
+                        </button>
+                        <button class="pattern-preset-btn hiphop" onclick="loadPatternPreset('darkrap')" title="Dark Rap - Ominous bass">
+                            <span class="pattern-icon">🌑</span>
+                            <span class="pattern-name">DARK RAP</span>
+                        </button>
+                        <button class="pattern-preset-btn hiphop" onclick="loadPatternPreset('drill')" title="Drill - UK/Chicago style">
+                            <span class="pattern-icon">🔥</span>
+                            <span class="pattern-name">DRILL</span>
+                        </button>
+                        <button class="pattern-preset-btn hiphop" onclick="loadPatternPreset('lofi')" title="Lo-Fi Hip-Hop - Chill vibes">
+                            <span class="pattern-icon">🌸</span>
+                            <span class="pattern-name">LO-FI</span>
+                        </button>
+                        <button class="pattern-preset-btn hiphop" onclick="loadPatternPreset('phonk')" title="Phonk - Memphis style">
+                            <span class="pattern-icon">👻</span>
+                            <span class="pattern-name">PHONK</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div style="display: flex; gap: 6px; margin-top: 12px;">
+                    <button class="seq-control-btn" onclick="clearAllPatterns()" style="flex: 1; background: rgba(255,0,110,0.15); border-color: var(--haos-pink); color: var(--haos-pink);">
+                        🗑️ CLEAR ALL
+                    </button>
+                    <button class="seq-control-btn" onclick="randomizeAllTracks()" style="flex: 1; background: rgba(57,255,20,0.15); border-color: var(--haos-green); color: var(--haos-green);">
+                        🎲 RANDOM ALL
+                    </button>
+                </div>
+            </div>
+
+            <!-- Piano Roll Sequencer -->
+            <div class="module-panel">
+                <div class="module-header">
+                    <div class="module-title">PIANO ROLL - CHORD PROGRESSIONS</div>
+                    <div class="module-icon">🎹</div>
+                </div>
+
+                <!-- Chord Settings -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--haos-dim); display: block; margin-bottom: 4px;">KEY</label>
+                        <select id="chordKey" class="instrument-select" style="width: 100%;">
+                            <option value="C">C</option>
+                            <option value="Db">C# / Db</option>
+                            <option value="D">D</option>
+                            <option value="Eb">D# / Eb</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="F#">F# / Gb</option>
+                            <option value="G">G</option>
+                            <option value="Ab">G# / Ab</option>
+                            <option value="A" selected>A</option>
+                            <option value="Bb">A# / Bb</option>
+                            <option value="B">B</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--haos-dim); display: block; margin-bottom: 4px;">MODE</label>
+                        <select id="chordMode" class="instrument-select" style="width: 100%;">
+                            <option value="minor" selected>Minor</option>
+                            <option value="major">Major</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Progression Type -->
+                <div style="margin-bottom: 12px;">
+                    <label style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--haos-dim); display: block; margin-bottom: 4px;">PROGRESSION</label>
+                    <select id="progressionType" class="instrument-select" style="width: 100%;">
+                        <option value="dark_trap">Dark Trap (i-VI-III-VII)</option>
+                        <option value="melodic_trap">Melodic Trap (i-iv-VII-VI)</option>
+                        <option value="drill">Drill (i-III-VII-VI)</option>
+                        <option value="cloud_rap">Cloud Rap (vi-IV-I-V)</option>
+                        <option value="boom_bap">Boom-Bap (i-VII-VI-V)</option>
+                        <option value="emotional">Emotional (i-v-VI-III)</option>
+                    </select>
+                </div>
+
+                <!-- Instrument Selection -->
+                <div style="margin-bottom: 12px;">
+                    <label style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--haos-dim); display: block; margin-bottom: 4px;">INSTRUMENT</label>
+                    <select id="chordInstrument" class="instrument-select" style="width: 100%;">
+                        <option value="piano_bright" selected>Bright Piano</option>
+                        <option value="piano_electric">Electric Piano</option>
+                        <option value="piano_soft">Soft Piano</option>
+                        <option value="strings_ensemble">String Ensemble</option>
+                        <option value="strings_lush">Lush Strings</option>
+                        <option value="pad_warm">Warm Pad</option>
+                        <option value="pad_shimmer">Shimmer Pad</option>
+                        <option value="organ_hammond">Hammond Organ</option>
+                        <option value="organ_church">Church Organ</option>
+                    </select>
+                </div>
+
+                <!-- Arpeggio & Rhythm Settings -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--haos-dim); display: block; margin-bottom: 4px;">ARPEGGIO</label>
+                        <select id="arpeggioPattern" class="instrument-select" style="width: 100%;">
+                            <option value="none" selected>Full Chord</option>
+                            <option value="up">Up</option>
+                            <option value="down">Down</option>
+                            <option value="updown">Up-Down</option>
+                            <option value="random">Random</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--haos-dim); display: block; margin-bottom: 4px;">RHYTHM</label>
+                        <select id="rhythmPattern" class="instrument-select" style="width: 100%;">
+                            <option value="whole" selected>Whole</option>
+                            <option value="half">Half Notes</option>
+                            <option value="quarter">Quarter</option>
+                            <option value="triplet">Triplet</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div style="display: flex; gap: 6px; margin-bottom: 12px;">
+                    <button class="seq-control-btn" onclick="generateChordProgression()" style="flex: 1; background: rgba(57,255,20,0.2); border-color: var(--haos-green); color: var(--haos-green);">
+                        🎼 GENERATE
+                    </button>
+                    <button class="seq-control-btn" onclick="playChordProgression()" style="flex: 1; background: rgba(0,217,255,0.2); border-color: var(--haos-cyan); color: var(--haos-cyan);">
+                        ▶️ PLAY
+                    </button>
+                </div>
+
+                <!-- Chord Display -->
+                <div id="chordDisplay" style="font-family: var(--font-mono); font-size: 0.7rem; background: rgba(0,0,0,0.5); border: 1px solid var(--haos-border); border-radius: 6px; padding: 10px; min-height: 60px;">
+                    <div style="color: var(--haos-dim); text-align: center;">Generate a progression to see chords</div>
                 </div>
             </div>
         </div>
@@ -1137,42 +2015,66 @@
                 </div>
                 
                 <div class="effect-slot">
-                    <div class="effect-name">DELAY</div>
-                    <div class="effect-controls">
-                        <span class="knob-label">TIME</span>
-                        <div class="effect-slider" data-effect="delay-time" style="--value: 375ms"></div>
-                        <span class="knob-label">FB</span>
-                        <div class="effect-slider" data-effect="delay-feedback" style="--value: 40%"></div>
+                    <div class="effect-name">💫 DELAY</div>
+                    <div class="knob-grid" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="delay-time" data-value="0.375"></div>
+                            <div class="knob-label">TIME</div>
+                            <div class="knob-value">375ms</div>
+                        </div>
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="delay-feedback" data-value="0.4"></div>
+                            <div class="knob-label">FEEDBACK</div>
+                            <div class="knob-value">40%</div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="effect-slot">
-                    <div class="effect-name">REVERB</div>
-                    <div class="effect-controls">
-                        <span class="knob-label">SIZE</span>
-                        <div class="effect-slider" data-effect="reverb-size" style="--value: 60%"></div>
-                        <span class="knob-label">MIX</span>
-                        <div class="effect-slider" data-effect="reverb-mix" style="--value: 30%"></div>
+                    <div class="effect-name">🌊 REVERB</div>
+                    <div class="knob-grid" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="reverb-size" data-value="0.5"></div>
+                            <div class="knob-label">SIZE</div>
+                            <div class="knob-value">2.0s</div>
+                        </div>
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="reverb-mix" data-value="0.3"></div>
+                            <div class="knob-label">MIX</div>
+                            <div class="knob-value">30%</div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="effect-slot">
-                    <div class="effect-name">COMPRESSOR</div>
-                    <div class="effect-controls">
-                        <span class="knob-label">THRESHOLD</span>
-                        <div class="effect-slider" data-effect="comp-threshold" style="--value: -24dB"></div>
-                        <span class="knob-label">RATIO</span>
-                        <div class="effect-slider" data-effect="comp-ratio" style="--value: 12:1"></div>
+                    <div class="effect-name">🎚️ COMPRESSOR</div>
+                    <div class="knob-grid" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="comp-threshold" data-value="0.6"></div>
+                            <div class="knob-label">THRESHOLD</div>
+                            <div class="knob-value">-24dB</div>
+                        </div>
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="comp-ratio" data-value="0.55"></div>
+                            <div class="knob-label">RATIO</div>
+                            <div class="knob-value">12:1</div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="effect-slot">
-                    <div class="effect-name">DISTORTION</div>
-                    <div class="effect-controls">
-                        <span class="knob-label">DRIVE</span>
-                        <div class="effect-slider" data-effect="dist-drive" style="--value: 50%"></div>
-                        <span class="knob-label">TONE</span>
-                        <div class="effect-slider" data-effect="dist-tone" style="--value: 70%"></div>
+                    <div class="effect-name">🔥 DISTORTION</div>
+                    <div class="knob-grid" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="dist-drive" data-value="0.5"></div>
+                            <div class="knob-label">DRIVE</div>
+                            <div class="knob-value">50</div>
+                        </div>
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="dist-tone" data-value="0.7"></div>
+                            <div class="knob-label">TONE</div>
+                            <div class="knob-value">70%</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1330,7 +2232,7 @@
 
         // Initialize sequencer grids
         function initSequencer() {
-            const tracks = ['kick', 'snare', 'hihat', 'bass'];
+            const tracks = ['kick', 'snare', 'hihat', 'bass', 'keys', 'lead', 'fx', 'perc'];
             tracks.forEach(track => {
                 const grid = document.getElementById(`seq-${track}`);
                 for (let i = 0; i < 16; i++) {
@@ -1479,6 +2381,373 @@
             
             showNotification(`↔️ ${track.toUpperCase()} shifted ${direction > 0 ? 'right' : 'left'}`);
         }
+
+        // ═══════════════════════════════════════════════════════════
+        // 💾 PATTERN SAVE/LOAD & SEQUENCER CONTROLS
+        // ═══════════════════════════════════════════════════════════
+
+        let sequenceLength = 16;
+        let swingAmount = 0; // 0, 33, 66 (percentage)
+        let savedPatterns = {};
+
+        // Pattern Presets Library
+        const PATTERN_PRESETS = {
+            // ========== TECHNO SUITE ==========
+            minimal: {
+                name: 'Minimal Techno',
+                bpm: 128,
+                swing: 0,
+                tracks: {
+                    kick: [0, 8],
+                    snare: [],
+                    hihat: [2, 6, 10, 14],
+                    bass: [0, 8]
+                }
+            },
+            techno: {
+                name: 'Classic Techno',
+                bpm: 135,
+                swing: 0,
+                tracks: {
+                    kick: [0, 4, 8, 12],
+                    snare: [4, 12],
+                    hihat: [0, 2, 4, 6, 8, 10, 12, 14],
+                    bass: [0, 4, 8, 12]
+                }
+            },
+            industrial: {
+                name: 'Industrial',
+                bpm: 145,
+                swing: 0,
+                tracks: {
+                    kick: [0, 3, 6, 8, 11, 14],
+                    snare: [4, 12],
+                    hihat: [1, 3, 5, 7, 9, 11, 13, 15],
+                    bass: [0, 3, 6, 8, 11, 14]
+                },
+                velocities: {
+                    kick: 100,
+                    snare: 90,
+                    hihat: 60,
+                    bass: 100
+                }
+            },
+            acid: {
+                name: 'Acid House',
+                bpm: 130,
+                swing: 33,
+                tracks: {
+                    kick: [0, 4, 8, 12],
+                    snare: [4, 12],
+                    hihat: [2, 6, 10, 14],
+                    bass: [0, 1, 4, 5, 8, 9, 12, 13]
+                },
+                velocities: {
+                    bass: 75
+                }
+            },
+            detroit: {
+                name: 'Detroit Techno',
+                bpm: 128,
+                swing: 0,
+                tracks: {
+                    kick: [0, 4, 8, 12],
+                    snare: [4, 12],
+                    hihat: [0, 2, 4, 6, 8, 10, 12, 14],
+                    bass: [0, 2, 4, 6, 8, 10, 12, 14]
+                }
+            },
+            tribal: {
+                name: 'Tribal Techno',
+                bpm: 132,
+                swing: 33,
+                tracks: {
+                    kick: [0, 3, 6, 9, 12],
+                    snare: [4, 8, 12],
+                    hihat: [1, 3, 5, 7, 9, 11, 13, 15],
+                    bass: [0, 6, 12]
+                }
+            },
+            
+            // ========== HIPHOP BUNDLE ==========
+            trap: {
+                name: 'Trap',
+                bpm: 140,
+                swing: 0,
+                tracks: {
+                    kick: [0, 6, 12],
+                    snare: [4, 12],
+                    hihat: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                    bass: [0, 6, 12]
+                },
+                velocities: {
+                    hihat: 40,
+                    bass: 100
+                }
+            },
+            hiphop: {
+                name: 'Hip-Hop Boom Bap',
+                bpm: 90,
+                swing: 66,
+                tracks: {
+                    kick: [0, 8],
+                    snare: [4, 12],
+                    hihat: [2, 6, 10, 14],
+                    bass: [0, 4, 8, 12]
+                }
+            },
+            darkrap: {
+                name: 'Dark Rap',
+                bpm: 70,
+                swing: 33,
+                tracks: {
+                    kick: [0, 6, 12],
+                    snare: [4, 12],
+                    hihat: [2, 6, 10, 14],
+                    bass: [0, 3, 6, 9, 12, 15]
+                },
+                velocities: {
+                    kick: 100,
+                    bass: 100,
+                    hihat: 50
+                }
+            },
+            drill: {
+                name: 'Drill',
+                bpm: 140,
+                swing: 0,
+                tracks: {
+                    kick: [0, 6, 10, 12],
+                    snare: [4, 12],
+                    hihat: [0, 2, 4, 6, 8, 10, 12, 14],
+                    bass: [0, 6, 10, 12]
+                },
+                velocities: {
+                    kick: 100,
+                    bass: 100
+                }
+            },
+            lofi: {
+                name: 'Lo-Fi Hip-Hop',
+                bpm: 85,
+                swing: 66,
+                tracks: {
+                    kick: [0, 8],
+                    snare: [4, 12],
+                    hihat: [2, 6, 10, 14],
+                    bass: [0, 8]
+                },
+                velocities: {
+                    kick: 70,
+                    snare: 60,
+                    hihat: 40,
+                    bass: 70
+                }
+            },
+            phonk: {
+                name: 'Phonk',
+                bpm: 125,
+                swing: 33,
+                tracks: {
+                    kick: [0, 3, 8, 11],
+                    snare: [4, 12],
+                    hihat: [0, 2, 4, 6, 8, 10, 12, 14],
+                    bass: [0, 3, 8, 11]
+                },
+                velocities: {
+                    bass: 100,
+                    kick: 90
+                }
+            }
+        };
+
+        // Load pattern preset
+        function loadPatternPreset(presetName) {
+            const preset = PATTERN_PRESETS[presetName];
+            if (!preset) {
+                showNotification(`⚠️ Preset "${presetName}" not found`);
+                return;
+            }
+
+            // Clear current pattern
+            clearAllPatterns();
+
+            // Set BPM
+            if (preset.bpm) {
+                bpm = preset.bpm;
+                document.getElementById('bpm-value').textContent = bpm;
+            }
+
+            // Set swing
+            if (preset.swing !== undefined) {
+                swingAmount = preset.swing;
+                document.getElementById('swing-btn').textContent = `SWING: ${swingAmount}%`;
+            }
+
+            // Load tracks
+            Object.keys(preset.tracks).forEach(track => {
+                const steps = preset.tracks[track];
+                const defaultVelocity = preset.velocities?.[track] || 80;
+                
+                steps.forEach(stepNum => {
+                    const stepEl = document.querySelector(`[data-track="${track}"][data-step="${stepNum}"]`);
+                    if (stepEl) {
+                        stepEl.classList.add('active');
+                        stepEl.dataset.velocity = defaultVelocity;
+                        stepEl.style.setProperty('--velocity', `${defaultVelocity}%`);
+                    }
+                });
+            });
+
+            showNotification(`🎵 Loaded: ${preset.name} | ${preset.bpm} BPM | Swing: ${preset.swing}%`);
+        }
+
+        // Clear all patterns
+        function clearAllPatterns() {
+            document.querySelectorAll('.seq-step').forEach(step => {
+                step.classList.remove('active');
+                step.dataset.velocity = '100';
+                step.style.setProperty('--velocity', '100%');
+            });
+        }
+
+        // Randomize all tracks
+        function randomizeAllTracks() {
+            ['kick', 'snare', 'hihat', 'bass'].forEach(track => {
+                randomizePattern(track);
+            });
+            showNotification('🎲 All tracks randomized!');
+        }
+
+        // Save current pattern
+        document.getElementById('save-pattern-btn').onclick = () => {
+            const pattern = {
+                length: sequenceLength,
+                swing: swingAmount,
+                tracks: {}
+            };
+            
+            ['kick', 'snare', 'hihat', 'bass'].forEach(track => {
+                pattern.tracks[track] = [];
+                document.querySelectorAll(`[data-track="${track}"]`).forEach((step, i) => {
+                    if (step.classList.contains('active')) {
+                        pattern.tracks[track].push({
+                            step: i,
+                            velocity: parseInt(step.dataset.velocity)
+                        });
+                    }
+                });
+            });
+            
+            const patternName = prompt('Enter pattern name:', `Pattern_${Object.keys(savedPatterns).length + 1}`);
+            if (patternName) {
+                savedPatterns[patternName] = pattern;
+                localStorage.setItem('haos_patterns', JSON.stringify(savedPatterns));
+                showNotification(`💾 Pattern "${patternName}" saved!`);
+            }
+        };
+
+        // Load saved pattern
+        document.getElementById('load-pattern-btn').onclick = () => {
+            const stored = localStorage.getItem('haos_patterns');
+            if (stored) {
+                savedPatterns = JSON.parse(stored);
+            }
+            
+            if (Object.keys(savedPatterns).length === 0) {
+                showNotification('⚠️ No saved patterns found');
+                return;
+            }
+            
+            const patternList = Object.keys(savedPatterns).map((name, i) => `${i + 1}. ${name}`).join('\n');
+            const patternName = prompt(`Select pattern:\n\n${patternList}\n\nEnter pattern name:`);
+            
+            if (patternName && savedPatterns[patternName]) {
+                const pattern = savedPatterns[patternName];
+                
+                // Clear current pattern
+                document.querySelectorAll('.seq-step').forEach(step => {
+                    step.classList.remove('active');
+                });
+                
+                // Load pattern data
+                Object.keys(pattern.tracks).forEach(track => {
+                    pattern.tracks[track].forEach(note => {
+                        const step = document.querySelector(`[data-track="${track}"][data-step="${note.step}"]`);
+                        if (step) {
+                            step.classList.add('active');
+                            step.dataset.velocity = note.velocity;
+                            step.style.setProperty('--velocity', `${note.velocity}%`);
+                        }
+                    });
+                });
+                
+                if (pattern.length) {
+                    sequenceLength = pattern.length;
+                    document.getElementById('seq-length-btn').textContent = `${sequenceLength} STEPS`;
+                    updateSequenceLength();
+                }
+                
+                if (pattern.swing !== undefined) {
+                    swingAmount = pattern.swing;
+                    document.getElementById('swing-btn').textContent = `SWING: ${swingAmount}%`;
+                }
+                
+                showNotification(`📂 Pattern "${patternName}" loaded!`);
+            }
+        };
+
+        // Toggle sequence length (8/16 steps)
+        document.getElementById('seq-length-btn').onclick = () => {
+            sequenceLength = sequenceLength === 16 ? 8 : 16;
+            document.getElementById('seq-length-btn').textContent = `${sequenceLength} STEPS`;
+            updateSequenceLength();
+            showNotification(`📏 Sequence length: ${sequenceLength} steps`);
+        };
+
+        function updateSequenceLength() {
+            document.querySelectorAll('.seq-step').forEach((step, idx) => {
+                const stepNum = idx % 16;
+                if (stepNum >= sequenceLength) {
+                    step.style.opacity = '0.3';
+                    step.style.pointerEvents = 'none';
+                } else {
+                    step.style.opacity = '1';
+                    step.style.pointerEvents = 'auto';
+                }
+            });
+        }
+
+        // Toggle swing amount
+        document.getElementById('swing-btn').onclick = () => {
+            if (swingAmount === 0) swingAmount = 33;
+            else if (swingAmount === 33) swingAmount = 66;
+            else swingAmount = 0;
+            
+            document.getElementById('swing-btn').textContent = `SWING: ${swingAmount}%`;
+            showNotification(`🎵 Swing: ${swingAmount}%`);
+        };
+
+        // BPM controls
+        document.getElementById('bpm-up').onclick = () => {
+            bpm = Math.min(200, bpm + 5);
+            document.getElementById('bpm-value').textContent = bpm;
+            if (isPlaying) {
+                stopSequencer();
+                startSequencer();
+            }
+            showNotification(`⬆️ BPM: ${bpm}`);
+        };
+
+        document.getElementById('bpm-down').onclick = () => {
+            bpm = Math.max(60, bpm - 5);
+            document.getElementById('bpm-value').textContent = bpm;
+            if (isPlaying) {
+                stopSequencer();
+                startSequencer();
+            }
+            showNotification(`⬇️ BPM: ${bpm}`);
+        };
 
         // ═══════════════════════════════════════════════════════════
         // ⌨️ KEYBOARD CONTROLS
@@ -1640,8 +2909,17 @@
             const stepTime = (60 / bpm) / 4 * 1000; // 16th note in ms
             
             intervalId = setInterval(() => {
-                playStep(currentStep);
-                currentStep = (currentStep + 1) % 16;
+                // Apply swing to even steps (off-beats)
+                let delay = 0;
+                if (swingAmount > 0 && currentStep % 2 === 1) {
+                    delay = (stepTime * swingAmount / 100) * 0.5; // Apply swing delay
+                }
+                
+                setTimeout(() => {
+                    playStep(currentStep);
+                }, delay);
+                
+                currentStep = (currentStep + 1) % sequenceLength;
             }, stepTime);
         }
 
@@ -1651,54 +2929,828 @@
                 intervalId = null;
             }
             currentStep = 0;
+            
+            // Remove playing class from all steps
+            document.querySelectorAll('.seq-step.playing').forEach(el => {
+                el.classList.remove('playing');
+            });
         }
 
         function playStep(step) {
-            // Highlight current step
+            // Skip if step is beyond sequence length
+            if (step >= sequenceLength) return;
+            
+            // Highlight current step with position indicator
             document.querySelectorAll('.seq-step').forEach(el => {
-                if (parseInt(el.dataset.step) === step) {
+                const stepNum = parseInt(el.dataset.step);
+                if (stepNum === step) {
                     el.classList.add('playing');
                     setTimeout(() => el.classList.remove('playing'), 100);
                 }
             });
 
-            // Play active steps
+            // Play active steps with velocity
             const now = HAOS.audioContext?.currentTime || 0;
             
             ['kick', 'snare', 'hihat', 'bass'].forEach(track => {
                 const stepEl = document.querySelector(`[data-track="${track}"][data-step="${step}"]`);
                 if (stepEl && stepEl.classList.contains('active')) {
-                    playSound(track, now);
+                    const velocity = parseInt(stepEl.dataset.velocity) / 100;
+                    playSound(track, now, velocity);
                 }
             });
         }
 
-        function playSound(track, time) {
-            if (!HAOS.initialized) return;
+        // ARP 2600 Preset Library
+        const ARP2600_PRESETS = {
+            // ========== LEAD VARIATIONS ==========
+            'lead_vintage': {
+                name: 'Vintage Lead',
+                category: 'Lead',
+                vco1: {waveform: 'sawtooth', frequency: 440, fine: 0, mod: 0.3},
+                vco2: {waveform: 'square', frequency: 440, fine: -7, mod: 0.2},
+                vcf: {cutoff: 1200, resonance: 0.6, envMod: 0.7},
+                vca: {level: 0.8},
+                envelope: {attack: 0.01, decay: 0.3, sustain: 0.6, release: 0.4},
+                lfo: {rate: 5, depth: 0.2, destination: 'filter'}
+            },
+            'lead_bright': {
+                name: 'Bright Arp Lead',
+                category: 'Lead',
+                vco1: {waveform: 'sawtooth', frequency: 440, fine: 0, mod: 0.2},
+                vco2: {waveform: 'square', frequency: 440, fine: 5, mod: 0.1},
+                vcf: {cutoff: 2500, resonance: 0.5, envMod: 0.8},
+                vca: {level: 0.85},
+                envelope: {attack: 0.001, decay: 0.15, sustain: 0.4, release: 0.2},
+                lfo: {rate: 6, depth: 0.15, destination: 'filter'}
+            },
             
-            switch(track) {
+            // ========== PAD VARIATIONS ==========
+            'pad_warm': {
+                name: 'Warm Pad',
+                category: 'Pad',
+                vco1: {waveform: 'sawtooth', frequency: 220, fine: 0, mod: 0.1},
+                vco2: {waveform: 'triangle', frequency: 220, fine: 5, mod: 0.1},
+                vcf: {cutoff: 800, resonance: 0.3, envMod: 0.4},
+                vca: {level: 0.6},
+                envelope: {attack: 0.8, decay: 0.5, sustain: 0.7, release: 1.2},
+                lfo: {rate: 0.3, depth: 0.2, destination: 'pitch'}
+            },
+            'pad_dark': {
+                name: 'Dark Atmosphere',
+                category: 'Pad',
+                vco1: {waveform: 'sawtooth', frequency: 220, fine: 0, mod: 0.1},
+                vco2: {waveform: 'triangle', frequency: 220, fine: -3, mod: 0.15},
+                vcf: {cutoff: 800, resonance: 0.3, envMod: 0.3},
+                vca: {level: 0.7},
+                envelope: {attack: 1.2, decay: 0.8, sustain: 0.7, release: 1.5},
+                lfo: {rate: 0.3, depth: 0.25, destination: 'filter'}
+            },
+            
+            // ========== BASS VARIATIONS ==========
+            'bass_fat': {
+                name: 'Fat Bass',
+                category: 'Bass',
+                vco1: {waveform: 'sawtooth', frequency: 55, fine: 0, mod: 0},
+                vco2: {waveform: 'square', frequency: 55, fine: -12, mod: 0},
+                vcf: {cutoff: 800, resonance: 0.4, envMod: 0.5},
+                vca: {level: 1.0},
+                envelope: {attack: 0.01, decay: 0.4, sustain: 0.6, release: 0.3},
+                lfo: {rate: 0, depth: 0, destination: 'none'}
+            },
+            'bass_sub': {
+                name: 'Sub Bass 808',
+                category: 'Bass',
+                vco1: {waveform: 'sine', frequency: 55, fine: 0, mod: 0},
+                vco2: {waveform: 'sine', frequency: 55, fine: 0, mod: 0},
+                vcf: {cutoff: 300, resonance: 0.1, envMod: 0.6},
+                vca: {level: 1.0},
+                envelope: {attack: 0.001, decay: 0.8, sustain: 0, release: 0.1},
+                lfo: {rate: 0, depth: 0, destination: 'none'}
+            },
+            'bass_acid': {
+                name: 'Acid Bass 303',
+                category: 'Bass',
+                vco1: {waveform: 'sawtooth', frequency: 55, fine: 0, mod: 0},
+                vco2: {waveform: 'square', frequency: 55, fine: 0, mod: 0},
+                vcf: {cutoff: 600, resonance: 0.8, envMod: 0.9},
+                vca: {level: 0.9},
+                envelope: {attack: 0.001, decay: 0.2, sustain: 0.3, release: 0.1},
+                lfo: {rate: 0, depth: 0, destination: 'none'}
+            },
+            'bass_reese': {
+                name: 'Reese Bass',
+                category: 'Bass',
+                vco1: {waveform: 'sawtooth', frequency: 55, fine: 0, mod: 0},
+                vco2: {waveform: 'sawtooth', frequency: 55, fine: -15, mod: 0},
+                vcf: {cutoff: 500, resonance: 0.3, envMod: 0.4},
+                vca: {level: 1.0},
+                envelope: {attack: 0.02, decay: 0.6, sustain: 0.8, release: 0.4},
+                lfo: {rate: 0, depth: 0, destination: 'none'}
+            },
+            'bass_wobble': {
+                name: 'Wobble Bass',
+                category: 'Bass',
+                vco1: {waveform: 'sawtooth', frequency: 55, fine: 0, mod: 0},
+                vco2: {waveform: 'sawtooth', frequency: 55, fine: -7, mod: 0},
+                vcf: {cutoff: 500, resonance: 0.7, envMod: 0.3},
+                vca: {level: 1.0},
+                envelope: {attack: 0.01, decay: 0.5, sustain: 0.8, release: 0.3},
+                lfo: {rate: 4, depth: 0.8, destination: 'filter'}
+            },
+            
+            // ========== FX VARIATIONS ==========
+            'fx_space': {
+                name: 'Space FX',
+                category: 'FX',
+                vco1: {waveform: 'sine', frequency: 440, fine: 0, mod: 0},
+                vco2: {waveform: 'noise', frequency: 0, fine: 0, mod: 0},
+                vcf: {cutoff: 2000, resonance: 0.85, envMod: 0.5},
+                vca: {level: 0.5},
+                envelope: {attack: 0.1, decay: 1.0, sustain: 0.3, release: 0.8},
+                lfo: {rate: 8, depth: 0.7, destination: 'filter'}
+            },
+            'fx_phaser': {
+                name: 'Phaser Swirl',
+                category: 'FX',
+                vco1: {waveform: 'sawtooth', frequency: 220, fine: 0, mod: 0},
+                vco2: {waveform: 'square', frequency: 220, fine: 0, mod: 0},
+                vcf: {cutoff: 1000, resonance: 0.8, envMod: 0},
+                vca: {level: 0.6},
+                envelope: {attack: 0.05, decay: 0.3, sustain: 0.5, release: 0.5},
+                lfo: {rate: 0.5, depth: 0.6, destination: 'filter'}
+            },
+            
+            // ========== PERCUSSION VARIATIONS ==========
+            'perc_hihat': {
+                name: 'Hi-Hat Metallic',
+                category: 'Percussion',
+                vco1: {waveform: 'noise', frequency: 0, fine: 0, mod: 0},
+                vco2: {waveform: 'noise', frequency: 0, fine: 0, mod: 0},
+                vcf: {cutoff: 8000, resonance: 0.6, envMod: 0.7},
+                vca: {level: 0.8},
+                envelope: {attack: 0.001, decay: 0.08, sustain: 0, release: 0.05},
+                lfo: {rate: 0, depth: 0, destination: 'none'}
+            },
+            'perc_snare': {
+                name: 'Snare Punchy',
+                category: 'Percussion',
+                vco1: {waveform: 'sine', frequency: 180, fine: 0, mod: 0},
+                vco2: {waveform: 'noise', frequency: 0, fine: 0, mod: 0},
+                vcf: {cutoff: 3000, resonance: 0.4, envMod: 0.6},
+                vca: {level: 1.0},
+                envelope: {attack: 0.001, decay: 0.15, sustain: 0, release: 0.08},
+                lfo: {rate: 0, depth: 0, destination: 'none'}
+            },
+            
+            // ========== PIANO VARIATIONS ==========
+            'piano_bright': {
+                name: 'Bright Piano',
+                category: 'Piano',
+                vco1: {waveform: 'triangle', frequency: 440, fine: 0, mod: 0},
+                vco2: {waveform: 'sine', frequency: 440, fine: 12, mod: 0},
+                vcf: {cutoff: 3500, resonance: 0.2, envMod: 0.5},
+                vca: {level: 0.9},
+                envelope: {attack: 0.002, decay: 0.4, sustain: 0.2, release: 0.6},
+                lfo: {rate: 0, depth: 0, destination: 'none'}
+            },
+            'piano_electric': {
+                name: 'Electric Piano',
+                category: 'Piano',
+                vco1: {waveform: 'sine', frequency: 440, fine: 0, mod: 0.1},
+                vco2: {waveform: 'triangle', frequency: 440, fine: 7, mod: 0.1},
+                vcf: {cutoff: 2500, resonance: 0.4, envMod: 0.6},
+                vca: {level: 0.85},
+                envelope: {attack: 0.001, decay: 0.5, sustain: 0.3, release: 0.8},
+                lfo: {rate: 4, depth: 0.1, destination: 'filter'}
+            },
+            'piano_soft': {
+                name: 'Soft Piano',
+                category: 'Piano',
+                vco1: {waveform: 'sine', frequency: 440, fine: 0, mod: 0},
+                vco2: {waveform: 'triangle', frequency: 440, fine: -5, mod: 0},
+                vcf: {cutoff: 2000, resonance: 0.15, envMod: 0.3},
+                vca: {level: 0.7},
+                envelope: {attack: 0.01, decay: 0.6, sustain: 0.25, release: 1.0},
+                lfo: {rate: 0, depth: 0, destination: 'none'}
+            },
+            
+            // ========== STRINGS VARIATIONS ==========
+            'strings_ensemble': {
+                name: 'String Ensemble',
+                category: 'Strings',
+                vco1: {waveform: 'sawtooth', frequency: 220, fine: 0, mod: 0.1},
+                vco2: {waveform: 'sawtooth', frequency: 220, fine: 8, mod: 0.1},
+                vcf: {cutoff: 1500, resonance: 0.35, envMod: 0.4},
+                vca: {level: 0.75},
+                envelope: {attack: 0.6, decay: 0.3, sustain: 0.8, release: 1.0},
+                lfo: {rate: 0.2, depth: 0.15, destination: 'pitch'}
+            },
+            'strings_lush': {
+                name: 'Lush Strings',
+                category: 'Strings',
+                vco1: {waveform: 'sawtooth', frequency: 220, fine: 0, mod: 0.15},
+                vco2: {waveform: 'triangle', frequency: 220, fine: 12, mod: 0.15},
+                vcf: {cutoff: 1800, resonance: 0.3, envMod: 0.5},
+                vca: {level: 0.8},
+                envelope: {attack: 0.8, decay: 0.4, sustain: 0.85, release: 1.3},
+                lfo: {rate: 0.25, depth: 0.2, destination: 'filter'}
+            },
+            'strings_staccato': {
+                name: 'Staccato Strings',
+                category: 'Strings',
+                vco1: {waveform: 'sawtooth', frequency: 220, fine: 0, mod: 0},
+                vco2: {waveform: 'square', frequency: 220, fine: 5, mod: 0},
+                vcf: {cutoff: 2200, resonance: 0.4, envMod: 0.7},
+                vca: {level: 0.85},
+                envelope: {attack: 0.01, decay: 0.2, sustain: 0.3, release: 0.3},
+                lfo: {rate: 0, depth: 0, destination: 'none'}
+            },
+            
+            // ========== VIOLIN VARIATIONS ==========
+            'violin_solo': {
+                name: 'Solo Violin',
+                category: 'Violin',
+                vco1: {waveform: 'sawtooth', frequency: 440, fine: 0, mod: 0.2},
+                vco2: {waveform: 'sawtooth', frequency: 440, fine: 3, mod: 0.2},
+                vcf: {cutoff: 2500, resonance: 0.5, envMod: 0.6},
+                vca: {level: 0.8},
+                envelope: {attack: 0.15, decay: 0.2, sustain: 0.75, release: 0.5},
+                lfo: {rate: 5, depth: 0.15, destination: 'pitch'}
+            },
+            'violin_tremolo': {
+                name: 'Tremolo Violin',
+                category: 'Violin',
+                vco1: {waveform: 'sawtooth', frequency: 440, fine: 0, mod: 0.25},
+                vco2: {waveform: 'triangle', frequency: 440, fine: 5, mod: 0.25},
+                vcf: {cutoff: 2800, resonance: 0.45, envMod: 0.5},
+                vca: {level: 0.75},
+                envelope: {attack: 0.1, decay: 0.15, sustain: 0.7, release: 0.4},
+                lfo: {rate: 8, depth: 0.3, destination: 'vca'}
+            },
+            
+            // ========== CELLO ==========
+            'cello_warm': {
+                name: 'Warm Cello',
+                category: 'Cello',
+                vco1: {waveform: 'sawtooth', frequency: 110, fine: 0, mod: 0.1},
+                vco2: {waveform: 'triangle', frequency: 110, fine: -3, mod: 0.1},
+                vcf: {cutoff: 1200, resonance: 0.4, envMod: 0.5},
+                vca: {level: 0.85},
+                envelope: {attack: 0.25, decay: 0.3, sustain: 0.8, release: 0.8},
+                lfo: {rate: 0.3, depth: 0.12, destination: 'pitch'}
+            },
+            
+            // ========== BRASS VARIATIONS ==========
+            'brass_section': {
+                name: 'Brass Section',
+                category: 'Brass',
+                vco1: {waveform: 'sawtooth', frequency: 220, fine: 0, mod: 0.2},
+                vco2: {waveform: 'square', frequency: 220, fine: -7, mod: 0.2},
+                vcf: {cutoff: 1800, resonance: 0.6, envMod: 0.7},
+                vca: {level: 0.9},
+                envelope: {attack: 0.05, decay: 0.2, sustain: 0.75, release: 0.4},
+                lfo: {rate: 0, depth: 0, destination: 'none'}
+            },
+            'brass_stab': {
+                name: 'Brass Stab',
+                category: 'Brass',
+                vco1: {waveform: 'square', frequency: 220, fine: 0, mod: 0},
+                vco2: {waveform: 'sawtooth', frequency: 220, fine: -5, mod: 0},
+                vcf: {cutoff: 2200, resonance: 0.7, envMod: 0.9},
+                vca: {level: 1.0},
+                envelope: {attack: 0.01, decay: 0.3, sustain: 0.5, release: 0.2},
+                lfo: {rate: 0, depth: 0, destination: 'none'}
+            },
+            
+            // ========== FLUTE ==========
+            'flute_breathy': {
+                name: 'Breathy Flute',
+                category: 'Flute',
+                vco1: {waveform: 'sine', frequency: 440, fine: 0, mod: 0.1},
+                vco2: {waveform: 'noise', frequency: 0, fine: 0, mod: 0},
+                vcf: {cutoff: 4000, resonance: 0.3, envMod: 0.4},
+                vca: {level: 0.6},
+                envelope: {attack: 0.08, decay: 0.15, sustain: 0.65, release: 0.4},
+                lfo: {rate: 4, depth: 0.1, destination: 'pitch'}
+            },
+            
+            // ========== ORGAN VARIATIONS ==========
+            'organ_hammond': {
+                name: 'Hammond Organ',
+                category: 'Organ',
+                vco1: {waveform: 'sine', frequency: 440, fine: 0, mod: 0},
+                vco2: {waveform: 'sine', frequency: 880, fine: 0, mod: 0},
+                vcf: {cutoff: 3000, resonance: 0.2, envMod: 0.2},
+                vca: {level: 0.85},
+                envelope: {attack: 0.02, decay: 0.1, sustain: 0.9, release: 0.3},
+                lfo: {rate: 6, depth: 0.15, destination: 'vca'}
+            },
+            'organ_church': {
+                name: 'Church Organ',
+                category: 'Organ',
+                vco1: {waveform: 'sine', frequency: 220, fine: 0, mod: 0},
+                vco2: {waveform: 'triangle', frequency: 440, fine: 0, mod: 0},
+                vcf: {cutoff: 2500, resonance: 0.15, envMod: 0.1},
+                vca: {level: 0.8},
+                envelope: {attack: 0.15, decay: 0.2, sustain: 0.95, release: 0.8},
+                lfo: {rate: 0, depth: 0, destination: 'none'}
+            },
+            
+            // ========== EXPANDED PAD VARIATIONS ==========
+            'pad_shimmer': {
+                name: 'Shimmer Pad',
+                category: 'Pad',
+                vco1: {waveform: 'triangle', frequency: 220, fine: 0, mod: 0.2},
+                vco2: {waveform: 'sine', frequency: 440, fine: 7, mod: 0.2},
+                vcf: {cutoff: 1500, resonance: 0.4, envMod: 0.5},
+                vca: {level: 0.65},
+                envelope: {attack: 1.0, decay: 0.6, sustain: 0.75, release: 1.8},
+                lfo: {rate: 0.4, depth: 0.3, destination: 'filter'}
+            },
+            'pad_sweeping': {
+                name: 'Sweeping Pad',
+                category: 'Pad',
+                vco1: {waveform: 'sawtooth', frequency: 220, fine: 0, mod: 0.15},
+                vco2: {waveform: 'square', frequency: 220, fine: 12, mod: 0.15},
+                vcf: {cutoff: 600, resonance: 0.5, envMod: 0.6},
+                vca: {level: 0.7},
+                envelope: {attack: 1.5, decay: 0.8, sustain: 0.8, release: 2.0},
+                lfo: {rate: 0.15, depth: 0.4, destination: 'filter'}
+            },
+            'pad_ethereal': {
+                name: 'Ethereal Pad',
+                category: 'Pad',
+                vco1: {waveform: 'sine', frequency: 220, fine: 0, mod: 0.1},
+                vco2: {waveform: 'triangle', frequency: 330, fine: 3, mod: 0.1},
+                vcf: {cutoff: 1200, resonance: 0.25, envMod: 0.35},
+                vca: {level: 0.55},
+                envelope: {attack: 1.8, decay: 1.0, sustain: 0.7, release: 2.5},
+                lfo: {rate: 0.2, depth: 0.25, destination: 'pitch'}
+            },
+            'pad_analog': {
+                name: 'Analog Pad',
+                category: 'Pad',
+                vco1: {waveform: 'sawtooth', frequency: 220, fine: 0, mod: 0.2},
+                vco2: {waveform: 'sawtooth', frequency: 220, fine: -8, mod: 0.2},
+                vcf: {cutoff: 900, resonance: 0.45, envMod: 0.45},
+                vca: {level: 0.75},
+                envelope: {attack: 1.0, decay: 0.6, sustain: 0.8, release: 1.5},
+                lfo: {rate: 0.35, depth: 0.3, destination: 'filter'}
+            },
+            
+            // ========== EXPANDED FX VARIATIONS ==========
+            'fx_riser': {
+                name: 'Riser FX',
+                category: 'FX',
+                vco1: {waveform: 'noise', frequency: 0, fine: 0, mod: 0},
+                vco2: {waveform: 'sawtooth', frequency: 110, fine: 0, mod: 0},
+                vcf: {cutoff: 400, resonance: 0.7, envMod: 0.9},
+                vca: {level: 0.6},
+                envelope: {attack: 1.5, decay: 0.5, sustain: 0.4, release: 0.3},
+                lfo: {rate: 0.1, depth: 0.5, destination: 'filter'}
+            },
+            'fx_sweep': {
+                name: 'Filter Sweep',
+                category: 'FX',
+                vco1: {waveform: 'square', frequency: 220, fine: 0, mod: 0},
+                vco2: {waveform: 'sawtooth', frequency: 220, fine: 7, mod: 0},
+                vcf: {cutoff: 200, resonance: 0.9, envMod: 0.95},
+                vca: {level: 0.7},
+                envelope: {attack: 0.05, decay: 2.0, sustain: 0.2, release: 0.5},
+                lfo: {rate: 0.3, depth: 0.6, destination: 'filter'}
+            },
+            'fx_laser': {
+                name: 'Laser Zap',
+                category: 'FX',
+                vco1: {waveform: 'square', frequency: 880, fine: 0, mod: 0},
+                vco2: {waveform: 'sine', frequency: 440, fine: 0, mod: 0},
+                vcf: {cutoff: 3000, resonance: 0.85, envMod: 0.9},
+                vca: {level: 0.8},
+                envelope: {attack: 0.001, decay: 0.3, sustain: 0, release: 0.1},
+                lfo: {rate: 20, depth: 0.8, destination: 'pitch'}
+            }
+        };
+
+        // Track instrument selection (default to original drums)
+        const trackInstruments = {
+            kick: 'kick',
+            snare: 'snare',
+            hihat: 'hihat',
+            bass: 'bass',
+            keys: 'piano_bright',
+            lead: 'lead_vintage',
+            fx: 'fx_space',
+            perc: 'perc_snare'
+        };
+
+        // Change instrument for a track
+        function changeInstrument(track, instrument) {
+            trackInstruments[track] = instrument;
+            
+            // If bass track and it's a bass_* preset, load corresponding TB-303 preset
+            if (track === 'bass' && instrument.startsWith('bass_')) {
+                const bassPresetMap = {
+                    'bass_classic': 1,   // Acid 🧪
+                    'bass_deep': 3,      // Deep 🌊
+                    'bass_acid': 2,      // Squelch 💦
+                    'bass_reese': 5,     // Liquid 💧
+                    'bass_wobble': 6,    // Wobble 🌀
+                    'bass_sub': 7        // Sub 🔊
+                };
+                
+                const presetNum = bassPresetMap[instrument];
+                if (presetNum && tb303Presets[presetNum]) {
+                    loadTB303Preset(tb303Presets[presetNum]);
+                    console.log(`🎛️ Loaded TB-303 preset: ${tb303Presets[presetNum].name} for ${instrument}`);
+                }
+            }
+            
+            // Update visual feedback
+            const label = document.querySelector(`[data-track="${track}"]`)?.closest('div')?.querySelector('.track-label');
+            if (label) {
+                const preset = ARP2600_PRESETS[instrument];
+                if (preset) {
+                    // Update label color based on category
+                    const categoryColors = {
+                        'Lead': '#00D9FF',
+                        'Pad': '#9370DB',
+                        'Bass': '#39FF14',
+                        'FX': '#FF6B35',
+                        'Percussion': '#FF006E',
+                        'Piano': '#FFD700',
+                        'Strings': '#87CEEB',
+                        'Violin': '#DDA0DD',
+                        'Cello': '#CD853F',
+                        'Brass': '#FFA500',
+                        'Flute': '#98FB98',
+                        'Organ': '#FF1493'
+                    };
+                    label.style.color = categoryColors[preset.category] || '#FF6B35';
+                }
+            }
+            
+            // Show notification
+            showNotification(`🎵 ${track.toUpperCase()} → ${ARP2600_PRESETS[instrument]?.name || instrument.toUpperCase()}`);
+            
+            // Test sound on selection
+            if (HAOS && HAOS.initialized) {
+                playSound(track, null, 0.7);
+            }
+        }
+
+        // ARP 2600 Synthesizer Engine
+        function playARP2600(preset, note = 440, time, velocity = 1.0, duration = 0.5) {
+            const ctx = HAOS.audioContext;
+            const now = time || ctx.currentTime;
+            
+            // Create oscillators
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const osc1Gain = ctx.createGain();
+            const osc2Gain = ctx.createGain();
+            
+            // Set waveforms and frequencies
+            if (preset.vco1.waveform === 'noise') {
+                // Use noise buffer for VCO1
+                const noise = ctx.createBufferSource();
+                const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < buffer.length; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                noise.buffer = buffer;
+                noise.connect(osc1Gain);
+                noise.start(now);
+                noise.stop(now + duration);
+            } else {
+                osc1.type = preset.vco1.waveform;
+                const freq1 = note * Math.pow(2, preset.vco1.fine / 1200); // Convert cents to frequency
+                osc1.frequency.setValueAtTime(freq1, now);
+                osc1.connect(osc1Gain);
+                osc1.start(now);
+                osc1.stop(now + duration);
+            }
+            
+            if (preset.vco2.waveform === 'noise') {
+                // Use noise buffer for VCO2
+                const noise = ctx.createBufferSource();
+                const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < buffer.length; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                noise.buffer = buffer;
+                noise.connect(osc2Gain);
+                noise.start(now);
+                noise.stop(now + duration);
+            } else {
+                osc2.type = preset.vco2.waveform;
+                const freq2 = note * Math.pow(2, preset.vco2.fine / 1200);
+                osc2.frequency.setValueAtTime(freq2, now);
+                osc2.connect(osc2Gain);
+                osc2.start(now);
+                osc2.stop(now + duration);
+            }
+            
+            // Set oscillator levels
+            osc1Gain.gain.value = 0.5;
+            osc2Gain.gain.value = 0.5;
+            
+            // Create filter (VCF)
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(preset.vcf.cutoff, now);
+            filter.Q.value = preset.vcf.resonance * 20; // Scale resonance 0-1 to Q value
+            
+            // Apply filter envelope modulation
+            if (preset.vcf.envMod > 0) {
+                const envPeak = preset.vcf.cutoff + (preset.vcf.envMod * 3000);
+                filter.frequency.setValueAtTime(envPeak, now);
+                filter.frequency.exponentialRampToValueAtTime(
+                    Math.max(20, preset.vcf.cutoff),
+                    now + preset.envelope.attack + preset.envelope.decay
+                );
+            }
+            
+            // Create VCA
+            const vca = ctx.createGain();
+            vca.gain.setValueAtTime(0, now);
+            
+            // Apply ADSR envelope
+            const env = preset.envelope;
+            const attackEnd = now + env.attack;
+            const decayEnd = attackEnd + env.decay;
+            const releaseStart = now + duration - env.release;
+            
+            vca.gain.linearRampToValueAtTime(velocity * preset.vca.level, attackEnd);
+            vca.gain.linearRampToValueAtTime(velocity * preset.vca.level * env.sustain, decayEnd);
+            vca.gain.setValueAtTime(velocity * preset.vca.level * env.sustain, releaseStart);
+            vca.gain.linearRampToValueAtTime(0, releaseStart + env.release);
+            
+            // Apply LFO modulation if enabled
+            if (preset.lfo && preset.lfo.rate > 0) {
+                const lfo = ctx.createOscillator();
+                const lfoGain = ctx.createGain();
+                lfo.frequency.value = preset.lfo.rate;
+                lfoGain.gain.value = preset.lfo.depth;
+                
+                if (preset.lfo.destination === 'filter') {
+                    lfo.connect(lfoGain);
+                    lfoGain.connect(filter.frequency);
+                } else if (preset.lfo.destination === 'pitch') {
+                    lfo.connect(lfoGain);
+                    if (preset.vco1.waveform !== 'noise') lfoGain.connect(osc1.frequency);
+                    if (preset.vco2.waveform !== 'noise') lfoGain.connect(osc2.frequency);
+                }
+                
+                lfo.start(now);
+                lfo.stop(now + duration);
+            }
+            
+            // Connect audio graph
+            osc1Gain.connect(filter);
+            osc2Gain.connect(filter);
+            filter.connect(vca);
+            vca.connect(HAOS.masterGain);
+        }
+
+        function playSound(track, time, velocity = 1.0) {
+            if (!HAOS || !HAOS.initialized) {
+                console.warn('HAOS not initialized');
+                return;
+            }
+            
+            const ctx = HAOS.audioContext;
+            const now = time || ctx.currentTime;
+            
+            // Get selected instrument for this track
+            const instrument = trackInstruments[track] || track;
+            
+            // Check if it's an ARP 2600 preset
+            if (ARP2600_PRESETS[instrument]) {
+                const preset = ARP2600_PRESETS[instrument];
+                let note = 440; // Default A4
+                let duration = 0.3;
+                
+                // Set note and duration based on category
+                switch(preset.category) {
+                    case 'Bass':
+                        note = 55; // A1
+                        duration = 0.5;
+                        break;
+                    case 'Pad':
+                        note = 220; // A3
+                        duration = 1.5;
+                        break;
+                    case 'Lead':
+                        note = 440; // A4
+                        duration = 0.4;
+                        break;
+                    case 'Piano':
+                        note = 440; // A4
+                        duration = 0.6;
+                        break;
+                    case 'Strings':
+                        note = 220; // A3
+                        duration = 1.2;
+                        break;
+                    case 'Violin':
+                        note = 440; // A4
+                        duration = 0.8;
+                        break;
+                    case 'Cello':
+                        note = 110; // A2
+                        duration = 1.0;
+                        break;
+                    case 'Brass':
+                        note = 220; // A3
+                        duration = 0.6;
+                        break;
+                    case 'Flute':
+                        note = 440; // A4
+                        duration = 0.7;
+                        break;
+                    case 'Organ':
+                        note = 220; // A3
+                        duration = 0.9;
+                        break;
+                    case 'FX':
+                        note = 440;
+                        duration = 0.8;
+                        break;
+                    case 'Percussion':
+                        note = 0;
+                        duration = 0.15;
+                        break;
+                }
+                
+                playARP2600(preset, note, now, velocity, duration);
+                return;
+            }
+            
+            // Original drum synthesis for backward compatibility
+            switch(instrument) {
                 case 'kick':
-                    HAOS.engines.tr909?.playKick('classic', time);
+                    // Synthesized kick drum with knob control
+                    const kickOsc = ctx.createOscillator();
+                    const kickGain = ctx.createGain();
+                    
+                    // Get knob values
+                    const kickTuneKnob = document.querySelector('[data-param="kick-tune"]');
+                    const kickDecayKnob = document.querySelector('[data-param="kick-decay"]');
+                    const kickTuneValue = kickTuneKnob ? parseFloat(kickTuneKnob.dataset.value) : 0.5;
+                    const kickDecayValue = kickDecayKnob ? parseFloat(kickDecayKnob.dataset.value) : 0.5;
+                    
+                    // Calculate kick parameters from knobs
+                    const kickFreq = 50 + (kickTuneValue * 200); // 50Hz - 250Hz
+                    const kickDecay = 0.1 + (kickDecayValue * 0.9); // 0.1s - 1s
+                    
+                    kickOsc.frequency.setValueAtTime(kickFreq, now);
+                    kickOsc.frequency.exponentialRampToValueAtTime(0.01, now + kickDecay);
+                    kickGain.gain.setValueAtTime(velocity, now);
+                    kickGain.gain.exponentialRampToValueAtTime(0.01, now + kickDecay);
+                    kickOsc.connect(kickGain).connect(HAOS.masterGain);
+                    kickOsc.start(now);
+                    kickOsc.stop(now + kickDecay + 0.1);
                     break;
+                    
                 case 'snare':
-                    HAOS.engines.tr909?.playSnare('classic', time);
+                    // Synthesized snare with noise and knob control
+                    const snareOsc = ctx.createOscillator();
+                    const snareNoise = ctx.createBufferSource();
+                    const snareGain = ctx.createGain();
+                    const noiseGain = ctx.createGain();
+                    
+                    // Get snap knob value
+                    const snapKnob = document.querySelector('[data-param="snare-snap"]');
+                    const snapValue = snapKnob ? parseFloat(snapKnob.dataset.value) : 0.7;
+                    
+                    // Create noise buffer
+                    const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.2, ctx.sampleRate);
+                    const noiseData = noiseBuffer.getChannelData(0);
+                    for (let i = 0; i < noiseBuffer.length; i++) {
+                        noiseData[i] = Math.random() * 2 - 1;
+                    }
+                    snareNoise.buffer = noiseBuffer;
+                    
+                    // Snap controls the tone/noise balance and snap time
+                    const toneFreq = 150 + (snapValue * 100); // 150Hz - 250Hz
+                    const snapTime = 0.05 + ((1 - snapValue) * 0.15); // 0.05s - 0.2s (higher snap = shorter)
+                    const noiseRatio = 0.3 + (snapValue * 0.4); // More snap = more noise
+                    
+                    snareOsc.frequency.value = toneFreq;
+                    snareGain.gain.setValueAtTime(velocity * (1 - noiseRatio), now);
+                    snareGain.gain.exponentialRampToValueAtTime(0.01, now + snapTime);
+                    noiseGain.gain.setValueAtTime(velocity * noiseRatio, now);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + snapTime * 0.8);
+                    
+                    snareOsc.connect(snareGain).connect(HAOS.masterGain);
+                    snareNoise.connect(noiseGain).connect(HAOS.masterGain);
+                    snareOsc.start(now);
+                    snareNoise.start(now);
+                    snareOsc.stop(now + snapTime);
+                    snareNoise.stop(now + snapTime * 0.8);
                     break;
+                    
                 case 'hihat':
-                    HAOS.engines.tr909?.playHatClosed('classic', time);
+                    // Synthesized hi-hat with high-frequency noise
+                    const hihatNoise = ctx.createBufferSource();
+                    const hihatBP = ctx.createBiquadFilter();
+                    const hihatGain = ctx.createGain();
+                    
+                    const hihatBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.1, ctx.sampleRate);
+                    const hihatData = hihatBuffer.getChannelData(0);
+                    for (let i = 0; i < hihatBuffer.length; i++) {
+                        hihatData[i] = Math.random() * 2 - 1;
+                    }
+                    hihatNoise.buffer = hihatBuffer;
+                    
+                    hihatBP.type = 'bandpass';
+                    hihatBP.frequency.value = 10000;
+                    hihatBP.Q.value = 1;
+                    
+                    hihatGain.gain.setValueAtTime(velocity * 0.3, now);
+                    hihatGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    
+                    hihatNoise.connect(hihatBP).connect(hihatGain).connect(HAOS.masterGain);
+                    hihatNoise.start(now);
+                    hihatNoise.stop(now + 0.05);
                     break;
+                    
                 case 'bass':
-                    HAOS.engines.tb303?.playNote({
-                        frequency: 65.41, // C2
-                        duration: 0.3,
-                        accent: false
-                    }, time);
+                    // TB-303 style bass using current knob parameters
+                    const bassOsc = ctx.createOscillator();
+                    const bassGain = ctx.createGain();
+                    const bassFilter = ctx.createBiquadFilter();
+                    const distortion = ctx.createWaveShaper();
+                    
+                    // Get current TB-303 knob values
+                    const cutoffKnob = document.getElementById('tb303-cutoff');
+                    const resonanceKnob = document.getElementById('tb303-resonance');
+                    const envmodKnob = document.getElementById('tb303-envmod');
+                    const decayKnob = document.getElementById('tb303-decay');
+                    const distortionKnob = document.getElementById('tb303-distortion');
+                    const accentKnob = document.getElementById('tb303-accent');
+                    
+                    const cutoffValue = cutoffKnob ? parseFloat(cutoffKnob.dataset.value) : 0.5;
+                    const resonanceValue = resonanceKnob ? parseFloat(resonanceKnob.dataset.value) : 0.5;
+                    const envmodValue = envmodKnob ? parseFloat(envmodKnob.dataset.value) : 0.5;
+                    const decayValue = decayKnob ? parseFloat(decayKnob.dataset.value) : 0.5;
+                    const distortionValue = distortionKnob ? parseFloat(distortionKnob.dataset.value) : 0.5;
+                    const accentValue = accentKnob ? parseFloat(accentKnob.dataset.value) : 0.5;
+                    
+                    // Apply accent to velocity
+                    const accentedVelocity = velocity * (1 + accentValue * 0.5);
+                    
+                    // Distortion curve (amount controlled by knob)
+                    const curve = new Float32Array(256);
+                    const deg = Math.PI / 180;
+                    const distAmount = 3 + (distortionValue * 40); // 3-43 range
+                    for (let i = 0; i < 128; i++) {
+                        const x = i * 2 / 128 - 1;
+                        curve[128 + i] = distAmount * x * 20 * deg / (Math.PI + 20 * Math.abs(x));
+                        curve[128 - i] = -curve[128 + i];
+                    }
+                    distortion.curve = curve;
+                    distortion.oversample = '4x';
+                    
+                    // TB-303 uses sawtooth wave
+                    bassOsc.type = 'sawtooth';
+                    bassOsc.frequency.value = 65.41; // C2
+                    
+                    // Filter with knob-controlled parameters
+                    bassFilter.type = 'lowpass';
+                    const baseCutoff = 50 + (cutoffValue * 3950); // 50Hz - 4000Hz
+                    const envModAmount = baseCutoff * envmodValue * 4; // Envelope modulation depth
+                    
+                    bassFilter.frequency.setValueAtTime(baseCutoff + envModAmount, now);
+                    bassFilter.frequency.exponentialRampToValueAtTime(Math.max(50, baseCutoff), now + (0.01 + decayValue * 1.99));
+                    bassFilter.Q.value = 1 + (resonanceValue * 29); // 1-30 range
+                    
+                    // Envelope with decay from knob
+                    const envelopeTime = 0.01 + (decayValue * 1.99); // 0.01s - 2s
+                    bassGain.gain.setValueAtTime(accentedVelocity * 0.5, now);
+                    bassGain.gain.exponentialRampToValueAtTime(0.01, now + envelopeTime);
+                    
+                    // Connect: Osc → Distortion → Filter → Gain → Master
+                    bassOsc.connect(distortion);
+                    distortion.connect(bassFilter);
+                    bassFilter.connect(bassGain);
+                    bassGain.connect(HAOS.masterGain);
+                    
+                    bassOsc.start(now);
+                    bassOsc.stop(now + envelopeTime + 0.1);
                     break;
             }
         }
 
         // Initialize knob controls
         function initKnobs() {
-            document.querySelectorAll('.knob').forEach(knob => {
+            const knobs = document.querySelectorAll('.knob:not(.effect-knob)');
+            console.log(`🎛️ Initializing ${knobs.length} parameter knobs...`);
+            
+            knobs.forEach((knob, index) => {
                 let isDragging = false;
                 let startY = 0;
                 let value = parseFloat(knob.dataset.value) || 0.5;
@@ -1706,6 +3758,7 @@
                 knob.addEventListener('mousedown', (e) => {
                     isDragging = true;
                     startY = e.clientY;
+                    console.log(`🎛️ Knob ${index} mousedown - value: ${value}`);
                 });
 
                 window.addEventListener('mousemove', (e) => {
@@ -1719,17 +3772,26 @@
                 });
 
                 window.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        console.log(`🎛️ Knob ${index} released - final value: ${value}`);
+                    }
                     isDragging = false;
                 });
 
                 // Initialize visual
                 updateKnobVisual(knob, value);
             });
+            
+            console.log(`✅ Knobs initialized successfully`);
         }
 
         function updateKnobVisual(knob, value) {
             const rotation = (value * 270) - 135;
             knob.style.setProperty('--rotation', `${rotation}deg`);
+            
+            // Also log for debugging
+            const param = knob.dataset.param || knob.id || 'unknown';
+            console.log(`🔄 Knob visual update: ${param} = ${Math.round(value * 100)}% (${Math.round(rotation)}°)`);
         }
 
         function updateKnobParam(knob) {
@@ -1739,6 +3801,16 @@
             // Update live params system if initialized
             if (window.liveParams && param) {
                 window.liveParams.setValue(param, value, true);
+            }
+            
+            // Also update HAOS directly for TB-303 parameters
+            if (HAOS && HAOS.setParam && param) {
+                HAOS.setParam(param, value);
+            }
+            
+            // Master volume control - directly update gain
+            if (param === 'master-volume' && HAOS && HAOS.masterGain) {
+                HAOS.masterGain.gain.value = value;
             }
             
             // Update value display
@@ -1756,11 +3828,38 @@
 
         function formatParamValue(param, value) {
             // Format based on parameter type
-            if (param?.includes('cutoff')) {
-                return Math.round(100 + value * 7900) + ' Hz';
-            } else if (param?.includes('decay')) {
+            if (!param) return Math.round(value * 100) + '%';
+            
+            // TB-303 parameters
+            if (param.includes('cutoff') || param === 'tb303-cutoff') {
+                return Math.round(50 + value * 3950) + ' Hz';
+            } else if (param.includes('resonance') || param === 'tb303-resonance') {
+                return Math.round(1 + value * 29);
+            } else if (param.includes('decay') || param === 'tb303-decay') {
                 return (0.01 + value * 1.99).toFixed(2) + 's';
-            } else {
+            } else if (param.includes('envmod') || param === 'tb303-envmod') {
+                return Math.round(value * 100) + '%';
+            } else if (param.includes('distortion') || param === 'tb303-distortion') {
+                return Math.round(value * 100) + '%';
+            } else if (param.includes('accent') || param === 'tb303-accent') {
+                return Math.round(value * 100) + '%';
+            }
+            // Drum parameters
+            else if (param === 'kick-tune') {
+                return Math.round(50 + value * 200) + ' Hz';
+            } else if (param === 'kick-decay') {
+                return (0.1 + value * 0.9).toFixed(2) + 's';
+            } else if (param === 'snare-snap') {
+                return Math.round(value * 100) + '%';
+            }
+            // Master parameters
+            else if (param === 'master-volume') {
+                return Math.round(value * 100) + '%';
+            } else if (param === 'master-limiter') {
+                return Math.round(-20 + value * 20) + ' dB';
+            }
+            // Default
+            else {
                 return Math.round(value * 100) + '%';
             }
         }
@@ -1799,12 +3898,477 @@
                 }
             }
         });
+        // ========== CHORD THEORY & PIANO ROLL ==========
+        
+        const chordTheory = {
+            notes: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
+            
+            progressions: {
+                dark_trap: {
+                    name: 'Dark Trap',
+                    degrees: [0, 5, 2, 6], // i-VI-III-VII
+                    description: 'Classic dark trap sound'
+                },
+                melodic_trap: {
+                    name: 'Melodic Trap',
+                    degrees: [0, 3, 6, 5], // i-iv-VII-VI
+                    description: 'Emotional, melodic vibe'
+                },
+                drill: {
+                    name: 'Drill',
+                    degrees: [0, 2, 6, 5], // i-III-VII-VI
+                    description: 'UK/NY Drill progression'
+                },
+                cloud_rap: {
+                    name: 'Cloud Rap',
+                    degrees: [5, 3, 0, 4], // vi-IV-I-V
+                    description: 'Dreamy, atmospheric'
+                },
+                boom_bap: {
+                    name: 'Boom-Bap',
+                    degrees: [0, 6, 5, 4], // i-VII-VI-V
+                    description: '90s hip-hop classic'
+                },
+                emotional: {
+                    name: 'Emotional',
+                    degrees: [0, 4, 5, 2], // i-v-VI-III
+                    description: 'Sad, introspective'
+                }
+            },
+
+            minorScale: [0, 2, 3, 5, 7, 8, 10], // Natural minor intervals
+            majorScale: [0, 2, 4, 5, 7, 9, 11],
+
+            getChordNotes(root, type) {
+                const rootIndex = this.notes.indexOf(root);
+                let intervals;
+                
+                if (type === 'minor') {
+                    intervals = [0, 3, 7]; // Minor triad
+                } else if (type === 'major') {
+                    intervals = [0, 4, 7]; // Major triad
+                } else if (type === 'dim') {
+                    intervals = [0, 3, 6]; // Diminished
+                }
+                
+                return intervals.map(interval => 
+                    this.notes[(rootIndex + interval) % 12]
+                );
+            },
+            
+            getMIDINote(note, octave) {
+                const noteIndex = this.notes.indexOf(note);
+                return 12 + (octave * 12) + noteIndex;
+            },
+            
+            noteToFrequency(midiNote) {
+                return 440 * Math.pow(2, (midiNote - 69) / 12);
+            }
+        };
+
+        let generatedChords = [];
+
+        // Generate Chord Progression
+        function generateChordProgression() {
+            const key = document.getElementById('chordKey').value;
+            const mode = document.getElementById('chordMode').value;
+            const progressionType = document.getElementById('progressionType').value;
+            
+            const progression = chordTheory.progressions[progressionType];
+            const scale = mode === 'minor' ? chordTheory.minorScale : chordTheory.majorScale;
+            const rootIndex = chordTheory.notes.indexOf(key);
+            
+            const chords = [];
+            generatedChords = []; // Reset generated chords
+            
+            progression.degrees.forEach((degree, index) => {
+                const scaleNote = (rootIndex + scale[degree]) % 12;
+                const chordRoot = chordTheory.notes[scaleNote];
+                
+                // Determine chord quality
+                let chordType = 'minor';
+                if (mode === 'minor') {
+                    if (degree === 2 || degree === 5 || degree === 6) chordType = 'major';
+                    if (degree === 1) chordType = 'dim';
+                } else {
+                    if (degree === 0 || degree === 3 || degree === 4) chordType = 'major';
+                }
+                
+                const notes = chordTheory.getChordNotes(chordRoot, chordType);
+                const midiNotes = notes.map(n => chordTheory.getMIDINote(n, 4));
+                const frequencies = midiNotes.map(m => chordTheory.noteToFrequency(m));
+                const chordSymbol = chordType === 'minor' ? 'm' : 
+                                  chordType === 'dim' ? 'dim' : '';
+                
+                const romanNumerals = ['i', 'ii', 'III', 'iv', 'v', 'VI', 'VII'];
+                const roman = mode === 'minor' ? romanNumerals[degree] : romanNumerals[degree].toUpperCase();
+                
+                chords.push({
+                    name: `${chordRoot}${chordSymbol}`,
+                    notes: notes.join(' - '),
+                    roman: roman
+                });
+                
+                // Save for playback
+                generatedChords.push({
+                    name: `${chordRoot}${chordSymbol}`,
+                    notes: frequencies
+                });
+            });
+            
+            displayChords(chords);
+            showNotification(`🎼 Generated: ${progression.name} in ${key} ${mode}`);
+        }
+
+        function displayChords(chords) {
+            const display = document.getElementById('chordDisplay');
+            display.innerHTML = chords.map((chord, i) => `
+                <div style="padding: 8px; margin-bottom: 6px; background: rgba(255,107,53,0.1); border-left: 3px solid var(--haos-orange); border-radius: 4px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="color: var(--haos-orange); font-weight: bold;">${i + 1}. ${chord.name}</span>
+                        <span style="color: var(--haos-cyan); font-size: 0.65rem;">${chord.roman}</span>
+                    </div>
+                    <div style="color: var(--haos-dim); font-size: 0.6rem;">${chord.notes}</div>
+                </div>
+            `).join('');
+        }
+
+        // Play Chord Progression
+        function playChordProgression() {
+            if (!HAOS || !HAOS.initialized) {
+                console.warn('HAOS not initialized');
+                return;
+            }
+            
+            if (generatedChords.length === 0) {
+                showNotification('⚠️ Generate a progression first!');
+                return;
+            }
+            
+            const ctx = HAOS.audioContext;
+            const startTime = ctx.currentTime + 0.1;
+            const rhythmPattern = document.getElementById('rhythmPattern').value;
+            const arpeggioPattern = document.getElementById('arpeggioPattern').value;
+            const instrumentKey = document.getElementById('chordInstrument').value;
+            const preset = ARP2600_PRESETS[instrumentKey];
+            
+            if (!preset) {
+                showNotification('⚠️ Invalid instrument selection!');
+                return;
+            }
+            
+            // Calculate chord duration based on rhythm
+            const baseDuration = rhythmPattern === 'quarter' ? 0.5 : 
+                                rhythmPattern === 'half' ? 1.0 :
+                                rhythmPattern === 'triplet' ? 0.33 : 1.5;
+            
+            let currentTime = startTime;
+            
+            generatedChords.forEach((chord, chordIndex) => {
+                if (arpeggioPattern === 'none') {
+                    // Play full chord
+                    chord.notes.forEach(freq => {
+                        playARP2600(preset, freq, currentTime, 0.6, baseDuration);
+                    });
+                    currentTime += baseDuration;
+                } else {
+                    // Arpeggio patterns
+                    let notes = [...chord.notes];
+                    
+                    if (arpeggioPattern === 'down') {
+                        notes.reverse();
+                    } else if (arpeggioPattern === 'updown') {
+                        notes = [...notes, ...notes.slice(0, -1).reverse()];
+                    } else if (arpeggioPattern === 'random') {
+                        notes.sort(() => Math.random() - 0.5);
+                    }
+                    
+                    const noteDuration = baseDuration / notes.length;
+                    notes.forEach((freq, noteIndex) => {
+                        playARP2600(preset, freq, currentTime + (noteIndex * noteDuration), 0.7, noteDuration * 0.9);
+                    });
+                    currentTime += baseDuration;
+                }
+            });
+            
+            showNotification(`🎵 Playing ${generatedChords.length}-chord progression...`);
+        }
+
+        // ========== EFFECTS ENGINE ==========
+        
+        let effectsChain = {
+            delay: null,
+            reverb: null,
+            compressor: null,
+            distortion: null,
+            delayFeedback: null,
+            delayWet: null,
+            reverbConvolver: null,
+            reverbWet: null
+        };
+
+        function initEffects() {
+            if (!HAOS || !HAOS.audioContext) return;
+            
+            const ctx = HAOS.audioContext;
+            
+            // Delay Effect
+            effectsChain.delay = ctx.createDelay(2.0);
+            effectsChain.delay.delayTime.value = 0.375;
+            effectsChain.delayFeedback = ctx.createGain();
+            effectsChain.delayFeedback.gain.value = 0.4;
+            effectsChain.delayWet = ctx.createGain();
+            effectsChain.delayWet.gain.value = 0.3;
+            
+            // Delay routing
+            effectsChain.delay.connect(effectsChain.delayFeedback);
+            effectsChain.delayFeedback.connect(effectsChain.delay);
+            effectsChain.delay.connect(effectsChain.delayWet);
+            
+            // Reverb Effect
+            effectsChain.reverb = ctx.createConvolver();
+            effectsChain.reverbWet = ctx.createGain();
+            effectsChain.reverbWet.gain.value = 0.3;
+            
+            // Create impulse response for reverb
+            const reverbTime = 2.0;
+            const sampleRate = ctx.sampleRate;
+            const length = sampleRate * reverbTime;
+            const impulse = ctx.createBuffer(2, length, sampleRate);
+            const impulseL = impulse.getChannelData(0);
+            const impulseR = impulse.getChannelData(1);
+            
+            for (let i = 0; i < length; i++) {
+                const decay = Math.exp(-i / (sampleRate * 0.6));
+                impulseL[i] = (Math.random() * 2 - 1) * decay;
+                impulseR[i] = (Math.random() * 2 - 1) * decay;
+            }
+            effectsChain.reverb.buffer = impulse;
+            effectsChain.reverb.connect(effectsChain.reverbWet);
+            
+            // Compressor
+            effectsChain.compressor = ctx.createDynamicsCompressor();
+            effectsChain.compressor.threshold.value = -24;
+            effectsChain.compressor.knee.value = 30;
+            effectsChain.compressor.ratio.value = 12;
+            effectsChain.compressor.attack.value = 0.003;
+            effectsChain.compressor.release.value = 0.25;
+            
+            // Distortion
+            effectsChain.distortion = ctx.createWaveShaper();
+            const distCurve = new Float32Array(256);
+            const amount = 50;
+            for (let i = 0; i < 128; i++) {
+                const x = i / 128;
+                distCurve[128 + i] = Math.tanh(x * amount) / Math.tanh(amount);
+                distCurve[128 - i] = -distCurve[128 + i];
+            }
+            effectsChain.distortion.curve = distCurve;
+            effectsChain.distortion.oversample = '4x';
+            
+            // === WIRE EFFECTS CHAIN TO MASTER OUTPUT ===
+            // Disconnect masterGain from destination if already connected
+            try {
+                HAOS.masterGain.disconnect();
+            } catch(e) { /* ignore if not connected */ }
+            
+            // Route: masterGain → delay → reverb → compressor → distortion → destination
+            HAOS.masterGain.connect(effectsChain.delay);
+            effectsChain.delayWet.connect(effectsChain.reverb);
+            effectsChain.reverbWet.connect(effectsChain.compressor);
+            effectsChain.compressor.connect(effectsChain.distortion);
+            effectsChain.distortion.connect(ctx.destination);
+            
+            // Also keep dry signal path for bypass (you can add bypass logic later)
+            // HAOS.masterGain.connect(ctx.destination); // Uncomment for dry signal mix
+            
+            console.log('✨ Effects chain initialized and routed');
+        }
+
+        // Wire up effect knobs
+        function initEffectSliders() {
+            document.querySelectorAll('.effect-knob').forEach(knob => {
+                const effect = knob.dataset.effect;
+                let isDragging = false;
+                let startY = 0;
+                let value = parseFloat(knob.dataset.value) || 0.5;
+                
+                // Initialize visual
+                updateEffectKnobVisual(knob, value);
+                updateEffectDisplay(knob, effect, value);
+                
+                knob.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startY = e.clientY;
+                    knob.style.cursor = 'grabbing';
+                });
+                
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    
+                    const delta = startY - e.clientY;
+                    value = Math.max(0, Math.min(1, value + delta * 0.005));
+                    knob.dataset.value = value;
+                    startY = e.clientY;
+                    
+                    updateEffectKnobVisual(knob, value);
+                    updateEffect(effect, value);
+                    updateEffectDisplay(knob, effect, value);
+                });
+                
+                window.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        knob.style.cursor = 'pointer';
+                    }
+                });
+            });
+        }
+
+        function updateEffectKnobVisual(knob, value) {
+            const rotation = (value * 270) - 135;
+            knob.style.setProperty('--rotation', `${rotation}deg`);
+        }
+
+        function updateEffect(effect, value) {
+            if (!effectsChain || !HAOS?.audioContext) return;
+            
+            switch(effect) {
+                case 'delay-time':
+                    if (effectsChain.delay) {
+                        effectsChain.delay.delayTime.value = 0.1 + value * 1.9; // 100ms - 2s
+                    }
+                    break;
+                case 'delay-feedback':
+                    if (effectsChain.delayFeedback) {
+                        effectsChain.delayFeedback.gain.value = value * 0.9; // Max 90% to avoid runaway
+                    }
+                    break;
+                case 'reverb-size':
+                    // Recreate impulse with new size
+                    if (effectsChain.reverb) {
+                        const ctx = HAOS.audioContext;
+                        const reverbTime = 0.5 + value * 3.5; // 0.5s - 4s
+                        const sampleRate = ctx.sampleRate;
+                        const length = sampleRate * reverbTime;
+                        const impulse = ctx.createBuffer(2, length, sampleRate);
+                        const impulseL = impulse.getChannelData(0);
+                        const impulseR = impulse.getChannelData(1);
+                        
+                        for (let i = 0; i < length; i++) {
+                            const decay = Math.exp(-i / (sampleRate * (0.3 + value * 0.7)));
+                            impulseL[i] = (Math.random() * 2 - 1) * decay;
+                            impulseR[i] = (Math.random() * 2 - 1) * decay;
+                        }
+                        effectsChain.reverb.buffer = impulse;
+                    }
+                    break;
+                case 'reverb-mix':
+                    if (effectsChain.reverbWet) {
+                        effectsChain.reverbWet.gain.value = value;
+                    }
+                    break;
+                case 'comp-threshold':
+                    if (effectsChain.compressor) {
+                        effectsChain.compressor.threshold.value = -60 + value * 60; // -60dB to 0dB
+                    }
+                    break;
+                case 'comp-ratio':
+                    if (effectsChain.compressor) {
+                        effectsChain.compressor.ratio.value = 1 + value * 19; // 1:1 to 20:1
+                    }
+                    break;
+                case 'dist-drive':
+                    // Recreate distortion curve with new amount
+                    if (effectsChain.distortion) {
+                        const distCurve = new Float32Array(256);
+                        const amount = 1 + value * 99; // 1 to 100
+                        for (let i = 0; i < 128; i++) {
+                            const x = i / 128;
+                            distCurve[128 + i] = Math.tanh(x * amount) / Math.tanh(amount);
+                            distCurve[128 - i] = -distCurve[128 + i];
+                        }
+                        effectsChain.distortion.curve = distCurve;
+                    }
+                    break;
+                case 'dist-tone':
+                    // Could add a filter here for tone control
+                    break;
+            }
+        }
+
+        function updateEffectDisplay(knob, effect, value) {
+            if (!knob) return;
+            
+            // Find the knob-value element
+            const valueEl = knob.parentElement?.querySelector('.knob-value');
+            if (!valueEl) return;
+            
+            let displayValue = '';
+            
+            switch(effect) {
+                case 'delay-time':
+                    displayValue = Math.round(100 + value * 1900) + 'ms';
+                    break;
+                case 'delay-feedback':
+                    displayValue = Math.round(value * 90) + '%';
+                    break;
+                case 'reverb-size':
+                    displayValue = (0.5 + value * 3.5).toFixed(1) + 's';
+                    break;
+                case 'reverb-mix':
+                    displayValue = Math.round(value * 100) + '%';
+                    break;
+                case 'comp-threshold':
+                    displayValue = Math.round(-60 + value * 60) + 'dB';
+                    break;
+                case 'comp-ratio':
+                    displayValue = Math.round(1 + value * 19) + ':1';
+                    break;
+                case 'dist-drive':
+                    displayValue = Math.round(1 + value * 99);
+                    break;
+                case 'dist-tone':
+                    displayValue = Math.round(value * 100) + '%';
+                    break;
+                default:
+                    displayValue = Math.round(value * 100) + '%';
+            }
+            
+            valueEl.textContent = displayValue;
+            
+            // Add visual feedback - glow effect when changing
+            knob.style.boxShadow = '0 0 20px rgba(57, 255, 20, 0.8)';
+            setTimeout(() => {
+                knob.style.boxShadow = '';
+            }, 150);
+        }
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
             initSequencer();
             initKnobs();
+            initEffects();
+            initEffectSliders();
+            
+            // Load saved patterns from localStorage
+            const stored = localStorage.getItem('haos_patterns');
+            if (stored) {
+                try {
+                    savedPatterns = JSON.parse(stored);
+                    console.log(`💾 Loaded ${Object.keys(savedPatterns).length} saved pattern(s)`);
+                } catch (e) {
+                    console.warn('Failed to load saved patterns:', e);
+                }
+            }
+            
             console.log('🎛️ Techno Workspace initialized');
+            console.log('%c🎵 SEQUENCER FEATURES', 'color: #39FF14; font-size: 14px; font-weight: bold');
+            console.log('%c• Click steps to toggle', 'color: #888');
+            console.log('%c• Right-click to adjust velocity (25% → 100%)', 'color: #888');
+            console.log('%c• Double-click for random velocity', 'color: #888');
+            console.log('%c• Use track controls: 🎲 Randomize, ← → Shift, 🗑️ Clear', 'color: #888');
+            console.log('%c• Save/Load patterns, adjust swing & sequence length', 'color: #888');
             
             // Sync knobs every 100ms during morphing
             setInterval(() => {
@@ -2580,12 +5144,24 @@
                 'tb303-accent': preset.accent
             };
 
-            // Update knobs visually and in live params
+            // Update knobs visually and data attributes
             Object.entries(knobs).forEach(([id, value]) => {
                 const knob = document.getElementById(id);
                 if (knob) {
+                    // Update data-value attribute
+                    knob.dataset.value = value;
+                    
+                    // Update visual rotation
                     const rotation = -135 + (value * 270);
                     knob.style.transform = `rotate(${rotation}deg)`;
+                    knob.style.setProperty('--rotation', `${rotation}deg`);
+                    
+                    // Update value display
+                    const wrapper = knob.parentElement;
+                    const valueEl = wrapper?.querySelector('.knob-value');
+                    if (valueEl) {
+                        valueEl.textContent = formatParamValue(id, value);
+                    }
                     
                     // Update live params if available
                     if (typeof liveParams !== 'undefined') {
