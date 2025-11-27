@@ -2,340 +2,980 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HAOS.fm - Hardware Analog Synthesis Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>HAOS.fm - Hardware Analog Oscillator Synthesis | Electronic Music Production</title>
     
-    <!-- Meta -->
-    <meta name="description" content="HAOS.fm - Professional hardware-inspired synthesis platform. Create electronic music with TB-303, TR-909, and live radio streaming.">
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="HAOS.fm - Professional hardware-inspired synthesis platform. Create electronic music with authentic TB-303, TR-808, ARP 2600, and modular synthesis engines. Real analog sound in your browser.">
     <meta name="theme-color" content="#FF6B35">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/haos-logo-white.png">
+    <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" href="/images/haos-logo-white.png">
     
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts - HAOS.fm Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- Tailwind -->
+    <!-- External Resources -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
-    <!-- HAOS Brand CSS -->
+    <!-- HAOS.fm Brand CSS -->
     <link rel="stylesheet" href="/css/haos-brand.css">
     
     <style>
-        :root {
-            --haos-orange: #FF6B35;
-            --haos-orange-light: #FF8C42;
-            --haos-dark: #1A1A2E;
-            --haos-black: #0F0F1E;
+        /* HAOS.fm Landing Page Styles */
+        
+        /* Custom Scrollbar - Vintage Style */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: var(--haos-vinyl-black); }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, var(--haos-groove-orange), var(--haos-turntable-gold)); 
+            border-radius: 6px; 
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--haos-groove-orange);
         }
         
+        /* Additional vintage effects specific to landing page */
         body {
-            font-family: 'Space Mono', monospace;
-            background: var(--haos-black);
-            color: #fff;
+            min-height: 100vh;
+            position: relative;
         }
         
-        .haos-header {
-            font-family: 'Bebas Neue', sans-serif;
-            letter-spacing: 2px;
+        /* Vinyl scratch overlay */
+        .vinyl-scratch {
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii45IiBudW1PY3RhdmVzPSI0IiB0eXBlPSJmcmFjdGFsTm9pc2UiLz48ZmVDb2xvck1hdHJpeCB0eXBlPSJzYXR1cmF0ZSIgdmFsdWVzPSIwIi8+PGZlQ29tcG9uZW50VHJhbnNmZXI+PGZlRnVuY0EgdHlwZT0iZGlzY3JldGUiIHRhYmxlVmFsdWVzPSIwIDAuNSAxIi8+PC9mZUNvbXBvbmVudFRyYW5zZmVyPjwvZmlsdGVyPjwvZGVmcz48cmVjdCB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDMiLz48L3N2Zz4=');
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.02;
+            pointer-events: none;
+            mix-blend-mode: overlay;
         }
         
-        .gradient-orange {
-            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        /* Animated waveform */
+        @keyframes waveform-pulse {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.2); }
         }
         
-        .glow-orange {
-            box-shadow: 0 0 60px rgba(255, 107, 53, 0.9), 0 0 100px rgba(255, 107, 53, 0.5);
+        .waveform-bar {
+            animation: waveform-pulse 1s ease-in-out infinite;
         }
         
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 8px 30px rgba(255, 107, 53, 0.6); }
-            50% { transform: scale(1.05); box-shadow: 0 12px 40px rgba(255, 107, 53, 0.8); }
+        .waveform-bar:nth-child(2) { animation-delay: 0.1s; }
+        .waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+        .waveform-bar:nth-child(4) { animation-delay: 0.3s; }
+        .waveform-bar:nth-child(5) { animation-delay: 0.4s; }
+        
+        /* Logo glow effect */
+        .logo-glow {
+            filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.6));
         }
         
-        .pulse-btn {
-            animation: pulse 2s ease-in-out infinite;
+        /* Rotating vinyl animation */
+        @keyframes vinyl-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .vinyl-rotating {
+            animation: vinyl-rotate 8s linear infinite;
+        }
+        
+        /* Vintage scanlines (optional - can be toggled) */
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 0, 0, 0.05) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+        
+        /* Equipment rack meter animation */
+        @keyframes vu-bounce {
+            0%, 100% { width: 20%; }
+            50% { width: 85%; }
+        }
+        
+        .vu-animate {
+            animation: vu-bounce 2s ease-in-out infinite;
+        }
+        
+        /* Testing Dashboard Animations */
+        @keyframes data-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        
+        .test-card-animate {
+            animation: data-pulse 3s ease-in-out infinite;
+        }
+        
+        /* Chart container styling */
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Metric counter animation */
+        @keyframes counter-glow {
+            0%, 100% { text-shadow: 0 0 10px currentColor; }
+            50% { text-shadow: 0 0 20px currentColor; }
+        }
+        
+        .metric-value {
+            animation: counter-glow 2s ease-in-out infinite;
         }
     </style>
 </head>
-<body>
-    
-    <!-- Header -->
-    <header class="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-lg border-b-2 border-orange-500/30">
-        <div class="container mx-auto px-6 py-4 flex items-center justify-between">
-            <!-- Logo -->
-            <div class="flex items-center gap-4">
-                <img src="/images/haos-logo-white.png" alt="HAOS.fm" class="h-12 md:h-16">
-                <div>
-                    <h1 class="haos-header text-2xl md:text-3xl gradient-orange">HAOS.fm</h1>
-                    <p class="text-xs text-gray-400 uppercase tracking-widest">Analog Synthesis</p>
+<body class="haos-theme">
+    <div class="vinyl-scratch"></div>
+
+    <!-- ============================================================================
+         NAVIGATION HEADER - HAOS.fm BRANDED
+         ============================================================================ -->
+    <header class="haos-card-glass sticky top-0 z-50" style="backdrop-filter: blur(20px);">
+        <div class="haos-container">
+            <div class="flex items-center justify-between h-20">
+                <!-- HAOS.fm Logo -->
+                <div class="flex items-center space-x-4">
+                    <img src="/images/haos-logo-white.png" alt="HAOS.fm" class="h-10 vinyl-rotating logo-glow" style="width: auto;">
+                    <div>
+                        <h1 class="haos-display-sm haos-text-gradient-orange" style="font-size: 1.5rem; line-height: 1;">
+                            HAOS.fm
+                        </h1>
+                        <p class="haos-mono" style="font-size: 0.65rem; color: var(--haos-dust-gray); letter-spacing: 0.15em;">
+                            HARDWARE ANALOG OSCILLATOR SYNTHESIS
+                        </p>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Nav -->
-            <nav class="hidden md:flex items-center gap-6">
-                <a href="/platform/studio.html" class="text-orange-400 hover:text-orange-300 transition font-bold text-lg">
-                    <i class="fas fa-sliders-h mr-2"></i>STUDIO
-                </a>
-                <button onclick="toggleRadio()" class="text-orange-400 hover:text-orange-300 transition font-bold text-lg">
-                    <i class="fas fa-broadcast-tower mr-2"></i>RADIO
+                
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/haos-platform.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
+                        <i class="fas fa-cubes mr-2"></i>HAOS PLATFORM
+                    </a>
+                    <a href="/techno-workspace.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
+                        <i class="fas fa-project-diagram mr-2"></i>WORKSPACE
+                    </a>
+                    <a href="#features" class="haos-label hover:text-orange-400 transition-colors">
+                        <i class="fas fa-star mr-2"></i>FEATURES
+                    </a>
+                    <a href="#radio" class="haos-label hover:text-orange-400 transition-colors">
+                        <i class="fas fa-broadcast-tower mr-2"></i>RADIO
+                    </a>
+                    <span class="haos-badge haos-badge-new">LIVE</span>
+                </nav>
+                
+                <!-- Mobile Menu -->
+                <button class="md:hidden haos-btn-secondary px-4 py-2">
+                    <i class="fas fa-bars"></i>
                 </button>
-            </nav>
-            
-            <!-- Mobile Menu -->
-            <button class="md:hidden text-orange-400 text-2xl">
-                <i class="fas fa-bars"></i>
-            </button>
+            </div>
         </div>
     </header>
 
-    <!-- Hero -->
-    <section class="min-h-screen flex items-center justify-center relative pt-24 px-6">
-        <!-- Background -->
-        <div class="absolute inset-0 overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-b from-black via-orange-900/10 to-black"></div>
+    <!-- ============================================================================
+         HERO SECTION - VINTAGE VINYL AESTHETIC
+         ============================================================================ -->
+    <section class="haos-section" style="background: linear-gradient(180deg, var(--haos-vinyl-black) 0%, var(--haos-tape-brown) 100%); position: relative; overflow: hidden;">
+        <!-- Animated waveform background -->
+        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; display: flex; align-items: flex-end; justify-content: center; gap: 4px; opacity: 0.1;">
+            <div class="waveform-bar" style="width: 8px; height: 60%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 80%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 40%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 90%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 70%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 50%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 85%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 65%; background: var(--haos-groove-orange);"></div>
         </div>
         
-        <!-- Content -->
-        <div class="relative z-10 text-center max-w-5xl mx-auto">
-            <!-- Logo -->
-            <div class="mb-8">
-                <img src="/images/haos-logo-white.png" alt="HAOS.fm" class="w-full max-w-2xl mx-auto glow-orange">
+        <div class="haos-container text-center haos-slide-up" style="position: relative; z-index: 10;">
+            <!-- Main Logo - Your Custom PNG -->
+            <div class="mb-8" style="max-width: 800px; margin: 0 auto;">
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm - Hardware Analog Oscillator Synthesis" class="w-full logo-glow" style="max-width: 600px; margin: 0 auto;">
             </div>
             
-            <!-- Title -->
-            <h2 class="haos-header text-5xl md:text-7xl gradient-orange mb-6">
+            <h2 class="haos-display-md haos-text-gradient-gold mb-4">
                 HARDWARE ANALOG SYNTHESIS
             </h2>
             
-            <!-- Description -->
-            <p class="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto">
-                Professional music production platform with TB-303 acid bass, TR-909 drums, 
-                16-step sequencer, and live radio streaming. <br>
-                <strong class="text-orange-400">All in your browser.</strong>
+            <p class="haos-body-lg mb-8 max-w-3xl mx-auto" style="color: var(--haos-sepia-cream);">
+                Create electronic music with authentic hardware-inspired synthesis engines. 
+                <br>TB-303 acid bass, TR-909 drums, 16-step sequencer, and live modular workspace.
             </p>
             
-            <!-- CTA Buttons -->
-            <div class="flex flex-wrap gap-6 justify-center">
-                <a href="/platform/studio.html" 
-                   class="pulse-btn px-12 py-5 text-2xl font-bold rounded-lg transition"
-                   style="background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-light)); color: #000;">
-                    🎛️ ENTER STUDIO
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <a href="/haos-platform.html" class="haos-btn haos-btn-primary" style="font-size: 1.2em; padding: 18px 36px; background: linear-gradient(135deg, #FF6B35, #FF8C42);">
+                    🎛️ ENTER HAOS PLATFORM
                 </a>
-                
-                <button onclick="toggleRadio()"
-                        class="px-12 py-5 text-2xl font-bold rounded-lg border-2 border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-black transition">
-                    📻 LIVE RADIO
-                </button>
+                <a href="/techno-workspace.html" class="haos-btn haos-btn-primary" style="font-size: 1.2em; padding: 18px 36px;">
+                    🔧 MODULAR WORKSPACE
+                </a>
+                <a href="#radio" class="haos-btn haos-btn-secondary">
+                    📻 RADIO 24/7
+                </a>
             </div>
             
-            <!-- Strategic Studio Cards -->
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16 max-w-6xl mx-auto">
-                <!-- HAOS Platform -->
-                <a href="/haos-platform.html" class="group p-8 bg-gradient-to-br from-white/5 to-white/10 rounded-xl border-2 border-orange-500/30 hover:border-orange-500 transition-all hover:scale-105">
-                    <div class="text-6xl mb-4">🎛️</div>
-                    <h3 class="text-orange-400 font-bold text-2xl mb-3 group-hover:text-orange-300">HAOS Platform</h3>
-                    <p class="text-gray-400 mb-4">TB-303 acid bass, TR-909 drums, 16-step sequencer. Complete analog synthesis platform.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">TB-303</span>
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">TR-909</span>
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">SEQUENCER</span>
+            <!-- Stats - Equipment Rack Style -->
+            <div class="haos-rack" style="max-width: 900px; margin: var(--haos-space-3xl) auto 0;">
+                <div class="haos-rack-strip"></div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 85%;"></div>
+                        </div>
+                        <div class="haos-display-md haos-text-gradient-orange">10+</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream);">SYNTHESIS TOOLS</div>
                     </div>
-                </a>
-
-                <!-- Modular Workspace -->
-                <a href="/techno-workspace.html" class="group p-8 bg-gradient-to-br from-white/5 to-white/10 rounded-xl border-2 border-orange-500/30 hover:border-orange-500 transition-all hover:scale-105">
-                    <div class="text-6xl mb-4">🔧</div>
-                    <h3 class="text-orange-400 font-bold text-2xl mb-3 group-hover:text-orange-300">Modular Workspace</h3>
-                    <p class="text-gray-400 mb-4">Eurorack-style modular synthesis with visual patch routing and infinite sonic possibilities.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">MODULAR</span>
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">PATCHING</span>
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">EFFECTS</span>
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 75%; animation-delay: 0.2s;"></div>
+                        </div>
+                        <div class="haos-display-md haos-text-gradient-orange">5+</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream);">ANALOG OSCILLATORS</div>
                     </div>
-                </a>
-
-                <!-- ARP 2600 Studio -->
-                <a href="/synth-2600-studio.html" class="group p-8 bg-gradient-to-br from-white/5 to-white/10 rounded-xl border-2 border-orange-500/30 hover:border-orange-500 transition-all hover:scale-105">
-                    <div class="text-6xl mb-4">🎹</div>
-                    <h3 class="text-orange-400 font-bold text-2xl mb-3 group-hover:text-orange-300">ARP 2600 Studio</h3>
-                    <p class="text-gray-400 mb-4">Legendary modular synthesizer with complete patch matrix and vintage analog sound design.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">ARP 2600</span>
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">VINTAGE</span>
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">ANALOG</span>
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 100%; animation-delay: 0.4s;"></div>
+                        </div>
+                        <div class="haos-display-md haos-text-gradient-orange">24/7</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream);">LIVE BROADCAST</div>
                     </div>
-                </a>
-
-                <!-- Unified Studio -->
-                <a href="/platform/studio.html" class="group p-8 bg-gradient-to-br from-white/5 to-white/10 rounded-xl border-2 border-orange-500/30 hover:border-orange-500 transition-all hover:scale-105">
-                    <div class="text-6xl mb-4">🎚️</div>
-                    <h3 class="text-orange-400 font-bold text-2xl mb-3 group-hover:text-orange-300">Unified Studio</h3>
-                    <p class="text-gray-400 mb-4">All-in-one production suite with integrated TB-303, TR-909, radio, and live collaboration.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">ALL-IN-ONE</span>
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">RADIO</span>
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">COLLAB</span>
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 95%; animation-delay: 0.6s;"></div>
+                        </div>
+                        <div class="haos-display-md haos-text-gradient-orange">∞</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream);">SONIC CHAOS</div>
                     </div>
-                </a>
-
-                <!-- Patch Sequencer -->
-                <a href="/synth-patch-sequencer.html" class="group p-8 bg-gradient-to-br from-white/5 to-white/10 rounded-xl border-2 border-orange-500/30 hover:border-orange-500 transition-all hover:scale-105">
-                    <div class="text-6xl mb-4">🔀</div>
-                    <h3 class="text-orange-400 font-bold text-2xl mb-3 group-hover:text-orange-300">Patch Sequencer</h3>
-                    <p class="text-gray-400 mb-4">Visual patch routing system for advanced modular synthesis and signal flow design.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">VISUAL</span>
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">ROUTING</span>
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">ADVANCED</span>
-                    </div>
-                </a>
-
-                <!-- Live Radio -->
-                <button onclick="toggleRadio()" class="group p-8 bg-gradient-to-br from-white/5 to-white/10 rounded-xl border-2 border-orange-500/30 hover:border-orange-500 transition-all hover:scale-105 text-left w-full">
-                    <div class="text-6xl mb-4">📻</div>
-                    <h3 class="text-orange-400 font-bold text-2xl mb-3 group-hover:text-orange-300">HAOS Radio 24/7</h3>
-                    <p class="text-gray-400 mb-4">Live techno streaming with HAOS artist features, community tracks, and continuous broadcast.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">LIVE</span>
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">24/7</span>
-                        <span class="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">STREAMING</span>
-                    </div>
-                </button>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Radio Modal -->
-    <div id="radio-modal" class="fixed inset-0 bg-black/95 backdrop-blur-lg z-50 hidden flex items-center justify-center p-6">
-        <div class="bg-gray-900 rounded-2xl border-2 border-orange-500 p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <!-- Header -->
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="haos-header text-4xl gradient-orange">
-                    <i class="fas fa-broadcast-tower mr-3"></i>HAOS RADIO 24/7
-                </h3>
-                <button onclick="toggleRadio()" class="text-3xl text-gray-400 hover:text-orange-400 transition">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <!-- Radio Player -->
-            <div class="bg-black/50 rounded-xl p-6 mb-6">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center text-3xl animate-pulse">
-                        📻
-                    </div>
-                    <div class="flex-1">
-                        <h4 class="text-xl font-bold text-orange-400">HAOS.FM - Live Techno</h4>
-                        <p class="text-gray-400">24/7 Electronic Music Stream</p>
-                    </div>
-                    <button id="radio-play-btn" onclick="togglePlay()" class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-2xl hover:scale-110 transition">
-                        <i class="fas fa-play"></i>
-                    </button>
-                </div>
-                
-                <!-- Volume -->
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-volume-up text-orange-400"></i>
-                    <input type="range" id="volume-slider" min="0" max="100" value="70" class="flex-1" style="accent-color: var(--haos-orange);">
-                </div>
-            </div>
-            
-            <!-- Spotify Embeds -->
-            <div class="space-y-4">
-                <h4 class="haos-header text-2xl text-orange-400 mb-4">FEATURED ARTIST - HAOS (Warsaw)</h4>
-                <iframe style="border-radius: 12px; width: 100%; height: 352px;" 
-                        src="https://open.spotify.com/embed/artist/2ddgNA6J3ATCZrfT1qUXw0?utm_source=generator" 
-                        frameborder="0" allowfullscreen 
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
-            </div>
-        </div>
-    </div>
+    <!-- ============================================================================
+         SYNTHESIS STUDIOS
+         ============================================================================ -->
+    <main class="haos-container py-12">
 
-    <!-- Footer -->
-    <footer class="border-t-2 border-orange-500/30 bg-black/90 py-12">
-        <div class="container mx-auto px-6">
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- About -->
-                <div>
-                    <h4 class="haos-header text-2xl gradient-orange mb-4">HAOS.fm</h4>
-                    <p class="text-gray-400">Professional hardware-inspired synthesis platform for electronic music production.</p>
+        <!-- ========================================================================
+             MUSIC CREATION
+             ======================================================================== -->
+        <section id="studios" class="haos-section">
+            <div class="text-center mb-12">
+                <h2 class="haos-display-lg mb-4" style="background: linear-gradient(135deg, #39FF14, #00D9FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    SYNTHESIS STUDIOS
+                </h2>
+                <p class="haos-body-lg" style="color: var(--haos-sepia-cream);">
+                    Hardware-inspired music creation with complete track integration
+                </p>
+            </div>
+
+            <!-- FEATURED: HAOS Platform - Dual OS System -->
+            <div class="mb-12">
+                <a href="/haos-platform.html" class="haos-studio-card block" style="border: 3px solid #FF6B35; box-shadow: 0 0 40px rgba(255, 107, 53, 0.5); background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 140, 66, 0.1));">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="text-6xl">🎛️</div>
+                        <span class="haos-badge haos-badge-new" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-size: 1.2rem; padding: 0.5rem 1rem;">HAOS PLATFORM</span>
+                    </div>
+                    <h3 class="text-4xl md:text-5xl font-bold mb-4" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                        HAOS DUAL-OS PLATFORM
+                    </h3>
+                    <p class="text-xl haos-body mb-6" style="color: var(--haos-sepia-cream);">
+                        Hardware Analog Operating System with dual workflows: <strong>Techno OS</strong> for TB-303 acid bass, TR-909 drums & sequencing, or <strong>Hip-Hop OS</strong> for MPC beats & sampling. Choose your sonic universe.
+                    </p>
+                    <div class="flex flex-wrap gap-3 mb-4">
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🧪 TB-303 ACID LAB</span>
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🥁 TR-909 DRUMS</span>
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">⏱️ 16-STEP SEQUENCER</span>
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🎚️ LIVE PATCHING</span>
+                    </div>
+                    <div class="text-2xl font-bold" style="color: #FF6B35;">
+                        ▶ LAUNCH HAOS PLATFORM
+                    </div>
+                </a>
+            </div>
+
+            <!-- SECONDARY: Radio -->
+            <div class="haos-grid haos-grid-2 mb-12">
+                <a href="/radio.html" class="haos-studio-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="haos-vinyl-icon text-5xl">📻</div>
+                        <span class="haos-badge haos-badge-new">LIVE</span>
+                    </div>
+                    <h3 class="haos-display-sm haos-text-orange mb-3">
+                        HAOS.FM RADIO 24/7
+                    </h3>
+                    <p class="haos-body" style="color: var(--haos-sepia-cream); margin-bottom: var(--haos-space-md);">
+                        Non-stop streaming with live visualization. Listen to community tracks and share your creations.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="haos-tag">LIVE STREAM</span>
+                        <span class="haos-tag">VISUALIZER</span>
+                        <span class="haos-tag">24/7</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Complete Production Suite - SIMPLIFIED -->
+            <div class="mt-12">
+                <div class="text-center mb-8">
+                    <h3 class="text-3xl font-bold mb-3" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        Professional Synthesis Tools
+                    </h3>
+                    <p class="text-lg" style="color: var(--haos-sepia-cream);">
+                        Curated selection of hardware-inspired synthesis platforms
+                    </p>
                 </div>
-                
-                <!-- Quick Links -->
-                <div>
-                    <h4 class="haos-header text-xl text-orange-400 mb-4">Quick Links</h4>
-                    <ul class="space-y-2">
-                        <li><a href="/platform/studio.html" class="text-gray-400 hover:text-orange-400 transition">Unified Studio</a></li>
-                        <li><button onclick="toggleRadio()" class="text-gray-400 hover:text-orange-400 transition">Live Radio</button></li>
-                        <li><a href="/haos-platform.html" class="text-gray-400 hover:text-orange-400 transition">HAOS Platform</a></li>
+
+                <!-- Strategic Studios Only -->
+                <div class="haos-grid haos-grid-3 gap-6">
+                    <!-- Modular Workspace -->
+                    <a href="/techno-workspace.html" class="haos-studio-card hover:scale-105 transition-all">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-4xl">🔧</div>
+                            <span class="haos-badge" style="background: linear-gradient(135deg, #9D4EDD, #7209B7);">MODULAR</span>
+                        </div>
+                        <h5 class="text-2xl font-bold mb-2" style="color: #9D4EDD;">Modular Workspace</h5>
+                        <p class="haos-body text-sm mb-3">Eurorack-style modular synthesis with visual patch routing</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="haos-tag text-xs">PATCHING</span>
+                            <span class="haos-tag text-xs">EFFECTS</span>
+                            <span class="haos-tag text-xs">ROUTING</span>
+                        </div>
+                    </a>
+
+                    <!-- ARP 2600 Studio -->
+                    <a href="/synth-2600-studio.html" class="haos-studio-card hover:scale-105 transition-all">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-4xl">🎹</div>
+                            <span class="haos-badge" style="background: linear-gradient(135deg, #00D9FF, #39FF14);">CLASSIC</span>
+                        </div>
+                        <h5 class="text-2xl font-bold mb-2" style="color: #00D9FF;">ARP 2600 Studio</h5>
+                        <p class="haos-body text-sm mb-3">Legendary modular synthesizer with complete patch matrix</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="haos-tag text-xs">VINTAGE</span>
+                            <span class="haos-tag text-xs">ANALOG</span>
+                            <span class="haos-tag text-xs">MODULAR</span>
+                        </div>
+                    </a>
+
+                    <!-- Unified Studio -->
+                    <a href="/platform/studio.html" class="haos-studio-card hover:scale-105 transition-all">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-4xl">�️</div>
+                            <span class="haos-badge" style="background: linear-gradient(135deg, #FF006E, #FB5607);">UNIFIED</span>
+                        </div>
+                        <h5 class="text-2xl font-bold mb-2" style="color: #FF006E;">Unified Studio</h5>
+                        <p class="haos-body text-sm mb-3">All-in-one production suite with TB-303, TR-909, and radio</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="haos-tag text-xs">ALL-IN-ONE</span>
+                            <span class="haos-tag text-xs">RADIO</span>
+                            <span class="haos-tag text-xs">COLLAB</span>
+                        </div>
+                    </a>
+
+                    <!-- Patch Sequencer -->
+                    <a href="/synth-patch-sequencer.html" class="haos-studio-card hover:scale-105 transition-all">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-4xl">🔀</div>
+                            <span class="haos-badge" style="background: linear-gradient(135deg, #FFD700, #FFA500);">ADVANCED</span>
+                        </div>
+                        <h5 class="text-2xl font-bold mb-2" style="color: #FFD700;">Patch Sequencer</h5>
+                        <p class="haos-body text-sm mb-3">Visual patch routing system for advanced modular synthesis</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="haos-tag text-xs">VISUAL</span>
+                            <span class="haos-tag text-xs">ROUTING</span>
+                            <span class="haos-tag text-xs">SEQUENCING</span>
+                        </div>
+                    </a>
+
+                    <!-- Techno Creator -->
+                    <a href="/techno-creator.html" class="haos-studio-card hover:scale-105 transition-all">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-4xl">⚡</div>
+                            <span class="haos-badge" style="background: linear-gradient(135deg, #39FF14, #00FF00);">TECHNO</span>
+                        </div>
+                        <h5 class="text-2xl font-bold mb-2" style="color: #39FF14;">Techno Creator</h5>
+                        <p class="haos-body text-sm mb-3">Detroit-style techno with TB-303, TR-808, and effects</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="haos-tag text-xs">ACID BASS</span>
+                            <span class="haos-tag text-xs">DRUMS</span>
+                            <span class="haos-tag text-xs">EFFECTS</span>
+                        </div>
+                    </a>
+
+                    <!-- Music Creator Hub -->
+                    <a href="/music-creator.html" class="haos-studio-card hover:scale-105 transition-all">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-4xl">🎼</div>
+                            <span class="haos-badge" style="background: linear-gradient(135deg, #FF00FF, #00FFFF);">DAW</span>
+                        </div>
+                        <h5 class="text-2xl font-bold mb-2" style="color: #FF00FF;">Music Creator Hub</h5>
+                        <p class="haos-body text-sm mb-3">Complete DAW with all instruments and production tools</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="haos-tag text-xs">FULL DAW</span>
+                            <span class="haos-tag text-xs">MULTITRACK</span>
+                            <span class="haos-tag text-xs">MIXER</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================================================================
+             WORKSPACE CONFIGURATION & SYSTEM MONITOR
+             ======================================================================== -->
+        <section id="workspace-config" class="haos-section" style="background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(26, 26, 46, 0.95)); border: 3px solid rgba(255, 107, 53, 0.5); border-radius: 20px; padding: 4rem; box-shadow: 0 20px 60px rgba(255, 107, 53, 0.3), inset 0 0 80px rgba(57, 255, 20, 0.05);">
+            <div class="text-center mb-16">
+                <div class="inline-block mb-6 px-6 py-2 rounded-full" style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(157, 78, 221, 0.2)); border: 2px solid rgba(255, 107, 53, 0.5);">
+                    <span class="haos-label uppercase tracking-widest" style="color: #FF6B35; font-weight: 700;">PROFESSIONAL WORKSPACE</span>
+                </div>
+                <h2 class="haos-display-lg mb-6" style="background: linear-gradient(135deg, #FF6B35, #FFD700, #00D9FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 3.5rem; letter-spacing: 2px;">
+                    <i class="fas fa-chart-line mr-4" style="color: #FF6B35;"></i>SYSTEM CONFIGURATION & ANALYTICS
+                </h2>
+                <p class="haos-body-lg max-w-3xl mx-auto" style="color: var(--haos-sepia-cream); font-size: 1.2rem; line-height: 1.8;">
+                    Enterprise-grade workspace monitoring with real-time system diagnostics, audio pipeline optimization, and performance analytics for professional music production environments.
+                </p>
+            </div>
+
+            <!-- Configuration Metrics Grid -->
+            <div class="haos-grid haos-grid-3 mb-12" style="gap: 2rem;">
+                <!-- System Resources -->
+                <div class="haos-card-glass p-8" style="border: 3px solid rgba(57, 255, 20, 0.6); background: linear-gradient(135deg, rgba(57, 255, 20, 0.08), rgba(0, 0, 0, 0.6)); border-radius: 16px; box-shadow: 0 10px 40px rgba(57, 255, 20, 0.3); transition: all 0.3s ease;">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="haos-display-sm" style="color: #39FF14; font-size: 1.5rem; font-weight: 700;">
+                            <i class="fas fa-server mr-3" style="font-size: 1.8rem;"></i>System Resources
+                        </h3>
+                        <span class="haos-badge haos-badge-new" style="background: #39FF14; color: #000; padding: 8px 16px; font-weight: 700; font-size: 0.9rem;">ACTIVE</span>
+                    </div>
+                    <div class="text-center mb-6 p-6 rounded-xl" style="background: rgba(57, 255, 20, 0.1); border: 2px solid rgba(57, 255, 20, 0.3);">
+                        <div class="text-7xl font-bold mb-3 metric-value" style="color: #39FF14; text-shadow: 0 0 20px rgba(57, 255, 20, 0.5);">8</div>
+                        <p class="haos-label uppercase" style="color: #39FF14; font-weight: 600; letter-spacing: 1px;">CPU Cores Allocated</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(57, 255, 20, 0.05);">
+                            <span class="haos-label font-semibold" style="color: var(--haos-sepia-cream);">Memory Pool</span>
+                            <span class="haos-tag" style="background: rgba(57, 255, 20, 0.4); color: #39FF14; padding: 6px 14px; font-weight: 700;">2048 MB</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(57, 255, 20, 0.05);">
+                            <span class="haos-label font-semibold" style="color: var(--haos-sepia-cream);">Thread Count</span>
+                            <span class="haos-tag" style="background: rgba(57, 255, 20, 0.4); color: #39FF14; padding: 6px 14px; font-weight: 700;">16</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(255, 215, 0, 0.05);">
+                            <span class="haos-label font-semibold" style="color: var(--haos-sepia-cream);">Process Priority</span>
+                            <span class="haos-tag" style="background: rgba(255, 215, 0, 0.5); color: #000; padding: 6px 14px; font-weight: 700;">HIGH</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audio Configuration -->
+                <div class="haos-card-glass p-8" style="border: 3px solid rgba(0, 217, 255, 0.6); background: linear-gradient(135deg, rgba(0, 217, 255, 0.08), rgba(0, 0, 0, 0.6)); border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 217, 255, 0.3); transition: all 0.3s ease;">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="haos-display-sm" style="color: #00D9FF; font-size: 1.5rem; font-weight: 700;">
+                            <i class="fas fa-sliders-h mr-3" style="font-size: 1.8rem;"></i>Audio Pipeline
+                        </h3>
+                        <span class="haos-badge" style="background: #00D9FF; color: #000; padding: 8px 16px; font-weight: 700; font-size: 0.9rem;">CONFIG</span>
+                    </div>
+                    <div class="mb-6 p-4 rounded-xl" style="background: rgba(0, 217, 255, 0.05);">
+                        <canvas id="testCoverageChart" height="150"></canvas>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between p-3 rounded-lg" style="background: rgba(0, 217, 255, 0.05);">
+                            <span class="haos-label font-semibold" style="color: var(--haos-sepia-cream);">Sample Rate</span>
+                            <span style="color: #39FF14; font-weight: 700; font-size: 1.1rem;">48 kHz</span>
+                        </div>
+                        <div class="flex justify-between p-3 rounded-lg" style="background: rgba(0, 217, 255, 0.05);">
+                            <span class="haos-label font-semibold" style="color: var(--haos-sepia-cream);">Buffer Size</span>
+                            <span style="color: #39FF14; font-weight: 700; font-size: 1.1rem;">256 samples</span>
+                        </div>
+                        <div class="flex justify-between p-3 rounded-lg" style="background: rgba(255, 215, 0, 0.05);">
+                            <span class="haos-label font-semibold" style="color: var(--haos-sepia-cream);">Bit Depth</span>
+                            <span style="color: #FFD700; font-weight: 700; font-size: 1.1rem;">32-bit float</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Environment Variables -->
+                <div class="haos-card-glass p-8" style="border: 3px solid rgba(157, 78, 221, 0.6); background: linear-gradient(135deg, rgba(157, 78, 221, 0.08), rgba(0, 0, 0, 0.6)); border-radius: 16px; box-shadow: 0 10px 40px rgba(157, 78, 221, 0.3); transition: all 0.3s ease;">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="haos-display-sm" style="color: #9D4EDD; font-size: 1.5rem; font-weight: 700;">
+                            <i class="fas fa-database mr-3" style="font-size: 1.8rem;"></i>Engine Status
+                        </h3>
+                        <span class="haos-badge" style="background: #9D4EDD; color: #fff; padding: 8px 16px; font-weight: 700; font-size: 0.9rem;">REAL-TIME</span>
+                    </div>
+                    <div class="mb-6 p-4 rounded-xl" style="background: rgba(157, 78, 221, 0.05);">
+                        <canvas id="enginePerformanceChart" height="150"></canvas>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(157, 78, 221, 0.05);">
+                            <span class="haos-label font-semibold" style="color: var(--haos-sepia-cream);">TB-303 Engine</span>
+                            <div class="haos-vu-meter" style="width: 100px; height: 12px; display: inline-block; border-radius: 6px;">
+                                <div class="haos-vu-fill" style="width: 92%; border-radius: 6px;"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(157, 78, 221, 0.05);">
+                            <span class="haos-label font-semibold" style="color: var(--haos-sepia-cream);">TR-909 Engine</span>
+                            <div class="haos-vu-meter" style="width: 100px; height: 12px; display: inline-block; border-radius: 6px;">
+                                <div class="haos-vu-fill" style="width: 88%; border-radius: 6px;"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(157, 78, 221, 0.05);">
+                            <span class="haos-label font-semibold" style="color: var(--haos-sepia-cream);">ARP-2600</span>
+                            <div class="haos-vu-meter" style="width: 100px; height: 12px; display: inline-block; border-radius: 6px;">
+                                <div class="haos-vu-fill" style="width: 95%; border-radius: 6px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comprehensive Workspace Configuration Panel -->
+            <div class="haos-card-glass p-10 mb-12" style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(157, 78, 221, 0.15), rgba(0, 0, 0, 0.8)); border: 3px solid rgba(255, 107, 53, 0.6); border-radius: 20px; box-shadow: 0 15px 50px rgba(255, 107, 53, 0.4), inset 0 0 60px rgba(255, 107, 53, 0.1);">
+                <div class="text-center mb-10">
+                    <div class="inline-block mb-4 px-5 py-2 rounded-full" style="background: rgba(255, 107, 53, 0.2); border: 2px solid rgba(255, 107, 53, 0.5);">
+                        <span class="haos-label uppercase tracking-widest" style="color: #FF6B35; font-weight: 700; font-size: 0.85rem;">ANALYTICS DASHBOARD</span>
+                    </div>
+                    <h3 class="haos-display-md mb-4" style="color: #FF6B35; font-size: 2.5rem; font-weight: 700; text-shadow: 0 0 30px rgba(255, 107, 53, 0.5);">
+                        <i class="fas fa-chart-bar mr-3" style="font-size: 2.2rem;"></i>Performance Monitoring & Optimization
+                    </h3>
+                    <p class="haos-body max-w-3xl mx-auto" style="color: var(--haos-sepia-cream); font-size: 1.15rem; line-height: 1.7;">
+                        Real-time system monitoring with advanced performance analytics, resource optimization controls, and comprehensive diagnostic tools for professional production environments.
+                    </p>
+                </div>
+
+                <!-- Configuration Visualization -->
+                <div class="mb-10 p-6 rounded-2xl" style="background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 107, 53, 0.3);">
+                    <canvas id="testResultsChart" height="80"></canvas>
+                </div>
+
+                <!-- Configuration Metrics -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+                    <div class="text-center p-6 rounded-xl test-card-animate" style="background: linear-gradient(135deg, rgba(57, 255, 20, 0.15), rgba(0, 0, 0, 0.6)); border: 3px solid rgba(57, 255, 20, 0.5); box-shadow: 0 8px 30px rgba(57, 255, 20, 0.3);">
+                        <div class="text-5xl font-bold mb-3 metric-value" style="color: #39FF14; text-shadow: 0 0 20px rgba(57, 255, 20, 0.6);">48k</div>
+                        <div class="haos-label uppercase font-semibold tracking-wide" style="color: #39FF14;">Sample Rate (Hz)</div>
+                    </div>
+                    <div class="text-center p-6 rounded-xl test-card-animate" style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(0, 0, 0, 0.6)); border: 3px solid rgba(255, 107, 53, 0.5); box-shadow: 0 8px 30px rgba(255, 107, 53, 0.3); animation-delay: 0.15s;">
+                        <div class="text-5xl font-bold mb-3 metric-value" style="color: #FF6B35; text-shadow: 0 0 20px rgba(255, 107, 53, 0.6);">256</div>
+                        <div class="haos-label uppercase font-semibold tracking-wide" style="color: #FF6B35;">Buffer Size</div>
+                    </div>
+                    <div class="text-center p-6 rounded-xl test-card-animate" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(0, 0, 0, 0.6)); border: 3px solid rgba(255, 215, 0, 0.5); box-shadow: 0 8px 30px rgba(255, 215, 0, 0.3); animation-delay: 0.3s;">
+                        <div class="text-5xl font-bold mb-3 metric-value" style="color: #FFD700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);">2048</div>
+                        <div class="haos-label uppercase font-semibold tracking-wide" style="color: #FFD700;">Memory (MB)</div>
+                    </div>
+                    <div class="text-center p-6 rounded-xl test-card-animate" style="background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(0, 0, 0, 0.6)); border: 3px solid rgba(0, 217, 255, 0.5); box-shadow: 0 8px 30px rgba(0, 217, 255, 0.3); animation-delay: 0.45s;">
+                        <div class="text-5xl font-bold mb-3 metric-value" style="color: #00D9FF; text-shadow: 0 0 20px rgba(0, 217, 255, 0.6);">8</div>
+                        <div class="haos-label uppercase font-semibold tracking-wide" style="color: #00D9FF;">CPU Cores</div>
+                    </div>
+                </div>
+
+                <!-- CTA to Workspace -->
+                <div class="text-center">
+                    <a href="/techno-workspace.html" class="haos-btn haos-btn-primary inline-block" style="font-size: 1.4em; padding: 24px 60px; background: linear-gradient(135deg, #FF6B35, #9D4EDD); box-shadow: 0 10px 40px rgba(255, 107, 53, 0.6); border-radius: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease;">
+                        <i class="fas fa-cog mr-3"></i>OPEN WORKSPACE SETTINGS
+                    </a>
+                    <p class="mt-6 haos-label max-w-2xl mx-auto" style="color: var(--haos-dust-gray); font-size: 1rem; line-height: 1.6;">
+                        <i class="fas fa-info-circle mr-2" style="color: #00D9FF;"></i>Configure audio engine parameters, optimize system performance, manage resource allocation, and access advanced diagnostic tools
+                    </p>
+                </div>
+            </div>
+
+            <!-- Configuration Features -->
+            <div class="haos-grid haos-grid-2 mb-8">
+                <div class="haos-card-glass p-6">
+                    <h4 class="haos-display-sm mb-4" style="color: #00D9FF;">
+                        <i class="fas fa-sliders-h mr-2"></i>System Configuration
+                    </h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i>
+                            <div>
+                                <strong class="haos-label" style="color: #39FF14;">Resource Allocation</strong>
+                                <p class="haos-body text-sm" style="color: var(--haos-dust-gray);">Dynamic CPU core assignment, memory pooling, and thread management</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i>
+                            <div>
+                                <strong class="haos-label" style="color: #39FF14;">Audio Pipeline Settings</strong>
+                                <p class="haos-body text-sm" style="color: var(--haos-dust-gray);">Configure sample rate, buffer size, bit depth, and latency compensation</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i>
+                            <div>
+                                <strong class="haos-label" style="color: #39FF14;">Environment Variables</strong>
+                                <p class="haos-body text-sm" style="color: var(--haos-dust-gray);">Manage API keys, database connections, and external service integrations</p>
+                            </div>
+                        </li>
                     </ul>
                 </div>
-                
-                <!-- Contact -->
-                <div>
-                    <h4 class="haos-header text-xl text-orange-400 mb-4">Connect</h4>
-                    <button onclick="toggleRadio()" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-black font-bold py-3 px-6 rounded-lg hover:scale-105 transition">
-                        <i class="fas fa-broadcast-tower mr-2"></i>TUNE IN NOW
-                    </button>
+
+                <div class="haos-card-glass p-6">
+                    <h4 class="haos-display-sm mb-4" style="color: #9D4EDD;">
+                        <i class="fas fa-code mr-2"></i>Development Tools
+                    </h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-bolt text-yellow-400 mr-3 mt-1"></i>
+                            <div>
+                                <strong class="haos-label" style="color: #FFD700;">Hot Reload</strong>
+                                <p class="haos-body text-sm" style="color: var(--haos-dust-gray);">Live code updates without server restart for rapid development workflow</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-bolt text-yellow-400 mr-3 mt-1"></i>
+                            <div>
+                                <strong class="haos-label" style="color: #FFD700;">Debug Console</strong>
+                                <p class="haos-body text-sm" style="color: var(--haos-dust-gray);">Real-time logging, error tracking, and performance profiling</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-bolt text-yellow-400 mr-3 mt-1"></i>
+                            <div>
+                                <strong class="haos-label" style="color: #FFD700;">Build Optimization</strong>
+                                <p class="haos-body text-sm" style="color: var(--haos-dust-gray);">Minification, bundling, and asset optimization for production deployment</p>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
-            
-            <div class="mt-8 pt-8 border-t border-orange-500/20 text-center text-gray-500">
-                <p>&copy; 2025 HAOS.fm - Hardware Analog Oscillator Synthesis. All rights reserved.</p>
+
+            <!-- Technology Stack -->
+            <div class="text-center p-6 rounded-lg" style="background: rgba(255, 107, 53, 0.05); border: 2px dashed rgba(255, 107, 53, 0.3);">
+                <p class="haos-label mb-3" style="color: var(--haos-dust-gray);">POWERED BY</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <span class="haos-tag text-lg" style="background: rgba(57, 255, 20, 0.2); color: #39FF14; padding: 0.5rem 1.5rem;">
+                        <i class="fas fa-chart-line mr-2"></i>Chart.js 4.4.0
+                    </span>
+                    <span class="haos-tag text-lg" style="background: rgba(0, 217, 255, 0.2); color: #00D9FF; padding: 0.5rem 1.5rem;">
+                        <i class="fas fa-vial mr-2"></i>Jest Testing Framework
+                    </span>
+                    <span class="haos-tag text-lg" style="background: rgba(157, 78, 221, 0.2); color: #9D4EDD; padding: 0.5rem 1.5rem;">
+                        <i class="fas fa-code mr-2"></i>Web Audio API
+                    </span>
+                    <span class="haos-tag text-lg" style="background: rgba(255, 215, 0, 0.2); color: #FFD700; padding: 0.5rem 1.5rem;">
+                        <i class="fas fa-wave-square mr-2"></i>Real-time DSP
+                    </span>
+                </div>
             </div>
-        </div>
-    </footer>
+        </section>
 
-    <!-- Audio Element -->
-    <audio id="radio-audio" preload="metadata">
-        <source src="https://stream.zeno.fm/f3wvbbqmdg8uv" type="audio/mpeg">
-    </audio>
+        
 
-    <!-- JavaScript -->
+        
+
+        
+
+    </main>
+
+    <!-- Scripts -->
     <script>
-        const radioModal = document.getElementById('radio-modal');
-        const radioAudio = document.getElementById('radio-audio');
-        const playBtn = document.getElementById('radio-play-btn');
-        const volumeSlider = document.getElementById('volume-slider');
+        // ============================================
+        // CHART.JS DATA VISUALIZATIONS
+        // ============================================
         
-        let isPlaying = false;
-        
-        // Toggle Radio Modal
-        function toggleRadio() {
-            radioModal.classList.toggle('hidden');
-        }
-        
-        // Toggle Play/Pause
-        function togglePlay() {
-            if (isPlaying) {
-                radioAudio.pause();
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                isPlaying = false;
-            } else {
-                radioAudio.play().catch(err => console.log('Playback failed:', err));
-                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                isPlaying = true;
-            }
-        }
-        
-        // Volume Control
-        volumeSlider.addEventListener('input', (e) => {
-            radioAudio.volume = e.target.value / 100;
+        // Initialize charts when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
         });
         
-        // Set initial volume
-        radioAudio.volume = 0.7;
-        
-        // Close modal on Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !radioModal.classList.contains('hidden')) {
-                toggleRadio();
+        function initializeCharts() {
+            // Test Coverage Donut Chart
+            const testCoverageCtx = document.getElementById('testCoverageChart');
+            if (testCoverageCtx) {
+                new Chart(testCoverageCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Passed', 'Failed', 'Warnings'],
+                        datasets: [{
+                            data: [349, 5, 15],
+                            backgroundColor: [
+                                'rgba(57, 255, 20, 0.8)',
+                                'rgba(255, 107, 53, 0.8)',
+                                'rgba(255, 215, 0, 0.8)'
+                            ],
+                            borderColor: [
+                                'rgba(57, 255, 20, 1)',
+                                'rgba(255, 107, 53, 1)',
+                                'rgba(255, 215, 0, 1)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    color: '#fff',
+                                    font: { size: 11 }
+                                }
+                            }
+                        }
+                    }
+                });
             }
+            
+            // Engine Performance Bar Chart
+            const enginePerfCtx = document.getElementById('enginePerformanceChart');
+            if (enginePerfCtx) {
+                new Chart(enginePerfCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['TB-303', 'TR-909', 'ARP-2600', 'String', 'DAW'],
+                        datasets: [{
+                            label: 'Performance %',
+                            data: [92, 88, 95, 91, 89],
+                            backgroundColor: [
+                                'rgba(255, 107, 53, 0.7)',
+                                'rgba(57, 255, 20, 0.7)',
+                                'rgba(157, 78, 221, 0.7)',
+                                'rgba(0, 217, 255, 0.7)',
+                                'rgba(255, 215, 0, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 107, 53, 1)',
+                                'rgba(57, 255, 20, 1)',
+                                'rgba(157, 78, 221, 1)',
+                                'rgba(0, 217, 255, 1)',
+                                'rgba(255, 215, 0, 1)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: { color: '#fff', font: { size: 10 } },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#fff', font: { size: 10 } },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+            
+            // Test Results Line Chart
+            const testResultsCtx = document.getElementById('testResultsChart');
+            if (testResultsCtx) {
+                new Chart(testResultsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+                        datasets: [
+                            {
+                                label: 'Tests Passed',
+                                data: [312, 325, 338, 342, 345, 349],
+                                borderColor: 'rgba(57, 255, 20, 1)',
+                                backgroundColor: 'rgba(57, 255, 20, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                borderWidth: 3
+                            },
+                            {
+                                label: 'Tests Failed',
+                                data: [12, 9, 7, 6, 6, 5],
+                                borderColor: 'rgba(255, 107, 53, 1)',
+                                backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                borderWidth: 3
+                            },
+                            {
+                                label: 'Warnings',
+                                data: [22, 19, 18, 16, 16, 15],
+                                borderColor: 'rgba(255, 215, 0, 1)',
+                                backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                borderWidth: 3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#fff', font: { size: 11 } },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#fff', font: { size: 11 } },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    color: '#fff',
+                                    font: { size: 12 },
+                                    padding: 15
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: '#39FF14',
+                                bodyColor: '#fff',
+                                borderColor: '#39FF14',
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // ============================================
+        // DARK MODE / LIGHT MODE TOGGLE
+        // ============================================
+        
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        // Load saved theme preference or default to dark
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        
+        function setTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.body.classList.remove('light-mode');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Apply saved theme on load
+        setTheme(savedTheme);
+        
+        // Toggle theme on button click
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            
+            // Show toast notification
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 9999;
+                animation: slideIn 0.3s ease-out;
+            `;
+            toast.textContent = `${newTheme === 'light' ? '☀️' : '🌙'} ${newTheme === 'light' ? 'Light' : 'Dark'} mode activated`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        });
+        
+        // ============================================
+        // SMOOTH SCROLL
+        // ============================================
+        
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+        
+        // ============================================
+        // SCROLL ANIMATIONS
+        // ============================================
+        
+        // Animate on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease-out';
+            observer.observe(card);
+        });
+    </script>
+
+    <!-- HAOS State Manager for Cross-Page Integration -->
+    <script src="/js/state-manager.js"></script>
+    <script>
+        console.log('🎛️ HAOS.fm Platform - State Manager Active');
+        
+        // Listen for cross-page state updates
+        window.addEventListener('haos:state-synced', (e) => {
+            console.log('📡 State synced:', e.detail);
+        });
+
+        // Track page analytics
+        window.HAOSState.updateSettings({
+            lastVisit: new Date().toISOString(),
+            landingPage: 'index'
         });
     </script>
 </body>
