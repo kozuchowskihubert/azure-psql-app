@@ -2274,36 +2274,13 @@
         });
         
         // Test synth button
-        document.getElementById('test-synth-btn')?.addEventListener('click', async () => {
-            await initAudio();
-            if (audioEngine) {
-                audioEngine.playNote(40, 0.8, 0.3);
-                const vu = document.getElementById('synth-vu');
-                vu.style.width = '80%';
-                setTimeout(() => { vu.style.width = '0%'; }, 300);
-            }
-        });
+        document.getElementById('test-synth-btn')?.addEventListener('click', playTestNote);
         
         // Drum pads
-        document.getElementById('kick-btn')?.addEventListener('click', async () => {
-            await initAudio();
-            if (audioEngine) audioEngine.playKick(1.0, 0.5);
-        });
-        
-        document.getElementById('snare-btn')?.addEventListener('click', async () => {
-            await initAudio();
-            if (audioEngine) audioEngine.playSnare(1.0, 0.5);
-        });
-        
-        document.getElementById('hihat-btn')?.addEventListener('click', async () => {
-            await initAudio();
-            if (audioEngine) audioEngine.playHihat(1.0, false);
-        });
-        
-        document.getElementById('clap-btn')?.addEventListener('click', async () => {
-            await initAudio();
-            if (audioEngine) audioEngine.playClap(1.0);
-        });
+        document.getElementById('kick-btn')?.addEventListener('click', () => playDrum('kick'));
+        document.getElementById('snare-btn')?.addEventListener('click', () => playDrum('snare'));
+        document.getElementById('hihat-btn')?.addEventListener('click', () => playDrum('hihat'));
+        document.getElementById('clap-btn')?.addEventListener('click', () => playDrum('clap'));
         
         // Pattern tools
         document.getElementById('randomize-all-btn')?.addEventListener('click', () => {
@@ -2327,6 +2304,211 @@
         
         // Auto-save every 10 seconds
         setInterval(saveProject, 10000);
+        
+        // ========================================
+        // KNOB CONTROLS & AUDIO ENGINE INTEGRATION
+        // ========================================
+        
+        // Knob control system
+        class Knob {
+            constructor(id, min, max, defaultValue, onChange, formatValue) {
+                this.element = document.getElementById(id);
+                if (!this.element) return;
+                
+                this.min = min;
+                this.max = max;
+                this.value = defaultValue;
+                this.onChange = onChange;
+                this.formatValue = formatValue || ((v) => Math.round(v));
+                
+                this.isDragging = false;
+                this.startY = 0;
+                this.startValue = 0;
+                
+                this.indicator = this.element.querySelector('.knob-indicator');
+                this.valueDisplay = this.element.parentElement.querySelector('.knob-value');
+                
+                this.setupEvents();
+                this.setValue(defaultValue);
+            }
+            
+            setupEvents() {
+                this.element.addEventListener('mousedown', (e) => {
+                    this.isDragging = true;
+                    this.startY = e.clientY;
+                    this.startValue = this.value;
+                    e.preventDefault();
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!this.isDragging) return;
+                    
+                    const delta = (this.startY - e.clientY) * 0.5;
+                    const range = this.max - this.min;
+                    const newValue = Math.max(this.min, Math.min(this.max, 
+                        this.startValue + (delta / 100) * range));
+                    
+                    this.setValue(newValue);
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    this.isDragging = false;
+                });
+                
+                // Double click to reset
+                this.element.addEventListener('dblclick', () => {
+                    this.setValue((this.min + this.max) / 2);
+                });
+            }
+            
+            setValue(value) {
+                this.value = value;
+                const percentage = (value - this.min) / (this.max - this.min);
+                const degrees = -135 + (percentage * 270);
+                
+                if (this.indicator) {
+                    this.indicator.style.transform = `rotate(${degrees}deg)`;
+                }
+                
+                if (this.valueDisplay) {
+                    this.valueDisplay.textContent = this.formatValue(value);
+                }
+                
+                if (this.onChange) {
+                    this.onChange(value);
+                }
+            }
+        }
+        
+        // Initialize TB-303 knobs
+        let tb303Knobs = {};
+        
+        function initTB303Knobs() {
+            if (!audioEngine || !audioEngine.tb303) return;
+            
+            tb303Knobs.cutoff = new Knob('cutoff-knob', 200, 5000, 1200, 
+                (v) => {
+                    if (audioEngine && audioEngine.tb303) {
+                        audioEngine.tb303.params.cutoff = v;
+                    }
+                },
+                (v) => Math.round(v) + ' Hz'
+            );
+            
+            tb303Knobs.resonance = new Knob('resonance-knob', 0, 30, 15,
+                (v) => {
+                    if (audioEngine && audioEngine.tb303) {
+                        audioEngine.tb303.params.resonance = v;
+                    }
+                },
+                (v) => Math.round(v) + '%'
+            );
+            
+            tb303Knobs.envelope = new Knob('envelope-knob', 0, 100, 70,
+                (v) => {
+                    if (audioEngine && audioEngine.tb303) {
+                        audioEngine.tb303.params.envMod = v;
+                    }
+                },
+                (v) => Math.round(v) + '%'
+            );
+            
+            tb303Knobs.decay = new Knob('decay-knob', 50, 1000, 300,
+                (v) => {
+                    if (audioEngine && audioEngine.tb303) {
+                        audioEngine.tb303.params.decay = v / 1000; // Convert to seconds
+                    }
+                },
+                (v) => Math.round(v) + ' ms'
+            );
+            
+            tb303Knobs.accent = new Knob('accent-knob', 0, 100, 50,
+                (v) => {
+                    if (audioEngine && audioEngine.tb303) {
+                        audioEngine.tb303.params.accentLevel = v;
+                    }
+                },
+                (v) => Math.round(v) + '%'
+            );
+            
+            tb303Knobs.distortion = new Knob('distortion-knob', 0, 100, 20,
+                (v) => {
+                    if (audioEngine && audioEngine.tb303) {
+                        audioEngine.tb303.params.distortion = v;
+                    }
+                },
+                (v) => Math.round(v) + '%'
+            );
+            
+            console.log('✅ TB-303 knobs initialized and connected to audio engine');
+        }
+        
+        // Enhanced audio initialization with knob setup
+        async function initAudio() {
+            if (!audioEngine && typeof HAOSAudioEngine !== 'undefined') {
+                audioEngine = new HAOSAudioEngine();
+                await audioEngine.init();
+                
+                // Initialize knobs after audio engine is ready
+                initTB303Knobs();
+                
+                console.log('✅ HAOS Audio Engine initialized');
+                console.log('✅ All controls connected');
+                loadProject(); // Auto-load saved project
+            }
+        }
+        
+        // Enhanced playNote function with proper audio engine integration
+        async function playTestNote() {
+            await initAudio();
+            if (audioEngine && audioEngine.tb303) {
+                // Play TB-303 test note
+                audioEngine.tb303.playNote(40, 0.8, 0.5); // MIDI note 40 (E2), velocity 0.8, duration 0.5s
+                
+                // Animate VU meter
+                const vu = document.getElementById('synth-vu');
+                if (vu) {
+                    vu.style.width = '85%';
+                    setTimeout(() => { vu.style.width = '0%'; }, 500);
+                }
+                
+                showNotification('🎵 TB-303 Test Note');
+            }
+        }
+        
+        // Drum machine pad functions
+        async function playDrum(drumType) {
+            await initAudio();
+            if (!audioEngine || !audioEngine.tr909) return;
+            
+            const tr909 = audioEngine.tr909;
+            
+            switch(drumType) {
+                case 'kick':
+                    tr909.playKick();
+                    break;
+                case 'snare':
+                    tr909.playSnare();
+                    break;
+                case 'hihat':
+                    tr909.playHihat(false); // closed hihat
+                    break;
+                case 'clap':
+                    tr909.playClap();
+                    break;
+                case 'tom':
+                    tr909.playTom(600); // mid tom frequency
+                    break;
+                case 'ride':
+                    tr909.playRide();
+                    break;
+                case 'crash':
+                    tr909.playCrash();
+                    break;
+            }
+            
+            showNotification(`🥁 ${drumType.toUpperCase()}`);
+        }
         
         // Initialize on load
         window.addEventListener('DOMContentLoaded', () => {
