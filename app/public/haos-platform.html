@@ -2088,10 +2088,16 @@
                 });
             },
             
-            playTB303TestNote() {
+            async playTB303TestNote() {
                 if (!AudioEngine.tb303) {
                     this.showToast('TB303 not initialized');
                     return;
+                }
+                
+                // Resume AudioContext on user interaction (required by browsers)
+                if (AudioEngine.context && AudioEngine.context.state === 'suspended') {
+                    await AudioEngine.context.resume();
+                    console.log('🔊 AudioContext resumed');
                 }
                 
                 // Play a test sequence
@@ -2278,12 +2284,18 @@
                 console.log(`Step ${track}[${step}]:`, this.sequencerState.pattern[track][step]);
             },
             
-            playSequencer() {
+            async playSequencer() {
                 if (this.sequencerState.isPlaying) return;
                 
                 if (!AudioEngine.tr909) {
                     this.showToast('TR-909 not initialized');
                     return;
+                }
+                
+                // Resume AudioContext on user interaction (required by browsers)
+                if (AudioEngine.context && AudioEngine.context.state === 'suspended') {
+                    await AudioEngine.context.resume();
+                    console.log('🔊 AudioContext resumed');
                 }
                 
                 this.sequencerState.isPlaying = true;
