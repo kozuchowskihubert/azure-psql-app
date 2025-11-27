@@ -623,6 +623,123 @@
             }
         }
 
+        /* Pattern Tools */
+        .pattern-tools {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            background: var(--haos-bg-elevated);
+            border: 2px solid var(--haos-border);
+            color: var(--haos-text-primary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tool-btn:hover {
+            border-color: var(--haos-orange-primary);
+            background: rgba(255, 107, 53, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .tool-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Keyboard Help */
+        .keyboard-help {
+            background: var(--haos-bg-elevated);
+            border: 2px solid var(--haos-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .shortcut-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: var(--haos-bg-panel);
+            border-radius: 4px;
+        }
+
+        .shortcut-key {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            background: var(--haos-orange-primary);
+            color: var(--haos-bg-dark);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .shortcut-desc {
+            font-size: 0.8rem;
+            color: var(--haos-text-dim);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--haos-bg-panel-trans);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--haos-orange-primary);
+            border-radius: 8px;
+            padding: 15px 20px;
+            color: var(--haos-text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);
+            z-index: 2000;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Auto-save indicator */
+        .auto-save {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--haos-text-dim);
+        }
+
+        .save-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--haos-text-dim);
+        }
+
+        .save-dot.saving {
+            background: var(--haos-orange-primary);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
         /* Welcome Screen */
         .welcome-screen {
             text-align: center;
@@ -706,12 +823,19 @@
                     <span class="bpm-label">BPM</span>
                     <span class="bpm-value" id="bpm-display">120</span>
                 </div>
+                <div class="auto-save">
+                    <span class="save-dot" id="save-indicator"></span>
+                    <span id="save-status">Auto-save enabled</span>
+                </div>
                 <button class="transport-btn" id="record-btn">● REC</button>
                 <button class="transport-btn" id="play-btn">▶ PLAY</button>
                 <button class="transport-btn" id="stop-btn">■ STOP</button>
             </div>
         </div>
     </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
 
     <!-- Tab Navigation -->
     <div class="tab-navigation">
@@ -962,25 +1086,112 @@
                         <span class="panel-badge">4 TRACKS</span>
                     </div>
                     
+                    <div class="pattern-tools">
+                        <button class="tool-btn" id="randomize-all-btn">🎲 Randomize All</button>
+                        <button class="tool-btn" id="clear-all-btn">🗑️ Clear All</button>
+                        <button class="tool-btn" id="shift-left-btn">⬅ Shift Left</button>
+                        <button class="tool-btn" id="shift-right-btn">➡ Shift Right</button>
+                        <button class="tool-btn" id="export-midi-btn">💾 Export MIDI</button>
+                        <button class="tool-btn" id="save-project-btn">📁 Save Project</button>
+                    </div>
+                    
                     <div class="sequencer-container">
                         <div class="sequencer-track">
                             <div class="track-label">TB-303</div>
                             <div class="step-grid" id="tb303-steps"></div>
+                            <button class="tool-btn" style="margin-left: 90px; margin-top: 5px;" id="randomize-tb303">🎲</button>
                         </div>
                         
                         <div class="sequencer-track">
                             <div class="track-label">KICK</div>
                             <div class="step-grid" id="kick-steps"></div>
+                            <button class="tool-btn" style="margin-left: 90px; margin-top: 5px;" id="randomize-kick">🎲</button>
                         </div>
                         
                         <div class="sequencer-track">
                             <div class="track-label">SNARE</div>
                             <div class="step-grid" id="snare-steps"></div>
+                            <button class="tool-btn" style="margin-left: 90px; margin-top: 5px;" id="randomize-snare">🎲</button>
                         </div>
                         
                         <div class="sequencer-track">
                             <div class="track-label">HI-HAT</div>
                             <div class="step-grid" id="hihat-steps"></div>
+                            <button class="tool-btn" style="margin-left: 90px; margin-top: 5px;" id="randomize-hihat">🎲</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Keyboard Shortcuts</h3>
+                    </div>
+                    <div class="keyboard-help">
+                        <div class="shortcut-grid">
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Play/Stop</span>
+                                <span class="shortcut-key">SPACE</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">BPM Up</span>
+                                <span class="shortcut-key">↑</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">BPM Down</span>
+                                <span class="shortcut-key">↓</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">TB-303 Test</span>
+                                <span class="shortcut-key">A</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Kick</span>
+                                <span class="shortcut-key">Z</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Snare</span>
+                                <span class="shortcut-key">X</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Hi-Hat</span>
+                                <span class="shortcut-key">C</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Clap</span>
+                                <span class="shortcut-key">V</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Randomize TB-303</span>
+                                <span class="shortcut-key">Q</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Randomize Kick</span>
+                                <span class="shortcut-key">W</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Randomize Snare</span>
+                                <span class="shortcut-key">O</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Randomize Hi-Hat</span>
+                                <span class="shortcut-key">P</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Clear All</span>
+                                <span class="shortcut-key">BACKSPACE</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Save Project</span>
+                                <span class="shortcut-key">Ctrl+S</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Export MIDI</span>
+                                <span class="shortcut-key">Ctrl+M</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-desc">Record</span>
+                                <span class="shortcut-key">R</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1102,13 +1313,199 @@
         // Initialize audio engine
         let audioEngine = null;
         let isPlaying = false;
+        let currentBPM = 120;
+        let isRecording = false;
         
         async function initAudio() {
             if (!audioEngine && typeof HAOSAudioEngine !== 'undefined') {
                 audioEngine = new HAOSAudioEngine();
                 await audioEngine.init();
                 console.log('HAOS Audio Engine initialized');
+                loadProject(); // Auto-load saved project
             }
+        }
+        
+        // Notification system
+        function showNotification(message, duration = 2000) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, duration);
+        }
+        
+        // Pattern generation functions
+        function randomizePattern(trackId) {
+            const container = document.getElementById(`${trackId}-steps`);
+            if (!container) return;
+            
+            const steps = container.querySelectorAll('.step-button');
+            steps.forEach((step, i) => {
+                step.classList.remove('active');
+                
+                // Smart randomization based on track type
+                let probability = 0.3;
+                if (trackId === 'kick') {
+                    // Kicks on strong beats
+                    probability = (i % 4 === 0) ? 0.8 : 0.2;
+                } else if (trackId === 'snare') {
+                    // Snares on backbeats
+                    probability = (i % 4 === 2) ? 0.7 : 0.1;
+                } else if (trackId === 'hihat') {
+                    // Hi-hats more frequent
+                    probability = 0.6;
+                } else if (trackId === 'tb303') {
+                    // TB-303 melodic pattern
+                    probability = 0.4;
+                }
+                
+                if (Math.random() < probability) {
+                    step.classList.add('active');
+                }
+            });
+            
+            showNotification(`🎲 ${trackId.toUpperCase()} pattern randomized`);
+            saveProject(); // Auto-save after change
+        }
+        
+        function clearAllPatterns() {
+            const tracks = ['tb303', 'kick', 'snare', 'hihat'];
+            tracks.forEach(track => {
+                const container = document.getElementById(`${track}-steps`);
+                if (container) {
+                    container.querySelectorAll('.step-button').forEach(step => {
+                        step.classList.remove('active');
+                    });
+                }
+            });
+            showNotification('🗑️ All patterns cleared');
+            saveProject();
+        }
+        
+        function shiftPattern(direction) {
+            const tracks = ['tb303', 'kick', 'snare', 'hihat'];
+            tracks.forEach(track => {
+                const container = document.getElementById(`${track}-steps`);
+                if (!container) return;
+                
+                const steps = Array.from(container.querySelectorAll('.step-button'));
+                const states = steps.map(s => s.classList.contains('active'));
+                
+                if (direction === 'left') {
+                    states.push(states.shift());
+                } else {
+                    states.unshift(states.pop());
+                }
+                
+                steps.forEach((step, i) => {
+                    step.classList.toggle('active', states[i]);
+                });
+            });
+            showNotification(`⬅️➡️ Patterns shifted ${direction}`);
+            saveProject();
+        }
+        
+        // MIDI Export
+        function exportMIDI() {
+            const tracks = ['tb303', 'kick', 'snare', 'hihat'];
+            let midiData = {
+                format: 'MIDI',
+                bpm: currentBPM,
+                tracks: {}
+            };
+            
+            tracks.forEach(track => {
+                const container = document.getElementById(`${track}-steps`);
+                if (container) {
+                    const steps = Array.from(container.querySelectorAll('.step-button'));
+                    midiData.tracks[track] = steps.map((s, i) => ({
+                        step: i,
+                        active: s.classList.contains('active')
+                    }));
+                }
+            });
+            
+            const blob = new Blob([JSON.stringify(midiData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `haos-studio-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('💾 MIDI pattern exported!');
+        }
+        
+        // Project Save/Load
+        function saveProject() {
+            const tracks = ['tb303', 'kick', 'snare', 'hihat'];
+            const project = {
+                version: '1.0',
+                bpm: currentBPM,
+                timestamp: Date.now(),
+                patterns: {}
+            };
+            
+            tracks.forEach(track => {
+                const container = document.getElementById(`${track}-steps`);
+                if (container) {
+                    project.patterns[track] = Array.from(container.querySelectorAll('.step-button'))
+                        .map(s => s.classList.contains('active'));
+                }
+            });
+            
+            localStorage.setItem('haos-studio-project', JSON.stringify(project));
+            
+            // Show save indicator
+            const indicator = document.getElementById('save-indicator');
+            const status = document.getElementById('save-status');
+            indicator.classList.add('saving');
+            status.textContent = 'Saving...';
+            setTimeout(() => {
+                indicator.classList.remove('saving');
+                status.textContent = 'Saved';
+                setTimeout(() => {
+                    status.textContent = 'Auto-save enabled';
+                }, 1000);
+            }, 500);
+        }
+        
+        function loadProject() {
+            const saved = localStorage.getItem('haos-studio-project');
+            if (!saved) return;
+            
+            try {
+                const project = JSON.parse(saved);
+                currentBPM = project.bpm || 120;
+                document.getElementById('bpm-display').textContent = currentBPM;
+                
+                Object.keys(project.patterns).forEach(track => {
+                    const container = document.getElementById(`${track}-steps`);
+                    if (container && project.patterns[track]) {
+                        const steps = container.querySelectorAll('.step-button');
+                        project.patterns[track].forEach((active, i) => {
+                            if (steps[i]) {
+                                steps[i].classList.toggle('active', active);
+                            }
+                        });
+                    }
+                });
+                
+                showNotification('✅ Project loaded from auto-save');
+            } catch (e) {
+                console.error('Failed to load project:', e);
+            }
+        }
+        
+        // BPM Control
+        function changeBPM(delta) {
+            currentBPM = Math.max(60, Math.min(200, currentBPM + delta));
+            document.getElementById('bpm-display').textContent = currentBPM;
+            if (audioEngine) {
+                audioEngine.setBPM(currentBPM);
+            }
+            saveProject();
         }
         
         // Play/Stop controls
@@ -1119,6 +1516,7 @@
                 isPlaying = true;
                 document.getElementById('play-btn').classList.add('active');
                 document.getElementById('stop-btn').classList.remove('active');
+                showNotification('▶ Playing');
             }
         });
         
@@ -1128,21 +1526,24 @@
                 isPlaying = false;
                 document.getElementById('play-btn').classList.remove('active');
                 document.getElementById('stop-btn').classList.add('active');
+                showNotification('■ Stopped');
             }
+        });
+        
+        document.getElementById('record-btn').addEventListener('click', () => {
+            isRecording = !isRecording;
+            document.getElementById('record-btn').classList.toggle('active', isRecording);
+            showNotification(isRecording ? '● Recording' : '● Recording stopped');
         });
         
         // Test synth button
         document.getElementById('test-synth-btn')?.addEventListener('click', async () => {
             await initAudio();
             if (audioEngine) {
-                audioEngine.playNote(40, 0.8, 0.3); // Play C note
-                
-                // Animate VU meter
+                audioEngine.playNote(40, 0.8, 0.3);
                 const vu = document.getElementById('synth-vu');
                 vu.style.width = '80%';
-                setTimeout(() => {
-                    vu.style.width = '0%';
-                }, 300);
+                setTimeout(() => { vu.style.width = '0%'; }, 300);
             }
         });
         
@@ -1167,14 +1568,45 @@
             if (audioEngine) audioEngine.playClap(1.0);
         });
         
+        // Pattern tools
+        document.getElementById('randomize-all-btn')?.addEventListener('click', () => {
+            ['tb303', 'kick', 'snare', 'hihat'].forEach(track => randomizePattern(track));
+        });
+        
+        document.getElementById('clear-all-btn')?.addEventListener('click', clearAllPatterns);
+        document.getElementById('shift-left-btn')?.addEventListener('click', () => shiftPattern('left'));
+        document.getElementById('shift-right-btn')?.addEventListener('click', () => shiftPattern('right'));
+        document.getElementById('export-midi-btn')?.addEventListener('click', exportMIDI);
+        document.getElementById('save-project-btn')?.addEventListener('click', () => {
+            saveProject();
+            showNotification('💾 Project saved!');
+        });
+        
+        // Individual track randomize buttons
+        document.getElementById('randomize-tb303')?.addEventListener('click', () => randomizePattern('tb303'));
+        document.getElementById('randomize-kick')?.addEventListener('click', () => randomizePattern('kick'));
+        document.getElementById('randomize-snare')?.addEventListener('click', () => randomizePattern('snare'));
+        document.getElementById('randomize-hihat')?.addEventListener('click', () => randomizePattern('hihat'));
+        
+        // Auto-save every 10 seconds
+        setInterval(saveProject, 10000);
+        
         // Initialize on load
         window.addEventListener('DOMContentLoaded', () => {
             initSequencer();
             console.log('HAOS Studio initialized - Orange theme activated 🔥');
+            console.log('Features: Pattern gen, MIDI export, Auto-save, Keyboard shortcuts');
         });
         
-        // Keyboard shortcuts
+        // Comprehensive keyboard shortcuts
         document.addEventListener('keydown', (e) => {
+            // Ignore if typing in input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            const key = e.key.toLowerCase();
+            const ctrl = e.ctrlKey || e.metaKey;
+            
+            // Transport controls
             if (e.code === 'Space') {
                 e.preventDefault();
                 if (isPlaying) {
@@ -1182,6 +1614,56 @@
                 } else {
                     document.getElementById('play-btn').click();
                 }
+            }
+            
+            // BPM controls
+            if (e.code === 'ArrowUp') {
+                e.preventDefault();
+                changeBPM(5);
+                showNotification(`BPM: ${currentBPM}`);
+            }
+            if (e.code === 'ArrowDown') {
+                e.preventDefault();
+                changeBPM(-5);
+                showNotification(`BPM: ${currentBPM}`);
+            }
+            
+            // Drum pads
+            if (key === 'z') document.getElementById('kick-btn')?.click();
+            if (key === 'x') document.getElementById('snare-btn')?.click();
+            if (key === 'c') document.getElementById('hihat-btn')?.click();
+            if (key === 'v') document.getElementById('clap-btn')?.click();
+            
+            // Synth test
+            if (key === 'a') document.getElementById('test-synth-btn')?.click();
+            
+            // Pattern randomization
+            if (key === 'q') randomizePattern('tb303');
+            if (key === 'w') randomizePattern('kick');
+            if (key === 'o') randomizePattern('snare');
+            if (key === 'p') randomizePattern('hihat');
+            
+            // Clear all
+            if (e.code === 'Backspace') {
+                e.preventDefault();
+                clearAllPatterns();
+            }
+            
+            // Record
+            if (key === 'r') {
+                document.getElementById('record-btn').click();
+            }
+            
+            // Save project
+            if (ctrl && key === 's') {
+                e.preventDefault();
+                document.getElementById('save-project-btn')?.click();
+            }
+            
+            // Export MIDI
+            if (ctrl && key === 'm') {
+                e.preventDefault();
+                exportMIDI();
             }
         });
     </script>
