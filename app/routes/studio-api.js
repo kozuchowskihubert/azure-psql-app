@@ -1,0 +1,328 @@
+/**
+ * Studio API Routes
+ * 
+ * REST API endpoints for HAOS Platform Studio
+ * Manages presets, patterns, and settings synchronization
+ * between haos-platform.html and studio.html
+ * 
+ * @module routes/studio-api
+ */
+
+const express = require('express');
+const router = express.Router();
+
+// In-memory storage (will persist to database later if needed)
+// This ensures data survives between page refreshes
+const storage = {
+  presets: [],
+  patterns: [],
+  settings: {}
+};
+
+// ============================================================================
+// Presets API (TB-303, TR-909)
+// ============================================================================
+
+/**
+ * GET /api/studio/presets
+ * Retrieve all saved presets
+ */
+router.get('/presets', (req, res) => {
+  res.json({
+    success: true,
+    count: storage.presets.length,
+    presets: storage.presets
+  });
+});
+
+/**
+ * POST /api/studio/presets
+ * Save a new preset
+ * 
+ * Body:
+ * {
+ *   name: string,
+ *   type: 'tb303' | 'tr909',
+ *   parameters: object
+ * }
+ */
+router.post('/presets', (req, res) => {
+  const { name, type, parameters } = req.body;
+  
+  if (!name || !type || !parameters) {
+    return res.status(400).json({
+      success: false,
+      error: 'Missing required fields: name, type, parameters'
+    });
+  }
+
+  const preset = {
+    id: Date.now().toString(),
+    name,
+    type,
+    parameters,
+    createdAt: new Date().toISOString()
+  };
+
+  storage.presets.push(preset);
+
+  res.status(201).json({
+    success: true,
+    preset
+  });
+});
+
+/**
+ * GET /api/studio/presets/:id
+ * Get a specific preset by ID
+ */
+router.get('/presets/:id', (req, res) => {
+  const preset = storage.presets.find(p => p.id === req.params.id);
+  
+  if (!preset) {
+    return res.status(404).json({
+      success: false,
+      error: 'Preset not found'
+    });
+  }
+
+  res.json({
+    success: true,
+    preset
+  });
+});
+
+/**
+ * DELETE /api/studio/presets/:id
+ * Delete a preset
+ */
+router.delete('/presets/:id', (req, res) => {
+  const index = storage.presets.findIndex(p => p.id === req.params.id);
+  
+  if (index === -1) {
+    return res.status(404).json({
+      success: false,
+      error: 'Preset not found'
+    });
+  }
+
+  storage.presets.splice(index, 1);
+
+  res.json({
+    success: true,
+    message: 'Preset deleted'
+  });
+});
+
+// ============================================================================
+// Patterns API (Sequencer)
+// ============================================================================
+
+/**
+ * GET /api/studio/patterns
+ * Retrieve all saved sequencer patterns
+ */
+router.get('/patterns', (req, res) => {
+  res.json({
+    success: true,
+    count: storage.patterns.length,
+    patterns: storage.patterns
+  });
+});
+
+/**
+ * POST /api/studio/patterns
+ * Save a new sequencer pattern
+ * 
+ * Body:
+ * {
+ *   name: string,
+ *   steps: array,
+ *   bpm: number
+ * }
+ */
+router.post('/patterns', (req, res) => {
+  const { name, steps, bpm } = req.body;
+  
+  if (!name || !steps) {
+    return res.status(400).json({
+      success: false,
+      error: 'Missing required fields: name, steps'
+    });
+  }
+
+  const pattern = {
+    id: Date.now().toString(),
+    name,
+    steps,
+    bpm: bpm || 128,
+    createdAt: new Date().toISOString()
+  };
+
+  storage.patterns.push(pattern);
+
+  res.status(201).json({
+    success: true,
+    pattern
+  });
+});
+
+/**
+ * GET /api/studio/patterns/:id
+ * Get a specific pattern by ID
+ */
+router.get('/patterns/:id', (req, res) => {
+  const pattern = storage.patterns.find(p => p.id === req.params.id);
+  
+  if (!pattern) {
+    return res.status(404).json({
+      success: false,
+      error: 'Pattern not found'
+    });
+  }
+
+  res.json({
+    success: true,
+    pattern
+  });
+});
+
+/**
+ * DELETE /api/studio/patterns/:id
+ * Delete a pattern
+ */
+router.delete('/patterns/:id', (req, res) => {
+  const index = storage.patterns.findIndex(p => p.id === req.params.id);
+  
+  if (index === -1) {
+    return res.status(404).json({
+      success: false,
+      error: 'Pattern not found'
+    });
+  }
+
+  storage.patterns.splice(index, 1);
+
+  res.json({
+    success: true,
+    message: 'Pattern deleted'
+  });
+});
+
+// ============================================================================
+// Settings API (User Preferences)
+// ============================================================================
+
+/**
+ * GET /api/studio/settings
+ * Retrieve all user settings
+ */
+router.get('/settings', (req, res) => {
+  res.json({
+    success: true,
+    settings: storage.settings
+  });
+});
+
+/**
+ * POST /api/studio/settings
+ * Update user settings
+ * 
+ * Body: any valid JSON object
+ */
+router.post('/settings', (req, res) => {
+  const settings = req.body;
+  
+  // Merge with existing settings
+  storage.settings = {
+    ...storage.settings,
+    ...settings,
+    updatedAt: new Date().toISOString()
+  };
+
+  res.json({
+    success: true,
+    settings: storage.settings
+  });
+});
+
+/**
+ * GET /api/studio/settings/:key
+ * Get a specific setting by key
+ */
+router.get('/settings/:key', (req, res) => {
+  const value = storage.settings[req.params.key];
+  
+  if (value === undefined) {
+    return res.status(404).json({
+      success: false,
+      error: 'Setting not found'
+    });
+  }
+
+  res.json({
+    success: true,
+    key: req.params.key,
+    value
+  });
+});
+
+// ============================================================================
+// Sync API (Cross-Page State Sync)
+// ============================================================================
+
+/**
+ * GET /api/studio/sync
+ * Get complete state for synchronization
+ * Returns all presets, patterns, and settings in one call
+ */
+router.get('/sync', (req, res) => {
+  res.json({
+    success: true,
+    timestamp: new Date().toISOString(),
+    data: {
+      presets: storage.presets,
+      patterns: storage.patterns,
+      settings: storage.settings
+    }
+  });
+});
+
+/**
+ * POST /api/studio/sync
+ * Update complete state from another page
+ * Used for bulk synchronization
+ * 
+ * Body:
+ * {
+ *   presets?: array,
+ *   patterns?: array,
+ *   settings?: object
+ * }
+ */
+router.post('/sync', (req, res) => {
+  const { presets, patterns, settings } = req.body;
+  
+  if (presets) {
+    storage.presets = presets;
+  }
+  
+  if (patterns) {
+    storage.patterns = patterns;
+  }
+  
+  if (settings) {
+    storage.settings = {
+      ...storage.settings,
+      ...settings
+    };
+  }
+
+  res.json({
+    success: true,
+    message: 'State synchronized',
+    timestamp: new Date().toISOString()
+  });
+});
+
+module.exports = router;
