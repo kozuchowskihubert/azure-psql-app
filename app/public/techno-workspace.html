@@ -707,6 +707,11 @@
                     </div>
                 </div>
 
+                <!-- Test Sound Buttons -->
+                <div class="preset-controls" style="margin-top: 15px;">
+                    <button id="tb303-test" class="preset-btn preset-btn-a" style="width: 100%;">🎵 TEST SOUND</button>
+                </div>
+
                 <!-- Preset Morphing -->
                 <div class="morph-slider-container">
                     <div class="morph-label">
@@ -736,20 +741,19 @@
 
                 <!-- Preset Bank -->
                 <div class="preset-bank">
-                    <div class="bank-header">PRESET BANK</div>
+                    <div class="bank-header">TB-303 PRESET BANK</div>
                     <div class="bank-slots">
-                        <button class="bank-slot" data-slot="1">1</button>
-                        <button class="bank-slot" data-slot="2">2</button>
-                        <button class="bank-slot" data-slot="3">3</button>
-                        <button class="bank-slot" data-slot="4">4</button>
-                        <button class="bank-slot" data-slot="5">5</button>
-                        <button class="bank-slot" data-slot="6">6</button>
-                        <button class="bank-slot" data-slot="7">7</button>
-                        <button class="bank-slot" data-slot="8">8</button>
+                        <button class="bank-slot" data-slot="1" data-preset="acid">🧪 Acid</button>
+                        <button class="bank-slot" data-slot="2" data-preset="squelch">💦 Squelch</button>
+                        <button class="bank-slot" data-slot="3" data-preset="deep">🌊 Deep</button>
+                        <button class="bank-slot" data-slot="4" data-preset="screamer">😱 Scream</button>
+                        <button class="bank-slot" data-slot="5" data-preset="liquid">💧 Liquid</button>
+                        <button class="bank-slot" data-slot="6" data-preset="wobble">🌀 Wobble</button>
+                        <button class="bank-slot" data-slot="7" data-preset="sub">🔊 Sub</button>
+                        <button class="bank-slot" data-slot="8" data-preset="rumble">💥 Rumble</button>
                     </div>
                     <div class="bank-actions">
-                        <button id="save-to-bank" class="bank-action-btn">💾 SAVE</button>
-                        <button id="load-from-bank" class="bank-action-btn">📂 LOAD</button>
+                        <button id="load-303-preset" class="bank-action-btn">▶ LOAD & PLAY</button>
                     </div>
                 </div>
             </div>
@@ -782,6 +786,13 @@
                 <!-- VU Meter -->
                 <div class="vu-meter">
                     <div class="vu-bar" id="drum-vu"></div>
+                </div>
+
+                <!-- Test Drum Buttons -->
+                <div class="preset-controls" style="margin-top: 15px; gap: 8px;">
+                    <button id="test-kick" class="preset-btn preset-btn-a" style="flex: 1;">🥁 KICK</button>
+                    <button id="test-snare" class="preset-btn preset-btn-b" style="flex: 1;">🎵 SNARE</button>
+                    <button id="test-hihat" class="preset-btn preset-btn-morph" style="flex: 1;">🔔 HI-HAT</button>
                 </div>
             </div>
         </div>
@@ -1795,6 +1806,222 @@
         };
         
         console.log('%c🎛️ Type HAOS_HELP() for available commands', 'color: #FF6B35; font-size: 12px; font-weight: bold');
+
+        // ═══════════════════════════════════════════════════════════
+        // 🎵 SOUND PLAYBACK & PRESET INTEGRATION
+        // ═══════════════════════════════════════════════════════════
+
+        // TB-303 Preset Definitions
+        const tb303Presets = {
+            1: { name: 'Acid 🧪', cutoff: 0.75, resonance: 0.85, envmod: 0.7, decay: 0.3, distortion: 0.2, accent: 0.8 },
+            2: { name: 'Squelch 💦', cutoff: 0.35, resonance: 0.95, envmod: 0.9, decay: 0.15, distortion: 0.3, accent: 0.6 },
+            3: { name: 'Deep 🌊', cutoff: 0.25, resonance: 0.4, envmod: 0.3, decay: 0.7, distortion: 0.1, accent: 0.4 },
+            4: { name: 'Screamer 😱', cutoff: 0.9, resonance: 1.0, envmod: 1.0, decay: 0.1, distortion: 0.6, accent: 1.0 },
+            5: { name: 'Liquid 💧', cutoff: 0.55, resonance: 0.65, envmod: 0.5, decay: 0.5, distortion: 0.15, accent: 0.5 },
+            6: { name: 'Wobble 🌀', cutoff: 0.45, resonance: 0.75, envmod: 0.8, decay: 0.4, distortion: 0.25, accent: 0.7 },
+            7: { name: 'Sub 🔊', cutoff: 0.15, resonance: 0.2, envmod: 0.2, decay: 0.9, distortion: 0.05, accent: 0.3 },
+            8: { name: 'Rumble 💥', cutoff: 0.2, resonance: 0.5, envmod: 0.4, decay: 0.8, distortion: 0.4, accent: 0.9 }
+        };
+
+        // Audio initialization flag
+        let audioInitialized = false;
+
+        // Initialize audio on first interaction
+        function ensureAudioInit() {
+            if (!audioInitialized && typeof HAOS !== 'undefined' && HAOS.init) {
+                HAOS.init();
+                audioInitialized = true;
+                console.log('🎵 HAOS Audio Engine initialized');
+            }
+        }
+
+        // TB-303 Test Sound Button
+        document.addEventListener('DOMContentLoaded', () => {
+            const tb303TestBtn = document.getElementById('tb303-test');
+            if (tb303TestBtn) {
+                tb303TestBtn.addEventListener('click', () => {
+                    ensureAudioInit();
+                    
+                    // Play classic acid bass line
+                    if (typeof HAOS !== 'undefined' && HAOS.playNote) {
+                        HAOS.playNote({ note: 'C2', accent: true });
+                        
+                        // Animate button
+                        tb303TestBtn.style.transform = 'scale(0.95)';
+                        tb303TestBtn.style.boxShadow = '0 0 20px rgba(255, 107, 53, 0.8)';
+                        
+                        setTimeout(() => {
+                            tb303TestBtn.style.transform = '';
+                            tb303TestBtn.style.boxShadow = '';
+                        }, 200);
+                        
+                        // Animate VU meter
+                        animateVU('bass-vu');
+                    }
+                });
+            }
+
+            // TR-909 Test Drum Buttons
+            const testKick = document.getElementById('test-kick');
+            if (testKick) {
+                testKick.addEventListener('click', () => {
+                    ensureAudioInit();
+                    if (typeof HAOS !== 'undefined' && HAOS.playKick) {
+                        HAOS.playKick(1.0, 0.5); // velocity, tune
+                        animateButton(testKick);
+                        animateVU('drum-vu');
+                    }
+                });
+            }
+
+            const testSnare = document.getElementById('test-snare');
+            if (testSnare) {
+                testSnare.addEventListener('click', () => {
+                    ensureAudioInit();
+                    if (typeof HAOS !== 'undefined' && HAOS.playSnare) {
+                        HAOS.playSnare(0.8, 0.6); // velocity, snap
+                        animateButton(testSnare);
+                        animateVU('drum-vu');
+                    }
+                });
+            }
+
+            const testHihat = document.getElementById('test-hihat');
+            if (testHihat) {
+                testHihat.addEventListener('click', () => {
+                    ensureAudioInit();
+                    if (typeof HAOS !== 'undefined' && HAOS.playHihat) {
+                        HAOS.playHihat(0.6, false); // velocity, open
+                        animateButton(testHihat);
+                        animateVU('drum-vu');
+                    }
+                });
+            }
+
+            // TB-303 Preset Bank Slots
+            const presetSlots = document.querySelectorAll('.bank-slot');
+            presetSlots.forEach(slot => {
+                slot.addEventListener('click', () => {
+                    const slotNum = parseInt(slot.dataset.slot);
+                    const preset = tb303Presets[slotNum];
+                    
+                    if (preset) {
+                        ensureAudioInit();
+                        
+                        // Load preset parameters
+                        loadTB303Preset(preset);
+                        
+                        // Play test sound
+                        if (typeof HAOS !== 'undefined' && HAOS.playNote) {
+                            HAOS.playNote({ note: 'C2', accent: preset.accent > 0.5 });
+                        }
+                        
+                        // Visual feedback
+                        presetSlots.forEach(s => s.classList.remove('active'));
+                        slot.classList.add('active');
+                        animateButton(slot);
+                        animateVU('bass-vu');
+                        
+                        showNotification(`🎵 Loaded: ${preset.name}`);
+                    }
+                });
+            });
+
+            // Update bank UI with preset names
+            updatePresetBankUI();
+        });
+
+        // Load TB-303 preset parameters into UI
+        function loadTB303Preset(preset) {
+            const knobs = {
+                'tb303-cutoff': preset.cutoff,
+                'tb303-resonance': preset.resonance,
+                'tb303-envmod': preset.envmod,
+                'tb303-decay': preset.decay,
+                'tb303-distortion': preset.distortion,
+                'tb303-accent': preset.accent
+            };
+
+            // Update knobs visually and in live params
+            Object.entries(knobs).forEach(([id, value]) => {
+                const knob = document.getElementById(id);
+                if (knob) {
+                    const rotation = -135 + (value * 270);
+                    knob.style.transform = `rotate(${rotation}deg)`;
+                    
+                    // Update live params if available
+                    if (typeof liveParams !== 'undefined') {
+                        liveParams.set(id, value);
+                    }
+                }
+            });
+
+            // Update HAOS audio engine parameters if available
+            if (typeof HAOS !== 'undefined' && HAOS.setParam) {
+                HAOS.setParam('tb303-cutoff', preset.cutoff);
+                HAOS.setParam('tb303-resonance', preset.resonance);
+                HAOS.setParam('tb303-envmod', preset.envmod);
+                HAOS.setParam('tb303-decay', preset.decay);
+                HAOS.setParam('tb303-distortion', preset.distortion);
+                HAOS.setParam('tb303-accent', preset.accent);
+            }
+        }
+
+        // Update preset bank UI with names
+        function updatePresetBankUI() {
+            const presetSlots = document.querySelectorAll('.bank-slot');
+            presetSlots.forEach(slot => {
+                const slotNum = parseInt(slot.dataset.slot);
+                const preset = tb303Presets[slotNum];
+                
+                if (preset) {
+                    slot.classList.add('filled');
+                    slot.title = preset.name;
+                    
+                    // Add preset name as text content
+                    if (!slot.querySelector('.preset-name')) {
+                        const nameEl = document.createElement('div');
+                        nameEl.className = 'preset-name';
+                        nameEl.style.fontSize = '9px';
+                        nameEl.style.marginTop = '4px';
+                        nameEl.style.opacity = '0.7';
+                        nameEl.textContent = preset.name;
+                        slot.appendChild(nameEl);
+                    }
+                }
+            });
+        }
+
+        // Animate button on click
+        function animateButton(button) {
+            button.style.transform = 'scale(0.95)';
+            button.style.boxShadow = '0 0 20px rgba(0, 217, 255, 0.8)';
+            
+            setTimeout(() => {
+                button.style.transform = '';
+                button.style.boxShadow = '';
+            }, 200);
+        }
+
+        // Animate VU meter
+        function animateVU(vuId) {
+            const vu = document.getElementById(vuId);
+            if (vu) {
+                vu.style.width = '100%';
+                vu.style.opacity = '1';
+                
+                setTimeout(() => {
+                    vu.style.width = '0%';
+                    vu.style.opacity = '0.3';
+                }, 300);
+            }
+        }
+
+        // Expose preset loader globally
+        window.loadTB303Preset = loadTB303Preset;
+        window.tb303Presets = tb303Presets;
+        
+        console.log('🎵 Sound Playback System loaded - Click any TEST button or preset slot!');
     </script>
 </body>
 </html>
