@@ -432,6 +432,10 @@
         <div class="logo">⚡ HAOS.fm TECHNO CREATOR</div>
         
         <div class="transport">
+            <button class="bpm-btn" onclick="initAudio()" id="startAudioBtn" style="background: linear-gradient(135deg, #39FF14, #00D9FF); color: #000; font-weight: bold; padding: 10px 20px; margin-right: 15px; border-radius: 8px;">
+                🔊 Start Audio
+            </button>
+            
             <div class="bpm-control">
                 <button class="bpm-btn" onclick="changeBPM(-5)">-</button>
                 <div class="bpm-value" id="bpmDisplay">130</div>
@@ -754,6 +758,16 @@
                 // Setup ARP-2600
                 arp2600.loadPreset('lead');
                 
+                // Hide start button and show success message
+                const startBtn = document.getElementById('startAudioBtn');
+                if (startBtn) {
+                    startBtn.textContent = '✅ Audio Ready!';
+                    startBtn.style.background = 'linear-gradient(135deg, #39FF14, #00FF00)';
+                    setTimeout(() => {
+                        startBtn.style.display = 'none';
+                    }, 1500);
+                }
+                
                 console.log('✓ Audio initialized');
             }
             
@@ -761,6 +775,9 @@
                 audioContext.resume();
             }
         }
+        
+        // Expose initAudio globally
+        window.initAudio = initAudio;
         
         // Initialize UI
         function initUI() {
@@ -1158,25 +1175,43 @@
         }
         
         function playStep(step) {
-            // Play bass if active
-            if (patterns.bass[step] && tb303) {
-                const bassStep = tb303.getStep(step);
-                if (bassStep && bassStep.active) {
-                    tb303.playNote(bassStep);
-                }
+            const pattern = patterns[currentInstrument];
+            if (!pattern || !pattern[step]) return;
+            
+            const synthType = currentInstrument.split('-')[0];
+            
+            // Play TB-303 bass sounds
+            if (synthType === 'bass' && tb303) {
+                const notes = [130.81, 164.81, 196, 220]; // C3, E3, G3, A3
+                const note = notes[step % 4];
+                tb303.playNote({
+                    note: note,
+                    octave: 0,
+                    accent: step % 4 === 0,
+                    slide: false
+                }, audioContext.currentTime);
             }
             
-            // Play drums if active
-            if (patterns.drums[step] && tr808) {
+            // Play TR-808 drums
+            else if (synthType === 'drums' && tr808) {
                 if (step % 4 === 0) tr808.playKick('classic');
                 if (step % 2 === 1) tr808.playHat('closed');
                 if (step === 4 || step === 12) tr808.playClap('classic');
             }
             
-            // Play lead if active
-            if (patterns.lead[step] && arp2600) {
-                const notes = [440, 554.37, 659.25, 880];
-                arp2600.playNote(notes[step % 4], 0.3, 0.8);
+            // Play ARP-2600 sounds
+            else if (synthType === 'arp' && arp2600) {
+                const notes = [220, 277.18, 329.63, 440]; // A3, C#4, E4, A4
+                const note = notes[step % 4];
+                const velocity = 0.7;
+                const duration = 0.5;
+                arp2600.playNote(note, velocity, duration);
+            }
+            
+            // Play String Machine
+            else if (synthType === 'string' && stringMachine) {
+                const chord = [220, 277.18, 329.63]; // A minor chord
+                stringMachine.playChord(chord, 1.0);
             }
         }
         
