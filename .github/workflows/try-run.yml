@@ -1,0 +1,82 @@
+name: Try Run - Quick Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_build:
+        description: 'Skip npm install and build steps'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      deploy_only_files:
+        description: 'Deploy only specific files (comma-separated paths, e.g., app/public/haos-platform.html,app/public/js/haos-audio-engine.js)'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  try-run-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🔍 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📝 Display deployment info
+        run: |
+          echo "🚀 Try Run Deployment Started"
+          echo "Skip Build: ${{ github.event.inputs.skip_build }}"
+          echo "Files to deploy: ${{ github.event.inputs.deploy_only_files }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+      
+      - name: 🔧 Setup Node.js (conditional)
+        if: ${{ github.event.inputs.skip_build == 'false' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+      
+      - name: 📦 Install dependencies (conditional)
+        if: ${{ github.event.inputs.skip_build == 'false' }}
+        run: |
+          cd app
+          npm ci
+      
+      - name: 🏗️ Build app (conditional)
+        if: ${{ github.event.inputs.skip_build == 'false' }}
+        run: |
+          cd app
+          npm run build --if-present
+      
+      - name: 📤 Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'notesapp-dev-music-app'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: './app'
+      
+      - name: 🎉 Deployment Summary
+        run: |
+          echo "✅ Try Run Deployment Complete!"
+          echo ""
+          echo "🌐 App URL: https://notesapp-dev-music-app.azurewebsites.net"
+          echo "📻 Radio Studio: https://notesapp-dev-music-app.azurewebsites.net/haos-platform.html"
+          echo ""
+          echo "⏱️ Deployment Type: ${{ github.event.inputs.skip_build == 'true' && 'Quick Deploy (no build)' || 'Full Deploy (with build)' }}"
+          echo "📁 Files: ${{ github.event.inputs.deploy_only_files || 'All files' }}"
+          echo ""
+          echo "🔄 Changes should be live in ~2-3 minutes"
+      
+      - name: 💬 Post deployment notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "::notice::🎉 Try Run deployment succeeded! App is deploying to Azure."
+          else
+            echo "::error::❌ Try Run deployment failed. Check the logs above."
+          fi
