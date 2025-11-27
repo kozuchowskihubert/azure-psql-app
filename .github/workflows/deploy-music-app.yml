@@ -207,22 +207,66 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        continue-on-error: true
+        continue-on-error: false
         run: |
           echo "🔍 Checking for state locks in music state..."
           
-          # Known lock IDs from previous failed runs
-          KNOWN_LOCKS=(
-            "51f2301c-cab3-7143-d36c-ec40349bd5c6"
-          )
+          # Function to extract lock ID from error
+          extract_lock_id() {
+            if terraform plan -no-color 2>&1 | grep -q "state blob is already locked"; then
+              LOCK_ID=$(terraform plan -no-color 2>&1 | grep -A5 "Lock Info:" | grep "ID:" | awk '{print $2}')
+              echo "$LOCK_ID"
+            fi
+          }
           
-          # Try to unlock known locks
-          for LOCK_ID in "${KNOWN_LOCKS[@]}"; do
-            echo "🔓 Attempting to unlock: $LOCK_ID"
-            terraform force-unlock -force "$LOCK_ID" 2>&1 | grep -v "Failed to load" || true
-          done
-          
-          echo "✅ Lock cleanup complete"
+          # Try a test operation to check for locks
+          echo "🧪 Testing state access..."
+          if ! terraform plan -input=false -detailed-exitcode -no-color > /dev/null 2>&1; then
+            # Check if it's a lock error
+            if terraform plan -input=false -no-color 2>&1 | grep -q "state blob is already locked"; then
+              echo "⚠️  State is locked, attempting automatic unlock..."
+              
+              # Extract the lock ID
+              LOCK_ID=$(terraform plan -input=false -no-color 2>&1 | grep -A5 "Lock Info:" | grep "ID:" | awk '{print $2}')
+              
+              if [ -n "$LOCK_ID" ]; then
+                echo "🔓 Found lock ID: $LOCK_ID"
+                echo "🔓 Unlocking state..."
+                
+                if terraform force-unlock -force "$LOCK_ID"; then
+                  echo "✅ Successfully unlocked state"
+                else
+                  echo "⚠️  Force unlock failed, trying Azure CLI method..."
+                  
+                  # Try breaking the lease via Azure CLI
+                  az storage blob lease break \
+                    --account-name tfstatestorage14363 \
+                    --container-name tfstate-music \
+                    --blob-name terraform-music.tfstate \
+                    2>&1 || echo "⚠️  Lease break also failed"
+                fi
+                
+                # Wait a moment for unlock to propagate
+                sleep 5
+                
+                # Verify unlock succeeded
+                if terraform plan -input=false -no-color > /dev/null 2>&1; then
+                  echo "✅ State successfully unlocked"
+                else
+                  echo "❌ State still locked after unlock attempt"
+                  exit 1
+                fi
+              else
+                echo "❌ Could not extract lock ID"
+                terraform plan -input=false -no-color 2>&1 | head -20
+                exit 1
+              fi
+            else
+              echo "ℹ️  Not a lock error, continuing..."
+            fi
+          else
+            echo "✅ State is accessible (no locks)"
+          fi
 
       - name: 📋 Terraform Plan
         id: plan
@@ -254,8 +298,39 @@ jobs:
           TF_VAR_vm_ssh_public_key: ${{ secrets.VM_SSH_PUBLIC_KEY }}
         run: |
           echo "🚀 Deploying music infrastructure (isolated state)..."
-          terraform apply -auto-approve
-          echo "✅ Infrastructure deployed successfully"
+          
+          # Retry logic for terraform apply
+          MAX_RETRIES=3
+          RETRY_COUNT=0
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if terraform apply -auto-approve; then
+              echo "✅ Infrastructure deployed successfully"
+              exit 0
+            else
+              EXIT_CODE=$?
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              
+              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                echo "⚠️  Apply failed (attempt $RETRY_COUNT/$MAX_RETRIES)"
+                echo "🔄 Retrying in 10 seconds..."
+                sleep 10
+                
+                # Check if it's a lock error and try to unlock
+                if terraform apply -auto-approve 2>&1 | grep -q "state blob is already locked"; then
+                  echo "🔓 Detected lock, attempting to unlock..."
+                  LOCK_ID=$(terraform apply -auto-approve 2>&1 | grep -A5 "Lock Info:" | grep "ID:" | awk '{print $2}')
+                  if [ -n "$LOCK_ID" ]; then
+                    terraform force-unlock -force "$LOCK_ID" || true
+                    sleep 5
+                  fi
+                fi
+              else
+                echo "❌ Infrastructure deployment failed after $MAX_RETRIES attempts"
+                exit $EXIT_CODE
+              fi
+            fi
+          done
 
       - name: 📤 Get Terraform Outputs
         id: output
@@ -283,6 +358,30 @@ jobs:
           echo "**VM IP Address:** $VM_IP" >> $GITHUB_STEP_SUMMARY
           echo "**Resource Group:** $RG_NAME" >> $GITHUB_STEP_SUMMARY
           echo "**Region:** ${{ env.AZURE_REGION }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🧹 Cleanup Terraform Locks (Always)
+        if: always()
+        working-directory: ./music-tf
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        run: |
+          echo "🧹 Cleaning up any remaining state locks..."
+          
+          # Check for locks and clean them up
+          if terraform plan -input=false -no-color 2>&1 | grep -q "state blob is already locked"; then
+            echo "🔓 Found lock, attempting to clean up..."
+            LOCK_ID=$(terraform plan -input=false -no-color 2>&1 | grep -A5 "Lock Info:" | grep "ID:" | awk '{print $2}')
+            
+            if [ -n "$LOCK_ID" ]; then
+              echo "🔓 Unlocking: $LOCK_ID"
+              terraform force-unlock -force "$LOCK_ID" || true
+            fi
+          else
+            echo "✅ No locks found"
+          fi
 
   # ---------------------------------------------------------------------------
   # Stage 3: Build & Push Docker Image
