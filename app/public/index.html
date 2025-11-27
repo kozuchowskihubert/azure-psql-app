@@ -250,8 +250,11 @@
                     <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.8); font-family: var(--font-mono); font-size: 0.8rem; cursor: pointer;">
                         <input type="checkbox" id="track-copyright" name="copyright" required
                                style="width: 18px; height: 18px; cursor: pointer;">
-                        <span>I own the copyright to this track *</span>
+                        <span>I own the copyright to these tracks *</span>
                     </label>
+                    <div style="margin-top: 4px; font-size: 0.7rem; color: rgba(255,255,255,0.4); font-family: var(--font-mono); padding-left: 26px;">
+                        Required for single or multiple file uploads
+                    </div>
                 </div>
                 
                 <div id="upload-status" style="margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 6px; display: none; font-family: var(--font-mono); font-size: 0.85rem;"></div>
@@ -1601,6 +1604,15 @@
             // Form submission - handle single or multiple files
             uploadForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+
+                // Validate copyright checkbox
+                const copyrightCheckbox = document.getElementById('track-copyright');
+                if (!copyrightCheckbox.checked) {
+                    uploadStatus.style.display = 'block';
+                    uploadStatus.style.color = '#FF0000';
+                    uploadStatus.innerHTML = '❌ <strong>Copyright confirmation required</strong><br>You must confirm that you own the copyright to upload tracks.';
+                    return;
+                }
 
                 // Validate files are selected
                 if (!fileInput.files || fileInput.files.length === 0) {
