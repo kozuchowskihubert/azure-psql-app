@@ -636,6 +636,249 @@
             border-radius: 50%;
             box-shadow: 0 0 10px rgba(255, 107, 53, 0.6);
         }
+
+        /* ═══════════════════════════════════════════════════════════
+           🎨 ENHANCED VISUAL FEATURES
+           ═══════════════════════════════════════════════════════════ */
+
+        /* Animated Module Glow */
+        .module-panel {
+            animation: module-breathe 4s ease-in-out infinite;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes module-breathe {
+            0%, 100% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 107, 53, 0.1); }
+            50% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 107, 53, 0.2); }
+        }
+
+        /* Enhanced Knob with Gradient Ring */
+        .knob {
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(255, 140, 66, 0.4), transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(255, 107, 53, 0.2), transparent 60%),
+                linear-gradient(145deg, #1a1a1a, #0a0a0a);
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.8),
+                inset 0 -2px 10px rgba(255, 107, 53, 0.2),
+                0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .knob:active {
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.9),
+                0 0 30px rgba(255, 107, 53, 0.8);
+        }
+
+        /* LED Indicator Lights */
+        .led-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 107, 53, 0.3);
+            border: 1px solid var(--haos-orange);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .led-indicator.active {
+            background: var(--haos-orange);
+            box-shadow: 
+                0 0 15px rgba(255, 107, 53, 0.8),
+                0 0 25px rgba(255, 107, 53, 0.5),
+                inset 0 1px 3px rgba(255, 200, 100, 0.8);
+            animation: led-pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes led-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Enhanced Sequencer Steps with Velocity */
+        .seq-step {
+            position: relative;
+            background: linear-gradient(145deg, #1a1a1f, #0f0f12);
+            border: 2px solid rgba(255, 107, 53, 0.2);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .seq-step::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0%;
+            background: linear-gradient(to top, var(--haos-orange), transparent);
+            transition: height 0.2s ease;
+            opacity: 0.5;
+        }
+
+        .seq-step.active::after {
+            height: var(--velocity, 100%);
+        }
+
+        .seq-step.active {
+            background: linear-gradient(145deg, rgba(255, 107, 53, 0.4), rgba(255, 140, 66, 0.2));
+            border-color: var(--haos-orange);
+            box-shadow: 
+                0 0 15px rgba(255, 107, 53, 0.4),
+                inset 0 2px 10px rgba(255, 140, 66, 0.3);
+        }
+
+        .seq-step.playing {
+            animation: step-glow 0.3s ease-out;
+        }
+
+        @keyframes step-glow {
+            0% { box-shadow: 0 0 30px rgba(57, 255, 20, 0.8); }
+            100% { box-shadow: 0 0 15px rgba(255, 107, 53, 0.4); }
+        }
+
+        /* Enhanced VU Meter with Gradient */
+        .vu-meter {
+            background: linear-gradient(to right, #0a0a0a, #1a1a1f);
+            border: 2px solid rgba(255, 107, 53, 0.3);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .vu-bar {
+            background: linear-gradient(to right, 
+                var(--haos-green) 0%, 
+                var(--haos-orange) 70%, 
+                var(--haos-pink) 100%);
+            box-shadow: 0 0 20px currentColor;
+            transition: width 0.1s ease-out, opacity 0.3s ease-out;
+        }
+
+        /* Enhanced Transport Buttons */
+        .transport-btn {
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .transport-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 107, 53, 0.4);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .transport-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Enhanced Preset Bank Slots */
+        .bank-slot {
+            position: relative;
+            background: linear-gradient(145deg, #1a1a1f, #0f0f12);
+            box-shadow: 
+                inset 0 2px 8px rgba(0, 0, 0, 0.8),
+                0 2px 10px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .bank-slot::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .bank-slot:hover::before,
+        .bank-slot.filled::before {
+            opacity: 1;
+        }
+
+        .bank-slot.active {
+            background: linear-gradient(145deg, rgba(255, 107, 53, 0.3), rgba(255, 140, 66, 0.1));
+            box-shadow: 
+                0 0 25px rgba(255, 107, 53, 0.6),
+                inset 0 2px 15px rgba(255, 140, 66, 0.3);
+        }
+
+        /* Floating Animation for Icons */
+        .module-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Patch Bay Enhanced */
+        .patch-bay {
+            background: linear-gradient(145deg, rgba(20, 20, 25, 0.9), rgba(10, 10, 15, 0.9));
+            border: 2px solid rgba(255, 107, 53, 0.2);
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.8),
+                inset 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .patch-select {
+            background: linear-gradient(145deg, #2a2a2f, #1a1a1f);
+            border: 2px solid rgba(255, 107, 53, 0.3);
+            color: var(--haos-text);
+            padding: 8px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .patch-select:hover {
+            border-color: var(--haos-orange);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .patch-select:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+        }
+
+        /* Spectrum Analyzer Enhanced */
+        #spectrum-canvas {
+            box-shadow: 
+                inset 0 4px 15px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(255, 107, 53, 0.2);
+            border: 2px solid rgba(255, 107, 53, 0.3);
+        }
+
+        /* BPM Display Enhancement */
+        .bpm-display {
+            background: linear-gradient(145deg, rgba(255, 107, 53, 0.1), rgba(0, 0, 0, 0.8));
+            border: 2px solid var(--haos-orange);
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(255, 107, 53, 0.3);
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.8);
+        }
+
+        /* Scrollbar Enhancement */
+        .workspace-column::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--haos-orange), var(--haos-orange-dark));
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+
+        .workspace-column::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--haos-orange-bright), var(--haos-orange));
+        }
     </style>
 </head>
 <body>
@@ -654,13 +897,22 @@
                 <button class="back-btn" onclick="window.location.href='/haos-platform.html'">
                     ← BACK TO HUB
                 </button>
-                <button id="play-btn" class="transport-btn">▶ PLAY</button>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="led-indicator" id="play-led" title="Playback Status"></div>
+                    <button id="play-btn" class="transport-btn">▶ PLAY</button>
+                </div>
                 <button id="stop-btn" class="transport-btn">■ STOP</button>
-                <button id="record-btn" class="transport-btn" title="Record Audio">⏺ RECORD</button>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="led-indicator" id="record-led" title="Recording Status"></div>
+                    <button id="record-btn" class="transport-btn" title="Record Audio">⏺ RECORD</button>
+                </div>
                 <button id="export-midi-btn" class="transport-btn" title="Export as MIDI">💾 MIDI</button>
                 <button id="export-project-btn" class="transport-btn" title="Export Project">📦 PROJECT</button>
                 <div class="bpm-display">
                     <span id="bpm-value">135</span> BPM
+                </div>
+                <div style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--haos-dim); padding: 5px 10px; border: 1px solid var(--haos-border); border-radius: 6px;">
+                    ⌨️ Press SPACE to play/stop
                 </div>
             </div>
         </div>
@@ -1086,7 +1338,34 @@
                     step.className = 'seq-step';
                     step.dataset.track = track;
                     step.dataset.step = i;
+                    step.dataset.velocity = '100'; // Default velocity
+                    step.style.setProperty('--velocity', '100%');
+                    
+                    // Left click to toggle
                     step.onclick = () => toggleStep(track, i);
+                    
+                    // Right click to adjust velocity
+                    step.oncontextmenu = (e) => {
+                        e.preventDefault();
+                        if (step.classList.contains('active')) {
+                            const currentVel = parseInt(step.dataset.velocity);
+                            const newVel = currentVel >= 100 ? 25 : currentVel + 25;
+                            step.dataset.velocity = newVel;
+                            step.style.setProperty('--velocity', `${newVel}%`);
+                            showNotification(`Velocity: ${newVel}%`);
+                        }
+                    };
+                    
+                    // Double click to randomize
+                    step.ondblclick = () => {
+                        if (step.classList.contains('active')) {
+                            const randomVel = 25 + Math.floor(Math.random() * 76); // 25-100
+                            step.dataset.velocity = randomVel;
+                            step.style.setProperty('--velocity', `${randomVel}%`);
+                            showNotification(`Random Velocity: ${randomVel}%`);
+                        }
+                    };
+                    
                     grid.appendChild(step);
                 }
             });
@@ -1096,6 +1375,12 @@
         function toggleStep(track, step) {
             const stepEl = document.querySelector(`[data-track="${track}"][data-step="${step}"]`);
             stepEl.classList.toggle('active');
+            
+            // Visual feedback
+            if (stepEl.classList.contains('active')) {
+                stepEl.style.transform = 'scale(1.1)';
+                setTimeout(() => stepEl.style.transform = '', 100);
+            }
         }
 
         // Play/Stop controls
@@ -1107,6 +1392,7 @@
             if (!isPlaying) {
                 isPlaying = true;
                 document.getElementById('play-btn').classList.add('active');
+                document.getElementById('play-led').classList.add('active');
                 startSequencer();
             }
         };
@@ -1114,8 +1400,240 @@
         document.getElementById('stop-btn').onclick = () => {
             isPlaying = false;
             document.getElementById('play-btn').classList.remove('active');
+            document.getElementById('play-led').classList.remove('active');
             stopSequencer();
         };
+
+        // ═══════════════════════════════════════════════════════════
+        // 🎲 PATTERN GENERATION & UTILITIES
+        // ═══════════════════════════════════════════════════════════
+
+        function randomizePattern(track) {
+            const steps = document.querySelectorAll(`[data-track="${track}"]`);
+            steps.forEach((step, i) => {
+                // Different randomization strategies per track
+                let probability = 0.3; // Default 30% chance
+                
+                if (track === 'kick') {
+                    // Kick on strong beats (0, 4, 8, 12) more likely
+                    probability = (i % 4 === 0) ? 0.8 : 0.2;
+                } else if (track === 'snare') {
+                    // Snare on backbeats (4, 12) more likely
+                    probability = (i === 4 || i === 12) ? 0.9 : 0.15;
+                } else if (track === 'hihat') {
+                    // Hi-hat more frequent
+                    probability = 0.6;
+                } else if (track === 'bass') {
+                    // Bass follows kick pattern
+                    probability = (i % 4 === 0) ? 0.7 : 0.25;
+                }
+                
+                if (Math.random() < probability) {
+                    step.classList.add('active');
+                    const randomVel = 50 + Math.floor(Math.random() * 51); // 50-100
+                    step.dataset.velocity = randomVel;
+                    step.style.setProperty('--velocity', `${randomVel}%`);
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+            
+            showNotification(`🎲 ${track.toUpperCase()} pattern randomized!`);
+        }
+
+        function clearPattern(track) {
+            document.querySelectorAll(`[data-track="${track}"]`).forEach(step => {
+                step.classList.remove('active');
+            });
+            showNotification(`🗑️ ${track.toUpperCase()} pattern cleared`);
+        }
+
+        function fillPattern(track, density = 1) {
+            document.querySelectorAll(`[data-track="${track}"]`).forEach((step, i) => {
+                if (i % (16 / (density * 16)) < 1) {
+                    step.classList.add('active');
+                    step.dataset.velocity = '100';
+                    step.style.setProperty('--velocity', '100%');
+                }
+            });
+            showNotification(`📊 ${track.toUpperCase()} filled`);
+        }
+
+        function shiftPattern(track, direction = 1) {
+            const steps = Array.from(document.querySelectorAll(`[data-track="${track}"]`));
+            const states = steps.map(s => ({
+                active: s.classList.contains('active'),
+                velocity: s.dataset.velocity
+            }));
+            
+            steps.forEach((step, i) => {
+                const sourceIndex = (i - direction + 16) % 16;
+                if (states[sourceIndex].active) {
+                    step.classList.add('active');
+                    step.dataset.velocity = states[sourceIndex].velocity;
+                    step.style.setProperty('--velocity', `${states[sourceIndex].velocity}%`);
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+            
+            showNotification(`↔️ ${track.toUpperCase()} shifted ${direction > 0 ? 'right' : 'left'}`);
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // ⌨️ KEYBOARD CONTROLS
+        // ═══════════════════════════════════════════════════════════
+
+        document.addEventListener('keydown', async (e) => {
+            // Ignore if typing in an input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            switch(e.key.toLowerCase()) {
+                case ' ': // Spacebar - Play/Stop
+                    e.preventDefault();
+                    if (isPlaying) {
+                        document.getElementById('stop-btn').click();
+                    } else {
+                        document.getElementById('play-btn').click();
+                    }
+                    break;
+                    
+                case 'r': // R - Toggle Record
+                    if (e.ctrlKey || e.metaKey) return; // Let browser handle Ctrl+R
+                    e.preventDefault();
+                    document.getElementById('record-btn').click();
+                    break;
+                    
+                case 'e': // E - Export MIDI
+                    if (e.ctrlKey || e.metaKey) return;
+                    e.preventDefault();
+                    exportToMIDI();
+                    break;
+                    
+                case 's': // S - Export Project (with Ctrl/Cmd)
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        exportProject();
+                    }
+                    break;
+                    
+                case 'arrowup': // Arrow Up - Increase BPM
+                    e.preventDefault();
+                    bpm = Math.min(200, bpm + 1);
+                    document.getElementById('bpm-value').textContent = bpm;
+                    if (isPlaying) {
+                        stopSequencer();
+                        startSequencer();
+                    }
+                    break;
+                    
+                case 'arrowdown': // Arrow Down - Decrease BPM
+                    e.preventDefault();
+                    bpm = Math.max(60, bpm - 1);
+                    document.getElementById('bpm-value').textContent = bpm;
+                    if (isPlaying) {
+                        stopSequencer();
+                        startSequencer();
+                    }
+                    break;
+                    
+                case '1': case '2': case '3': case '4': case '5':
+                case '6': case '7': case '8': // Number keys - Load presets
+                    e.preventDefault();
+                    const presetNum = parseInt(e.key);
+                    const presetSlot = document.querySelector(`.bank-slot[data-slot="${presetNum}"]`);
+                    if (presetSlot) presetSlot.click();
+                    break;
+                    
+                case 'a': // A - Play TB-303 test sound
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        document.getElementById('tb303-test')?.click();
+                    }
+                    break;
+                    
+                case 'z': // Z - Play Kick
+                    e.preventDefault();
+                    document.getElementById('test-kick')?.click();
+                    break;
+                    
+                case 'x': // X - Play Snare
+                    e.preventDefault();
+                    document.getElementById('test-snare')?.click();
+                    break;
+                    
+                case 'c': // C - Play Hi-Hat
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        document.getElementById('test-hihat')?.click();
+                    }
+                    break;
+                    
+                case 'delete':
+                case 'backspace': // Clear current pattern
+                    e.preventDefault();
+                    if (confirm('Clear all patterns?')) {
+                        document.querySelectorAll('.seq-step.active').forEach(step => {
+                            step.classList.remove('active');
+                        });
+                        showNotification('🗑️ Patterns cleared');
+                    }
+                    break;
+                    
+                case 'q': // Q - Randomize Kick
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        randomizePattern('kick');
+                    }
+                    break;
+                    
+                case 'w': // W - Randomize Snare
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        randomizePattern('snare');
+                    }
+                    break;
+                    
+                case 'o': // O - Randomize Hi-Hat
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        randomizePattern('hihat');
+                    }
+                    break;
+                    
+                case 'p': // P - Randomize Bass
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        randomizePattern('bass');
+                    }
+                    break;
+                    
+                case 'arrowleft': // Shift Left
+                    if (e.shiftKey) {
+                        e.preventDefault();
+                        ['kick', 'snare', 'hihat', 'bass'].forEach(track => shiftPattern(track, -1));
+                        showNotification('↔️ All patterns shifted left');
+                    }
+                    break;
+                    
+                case 'arrowright': // Shift Right
+                    if (e.shiftKey) {
+                        e.preventDefault();
+                        ['kick', 'snare', 'hihat', 'bass'].forEach(track => shiftPattern(track, 1));
+                        showNotification('↔️ All patterns shifted right');
+                    }
+                    break;
+            }
+        });
+
+        // Show keyboard shortcuts help
+        console.log('%c⌨️ KEYBOARD SHORTCUTS', 'color: #00D9FF; font-size: 14px; font-weight: bold');
+        console.log('%cPlayback:%c SPACE = Play/Stop, ↑/↓ = BPM, BACKSPACE = Clear', 'color: #FF6B35; font-weight: bold', '');
+        console.log('%cSounds:%c A = TB-303, Z = Kick, X = Snare, C = Hi-Hat', 'color: #FF6B35; font-weight: bold', '');
+        console.log('%cPresets:%c 1-8 = Load preset', 'color: #FF6B35; font-weight: bold', '');
+        console.log('%cPatterns:%c Q/W/O/P = Randomize tracks, Shift+←/→ = Shift all', 'color: #FF6B35; font-weight: bold', '');
+        console.log('%cExport:%c R = Record, E = MIDI, Ctrl+S = Project', 'color: #FF6B35; font-weight: bold', '');
+
 
         // Sequencer engine
         function startSequencer() {
@@ -2258,12 +2776,14 @@
                     isRecording = false;
                     document.getElementById('record-btn').classList.remove('active');
                     document.getElementById('record-btn').textContent = '⏺ RECORD';
+                    document.getElementById('record-led').classList.remove('active');
                 };
 
                 mediaRecorder.start();
                 isRecording = true;
                 document.getElementById('record-btn').classList.add('active');
                 document.getElementById('record-btn').textContent = '⏹ RECORDING...';
+                document.getElementById('record-led').classList.add('active');
                 
                 showNotification('🔴 Recording Started!');
 
@@ -2393,6 +2913,101 @@
         }
 
         // ═══════════════════════════════════════════════════════════
+        // 💾 AUTO-SAVE & PROJECT MANAGEMENT
+        // ═══════════════════════════════════════════════════════════
+
+        const AUTO_SAVE_KEY = 'haos_techno_workspace_autosave';
+        const AUTO_SAVE_INTERVAL = 10000; // 10 seconds
+
+        function autoSave() {
+            const state = {
+                version: '1.0.0',
+                timestamp: new Date().toISOString(),
+                bpm: parseInt(document.getElementById('bpm-value').textContent),
+                patterns: {
+                    kick: Array.from(document.querySelectorAll('[data-track="kick"]'))
+                        .map(el => ({
+                            active: el.classList.contains('active'),
+                            velocity: el.dataset.velocity || '100'
+                        })),
+                    snare: Array.from(document.querySelectorAll('[data-track="snare"]'))
+                        .map(el => ({
+                            active: el.classList.contains('active'),
+                            velocity: el.dataset.velocity || '100'
+                        })),
+                    hihat: Array.from(document.querySelectorAll('[data-track="hihat"]'))
+                        .map(el => ({
+                            active: el.classList.contains('active'),
+                            velocity: el.dataset.velocity || '100'
+                        })),
+                    bass: Array.from(document.querySelectorAll('[data-track="bass"]'))
+                        .map(el => ({
+                            active: el.classList.contains('active'),
+                            velocity: el.dataset.velocity || '100'
+                        }))
+                }
+            };
+
+            try {
+                localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(state));
+                console.log('💾 Auto-saved at', new Date().toLocaleTimeString());
+            } catch (error) {
+                console.warn('Auto-save failed:', error);
+            }
+        }
+
+        function loadAutoSave() {
+            try {
+                const saved = localStorage.getItem(AUTO_SAVE_KEY);
+                if (!saved) return false;
+
+                const state = JSON.parse(saved);
+                
+                // Restore BPM
+                if (state.bpm) {
+                    bpm = state.bpm;
+                    document.getElementById('bpm-value').textContent = bpm;
+                }
+
+                // Restore patterns
+                ['kick', 'snare', 'hihat', 'bass'].forEach(track => {
+                    if (state.patterns[track]) {
+                        const steps = document.querySelectorAll(`[data-track="${track}"]`);
+                        state.patterns[track].forEach((stepData, i) => {
+                            if (stepData.active) {
+                                steps[i].classList.add('active');
+                                steps[i].dataset.velocity = stepData.velocity;
+                                steps[i].style.setProperty('--velocity', `${stepData.velocity}%`);
+                            }
+                        });
+                    }
+                });
+
+                const savedDate = new Date(state.timestamp);
+                showNotification(`📂 Restored auto-save from ${savedDate.toLocaleTimeString()}`);
+                return true;
+            } catch (error) {
+                console.warn('Auto-save load failed:', error);
+                return false;
+            }
+        }
+
+        function clearAutoSave() {
+            localStorage.removeItem(AUTO_SAVE_KEY);
+            showNotification('🗑️ Auto-save cleared');
+        }
+
+        // Start auto-save interval
+        setInterval(autoSave, AUTO_SAVE_INTERVAL);
+
+        // Auto-save on pattern changes
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('seq-step')) {
+                setTimeout(autoSave, 100);
+            }
+        });
+
+        // ═══════════════════════════════════════════════════════════
         // 🎛️ WIRE UP EXPORT BUTTONS
         // ═══════════════════════════════════════════════════════════
 
@@ -2423,6 +3038,15 @@
 
             // Initialize spectrum analyzer
             setTimeout(initSpectrumAnalyzer, 1000);
+            
+            // Load auto-saved state
+            setTimeout(() => {
+                if (loadAutoSave()) {
+                    console.log('✅ Auto-save restored successfully');
+                } else {
+                    console.log('📝 Starting fresh session');
+                }
+            }, 500);
         });
 
         // Expose globally
@@ -2430,8 +3054,16 @@
         window.startRecording = startRecording;
         window.stopRecording = stopRecording;
         window.exportProject = exportProject;
+        window.autoSave = autoSave;
+        window.loadAutoSave = loadAutoSave;
+        window.clearAutoSave = clearAutoSave;
+        window.randomizePattern = randomizePattern;
+        window.clearPattern = clearPattern;
+        window.shiftPattern = shiftPattern;
 
         console.log('🎹 Export System loaded - MIDI, Audio Recording, and Project Export ready!');
+        console.log('💾 Auto-save enabled - Saves every 10 seconds');
+        console.log('🎲 Pattern Tools: window.randomizePattern(track), window.shiftPattern(track, direction)');
     </script>
 </body>
 </html>
