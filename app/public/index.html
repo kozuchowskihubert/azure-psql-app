@@ -364,9 +364,28 @@
     <!-- ============================================================================
          BACKGROUND MUSIC PLAYER - Hidden by default
          ============================================================================ -->
-    <div id="haos-bg-music-player" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 400px; max-width: 90vw; display: none;">
-        <!-- Control Panel -->
-        <div id="haos-music-controls" style="background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,20,0.98)); border: 2px solid var(--haos-orange-primary); border-radius: 12px; padding: 15px; backdrop-filter: blur(10px); box-shadow: 0 10px 40px rgba(255,107,53,0.3);">
+    <div id="haos-bg-music-player" class="haos-radio-player" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 400px; max-width: 90vw; display: none; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+        
+        <!-- Minimized State -->
+        <div id="haos-radio-minimized" class="haos-radio-minimized" style="display: none; background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,20,0.98)); border: 2px solid var(--haos-orange-primary); border-radius: 50px; padding: 12px 20px; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(255,107,53,0.4); cursor: pointer; transition: all 0.3s;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 10px; height: 10px; background: #39FF14; border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 10px #39FF14;"></div>
+                <div style="flex: 1; min-width: 0;">
+                    <div id="haos-mini-title" style="font-family: var(--font-display); color: #fff; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold;">
+                        Loading...
+                    </div>
+                    <div id="haos-mini-artist" style="font-family: var(--font-mono); color: rgba(255,255,255,0.6); font-size: 0.7rem;">
+                        HAOS Radio
+                    </div>
+                </div>
+                <button id="haos-mini-playpause" style="background: rgba(255, 107, 53, 0.3); border: 2px solid var(--haos-orange-primary); border-radius: 50%; color: var(--haos-orange-primary); cursor: pointer; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; font-size: 0.9rem;">
+                    <i class="fas fa-pause"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Expanded State (Full Control Panel) -->
+        <div id="haos-music-controls" class="haos-radio-expanded" style="background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,20,0.98)); border: 2px solid var(--haos-orange-primary); border-radius: 12px; padding: 15px; backdrop-filter: blur(10px); box-shadow: 0 10px 40px rgba(255,107,53,0.3); transition: all 0.3s;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div style="width: 8px; height: 8px; background: #39FF14; border-radius: 50%; animation: pulse 2s infinite;"></div>
@@ -915,8 +934,10 @@
 
             audioElement: null,
             progressInterval: null,
+            isMinimized: false,
+            minimizeTimeout: null,
 
-            init() {
+            async init() {
                 console.log('🎵 Initializing HAOS Background Radio Player');
                 
                 // Create audio element
@@ -935,28 +956,80 @@
                     setTimeout(() => this.next(), 1000);
                 });
                 
-                // Setup controls
+                // Setup expanded controls
                 document.getElementById('haos-music-playpause')?.addEventListener('click', () => this.togglePlay());
                 document.getElementById('haos-music-next')?.addEventListener('click', () => this.next());
                 document.getElementById('haos-music-prev')?.addEventListener('click', () => this.prev());
                 document.getElementById('haos-music-volume')?.addEventListener('input', (e) => this.setVolume(e.target.value));
                 document.getElementById('haos-music-close')?.addEventListener('click', () => this.close());
                 
+                // Setup minimized controls
+                document.getElementById('haos-mini-playpause')?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.togglePlay();
+                });
+                
+                // Setup hover to expand/minimize
+                const playerEl = document.getElementById('haos-bg-music-player');
+                const minimizedEl = document.getElementById('haos-radio-minimized');
+                
+                if (playerEl && minimizedEl) {
+                    // Click minimized to expand
+                    minimizedEl.addEventListener('click', () => {
+                        this.expand();
+                    });
+                    
+                    // Hover to expand
+                    playerEl.addEventListener('mouseenter', () => {
+                        if (this.isMinimized) {
+                            this.expand();
+                        }
+                    });
+                    
+                    // Leave to minimize (with delay)
+                    playerEl.addEventListener('mouseleave', () => {
+                        if (this.isMinimized) {
+                            setTimeout(() => this.minimize(), 500);
+                        }
+                    });
+                }
+                
                 // Load uploaded tracks first, or fallback to HAOS Exclusive
-                this.loadDefaultPlaylist();
+                await this.loadDefaultPlaylist();
                 this.updateDisplay();
+                
+                // Show the radio player widget (expanded initially)
+                if (playerEl) {
+                    playerEl.style.display = 'block';
+                    this.showExpanded();
+                    console.log('📻 Radio player widget displayed');
+                }
                 
                 // Auto-play with user interaction (click anywhere to start)
                 const startAudio = () => {
-                    this.play();
+                    console.log('🎵 User interaction detected, starting playback...');
+                    this.play().then(() => {
+                        // Minimize after 3 seconds of playback
+                        console.log('⏱️ Starting 3-second timer to minimize player...');
+                        this.minimizeTimeout = setTimeout(() => {
+                            this.minimize();
+                        }, 3000);
+                    });
                     document.removeEventListener('click', startAudio);
                 };
                 
                 // Try auto-play immediately
                 setTimeout(() => {
+                    console.log('🎵 Attempting auto-play...');
                     this.play().catch(() => {
-                        console.log('🎵 Waiting for user interaction to start audio');
+                        console.log('🎵 Auto-play blocked, waiting for user interaction');
                         document.addEventListener('click', startAudio, { once: true });
+                        // Show notification
+                        const notification = document.createElement('div');
+                        notification.style.cssText = 'position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#FF6B35,#F7931E);color:#000;padding:15px 25px;border-radius:8px;font-family:Space Mono,monospace;font-weight:bold;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.3);animation:slideIn 0.5s ease;';
+                        notification.innerHTML = '🎵 Click anywhere to start HAOS Radio 📻';
+                        document.body.appendChild(notification);
+                        setTimeout(() => notification.remove(), 5000);
                     });
                 }, 500);
             },
@@ -972,9 +1045,12 @@
 
             async loadDefaultPlaylist() {
                 try {
+                    console.log('📻 Loading default playlist...');
                     // Try to load uploaded tracks first
                     const response = await fetch('/api/tracks/list');
                     const data = await response.json();
+                    
+                    console.log('📊 API Response:', data);
                     
                     if (data.tracks && data.tracks.length > 0) {
                         // Load uploaded tracks as default
@@ -984,17 +1060,24 @@
                             duration: track.duration,
                             url: track.url
                         }));
-                        this.loadPlaylist('uploaded');
-                        console.log(`🎧 Loaded ${data.tracks.length} uploaded track(s) as default playlist`);
+                        this.currentPlaylist = 'uploaded';
+                        this.currentTrackIndex = 0;
+                        console.log(`✅ Loaded ${data.tracks.length} uploaded track(s) as default playlist`);
+                        console.log('🎵 First track:', this.playlists['uploaded'][0]);
+                        return true;
                     } else {
                         // Fallback to HAOS Exclusive
-                        this.loadPlaylist('haos-exclusive');
+                        this.currentPlaylist = 'haos-exclusive';
+                        this.currentTrackIndex = 0;
                         console.log('📻 No uploaded tracks, using HAOS Exclusive as default');
+                        return false;
                     }
                 } catch (error) {
-                    console.error('Error loading uploaded tracks:', error);
+                    console.error('❌ Error loading uploaded tracks:', error);
                     // Fallback to HAOS Exclusive on error
-                    this.loadPlaylist('haos-exclusive');
+                    this.currentPlaylist = 'haos-exclusive';
+                    this.currentTrackIndex = 0;
+                    return false;
                 }
             },
 
@@ -1010,6 +1093,7 @@
                     await this.audioElement.play();
                     this.isPlaying = true;
                     document.getElementById('haos-music-playpause').innerHTML = '<i class="fas fa-pause"></i>';
+                    document.getElementById('haos-mini-playpause').innerHTML = '<i class="fas fa-pause"></i>';
                     this.updateDisplay();
                     this.startProgressTracking();
                     console.log('▶️ Playing:', track.title);
@@ -1023,6 +1107,7 @@
                 this.audioElement.pause();
                 this.isPlaying = false;
                 document.getElementById('haos-music-playpause').innerHTML = '<i class="fas fa-play"></i>';
+                document.getElementById('haos-mini-playpause').innerHTML = '<i class="fas fa-play"></i>';
                 this.stopProgressTracking();
                 console.log('⏸️ Paused');
             },
@@ -1032,6 +1117,44 @@
                     this.pause();
                 } else {
                     this.play();
+                }
+            },
+
+            minimize() {
+                console.log('🔽 Minimizing radio player');
+                this.isMinimized = true;
+                document.getElementById('haos-music-controls').style.display = 'none';
+                document.getElementById('haos-radio-minimized').style.display = 'block';
+                
+                // Adjust player container width for minimized state
+                const playerEl = document.getElementById('haos-bg-music-player');
+                if (playerEl) {
+                    playerEl.style.width = 'auto';
+                    playerEl.style.maxWidth = '350px';
+                }
+            },
+
+            expand() {
+                console.log('🔼 Expanding radio player');
+                this.isMinimized = false;
+                this.showExpanded();
+                
+                // Cancel minimize timeout if exists
+                if (this.minimizeTimeout) {
+                    clearTimeout(this.minimizeTimeout);
+                    this.minimizeTimeout = null;
+                }
+            },
+
+            showExpanded() {
+                document.getElementById('haos-radio-minimized').style.display = 'none';
+                document.getElementById('haos-music-controls').style.display = 'block';
+                
+                // Reset player container width
+                const playerEl = document.getElementById('haos-bg-music-player');
+                if (playerEl) {
+                    playerEl.style.width = '400px';
+                    playerEl.style.maxWidth = '90vw';
                 }
             },
 
@@ -1061,8 +1184,20 @@
 
             updateDisplay() {
                 const track = this.getCurrentTrack();
+                const playlistName = this.getPlaylistName();
+                
+                // Update expanded view
                 document.getElementById('haos-track-title').textContent = track.title;
-                document.getElementById('haos-track-artist').textContent = track.artist + ' • ' + this.getPlaylistName();
+                document.getElementById('haos-track-artist').textContent = track.artist + ' • ' + playlistName;
+                
+                // Update minimized view
+                document.getElementById('haos-mini-title').textContent = track.title;
+                document.getElementById('haos-mini-artist').textContent = track.artist + ' • ' + playlistName;
+                
+                // Sync play/pause buttons
+                const iconHTML = this.isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+                document.getElementById('haos-music-playpause').innerHTML = iconHTML;
+                document.getElementById('haos-mini-playpause').innerHTML = iconHTML;
             },
 
             getPlaylistName() {
