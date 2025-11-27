@@ -79,6 +79,51 @@ app.use(express.json({ limit: '350mb' }));
 app.use(express.urlencoded({ extended: true, limit: '350mb' }));
 
 // ============================================================================
+// Custom Routes - Must come BEFORE static files
+// ============================================================================
+
+/**
+ * Platform alias - Redirect /platform to /haos-platform
+ * Route: /platform (backward compatibility)
+ * IMPORTANT: Must come before static middleware to override /platform/ directory
+ */
+app.get('/platform', (req, res) => {
+  res.redirect(301, '/haos-platform');
+});
+
+/**
+ * Workspace alias - Redirect /workspace to /techno-workspace
+ * Route: /workspace (backward compatibility)
+ */
+app.get('/workspace', (req, res) => {
+  res.redirect(301, '/techno-workspace');
+});
+
+/**
+ * HAOS Platform - Main integrated studio
+ * Route: /haos-platform (cleaner URL without .html)
+ */
+app.get('/haos-platform', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'haos-platform.html'));
+});
+
+/**
+ * Techno Workspace - Modular synthesis environment
+ * Route: /techno-workspace (cleaner URL without .html)
+ */
+app.get('/techno-workspace', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'techno-workspace.html'));
+});
+
+/**
+ * Trap Studio - 808 bass production
+ * Route: /trap-studio (cleaner URL without .html)
+ */
+app.get('/trap-studio', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'trap-studio.html'));
+});
+
+// ============================================================================
 // Static Files
 // ============================================================================
 
@@ -255,50 +300,6 @@ app.get('/health', async (req, res) => {
  */
 const { getCodeStatsHandler } = require('./utils/code-stats');
 app.get('/api/code-stats', getCodeStatsHandler);
-
-// ============================================================================
-// Custom Routes - Better URLs
-// ============================================================================
-
-/**
- * Platform alias - Redirect /platform to /haos-platform
- * Route: /platform (backward compatibility)
- */
-app.get('/platform', (req, res) => {
-  res.redirect(301, '/haos-platform');
-});
-
-/**
- * HAOS Platform - Main integrated studio
- * Route: /haos-platform (cleaner URL without .html)
- */
-app.get('/haos-platform', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'haos-platform.html'));
-});
-
-/**
- * Workspace alias - Redirect /workspace to /techno-workspace
- * Route: /workspace (backward compatibility)
- */
-app.get('/workspace', (req, res) => {
-  res.redirect(301, '/techno-workspace');
-});
-
-/**
- * Techno Workspace - Modular synthesis environment
- * Route: /techno-workspace (cleaner URL without .html)
- */
-app.get('/techno-workspace', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'techno-workspace.html'));
-});
-
-/**
- * Trap Studio - 808 bass production
- * Route: /trap-studio (cleaner URL without .html)
- */
-app.get('/trap-studio', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'trap-studio.html'));
-});
 
 // ============================================================================
 // SPA Fallback
