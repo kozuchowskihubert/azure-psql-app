@@ -94,17 +94,21 @@ router.post('/upload', upload.single('audioFile'), async (req, res) => {
 
         const { title, artist, genre, copyright } = req.body;
 
-        // Validate required fields
-        if (!title || !artist) {
+        // Validate copyright
+        if (!copyright || copyright !== 'on') {
             // Delete uploaded file if validation fails
-            fs.unlinkSync(req.file.path);
-            return res.status(400).json({ error: 'Title and artist are required' });
-        }
-
-        if (!copyright) {
             fs.unlinkSync(req.file.path);
             return res.status(400).json({ error: 'Copyright confirmation is required' });
         }
+
+        // Use defaults if title/artist not provided (for bulk uploads)
+        const trackTitle = title && title.trim() 
+            ? title.trim() 
+            : path.basename(req.file.originalname, path.extname(req.file.originalname));
+        
+        const trackArtist = artist && artist.trim() 
+            ? artist.trim() 
+            : 'Unknown Artist';
 
         // Get audio duration
         const duration = await getAudioDuration(req.file.path);
@@ -112,8 +116,8 @@ router.post('/upload', upload.single('audioFile'), async (req, res) => {
         // Create track metadata
         const track = {
             id: Date.now(),
-            title: title.trim(),
-            artist: artist.trim(),
+            title: trackTitle,
+            artist: trackArtist,
             genre: genre || 'Electronic',
             filename: req.file.filename,
             url: `/uploads/tracks/${req.file.filename}`,
