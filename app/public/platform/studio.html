@@ -718,6 +718,12 @@
             transform: translateX(0);
         }
 
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
         /* Auto-save indicator */
         .auto-save {
             display: flex;
@@ -845,6 +851,7 @@
         <button class="tab-btn" data-tab="sequencer">📊 SEQUENCER</button>
         <button class="tab-btn" data-tab="effects">🎛️ EFFECTS</button>
         <button class="tab-btn" data-tab="mixer">🎚️ MIXER</button>
+        <button class="tab-btn" data-tab="radio">📻 RADIO</button>
         <button class="tab-btn" data-tab="projects">💾 PROJECTS</button>
     </div>
 
@@ -880,6 +887,12 @@
                     <div class="quick-start-icon">🎛️</div>
                     <div class="quick-start-title">EFFECTS</div>
                     <div class="quick-start-desc">Reverb, delay, distortion & more</div>
+                </div>
+                
+                <div class="quick-start-card" onclick="switchTab('radio')">
+                    <div class="quick-start-icon">📻</div>
+                    <div class="quick-start-title">RADIO</div>
+                    <div class="quick-start-desc">24/7 techno & electronic music</div>
                 </div>
             </div>
 
@@ -1242,6 +1255,99 @@
                     <p style="text-align: center; color: var(--haos-text-dim); padding: 40px;">
                         Project management coming soon... 💾
                     </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content: Radio -->
+    <div class="tab-content" id="tab-radio">
+        <div class="workspace-container">
+            <div class="main-workspace">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">HAOS.FM Radio - 24/7 Stream</h2>
+                        <span class="panel-badge" id="radio-status">OFFLINE</span>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 6rem; margin-bottom: 30px;">📻</div>
+                        
+                        <h3 style="font-family: var(--font-display); font-size: 2rem; color: var(--haos-orange-primary); margin-bottom: 15px;">
+                            24/7 TECHNO & ELECTRONIC MUSIC
+                        </h3>
+                        
+                        <p style="color: var(--haos-text-secondary); margin-bottom: 40px; font-size: 1.1rem;">
+                            Continuous stream of the best techno, house, and electronic beats
+                        </p>
+                        
+                        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px;">
+                            <button class="transport-btn" id="radio-play-btn" style="font-size: 1.2rem; padding: 20px 40px;">
+                                ▶ TUNE IN
+                            </button>
+                            <button class="transport-btn" id="radio-stop-btn" style="font-size: 1.2rem; padding: 20px 40px;">
+                                ■ STOP
+                            </button>
+                        </div>
+                        
+                        <div class="panel" style="max-width: 600px; margin: 0 auto; text-align: left;">
+                            <div class="panel-header">
+                                <h3 class="panel-title">Now Playing</h3>
+                            </div>
+                            <div id="radio-now-playing" style="padding: 20px; text-align: center;">
+                                <p style="color: var(--haos-text-dim);">Start the radio to see what's playing</p>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 40px;">
+                            <div class="panel" style="max-width: 600px; margin: 0 auto; text-align: left;">
+                                <div class="panel-header">
+                                    <h3 class="panel-title">Volume</h3>
+                                </div>
+                                <div style="padding: 20px;">
+                                    <input type="range" id="radio-volume" min="0" max="100" value="70" 
+                                           style="width: 100%; height: 8px; background: var(--haos-bg-elevated); 
+                                                  border-radius: 4px; outline: none; appearance: none;">
+                                    <div style="display: flex; justify-content: space-between; margin-top: 10px; 
+                                                font-family: var(--font-mono); font-size: 0.8rem; color: var(--haos-text-dim);">
+                                        <span>0%</span>
+                                        <span id="radio-volume-display">70%</span>
+                                        <span>100%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 40px;">
+                            <h4 style="font-family: var(--font-display); color: var(--haos-orange-primary); margin-bottom: 15px;">
+                                STREAM GENRES
+                            </h4>
+                            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                                <span style="background: var(--haos-bg-elevated); padding: 8px 16px; border-radius: 6px; 
+                                             font-family: var(--font-mono); font-size: 0.8rem;">TECHNO</span>
+                                <span style="background: var(--haos-bg-elevated); padding: 8px 16px; border-radius: 6px; 
+                                             font-family: var(--font-mono); font-size: 0.8rem;">HOUSE</span>
+                                <span style="background: var(--haos-bg-elevated); padding: 8px 16px; border-radius: 6px; 
+                                             font-family: var(--font-mono); font-size: 0.8rem;">ACID</span>
+                                <span style="background: var(--haos-bg-elevated); padding: 8px 16px; border-radius: 6px; 
+                                             font-family: var(--font-mono); font-size: 0.8rem;">DETROIT</span>
+                                <span style="background: var(--haos-bg-elevated); padding: 8px 16px; border-radius: 6px; 
+                                             font-family: var(--font-mono); font-size: 0.8rem;">MINIMAL</span>
+                                <span style="background: var(--haos-bg-elevated); padding: 8px 16px; border-radius: 6px; 
+                                             font-family: var(--font-mono); font-size: 0.8rem;">TRANCE</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 40px; padding: 20px; background: rgba(255, 107, 53, 0.1); 
+                                    border-radius: 8px; border: 1px solid var(--haos-border);">
+                            <p style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--haos-text-secondary);">
+                                🎵 Stream URL: <code style="color: var(--haos-orange-primary);">https://stream.haos.fm/radio</code>
+                            </p>
+                            <p style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--haos-text-dim); margin-top: 10px;">
+                                Listen anywhere - Compatible with all media players
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1665,6 +1771,85 @@
                 e.preventDefault();
                 exportMIDI();
             }
+        });
+
+        // ========================================
+        // Radio Player Functionality
+        // ========================================
+        let radioAudio = null;
+        let radioPlaying = false;
+        
+        function initRadioPlayer() {
+            const playBtn = document.getElementById('radio-play-btn');
+            const stopBtn = document.getElementById('radio-stop-btn');
+            const volumeSlider = document.getElementById('radio-volume');
+            const volumeDisplay = document.getElementById('radio-volume-display');
+            const statusBadge = document.getElementById('radio-status');
+            const nowPlayingDiv = document.getElementById('radio-now-playing');
+            
+            // Create audio element
+            radioAudio = new Audio();
+            radioAudio.preload = 'none';
+            
+            // Stream URL - replace with actual HAOS.FM stream URL
+            const streamURL = 'https://stream.haos.fm/radio'; // Placeholder
+            
+            playBtn.addEventListener('click', () => {
+                if (!radioPlaying) {
+                    radioAudio.src = streamURL;
+                    radioAudio.play().then(() => {
+                        radioPlaying = true;
+                        statusBadge.textContent = 'LIVE';
+                        statusBadge.style.background = '#00ff00';
+                        statusBadge.style.color = '#000';
+                        nowPlayingDiv.innerHTML = `
+                            <div style="animation: pulse 2s infinite;">
+                                <div style="font-size: 3rem; margin-bottom: 15px;">🎵</div>
+                                <p style="font-family: var(--font-display); font-size: 1.5rem; color: var(--haos-orange-primary); margin-bottom: 10px;">
+                                    HAOS.FM LIVE STREAM
+                                </p>
+                                <p style="color: var(--haos-text-secondary); font-size: 1rem;">
+                                    24/7 Techno & Electronic Music
+                                </p>
+                            </div>
+                        `;
+                        showNotification('📻 Radio started - HAOS.FM Live');
+                    }).catch(err => {
+                        console.error('Radio playback error:', err);
+                        showNotification('❌ Unable to connect to radio stream');
+                        statusBadge.textContent = 'ERROR';
+                        statusBadge.style.background = '#ff0000';
+                        statusBadge.style.color = '#fff';
+                    });
+                }
+            });
+            
+            stopBtn.addEventListener('click', () => {
+                if (radioPlaying) {
+                    radioAudio.pause();
+                    radioAudio.src = '';
+                    radioPlaying = false;
+                    statusBadge.textContent = 'OFFLINE';
+                    statusBadge.style.background = 'var(--haos-bg-elevated)';
+                    statusBadge.style.color = 'var(--haos-text-dim)';
+                    nowPlayingDiv.innerHTML = `<p style="color: var(--haos-text-dim);">Start the radio to see what's playing</p>`;
+                    showNotification('📻 Radio stopped');
+                }
+            });
+            
+            volumeSlider.addEventListener('input', (e) => {
+                const volume = e.target.value / 100;
+                radioAudio.volume = volume;
+                volumeDisplay.textContent = `${e.target.value}%`;
+            });
+            
+            // Set initial volume
+            radioAudio.volume = 0.7;
+        }
+        
+        // Initialize radio player when page loads
+        window.addEventListener('load', () => {
+            initRadioPlayer();
         });
     </script>
 </body>
