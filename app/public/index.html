@@ -428,7 +428,7 @@
                 <input id="haos-music-volume" type="range" min="0" max="100" value="70" style="width: 80px; cursor: pointer;" title="Volume">
             </div>
             
-            <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
                 <a href="https://www.youtube.com/@haos_" target="_blank" rel="noopener noreferrer" 
                    style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.7rem; color: #FF0000; text-decoration: none; background: rgba(255,0,0,0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,0,0,0.3); transition: all 0.3s;"
                    onmouseover="this.style.background='rgba(255,0,0,0.2)'; this.style.borderColor='#FF0000';"
@@ -436,6 +436,14 @@
                     <i class="fab fa-youtube"></i>
                     <span>@haos_</span>
                 </a>
+                <button id="my-uploads-btn" 
+                   style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.7rem; color: #FFD700; text-decoration: none; background: rgba(255,215,0,0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,215,0,0.3); transition: all 0.3s; cursor: pointer;"
+                   onmouseover="this.style.background='rgba(255,215,0,0.2)'; this.style.borderColor='#FFD700';"
+                   onmouseout="this.style.background='rgba(255,215,0,0.1)'; this.style.borderColor='rgba(255,215,0,0.3)';"
+                   title="Switch to your uploaded tracks">
+                    <span>📁</span>
+                    <span>MY UPLOADS</span>
+                </button>
                 <button id="open-upload-btn" 
                    style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.7rem; color: #FF5500; text-decoration: none; background: rgba(255,85,0,0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,85,0,0.3); transition: all 0.3s; cursor: pointer;"
                    onmouseover="this.style.background='rgba(255,85,0,0.2)'; this.style.borderColor='#FF5500';"
@@ -992,6 +1000,20 @@
                 document.getElementById('haos-music-volume')?.addEventListener('input', (e) => this.setVolume(e.target.value));
                 document.getElementById('haos-music-close')?.addEventListener('click', () => this.close());
                 
+                // My Uploads button - switch to uploaded tracks
+                document.getElementById('my-uploads-btn')?.addEventListener('click', () => {
+                    if (this.playlists['uploaded'] && this.playlists['uploaded'].length > 0) {
+                        this.loadPlaylist('uploaded');
+                        if (this.isPlaying) {
+                            this.play();
+                        }
+                        console.log('📁 Switched to uploaded tracks');
+                    } else {
+                        console.log('⚠️ No uploaded tracks available');
+                        alert('No uploaded tracks found. Please upload some tracks first!');
+                    }
+                });
+                
                 // Setup minimized controls
                 document.getElementById('haos-mini-playpause')?.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1238,6 +1260,22 @@
                 const iconHTML = this.isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
                 document.getElementById('haos-music-playpause').innerHTML = iconHTML;
                 document.getElementById('haos-mini-playpause').innerHTML = iconHTML;
+                
+                // Update "My Uploads" button state
+                const myUploadsBtn = document.getElementById('my-uploads-btn');
+                if (myUploadsBtn) {
+                    if (this.currentPlaylist === 'uploaded') {
+                        // Active state - brighter gold
+                        myUploadsBtn.style.background = 'rgba(255,215,0,0.3)';
+                        myUploadsBtn.style.borderColor = '#FFD700';
+                        myUploadsBtn.style.boxShadow = '0 0 15px rgba(255,215,0,0.5)';
+                    } else {
+                        // Inactive state - dimmed
+                        myUploadsBtn.style.background = 'rgba(255,215,0,0.1)';
+                        myUploadsBtn.style.borderColor = 'rgba(255,215,0,0.3)';
+                        myUploadsBtn.style.boxShadow = 'none';
+                    }
+                }
             },
 
             getPlaylistName() {
