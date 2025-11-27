@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAOS.fm | Techno Workspace - Live Modular System</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* HAOS Brand Colors */
+            --haos-black: #0a0a0a;
+            --haos-panel: rgba(20, 20, 25, 0.85);
+            --haos-orange: #FF6B35;
+            --haos-orange-bright: #FF8C42;
+            --haos-orange-dark: #E55A2B;
+            --haos-green: #39FF14;
+            --haos-cyan: #00D9FF;
+            --haos-pink: #FF006E;
+            --haos-text: #e0e0e0;
+            --haos-dim: #888;
+            --haos-border: rgba(255, 107, 53, 0.2);
+            
+            /* Typography */
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            background: var(--haos-black);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 140, 66, 0.06) 0%, transparent 50%);
+            color: var(--haos-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .haos-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--haos-border);
+            padding: 15px 30px;
+        }
+
+        .header-content {
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-section img {
+            height: 40px;
+            filter: drop-shadow(0 2px 10px rgba(255, 107, 53, 0.3));
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand-name {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-tagline {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: var(--haos-orange);
+            text-transform: uppercase;
+        }
+
+        /* Transport Controls */
+        .transport {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .transport-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--haos-orange);
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--haos-text);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .transport-btn:hover {
+            background: var(--haos-orange);
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+        }
+
+        .transport-btn.active {
+            background: var(--haos-orange);
+            color: #000;
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(255, 107, 53, 0.8); }
+        }
+
+        .bpm-display {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            color: var(--haos-orange);
+            padding: 8px 15px;
+            border: 1px solid var(--haos-border);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Main Workspace Layout */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100vh - 80px);
+        }
+
+        /* Column Sections */
+        .workspace-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .workspace-column::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .workspace-column::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .workspace-column::-webkit-scrollbar-thumb {
+            background: var(--haos-orange);
+            border-radius: 4px;
+        }
+
+        /* Module Panels */
+        .module-panel {
+            background: var(--haos-panel);
+            border: 1px solid var(--haos-border);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--haos-border);
+        }
+
+        .module-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: var(--haos-orange);
+        }
+
+        .module-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Knobs */
+        .knob-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .knob-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .knob {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 107, 53, 0.3), rgba(0, 0, 0, 0.8));
+            border: 3px solid var(--haos-orange);
+            position: relative;
+            cursor: pointer;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .knob:hover {
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+        }
+
+        .knob::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%) rotate(var(--rotation, -135deg));
+            transform-origin: center 25px;
+            width: 3px;
+            height: 25px;
+            background: var(--haos-orange-bright);
+            border-radius: 2px;
+        }
+
+        .knob-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--haos-dim);
+            text-align: center;
+        }
+
+        .knob-value {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--haos-orange);
+        }
+
+        /* Sequencer Grid */
+        .sequencer-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 4px;
+            margin-bottom: 15px;
+        }
+
+        .seq-step {
+            aspect-ratio: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--haos-border);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .seq-step:hover {
+            background: rgba(255, 107, 53, 0.3);
+        }
+
+        .seq-step.active {
+            background: var(--haos-orange);
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.6);
+        }
+
+        .seq-step.playing {
+            animation: step-flash 0.1s;
+        }
+
+        @keyframes step-flash {
+            50% { background: var(--haos-green); }
+        }
+
+        .track-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--haos-dim);
+            margin-bottom: 8px;
+        }
+
+        /* Patch Bay */
+        .patch-bay {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--haos-border);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .patch-point {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .patch-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--haos-text);
+            min-width: 100px;
+        }
+
+        .patch-select {
+            flex: 1;
+            padding: 6px 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--haos-border);
+            border-radius: 6px;
+            color: var(--haos-text);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+        }
+
+        .patch-select:focus {
+            outline: none;
+            border-color: var(--haos-orange);
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+        }
+
+        /* VU Meters */
+        .vu-meter {
+            height: 150px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--haos-border);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vu-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0%;
+            background: linear-gradient(to top, var(--haos-green), var(--haos-orange), var(--haos-pink));
+            transition: height 0.1s ease;
+        }
+
+        /* Effects Section */
+        .effect-slot {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--haos-border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .effect-name {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--haos-orange);
+            margin-bottom: 10px;
+        }
+
+        .effect-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .effect-slider {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 107, 53, 0.2);
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .effect-slider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: var(--value, 50%);
+            background: var(--haos-orange);
+            border-radius: 3px;
+        }
+
+        /* Back Button */
+        .back-btn {
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--haos-border);
+            color: var(--haos-text);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            border-color: var(--haos-orange);
+            color: var(--haos-orange);
+        }
+
+        /* Preset Morphing Slider */
+        .morph-slider-container {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--haos-border);
+            border-radius: 8px;
+        }
+
+        .morph-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--haos-dim);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .morph-slider {
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(to right, var(--haos-cyan), var(--haos-orange));
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .morph-thumb {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: var(--haos-orange);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="haos-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm Logo">
+                <div class="brand-text">
+                    <div class="brand-name">TECHNO WORKSPACE</div>
+                    <div class="brand-tagline">Live Modular System</div>
+                </div>
+            </div>
+            
+            <div class="transport">
+                <button class="back-btn" onclick="window.location.href='haos-platform.html'">
+                    ← BACK TO HUB
+                </button>
+                <button id="play-btn" class="transport-btn">▶ PLAY</button>
+                <button id="stop-btn" class="transport-btn">■ STOP</button>
+                <div class="bpm-display">
+                    <span id="bpm-value">135</span> BPM
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="workspace">
+        <!-- LEFT COLUMN: Sound Sources -->
+        <div class="workspace-column">
+            <!-- TB-303 Bass Synth -->
+            <div class="module-panel">
+                <div class="module-header">
+                    <div class="module-title">TB-303 BASS</div>
+                    <div class="module-icon">🧪</div>
+                </div>
+                
+                <div class="knob-grid">
+                    <div class="knob-wrapper">
+                        <div class="knob" id="tb303-cutoff" data-param="cutoff" data-value="0.5"></div>
+                        <div class="knob-label">CUTOFF</div>
+                        <div class="knob-value">800 Hz</div>
+                    </div>
+                    <div class="knob-wrapper">
+                        <div class="knob" id="tb303-resonance" data-param="resonance" data-value="0.5"></div>
+                        <div class="knob-label">RESONANCE</div>
+                        <div class="knob-value">10</div>
+                    </div>
+                    <div class="knob-wrapper">
+                        <div class="knob" id="tb303-envmod" data-param="envmod" data-value="0.5"></div>
+                        <div class="knob-label">ENV MOD</div>
+                        <div class="knob-value">50%</div>
+                    </div>
+                    <div class="knob-wrapper">
+                        <div class="knob" id="tb303-decay" data-param="decay" data-value="0.5"></div>
+                        <div class="knob-label">DECAY</div>
+                        <div class="knob-value">0.5s</div>
+                    </div>
+                    <div class="knob-wrapper">
+                        <div class="knob" id="tb303-dist" data-param="distortion" data-value="0.3"></div>
+                        <div class="knob-label">DISTORTION</div>
+                        <div class="knob-value">30%</div>
+                    </div>
+                    <div class="knob-wrapper">
+                        <div class="knob" id="tb303-accent" data-param="accent" data-value="0.7"></div>
+                        <div class="knob-label">ACCENT</div>
+                        <div class="knob-value">70%</div>
+                    </div>
+                </div>
+
+                <!-- Preset Morphing -->
+                <div class="morph-slider-container">
+                    <div class="morph-label">
+                        <span>PRESET A: Acid Squelch</span>
+                        <span>PRESET B: Deep Bass</span>
+                    </div>
+                    <div class="morph-slider">
+                        <div class="morph-thumb"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TR-909 Drums -->
+            <div class="module-panel">
+                <div class="module-header">
+                    <div class="module-title">TR-909 DRUMS</div>
+                    <div class="module-icon">🥁</div>
+                </div>
+                
+                <div class="knob-grid">
+                    <div class="knob-wrapper">
+                        <div class="knob" data-param="kick-tune" data-value="0.5"></div>
+                        <div class="knob-label">KICK TUNE</div>
+                        <div class="knob-value">0</div>
+                    </div>
+                    <div class="knob-wrapper">
+                        <div class="knob" data-param="kick-decay" data-value="0.5"></div>
+                        <div class="knob-label">KICK DECAY</div>
+                        <div class="knob-value">0.5s</div>
+                    </div>
+                    <div class="knob-wrapper">
+                        <div class="knob" data-param="snare-snap" data-value="0.7"></div>
+                        <div class="knob-label">SNARE SNAP</div>
+                        <div class="knob-value">70%</div>
+                    </div>
+                </div>
+
+                <!-- VU Meter -->
+                <div class="vu-meter">
+                    <div class="vu-bar" id="drum-vu"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER COLUMN: Patch Bay + Sequencer -->
+        <div class="workspace-column">
+            <!-- Patch Bay -->
+            <div class="module-panel">
+                <div class="module-header">
+                    <div class="module-title">LIVE PATCH BAY</div>
+                    <div class="module-icon">🔌</div>
+                </div>
+                
+                <div class="patch-bay">
+                    <div class="patch-point">
+                        <div class="patch-label">TB-303 OUT →</div>
+                        <select class="patch-select">
+                            <option>DELAY</option>
+                            <option>REVERB</option>
+                            <option>DISTORTION</option>
+                            <option selected>MASTER</option>
+                        </select>
+                    </div>
+                    <div class="patch-point">
+                        <div class="patch-label">TR-909 OUT →</div>
+                        <select class="patch-select">
+                            <option>DELAY</option>
+                            <option>REVERB</option>
+                            <option selected>COMPRESSOR</option>
+                        </select>
+                    </div>
+                    <div class="patch-point">
+                        <div class="patch-label">LFO 1 →</div>
+                        <select class="patch-select">
+                            <option selected>TB-303 CUTOFF</option>
+                            <option>TB-303 RESONANCE</option>
+                            <option>DELAY TIME</option>
+                        </select>
+                    </div>
+                    <div class="patch-point">
+                        <div class="patch-label">SEQUENCER →</div>
+                        <select class="patch-select">
+                            <option selected>TB-303 + TR-909</option>
+                            <option>TB-303 ONLY</option>
+                            <option>TR-909 ONLY</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 16-Step Sequencer -->
+            <div class="module-panel">
+                <div class="module-header">
+                    <div class="module-title">16-STEP SEQUENCER</div>
+                    <div class="module-icon">⏱️</div>
+                </div>
+                
+                <div class="track-label">KICK</div>
+                <div class="sequencer-grid" id="seq-kick">
+                    <!-- 16 steps will be generated by JS -->
+                </div>
+
+                <div class="track-label">SNARE</div>
+                <div class="sequencer-grid" id="seq-snare">
+                    <!-- 16 steps -->
+                </div>
+
+                <div class="track-label">HI-HAT</div>
+                <div class="sequencer-grid" id="seq-hihat">
+                    <!-- 16 steps -->
+                </div>
+
+                <div class="track-label">BASS</div>
+                <div class="sequencer-grid" id="seq-bass">
+                    <!-- 16 steps -->
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Effects + Output -->
+        <div class="workspace-column">
+            <!-- Effects Chain -->
+            <div class="module-panel">
+                <div class="module-header">
+                    <div class="module-title">EFFECTS</div>
+                    <div class="module-icon">🎚️</div>
+                </div>
+                
+                <div class="effect-slot">
+                    <div class="effect-name">DELAY</div>
+                    <div class="effect-controls">
+                        <span class="knob-label">TIME</span>
+                        <div class="effect-slider" data-effect="delay-time" style="--value: 375ms"></div>
+                        <span class="knob-label">FB</span>
+                        <div class="effect-slider" data-effect="delay-feedback" style="--value: 40%"></div>
+                    </div>
+                </div>
+
+                <div class="effect-slot">
+                    <div class="effect-name">REVERB</div>
+                    <div class="effect-controls">
+                        <span class="knob-label">SIZE</span>
+                        <div class="effect-slider" data-effect="reverb-size" style="--value: 60%"></div>
+                        <span class="knob-label">MIX</span>
+                        <div class="effect-slider" data-effect="reverb-mix" style="--value: 30%"></div>
+                    </div>
+                </div>
+
+                <div class="effect-slot">
+                    <div class="effect-name">COMPRESSOR</div>
+                    <div class="effect-controls">
+                        <span class="knob-label">THRESHOLD</span>
+                        <div class="effect-slider" data-effect="comp-threshold" style="--value: -24dB"></div>
+                        <span class="knob-label">RATIO</span>
+                        <div class="effect-slider" data-effect="comp-ratio" style="--value: 12:1"></div>
+                    </div>
+                </div>
+
+                <div class="effect-slot">
+                    <div class="effect-name">DISTORTION</div>
+                    <div class="effect-controls">
+                        <span class="knob-label">DRIVE</span>
+                        <div class="effect-slider" data-effect="dist-drive" style="--value: 50%"></div>
+                        <span class="knob-label">TONE</span>
+                        <div class="effect-slider" data-effect="dist-tone" style="--value: 70%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Master Output -->
+            <div class="module-panel">
+                <div class="module-header">
+                    <div class="module-title">MASTER OUT</div>
+                    <div class="module-icon">🔊</div>
+                </div>
+                
+                <div class="knob-grid">
+                    <div class="knob-wrapper">
+                        <div class="knob" data-param="master-volume" data-value="0.8"></div>
+                        <div class="knob-label">VOLUME</div>
+                        <div class="knob-value">80%</div>
+                    </div>
+                    <div class="knob-wrapper">
+                        <div class="knob" data-param="master-limiter" data-value="0.9"></div>
+                        <div class="knob-label">LIMITER</div>
+                        <div class="knob-value">90%</div>
+                    </div>
+                </div>
+
+                <!-- Master VU Meter -->
+                <div class="vu-meter" style="height: 200px;">
+                    <div class="vu-bar" id="master-vu"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load HAOS System -->
+    <script src="/js/haos-master-system.js"></script>
+    
+    <script>
+        // Initialize workspace
+        let isPlaying = false;
+        let currentStep = 0;
+        let bpm = 135;
+        let intervalId = null;
+
+        // Initialize sequencer grids
+        function initSequencer() {
+            const tracks = ['kick', 'snare', 'hihat', 'bass'];
+            tracks.forEach(track => {
+                const grid = document.getElementById(`seq-${track}`);
+                for (let i = 0; i < 16; i++) {
+                    const step = document.createElement('div');
+                    step.className = 'seq-step';
+                    step.dataset.track = track;
+                    step.dataset.step = i;
+                    step.onclick = () => toggleStep(track, i);
+                    grid.appendChild(step);
+                }
+            });
+        }
+
+        // Toggle sequencer step
+        function toggleStep(track, step) {
+            const stepEl = document.querySelector(`[data-track="${track}"][data-step="${step}"]`);
+            stepEl.classList.toggle('active');
+        }
+
+        // Play/Stop controls
+        document.getElementById('play-btn').onclick = async () => {
+            if (!HAOS.initialized) {
+                await HAOS.init();
+            }
+            
+            if (!isPlaying) {
+                isPlaying = true;
+                document.getElementById('play-btn').classList.add('active');
+                startSequencer();
+            }
+        };
+
+        document.getElementById('stop-btn').onclick = () => {
+            isPlaying = false;
+            document.getElementById('play-btn').classList.remove('active');
+            stopSequencer();
+        };
+
+        // Sequencer engine
+        function startSequencer() {
+            const stepTime = (60 / bpm) / 4 * 1000; // 16th note in ms
+            
+            intervalId = setInterval(() => {
+                playStep(currentStep);
+                currentStep = (currentStep + 1) % 16;
+            }, stepTime);
+        }
+
+        function stopSequencer() {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            currentStep = 0;
+        }
+
+        function playStep(step) {
+            // Highlight current step
+            document.querySelectorAll('.seq-step').forEach(el => {
+                if (parseInt(el.dataset.step) === step) {
+                    el.classList.add('playing');
+                    setTimeout(() => el.classList.remove('playing'), 100);
+                }
+            });
+
+            // Play active steps
+            const now = HAOS.audioContext?.currentTime || 0;
+            
+            ['kick', 'snare', 'hihat', 'bass'].forEach(track => {
+                const stepEl = document.querySelector(`[data-track="${track}"][data-step="${step}"]`);
+                if (stepEl && stepEl.classList.contains('active')) {
+                    playSound(track, now);
+                }
+            });
+        }
+
+        function playSound(track, time) {
+            if (!HAOS.initialized) return;
+            
+            switch(track) {
+                case 'kick':
+                    HAOS.engines.tr909?.playKick('classic', time);
+                    break;
+                case 'snare':
+                    HAOS.engines.tr909?.playSnare('classic', time);
+                    break;
+                case 'hihat':
+                    HAOS.engines.tr909?.playHatClosed('classic', time);
+                    break;
+                case 'bass':
+                    HAOS.engines.tb303?.playNote({
+                        frequency: 65.41, // C2
+                        duration: 0.3,
+                        accent: false
+                    }, time);
+                    break;
+            }
+        }
+
+        // Initialize knob controls
+        function initKnobs() {
+            document.querySelectorAll('.knob').forEach(knob => {
+                let isDragging = false;
+                let startY = 0;
+                let value = parseFloat(knob.dataset.value) || 0.5;
+
+                knob.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startY = e.clientY;
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const delta = startY - e.clientY;
+                    value = Math.min(1, Math.max(0, value + delta * 0.01));
+                    knob.dataset.value = value;
+                    startY = e.clientY;
+                    updateKnobVisual(knob, value);
+                    updateKnobParam(knob);
+                });
+
+                window.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+
+                // Initialize visual
+                updateKnobVisual(knob, value);
+            });
+        }
+
+        function updateKnobVisual(knob, value) {
+            const rotation = (value * 270) - 135;
+            knob.style.setProperty('--rotation', `${rotation}deg`);
+        }
+
+        function updateKnobParam(knob) {
+            const param = knob.dataset.param;
+            const value = parseFloat(knob.dataset.value);
+            
+            // Update synth parameters
+            if (param?.startsWith('tb303-')) {
+                // Handle TB-303 parameters
+            } else if (param?.startsWith('tr909-')) {
+                // Handle TR-909 parameters
+            }
+            
+            // Update value display
+            const valueEl = knob.parentElement.querySelector('.knob-value');
+            if (valueEl) {
+                valueEl.textContent = formatParamValue(param, value);
+            }
+        }
+
+        function formatParamValue(param, value) {
+            // Format based on parameter type
+            if (param?.includes('cutoff')) {
+                return Math.round(100 + value * 7900) + ' Hz';
+            } else if (param?.includes('decay')) {
+                return (0.01 + value * 1.99).toFixed(2) + 's';
+            } else {
+                return Math.round(value * 100) + '%';
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initSequencer();
+            initKnobs();
+            console.log('🎛️ Techno Workspace initialized');
+        });
+
+        // Auto-init audio on first interaction
+        document.addEventListener('click', async () => {
+            if (!HAOS.initialized) {
+                await HAOS.init();
+                console.log('🔊 Audio system ready');
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
