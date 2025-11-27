@@ -17,6 +17,7 @@ const fs = require('fs');
 const { promisify } = require('util');
 const { exec } = require('child_process');
 const execAsync = promisify(exec);
+const blobStorage = require('../utils/blob-storage');
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, '../public/uploads/tracks');
@@ -113,6 +114,9 @@ router.post('/upload', upload.single('audioFile'), async (req, res) => {
         // Get audio duration
         const duration = await getAudioDuration(req.file.path);
 
+        // Upload to Azure Blob Storage (or keep local if not configured)
+        const blobUrl = await blobStorage.uploadFile(req.file.path, req.file.filename);
+
         // Create track metadata
         const track = {
             id: Date.now(),
@@ -120,7 +124,7 @@ router.post('/upload', upload.single('audioFile'), async (req, res) => {
             artist: trackArtist,
             genre: genre || 'Electronic',
             filename: req.file.filename,
-            url: `/uploads/tracks/${req.file.filename}`,
+            url: blobUrl, // Use blob URL (absolute) or local path (relative)
             duration: duration,
             fileSize: req.file.size,
             uploadedAt: new Date().toISOString()
