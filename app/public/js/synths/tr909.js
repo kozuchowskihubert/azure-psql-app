@@ -1,662 +1,235 @@
 /**
- * TR-909 Drum Machine Module
- * Emulates Roland TR-909 drum synthesis
- * 
- * Features:
- * - High-quality analog-modeled drum synthesis
- * - Classic 909 sounds: Kick, Snare, Hi-Hat (Open/Closed), Toms, Cymbals
- * - Individual tuning and decay controls
- * - Sample-accurate timing
- * - Multiple variations per voice
+ * TR-909 Drum Machine
+ * Legendary Roland TR-909 drum synthesizer
  */
 
 class TR909 {
     constructor(audioContext) {
-        this.audioContext = audioContext;
+        this.context = audioContext;
+        this.output = this.context.createGain();
+        this.output.gain.value = 0.9;
         
-        // Current drum variations
-        this.currentVariations = {
-            kick: 'classic',
-            snare: 'classic',
-            hatClosed: 'classic',
-            hatOpen: 'classic',
-            tomLow: 'classic',
-            tomMid: 'classic',
-            tomHigh: 'classic',
-            rimshot: 'classic',
-            ride: 'classic',
-            crash: 'classic'
-        };
-        
-        // Master volume
-        this.masterVolume = 0.8;
-        
-        // Individual drum tuning and parameters
+        // Drum parameters
         this.params = {
             kick: {
-                tune: 0,        // -12 to +12 semitones
-                decay: 0.5,     // 0 to 1
-                attack: 0.001,
-                punch: 0.7      // 0 to 1
+                pitch: 60,
+                decay: 0.5,
+                tone: 0.5,
+                level: 0.9
             },
             snare: {
-                tune: 0,
-                decay: 0.3,
-                snappy: 0.7,    // Snare wire amount
-                tone: 0.5       // Body vs snap balance
+                tune: 200,
+                tone: 0.5,
+                snappy: 0.7,
+                decay: 0.2,
+                level: 0.8
             },
             hatClosed: {
+                tune: 0.5,
                 decay: 0.05,
-                metallic: 0.6
+                level: 0.6
             },
             hatOpen: {
+                tune: 0.5,
                 decay: 0.3,
-                metallic: 0.6
+                level: 0.7
             },
-            tom: {
-                lowTune: -12,
-                midTune: 0,
-                highTune: 12,
-                decay: 0.4
-            },
-            rimshot: {
-                tune: 0,
-                decay: 0.1
-            },
-            ride: {
-                decay: 0.8,
-                bell: 0.5
-            },
-            crash: {
-                decay: 1.5,
-                tone: 0.6
+            clap: {
+                tone: 0.5,
+                decay: 0.2,
+                level: 0.8
             }
         };
         
-        // Accent level (909 has accent feature)
-        this.accentLevel = 1.5;
-
-        // Sequencer
-        this.pattern = Array(16).fill(null).map(() => ({
-            kick: false, snare: false, hatClosed: false, hatOpen: false
-        }));
-        this.isPlaying = false;
-        this.currentStep = 0;
-        this.bpm = 135;
-        this.interval = null;
-    }
-
-    /**
-     * Exports the current synth state as a patch object.
-     * @returns {object} A patch object containing params, pattern, and other settings.
-     */
-    getPatch() {
-        return {
-            masterVolume: this.masterVolume,
-            accentLevel: this.accentLevel,
-            currentVariations: { ...this.currentVariations },
-            params: JSON.parse(JSON.stringify(this.params)), // Deep copy
-            pattern: JSON.parse(JSON.stringify(this.pattern)), // Deep copy
-            bpm: this.bpm
-        };
-    }
-
-    /**
-     * Imports a patch object to configure the synth's state.
-     * @param {object} patch - A patch object.
-     */
-    setPatch(patch) {
-        if (!patch) return;
-
-        if (patch.masterVolume !== undefined) {
-            this.masterVolume = patch.masterVolume;
-        }
-        if (patch.accentLevel !== undefined) {
-            this.accentLevel = patch.accentLevel;
-        }
-        if (patch.currentVariations) {
-            this.currentVariations = { ...this.currentVariations, ...patch.currentVariations };
-        }
-        if (patch.params) {
-            // Deep merge params
-            for (const drum in patch.params) {
-                if (this.params[drum]) {
-                    this.params[drum] = { ...this.params[drum], ...patch.params[drum] };
-                }
-            }
-        }
-        if (patch.pattern) {
-            this.pattern = JSON.parse(JSON.stringify(patch.pattern));
-        }
-        if (patch.bpm) {
-            this.bpm = patch.bpm;
-            // If playing, update the interval
-            if (this.isPlaying) {
-                this.stop();
-                this.play();
-            }
-        }
-    }
-
-    /**
-     * Set parameter for specific drum
-     */
-    setParam(drum, param, value) {
-        if (this.params[drum] && this.params[drum].hasOwnProperty(param)) {
-            this.params[drum][param] = value;
-            return true;
-        }
-        return false;
+        // Pattern
+        this.pattern = [];
+        this.bpm = 128;
     }
     
-    /**
-     * Play 909 Kick Drum
-     * Classic punchy analog kick with pitch envelope
-     */
-    playKick(variation = null, time = null, accent = false) {
-        const v = variation || this.currentVariations.kick;
-        const startTime = time || this.audioContext.currentTime;
-        const volume = this.masterVolume * (accent ? this.accentLevel : 1.0);
+    // Play kick drum
+    playKick(time = null) {
+        const t = time || this.context.currentTime;
+        const params = this.params.kick;
         
-        const variations = {
-            classic: () => {
-                // Body oscillator with pitch envelope
-                const osc = this.audioContext.createOscillator();
-                const oscGain = this.audioContext.createGain();
-                const filter = this.audioContext.createBiquadFilter();
-                
-                osc.type = 'sine';
-                const basePitch = 60 * Math.pow(2, this.params.kick.tune / 12);
-                osc.frequency.setValueAtTime(basePitch, startTime);
-                osc.frequency.exponentialRampToValueAtTime(30, startTime + 0.05);
-                
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(150, startTime);
-                filter.Q.value = 1;
-                
-                oscGain.gain.setValueAtTime(volume * this.params.kick.punch, startTime);
-                oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + this.params.kick.decay);
-                
-                osc.connect(filter);
-                filter.connect(oscGain);
-                oscGain.connect(this.audioContext.destination);
-                
-                osc.start(startTime);
-                osc.stop(startTime + this.params.kick.decay);
-                
-                // Click/punch transient
-                const noiseBuffer = this._createNoiseBuffer(0.01);
-                const noise = this.audioContext.createBufferSource();
-                const noiseGain = this.audioContext.createGain();
-                const noiseFilter = this.audioContext.createBiquadFilter();
-                
-                noise.buffer = noiseBuffer;
-                noiseFilter.type = 'lowpass';
-                noiseFilter.frequency.value = 1000;
-                
-                noiseGain.gain.setValueAtTime(volume * 0.3, startTime);
-                noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.01);
-                
-                noise.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(this.audioContext.destination);
-                
-                noise.start(startTime);
-            },
-            hard: () => {
-                const osc = this.audioContext.createOscillator();
-                const oscGain = this.audioContext.createGain();
-                const distortion = this.audioContext.createWaveShaper();
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(70, startTime);
-                osc.frequency.exponentialRampToValueAtTime(35, startTime + 0.04);
-                
-                // Add distortion for harder sound
-                const curve = new Float32Array(256);
-                for (let i = 0; i < 256; i++) {
-                    const x = (i - 128) / 128;
-                    curve[i] = Math.tanh(x * 3);
-                }
-                distortion.curve = curve;
-                
-                oscGain.gain.setValueAtTime(volume * 1.2, startTime);
-                oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
-                
-                osc.connect(distortion);
-                distortion.connect(oscGain);
-                oscGain.connect(this.audioContext.destination);
-                
-                osc.start(startTime);
-                osc.stop(startTime + 0.4);
-            },
-            deep: () => {
-                const osc = this.audioContext.createOscillator();
-                const oscGain = this.audioContext.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(50, startTime);
-                osc.frequency.exponentialRampToValueAtTime(25, startTime + 0.08);
-                
-                oscGain.gain.setValueAtTime(volume, startTime);
-                oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.6);
-                
-                osc.connect(oscGain);
-                oscGain.connect(this.audioContext.destination);
-                
-                osc.start(startTime);
-                osc.stop(startTime + 0.6);
-            }
-        };
-        
-        if (variations[v]) {
-            variations[v]();
-        }
-    }
-    
-    /**
-     * Play 909 Snare Drum
-     * Combination of tonal body and noise (snare wires)
-     */
-    playSnare(variation = null, time = null, accent = false) {
-        const v = variation || this.currentVariations.snare;
-        const startTime = time || this.audioContext.currentTime;
-        const volume = this.masterVolume * (accent ? this.accentLevel : 1.0);
-        
-        const variations = {
-            classic: () => {
-                // Tonal component (body) - 2 oscillators
-                [185, 325].forEach((freq, i) => {
-                    const osc = this.audioContext.createOscillator();
-                    const oscGain = this.audioContext.createGain();
-                    
-                    osc.type = i === 0 ? 'triangle' : 'sine';
-                    osc.frequency.setValueAtTime(freq * Math.pow(2, this.params.snare.tune / 12), startTime);
-                    
-                    oscGain.gain.setValueAtTime(volume * 0.3 * this.params.snare.tone, startTime);
-                    oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + this.params.snare.decay);
-                    
-                    osc.connect(oscGain);
-                    oscGain.connect(this.audioContext.destination);
-                    
-                    osc.start(startTime);
-                    osc.stop(startTime + this.params.snare.decay);
-                });
-                
-                // Noise component (snare wires)
-                const noiseBuffer = this._createNoiseBuffer(this.params.snare.decay);
-                const noise = this.audioContext.createBufferSource();
-                const noiseGain = this.audioContext.createGain();
-                const noiseFilter = this.audioContext.createBiquadFilter();
-                
-                noise.buffer = noiseBuffer;
-                noiseFilter.type = 'highpass';
-                noiseFilter.frequency.value = 2000;
-                noiseFilter.Q.value = 1;
-                
-                noiseGain.gain.setValueAtTime(volume * 0.7 * this.params.snare.snappy, startTime);
-                noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + this.params.snare.decay);
-                
-                noise.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(this.audioContext.destination);
-                
-                noise.start(startTime);
-            },
-            tight: () => {
-                // Tighter, more focused snare
-                const osc = this.audioContext.createOscillator();
-                const oscGain = this.audioContext.createGain();
-                
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(220, startTime);
-                
-                oscGain.gain.setValueAtTime(volume * 0.4, startTime);
-                oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15);
-                
-                osc.connect(oscGain);
-                oscGain.connect(this.audioContext.destination);
-                
-                osc.start(startTime);
-                osc.stop(startTime + 0.15);
-                
-                // Short, crisp noise
-                this._createNoiseHit(startTime, 0.12, 4000, volume * 0.6);
-            },
-            fat: () => {
-                // Fatter, more room sound
-                [160, 240, 380].forEach(freq => {
-                    const osc = this.audioContext.createOscillator();
-                    const oscGain = this.audioContext.createGain();
-                    
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    
-                    oscGain.gain.setValueAtTime(volume * 0.25, startTime);
-                    oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
-                    
-                    osc.connect(oscGain);
-                    oscGain.connect(this.audioContext.destination);
-                    
-                    osc.start(startTime);
-                    osc.stop(startTime + 0.4);
-                });
-                
-                this._createNoiseHit(startTime, 0.35, 2500, volume * 0.8);
-            }
-        };
-        
-        if (variations[v]) {
-            variations[v]();
-        }
-    }
-    
-    /**
-     * Play Closed Hi-Hat
-     */
-    playHatClosed(variation = null, time = null, accent = false) {
-        const v = variation || this.currentVariations.hatClosed;
-        const startTime = time || this.audioContext.currentTime;
-        const volume = this.masterVolume * (accent ? this.accentLevel : 1.0) * 0.3;
-        
-        // 909 hi-hats use square wave oscillators at metallic frequencies
-        const frequencies = [296, 387, 512, 661, 805, 954];
-        
-        frequencies.forEach(freq => {
-            const osc = this.audioContext.createOscillator();
-            const oscGain = this.audioContext.createGain();
-            const filter = this.audioContext.createBiquadFilter();
-            
-            osc.type = 'square';
-            osc.frequency.value = freq * this.params.hatClosed.metallic;
-            
-            filter.type = 'highpass';
-            filter.frequency.value = 7000;
-            
-            oscGain.gain.setValueAtTime(volume / frequencies.length, startTime);
-            oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + this.params.hatClosed.decay);
-            
-            osc.connect(filter);
-            filter.connect(oscGain);
-            oscGain.connect(this.audioContext.destination);
-            
-            osc.start(startTime);
-            osc.stop(startTime + this.params.hatClosed.decay);
-        });
-    }
-    
-    /**
-     * Play Open Hi-Hat
-     */
-    playHatOpen(variation = null, time = null, accent = false) {
-        const v = variation || this.currentVariations.hatOpen;
-        const startTime = time || this.audioContext.currentTime;
-        const volume = this.masterVolume * (accent ? this.accentLevel : 1.0) * 0.35;
-        
-        const frequencies = [296, 387, 512, 661, 805, 954];
-        
-        frequencies.forEach(freq => {
-            const osc = this.audioContext.createOscillator();
-            const oscGain = this.audioContext.createGain();
-            const filter = this.audioContext.createBiquadFilter();
-            
-            osc.type = 'square';
-            osc.frequency.value = freq * this.params.hatOpen.metallic;
-            
-            filter.type = 'highpass';
-            filter.frequency.value = 7000;
-            
-            oscGain.gain.setValueAtTime(volume / frequencies.length, startTime);
-            oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + this.params.hatOpen.decay);
-            
-            osc.connect(filter);
-            filter.connect(oscGain);
-            oscGain.connect(this.audioContext.destination);
-            
-            osc.start(startTime);
-            osc.stop(startTime + this.params.hatOpen.decay);
-        });
-    }
-    
-    /**
-     * Play Tom (Low, Mid, or High)
-     */
-    playTom(type = 'mid', time = null, accent = false) {
-        const startTime = time || this.audioContext.currentTime;
-        const volume = this.masterVolume * (accent ? this.accentLevel : 1.0);
-        
-        const tunings = {
-            low: this.params.tom.lowTune,
-            mid: this.params.tom.midTune,
-            high: this.params.tom.highTune
-        };
-        
-        const baseFreq = 80 * Math.pow(2, tunings[type] / 12);
-        
-        const osc = this.audioContext.createOscillator();
-        const oscGain = this.audioContext.createGain();
-        const filter = this.audioContext.createBiquadFilter();
-        
+        // Oscillator for body
+        const osc = this.context.createOscillator();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(baseFreq * 2, startTime);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq, startTime + 0.02);
         
+        // Pitch envelope
+        osc.frequency.setValueAtTime(150 * (params.pitch / 60), t);
+        osc.frequency.exponentialRampToValueAtTime(40, t + 0.05);
+        
+        // Amplitude envelope
+        const amp = this.context.createGain();
+        amp.gain.setValueAtTime(params.level, t);
+        amp.gain.exponentialRampToValueAtTime(0.001, t + params.decay);
+        
+        // Tone control (filter)
+        const filter = this.context.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.value = baseFreq * 4;
-        filter.Q.value = 2;
+        filter.frequency.value = 150 + (params.tone * 200);
         
-        oscGain.gain.setValueAtTime(volume * 0.8, startTime);
-        oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + this.params.tom.decay);
-        
+        // Connect
         osc.connect(filter);
-        filter.connect(oscGain);
-        oscGain.connect(this.audioContext.destination);
+        filter.connect(amp);
+        amp.connect(this.output);
         
-        osc.start(startTime);
-        osc.stop(startTime + this.params.tom.decay);
+        osc.start(t);
+        osc.stop(t + params.decay);
     }
     
-    /**
-     * Play Rimshot
-     */
-    playRimshot(time = null, accent = false) {
-        const startTime = time || this.audioContext.currentTime;
-        const volume = this.masterVolume * (accent ? this.accentLevel : 1.0);
+    // Play snare drum
+    playSnare(time = null) {
+        const t = time || this.context.currentTime;
+        const params = this.params.snare;
         
-        // Rimshot is a combination of high-pitched oscillators
-        [1047, 1480].forEach((freq, i) => {
-            const osc = this.audioContext.createOscillator();
-            const oscGain = this.audioContext.createGain();
-            const filter = this.audioContext.createBiquadFilter();
-            
-            osc.type = 'square';
-            osc.frequency.value = freq * Math.pow(2, this.params.rimshot.tune / 12);
-            
-            filter.type = 'bandpass';
-            filter.frequency.value = freq;
-            filter.Q.value = 10;
-            
-            oscGain.gain.setValueAtTime(volume * 0.4, startTime);
-            oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + this.params.rimshot.decay);
-            
-            osc.connect(filter);
-            filter.connect(oscGain);
-            oscGain.connect(this.audioContext.destination);
-            
-            osc.start(startTime);
-            osc.stop(startTime + this.params.rimshot.decay);
-        });
-    }
-    
-    /**
-     * Play Ride Cymbal
-     */
-    playRide(time = null, accent = false) {
-        const startTime = time || this.audioContext.currentTime;
-        const volume = this.masterVolume * (accent ? this.accentLevel : 1.0) * 0.4;
+        // Tonal component (two oscillators)
+        const osc1 = this.context.createOscillator();
+        const osc2 = this.context.createOscillator();
+        osc1.type = 'triangle';
+        osc2.type = 'triangle';
+        osc1.frequency.value = params.tune;
+        osc2.frequency.value = params.tune * 1.5;
         
-        const frequencies = [3520, 4435, 5680, 6300, 7520];
+        const oscGain = this.context.createGain();
+        oscGain.gain.setValueAtTime(0.3 * params.tone, t);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, t + params.decay);
         
-        frequencies.forEach(freq => {
-            const osc = this.audioContext.createOscillator();
-            const oscGain = this.audioContext.createGain();
-            const filter = this.audioContext.createBiquadFilter();
-            
-            osc.type = 'square';
-            osc.frequency.value = freq;
-            
-            filter.type = 'highpass';
-            filter.frequency.value = 5000;
-            
-            oscGain.gain.setValueAtTime(volume / frequencies.length, startTime);
-            oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + this.params.ride.decay);
-            
-            osc.connect(filter);
-            filter.connect(oscGain);
-            oscGain.connect(this.audioContext.destination);
-            
-            osc.start(startTime);
-            osc.stop(startTime + this.params.ride.decay);
-        });
-    }
-    
-    /**
-     * Play Crash Cymbal
-     */
-    playCrash(time = null, accent = false) {
-        const startTime = time || this.audioContext.currentTime;
-        const volume = this.masterVolume * (accent ? this.accentLevel : 1.0) * 0.5;
+        osc1.connect(oscGain);
+        osc2.connect(oscGain);
         
-        const frequencies = [2840, 3690, 4720, 5940, 7100, 8350];
+        // Noise component
+        const bufferSize = this.context.sampleRate * params.decay;
+        const noise = this.context.createBufferSource();
+        const noiseBuffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
         
-        frequencies.forEach(freq => {
-            const osc = this.audioContext.createOscillator();
-            const oscGain = this.audioContext.createGain();
-            const filter = this.audioContext.createBiquadFilter();
-            
-            osc.type = 'square';
-            osc.frequency.value = freq;
-            
-            filter.type = 'highpass';
-            filter.frequency.value = 4000;
-            
-            oscGain.gain.setValueAtTime(volume / frequencies.length, startTime);
-            oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + this.params.crash.decay);
-            
-            osc.connect(filter);
-            filter.connect(oscGain);
-            oscGain.connect(this.audioContext.destination);
-            
-            osc.start(startTime);
-            osc.stop(startTime + this.params.crash.decay);
-        });
-    }
-    
-    /**
-     * Helper: Create noise buffer
-     */
-    _createNoiseBuffer(duration) {
-        const sampleRate = this.audioContext.sampleRate;
-        const length = sampleRate * duration;
-        const buffer = this.audioContext.createBuffer(1, length, sampleRate);
-        const data = buffer.getChannelData(0);
-        
-        for (let i = 0; i < length; i++) {
-            data[i] = Math.random() * 2 - 1;
+        for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
         }
-        
-        return buffer;
-    }
-    
-    /**
-     * Helper: Create noise hit
-     */
-    _createNoiseHit(time, duration, filterFreq, volume) {
-        const noiseBuffer = this._createNoiseBuffer(duration);
-        const noise = this.audioContext.createBufferSource();
-        const noiseGain = this.audioContext.createGain();
-        const noiseFilter = this.audioContext.createBiquadFilter();
-        
         noise.buffer = noiseBuffer;
-        noiseFilter.type = 'highpass';
-        noiseFilter.frequency.value = filterFreq;
         
-        noiseGain.gain.setValueAtTime(volume, time);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+        const noiseFilter = this.context.createBiquadFilter();
+        noiseFilter.type = 'highpass';
+        noiseFilter.frequency.value = 1000 * params.snappy;
+        
+        const noiseGain = this.context.createGain();
+        noiseGain.gain.setValueAtTime(params.level, t);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + params.decay);
         
         noise.connect(noiseFilter);
         noiseFilter.connect(noiseGain);
-        noiseGain.connect(this.audioContext.destination);
         
-        noise.start(time);
+        // Mix and output
+        const mix = this.context.createGain();
+        oscGain.connect(mix);
+        noiseGain.connect(mix);
+        mix.connect(this.output);
+        
+        osc1.start(t);
+        osc2.start(t);
+        noise.start(t);
+        osc1.stop(t + params.decay);
+        osc2.stop(t + params.decay);
     }
     
-    /**
-     * Set master volume
-     */
-    setVolume(volume) {
-        this.masterVolume = Math.max(0, Math.min(1, volume));
+    // Play closed hi-hat
+    playHatClosed(time = null) {
+        const t = time || this.context.currentTime;
+        const params = this.params.hatClosed;
+        
+        this.playHat(t, params.decay, params.level, params.tune);
     }
     
-    /**
-     * Export configuration
-     */
-    exportConfig() {
-        return {
-            variations: { ...this.currentVariations },
-            params: JSON.parse(JSON.stringify(this.params)),
-            volume: this.masterVolume,
-            accentLevel: this.accentLevel
-        };
+    // Play open hi-hat
+    playHatOpen(time = null) {
+        const t = time || this.context.currentTime;
+        const params = this.params.hatOpen;
+        
+        this.playHat(t, params.decay, params.level, params.tune);
     }
     
-    /**
-     * Import configuration
-     */
-    importConfig(config) {
-        if (config.variations) {
-            this.currentVariations = { ...config.variations };
-        }
-        if (config.params) {
-            this.params = JSON.parse(JSON.stringify(config.params));
-        }
-        if (config.volume !== undefined) {
-            this.masterVolume = config.volume;
-        }
-        if (config.accentLevel !== undefined) {
-            this.accentLevel = config.accentLevel;
+    // Generic hi-hat synthesis
+    playHat(time, decay, level, tune) {
+        // Use multiple square waves for metallic sound
+        const fundamental = 40;
+        const ratios = [2, 3, 4.16, 5.43, 6.79, 8.21];
+        
+        const mix = this.context.createGain();
+        mix.gain.setValueAtTime(level, time);
+        mix.gain.exponentialRampToValueAtTime(0.001, time + decay);
+        
+        ratios.forEach(ratio => {
+            const osc = this.context.createOscillator();
+            osc.type = 'square';
+            osc.frequency.value = fundamental * ratio * (0.5 + tune);
+            
+            const oscGain = this.context.createGain();
+            oscGain.gain.value = 1 / ratios.length;
+            
+            osc.connect(oscGain);
+            oscGain.connect(mix);
+            
+            osc.start(time);
+            osc.stop(time + decay);
+        });
+        
+        // Highpass filter for brightness
+        const filter = this.context.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 7000;
+        
+        mix.connect(filter);
+        filter.connect(this.output);
+    }
+    
+    // Play clap
+    playClap(time = null) {
+        const t = time || this.context.currentTime;
+        const params = this.params.clap;
+        
+        // Multiple short bursts of noise
+        for (let i = 0; i < 3; i++) {
+            const delay = i * 0.03;
+            const noise = this.context.createBufferSource();
+            const bufferSize = this.context.sampleRate * 0.05;
+            const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            for (let j = 0; j < bufferSize; j++) {
+                data[j] = Math.random() * 2 - 1;
+            }
+            noise.buffer = buffer;
+            
+            const filter = this.context.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 1000 + (params.tone * 2000);
+            filter.Q.value = 10;
+            
+            const gain = this.context.createGain();
+            gain.gain.setValueAtTime(params.level * (1 - i * 0.2), t + delay);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + delay + params.decay);
+            
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.output);
+            
+            noise.start(t + delay);
         }
     }
-
-    toggleStep(index, active) {
-        if (index >= 0 && index < 16) {
-            this.pattern[index].kick = active;
-        }
+    
+    // Connect to destination
+    connect(destination) {
+        this.output.connect(destination);
+        return this;
     }
-
-    play() {
-        if (this.isPlaying) return;
-        this.isPlaying = true;
-        this.currentStep = 0;
-        const stepTime = (60 / this.bpm) * 1000 / 4;
-        this.interval = setInterval(() => {
-            const step = this.pattern[this.currentStep];
-            if (step.kick) this.playKick();
-            if (step.snare) this.playSnare();
-            if (step.hatClosed) this.playHatClosed();
-            if (step.hatOpen) this.playHatOpen();
-            this.currentStep = (this.currentStep + 1) % 16;
-        }, stepTime);
-    }
-
-    stop() {
-        this.isPlaying = false;
-        if (this.interval) clearInterval(this.interval);
-        this.currentStep = 0;
+    
+    // Disconnect
+    disconnect() {
+        this.output.disconnect();
+        return this;
     }
 }
 
-// Also support CommonJS for Node.js
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = TR909;
-}
+// Make available globally
+window.TR909 = TR909;
