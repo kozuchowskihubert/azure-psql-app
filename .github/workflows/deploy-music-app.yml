@@ -33,13 +33,13 @@
 name: Deploy Music Production App
 
 on:
+  # Only trigger on manual dispatch or release tags
+  # This prevents rebuilding on every push - use feature management workflow instead
   push:
-    branches: [ feat/tracks ]
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
-  pull_request:
-    branches: [ feat/tracks ]
+    tags:
+      - 'v*.*.*'           # Semantic version tags (v1.0.0)
+      - 'release-*'        # Release tags (release-production)
+      - 'deploy-music-*'   # Explicit deployment tags (deploy-music-fix)
   workflow_dispatch:
     inputs:
       environment:
@@ -55,6 +55,11 @@ on:
         description: 'Skip health checks and verification'
         required: false
         default: false
+        type: boolean
+      force_rebuild:
+        description: 'Force rebuild even if no code changes'
+        required: false
+        default: true
         type: boolean
 
 # Global environment variables
