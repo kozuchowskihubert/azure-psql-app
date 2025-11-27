@@ -691,32 +691,9 @@
 </head>
 <body>
 
-    <!-- Load synthesis modules -->
-    <script src="/modules/core-audio-engine.js" onerror="console.error('Failed to load core-audio-engine.js')"></script>
-    <script src="/modules/bass-303.js" onerror="console.error('Failed to load bass-303.js')"></script>
-    <script src="/modules/sequencer.js" onerror="console.error('Failed to load sequencer.js')"></script>
-    <script src="/modules/pattern-library.js" onerror="console.error('Failed to load pattern-library.js')"></script>
-    <script src="/js/synths/tb303.js" onerror="console.error('Failed to load tb303.js')"></script>
-    <script src="/js/synths/tr909.js" onerror="console.error('Failed to load tr909.js')"></script>
-    <script src="/js/synths/tr808.js" onerror="console.error('Failed to load tr808.js')"></script>
-    <script src="/js/factory-presets.js" onerror="console.error('Failed to load factory-presets.js')"></script>
-    <script src="/js/preset-mapper.js" onerror="console.error('Failed to load preset-mapper.js')"></script>
+    <!-- Load HAOS Audio Engine -->
+    <script src="/js/haos-audio-engine.js"></script>
     
-    <!-- Module Load Verification -->
-    <script>
-        console.log('📦 Module Loading Check:', {
-            CoreAudioEngine: typeof CoreAudioEngine !== 'undefined',
-            Bass303: typeof Bass303 !== 'undefined',
-            Sequencer: typeof Sequencer !== 'undefined',
-            PatternLibrary: typeof PatternLibrary !== 'undefined',
-            TB303: typeof TB303 !== 'undefined',
-            TR909: typeof TR909 !== 'undefined',
-            TR808: typeof TR808 !== 'undefined',
-            FACTORY_PRESETS: typeof FACTORY_PRESETS !== 'undefined',
-            PresetMapper: typeof PresetMapper !== 'undefined'
-        });
-    </script>
-
     <!-- Header -->
     <header class="haos-header">
         <div class="header-content">
@@ -948,9 +925,9 @@
 
     <!-- Minimal JavaScript -->
     <script>
-        // HAOS Audio Engine
+        // HAOS Audio Engine Wrapper
         const AudioEngine = {
-            coreEngine: null,
+            engine: null,
             context: null,
             masterGain: null,
             initialized: false,
@@ -958,99 +935,34 @@
             // Synth modules
             tb303: null,
             tr909: null,
-            tr808: null,
-            bass303: null,
             sequencer: null,
-            
-            // Preset systems
-            presetMapper: null,
-            patternLibrary: null,
-            factoryPresets: null,
             
             async init() {
                 if (this.initialized) return;
                 
                 try {
-                    console.log('🎛️ Initializing Audio Engine...');
+                    console.log('🎛️ Initializing HAOS Audio Engine...');
                     
-                    // Check if modules are loaded
-                    if (typeof CoreAudioEngine === 'undefined') {
-                        throw new Error('CoreAudioEngine not loaded');
-                    }
+                    // Initialize HAOS Audio Engine
+                    this.engine = new HAOSAudioEngine();
+                    await this.engine.init();
                     
-                    // Initialize Core Audio Engine
-                    this.coreEngine = new CoreAudioEngine({ masterGain: 0.7 });
-                    await this.coreEngine.init();
+                    this.context = this.engine.audioContext;
+                    this.masterGain = this.engine.masterGain;
                     
-                    this.context = this.coreEngine.audioContext;
-                    this.masterGain = this.coreEngine.masterGainNode;
-                    
-                    console.log('✓ Core audio context created:', this.context.state);
-                    
-                    // Initialize synth modules with error handling
-                    if (typeof TB303 !== 'undefined') {
-                        this.tb303 = new TB303(this.context);
-                        console.log('✓ TB303 initialized');
-                    } else {
-                        console.warn('⚠️ TB303 class not found');
-                    }
-                    
-                    if (typeof TR909 !== 'undefined') {
-                        this.tr909 = new TR909(this.context);
-                        console.log('✓ TR909 initialized');
-                    } else {
-                        console.warn('⚠️ TR909 class not found');
-                    }
-                    
-                    if (typeof TR808 !== 'undefined') {
-                        this.tr808 = new TR808(this.context);
-                        console.log('✓ TR808 initialized');
-                    } else {
-                        console.warn('⚠️ TR808 class not found');
-                    }
-                    
-                    if (typeof Bass303 !== 'undefined') {
-                        this.bass303 = new Bass303(this.coreEngine);
-                        if (this.bass303.output) {
-                            this.bass303.output.connect(this.masterGain);
-                        }
-                        console.log('✓ Bass303 initialized');
-                    } else {
-                        console.warn('⚠️ Bass303 class not found');
-                    }
-                    
-                    if (typeof Sequencer !== 'undefined') {
-                        this.sequencer = new Sequencer(this.coreEngine);
-                        console.log('✓ Sequencer initialized');
-                    } else {
-                        console.warn('⚠️ Sequencer class not found');
-                    }
-                    
-                    // Initialize preset systems
-                    if (typeof PresetMapper !== 'undefined') {
-                        this.presetMapper = new PresetMapper();
-                        console.log('✓ PresetMapper initialized with', Object.keys(this.presetMapper.presets).length, 'synth preset maps');
-                    }
-                    
-                    if (typeof PatternLibrary !== 'undefined') {
-                        this.patternLibrary = new PatternLibrary();
-                        console.log('✓ PatternLibrary initialized');
-                    }
-                    
-                    if (typeof FACTORY_PRESETS !== 'undefined') {
-                        this.factoryPresets = FACTORY_PRESETS;
-                        console.log('✓ Factory presets loaded:', Object.keys(FACTORY_PRESETS));
-                    }
+                    // Reference synth modules
+                    this.tb303 = this.engine.tb303;
+                    this.tr909 = this.engine.tr909;
+                    this.sequencer = this.engine.sequencer;
                     
                     this.initialized = true;
-                    console.log('🔊 Audio Engine initialized successfully:', {
+                    
+                    console.log('🔊 HAOS Audio Engine initialized:', {
                         sampleRate: this.context.sampleRate + ' Hz',
                         state: this.context.state,
                         modules: {
                             TB303: !!this.tb303,
                             TR909: !!this.tr909,
-                            TR808: !!this.tr808,
-                            Bass303: !!this.bass303,
                             Sequencer: !!this.sequencer
                         }
                     });
@@ -1058,183 +970,27 @@
                     return true;
                 } catch (error) {
                     console.error('❌ Failed to initialize audio engine:', error);
-                    console.error('Stack trace:', error.stack);
                     throw error;
                 }
             },
             
-            // Load preset into synth
-            loadPreset(synthName, presetName) {
-                console.log(`🎚️ Loading preset "${presetName}" for ${synthName}`);
-                
-                if (!this.factoryPresets || !this.factoryPresets[synthName]) {
-                    console.warn(`No presets found for ${synthName}`);
-                    return false;
-                }
-                
-                const presets = this.factoryPresets[synthName];
-                const preset = presets.find(p => p.name === presetName) || presets[0];
-                
-                if (!preset) {
-                    console.warn(`Preset "${presetName}" not found for ${synthName}`);
-                    return false;
-                }
-                
-                try {
-                    switch(synthName) {
-                        case 'tb303':
-                            if (this.tb303 && preset.data.params) {
-                                Object.entries(preset.data.params).forEach(([key, value]) => {
-                                    this.tb303.setParam(key, value);
-                                });
-                                if (preset.data.pattern) {
-                                    this.tb303.pattern = preset.data.pattern;
-                                }
-                                console.log('✓ TB303 preset loaded:', preset.name);
-                            }
-                            break;
-                            
-                        case 'tr909':
-                            if (this.tr909 && preset.data.params) {
-                                Object.entries(preset.data.params).forEach(([drum, params]) => {
-                                    if (this.tr909.params[drum]) {
-                                        Object.assign(this.tr909.params[drum], params);
-                                    }
-                                });
-                                if (preset.data.pattern) {
-                                    this.tr909.pattern = preset.data.pattern;
-                                }
-                                if (preset.data.bpm) {
-                                    this.tr909.bpm = preset.data.bpm;
-                                }
-                                console.log('✓ TR909 preset loaded:', preset.name);
-                            }
-                            break;
-                            
-                        case 'tr808':
-                            if (this.tr808 && preset.data.pattern) {
-                                this.tr808.pattern = preset.data.pattern;
-                                if (preset.data.bpm) {
-                                    this.tr808.bpm = preset.data.bpm;
-                                }
-                                console.log('✓ TR808 preset loaded:', preset.name);
-                            }
-                            break;
-                    }
-                    
-                    return true;
-                } catch (error) {
-                    console.error(`Failed to load preset:`, error);
-                    return false;
-                }
-            },
-            
-            // Get available presets for a synth
-            getPresets(synthName) {
-                if (!this.factoryPresets || !this.factoryPresets[synthName]) {
-                    return [];
-                }
-                return this.factoryPresets[synthName].map(p => p.name);
-            },
-            
-            playNote(frequency, duration = 0.3, type = 'sine') {
-                if (!this.initialized) this.init();
-                
+            // Simple note player
+            playNote(freq, duration, waveform) {
+                const now = this.context.currentTime;
                 const osc = this.context.createOscillator();
-                const gain = this.context.createGain();
+                const env = this.context.createGain();
                 
-                osc.type = type;
-                osc.frequency.value = frequency;
+                osc.type = waveform || 'sine';
+                osc.frequency.value = freq;
                 
-                gain.gain.setValueAtTime(0.3, this.context.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + duration);
+                env.gain.setValueAtTime(0.3, now);
+                env.gain.exponentialRampToValueAtTime(0.01, now + duration);
                 
-                osc.connect(gain);
-                gain.connect(this.masterGain);
+                osc.connect(env);
+                env.connect(this.masterGain);
                 
-                osc.start(this.context.currentTime);
-                osc.stop(this.context.currentTime + duration);
-            },
-            
-            playKick() {
-                if (!this.initialized) this.init();
-                
-                const osc = this.context.createOscillator();
-                const gain = this.context.createGain();
-                
-                osc.frequency.setValueAtTime(150, this.context.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(40, this.context.currentTime + 0.1);
-                
-                gain.gain.setValueAtTime(1, this.context.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.5);
-                
-                osc.connect(gain);
-                gain.connect(this.masterGain);
-                
-                osc.start(this.context.currentTime);
-                osc.stop(this.context.currentTime + 0.5);
-            },
-            
-            playSnare() {
-                if (!this.initialized) this.init();
-                
-                const noise = this.context.createBufferSource();
-                const noiseBuffer = this.context.createBuffer(1, this.context.sampleRate * 0.2, this.context.sampleRate);
-                const output = noiseBuffer.getChannelData(0);
-                
-                for (let i = 0; i < output.length; i++) {
-                    output[i] = Math.random() * 2 - 1;
-                }
-                
-                noise.buffer = noiseBuffer;
-                
-                const noiseFilter = this.context.createBiquadFilter();
-                noiseFilter.type = 'highpass';
-                noiseFilter.frequency.value = 1000;
-                
-                const noiseGain = this.context.createGain();
-                noiseGain.gain.setValueAtTime(1, this.context.currentTime);
-                noiseGain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.2);
-                
-                noise.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(this.masterGain);
-                
-                noise.start(this.context.currentTime);
-            },
-            
-            playHiHat(closed = true) {
-                if (!this.initialized) this.init();
-                
-                const noise = this.context.createBufferSource();
-                const duration = closed ? 0.05 : 0.15;
-                const noiseBuffer = this.context.createBuffer(1, this.context.sampleRate * duration, this.context.sampleRate);
-                const output = noiseBuffer.getChannelData(0);
-                
-                for (let i = 0; i < output.length; i++) {
-                    output[i] = Math.random() * 2 - 1;
-                }
-                
-                noise.buffer = noiseBuffer;
-                
-                const bandpass = this.context.createBiquadFilter();
-                bandpass.type = 'bandpass';
-                bandpass.frequency.value = 10000;
-                
-                const highpass = this.context.createBiquadFilter();
-                highpass.type = 'highpass';
-                highpass.frequency.value = 7000;
-                
-                const gain = this.context.createGain();
-                gain.gain.setValueAtTime(0.3, this.context.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + duration);
-                
-                noise.connect(bandpass);
-                bandpass.connect(highpass);
-                highpass.connect(gain);
-                gain.connect(this.masterGain);
-                
-                noise.start(this.context.currentTime);
+                osc.start(now);
+                osc.stop(now + duration + 0.1);
             }
         };
         
