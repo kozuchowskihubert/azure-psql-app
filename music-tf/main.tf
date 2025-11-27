@@ -112,8 +112,8 @@ resource "azurerm_linux_web_app" "music_app" {
     "DOCKER_REGISTRY_SERVER_PASSWORD"     = data.azurerm_container_registry.acr.admin_password
     "DOCKER_ENABLE_CI"                    = "true"
     "NODE_ENV"                            = "production"
-    "PORT"                                = "3000"
-    "WEBSITES_PORT"                       = "3000"
+    "PORT"                                = "8080"
+    "WEBSITES_PORT"                       = "8080"
     "DATABASE_URL"                        = "postgresql://notesadmin:${var.db_password}@notesapp-dev-pg.postgres.database.azure.com:5432/notesdb?sslmode=require"
   }
 
