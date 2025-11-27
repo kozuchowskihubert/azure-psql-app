@@ -724,6 +724,82 @@
             50% { opacity: 0.8; transform: scale(1.05); }
         }
 
+        /* Collapsible Sections */
+        .collapsible-section {
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--haos-bg-elevated);
+            border: 2px solid var(--haos-border);
+            border-radius: 8px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .section-header:hover {
+            border-color: var(--haos-orange-primary);
+            background: rgba(255, 107, 53, 0.05);
+        }
+
+        .section-header.collapsed {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--haos-orange-primary);
+            letter-spacing: 1px;
+        }
+
+        .section-icon {
+            font-size: 1.3rem;
+        }
+
+        .collapse-icon {
+            font-size: 1.2rem;
+            color: var(--haos-text-dim);
+            transition: transform 0.3s;
+        }
+
+        .section-header.collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+            opacity: 1;
+            padding: 20px 0;
+        }
+
+        .section-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding: 0;
+        }
+
+        .section-badge {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            background: rgba(255, 107, 53, 0.2);
+            color: var(--haos-orange-primary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 107, 53, 0.3);
+        }
+
         /* Auto-save indicator */
         .auto-save {
             display: flex;
@@ -915,147 +991,157 @@
     <!-- Tab Content: Synths -->
     <div class="tab-content" id="tab-synths">
         <div class="workspace-container">
-            <div class="sidebar">
-                <div class="panel">
-                    <div class="panel-header">
-                        <h3 class="panel-title">Available Synths</h3>
+            <div class="main-workspace" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+                
+                <!-- TB-303 Section -->
+                <div class="collapsible-section">
+                    <div class="section-header" onclick="toggleSection('tb303-section')">
+                        <div class="section-title">
+                            <span class="section-icon">🎹</span>
+                            <span>TB-303 BASS SYNTHESIZER</span>
+                            <span class="section-badge">ACTIVE</span>
+                        </div>
+                        <span class="collapse-icon">▼</span>
                     </div>
-                    <div class="module-grid">
-                        <div class="module-card active" id="tb303-card">
-                            <div class="module-name">TB-303</div>
-                            <div class="module-desc">Acid Bass Synthesizer</div>
-                            <div class="module-status">
-                                <span class="status-led active"></span>
-                                <span>ACTIVE</span>
+                    <div class="section-content" id="tb303-section">
+                        <div class="panel">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 30px; padding: 20px;">
+                                <div class="knob-container">
+                                    <div class="knob" id="cutoff-knob">
+                                        <div class="knob-indicator"></div>
+                                    </div>
+                                    <div class="knob-label">CUTOFF</div>
+                                    <div class="knob-value">800 Hz</div>
+                                </div>
+                                
+                                <div class="knob-container">
+                                    <div class="knob" id="resonance-knob">
+                                        <div class="knob-indicator"></div>
+                                    </div>
+                                    <div class="knob-label">RESONANCE</div>
+                                    <div class="knob-value">60%</div>
+                                </div>
+                                
+                                <div class="knob-container">
+                                    <div class="knob" id="envelope-knob">
+                                        <div class="knob-indicator"></div>
+                                    </div>
+                                    <div class="knob-label">ENVELOPE</div>
+                                    <div class="knob-value">50%</div>
+                                </div>
+                                
+                                <div class="knob-container">
+                                    <div class="knob" id="decay-knob">
+                                        <div class="knob-indicator"></div>
+                                    </div>
+                                    <div class="knob-label">DECAY</div>
+                                    <div class="knob-value">400 ms</div>
+                                </div>
+                                
+                                <div class="knob-container">
+                                    <div class="knob" id="accent-knob">
+                                        <div class="knob-indicator"></div>
+                                    </div>
+                                    <div class="knob-label">ACCENT</div>
+                                    <div class="knob-value">80%</div>
+                                </div>
+                                
+                                <div class="knob-container">
+                                    <div class="knob" id="distortion-knob">
+                                        <div class="knob-indicator"></div>
+                                    </div>
+                                    <div class="knob-label">DISTORTION</div>
+                                    <div class="knob-value">20%</div>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div class="module-card" id="tr909-card">
-                            <div class="module-name">TR-909</div>
-                            <div class="module-desc">Drum Machine</div>
-                            <div class="module-status">
-                                <span class="status-led"></span>
-                                <span>READY</span>
+                            
+                            <div style="padding: 0 20px 20px;">
+                                <button class="transport-btn" style="width: 100%; font-size: 1.1rem; padding: 15px;" id="test-synth-btn">
+                                    🎵 TEST SOUND
+                                </button>
                             </div>
-                        </div>
-                        
-                        <div class="module-card" id="arp2600-card">
-                            <div class="module-name">ARP 2600</div>
-                            <div class="module-desc">Modular Synthesizer</div>
-                            <div class="module-status">
-                                <span class="status-led"></span>
-                                <span>READY</span>
-                            </div>
-                        </div>
-                        
-                        <div class="module-card" id="string-card">
-                            <div class="module-name">STRING MACHINE</div>
-                            <div class="module-desc">Analog String Synth</div>
-                            <div class="module-status">
-                                <span class="status-led"></span>
-                                <span>READY</span>
+                            
+                            <div style="padding: 0 20px 20px;">
+                                <div class="panel-header">
+                                    <h4 class="panel-title">Output Level</h4>
+                                </div>
+                                <div class="vu-meter">
+                                    <div class="vu-fill" id="synth-vu"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="panel">
-                    <div class="panel-header">
-                        <h3 class="panel-title">Presets</h3>
+                <!-- Presets Section -->
+                <div class="collapsible-section">
+                    <div class="section-header collapsed" onclick="toggleSection('presets-section')">
+                        <div class="section-title">
+                            <span class="section-icon">💾</span>
+                            <span>PRESETS</span>
+                            <span class="section-badge">4 SAVED</span>
+                        </div>
+                        <span class="collapse-icon">▼</span>
                     </div>
-                    <div class="preset-grid">
-                        <div class="preset-slot active">
-                            <div class="preset-number">1</div>
-                            <div class="preset-name">Acid Lead</div>
-                        </div>
-                        <div class="preset-slot">
-                            <div class="preset-number">2</div>
-                            <div class="preset-name">Deep Bass</div>
-                        </div>
-                        <div class="preset-slot">
-                            <div class="preset-number">3</div>
-                            <div class="preset-name">Squelchy</div>
-                        </div>
-                        <div class="preset-slot">
-                            <div class="preset-number">4</div>
-                            <div class="preset-name">Custom</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="main-workspace">
-                <div class="panel">
-                    <div class="panel-header">
-                        <h2 class="panel-title">TB-303 Bass Synthesizer</h2>
-                        <span class="panel-badge">ACTIVE</span>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 30px; margin-top: 20px;">
-                        <div class="knob-container">
-                            <div class="knob" id="cutoff-knob">
-                                <div class="knob-indicator"></div>
+                    <div class="section-content collapsed" id="presets-section">
+                        <div class="panel">
+                            <div class="preset-grid" style="padding: 20px;">
+                                <div class="preset-slot active">
+                                    <div class="preset-number">1</div>
+                                    <div class="preset-name">Acid Lead</div>
+                                </div>
+                                <div class="preset-slot">
+                                    <div class="preset-number">2</div>
+                                    <div class="preset-name">Deep Bass</div>
+                                </div>
+                                <div class="preset-slot">
+                                    <div class="preset-number">3</div>
+                                    <div class="preset-name">Squelchy</div>
+                                </div>
+                                <div class="preset-slot">
+                                    <div class="preset-number">4</div>
+                                    <div class="preset-name">Custom</div>
+                                </div>
                             </div>
-                            <div class="knob-label">CUTOFF</div>
-                            <div class="knob-value">800 Hz</div>
                         </div>
-                        
-                        <div class="knob-container">
-                            <div class="knob" id="resonance-knob">
-                                <div class="knob-indicator"></div>
-                            </div>
-                            <div class="knob-label">RESONANCE</div>
-                            <div class="knob-value">60%</div>
-                        </div>
-                        
-                        <div class="knob-container">
-                            <div class="knob" id="envelope-knob">
-                                <div class="knob-indicator"></div>
-                            </div>
-                            <div class="knob-label">ENVELOPE</div>
-                            <div class="knob-value">50%</div>
-                        </div>
-                        
-                        <div class="knob-container">
-                            <div class="knob" id="decay-knob">
-                                <div class="knob-indicator"></div>
-                            </div>
-                            <div class="knob-label">DECAY</div>
-                            <div class="knob-value">400 ms</div>
-                        </div>
-                        
-                        <div class="knob-container">
-                            <div class="knob" id="accent-knob">
-                                <div class="knob-indicator"></div>
-                            </div>
-                            <div class="knob-label">ACCENT</div>
-                            <div class="knob-value">80%</div>
-                        </div>
-                        
-                        <div class="knob-container">
-                            <div class="knob" id="distortion-knob">
-                                <div class="knob-indicator"></div>
-                            </div>
-                            <div class="knob-label">DISTORTION</div>
-                            <div class="knob-value">20%</div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 30px;">
-                        <button class="transport-btn" style="width: 100%; font-size: 1.1rem; padding: 15px;" id="test-synth-btn">
-                            🎵 TEST SOUND
-                        </button>
                     </div>
                 </div>
                 
-                <div class="panel">
-                    <div class="panel-header">
-                        <h3 class="panel-title">Output Level</h3>
+                <!-- Other Synths Section -->
+                <div class="collapsible-section">
+                    <div class="section-header collapsed" onclick="toggleSection('other-synths-section')">
+                        <div class="section-title">
+                            <span class="section-icon">🎛️</span>
+                            <span>OTHER SYNTHESIZERS</span>
+                            <span class="section-badge">COMING SOON</span>
+                        </div>
+                        <span class="collapse-icon">▼</span>
                     </div>
-                    <div class="vu-meter">
-                        <div class="vu-fill" id="synth-vu"></div>
+                    <div class="section-content collapsed" id="other-synths-section">
+                        <div class="panel">
+                            <div class="module-grid" style="padding: 20px;">
+                                <div class="module-card" id="arp2600-card">
+                                    <div class="module-name">ARP 2600</div>
+                                    <div class="module-desc">Modular Synthesizer</div>
+                                    <div class="module-status">
+                                        <span class="status-led"></span>
+                                        <span>COMING SOON</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="module-card" id="string-card">
+                                    <div class="module-name">STRING MACHINE</div>
+                                    <div class="module-desc">Analog String Synth</div>
+                                    <div class="module-status">
+                                        <span class="status-led"></span>
+                                        <span>COMING SOON</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                
             </div>
         </div>
     </div>
@@ -2009,6 +2095,24 @@
                 exportMIDI();
             }
         });
+
+        // ========================================
+        // Collapsible Section Toggle
+        // ========================================
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const header = section.previousElementSibling;
+            
+            if (section.classList.contains('collapsed')) {
+                // Expand
+                section.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+            } else {
+                // Collapse
+                section.classList.add('collapsed');
+                header.classList.add('collapsed');
+            }
+        }
 
         // ========================================
         // Radio Player Functionality
