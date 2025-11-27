@@ -210,32 +210,41 @@ app.use('/api', apiRouter); // /api/notes, /api/health
 
 /**
  * Root-level health endpoint for Azure App Service
- * Azure may check /health instead of /api/health
+ * Simplified - always returns 200 OK if server is running
+ * Database check is optional and non-blocking
  */
 app.get('/health', async (req, res) => {
+  const response = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    app: 'HAOS.fm Music Platform',
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+  };
+
+  // Try database check with short timeout, but don't block
   try {
-    const client = await pool.connect();
-    try {
-      await client.query('SELECT 1');
-      res.json({
-        status: 'healthy',
-        database: 'connected',
-        timestamp: new Date().toISOString(),
-        app: 'HAOS.fm Music Platform',
-      });
-    } finally {
-      client.release();
+    const client = await Promise.race([
+      pool.connect(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000))
+    ]);
+    
+    if (client) {
+      try {
+        await client.query('SELECT 1');
+        response.database = 'connected';
+      } catch (dbErr) {
+        response.database = 'error';
+      } finally {
+        client.release();
+      }
     }
   } catch (err) {
-    // Return 200 even if DB is down, so Azure doesn't kill the app
-    res.json({
-      status: 'degraded',
-      database: 'disconnected',
-      timestamp: new Date().toISOString(),
-      app: 'HAOS.fm Music Platform',
-      note: 'App running but database unavailable',
-    });
+    response.database = 'unavailable';
   }
+
+  // Always return 200 OK - server is running
+  res.status(200).json(response);
 });
 
 /**

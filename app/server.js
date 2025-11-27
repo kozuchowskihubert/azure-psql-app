@@ -28,31 +28,30 @@ collaborationServer(server);
 console.log('✓ WebSocket collaboration server initialized');
 
 // Initialize database and start server
-// Try to connect to database, but don't fail if unavailable
+// Database is optional - server MUST start regardless
+const startServer = () => {
+  server.listen(port, () => {
+    console.log('┌─────────────────────────────────────────────┐');
+    console.log(`│  🚀 Server running on port ${port.toString().padEnd(18)}│`);
+    console.log('│  ✓ HTTP Server active                      │');
+    console.log('│  ✓ WebSocket server ready                  │');
+    console.log('│  ✓ REST API endpoints active               │');
+    console.log('│  ✓ Music/Preset routes available           │');
+    console.log('│  ✓ HAOS Platform ready                     │');
+    console.log('└─────────────────────────────────────────────┘');
+  });
+};
+
+// Try to initialize database, but don't block server startup
 ensureTable()
   .then(() => {
-    server.listen(port, () => {
-      console.log('┌─────────────────────────────────────────────┐');
-      console.log(`│  🚀 Server running on port ${port}           │`);
-      console.log('│  ✓ Database initialized                    │');
-      console.log('│  ✓ WebSocket server ready                  │');
-      console.log('│  ✓ REST API endpoints active               │');
-      console.log('│  ✓ Music/Preset routes available           │');
-      console.log('└─────────────────────────────────────────────┘');
-    });
+    console.log('✅ Database ready');
+    startServer();
   })
   .catch((err) => {
     console.warn('⚠️  Database not available:', err.message);
-    console.warn('Starting server without database features...');
-    server.listen(port, () => {
-      console.log('┌─────────────────────────────────────────────┐');
-      console.log(`│  🚀 Server running on port ${port}           │`);
-      console.log('│  ⚠️  Database features disabled             │');
-      console.log('│  ✓ WebSocket server ready                  │');
-      console.log('│  ✓ Music/Preset routes available           │');
-      console.log('│  ✓ Synth 2600 Studio active                │');
-      console.log('└─────────────────────────────────────────────┘');
-    });
+    console.warn('   Starting server without database features...');
+    startServer();
   });
 
 // Graceful shutdown
