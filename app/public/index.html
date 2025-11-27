@@ -1113,8 +1113,16 @@
             async play() {
                 const track = this.getCurrentTrack();
                 
+                if (!track) {
+                    console.error('❌ No track available to play');
+                    return;
+                }
+                
+                console.log('🎵 Attempting to play:', track.title, 'URL:', track.url);
+                
                 // Load and play audio
                 if (this.audioElement.src !== track.url) {
+                    console.log('📥 Loading new track:', track.url);
                     this.audioElement.src = track.url;
                 }
                 
@@ -1125,9 +1133,11 @@
                     document.getElementById('haos-mini-playpause').innerHTML = '<i class="fas fa-pause"></i>';
                     this.updateDisplay();
                     this.startProgressTracking();
-                    console.log('▶️ Playing:', track.title);
+                    console.log('✅ Now playing:', track.title);
                 } catch (error) {
                     console.error('❌ Playback failed:', error);
+                    console.error('Track URL:', track.url);
+                    console.error('Audio element src:', this.audioElement.src);
                     throw error;
                 }
             },
