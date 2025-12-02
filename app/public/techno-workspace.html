@@ -2183,63 +2183,64 @@
                         console.warn('TR-909 not initialized');
                         return;
                     }
-                    haosEngine.tr909.playHihat(velocity, open);
+                    if (open) {
+                        haosEngine.tr909.playHatOpen(velocity, 0);
+                    } else {
+                        haosEngine.tr909.playHatClosed(velocity, 0);
+                    }
                 },
                 
                 setParam: (param, value) => {
                     // Handle parameter changes
                     if (param.startsWith('tb303-')) {
                         const paramName = param.replace('tb303-', '');
-                        if (haosEngine.tb303) {
+                        if (haosEngine.tb303 && haosEngine.tb303.params) {
                             switch(paramName) {
                                 case 'cutoff':
-                                    if (haosEngine.tb303.filter) {
-                                        haosEngine.tb303.filter.frequency.value = 50 + value * 3950;
-                                    }
+                                    haosEngine.tb303.params.cutoff = 50 + value * 3950;
                                     break;
                                 case 'resonance':
-                                    if (haosEngine.tb303.filter) {
-                                        haosEngine.tb303.filter.Q.value = 1 + value * 29;
-                                    }
+                                    haosEngine.tb303.params.resonance = 1 + value * 29;
                                     break;
                                 case 'envmod':
-                                    haosEngine.tb303.envMod = value;
+                                    haosEngine.tb303.params.envMod = value * 100;
                                     break;
                                 case 'decay':
-                                    haosEngine.tb303.decay = 0.01 + value * 1.99;
+                                    haosEngine.tb303.params.decay = 0.01 + value * 1.99;
                                     break;
                                 case 'distortion':
                                 case 'dist':
-                                    if (haosEngine.tb303.distortion) {
-                                        haosEngine.tb303.distortion.curve = value;
-                                    }
+                                    haosEngine.tb303.params.distortion = value * 100;
                                     break;
                                 case 'accent':
-                                    haosEngine.tb303.accent = value;
+                                    haosEngine.tb303.params.accentLevel = value * 100;
                                     break;
                             }
-                            console.log(`🎛️ TB-303 ${paramName} set to ${value.toFixed(2)}`);
+                            console.log(`🎛️ TB-303 ${paramName} set to ${value.toFixed(2)} (param value: ${haosEngine.tb303.params[paramName === 'dist' ? 'distortion' : paramName === 'envmod' ? 'envMod' : paramName === 'accent' ? 'accentLevel' : paramName]})`);
                         }
                     } else if (param.startsWith('kick-')) {
                         const paramName = param.replace('kick-', '');
-                        if (haosEngine.tr909) {
+                        if (haosEngine.tr909 && haosEngine.tr909.params) {
                             switch(paramName) {
                                 case 'tune':
-                                    haosEngine.tr909.kickTune = value;
+                                    haosEngine.tr909.params.kickPitch = 40 + value * 80;
                                     break;
                                 case 'decay':
-                                    haosEngine.tr909.kickDecay = 0.01 + value * 0.99;
+                                    haosEngine.tr909.params.kickDecay = 0.01 + value * 0.99;
                                     break;
                             }
                             console.log(`🥁 Kick ${paramName} set to ${value.toFixed(2)}`);
                         }
                     } else if (param.startsWith('snare-')) {
                         const paramName = param.replace('snare-', '');
-                        if (haosEngine.tr909) {
+                        if (haosEngine.tr909 && haosEngine.tr909.params) {
                             switch(paramName) {
                                 case 'snap':
                                 case 'tone':
-                                    haosEngine.tr909.snareSnap = value;
+                                    haosEngine.tr909.params.snareTone = 100 + value * 400;
+                                    break;
+                                case 'decay':
+                                    haosEngine.tr909.params.snareDecay = 0.05 + value * 0.45;
                                     break;
                             }
                             console.log(`🥁 Snare ${paramName} set to ${value.toFixed(2)}`);
@@ -5671,6 +5672,8 @@
         window.randomizePattern = randomizePattern;
         window.clearPattern = clearPattern;
         window.shiftPattern = shiftPattern;
+        window.changeInstrument = changeInstrument;
+        window.loadPatternPreset = loadPatternPreset;
 
         console.log('🎹 Export System loaded - MIDI, Audio Recording, and Project Export ready!');
         console.log('💾 Auto-save enabled - Saves every 10 seconds');
