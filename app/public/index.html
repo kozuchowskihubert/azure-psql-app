@@ -553,12 +553,60 @@
                 </nav>
                 
                 <!-- Mobile Menu -->
-                <button class="md:hidden haos-btn-secondary px-4 py-2">
+                <button id="mobile-menu-btn" class="md:hidden haos-btn-secondary px-4 py-2">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
+            
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu" class="md:hidden hidden mt-4 pb-4">
+                <nav class="flex flex-col space-y-3">
+                    <a href="/haos-platform" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded" style="font-weight: bold;">
+                        <i class="fas fa-cubes mr-2"></i>HAOS PLATFORM
+                    </a>
+                    <a href="/techno-workspace" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded" style="font-weight: bold;">
+                        <i class="fas fa-project-diagram mr-2"></i>WORKSPACE
+                    </a>
+                    <a href="#features" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded">
+                        <i class="fas fa-star mr-2"></i>FEATURES
+                    </a>
+                    <a href="/platform/studio.html#radio" class="haos-label transition-colors py-2 px-4 rounded flex items-center gap-2" style="color: #39FF14; font-weight: bold;">
+                        <i class="fas fa-broadcast-tower"></i>RADIO
+                        <span class="haos-badge" style="background: linear-gradient(135deg, #39FF14, #00FF00); color: #000; font-weight: 700; font-size: 0.7em; padding: 2px 8px;">LIVE</span>
+                    </a>
+                    <a href="https://www.youtube.com/@haos_" target="_blank" rel="noopener noreferrer" class="haos-label transition-colors py-2 px-4 rounded flex items-center gap-2" style="color: #FF0000; font-weight: bold;">
+                        <i class="fab fa-youtube mr-2"></i>@haos_
+                    </a>
+                    <!-- Inspired by Badge - Mobile -->
+                    <div class="py-2 px-4 rounded flex items-center gap-2" style="background: linear-gradient(135deg, rgba(147, 112, 219, 0.15), rgba(138, 43, 226, 0.15)); border: 1px solid rgba(147, 112, 219, 0.3);">
+                        <i class="fas fa-music" style="color: #9370DB; font-size: 0.9rem;"></i>
+                        <span style="color: #9370DB; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: bold;">
+                            Inspired by HAOS & Nightdriver
+                        </span>
+                    </div>
+                </nav>
+            </div>
         </div>
     </header>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // Close menu when clicking on a link
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+        }
+    </script>
 
     <!-- ============================================================================
          HERO SECTION - VINTAGE VINYL AESTHETIC
