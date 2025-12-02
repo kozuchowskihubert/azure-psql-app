@@ -422,6 +422,9 @@
                 <button id="haos-music-next" class="haos-music-btn" title="Next">
                     <i class="fas fa-step-forward"></i>
                 </button>
+                <button id="haos-music-shuffle" class="haos-music-btn" title="Shuffle: ON" style="color: #FFD700;">
+                    <i class="fas fa-random"></i>
+                </button>
                 <div style="flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; position: relative; margin: 0 10px;">
                     <div id="haos-music-progress" style="height: 100%; background: linear-gradient(90deg, var(--haos-orange-primary), #FFD700); border-radius: 2px; width: 0%; transition: width 0.3s;"></div>
                 </div>
@@ -1028,6 +1031,55 @@
             progressInterval: null,
             isMinimized: false,
             minimizeTimeout: null,
+            isShuffled: true, // Auto-shuffle enabled
+            originalPlaylistOrders: {}, // Store original order for un-shuffle
+
+            // Shuffle array helper
+            shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            },
+
+            // Shuffle current playlist
+            shuffle() {
+                const currentTrack = this.getCurrentTrack();
+                
+                // Store original order if not already stored
+                if (!this.originalPlaylistOrders[this.currentPlaylist]) {
+                    this.originalPlaylistOrders[this.currentPlaylist] = [...this.playlists[this.currentPlaylist]];
+                }
+                
+                // Shuffle the playlist
+                this.playlists[this.currentPlaylist] = this.shuffleArray(this.playlists[this.currentPlaylist]);
+                
+                // Find the current track in the new order
+                this.currentTrackIndex = this.playlists[this.currentPlaylist].findIndex(t => t.url === currentTrack.url);
+                if (this.currentTrackIndex === -1) this.currentTrackIndex = 0;
+                
+                this.isShuffled = true;
+                console.log('🔀 Playlist shuffled');
+                this.updateDisplay();
+            },
+
+            // Unshuffle - restore original order
+            unshuffle() {
+                if (this.originalPlaylistOrders[this.currentPlaylist]) {
+                    const currentTrack = this.getCurrentTrack();
+                    this.playlists[this.currentPlaylist] = [...this.originalPlaylistOrders[this.currentPlaylist]];
+                    
+                    // Find the current track in original order
+                    this.currentTrackIndex = this.playlists[this.currentPlaylist].findIndex(t => t.url === currentTrack.url);
+                    if (this.currentTrackIndex === -1) this.currentTrackIndex = 0;
+                    
+                    this.isShuffled = false;
+                    console.log('🔁 Playlist un-shuffled');
+                    this.updateDisplay();
+                }
+            },
 
             async init() {
                 console.log('🎵 Initializing HAOS Background Radio Player');
@@ -1052,6 +1104,7 @@
                 document.getElementById('haos-music-playpause')?.addEventListener('click', () => this.togglePlay());
                 document.getElementById('haos-music-next')?.addEventListener('click', () => this.next());
                 document.getElementById('haos-music-prev')?.addEventListener('click', () => this.prev());
+                document.getElementById('haos-music-shuffle')?.addEventListener('click', () => this.toggleShuffle());
                 document.getElementById('haos-music-volume')?.addEventListener('input', (e) => this.setVolume(e.target.value));
                 document.getElementById('haos-music-close')?.addEventListener('click', () => this.close());
                 
@@ -1169,6 +1222,13 @@
                         }));
                         this.currentPlaylist = 'uploaded';
                         this.currentTrackIndex = 0;
+                        
+                        // Auto-shuffle the playlist
+                        if (this.isShuffled) {
+                            this.playlists['uploaded'] = this.shuffleArray(this.playlists['uploaded']);
+                            console.log('🔀 Auto-shuffled uploaded tracks');
+                        }
+                        
                         console.log(`✅ Loaded ${data.tracks.length} uploaded track(s) as default playlist`);
                         console.log('🎵 First track:', this.playlists['uploaded'][0]);
                         return true;
@@ -1176,7 +1236,14 @@
                         // Fallback to HAOS Exclusive
                         this.currentPlaylist = 'haos-exclusive';
                         this.currentTrackIndex = 0;
-                        console.log('📻 No uploaded tracks, using HAOS Exclusive as default');
+                        
+                        // Auto-shuffle fallback playlist
+                        if (this.isShuffled) {
+                            this.playlists['haos-exclusive'] = this.shuffleArray(this.playlists['haos-exclusive']);
+                            console.log('� Auto-shuffled HAOS Exclusive');
+                        }
+                        
+                        console.log('�📻 No uploaded tracks, using HAOS Exclusive as default');
                         return false;
                     }
                 } catch (error) {
@@ -1184,6 +1251,13 @@
                     // Fallback to HAOS Exclusive on error
                     this.currentPlaylist = 'haos-exclusive';
                     this.currentTrackIndex = 0;
+                    
+                    // Auto-shuffle fallback playlist
+                    if (this.isShuffled) {
+                        this.playlists['haos-exclusive'] = this.shuffleArray(this.playlists['haos-exclusive']);
+                        console.log('🔀 Auto-shuffled HAOS Exclusive (error fallback)');
+                    }
+                    
                     return false;
                 }
             },
@@ -1272,6 +1346,30 @@
                 if (playerEl) {
                     playerEl.style.width = '400px';
                     playerEl.style.maxWidth = '90vw';
+                }
+            },
+
+            // Toggle shuffle on/off
+            toggleShuffle() {
+                if (this.isShuffled) {
+                    this.unshuffle();
+                } else {
+                    this.shuffle();
+                }
+                this.updateShuffleButton();
+            },
+
+            // Update shuffle button appearance
+            updateShuffleButton() {
+                const shuffleBtn = document.getElementById('haos-music-shuffle');
+                if (shuffleBtn) {
+                    if (this.isShuffled) {
+                        shuffleBtn.style.color = '#FFD700';
+                        shuffleBtn.title = 'Shuffle: ON';
+                    } else {
+                        shuffleBtn.style.color = 'rgba(255,255,255,0.4)';
+                        shuffleBtn.title = 'Shuffle: OFF';
+                    }
                 }
             },
 
