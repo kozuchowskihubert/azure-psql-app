@@ -2981,10 +2981,10 @@
                 }
             });
 
-            // Play active steps with velocity
+            // Play active steps with velocity - ALL 8 TRACKS
             const now = HAOS.audioContext?.currentTime || 0;
             
-            ['kick', 'snare', 'hihat', 'bass'].forEach(track => {
+            ['kick', 'snare', 'hihat', 'bass', 'keys', 'lead', 'fx', 'perc'].forEach(track => {
                 const stepEl = document.querySelector(`[data-track="${track}"][data-step="${step}"]`);
                 if (stepEl && stepEl.classList.contains('active')) {
                     const velocity = parseInt(stepEl.dataset.velocity) / 100;
