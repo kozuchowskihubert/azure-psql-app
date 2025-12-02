@@ -2208,10 +2208,41 @@
                                 case 'decay':
                                     haosEngine.tb303.decay = 0.01 + value * 1.99;
                                     break;
+                                case 'distortion':
+                                case 'dist':
+                                    if (haosEngine.tb303.distortion) {
+                                        haosEngine.tb303.distortion.curve = value;
+                                    }
+                                    break;
                                 case 'accent':
                                     haosEngine.tb303.accent = value;
                                     break;
                             }
+                            console.log(`🎛️ TB-303 ${paramName} set to ${value.toFixed(2)}`);
+                        }
+                    } else if (param.startsWith('kick-')) {
+                        const paramName = param.replace('kick-', '');
+                        if (haosEngine.tr909) {
+                            switch(paramName) {
+                                case 'tune':
+                                    haosEngine.tr909.kickTune = value;
+                                    break;
+                                case 'decay':
+                                    haosEngine.tr909.kickDecay = 0.01 + value * 0.99;
+                                    break;
+                            }
+                            console.log(`🥁 Kick ${paramName} set to ${value.toFixed(2)}`);
+                        }
+                    } else if (param.startsWith('snare-')) {
+                        const paramName = param.replace('snare-', '');
+                        if (haosEngine.tr909) {
+                            switch(paramName) {
+                                case 'snap':
+                                case 'tone':
+                                    haosEngine.tr909.snareSnap = value;
+                                    break;
+                            }
+                            console.log(`🥁 Snare ${paramName} set to ${value.toFixed(2)}`);
                         }
                     }
                 }
@@ -5140,7 +5171,7 @@
                 'tb303-resonance': preset.resonance,
                 'tb303-envmod': preset.envmod,
                 'tb303-decay': preset.decay,
-                'tb303-distortion': preset.distortion,
+                'tb303-dist': preset.distortion, // Note: ID is tb303-dist but param is tb303-distortion
                 'tb303-accent': preset.accent
             };
 
@@ -5160,12 +5191,15 @@
                     const wrapper = knob.parentElement;
                     const valueEl = wrapper?.querySelector('.knob-value');
                     if (valueEl) {
-                        valueEl.textContent = formatParamValue(id, value);
+                        // Get the param from the knob's data-param attribute
+                        const param = knob.dataset.param || id;
+                        valueEl.textContent = formatParamValue(param, value);
                     }
                     
                     // Update live params if available
                     if (typeof liveParams !== 'undefined') {
-                        liveParams.set(id, value);
+                        const param = knob.dataset.param || id;
+                        liveParams.set(param, value);
                     }
                 }
             });
@@ -5178,6 +5212,7 @@
                 HAOS.setParam('tb303-decay', preset.decay);
                 HAOS.setParam('tb303-distortion', preset.distortion);
                 HAOS.setParam('tb303-accent', preset.accent);
+                console.log(`✅ Loaded preset: ${preset.name}`);
             }
         }
 
