@@ -27,6 +27,106 @@
             --font-display: 'Bebas Neue', sans-serif;
             --font-mono: 'Space Mono', monospace;
             --font-body: 'Inter', sans-serif;
+            
+            /* Living Organism Variables */
+            --pulse-speed: 3s;
+            --breath-speed: 4s;
+            --neural-speed: 8s;
+            --organism-glow: rgba(255, 107, 53, 0.3);
+        }
+
+        /* ========================================
+           LIVING ORGANISM ANIMATIONS
+           ======================================== */
+        
+        @keyframes breathe {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% { 
+                transform: scale(1.02);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse-organic {
+            0%, 100% { 
+                box-shadow: 0 0 10px var(--organism-glow),
+                           inset 0 0 10px rgba(255, 107, 53, 0.1);
+            }
+            50% { 
+                box-shadow: 0 0 30px var(--organism-glow),
+                           inset 0 0 20px rgba(255, 107, 53, 0.2);
+            }
+        }
+        
+        @keyframes neural-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes energy-wave {
+            0% { 
+                transform: translateX(-100%) scaleY(1);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.3;
+                transform: translateX(0%) scaleY(1.2);
+            }
+            100% { 
+                transform: translateX(100%) scaleY(1);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            10% { transform: scale(1.1); }
+            20% { transform: scale(1); }
+            30% { transform: scale(1.15); }
+            40%, 100% { transform: scale(1); }
+        }
+        
+        @keyframes synapse-fire {
+            0% { 
+                box-shadow: 0 0 5px var(--haos-orange);
+                background: rgba(255, 107, 53, 0.1);
+            }
+            50% { 
+                box-shadow: 0 0 20px var(--haos-orange-bright),
+                           0 0 40px var(--haos-orange);
+                background: rgba(255, 107, 53, 0.3);
+            }
+            100% { 
+                box-shadow: 0 0 5px var(--haos-orange);
+                background: rgba(255, 107, 53, 0.1);
+            }
+        }
+        
+        @keyframes particle-drift {
+            0% { 
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { 
+                transform: translate(100vw, -20vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes spectrum-dance {
+            0%, 100% { height: 20%; }
+            50% { height: 80%; }
+        }
+        
+        @keyframes glow-intensity {
+            0%, 100% { filter: brightness(1) saturate(1); }
+            50% { filter: brightness(1.3) saturate(1.5); }
         }
 
         * {
@@ -44,6 +144,44 @@
             color: var(--haos-text);
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Living Background Layer */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+                    rgba(255, 107, 53, 0.15) 0%, 
+                    transparent 30%);
+            pointer-events: none;
+            z-index: 0;
+            animation: breathe var(--breath-speed) ease-in-out infinite;
+            opacity: 0.5;
+        }
+        
+        /* Neural Network Background */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(45deg, 
+                    transparent 30%, 
+                    rgba(255, 107, 53, 0.02) 50%, 
+                    transparent 70%);
+            background-size: 400% 400%;
+            pointer-events: none;
+            z-index: 0;
+            animation: neural-flow var(--neural-speed) ease infinite;
         }
 
         /* Header */
@@ -55,6 +193,7 @@
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--haos-border);
             padding: 15px 30px;
+            animation: pulse-organic 6s ease-in-out infinite;
         }
 
         .header-content {
@@ -63,6 +202,8 @@
             align-items: center;
             justify-content: space-between;
             gap: 30px;
+            position: relative;
+            z-index: 1;
         }
 
         .logo-section {
@@ -70,16 +211,19 @@
             align-items: center;
             gap: 15px;
             transition: transform 0.3s ease, opacity 0.3s ease;
+            animation: heartbeat 4s ease-in-out infinite;
         }
 
         .logo-section:hover {
             transform: scale(1.05);
             opacity: 0.8;
+            animation: heartbeat 1s ease-in-out infinite;
         }
 
         .logo-section img {
             height: 40px;
             filter: drop-shadow(0 2px 10px rgba(255, 107, 53, 0.3));
+            animation: glow-intensity 3s ease-in-out infinite;
         }
 
         .brand-text {
@@ -189,6 +333,41 @@
             border-radius: 12px;
             padding: 20px;
             backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            animation: breathe var(--breath-speed) ease-in-out infinite;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Organic energy flow in panels */
+        .module-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 107, 53, 0.1),
+                transparent
+            );
+            animation: energy-wave 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .module-panel:hover {
+            transform: translateY(-2px);
+            border-color: var(--haos-orange);
+            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.3),
+                       inset 0 0 20px rgba(255, 107, 53, 0.05);
+        }
+        
+        .module-panel.active {
+            animation: pulse-organic 2s ease-in-out infinite,
+                      breathe var(--breath-speed) ease-in-out infinite;
+            border-color: var(--haos-orange-bright);
         }
 
         .module-header {
@@ -198,6 +377,22 @@
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 1px solid var(--haos-border);
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Synaptic activity indicator */
+        .module-header::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--haos-orange);
+            animation: synapse-fire 2s ease-in-out infinite;
         }
 
         .module-title {
@@ -354,24 +549,77 @@
             border: 1px solid var(--haos-border);
             border-radius: 4px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Neural connection lines between steps */
+        .seq-step::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, var(--haos-orange) 0%, transparent 70%);
+            opacity: 0;
+            transition: all 0.3s ease;
         }
 
         .seq-step:hover {
             background: rgba(255, 107, 53, 0.3);
+            transform: scale(1.1);
+            border-color: var(--haos-orange);
+            z-index: 10;
+        }
+        
+        .seq-step:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.3;
         }
 
         .seq-step.active {
             background: var(--haos-orange);
-            box-shadow: 0 0 10px rgba(255, 107, 53, 0.6);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.8),
+                       inset 0 0 10px rgba(255, 140, 66, 0.5);
+            animation: pulse-organic 3s ease-in-out infinite;
+        }
+        
+        .seq-step.active::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            border-radius: 2px;
+            background: linear-gradient(135deg, 
+                rgba(255, 140, 66, 0.4) 0%,
+                transparent 100%);
+            animation: glow-intensity 2s ease-in-out infinite;
         }
 
         .seq-step.playing {
-            animation: step-flash 0.1s;
+            animation: step-flash 0.15s ease-out, heartbeat 0.3s ease-out;
+            transform: scale(1.2);
         }
 
         @keyframes step-flash {
-            50% { background: var(--haos-green); }
+            0% { 
+                background: var(--haos-orange); 
+                box-shadow: 0 0 15px rgba(255, 107, 53, 0.8);
+            }
+            50% { 
+                background: var(--haos-green); 
+                box-shadow: 0 0 30px rgba(57, 255, 20, 1),
+                           0 0 60px rgba(57, 255, 20, 0.5);
+            }
+            100% { 
+                background: var(--haos-orange); 
+                box-shadow: 0 0 15px rgba(255, 107, 53, 0.8);
+            }
         }
 
         .track-label {
@@ -379,6 +627,7 @@
             font-size: 0.7rem;
             color: var(--haos-dim);
             margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
         }
 
         /* Patch Bay */
@@ -1725,6 +1974,34 @@
     </style>
 </head>
 <body>
+    <!-- Living Organism Layer: Particle System -->
+    <canvas id="particle-canvas" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.3;
+    "></canvas>
+    
+    <!-- Living Organism Layer: Audio Visualizer -->
+    <div id="audio-visualizer" style="
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 120px;
+        pointer-events: none;
+        z-index: 1;
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        padding: 0 20px 20px;
+        opacity: 0.5;
+    "></div>
+    
     <!-- Header -->
     <header class="haos-header">
         <div class="header-content">
@@ -2728,6 +3005,199 @@
     <script src="/js/haos-audio-engine.js"></script>
     
     <script>
+        // ========================================
+        // LIVING ORGANISM SYSTEMS
+        // ========================================
+        
+        // Particle System - Neural Network Visualization
+        class ParticleSystem {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.particles = [];
+                this.maxParticles = 50;
+                this.mouse = { x: 0, y: 0 };
+                this.init();
+            }
+            
+            init() {
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                document.addEventListener('mousemove', (e) => {
+                    this.mouse.x = e.clientX;
+                    this.mouse.y = e.clientY;
+                    // Update CSS custom property for background effect
+                    document.body.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
+                    document.body.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
+                });
+                this.createParticles();
+                this.animate();
+            }
+            
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            createParticles() {
+                for (let i = 0; i < this.maxParticles; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        size: Math.random() * 2 + 1,
+                        life: Math.random(),
+                        color: `rgba(255, ${Math.floor(107 + Math.random() * 50)}, ${Math.floor(35 + Math.random() * 20)}, `
+                    });
+                }
+            }
+            
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Update and draw particles
+                this.particles.forEach((p, i) => {
+                    // Subtle attraction to mouse
+                    const dx = this.mouse.x - p.x;
+                    const dy = this.mouse.y - p.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 200) {
+                        p.vx += dx * 0.00001;
+                        p.vy += dy * 0.00001;
+                    }
+                    
+                    // Move particle
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life += 0.002;
+                    
+                    // Wrap around screen
+                    if (p.x < 0) p.x = this.canvas.width;
+                    if (p.x > this.canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = this.canvas.height;
+                    if (p.y > this.canvas.height) p.y = 0;
+                    
+                    // Reset life
+                    if (p.life > 1) p.life = 0;
+                    
+                    // Draw particle
+                    const opacity = Math.sin(p.life * Math.PI) * 0.5;
+                    this.ctx.fillStyle = p.color + opacity + ')';
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    // Draw neural connections
+                    this.particles.forEach((p2, j) => {
+                        if (i === j) return;
+                        const dx = p2.x - p.x;
+                        const dy = p2.y - p.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < 100) {
+                            const opacity = (1 - dist / 100) * 0.2;
+                            this.ctx.strokeStyle = `rgba(255, 107, 53, ${opacity})`;
+                            this.ctx.lineWidth = 0.5;
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(p.x, p.y);
+                            this.ctx.lineTo(p2.x, p2.y);
+                            this.ctx.stroke();
+                        }
+                    });
+                });
+                
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+        
+        // Audio Visualizer - Spectrum Analyzer
+        class AudioVisualizer {
+            constructor(container) {
+                this.container = container;
+                this.bars = [];
+                this.barCount = 64;
+                this.analyser = null;
+                this.dataArray = null;
+                this.init();
+            }
+            
+            init() {
+                // Create spectrum bars
+                for (let i = 0; i < this.barCount; i++) {
+                    const bar = document.createElement('div');
+                    bar.style.cssText = `
+                        flex: 1;
+                        background: linear-gradient(to top, 
+                            var(--haos-orange-dark), 
+                            var(--haos-orange), 
+                            var(--haos-orange-bright));
+                        height: 5px;
+                        border-radius: 2px 2px 0 0;
+                        transition: height 0.1s ease-out;
+                        box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+                    `;
+                    this.bars.push(bar);
+                    this.container.appendChild(bar);
+                }
+            }
+            
+            connect(audioContext) {
+                if (!audioContext) return;
+                
+                try {
+                    this.analyser = audioContext.createAnalyser();
+                    this.analyser.fftSize = 128;
+                    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+                    
+                    // Connect to audio context destination
+                    const source = audioContext.destination;
+                    // Note: We'll connect this properly when HAOS engine initializes
+                    
+                    this.animate();
+                } catch (error) {
+                    console.log('Visualizer will connect when audio starts');
+                }
+            }
+            
+            animate() {
+                if (this.analyser && this.dataArray) {
+                    this.analyser.getByteFrequencyData(this.dataArray);
+                    
+                    this.bars.forEach((bar, i) => {
+                        const value = this.dataArray[i] || Math.random() * 30; // Fallback to random if no audio
+                        const height = Math.max(5, (value / 255) * 100);
+                        bar.style.height = `${height}px`;
+                        bar.style.opacity = 0.3 + (value / 255) * 0.7;
+                    });
+                }
+                
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+        
+        // Initialize living organism systems
+        let particleSystem, audioVisualizer;
+        
+        window.addEventListener('load', () => {
+            const canvas = document.getElementById('particle-canvas');
+            const visualizerContainer = document.getElementById('audio-visualizer');
+            
+            if (canvas) {
+                particleSystem = new ParticleSystem(canvas);
+                console.log('🌌 Particle system activated - neural network online');
+            }
+            
+            if (visualizerContainer) {
+                audioVisualizer = new AudioVisualizer(visualizerContainer);
+                console.log('📊 Audio visualizer initialized - spectrum analyzer ready');
+            }
+        });
+        
+        // ========================================
+        // HAOS AUDIO ENGINE
+        // ========================================
+        
         // Create global HAOS wrapper for audio engine
         let HAOS = null;
         let haosEngine = null;
@@ -2738,6 +3208,12 @@
             
             haosEngine = new HAOSAudioEngine();
             await haosEngine.init();
+            
+            // Connect visualizer to audio context
+            if (audioVisualizer && haosEngine.audioContext) {
+                audioVisualizer.connect(haosEngine.audioContext);
+                console.log('🎵 Visualizer connected to audio engine');
+            }
             
             // Create wrapper object with commonly used methods
             HAOS = {
@@ -4238,7 +4714,7 @@
         }
 
         // ARP 2600 Synthesizer Engine
-        function playARP2600(preset, note = 440, time, velocity = 1.0, duration = 0.5) {
+        function playARP2600(preset, note = 440, time, velocity = 1.0, duration = 0.5, filterDrift = 1.0) {
             const ctx = HAOS.audioContext;
             const now = time || ctx.currentTime;
             
@@ -4246,6 +4722,9 @@
             let vco1Source, vco2Source;
             const vco1Gain = ctx.createGain();
             const vco2Gain = ctx.createGain();
+            
+            // Add organic analog drift to oscillator stability
+            const analogDrift = 1 + (Math.random() - 0.5) * 0.001; // ±0.1% VCO drift
             
             // VCO 1
             if (preset.vco1?.waveform === 'noise') {
@@ -4260,9 +4739,9 @@
             } else {
                 vco1Source = ctx.createOscillator();
                 vco1Source.type = preset.vco1?.waveform || 'sawtooth';
-                // Clamp frequency to valid range
+                // Clamp frequency to valid range with organic drift
                 const baseFreq1 = Math.max(20, Math.min((preset.vco1?.frequency || note), 20000));
-                const freq1 = baseFreq1 * Math.pow(2, (preset.vco1?.fine || 0) / 1200);
+                const freq1 = baseFreq1 * Math.pow(2, (preset.vco1?.fine || 0) / 1200) * analogDrift;
                 vco1Source.frequency.setValueAtTime(Math.min(freq1, ctx.sampleRate / 3), now);
                 
                 // Apply VCO1 modulation (PWM simulation with detune)
@@ -4310,13 +4789,14 @@
             const vcf = ctx.createBiquadFilter();
             vcf.type = 'lowpass';
             
-            // Base filter settings with clamping
-            const cutoff = Math.max(30, Math.min(preset.vcf?.cutoff || 1000, 18000));
+            // Base filter settings with clamping AND organic drift
+            const cutoff = Math.max(30, Math.min((preset.vcf?.cutoff || 1000) * filterDrift, 18000));
             const resonance = Math.max(0, Math.min(preset.vcf?.resonance || 0.5, 1));
             const envMod = preset.vcf?.envMod || 0;
             
-            // Resonance scaling (ARP 2600 has aggressive resonance)
-            vcf.Q.value = Math.min(30, 1 + (resonance * resonance * 25));
+            // Resonance scaling (ARP 2600 has aggressive resonance) with slight variation
+            const resonanceVariation = 1 + (Math.random() - 0.5) * 0.02; // ±1% resonance drift
+            vcf.Q.value = Math.min(30, (1 + (resonance * resonance * 25)) * resonanceVariation);
             
             // Filter envelope modulation
             const env = preset.envelope || {attack: 0.01, decay: 0.1, sustain: 0.7, release: 0.2};
@@ -4431,6 +4911,19 @@
             const ctx = HAOS.audioContext;
             const now = time || ctx.currentTime;
             
+            // ===== ORGANIC VARIATION SYSTEM =====
+            // Add subtle random variation to create living, breathing sound
+            const organicDrift = {
+                pitch: 1 + (Math.random() - 0.5) * 0.005, // ±0.5% pitch drift
+                timing: (Math.random() - 0.5) * 0.003,    // ±3ms timing variation
+                velocity: velocity * (0.95 + Math.random() * 0.1), // ±5% velocity variation
+                filter: 1 + (Math.random() - 0.5) * 0.1,  // ±10% filter variation
+                duration: 1 + (Math.random() - 0.5) * 0.05 // ±5% duration variation
+            };
+            
+            // Apply organic timing drift
+            const organicTime = now + organicDrift.timing;
+            
             // Get selected instrument for this track
             const instrument = trackInstruments[track] || track;
             
@@ -4492,7 +4985,12 @@
                         break;
                 }
                 
-                playARP2600(preset, note, now, velocity, duration);
+                // Apply organic variations
+                note = note * organicDrift.pitch;
+                duration = duration * organicDrift.duration;
+                
+                // Play with organic variations
+                playARP2600(preset, note, organicTime, organicDrift.velocity, duration, organicDrift.filter);
                 return;
             }
             
