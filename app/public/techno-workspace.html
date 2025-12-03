@@ -3686,9 +3686,15 @@
 
         // Initialize sequencer grids
         function initSequencer() {
+            console.log('🎹 Initializing sequencer...');
             const tracks = ['kick', 'snare', 'hihat', 'bass', 'keys', 'lead', 'fx', 'perc'];
             tracks.forEach(track => {
                 const grid = document.getElementById(`seq-${track}`);
+                if (!grid) {
+                    console.error(`❌ Grid not found for track: ${track}`);
+                    return;
+                }
+                console.log(`Creating 16 steps for ${track}...`);
                 for (let i = 0; i < 16; i++) {
                     const step = document.createElement('div');
                     step.className = 'seq-step';
@@ -4428,13 +4434,17 @@
 
         // Load pattern preset
         function loadPatternPreset(presetName) {
+            console.log('🎵 loadPatternPreset called with:', presetName);
             const preset = PATTERN_PRESETS[presetName];
             if (!preset) {
+                console.error('❌ Preset not found:', presetName);
                 showNotification(`⚠️ Preset "${presetName}" not found`);
                 return;
             }
+            console.log('✅ Preset found:', preset);
 
             // Clear current pattern
+            console.log('🧹 Clearing all patterns...');
             clearAllPatterns();
 
             // Set BPM
@@ -4452,36 +4462,56 @@
             // Load recommended instruments for each track (SILENT MODE)
             const loadedInstruments = [];
             if (preset.instruments) {
+                console.log('🎛️ Loading instruments:', preset.instruments);
                 Object.keys(preset.instruments).forEach(track => {
                     const instrumentSelect = document.getElementById(`instrument-${track}`);
                     if (instrumentSelect) {
                         const recommendedInstrument = preset.instruments[track];
-                        instrumentSelect.value = recommendedInstrument;
-                        // Trigger the change event SILENTLY (no notification spam)
-                        changeInstrument(track, recommendedInstrument, true);
                         
-                        // Track what we loaded for the final notification
-                        const presetInfo = ARP2600_PRESETS[recommendedInstrument];
-                        const instrumentName = presetInfo?.name || recommendedInstrument;
-                        loadedInstruments.push(`${track.toUpperCase()}: ${instrumentName}`);
+                        // Check if the option exists in the select
+                        const optionExists = Array.from(instrumentSelect.options).some(opt => opt.value === recommendedInstrument);
+                        
+                        if (optionExists) {
+                            instrumentSelect.value = recommendedInstrument;
+                            // Trigger the change event SILENTLY (no notification spam)
+                            changeInstrument(track, recommendedInstrument, true);
+                            
+                            // Track what we loaded for the final notification
+                            const presetInfo = ARP2600_PRESETS[recommendedInstrument];
+                            const instrumentName = presetInfo?.name || recommendedInstrument;
+                            loadedInstruments.push(`${track.toUpperCase()}: ${instrumentName}`);
+                            console.log(`✓ ${track}: ${recommendedInstrument}`);
+                        } else {
+                            console.warn(`⚠️ Instrument "${recommendedInstrument}" not found in ${track} selector`);
+                        }
+                    } else {
+                        console.error(`❌ Selector not found: instrument-${track}`);
                     }
                 });
             }
 
             // Load tracks
+            console.log('🎵 Loading pattern tracks:', preset.tracks);
+            let totalStepsLoaded = 0;
             Object.keys(preset.tracks).forEach(track => {
                 const steps = preset.tracks[track];
                 const defaultVelocity = preset.velocities?.[track] || 80;
                 
+                console.log(`📍 Loading ${track}: ${steps.length} steps [${steps.join(', ')}] at velocity ${defaultVelocity}`);
                 steps.forEach(stepNum => {
                     const stepEl = document.querySelector(`[data-track="${track}"][data-step="${stepNum}"]`);
                     if (stepEl) {
+                        console.log(`  ✓ Activating step ${stepNum} for ${track}`);
                         stepEl.classList.add('active');
                         stepEl.dataset.velocity = defaultVelocity;
                         stepEl.style.setProperty('--velocity', `${defaultVelocity}%`);
+                        totalStepsLoaded++;
+                    } else {
+                        console.error(`  ❌ Step element not found: track="${track}", step=${stepNum}`);
                     }
                 });
             });
+            console.log(`✅ Total steps loaded: ${totalStepsLoaded}`);
 
             // Show consolidated notification
             const instrumentsText = loadedInstruments.length > 0 
@@ -7514,7 +7544,7 @@
                     }
                     
                     // Update live params if available
-                    if (typeof liveParams !== 'undefined') {
+                    if (typeof liveParams !== 'undefined' && liveParams && typeof liveParams.set === 'function') {
                         const param = knob.dataset.param || id;
                         liveParams.set(param, value);
                     }
