@@ -2349,49 +2349,42 @@
             </div>
         </div>
 
-        <!-- CENTER COLUMN: Patch Bay + Sequencer -->
+        <!-- CENTER COLUMN: Transport + Sequencer -->
         <div class="workspace-column">
-            <!-- Patch Bay -->
+            <!-- Global Transport & Controls -->
             <div class="module-panel">
                 <div class="module-header">
-                    <div class="module-title">LIVE PATCH BAY</div>
-                    <div class="module-icon">🔌</div>
+                    <div class="module-title">GLOBAL CONTROLS</div>
+                    <div class="module-icon">🎛️</div>
                 </div>
                 
-                <div class="patch-bay">
-                    <div class="patch-point">
-                        <div class="patch-label">TB-303 OUT →</div>
-                        <select class="patch-select">
-                            <option>DELAY</option>
-                            <option>REVERB</option>
-                            <option>DISTORTION</option>
-                            <option selected>MASTER</option>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; border: 1px solid var(--haos-border);">
+                        <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--haos-dim); margin-bottom: 8px;">MASTER SYNC</div>
+                        <select class="instrument-select" style="width: 100%;">
+                            <option selected>INTERNAL CLOCK</option>
+                            <option>MIDI CLOCK</option>
+                            <option>LINK</option>
                         </select>
                     </div>
-                    <div class="patch-point">
-                        <div class="patch-label">TR-909 OUT →</div>
-                        <select class="patch-select">
-                            <option>DELAY</option>
-                            <option>REVERB</option>
-                            <option selected>COMPRESSOR</option>
+                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; border: 1px solid var(--haos-border);">
+                        <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--haos-dim); margin-bottom: 8px;">QUANTIZE</div>
+                        <select class="instrument-select" style="width: 100%;">
+                            <option>OFF</option>
+                            <option selected>1/16</option>
+                            <option>1/8</option>
+                            <option>1/4</option>
                         </select>
                     </div>
-                    <div class="patch-point">
-                        <div class="patch-label">LFO 1 →</div>
-                        <select class="patch-select">
-                            <option selected>TB-303 CUTOFF</option>
-                            <option>TB-303 RESONANCE</option>
-                            <option>DELAY TIME</option>
-                        </select>
-                    </div>
-                    <div class="patch-point">
-                        <div class="patch-label">SEQUENCER →</div>
-                        <select class="patch-select">
-                            <option selected>TB-303 + TR-909</option>
-                            <option>TB-303 ONLY</option>
-                            <option>TR-909 ONLY</option>
-                        </select>
-                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                    <button class="haos-btn" style="flex: 1; background: linear-gradient(135deg, rgba(255,107,53,0.2), rgba(255,140,66,0.1)); border-color: var(--haos-orange);">
+                        🎯 LOCK TEMPO
+                    </button>
+                    <button class="haos-btn" style="flex: 1; background: linear-gradient(135deg, rgba(0,217,255,0.2), rgba(57,255,20,0.1)); border-color: var(--haos-cyan);">
+                        🔁 LOOP ALL
+                    </button>
                 </div>
             </div>
 
@@ -3124,6 +3117,54 @@
                             <div class="knob effect-knob" data-effect="dist-tone" data-value="0.7"></div>
                             <div class="knob-label">TONE</div>
                             <div class="knob-value">70%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="effect-slot">
+                    <div class="effect-name">🌀 CHORUS</div>
+                    <div class="knob-grid" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="chorus-rate" data-value="0.4"></div>
+                            <div class="knob-label">RATE</div>
+                            <div class="knob-value">2.0Hz</div>
+                        </div>
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="chorus-depth" data-value="0.5"></div>
+                            <div class="knob-label">DEPTH</div>
+                            <div class="knob-value">50%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="effect-slot">
+                    <div class="effect-name">🎨 PHASER</div>
+                    <div class="knob-grid" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="phaser-rate" data-value="0.3"></div>
+                            <div class="knob-label">RATE</div>
+                            <div class="knob-value">1.5Hz</div>
+                        </div>
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="phaser-feedback" data-value="0.6"></div>
+                            <div class="knob-label">FEEDBACK</div>
+                            <div class="knob-value">60%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="effect-slot">
+                    <div class="effect-name">🎛️ FILTER</div>
+                    <div class="knob-grid" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="filter-cutoff" data-value="0.8"></div>
+                            <div class="knob-label">CUTOFF</div>
+                            <div class="knob-value">12kHz</div>
+                        </div>
+                        <div class="knob-wrapper">
+                            <div class="knob effect-knob" data-effect="filter-reso" data-value="0.4"></div>
+                            <div class="knob-label">RESONANCE</div>
+                            <div class="knob-value">40%</div>
                         </div>
                     </div>
                 </div>
