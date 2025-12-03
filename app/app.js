@@ -132,11 +132,11 @@ app.get('/preset-library', (req, res) => {
 });
 
 /**
- * Preset Browser - Alternative route
+ * Preset Browser - Redirects to working sounds page
  * Route: /preset-browser
  */
 app.get('/preset-browser', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'preset-browser.html'));
+  res.redirect('/sounds');
 });
 
 /**
