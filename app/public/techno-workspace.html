@@ -302,10 +302,11 @@
             grid-template-columns: 1fr 1.5fr 1fr;
             gap: 20px;
             padding: 20px;
+            padding-bottom: 140px; /* Extra space for audio visualizer */
             height: calc(100vh - 80px);
             position: relative;
             z-index: 10;
-            overflow: hidden; /* Prevent workspace itself from scrolling */
+            overflow: hidden;
         }
 
         /* Column Sections */
@@ -316,22 +317,31 @@
             overflow-y: auto;
             overflow-x: hidden;
             height: 100%;
-            min-height: 0; /* Important for Firefox */
+            max-height: 100%;
+            min-height: 0;
             position: relative;
             z-index: 2;
+            padding-bottom: 20px;
         }
 
         .workspace-column::-webkit-scrollbar {
-            width: 8px;
+            width: 12px;
         }
 
         .workspace-column::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 6px;
         }
 
         .workspace-column::-webkit-scrollbar-thumb {
             background: var(--haos-orange);
-            border-radius: 4px;
+            border-radius: 6px;
+            border: 2px solid rgba(0, 0, 0, 0.5);
+        }
+        
+        .workspace-column::-webkit-scrollbar-thumb:hover {
+            background: var(--haos-orange-bright);
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
         }
 
         /* Module Panels */
@@ -1540,6 +1550,11 @@
                 text-align: center;
             }
 
+            /* Mobile Responsive Grid: Smaller left/right, bigger center */
+            .workspace {
+                grid-template-columns: 0.6fr 2fr 0.6fr;
+            }
+
             /* Sequencer Optimization */
             .sequencer-section {
                 padding: 12px;
@@ -1695,6 +1710,17 @@
 
             .workspace-title {
                 font-size: 1.2rem;
+            }
+
+            /* Ultra-mobile Grid: Even smaller sides, max center space */
+            .workspace {
+                grid-template-columns: 0.4fr 2.5fr 0.4fr;
+            }
+
+            /* Make left/right columns collapsible */
+            .workspace-column:first-child,
+            .workspace-column:last-child {
+                font-size: 0.8rem;
             }
 
             /* Ultra-compact Sequencer */
