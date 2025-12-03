@@ -116,6 +116,30 @@ app.get('/techno-workspace', (req, res) => {
 });
 
 /**
+ * Sounds Browser - Preset library explorer
+ * Route: /sounds (300+ techno presets)
+ */
+app.get('/sounds', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'sounds.html'));
+});
+
+/**
+ * Preset Library - Alternative route
+ * Route: /preset-library
+ */
+app.get('/preset-library', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'preset-library.html'));
+});
+
+/**
+ * Preset Browser - Alternative route
+ * Route: /preset-browser
+ */
+app.get('/preset-browser', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'preset-browser.html'));
+});
+
+/**
  * Trap Studio - 808 bass production
  * Route: /trap-studio (cleaner URL without .html)
  */
