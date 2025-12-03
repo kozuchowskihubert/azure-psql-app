@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HAOS.fm | Sounds - 300+ Techno Presets Explorer</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --haos-black: #0a0a0a;
+            --haos-panel: rgba(20, 20, 25, 0.85);
+            --haos-orange: #FF6B35;
+            --haos-orange-bright: #FF8C42;
+            --haos-green: #39FF14;
+            --haos-cyan: #00D9FF;
+            --haos-pink: #FF006E;
+            --haos-text: #e0e0e0;
+            --haos-dim: #888;
+            --haos-border: rgba(255, 107, 53, 0.2);
+            
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            background: var(--haos-black);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 140, 66, 0.06) 0%, transparent 50%);
+            color: var(--haos-text);
+            min-height: 100vh;
+        }
+
+        .haos-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--haos-border);
+            padding: 15px 30px;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+        }
+
+        .brand-name {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-tagline {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--haos-dim);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--haos-text);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 107, 53, 0.1);
+            border-color: var(--haos-orange);
+        }
+
+        .nav-link.active {
+            background: var(--haos-orange);
+            color: white;
+        }
+
+        .hero {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 50px 30px 40px;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .hero-subtitle {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            color: var(--haos-dim);
+            margin-bottom: 30px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            padding: 15px 25px;
+            background: var(--haos-panel);
+            border: 2px solid var(--haos-border);
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: var(--haos-orange);
+        }
+
+        .stat-label {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--haos-dim);
+            text-transform: uppercase;
+        }
+
+        .action-btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 107, 53, 0.5);
+        }
+
+        .controls {
+            max-width: 1400px;
+            margin: 0 auto 30px;
+            padding: 0 30px;
+        }
+
+        .controls-bar {
+            background: var(--haos-panel);
+            border: 2px solid var(--haos-border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--haos-border);
+            border-radius: 8px;
+            color: var(--haos-text);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--haos-orange);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 18px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--haos-border);
+            border-radius: 8px;
+            color: var(--haos-text);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--haos-orange);
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .filter-btn.active {
+            background: var(--haos-orange);
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .presets {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px 60px;
+        }
+
+        .category-section {
+            margin-bottom: 50px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--haos-panel);
+            border: 2px solid var(--haos-border);
+            border-radius: 10px;
+        }
+
+        .category-icon {
+            font-size: 2rem;
+        }
+
+        .category-title {
+            flex: 1;
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: var(--haos-orange);
+        }
+
+        .category-count {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--haos-text);
+            background: rgba(255, 107, 53, 0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+        }
+
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .preset-card {
+            background: var(--haos-panel);
+            border: 2px solid var(--haos-border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .preset-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--haos-orange), var(--haos-cyan));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .preset-card:hover {
+            border-color: var(--haos-orange);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .preset-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .preset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .preset-name {
+            font-family: var(--font-mono);
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: var(--haos-text);
+            margin-bottom: 5px;
+        }
+
+        .preset-id {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--haos-dim);
+        }
+
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .preset-params {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .param-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 10px;
+            border-radius: 6px;
+        }
+
+        .param-label {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--haos-dim);
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .param-value {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--haos-orange);
+            font-weight: bold;
+        }
+
+        .preset-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            border-radius: 10px;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            color: var(--haos-orange);
+        }
+
+        .use-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 217, 255, 0.1);
+            border: 2px solid var(--haos-cyan);
+            border-radius: 8px;
+            color: var(--haos-cyan);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .use-btn:hover {
+            background: var(--haos-cyan);
+            color: var(--haos-black);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--haos-dim);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 107, 53, 0.2);
+            border-top-color: var(--haos-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .stats {
+                gap: 15px;
+            }
+
+            .stat {
+                padding: 12px 20px;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .controls-bar {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .presets-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .haos-header {
+                padding: 10px 15px;
+            }
+
+            .hero {
+                padding: 40px 20px 30px;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .preset-params {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="haos-header">
+        <div class="header-content">
+            <a href="/" class="logo-section">
+                <div class="brand-text">
+                    <div class="brand-name">HAOS.FM</div>
+                    <div class="brand-tagline">SOUNDS</div>
+                </div>
+            </a>
+            <nav class="nav-links">
+                <a href="/" class="nav-link">🏠 Home</a>
+                <a href="/techno-workspace" class="nav-link">🎛️ Workspace</a>
+                <a href="/sounds" class="nav-link active">🎵 Sounds</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1 class="hero-title">🎵 SOUNDS</h1>
+        <p class="hero-subtitle">300+ Professional Techno Presets • Ready to Use</p>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number" id="totalPresets">300+</div>
+                <div class="stat-label">Presets</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="totalCategories">12</div>
+                <div class="stat-label">Categories</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Free</div>
+            </div>
+        </div>
+
+        <a href="/techno-workspace" class="action-btn">🎛️ Open Workspace</a>
+    </section>
+
+    <section class="controls">
+        <div class="controls-bar">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput" 
+                    placeholder="Search... (acid, bass, detroit, 303)"
+                >
+            </div>
+            <div class="filter-group" id="filterButtons">
+                <button class="filter-btn active" data-category="all">All</button>
+            </div>
+        </div>
+    </section>
+
+    <main class="presets" id="presetsContainer">
+        <div class="loading">
+            <div class="spinner"></div>
+            <div>Loading presets...</div>
+        </div>
+    </main>
+
+    <script>
+        let allPresets = {};
+
+        fetch('/techno-workspace')
+            .then(r => r.text())
+            .then(html => {
+                const match = html.match(/const ARP2600_PRESETS = \{([\s\S]*?)\n        \};/);
+                if (match) {
+                    eval(match[0].replace('const ARP2600_PRESETS', 'allPresets'));
+                    render();
+                }
+            });
+
+        function render() {
+            const container = document.getElementById('presetsContainer');
+            container.innerHTML = '';
+
+            const categories = {};
+            Object.entries(allPresets).forEach(([id, preset]) => {
+                if (!categories[preset.category]) categories[preset.category] = [];
+                categories[preset.category].push({ id, ...preset });
+            });
+
+            const filterGroup = document.getElementById('filterButtons');
+            Object.keys(categories).sort().forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.dataset.category = cat;
+                btn.textContent = `${getIcon(cat)} ${cat}`;
+                btn.onclick = () => filter(cat);
+                filterGroup.appendChild(btn);
+            });
+
+            Object.entries(categories).sort((a, b) => a[0].localeCompare(b[0])).forEach(([cat, presets]) => {
+                container.innerHTML += `
+                    <div class="category-section" data-category="${cat}">
+                        <div class="category-header">
+                            <span class="category-icon">${getIcon(cat)}</span>
+                            <h2 class="category-title">${cat}</h2>
+                            <span class="category-count">${presets.length}</span>
+                        </div>
+                        <div class="presets-grid">
+                            ${presets.map(p => card(p)).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('totalPresets').textContent = Object.keys(allPresets).length;
+            document.getElementById('totalCategories').textContent = Object.keys(categories).length;
+
+            document.getElementById('searchInput').oninput = e => search(e.target.value);
+        }
+
+        function getIcon(cat) {
+            const icons = {Bass:'🎸',Lead:'🎺',Pad:'🌊',Percussion:'🥁',FX:'✨',Synth:'🎛️',Keys:'🎹',Bells:'🔔',Mallets:'🔨',Woodwinds:'🎷',Ambient:'🌌',Piano:'🎹',Strings:'🎻',Violin:'🎻',Cello:'🎻',Brass:'🎺',Flute:'🪈',Organ:'🎹'};
+            return icons[cat] || '🎵';
+        }
+
+        function card(p) {
+            const tags = [];
+            if (p.id.includes('acid')) tags.push('Acid');
+            if (p.id.includes('303')) tags.push('TB-303');
+            if (p.id.includes('909')) tags.push('TR-909');
+            if (p.id.includes('detroit')) tags.push('Detroit');
+            if (p.id.includes('berlin')) tags.push('Berlin');
+            if (p.id.includes('techno')) tags.push('Techno');
+            
+            return `
+                <div class="preset-card" data-preset-id="${p.id}">
+                    <div class="preset-header">
+                        <div>
+                            <div class="preset-name">${p.name}</div>
+                            <div class="preset-id">${p.id}</div>
+                        </div>
+                        <button class="play-btn" onclick="alert('Preview: ${p.name}\\n\\nUse in Techno Workspace to fully test!')">▶</button>
+                    </div>
+                    <div class="preset-params">
+                        <div class="param-item">
+                            <div class="param-label">VCO1</div>
+                            <div class="param-value">${(p.vco1?.waveform || 'N/A')[0].toUpperCase() + (p.vco1?.waveform || 'N/A').slice(1)}</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">VCO2</div>
+                            <div class="param-value">${(p.vco2?.waveform || 'N/A')[0].toUpperCase() + (p.vco2?.waveform || 'N/A').slice(1)}</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Cutoff</div>
+                            <div class="param-value">${p.vcf?.cutoff || 'N/A'}Hz</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Res</div>
+                            <div class="param-value">${((p.vcf?.resonance || 0) * 100).toFixed(0)}%</div>
+                        </div>
+                    </div>
+                    <div class="preset-tags">
+                        ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                    </div>
+                    <button class="use-btn" onclick="location.href='/techno-workspace?preset=${p.id}'">
+                        🎛️ Use in Workspace →
+                    </button>
+                </div>
+            `;
+        }
+
+        function filter(cat) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.category-section').forEach(s => {
+                s.style.display = cat === 'all' || s.dataset.category === cat ? 'block' : 'none';
+            });
+        }
+
+        function search(term) {
+            term = term.toLowerCase();
+            document.querySelectorAll('.preset-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(term) ? 'block' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
