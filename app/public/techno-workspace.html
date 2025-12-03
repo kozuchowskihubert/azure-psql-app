@@ -305,6 +305,7 @@
             height: calc(100vh - 80px);
             position: relative;
             z-index: 10;
+            overflow: hidden; /* Prevent workspace itself from scrolling */
         }
 
         /* Column Sections */
@@ -313,6 +314,11 @@
             flex-direction: column;
             gap: 15px;
             overflow-y: auto;
+            overflow-x: hidden;
+            height: 100%;
+            min-height: 0; /* Important for Firefox */
+            position: relative;
+            z-index: 2;
         }
 
         .workspace-column::-webkit-scrollbar {
