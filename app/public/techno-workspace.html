@@ -233,12 +233,38 @@
             background: radial-gradient(circle at 30% 30%, rgba(255, 107, 53, 0.3), rgba(0, 0, 0, 0.8));
             border: 3px solid var(--haos-orange);
             position: relative;
-            cursor: pointer;
-            transition: box-shadow 0.3s ease;
+            cursor: grab;
+            transition: box-shadow 0.3s ease, transform 0.1s ease;
+            user-select: none;
+        }
+
+        .knob:active {
+            cursor: grabbing;
+            transform: scale(1.05);
         }
 
         .knob:hover {
             box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+        }
+
+        /* Value arc indicator */
+        .knob-arc {
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from -135deg,
+                transparent 0deg,
+                var(--haos-orange-bright) calc(var(--knob-percent, 50) * 2.7deg),
+                transparent calc(var(--knob-percent, 50) * 2.7deg)
+            );
+            mask: radial-gradient(circle, transparent 26px, black 27px);
+            -webkit-mask: radial-gradient(circle, transparent 26px, black 27px);
+            opacity: 0.6;
+            pointer-events: none;
         }
 
         .knob::before {
@@ -253,7 +279,7 @@
             box-shadow: 0 0 8px var(--haos-orange-bright);
             transform-origin: center 25px;
             transform: translateX(-50%) rotate(var(--rotation, -135deg));
-            transition: none; /* Disable transition for smooth real-time control */
+            transition: none;
         }
 
         /* Knob marker dot for better visual feedback */
@@ -272,17 +298,46 @@
             transition: none;
         }
 
+        /* Knob tooltip */
+        .knob-tooltip {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: var(--haos-orange-bright);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 1000;
+            border: 1px solid var(--haos-orange);
+        }
+
+        .knob:hover .knob-tooltip,
+        .knob.dragging .knob-tooltip {
+            opacity: 1;
+        }
+
         .knob-label {
             font-family: var(--font-mono);
             font-size: 0.7rem;
             color: var(--haos-dim);
             text-align: center;
+            margin-top: 4px;
         }
 
         .knob-value {
             font-family: var(--font-mono);
             font-size: 0.65rem;
             color: var(--haos-orange);
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(255, 107, 53, 0.5);
         }
 
         /* Sequencer Grid */
@@ -4600,31 +4655,46 @@
         // Initialize knob controls
         function initKnobs() {
             const knobs = document.querySelectorAll('.knob:not(.effect-knob)');
-            console.log(`🎛️ Initializing ${knobs.length} parameter knobs...`);
+            console.log(`🎛️ Initializing ${knobs.length} parameter knobs with enhanced controls...`);
             
             knobs.forEach((knob, index) => {
                 let isDragging = false;
                 let startY = 0;
                 let startValue = 0;
                 
-                // Get initial value from data attribute
+                // Get initial value and default from data attributes
                 let value = parseFloat(knob.dataset.value) || 0.5;
+                const defaultValue = parseFloat(knob.dataset.default || knob.dataset.value) || 0.5;
+                
+                // Add tooltip element
+                const tooltip = document.createElement('div');
+                tooltip.className = 'knob-tooltip';
+                knob.appendChild(tooltip);
+                
+                // Add arc indicator element
+                const arc = document.createElement('div');
+                arc.className = 'knob-arc';
+                knob.appendChild(arc);
 
+                // Mouse down handler
                 knob.addEventListener('mousedown', (e) => {
                     e.preventDefault();
                     isDragging = true;
                     startY = e.clientY;
                     startValue = value;
-                    knob.style.transition = 'none'; // Disable transition for smooth dragging
+                    knob.classList.add('dragging');
+                    knob.style.transition = 'none';
                     console.log(`🎛️ Knob ${knob.dataset.param || index} mousedown - value: ${value.toFixed(2)}`);
                 });
 
+                // Mouse move handler with shift for fine control
                 const handleMouseMove = (e) => {
                     if (!isDragging) return;
                     e.preventDefault();
                     
-                    // Calculate delta with sensitivity
-                    const delta = (startY - e.clientY) * 0.005; // More sensitive control
+                    // Fine control with shift key (10x slower)
+                    const sensitivity = e.shiftKey ? 0.0005 : 0.005;
+                    const delta = (startY - e.clientY) * sensitivity;
                     value = Math.min(1, Math.max(0, startValue + delta));
                     
                     // Update data attribute
@@ -4633,19 +4703,77 @@
                     // Update visual and parameter
                     updateKnobVisual(knob, value);
                     updateKnobParam(knob);
+                    
+                    // Update tooltip
+                    const param = knob.dataset.param || 'value';
+                    tooltip.textContent = `${formatParamValue(param, value)}${e.shiftKey ? ' (FINE)' : ''}`;
                 };
 
+                // Mouse up handler
                 const handleMouseUp = () => {
                     if (isDragging) {
                         console.log(`🎛️ Knob ${knob.dataset.param || index} released - final value: ${value.toFixed(2)}`);
-                        knob.style.transition = ''; // Re-enable transition
+                        knob.classList.remove('dragging');
+                        knob.style.transition = '';
                     }
                     isDragging = false;
                 };
 
-                // Use addEventListener for better control
                 document.addEventListener('mousemove', handleMouseMove);
                 document.addEventListener('mouseup', handleMouseUp);
+
+                // Mouse wheel support for precise control
+                knob.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    
+                    // Fine control with shift key
+                    const sensitivity = e.shiftKey ? 0.001 : 0.01;
+                    const delta = -e.deltaY * sensitivity;
+                    value = Math.min(1, Math.max(0, value + delta));
+                    
+                    knob.dataset.value = value.toFixed(3);
+                    updateKnobVisual(knob, value);
+                    updateKnobParam(knob);
+                    
+                    // Show tooltip
+                    const param = knob.dataset.param || 'value';
+                    tooltip.textContent = `${formatParamValue(param, value)}${e.shiftKey ? ' (FINE)' : ''}`;
+                    tooltip.style.opacity = '1';
+                    
+                    // Hide tooltip after delay
+                    clearTimeout(knob._wheelTimeout);
+                    knob._wheelTimeout = setTimeout(() => {
+                        tooltip.style.opacity = '';
+                    }, 1000);
+                }, { passive: false });
+
+                // Double-click to reset to default
+                knob.addEventListener('dblclick', (e) => {
+                    e.preventDefault();
+                    value = defaultValue;
+                    knob.dataset.value = value.toFixed(3);
+                    updateKnobVisual(knob, value);
+                    updateKnobParam(knob);
+                    
+                    // Flash notification
+                    tooltip.textContent = '↺ RESET';
+                    tooltip.style.opacity = '1';
+                    setTimeout(() => {
+                        const param = knob.dataset.param || 'value';
+                        tooltip.textContent = formatParamValue(param, value);
+                    }, 500);
+                    setTimeout(() => {
+                        tooltip.style.opacity = '';
+                    }, 1500);
+                    
+                    console.log(`↺ Knob ${knob.dataset.param || index} reset to default: ${defaultValue.toFixed(2)}`);
+                });
+
+                // Hover tooltip
+                knob.addEventListener('mouseenter', () => {
+                    const param = knob.dataset.param || 'value';
+                    tooltip.textContent = formatParamValue(param, value);
+                });
 
                 // Touch support for mobile
                 knob.addEventListener('touchstart', (e) => {
@@ -4653,6 +4781,7 @@
                     isDragging = true;
                     startY = e.touches[0].clientY;
                     startValue = value;
+                    knob.classList.add('dragging');
                     knob.style.transition = 'none';
                 });
 
@@ -4660,17 +4789,26 @@
                     if (!isDragging) return;
                     e.preventDefault();
                     
-                    const delta = (startY - e.touches[0].clientY) * 0.005;
+                    const sensitivity = 0.003; // Slightly less sensitive for touch
+                    const delta = (startY - e.touches[0].clientY) * sensitivity;
                     value = Math.min(1, Math.max(0, startValue + delta));
                     
                     knob.dataset.value = value.toFixed(3);
                     updateKnobVisual(knob, value);
                     updateKnobParam(knob);
-                });
+                    
+                    const param = knob.dataset.param || 'value';
+                    tooltip.textContent = formatParamValue(param, value);
+                    tooltip.style.opacity = '1';
+                }, { passive: false });
 
                 document.addEventListener('touchend', () => {
                     if (isDragging) {
+                        knob.classList.remove('dragging');
                         knob.style.transition = '';
+                        setTimeout(() => {
+                            tooltip.style.opacity = '';
+                        }, 1000);
                     }
                     isDragging = false;
                 });
@@ -4680,7 +4818,7 @@
                 updateKnobParam(knob);
             });
             
-            console.log(`✅ Knobs initialized successfully`);
+            console.log(`✅ Enhanced knobs initialized with: wheel control, shift+fine tune, double-click reset`);
         }
 
         function updateKnobVisual(knob, value) {
@@ -4688,16 +4826,34 @@
             const rotation = (value * 270) - 135;
             knob.style.setProperty('--rotation', `${rotation}deg`);
             
+            // Update arc indicator
+            const percent = Math.round(value * 100);
+            knob.style.setProperty('--knob-percent', percent);
+            
             // Update knob value display
             const valueEl = knob.parentElement.querySelector('.knob-value');
             if (valueEl) {
                 const param = knob.dataset.param || knob.id || 'unknown';
                 valueEl.textContent = formatParamValue(param, value);
+                
+                // Color-code the value based on intensity
+                if (value < 0.3) {
+                    valueEl.style.color = 'rgba(255, 107, 53, 0.6)';
+                } else if (value < 0.7) {
+                    valueEl.style.color = 'rgba(255, 107, 53, 0.9)';
+                } else {
+                    valueEl.style.color = 'var(--haos-orange-bright)';
+                }
             }
             
-            // Debug log
-            const param = knob.dataset.param || knob.id || 'unknown';
-            console.log(`🔄 Knob visual update: ${param} = ${Math.round(value * 100)}% (${Math.round(rotation)}°)`);
+            // Pulse effect on change
+            const arc = knob.querySelector('.knob-arc');
+            if (arc) {
+                arc.style.opacity = '0.9';
+                setTimeout(() => {
+                    arc.style.opacity = '0.6';
+                }, 100);
+            }
         }
 
         function updateKnobParam(knob) {
@@ -4717,19 +4873,21 @@
             // Update HAOS directly for TB-303 and drum parameters
             if (HAOS && HAOS.setParam && param) {
                 HAOS.setParam(param, value);
-                console.log(`✅ HAOS.setParam('${param}', ${value.toFixed(3)})`);
             }
             
             // Master volume control - directly update gain
             if (param === 'master-volume' && HAOS && HAOS.masterGain) {
                 HAOS.masterGain.gain.value = value;
-                console.log(`🔊 Master volume set to ${Math.round(value * 100)}%`);
             }
 
-            // Add visual feedback - glow effect when changing
-            knob.style.boxShadow = '0 0 20px rgba(255, 107, 53, 0.8)';
+            // Enhanced visual feedback - glow effect with intensity based on value
+            const intensity = 0.3 + (value * 0.7); // 30% to 100% intensity
+            knob.style.boxShadow = `0 0 ${15 + value * 15}px rgba(255, 107, 53, ${intensity})`;
+            knob.style.borderColor = `rgba(255, 107, 53, ${0.5 + value * 0.5})`;
+            
             setTimeout(() => {
                 knob.style.boxShadow = '';
+                knob.style.borderColor = '';
             }, 150);
         }
 
