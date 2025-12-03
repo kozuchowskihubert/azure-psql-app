@@ -799,7 +799,7 @@
             // Nodes array for cleanup
             const nodes = [];
             
-            // ============ VCO 1 & 2 (Oscillators) ============
+            //============ VCO 1 & 2 (Oscillators) ============
             let vco1Source, vco2Source;
             const vco1Gain = ctx.createGain();
             const vco2Gain = ctx.createGain();
@@ -818,12 +818,14 @@
             } else {
                 vco1Source = ctx.createOscillator();
                 vco1Source.type = preset.vco1?.waveform || 'sawtooth';
-                const freq1 = note * Math.pow(2, (preset.vco1?.fine || 0) / 1200);
-                vco1Source.frequency.setValueAtTime(freq1, now);
+                // Clamp frequency to valid range
+                const baseFreq1 = Math.max(20, Math.min((preset.vco1?.frequency || note), 20000));
+                const freq1 = baseFreq1 * Math.pow(2, (preset.vco1?.fine || 0) / 1200);
+                vco1Source.frequency.setValueAtTime(Math.min(freq1, ctx.sampleRate / 3), now);
                 
                 // Apply VCO1 modulation (PWM simulation with detune)
                 if ((preset.vco1?.mod || 0) > 0) {
-                    vco1Source.detune.setValueAtTime(preset.vco1.mod * 100, now);
+                    vco1Source.detune.setValueAtTime(preset.vco1.mod * 150, now);
                 }
             }
             vco1Source.connect(vco1Gain);
@@ -842,12 +844,13 @@
             } else {
                 vco2Source = ctx.createOscillator();
                 vco2Source.type = preset.vco2?.waveform || 'square';
-                const freq2 = note * Math.pow(2, (preset.vco2?.fine || 0) / 1200);
-                vco2Source.frequency.setValueAtTime(freq2, now);
+                const baseFreq2 = Math.max(20, Math.min((preset.vco2?.frequency || note), 20000));
+                const freq2 = baseFreq2 * Math.pow(2, (preset.vco2?.fine || 0) / 1200);
+                vco2Source.frequency.setValueAtTime(Math.min(freq2, ctx.sampleRate / 3), now);
                 
                 // Apply VCO2 modulation
                 if ((preset.vco2?.mod || 0) > 0) {
-                    vco2Source.detune.setValueAtTime(preset.vco2.mod * 100, now);
+                    vco2Source.detune.setValueAtTime(preset.vco2.mod * 150, now);
                 }
             }
             vco2Source.connect(vco2Gain);
@@ -869,9 +872,9 @@
             vcf.type = 'lowpass';
             nodes.push(vcf);
             
-            // Base filter settings
-            const cutoff = preset.vcf?.cutoff || 1000;
-            const resonance = preset.vcf?.resonance || 0.5;
+            // Base filter settings with clamping
+            const cutoff = Math.max(30, Math.min(preset.vcf?.cutoff || 1000, 18000));
+            const resonance = Math.max(0, Math.min(preset.vcf?.resonance || 0.5, 1));
             const envMod = preset.vcf?.envMod || 0;
             
             // Resonance scaling (ARP 2600 has aggressive resonance)
@@ -880,22 +883,33 @@
             // Filter envelope modulation
             const env = preset.envelope || {attack: 0.01, decay: 0.1, sustain: 0.7, release: 0.2};
             
-            if (envMod > 0) {
-                // Calculate peak frequency with exponential scaling
-                const envPeak = cutoff * (1 + (envMod * 8));
-                const clampedPeak = Math.min(envPeak, 18000);
-                const clampedCutoff = Math.max(20, cutoff);
+            if (Math.abs(envMod) > 0.01) {
+                // Support both positive and negative envelope modulation
+                const envAmount = envMod * 8;
+                const envPeak = cutoff * (1 + envAmount);
+                const clampedPeak = Math.max(30, Math.min(envPeak, 18000));
+                const clampedCutoff = Math.max(30, cutoff);
                 
                 // Exponential envelope for filter (more natural)
-                vcf.frequency.setValueAtTime(clampedPeak, now);
-                vcf.frequency.exponentialRampToValueAtTime(clampedPeak, now + 0.001);
-                vcf.frequency.exponentialRampToValueAtTime(clampedPeak * 0.8, now + env.attack);
-                vcf.frequency.exponentialRampToValueAtTime(
-                    clampedCutoff + ((clampedPeak - clampedCutoff) * env.sustain * 0.3),
-                    now + env.attack + env.decay
-                );
+                if (envMod > 0) {
+                    // Positive modulation (opening filter)
+                    vcf.frequency.setValueAtTime(clampedPeak, now);
+                    vcf.frequency.exponentialRampToValueAtTime(clampedPeak * 0.9, now + 0.001);
+                    vcf.frequency.exponentialRampToValueAtTime(clampedPeak * 0.85, now + env.attack);
+                    vcf.frequency.exponentialRampToValueAtTime(
+                        clampedCutoff + ((clampedPeak - clampedCutoff) * env.sustain * 0.3),
+                        now + env.attack + env.decay
+                    );
+                } else {
+                    // Negative modulation (closing filter)
+                    vcf.frequency.setValueAtTime(clampedCutoff, now);
+                    vcf.frequency.exponentialRampToValueAtTime(
+                        Math.max(30, clampedCutoff * 0.7),
+                        now + env.attack + env.decay
+                    );
+                }
             } else {
-                vcf.frequency.setValueAtTime(Math.max(20, cutoff), now);
+                vcf.frequency.setValueAtTime(cutoff, now);
             }
             
             mixer.connect(vcf);
@@ -906,12 +920,12 @@
                 const lfoGain = ctx.createGain();
                 nodes.push(lfo, lfoGain);
                 
-                lfo.frequency.value = preset.lfo.rate;
+                lfo.frequency.value = Math.min(preset.lfo.rate, 40); // Clamp LFO rate
                 lfo.type = 'sine';
                 
                 // Route LFO to destination
                 if (preset.lfo.destination === 'filter') {
-                    lfoGain.gain.value = cutoff * preset.lfo.depth * 0.5;
+                    lfoGain.gain.value = cutoff * preset.lfo.depth * 0.6;
                     lfo.connect(lfoGain);
                     lfoGain.connect(vcf.frequency);
                 } else if (preset.lfo.destination === 'pitch') {
@@ -919,6 +933,15 @@
                     lfo.connect(lfoGain);
                     if (vco1Source.detune) lfoGain.connect(vco1Source.detune);
                     if (vco2Source.detune) lfoGain.connect(vco2Source.detune);
+                } else if (preset.lfo.destination === 'vca') {
+                    // Tremolo effect
+                    const tremoloGain = ctx.createGain();
+                    lfoGain.gain.value = preset.lfo.depth * 0.5;
+                    tremoloGain.gain.value = 1.0 - (preset.lfo.depth * 0.3);
+                    lfo.connect(lfoGain);
+                    lfoGain.connect(tremoloGain.gain);
+                    nodes.push(tremoloGain);
+                    // Will be connected in signal chain below
                 }
                 
                 lfo.start(now);
@@ -931,10 +954,11 @@
             nodes.push(vca);
             
             // ADSR Envelope with exponential curves (more analog feel)
-            const vcaLevel = (preset.vca?.level || 0.8) * velocity;
-            const attackEnd = now + env.attack;
-            const decayEnd = attackEnd + env.decay;
+            const vcaLevel = Math.max(0.1, Math.min((preset.vca?.level || 0.8) * velocity, 1.0));
+            const attackEnd = now + Math.max(0.001, env.attack);
+            const decayEnd = attackEnd + Math.max(0.01, env.decay);
             const releaseStart = now + duration - Math.min(env.release, duration * 0.4);
+            const sustainLevel = Math.max(0.001, Math.min(env.sustain, 1.0));
             
             // Attack (exponential)
             vca.gain.setValueAtTime(0.001, now);
@@ -942,40 +966,49 @@
             
             // Decay (exponential to sustain)
             vca.gain.exponentialRampToValueAtTime(
-                Math.max(0.001, vcaLevel * env.sustain),
+                Math.max(0.001, vcaLevel * sustainLevel),
                 decayEnd
             );
             
             // Sustain (hold)
-            vca.gain.setValueAtTime(Math.max(0.001, vcaLevel * env.sustain), releaseStart);
+            vca.gain.setValueAtTime(Math.max(0.001, vcaLevel * sustainLevel), releaseStart);
             
             // Release (exponential)
-            vca.gain.exponentialRampToValueAtTime(0.001, releaseStart + env.release);
+            vca.gain.exponentialRampToValueAtTime(0.001, releaseStart + Math.max(0.05, env.release));
             
             vcf.connect(vca);
             
             // ============ OUTPUT SECTION ============
             // Soft clipping / saturation
             const waveshaper = ctx.createWaveShaper();
-            waveshaper.curve = createSaturationCurve(1.2);
+            waveshaper.curve = createSaturationCurve(1.3);
+            waveshaper.oversample = '2x';
             nodes.push(waveshaper);
             vca.connect(waveshaper);
             
             // Compression (glue it together)
             const compressor = ctx.createDynamicsCompressor();
-            compressor.threshold.value = -24;
-            compressor.knee.value = 10;
-            compressor.ratio.value = 4;
-            compressor.attack.value = 0.003;
-            compressor.release.value = 0.1;
+            compressor.threshold.value = -20;
+            compressor.knee.value = 12;
+            compressor.ratio.value = 6;
+            compressor.attack.value = 0.002;
+            compressor.release.value = 0.08;
             nodes.push(compressor);
             waveshaper.connect(compressor);
             
+            // High-pass filter to remove DC offset and rumble
+            const hpf = ctx.createBiquadFilter();
+            hpf.type = 'highpass';
+            hpf.frequency.value = 20;
+            hpf.Q.value = 0.707;
+            nodes.push(hpf);
+            compressor.connect(hpf);
+            
             // Master gain (preview level)
             const masterGain = ctx.createGain();
-            masterGain.gain.value = 0.35;
+            masterGain.gain.value = 0.32;
             nodes.push(masterGain);
-            compressor.connect(masterGain);
+            hpf.connect(masterGain);
             masterGain.connect(ctx.destination);
             
             // ============ START & STOP ============
@@ -1002,13 +1035,16 @@
         
         // Saturation curve for analog warmth
         function createSaturationCurve(amount = 1) {
-            const samples = 1024;
+            const samples = 2048;
             const curve = new Float32Array(samples);
             const deg = Math.PI / 180;
             
             for (let i = 0; i < samples; i++) {
                 const x = (i * 2 / samples) - 1;
+                // Soft clipping with smooth curve
                 curve[i] = (3 + amount) * x * 20 * deg / (Math.PI + amount * Math.abs(x));
+                // Clamp to prevent harsh clipping
+                curve[i] = Math.max(-0.95, Math.min(0.95, curve[i]));
             }
             return curve;
         }
