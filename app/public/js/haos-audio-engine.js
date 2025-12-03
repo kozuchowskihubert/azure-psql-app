@@ -373,36 +373,80 @@ class HAOSTR909 {
     playKick(velocity = 1.0, tune = 0) {
         const now = this.context.currentTime;
         
-        // Oscillator for body
-        const osc = this.context.createOscillator();
+        // Sub-bass oscillator for deep punch
+        const subOsc = this.context.createOscillator();
         const pitchMult = Math.pow(2, tune / 12); // Semitone tuning
-        osc.frequency.setValueAtTime(150 * pitchMult, now);
-        osc.frequency.exponentialRampToValueAtTime(40 * pitchMult, now + 0.1);
+        subOsc.frequency.setValueAtTime(50 * pitchMult, now);
+        subOsc.frequency.exponentialRampToValueAtTime(30 * pitchMult, now + 0.15);
         
-        // Click oscillator
+        // Main body oscillator with faster attack
+        const osc = this.context.createOscillator();
+        osc.frequency.setValueAtTime(180 * pitchMult, now);
+        osc.frequency.exponentialRampToValueAtTime(45 * pitchMult, now + 0.08);
+        
+        // Enhanced click/punch oscillator
         const clickOsc = this.context.createOscillator();
-        clickOsc.frequency.value = 1000 * pitchMult;
+        clickOsc.frequency.value = 1200 * pitchMult;
         
-        // Envelopes with velocity
+        // Sharp noise burst for attack
+        const noise = this.context.createBufferSource();
+        noise.buffer = this.createNoiseBuffer();
+        
+        // Saturation/distortion for punch
+        const saturator = this.context.createWaveShaper();
+        saturator.curve = this.createSaturationCurve(1.5); // Moderate saturation
+        saturator.oversample = '2x';
+        
+        // Sub-bass envelope - longer sustain for deep punch
+        const subEnv = this.context.createGain();
+        subEnv.gain.setValueAtTime(1.2 * velocity, now);
+        subEnv.gain.exponentialRampToValueAtTime(0.01, now + this.params.kickDecay * 1.2);
+        
+        // Main body envelope - aggressive attack
         const env = this.context.createGain();
-        env.gain.setValueAtTime(1 * velocity, now);
+        env.gain.setValueAtTime(0, now);
+        env.gain.linearRampToValueAtTime(1.1 * velocity, now + 0.005); // Fast attack
         env.gain.exponentialRampToValueAtTime(0.01, now + this.params.kickDecay);
         
+        // Enhanced click envelope
         const clickEnv = this.context.createGain();
-        clickEnv.gain.setValueAtTime(0.5 * velocity, now);
-        clickEnv.gain.exponentialRampToValueAtTime(0.01, now + 0.01);
+        clickEnv.gain.setValueAtTime(0.8 * velocity, now);
+        clickEnv.gain.exponentialRampToValueAtTime(0.01, now + 0.008);
         
-        // Connect
+        // Noise envelope for attack punch
+        const noiseEnv = this.context.createGain();
+        noiseEnv.gain.setValueAtTime(0.3 * velocity, now);
+        noiseEnv.gain.exponentialRampToValueAtTime(0.01, now + 0.015);
+        
+        // High-pass filter for noise (crisp attack)
+        const noiseFilter = this.context.createBiquadFilter();
+        noiseFilter.type = 'highpass';
+        noiseFilter.frequency.value = 800;
+        
+        // Connect signal chain
+        subOsc.connect(subEnv);
         osc.connect(env);
         clickOsc.connect(clickEnv);
-        env.connect(this.output);
-        clickEnv.connect(this.output);
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseEnv);
         
-        // Play
+        // Route through saturation for punch
+        subEnv.connect(saturator);
+        env.connect(saturator);
+        clickEnv.connect(this.output); // Click bypasses saturation
+        noiseEnv.connect(this.output); // Noise bypasses saturation
+        saturator.connect(this.output);
+        
+        // Play all components
+        subOsc.start(now);
         osc.start(now);
         clickOsc.start(now);
+        noise.start(now);
+        
+        subOsc.stop(now + this.params.kickDecay * 1.2 + 0.1);
         osc.stop(now + this.params.kickDecay + 0.1);
         clickOsc.stop(now + 0.02);
+        noise.stop(now + 0.02);
     }
     
     playSnare(velocity = 1.0, tune = 0) {
@@ -593,6 +637,20 @@ class HAOSTR909 {
         }
         
         return buffer;
+    }
+    
+    createSaturationCurve(amount = 1.0) {
+        const samples = 1024;
+        const curve = new Float32Array(samples);
+        const deg = Math.PI / 180;
+        
+        for (let i = 0; i < samples; i++) {
+            const x = (i * 2 / samples) - 1;
+            // Soft clipping with adjustable amount
+            curve[i] = (3 + amount) * x * 20 * deg / (Math.PI + amount * Math.abs(x));
+        }
+        
+        return curve;
     }
 }
 
