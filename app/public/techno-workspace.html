@@ -4605,43 +4605,97 @@
             knobs.forEach((knob, index) => {
                 let isDragging = false;
                 let startY = 0;
+                let startValue = 0;
+                
+                // Get initial value from data attribute
                 let value = parseFloat(knob.dataset.value) || 0.5;
 
                 knob.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
                     isDragging = true;
                     startY = e.clientY;
-                    console.log(`🎛️ Knob ${index} mousedown - value: ${value}`);
+                    startValue = value;
+                    knob.style.transition = 'none'; // Disable transition for smooth dragging
+                    console.log(`🎛️ Knob ${knob.dataset.param || index} mousedown - value: ${value.toFixed(2)}`);
                 });
 
-                window.addEventListener('mousemove', (e) => {
+                const handleMouseMove = (e) => {
                     if (!isDragging) return;
-                    const delta = startY - e.clientY;
-                    value = Math.min(1, Math.max(0, value + delta * 0.01));
-                    knob.dataset.value = value;
-                    startY = e.clientY;
+                    e.preventDefault();
+                    
+                    // Calculate delta with sensitivity
+                    const delta = (startY - e.clientY) * 0.005; // More sensitive control
+                    value = Math.min(1, Math.max(0, startValue + delta));
+                    
+                    // Update data attribute
+                    knob.dataset.value = value.toFixed(3);
+                    
+                    // Update visual and parameter
+                    updateKnobVisual(knob, value);
+                    updateKnobParam(knob);
+                };
+
+                const handleMouseUp = () => {
+                    if (isDragging) {
+                        console.log(`🎛️ Knob ${knob.dataset.param || index} released - final value: ${value.toFixed(2)}`);
+                        knob.style.transition = ''; // Re-enable transition
+                    }
+                    isDragging = false;
+                };
+
+                // Use addEventListener for better control
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+
+                // Touch support for mobile
+                knob.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    isDragging = true;
+                    startY = e.touches[0].clientY;
+                    startValue = value;
+                    knob.style.transition = 'none';
+                });
+
+                document.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    
+                    const delta = (startY - e.touches[0].clientY) * 0.005;
+                    value = Math.min(1, Math.max(0, startValue + delta));
+                    
+                    knob.dataset.value = value.toFixed(3);
                     updateKnobVisual(knob, value);
                     updateKnobParam(knob);
                 });
 
-                window.addEventListener('mouseup', () => {
+                document.addEventListener('touchend', () => {
                     if (isDragging) {
-                        console.log(`🎛️ Knob ${index} released - final value: ${value}`);
+                        knob.style.transition = '';
                     }
                     isDragging = false;
                 });
 
-                // Initialize visual
+                // Initialize visual and parameter
                 updateKnobVisual(knob, value);
+                updateKnobParam(knob);
             });
             
             console.log(`✅ Knobs initialized successfully`);
         }
 
         function updateKnobVisual(knob, value) {
+            // Calculate rotation: 0 = -135deg, 1 = +135deg (270 degree range)
             const rotation = (value * 270) - 135;
             knob.style.setProperty('--rotation', `${rotation}deg`);
             
-            // Also log for debugging
+            // Update knob value display
+            const valueEl = knob.parentElement.querySelector('.knob-value');
+            if (valueEl) {
+                const param = knob.dataset.param || knob.id || 'unknown';
+                valueEl.textContent = formatParamValue(param, value);
+            }
+            
+            // Debug log
             const param = knob.dataset.param || knob.id || 'unknown';
             console.log(`🔄 Knob visual update: ${param} = ${Math.round(value * 100)}% (${Math.round(rotation)}°)`);
         }
@@ -4650,25 +4704,26 @@
             const param = knob.dataset.param;
             const value = parseFloat(knob.dataset.value);
             
+            if (!param) {
+                console.warn('⚠️ Knob has no data-param attribute');
+                return;
+            }
+            
             // Update live params system if initialized
             if (window.liveParams && param) {
                 window.liveParams.setValue(param, value, true);
             }
             
-            // Also update HAOS directly for TB-303 parameters
+            // Update HAOS directly for TB-303 and drum parameters
             if (HAOS && HAOS.setParam && param) {
                 HAOS.setParam(param, value);
+                console.log(`✅ HAOS.setParam('${param}', ${value.toFixed(3)})`);
             }
             
             // Master volume control - directly update gain
             if (param === 'master-volume' && HAOS && HAOS.masterGain) {
                 HAOS.masterGain.gain.value = value;
-            }
-            
-            // Update value display
-            const valueEl = knob.parentElement.querySelector('.knob-value');
-            if (valueEl) {
-                valueEl.textContent = formatParamValue(param, value);
+                console.log(`🔊 Master volume set to ${Math.round(value * 100)}%`);
             }
 
             // Add visual feedback - glow effect when changing
