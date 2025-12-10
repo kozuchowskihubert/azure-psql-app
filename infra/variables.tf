@@ -13,7 +13,7 @@ variable "prefix" {
 variable "location" {
   description = "Azure region"
   type        = string
-  default     = "northeurope"
+  default     = "westus2"
 }
 
 variable "db_name" {
