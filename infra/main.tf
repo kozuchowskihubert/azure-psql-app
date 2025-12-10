@@ -65,22 +65,12 @@ resource "azurerm_virtual_network" "vnet" {
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-# Database Subnet
+# Database Subnet - using existing "default" subnet name to match Azure
 resource "azurerm_subnet" "db_subnet" {
-  name                 = "${var.prefix}-${var.env}-db-subnet"
+  name                 = "default"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
-
-  delegation {
-    name = "postgresql-delegation"
-    service_delegation {
-      name = "Microsoft.DBforPostgreSQL/flexibleServers"
-      actions = [
-        "Microsoft.Network/virtualNetworks/subnets/join/action",
-      ]
-    }
-  }
 }
 
 # App Service Subnet - removed delegation to avoid quota issues
