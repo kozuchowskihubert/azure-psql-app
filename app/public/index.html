@@ -27,15 +27,25 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
+        :root {
+            --haos-orange: #FF6B35;
+            --haos-gold: #D4AF37;
+            --haos-cyan: #00D9FF;
+            --haos-green: #39FF14;
+            --haos-purple: #6A0DAD;
+            --haos-black: #0A0A0A;
+            --haos-cream: #F4E8D8;
+        }
+        
         body {
-            background-color: #0A0A0A;
-            color: #F4E8D8;
+            background-color: var(--haos-black);
+            color: var(--haos-cream);
             font-family: 'Inter', Arial, sans-serif;
             overflow-x: hidden;
             position: relative;
         }
         
-        /* Noise overlay */
+        /* Vintage vinyl scratch overlay */
         body::before {
             content: '';
             position: fixed;
@@ -46,6 +56,20 @@
             mix-blend-mode: overlay;
             pointer-events: none;
             z-index: 9999;
+        }
+        
+        /* Logo spinning animation */
+        @keyframes logo-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .logo-spin {
+            animation: logo-rotate 15s linear infinite;
+        }
+        
+        .logo-spin:hover {
+            animation-duration: 3s;
         }
         
         /* Smart Navigation */
@@ -736,9 +760,7 @@
     <nav class="smart-nav" id="smartNav">
         <div class="nav-container">
             <a href="/" class="nav-logo">
-                <div class="nav-logo-icon">
-                    <i class="fas fa-broadcast-tower"></i>
-                </div>
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm" style="height: 40px; width: auto; filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.5));" class="logo-spin">
                 <span class="nav-logo-text">HAOS.FM</span>
             </a>
             
@@ -750,27 +772,33 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/radio-player.html" class="nav-link">
+                    <a href="/radio.html" class="nav-link">
                         <i class="fas fa-broadcast-tower"></i>
                         <span>Radio</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/haos-platform" class="nav-link" data-auth-required>
+                    <a href="/haos-platform.html" class="nav-link">
                         <i class="fas fa-sliders-h"></i>
                         <span>Studio</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/presets" class="nav-link">
+                    <a href="/preset-browser.html" class="nav-link">
                         <i class="fas fa-layer-group"></i>
                         <span>Presets</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/community" class="nav-link" data-auth-required>
-                        <i class="fas fa-users"></i>
-                        <span>Community</span>
+                    <a href="/sounds.html" class="nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Sounds</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/techno-workspace.html" class="nav-link">
+                        <i class="fas fa-cubes"></i>
+                        <span>Workspace</span>
                     </a>
                 </li>
             </ul>
@@ -792,15 +820,15 @@
                     <div class="user-menu">
                         <div class="user-avatar" id="userAvatar">U</div>
                         <div class="user-dropdown">
-                            <a href="/account" class="dropdown-item">
+                            <a href="/account.html" class="dropdown-item">
                                 <i class="fas fa-user"></i>
                                 My Account
                             </a>
-                            <a href="/my-projects" class="dropdown-item">
+                            <a href="/user-dashboard.html" class="dropdown-item">
                                 <i class="fas fa-folder"></i>
                                 My Projects
                             </a>
-                            <a href="/settings" class="dropdown-item">
+                            <a href="/account.html" class="dropdown-item">
                                 <i class="fas fa-cog"></i>
                                 Settings
                             </a>
@@ -848,7 +876,7 @@
                     <i class="fas fa-rocket"></i>
                     Start Creating Free
                 </a>
-                <a href="/radio-player.html" class="btn btn-secondary btn-large">
+                <a href="/radio.html" class="btn btn-secondary btn-large">
                     <i class="fas fa-broadcast-tower"></i>
                     Listen to Radio
                 </a>
@@ -885,7 +913,7 @@
         </div>
         
         <div class="features-grid">
-            <div class="feature-card" onclick="window.location='/haos-platform'">
+            <div class="feature-card" onclick="window.location='/haos-platform.html'">
                 <div class="feature-icon orange">
                     <i class="fas fa-wave-square"></i>
                 </div>
@@ -894,12 +922,12 @@
                     Visual patching system with oscillators, filters, effects, and modulators. 
                     Build complex sound chains with drag-and-drop cable routing.
                 </p>
-                <a href="/haos-platform" class="feature-link">
+                <a href="/haos-platform.html" class="feature-link">
                     Explore Studio <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
             
-            <div class="feature-card" onclick="window.location='/radio-player.html'">
+            <div class="feature-card" onclick="window.location='/radio.html'">
                 <div class="feature-icon green">
                     <i class="fas fa-broadcast-tower"></i>
                 </div>
@@ -908,12 +936,12 @@
                     Continuous electronic music stream featuring techno, house, ambient, and experimental tracks. 
                     Listen while you work.
                 </p>
-                <a href="/radio-player.html" class="feature-link">
+                <a href="/radio.html" class="feature-link">
                     Start Listening <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
             
-            <div class="feature-card" onclick="window.location='/presets'">
+            <div class="feature-card" onclick="window.location='/preset-browser.html'">
                 <div class="feature-icon purple">
                     <i class="fas fa-layer-group"></i>
                 </div>
@@ -922,12 +950,12 @@
                     Curated preset library covering bass, leads, pads, drums, and FX. 
                     Professional sounds ready to use in your productions.
                 </p>
-                <a href="/presets" class="feature-link">
+                <a href="/preset-browser.html" class="feature-link">
                     Browse Presets <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
             
-            <div class="feature-card">
+            <div class="feature-card" onclick="window.location='/synth-patch-sequencer.html'">
                 <div class="feature-icon orange">
                     <i class="fas fa-drum"></i>
                 </div>
@@ -936,12 +964,12 @@
                     Step sequencer with 16 tracks, swing, velocity control, and MIDI export. 
                     Create drum patterns and melodic sequences.
                 </p>
-                <a href="#" class="feature-link">
-                    Learn More <i class="fas fa-arrow-right"></i>
+                <a href="/synth-patch-sequencer.html" class="feature-link">
+                    Launch Sequencer <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
             
-            <div class="feature-card">
+            <div class="feature-card" onclick="window.location='/collab-studio.html'">
                 <div class="feature-icon green">
                     <i class="fas fa-users"></i>
                 </div>
@@ -950,22 +978,140 @@
                     Real-time collaboration with other producers. Share projects, 
                     edit together, and learn from the community.
                 </p>
-                <a href="#" class="feature-link">
+                <a href="/collab-studio.html" class="feature-link">
                     Join Community <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
             
-            <div class="feature-card">
+            <div class="feature-card" onclick="window.location='/sounds.html'">
                 <div class="feature-icon purple">
                     <i class="fas fa-file-export"></i>
                 </div>
-                <h3 class="feature-title">Export & Share</h3>
+                <h3 class="feature-title">Sounds Library</h3>
                 <p class="feature-description">
-                    Export your tracks as WAV, share presets with the community, 
-                    and publish to streaming platforms.
+                    Browse our extensive sound library with TB-303 acid bass, TR-808 drums,
+                    ARP 2600 leads, and modular synthesis sounds.
                 </p>
-                <a href="#" class="feature-link">
-                    Export Options <i class="fas fa-arrow-right"></i>
+                <a href="/sounds.html" class="feature-link">
+                    Browse Sounds <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Synthesis Studios Section -->
+    <section class="section" style="background: linear-gradient(180deg, rgba(255, 107, 53, 0.05), transparent);">
+        <div class="section-header">
+            <div class="section-badge" style="background: rgba(57, 255, 20, 0.1); border-color: rgba(57, 255, 20, 0.3); color: #39FF14;">
+                <i class="fas fa-broadcast-tower"></i>
+                Studios
+            </div>
+            <h2 class="section-title">Synthesis Studios</h2>
+            <p class="section-description">
+                Hardware-inspired music creation with complete track integration
+            </p>
+        </div>
+        
+        <div class="features-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+            <!-- Featured: Modular Workspace -->
+            <div class="feature-card" onclick="window.location='/techno-workspace.html'" style="border: 2px solid #FF6B35; box-shadow: 0 0 30px rgba(255, 107, 53, 0.3); grid-column: span 2;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                    <div class="feature-icon orange" style="width: 60px; height: 60px; font-size: 24px;">
+                        <i class="fas fa-cubes"></i>
+                    </div>
+                    <span style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 700;">🔥 FEATURED</span>
+                </div>
+                <h3 class="feature-title" style="font-size: 24px;">Modular Workspace</h3>
+                <p class="feature-description">
+                    Eurorack-inspired modular synthesis environment with Visual Patch Routing, 
+                    Drag-and-Drop Cables, CV Modulation Matrix, and Real-time Signal Flow.
+                </p>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0;">
+                    <span style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 4px 12px; border-radius: 4px; font-size: 12px;">🔌 PATCH CABLES</span>
+                    <span style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 4px 12px; border-radius: 4px; font-size: 12px;">⚡ CV ROUTING</span>
+                    <span style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 4px 12px; border-radius: 4px; font-size: 12px;">🎛️ MODULAR</span>
+                </div>
+                <a href="/techno-workspace.html" class="feature-link" style="font-size: 16px; font-weight: 700;">
+                    ▶ LAUNCH WORKSPACE <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- HAOS Platform -->
+            <div class="feature-card" onclick="window.location='/haos-platform.html'" style="border: 2px solid #FF6B35; box-shadow: 0 0 20px rgba(255, 107, 53, 0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                    <div class="feature-icon orange">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <span style="background: linear-gradient(135deg, #FF0000, #FF6B35); color: #FFF; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700;">🔥 HOT</span>
+                </div>
+                <h3 class="feature-title">HAOS Platform</h3>
+                <p class="feature-description">
+                    Complete production suite with TB-303, TR-909, 16-Step Sequencer, 
+                    and all Modular Workspace modules pre-loaded.
+                </p>
+                <a href="/haos-platform.html" class="feature-link">
+                    Launch Studio <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- ARP 2600 Studio -->
+            <div class="feature-card" onclick="window.location='/synth-2600-studio.html'" style="position: relative;">
+                <span style="position: absolute; top: -8px; right: -8px; font-size: 16px;">👑</span>
+                <div class="feature-icon orange">
+                    <i class="fas fa-broadcast-tower"></i>
+                </div>
+                <h3 class="feature-title">ARP 2600 Studio</h3>
+                <p class="feature-description">
+                    Legendary modular synthesizer with complete patch matrix 
+                    and authentic analog sound recreation.
+                </p>
+                <a href="/synth-2600-studio.html" class="feature-link">
+                    Open Studio <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Unified Studio -->
+            <div class="feature-card" onclick="window.location='/platform/studio.html'">
+                <div class="feature-icon purple">
+                    <i class="fas fa-th-large"></i>
+                </div>
+                <h3 class="feature-title">Unified Studio</h3>
+                <p class="feature-description">
+                    All-in-one production suite with TB-303, TR-909, 
+                    radio integration, and collaboration tools.
+                </p>
+                <a href="/platform/studio.html" class="feature-link">
+                    Launch Studio <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Techno Creator -->
+            <div class="feature-card" onclick="window.location='/techno-creator.html'">
+                <div class="feature-icon green">
+                    <i class="fas fa-industry"></i>
+                </div>
+                <h3 class="feature-title">Techno Creator</h3>
+                <p class="feature-description">
+                    Industrial synthesis studio for creating hard-hitting 
+                    techno tracks with authentic machine sounds.
+                </p>
+                <a href="/techno-creator.html" class="feature-link">
+                    Create Techno <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Patch Sequencer -->
+            <div class="feature-card" onclick="window.location='/synth-patch-sequencer.html'">
+                <div class="feature-icon orange">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <h3 class="feature-title">Patch Sequencer</h3>
+                <p class="feature-description">
+                    Advanced 16-step sequencer with visual patch matrix, 
+                    parameter automation, and modulation routing.
+                </p>
+                <a href="/synth-patch-sequencer.html" class="feature-link">
+                    Open Sequencer <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         </div>
@@ -997,40 +1143,40 @@
             <div class="footer-section">
                 <h3>Platform</h3>
                 <ul class="footer-links">
-                    <li><a href="/haos-platform" class="footer-link">Studio</a></li>
-                    <li><a href="/radio-player.html" class="footer-link">Radio</a></li>
-                    <li><a href="/presets" class="footer-link">Presets</a></li>
-                    <li><a href="/community" class="footer-link">Community</a></li>
+                    <li><a href="/haos-platform.html" class="footer-link">Studio</a></li>
+                    <li><a href="/radio.html" class="footer-link">Radio</a></li>
+                    <li><a href="/preset-browser.html" class="footer-link">Presets</a></li>
+                    <li><a href="/sounds.html" class="footer-link">Sounds</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Synthesis Studios</h3>
+                <ul class="footer-links">
+                    <li><a href="/synth-2600-studio.html" class="footer-link">ARP 2600 Studio</a></li>
+                    <li><a href="/techno-workspace.html" class="footer-link">Techno Workspace</a></li>
+                    <li><a href="/techno-creator.html" class="footer-link">Techno Creator</a></li>
+                    <li><a href="/synth-patch-sequencer.html" class="footer-link">Patch Sequencer</a></li>
                 </ul>
             </div>
             
             <div class="footer-section">
                 <h3>Resources</h3>
                 <ul class="footer-links">
-                    <li><a href="/docs" class="footer-link">Documentation</a></li>
-                    <li><a href="/tutorials" class="footer-link">Tutorials</a></li>
-                    <li><a href="/api" class="footer-link">API</a></li>
-                    <li><a href="/support" class="footer-link">Support</a></li>
+                    <li><a href="/features.html" class="footer-link">Features</a></li>
+                    <li><a href="/collab-studio.html" class="footer-link">Collaboration</a></li>
+                    <li><a href="/admin-panel.html" class="footer-link">Admin</a></li>
+                    <li><a href="https://youtube.com/@haos_" target="_blank" class="footer-link">YouTube</a></li>
                 </ul>
             </div>
             
             <div class="footer-section">
-                <h3>Company</h3>
+                <h3>Account</h3>
                 <ul class="footer-links">
-                    <li><a href="/about" class="footer-link">About</a></li>
-                    <li><a href="/blog" class="footer-link">Blog</a></li>
-                    <li><a href="/careers" class="footer-link">Careers</a></li>
-                    <li><a href="/contact" class="footer-link">Contact</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h3>Legal</h3>
-                <ul class="footer-links">
-                    <li><a href="/privacy" class="footer-link">Privacy Policy</a></li>
-                    <li><a href="/terms" class="footer-link">Terms of Service</a></li>
-                    <li><a href="/cookies" class="footer-link">Cookie Policy</a></li>
-                    <li><a href="/licenses" class="footer-link">Licenses</a></li>
+                    <li><a href="/login.html" class="footer-link">Login</a></li>
+                    <li><a href="/register.html" class="footer-link">Register</a></li>
+                    <li><a href="/account.html" class="footer-link">My Account</a></li>
+                    <li><a href="/user-dashboard.html" class="footer-link">Dashboard</a></li>
                 </ul>
             </div>
         </div>
@@ -1040,13 +1186,13 @@
                 © 2025 HAOS.fm - Hardware Analog Oscillator Synthesis
             </p>
             <div class="footer-social">
+                <a href="https://youtube.com/@haos_" class="social-link" target="_blank" title="YouTube @haos_" style="color: #FF0000;">
+                    <i class="fab fa-youtube"></i>
+                </a>
                 <a href="https://twitter.com/haosfm" class="social-link" target="_blank">
                     <i class="fab fa-twitter"></i>
                 </a>
-                <a href="https://youtube.com/@haosfm" class="social-link" target="_blank">
-                    <i class="fab fa-youtube"></i>
-                </a>
-                <a href="https://github.com/haosfm" class="social-link" target="_blank">
+                <a href="https://github.com/kozuchowskihubert/azure-psql-app" class="social-link" target="_blank">
                     <i class="fab fa-github"></i>
                 </a>
                 <a href="https://discord.gg/haosfm" class="social-link" target="_blank">
