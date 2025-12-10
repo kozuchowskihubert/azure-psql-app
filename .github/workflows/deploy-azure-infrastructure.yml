@@ -192,7 +192,9 @@ jobs:
       - name: 🔐 Log in to Azure Container Registry
         run: |
           echo "Authenticating with ACR: ${{ env.ACR_NAME }}.azurecr.io"
-          az acr login --name ${{ env.ACR_NAME }}
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_NAME }}.azurecr.io \
+            --username ${{ secrets.ACR_USERNAME }} \
+            --password-stdin
           echo "✅ Successfully authenticated with ACR"
 
       - name: 🏷️ Extract Docker metadata
