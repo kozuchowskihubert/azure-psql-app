@@ -58,9 +58,13 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 🔐 ACR Login
+      - name: 🔐 Log in to Azure Container Registry
         run: |
-          az acr login --name ${{ env.ACR_NAME }}
+          echo "Authenticating with ACR: ${{ env.ACR_NAME }}.azurecr.io"
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_NAME }}.azurecr.io \
+            --username ${{ secrets.ACR_USERNAME }} \
+            --password-stdin
+          echo "✅ Successfully authenticated with ACR"
 
       - name: 🏷️ Docker Meta
         id: meta
