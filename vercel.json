@@ -3,21 +3,22 @@
   "name": "haos-fm",
   "builds": [
     {
-      "src": "app/server.js",
+      "src": "api/index.js",
       "use": "@vercel/node",
       "config": {
-        "maxLambdaSize": "50mb"
+        "maxLambdaSize": "50mb",
+        "includeFiles": ["app/**"]
       }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/app/server.js"
+      "dest": "/api/index.js"
     },
     {
       "src": "/auth/(.*)",
-      "dest": "/app/server.js"
+      "dest": "/api/index.js"
     },
     {
       "src": "/(.*)\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|mp3|wav|ogg|json)",
@@ -36,7 +37,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/app/server.js"
+      "dest": "/api/index.js"
     }
   ],
   "env": {
@@ -54,7 +55,7 @@
     }
   },
   "functions": {
-    "app/server.js": {
+    "api/index.js": {
       "memory": 1024,
       "maxDuration": 10
     }
