@@ -327,7 +327,7 @@ resource "azurerm_network_interface" "vm_nic" {
 # Virtual Machine for Tracks Processing
 # Using B1s (cheapest VM tier: ~$7.50/month, 1 vCPU, 1GB RAM)
 resource "azurerm_linux_virtual_machine" "tracks_vm" {
-  name                = "${var.prefix}-${var.env}-tracks-vm"
+  name                = "${var.prefix}-${var.env}-vm"  # Changed from tracks-vm to match existing resource
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   size                = var.vm_size
