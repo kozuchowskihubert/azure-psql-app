@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MODULAR WORKSPACE | HAOS.fm</title>
+    
+    <!-- Meta -->
+    <meta name="description" content="HAOS Modular Workspace - ARP 2600, Guitar, Violin, and Strings instruments in one unified interface">
+    <meta name="theme-color" content="#00D9FF">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- HAOS Premium Components -->
+    <script src="/js/components/haos-premium.js" defer></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --modular-primary: #00D9FF;
+            --modular-secondary: #00EEFF;
+            --modular-accent: #FF006E;
+            --modular-glow: rgba(0, 217, 255, 0.4);
+            --bg-dark: #0a0a0a;
+            --bg-panel: rgba(20, 20, 25, 0.95);
+            --text: #e0e0e0;
+            --text-dim: #888;
+            --haos-gold: #D4AF37;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Premium Gate Overlay */
+        .premium-gate-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .premium-gate-overlay.show {
+            display: flex;
+        }
+        
+        .premium-gate-content {
+            text-align: center;
+            padding: 50px;
+            max-width: 500px;
+        }
+        
+        .premium-gate-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .premium-gate-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+            color: var(--haos-gold);
+            margin-bottom: 15px;
+        }
+        
+        .premium-gate-message {
+            font-family: 'Space Mono', monospace;
+            color: #888;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .premium-gate-btn {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, var(--haos-gold), #B8942A);
+            color: #0a0a0a;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin: 0 10px 10px;
+        }
+        
+        .premium-gate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+        }
+        
+        .premium-gate-btn.secondary {
+            background: transparent;
+            border: 2px solid var(--modular-primary);
+            color: var(--modular-primary);
+        }
+        
+        .premium-gate-btn.secondary:hover {
+            background: var(--modular-primary);
+            color: #0a0a0a;
+        }
+        
+        /* Premium Badge in Header */
+        .premium-badge-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Main Layout */
+        .workspace {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            grid-template-rows: auto 1fr auto;
+            height: 100vh;
+            gap: 0;
+        }
+
+        @media (max-width: 1200px) {
+            .workspace {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr auto auto;
+            }
+        }
+
+        /* Top Bar */
+        .top-bar {
+            grid-column: 1 / -1;
+            background: rgba(15, 15, 20, 0.98);
+            border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .workspace-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .workspace-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--modular-primary), var(--modular-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .workspace-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .top-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .top-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .top-btn:hover {
+            border-color: var(--modular-primary);
+            color: var(--modular-primary);
+        }
+
+        .top-btn--primary {
+            background: var(--modular-primary);
+            border-color: var(--modular-primary);
+            color: #000;
+        }
+
+        .top-btn--primary:hover {
+            filter: brightness(1.1);
+            color: #000;
+        }
+
+        /* Left Panel - Instrument Selector */
+        .left-panel {
+            background: rgba(15, 15, 20, 0.95);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1200px) {
+            .left-panel {
+                grid-column: 1 / -1;
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 0.75rem 1rem;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+        }
+
+        .panel-section {
+            margin-bottom: 1rem;
+        }
+
+        .panel-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+        }
+
+        /* Instrument Cards */
+        .instrument-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 1200px) {
+            .instrument-grid {
+                flex-direction: row;
+            }
+        }
+
+        .instrument-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .instrument-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--inst-color, var(--modular-primary));
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .instrument-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .instrument-card:hover::before {
+            opacity: 0.5;
+        }
+
+        .instrument-card.active {
+            background: rgba(0, 217, 255, 0.1);
+            border-color: var(--modular-primary);
+        }
+
+        .instrument-card.active::before {
+            opacity: 1;
+        }
+
+        .instrument-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .instrument-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .instrument-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            color: var(--text);
+        }
+
+        .instrument-desc {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: linear-gradient(180deg, var(--bg-dark) 0%, rgba(10, 10, 15, 1) 100%);
+        }
+
+        /* Instrument View */
+        .instrument-view {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .instrument-view.active {
+            display: block;
+        }
+
+        .instrument-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .instrument-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 3px;
+            color: var(--modular-primary);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .instrument-title-icon {
+            font-size: 2.5rem;
+        }
+
+        /* Control Panels */
+        .control-panels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .control-panel {
+            background: var(--bg-panel);
+            border: 1px solid rgba(0, 217, 255, 0.15);
+            border-radius: 16px;
+            padding: 1.25rem;
+        }
+
+        .control-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .control-panel-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            color: var(--modular-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-panel-icon {
+            font-size: 0.9rem;
+        }
+
+        /* Knob Grid */
+        .knob-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 1rem;
+            justify-items: center;
+        }
+
+        /* Playing Area (Visual representation) */
+        .playing-area {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .playing-area-hint {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .playing-area-keys {
+            font-size: 0.75rem;
+            color: rgba(0, 217, 255, 0.6);
+            margin-top: 0.5rem;
+        }
+
+        .playing-area-keys kbd {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            padding: 0.2rem 0.5rem;
+            font-family: inherit;
+            margin: 0 0.1rem;
+        }
+
+        /* Keyboard Visual */
+        .keyboard {
+            display: flex;
+            justify-content: center;
+            gap: 3px;
+            margin-top: 1rem;
+        }
+
+        .key {
+            width: 40px;
+            height: 120px;
+            background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%);
+            border: 1px solid #999;
+            border-radius: 0 0 4px 4px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            position: relative;
+        }
+
+        .key:hover {
+            background: linear-gradient(180deg, #fff 0%, #f0f0f0 100%);
+        }
+
+        .key.active {
+            background: linear-gradient(180deg, var(--modular-primary) 0%, rgba(0, 217, 255, 0.7) 100%);
+            transform: translateY(2px);
+        }
+
+        .key.black {
+            width: 24px;
+            height: 75px;
+            background: linear-gradient(180deg, #333 0%, #111 100%);
+            margin: 0 -12px;
+            z-index: 1;
+            border-color: #000;
+        }
+
+        .key.black:hover {
+            background: linear-gradient(180deg, #444 0%, #222 100%);
+        }
+
+        .key.black.active {
+            background: linear-gradient(180deg, var(--modular-accent) 0%, rgba(255, 0, 110, 0.7) 100%);
+        }
+
+        .key-label {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: #666;
+        }
+
+        .key.black .key-label {
+            color: #999;
+        }
+
+        /* Right Panel - Parameters */
+        .right-panel {
+            background: rgba(15, 15, 20, 0.95);
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1200px) {
+            .right-panel {
+                grid-column: 1 / -1;
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+            }
+        }
+
+        /* Preset Section in Right Panel */
+        .preset-section {
+            margin-bottom: 1rem;
+        }
+
+        /* Output Section */
+        .output-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 217, 255, 0.15);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: auto;
+        }
+
+        .output-meters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .meter {
+            flex: 1;
+        }
+
+        .meter-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            margin-bottom: 0.25rem;
+        }
+
+        .meter-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--modular-primary), var(--modular-accent));
+            border-radius: 4px;
+            transition: width 0.1s ease;
+        }
+
+        .output-knobs {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            grid-column: 1 / -1;
+            background: rgba(15, 15, 20, 0.98);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .status-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--modular-primary);
+            box-shadow: 0 0 6px var(--modular-glow);
+        }
+
+        .status-indicator.error {
+            background: #ff4444;
+            box-shadow: 0 0 6px rgba(255, 68, 68, 0.4);
+        }
+
+        .cpu-meter {
+            width: 60px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .cpu-fill {
+            height: 100%;
+            background: var(--modular-primary);
+            border-radius: 2px;
+            transition: width 0.2s ease;
+        }
+
+        /* Help Modal */
+        .help-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .help-modal.visible {
+            display: flex;
+        }
+
+        .help-content {
+            background: var(--bg-panel);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .help-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: var(--modular-primary);
+            margin-bottom: 1rem;
+        }
+
+        .help-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .help-section h3 {
+            font-size: 0.9rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .help-section p, .help-section ul {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .help-section ul {
+            margin-left: 1.5rem;
+        }
+
+        .help-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Animations */
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 5px var(--modular-glow)); }
+            50% { filter: drop-shadow(0 0 15px var(--modular-glow)); }
+        }
+
+        .glow-animation {
+            animation: glow 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Manager -->
+    <haos-theme-manager workspace="modular" theme="dark"></haos-theme-manager>
+
+    <div class="workspace">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="workspace-title">
+                <a href="/" style="text-decoration: none;">
+                    <span class="workspace-logo">HAOS</span>
+                </a>
+                <span class="workspace-name">MODULAR WORKSPACE</span>
+            </div>
+            <div class="top-controls">
+                <button class="top-btn" onclick="showHelp()">
+                    <i class="fas fa-question-circle"></i>
+                    HELP
+                </button>
+                <button class="top-btn" onclick="openWorkspaceSwitcher()">
+                    <i class="fas fa-th-large"></i>
+                    SWITCH
+                </button>
+                <button class="top-btn top-btn--primary" id="audioToggle" onclick="toggleAudio()">
+                    <i class="fas fa-play"></i>
+                    START
+                </button>
+            </div>
+        </div>
+
+        <!-- Left Panel - Instruments -->
+        <div class="left-panel">
+            <div class="panel-section">
+                <div class="panel-title">Instruments</div>
+                <div class="instrument-grid">
+                    <div class="instrument-card active" data-instrument="arp2600" style="--inst-color: #00D9FF;">
+                        <span class="instrument-icon">🎛️</span>
+                        <div class="instrument-info">
+                            <div class="instrument-name">ARP 2600</div>
+                            <div class="instrument-desc">Semi-modular synthesizer</div>
+                        </div>
+                    </div>
+                    <div class="instrument-card" data-instrument="guitar" style="--inst-color: #FF6B35;">
+                        <span class="instrument-icon">🎸</span>
+                        <div class="instrument-info">
+                            <div class="instrument-name">GUITAR</div>
+                            <div class="instrument-desc">Acoustic & electric</div>
+                        </div>
+                    </div>
+                    <div class="instrument-card" data-instrument="violin" style="--inst-color: #8B5CF6;">
+                        <span class="instrument-icon">🎻</span>
+                        <div class="instrument-info">
+                            <div class="instrument-name">VIOLIN</div>
+                            <div class="instrument-desc">Orchestral strings</div>
+                        </div>
+                    </div>
+                    <div class="instrument-card" data-instrument="strings" style="--inst-color: #39FF14;">
+                        <span class="instrument-icon">🎼</span>
+                        <div class="instrument-info">
+                            <div class="instrument-name">STRINGS</div>
+                            <div class="instrument-desc">Ensemble section</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">Quick Presets</div>
+                <div class="instrument-grid">
+                    <div class="instrument-card" data-preset="init">
+                        <span class="instrument-icon">⚡</span>
+                        <div class="instrument-info">
+                            <div class="instrument-name">INIT</div>
+                            <div class="instrument-desc">Reset to default</div>
+                        </div>
+                    </div>
+                    <div class="instrument-card" data-preset="random">
+                        <span class="instrument-icon">🎲</span>
+                        <div class="instrument-info">
+                            <div class="instrument-name">RANDOM</div>
+                            <div class="instrument-desc">Randomize settings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- ARP 2600 View -->
+            <div class="instrument-view active" id="view-arp2600">
+                <div class="instrument-header">
+                    <div class="instrument-title">
+                        <span class="instrument-title-icon">🎛️</span>
+                        ARP 2600
+                    </div>
+                </div>
+
+                <div class="playing-area">
+                    <div class="playing-area-hint">Play with your keyboard or click the keys below</div>
+                    <div class="playing-area-keys">
+                        <kbd>A</kbd><kbd>W</kbd><kbd>S</kbd><kbd>E</kbd><kbd>D</kbd><kbd>F</kbd><kbd>T</kbd><kbd>G</kbd><kbd>Y</kbd><kbd>H</kbd><kbd>U</kbd><kbd>J</kbd><kbd>K</kbd>
+                    </div>
+                    <div class="keyboard" id="keyboard-arp2600">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+
+                <div class="control-panels">
+                    <div class="control-panel">
+                        <div class="control-panel-header">
+                            <span class="control-panel-title">
+                                <i class="fas fa-wave-square control-panel-icon"></i>
+                                VCO 1 - Oscillator
+                            </span>
+                        </div>
+                        <div class="knob-grid" id="vco1-knobs">
+                            <!-- Knobs added by JS -->
+                        </div>
+                    </div>
+
+                    <div class="control-panel">
+                        <div class="control-panel-header">
+                            <span class="control-panel-title">
+                                <i class="fas fa-wave-square control-panel-icon"></i>
+                                VCO 2 - Oscillator
+                            </span>
+                        </div>
+                        <div class="knob-grid" id="vco2-knobs">
+                            <!-- Knobs added by JS -->
+                        </div>
+                    </div>
+
+                    <div class="control-panel">
+                        <div class="control-panel-header">
+                            <span class="control-panel-title">
+                                <i class="fas fa-filter control-panel-icon"></i>
+                                VCF - Filter
+                            </span>
+                        </div>
+                        <div class="knob-grid" id="vcf-knobs">
+                            <!-- Knobs added by JS -->
+                        </div>
+                    </div>
+
+                    <div class="control-panel">
+                        <div class="control-panel-header">
+                            <span class="control-panel-title">
+                                <i class="fas fa-chart-line control-panel-icon"></i>
+                                ADSR - Envelope
+                            </span>
+                        </div>
+                        <div class="knob-grid" id="adsr-knobs">
+                            <!-- Knobs added by JS -->
+                        </div>
+                    </div>
+
+                    <div class="control-panel">
+                        <div class="control-panel-header">
+                            <span class="control-panel-title">
+                                <i class="fas fa-wave-sine control-panel-icon"></i>
+                                LFO - Modulation
+                            </span>
+                        </div>
+                        <div class="knob-grid" id="lfo-knobs">
+                            <!-- Knobs added by JS -->
+                        </div>
+                    </div>
+
+                    <div class="control-panel">
+                        <div class="control-panel-header">
+                            <span class="control-panel-title">
+                                <i class="fas fa-music control-panel-icon"></i>
+                                Effects
+                            </span>
+                        </div>
+                        <div class="knob-grid" id="fx-knobs">
+                            <!-- Knobs added by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guitar View -->
+            <div class="instrument-view" id="view-guitar">
+                <div class="instrument-header">
+                    <div class="instrument-title">
+                        <span class="instrument-title-icon">🎸</span>
+                        VIRTUAL GUITAR
+                    </div>
+                </div>
+                <div class="playing-area">
+                    <div class="playing-area-hint">Strum virtual strings with your keyboard</div>
+                    <div class="playing-area-keys">
+                        <kbd>1-6</kbd> Select String | <kbd>A-K</kbd> Fret Position | <kbd>Space</kbd> Strum
+                    </div>
+                </div>
+                <div class="control-panels">
+                    <div class="control-panel">
+                        <div class="control-panel-header">
+                            <span class="control-panel-title">Guitar Type</span>
+                        </div>
+                        <div class="knob-grid" id="guitar-type">
+                            <!-- Added by JS -->
+                        </div>
+                    </div>
+                    <div class="control-panel">
+                        <div class="control-panel-header">
+                            <span class="control-panel-title">Amp & Effects</span>
+                        </div>
+                        <div class="knob-grid" id="guitar-fx">
+                            <!-- Added by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Violin View -->
+            <div class="instrument-view" id="view-violin">
+                <div class="instrument-header">
+                    <div class="instrument-title">
+                        <span class="instrument-title-icon">🎻</span>
+                        VIRTUAL VIOLIN
+                    </div>
+                </div>
+                <div class="playing-area">
+                    <div class="playing-area-hint">Play expressive violin with bow dynamics</div>
+                    <div class="playing-area-keys">
+                        <kbd>A-K</kbd> Notes | <kbd>↑↓</kbd> Bow Pressure | <kbd>Shift</kbd> Vibrato
+                    </div>
+                </div>
+                <div class="control-panels">
+                    <div class="control-panel">
+                        <div class="control-panel-header">
+                            <span class="control-panel-title">Bow Control</span>
+                        </div>
+                        <div class="knob-grid" id="violin-bow">
+                            <!-- Added by JS -->
+                        </div>
+                    </div>
+                    <div class="control-panel">
+                        <div class="control-panel-header">
+                            <span class="control-panel-title">Expression</span>
+                        </div>
+                        <div class="knob-grid" id="violin-expr">
+                            <!-- Added by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strings Ensemble View -->
+            <div class="instrument-view" id="view-strings">
+                <div class="instrument-header">
+                    <div class="instrument-title">
+                        <span class="instrument-title-icon">🎼</span>
+                        STRINGS ENSEMBLE
+                    </div>
+                </div>
+                <div class="playing-area">
+                    <div class="playing-area-hint">Orchestral string section with section control</div>
+                    <div class="playing-area-keys">
+                        <kbd>A-K</kbd> Notes | <kbd>1-4</kbd> Section Select | <kbd>Space</kbd> Sustain
+                    </div>
+                    <div class="keyboard" id="keyboard-strings">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+                <div class="control-panels">
+                    <div class="control-panel">
+                        <div class="control-panel-header">
+                            <span class="control-panel-title">Section Mix</span>
+                        </div>
+                        <div class="knob-grid" id="strings-mix">
+                            <!-- Added by JS -->
+                        </div>
+                    </div>
+                    <div class="control-panel">
+                        <div class="control-panel-header">
+                            <span class="control-panel-title">Ensemble</span>
+                        </div>
+                        <div class="knob-grid" id="strings-ensemble">
+                            <!-- Added by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <div class="preset-section">
+                <div class="panel-title">Presets</div>
+                <haos-preset-manager workspace="modular" category="all" compact="true"></haos-preset-manager>
+            </div>
+
+            <div class="output-section">
+                <div class="panel-title">Output</div>
+                <div class="output-meters">
+                    <div class="meter">
+                        <div class="meter-label">L</div>
+                        <div class="meter-bar">
+                            <div class="meter-fill" id="meter-l" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="meter">
+                        <div class="meter-label">R</div>
+                        <div class="meter-bar">
+                            <div class="meter-fill" id="meter-r" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="output-knobs">
+                    <haos-knob name="VOLUME" min="0" max="100" value="75" color="#00D9FF" size="60" format="percent"></haos-knob>
+                    <haos-knob name="PAN" min="-100" max="100" value="0" color="#FF006E" size="60" format="pan" bipolar="true"></haos-knob>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="bottom-bar">
+            <div class="status-info">
+                <div class="status-item">
+                    <span class="status-indicator" id="audio-indicator"></span>
+                    <span id="audio-status">Audio Ready</span>
+                </div>
+                <div class="status-item">
+                    <span>CPU:</span>
+                    <div class="cpu-meter">
+                        <div class="cpu-fill" id="cpu-fill" style="width: 15%"></div>
+                    </div>
+                    <span id="cpu-percent">15%</span>
+                </div>
+                <div class="status-item">
+                    <span>MIDI:</span>
+                    <span id="midi-status">Not Connected</span>
+                </div>
+            </div>
+            <div style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text-dim);">
+                Press <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px; font-family: inherit;">?</kbd> for help
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="help-modal" id="helpModal">
+        <div class="help-content">
+            <button class="help-close" onclick="hideHelp()">&times;</button>
+            <h2 class="help-title">MODULAR WORKSPACE GUIDE</h2>
+            
+            <div class="help-section">
+                <h3>Keyboard Shortcuts</h3>
+                <ul>
+                    <li><strong>A-K</strong> - Play notes (white keys)</li>
+                    <li><strong>W, E, T, Y, U</strong> - Play sharps/flats (black keys)</li>
+                    <li><strong>Z/X</strong> - Octave down/up</li>
+                    <li><strong>Space</strong> - Sustain pedal</li>
+                    <li><strong>Ctrl+K</strong> - Workspace switcher</li>
+                    <li><strong>?</strong> - Toggle this help</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h3>Instruments</h3>
+                <p>Click on an instrument in the left panel to switch. Each instrument has its own unique controls and presets.</p>
+            </div>
+
+            <div class="help-section">
+                <h3>Knob Controls</h3>
+                <ul>
+                    <li><strong>Drag up/down</strong> - Change value</li>
+                    <li><strong>Shift + drag</strong> - Fine control</li>
+                    <li><strong>Double-click</strong> - Reset to default</li>
+                    <li><strong>Scroll wheel</strong> - Adjust value</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h3>MIDI Support</h3>
+                <p>Connect a MIDI controller to play. Right-click any knob to enter MIDI learn mode.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load HAOS Components -->
+    <script src="/js/components/haos-theme-manager.js"></script>
+    <script src="/js/components/haos-workspace-switcher.js"></script>
+    <script src="/js/components/haos-knob.js"></script>
+    <script src="/js/components/haos-preset-manager.js"></script>
+
+    <script>
+        // Audio Context
+        let audioContext = null;
+        let isAudioStarted = false;
+
+        // Current state
+        let currentInstrument = 'arp2600';
+        let currentOctave = 4;
+
+        // Key mapping for piano keyboard
+        const keyToNote = {
+            'a': 'C', 'w': 'C#', 's': 'D', 'e': 'D#', 'd': 'E',
+            'f': 'F', 't': 'F#', 'g': 'G', 'y': 'G#', 'h': 'A',
+            'u': 'A#', 'j': 'B', 'k': 'C+'
+        };
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initInstruments();
+            initKeyboard();
+            setupKeyboardListeners();
+            setupInstrumentSwitching();
+            createKnobs();
+        });
+
+        function initInstruments() {
+            // Initialize any instrument-specific setup
+        }
+
+        function initKeyboard() {
+            // Create piano keyboards for instruments that need them
+            const keyboards = ['keyboard-arp2600', 'keyboard-strings'];
+            
+            keyboards.forEach(id => {
+                const container = document.getElementById(id);
+                if (!container) return;
+
+                // Create 2 octaves
+                const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                
+                for (let octave = 0; octave < 2; octave++) {
+                    notes.forEach((note, i) => {
+                        const key = document.createElement('div');
+                        key.className = `key ${note.includes('#') ? 'black' : ''}`;
+                        key.dataset.note = note;
+                        key.dataset.octave = currentOctave + octave;
+                        
+                        if (!note.includes('#')) {
+                            const label = document.createElement('span');
+                            label.className = 'key-label';
+                            label.textContent = note;
+                            key.appendChild(label);
+                        }
+                        
+                        key.addEventListener('mousedown', () => playNote(note, currentOctave + octave));
+                        key.addEventListener('mouseup', () => stopNote(note, currentOctave + octave));
+                        key.addEventListener('mouseleave', () => stopNote(note, currentOctave + octave));
+                        
+                        container.appendChild(key);
+                    });
+                }
+            });
+        }
+
+        function setupKeyboardListeners() {
+            document.addEventListener('keydown', (e) => {
+                // Help modal
+                if (e.key === '?' || (e.key === '/' && e.shiftKey)) {
+                    toggleHelp();
+                    return;
+                }
+
+                // Don't trigger if in input
+                if (e.target.tagName === 'INPUT') return;
+
+                // Octave shift
+                if (e.key === 'z') {
+                    currentOctave = Math.max(0, currentOctave - 1);
+                    return;
+                }
+                if (e.key === 'x') {
+                    currentOctave = Math.min(8, currentOctave + 1);
+                    return;
+                }
+
+                // Play notes
+                const note = keyToNote[e.key.toLowerCase()];
+                if (note && !e.repeat) {
+                    const octave = note === 'C+' ? currentOctave + 1 : currentOctave;
+                    const actualNote = note.replace('+', '');
+                    playNote(actualNote, octave);
+                    highlightKey(actualNote, true);
+                }
+            });
+
+            document.addEventListener('keyup', (e) => {
+                const note = keyToNote[e.key.toLowerCase()];
+                if (note) {
+                    const octave = note === 'C+' ? currentOctave + 1 : currentOctave;
+                    const actualNote = note.replace('+', '');
+                    stopNote(actualNote, octave);
+                    highlightKey(actualNote, false);
+                }
+            });
+        }
+
+        function setupInstrumentSwitching() {
+            document.querySelectorAll('.instrument-card[data-instrument]').forEach(card => {
+                card.addEventListener('click', () => {
+                    const instrument = card.dataset.instrument;
+                    switchInstrument(instrument);
+                });
+            });
+
+            // Quick presets
+            document.querySelectorAll('.instrument-card[data-preset]').forEach(card => {
+                card.addEventListener('click', () => {
+                    const preset = card.dataset.preset;
+                    if (preset === 'init') {
+                        resetInstrument();
+                    } else if (preset === 'random') {
+                        randomizeInstrument();
+                    }
+                });
+            });
+        }
+
+        function switchInstrument(instrument) {
+            // Update cards
+            document.querySelectorAll('.instrument-card[data-instrument]').forEach(card => {
+                card.classList.toggle('active', card.dataset.instrument === instrument);
+            });
+
+            // Update views
+            document.querySelectorAll('.instrument-view').forEach(view => {
+                view.classList.toggle('active', view.id === `view-${instrument}`);
+            });
+
+            currentInstrument = instrument;
+        }
+
+        function createKnobs() {
+            // VCO1 Knobs
+            createKnobSet('vco1-knobs', [
+                { name: 'FREQ', min: 20, max: 20000, value: 440, format: 'frequency', color: '#00D9FF' },
+                { name: 'FINE', min: -100, max: 100, value: 0, format: 'default', color: '#00D9FF', bipolar: true },
+                { name: 'PWM', min: 0, max: 100, value: 50, format: 'percent', color: '#00D9FF' },
+                { name: 'MIX', min: 0, max: 100, value: 100, format: 'percent', color: '#00D9FF' }
+            ]);
+
+            // VCO2 Knobs
+            createKnobSet('vco2-knobs', [
+                { name: 'FREQ', min: 20, max: 20000, value: 440, format: 'frequency', color: '#00EEFF' },
+                { name: 'FINE', min: -100, max: 100, value: 0, format: 'default', color: '#00EEFF', bipolar: true },
+                { name: 'SYNC', min: 0, max: 100, value: 0, format: 'percent', color: '#00EEFF' },
+                { name: 'MIX', min: 0, max: 100, value: 50, format: 'percent', color: '#00EEFF' }
+            ]);
+
+            // VCF Knobs
+            createKnobSet('vcf-knobs', [
+                { name: 'CUTOFF', min: 20, max: 20000, value: 5000, format: 'frequency', color: '#FF006E' },
+                { name: 'RES', min: 0, max: 100, value: 20, format: 'percent', color: '#FF006E' },
+                { name: 'ENV', min: 0, max: 100, value: 50, format: 'percent', color: '#FF006E' },
+                { name: 'KEY', min: 0, max: 100, value: 0, format: 'percent', color: '#FF006E' }
+            ]);
+
+            // ADSR Knobs
+            createKnobSet('adsr-knobs', [
+                { name: 'ATK', min: 0, max: 2000, value: 10, format: 'time', color: '#39FF14' },
+                { name: 'DEC', min: 0, max: 2000, value: 200, format: 'time', color: '#39FF14' },
+                { name: 'SUS', min: 0, max: 100, value: 70, format: 'percent', color: '#39FF14' },
+                { name: 'REL', min: 0, max: 5000, value: 300, format: 'time', color: '#39FF14' }
+            ]);
+
+            // LFO Knobs
+            createKnobSet('lfo-knobs', [
+                { name: 'RATE', min: 0.1, max: 20, value: 2, format: 'frequency', color: '#8B5CF6' },
+                { name: 'DEPTH', min: 0, max: 100, value: 50, format: 'percent', color: '#8B5CF6' },
+                { name: 'DELAY', min: 0, max: 2000, value: 0, format: 'time', color: '#8B5CF6' }
+            ]);
+
+            // FX Knobs
+            createKnobSet('fx-knobs', [
+                { name: 'REVERB', min: 0, max: 100, value: 20, format: 'percent', color: '#FFD700' },
+                { name: 'DELAY', min: 0, max: 100, value: 0, format: 'percent', color: '#FFD700' },
+                { name: 'CHORUS', min: 0, max: 100, value: 0, format: 'percent', color: '#FFD700' }
+            ]);
+
+            // Guitar controls
+            createKnobSet('guitar-fx', [
+                { name: 'GAIN', min: 0, max: 100, value: 50, format: 'percent', color: '#FF6B35' },
+                { name: 'TONE', min: 0, max: 100, value: 50, format: 'percent', color: '#FF6B35' },
+                { name: 'REVERB', min: 0, max: 100, value: 20, format: 'percent', color: '#FF6B35' },
+                { name: 'DELAY', min: 0, max: 100, value: 0, format: 'percent', color: '#FF6B35' }
+            ]);
+
+            // Violin controls
+            createKnobSet('violin-bow', [
+                { name: 'PRESSURE', min: 0, max: 100, value: 50, format: 'percent', color: '#8B5CF6' },
+                { name: 'SPEED', min: 0, max: 100, value: 50, format: 'percent', color: '#8B5CF6' },
+                { name: 'POSITION', min: 0, max: 100, value: 50, format: 'percent', color: '#8B5CF6' }
+            ]);
+
+            createKnobSet('violin-expr', [
+                { name: 'VIBRATO', min: 0, max: 100, value: 30, format: 'percent', color: '#8B5CF6' },
+                { name: 'EXPR', min: 0, max: 100, value: 80, format: 'percent', color: '#8B5CF6' }
+            ]);
+
+            // Strings controls
+            createKnobSet('strings-mix', [
+                { name: 'VIOLIN', min: 0, max: 100, value: 80, format: 'percent', color: '#39FF14' },
+                { name: 'VIOLA', min: 0, max: 100, value: 60, format: 'percent', color: '#39FF14' },
+                { name: 'CELLO', min: 0, max: 100, value: 70, format: 'percent', color: '#39FF14' },
+                { name: 'BASS', min: 0, max: 100, value: 50, format: 'percent', color: '#39FF14' }
+            ]);
+
+            createKnobSet('strings-ensemble', [
+                { name: 'SIZE', min: 1, max: 24, value: 12, format: 'default', color: '#39FF14' },
+                { name: 'SPREAD', min: 0, max: 100, value: 50, format: 'percent', color: '#39FF14' },
+                { name: 'REVERB', min: 0, max: 100, value: 40, format: 'percent', color: '#39FF14' }
+            ]);
+        }
+
+        function createKnobSet(containerId, knobs) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            knobs.forEach(knob => {
+                const el = document.createElement('haos-knob');
+                el.setAttribute('name', knob.name);
+                el.setAttribute('min', knob.min);
+                el.setAttribute('max', knob.max);
+                el.setAttribute('value', knob.value);
+                el.setAttribute('color', knob.color);
+                el.setAttribute('format', knob.format);
+                el.setAttribute('size', '70');
+                if (knob.bipolar) {
+                    el.setAttribute('bipolar', 'true');
+                }
+                
+                el.addEventListener('change', (e) => {
+                    handleKnobChange(knob.name, e.detail.value);
+                });
+
+                container.appendChild(el);
+            });
+        }
+
+        function handleKnobChange(name, value) {
+            console.log(`Knob ${name} changed to ${value}`);
+            // TODO: Connect to audio engine
+        }
+
+        function highlightKey(note, active) {
+            document.querySelectorAll(`.key[data-note="${note}"]`).forEach(key => {
+                key.classList.toggle('active', active);
+            });
+        }
+
+        function playNote(note, octave) {
+            if (!audioContext) {
+                initAudio();
+            }
+            console.log(`Playing ${note}${octave}`);
+            // TODO: Implement actual audio
+            updateMeters(Math.random() * 80 + 20);
+        }
+
+        function stopNote(note, octave) {
+            console.log(`Stopping ${note}${octave}`);
+            // TODO: Implement actual audio
+        }
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function toggleAudio() {
+            const btn = document.getElementById('audioToggle');
+            const indicator = document.getElementById('audio-indicator');
+            const status = document.getElementById('audio-status');
+
+            if (!isAudioStarted) {
+                initAudio();
+                audioContext.resume();
+                isAudioStarted = true;
+                btn.innerHTML = '<i class="fas fa-stop"></i> STOP';
+                indicator.style.background = '#39FF14';
+                status.textContent = 'Audio Running';
+            } else {
+                audioContext.suspend();
+                isAudioStarted = false;
+                btn.innerHTML = '<i class="fas fa-play"></i> START';
+                indicator.style.background = '#FF6B35';
+                status.textContent = 'Audio Stopped';
+            }
+        }
+
+        function updateMeters(level) {
+            document.getElementById('meter-l').style.width = level + '%';
+            document.getElementById('meter-r').style.width = (level * 0.9) + '%';
+        }
+
+        function resetInstrument() {
+            // Reset all knobs to defaults
+            document.querySelectorAll('haos-knob').forEach(knob => {
+                // Trigger double-click reset behavior
+                knob.dispatchEvent(new MouseEvent('dblclick'));
+            });
+        }
+
+        function randomizeInstrument() {
+            document.querySelectorAll('haos-knob').forEach(knob => {
+                const min = parseFloat(knob.getAttribute('min')) || 0;
+                const max = parseFloat(knob.getAttribute('max')) || 100;
+                const randomValue = min + Math.random() * (max - min);
+                knob.value = randomValue;
+            });
+        }
+
+        function openWorkspaceSwitcher() {
+            if (window.HAOSWorkspaceSwitcher) {
+                HAOSWorkspaceSwitcher.show();
+            }
+        }
+
+        function showHelp() {
+            document.getElementById('helpModal').classList.add('visible');
+        }
+
+        function hideHelp() {
+            document.getElementById('helpModal').classList.remove('visible');
+        }
+
+        function toggleHelp() {
+            const modal = document.getElementById('helpModal');
+            modal.classList.toggle('visible');
+        }
+
+        // Close modal on overlay click
+        document.getElementById('helpModal')?.addEventListener('click', (e) => {
+            if (e.target.classList.contains('help-modal')) {
+                hideHelp();
+            }
+        });
+
+        // CPU usage simulation
+        setInterval(() => {
+            const cpu = 10 + Math.random() * 20;
+            document.getElementById('cpu-fill').style.width = cpu + '%';
+            document.getElementById('cpu-percent').textContent = Math.round(cpu) + '%';
+        }, 1000);
+        
+        // ============================================================================
+        // PREMIUM ACCESS GATE
+        // ============================================================================
+        
+        /**
+         * Check if user has access to MODULAR workspace
+         * Requires Premium or Pro plan
+         */
+        function checkPremiumAccess() {
+            // Wait for HaosPremium to be available
+            if (!window.HaosPremium) {
+                setTimeout(checkPremiumAccess, 100);
+                return;
+            }
+            
+            // Check if user has modular workspace access
+            const hasAccess = window.HaosPremium.hasFeature('modularWorkspace');
+            
+            if (!hasAccess) {
+                showPremiumGate();
+            }
+        }
+        
+        /**
+         * Show the premium gate overlay
+         */
+        function showPremiumGate() {
+            // Create gate overlay if it doesn't exist
+            let gate = document.getElementById('premiumGateOverlay');
+            if (!gate) {
+                gate = document.createElement('div');
+                gate.id = 'premiumGateOverlay';
+                gate.className = 'premium-gate-overlay';
+                gate.innerHTML = `
+                    <div class="premium-gate-content">
+                        <div class="premium-gate-icon">🔒</div>
+                        <h2 class="premium-gate-title">MODULAR WORKSPACE</h2>
+                        <p class="premium-gate-message">
+                            The MODULAR workspace includes professional instruments like ARP 2600, 
+                            Guitar, Violin, and Strings - available with a Premium subscription.
+                        </p>
+                        <a href="/premium" class="premium-gate-btn">⭐ Upgrade to Premium</a>
+                        <a href="/sounds" class="premium-gate-btn secondary">Browse Free Presets</a>
+                    </div>
+                `;
+                document.body.appendChild(gate);
+            }
+            
+            gate.classList.add('show');
+        }
+        
+        // Check access on load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(checkPremiumAccess, 300);
+        });
+    </script>
+</body>
+</html>

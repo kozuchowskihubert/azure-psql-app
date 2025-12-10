@@ -120,11 +120,43 @@ app.get('/techno-workspace', (req, res) => {
 });
 
 /**
+ * Modular Workspace - String instruments and modular synthesis
+ * Route: /modular-workspace (ARP 2600, Guitar, Violin, Strings)
+ */
+app.get('/modular-workspace', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'modular-workspace.html'));
+});
+
+/**
+ * Builder Workspace - Frequency-based preset builder
+ * Route: /builder (KICK, SUB, LEAD, SYNTH, FX, PERCUSSION, HAT, RIDE)
+ */
+app.get('/builder', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'builder.html'));
+});
+
+/**
  * Sounds Browser - Preset library explorer
- * Route: /sounds (300+ techno presets)
+ * Route: /sounds (1000+ presets from all workspaces)
  */
 app.get('/sounds', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'sounds.html'));
+});
+
+/**
+ * Premium Upgrade Page - Subscription plans and pricing
+ * Route: /premium
+ */
+app.get('/premium', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'premium.html'));
+});
+
+/**
+ * Component Demo - HAOS Web Components showcase
+ * Route: /components-demo
+ */
+app.get('/components-demo', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'components-demo.html'));
 });
 
 /**
@@ -140,7 +172,43 @@ app.get('/preset-library', (req, res) => {
  * Route: /preset-browser
  */
 app.get('/preset-browser', (req, res) => {
-  res.redirect('/sounds');
+  res.redirect(301, '/sounds');
+});
+
+/**
+ * Legacy Instrument Redirects - Consolidate into MODULAR WORKSPACE
+ * Routes: /instruments/* → /modular-workspace
+ */
+app.get('/instruments/guitar', (req, res) => {
+  res.redirect(301, '/modular-workspace?instrument=guitar');
+});
+
+app.get('/instruments/violin', (req, res) => {
+  res.redirect(301, '/modular-workspace?instrument=violin');
+});
+
+app.get('/instruments/strings-ensemble', (req, res) => {
+  res.redirect(301, '/modular-workspace?instrument=strings');
+});
+
+app.get('/instruments/arp2600', (req, res) => {
+  res.redirect(301, '/modular-workspace?instrument=arp2600');
+});
+
+// Catch-all for other instrument pages
+app.get('/instruments/:name', (req, res) => {
+  res.redirect(301, '/modular-workspace');
+});
+
+/**
+ * Legacy Demo Pages - Redirect to appropriate workspaces
+ */
+app.get('/modular-demo', (req, res) => {
+  res.redirect(301, '/modular-workspace');
+});
+
+app.get('/modular-demo.html', (req, res) => {
+  res.redirect(301, '/modular-workspace');
 });
 
 /**
@@ -224,6 +292,12 @@ app.get('/reset-password', (req, res) => {
  * Includes: HTML, CSS, JS, images, PWA files
  */
 app.use(express.static(path.join(__dirname, 'public')));
+
+/**
+ * Serve data files (presets, synth data, etc.)
+ * Route: /data/* serves files from the data directory
+ */
+app.use('/data', express.static(path.join(__dirname, 'data')));
 
 // ============================================================================
 // Database Connection
@@ -378,6 +452,18 @@ try {
   console.log('✓ Subscription API enabled');
 } catch (error) {
   console.log('⚠ Subscription routes not available:', error.message);
+}
+
+/**
+ * Premium Features API
+ * Handles premium plan features, limits, access control, and upgrade prompts
+ */
+try {
+  const premiumRoutes = require('./routes/premium-routes');
+  app.use('/api/premium', premiumRoutes);
+  console.log('✓ Premium API enabled');
+} catch (error) {
+  console.log('⚠ Premium routes not available:', error.message);
 }
 
 /**

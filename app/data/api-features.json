@@ -1,0 +1,315 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-12-10T19:16:44.418Z",
+  "endpoints": {
+    "api.notes": {
+      "name": "Notes API",
+      "description": "CRUD operations for notes and tasks",
+      "route": "/api/notes",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "category": "core",
+      "enabled": true,
+      "critical": true,
+      "rateLimit": {
+        "requests": 100,
+        "window": "1m"
+      }
+    },
+    "api.health": {
+      "name": "Health Check API",
+      "description": "System health and status endpoints",
+      "route": "/api/health",
+      "methods": [
+        "GET"
+      ],
+      "category": "core",
+      "enabled": true,
+      "critical": true,
+      "rateLimit": null
+    },
+    "api.music": {
+      "name": "Music API",
+      "description": "Music production and synthesis endpoints",
+      "route": "/api/music",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "category": "music",
+      "enabled": true,
+      "critical": false,
+      "rateLimit": {
+        "requests": 50,
+        "window": "1m"
+      },
+      "lastModified": "2025-12-10T19:16:44.418Z",
+      "modifiedBy": "dev-admin"
+    },
+    "api.music.presets": {
+      "name": "Presets API",
+      "description": "Synthesizer preset management",
+      "route": "/api/music/presets",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "category": "music",
+      "enabled": true,
+      "critical": false,
+      "rateLimit": {
+        "requests": 60,
+        "window": "1m"
+      }
+    },
+    "api.patches": {
+      "name": "Patches API",
+      "description": "Synth patch storage and retrieval",
+      "route": "/api/patches",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "category": "music",
+      "enabled": true,
+      "critical": false,
+      "rateLimit": {
+        "requests": 50,
+        "window": "1m"
+      }
+    },
+    "api.tracks": {
+      "name": "Tracks API",
+      "description": "Audio track management and streaming",
+      "route": "/api/tracks",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "category": "music",
+      "enabled": true,
+      "critical": false,
+      "rateLimit": {
+        "requests": 30,
+        "window": "1m"
+      }
+    },
+    "api.studio": {
+      "name": "Studio API",
+      "description": "Studio session management",
+      "route": "/api/studio",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "category": "music",
+      "enabled": true,
+      "critical": false,
+      "rateLimit": {
+        "requests": 40,
+        "window": "1m"
+      }
+    },
+    "api.users": {
+      "name": "Users API",
+      "description": "User management endpoints",
+      "route": "/api/users",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "category": "auth",
+      "enabled": true,
+      "critical": true,
+      "rateLimit": {
+        "requests": 30,
+        "window": "1m"
+      }
+    },
+    "api.registration": {
+      "name": "Registration API",
+      "description": "User registration and onboarding",
+      "route": "/api/registration",
+      "methods": [
+        "POST"
+      ],
+      "category": "auth",
+      "enabled": true,
+      "critical": true,
+      "rateLimit": {
+        "requests": 10,
+        "window": "1m"
+      }
+    },
+    "api.admin": {
+      "name": "Admin API",
+      "description": "Administrative operations",
+      "route": "/api/admin",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "category": "admin",
+      "enabled": true,
+      "critical": true,
+      "rateLimit": {
+        "requests": 100,
+        "window": "1m"
+      }
+    },
+    "api.admin.auth": {
+      "name": "Admin Auth API",
+      "description": "Admin authentication (JWT)",
+      "route": "/api/admin/auth",
+      "methods": [
+        "POST",
+        "GET",
+        "DELETE"
+      ],
+      "category": "admin",
+      "enabled": true,
+      "critical": true,
+      "rateLimit": {
+        "requests": 20,
+        "window": "1m"
+      }
+    },
+    "api.features": {
+      "name": "Features API",
+      "description": "Feature flag management",
+      "route": "/api/features",
+      "methods": [
+        "GET"
+      ],
+      "category": "core",
+      "enabled": true,
+      "critical": false,
+      "rateLimit": {
+        "requests": 50,
+        "window": "1m"
+      }
+    },
+    "api.payments": {
+      "name": "Payments API",
+      "description": "Payment processing endpoints",
+      "route": "/api/payments",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "category": "billing",
+      "enabled": true,
+      "critical": false,
+      "rateLimit": {
+        "requests": 20,
+        "window": "1m"
+      }
+    },
+    "api.subscriptions": {
+      "name": "Subscriptions API",
+      "description": "Subscription management",
+      "route": "/api/subscriptions",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "category": "billing",
+      "enabled": true,
+      "critical": false,
+      "rateLimit": {
+        "requests": 30,
+        "window": "1m"
+      }
+    },
+    "api.calendar": {
+      "name": "Calendar API",
+      "description": "Calendar sync and events",
+      "route": "/api/calendar",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "category": "collaboration",
+      "enabled": true,
+      "critical": false,
+      "rateLimit": {
+        "requests": 40,
+        "window": "1m"
+      }
+    },
+    "api.meetings": {
+      "name": "Meetings API",
+      "description": "Meeting room management",
+      "route": "/api/meetings",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "category": "collaboration",
+      "enabled": true,
+      "critical": false,
+      "rateLimit": {
+        "requests": 30,
+        "window": "1m"
+      }
+    },
+    "api.share": {
+      "name": "Share API",
+      "description": "Content sharing and collaboration",
+      "route": "/api/share",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "category": "collaboration",
+      "enabled": true,
+      "critical": false,
+      "rateLimit": {
+        "requests": 25,
+        "window": "1m"
+      }
+    },
+    "api.pwa": {
+      "name": "PWA API",
+      "description": "Progressive Web App endpoints",
+      "route": "/api/pwa",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "category": "core",
+      "enabled": true,
+      "critical": false,
+      "rateLimit": {
+        "requests": 50,
+        "window": "1m"
+      }
+    }
+  }
+}

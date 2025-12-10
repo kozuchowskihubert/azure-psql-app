@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUILDER | HAOS.fm</title>
+    
+    <!-- Meta -->
+    <meta name="description" content="HAOS Builder - Create preset variations with frequency-based sound design for KICK, SUB, LEAD, SYNTH, FX, PERCUSSION, HAT, RIDE">
+    <meta name="theme-color" content="#39FF14">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- HAOS Premium Components -->
+    <script src="/js/components/haos-premium.js" defer></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --builder-primary: #39FF14;
+            --builder-secondary: #50FF30;
+            --builder-accent: #FF6B35;
+            --builder-glow: rgba(57, 255, 20, 0.4);
+            --bg-dark: #0a0a0a;
+            --bg-panel: rgba(20, 20, 25, 0.95);
+            --text: #e0e0e0;
+            --text-dim: #888;
+            --haos-gold: #D4AF37;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Premium Gate Overlay */
+        .premium-gate-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .premium-gate-overlay.show {
+            display: flex;
+        }
+        
+        .premium-gate-content {
+            text-align: center;
+            padding: 50px;
+            max-width: 500px;
+        }
+        
+        .premium-gate-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .premium-gate-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+            color: var(--haos-gold);
+            margin-bottom: 15px;
+        }
+        
+        .premium-gate-message {
+            font-family: 'Space Mono', monospace;
+            color: #888;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .premium-gate-btn {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, var(--haos-gold), #B8942A);
+            color: #0a0a0a;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin: 0 10px 10px;
+        }
+        
+        .premium-gate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+        }
+        
+        .premium-gate-btn.secondary {
+            background: transparent;
+            border: 2px solid var(--builder-primary);
+            color: var(--builder-primary);
+        }
+        
+        .premium-gate-btn.secondary:hover {
+            background: var(--builder-primary);
+            color: #0a0a0a;
+        }
+
+        /* Main Layout */
+        .builder {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            grid-template-rows: auto 1fr auto;
+            height: 100vh;
+            gap: 0;
+        }
+
+        @media (max-width: 1000px) {
+            .builder {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr auto;
+            }
+        }
+
+        /* Top Bar */
+        .top-bar {
+            grid-column: 1 / -1;
+            background: rgba(15, 15, 20, 0.98);
+            border-bottom: 1px solid rgba(57, 255, 20, 0.2);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .workspace-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .workspace-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--builder-primary), var(--builder-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .workspace-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .top-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .top-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .top-btn:hover {
+            border-color: var(--builder-primary);
+            color: var(--builder-primary);
+        }
+
+        .top-btn--primary {
+            background: var(--builder-primary);
+            border-color: var(--builder-primary);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .top-btn--primary:hover {
+            filter: brightness(1.1);
+            color: #000;
+        }
+
+        /* Left Panel - Sound Categories */
+        .left-panel {
+            background: rgba(15, 15, 20, 0.95);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1000px) {
+            .left-panel {
+                grid-column: 1 / -1;
+                flex-direction: row;
+                flex-wrap: wrap;
+                overflow-x: auto;
+                padding: 0.75rem 1rem;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+        }
+
+        .panel-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Sound Category Cards */
+        .category-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--cat-color, var(--builder-primary));
+            border-radius: 12px 0 0 12px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .category-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .category-card:hover::before {
+            opacity: 0.5;
+        }
+
+        .category-card.active {
+            background: rgba(57, 255, 20, 0.1);
+            border-color: var(--builder-primary);
+        }
+
+        .category-card.active::before {
+            opacity: 1;
+        }
+
+        .category-icon {
+            font-size: 1.8rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .category-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .category-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            color: var(--cat-color, var(--text));
+        }
+
+        .category-desc {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .category-freq {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--cat-color, var(--builder-primary));
+            margin-top: 0.25rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: linear-gradient(180deg, var(--bg-dark) 0%, rgba(10, 10, 15, 1) 100%);
+            padding: 1.5rem;
+        }
+
+        /* Builder Header */
+        .builder-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .builder-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 3px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .builder-title-icon {
+            font-size: 2.5rem;
+        }
+
+        .builder-title-text {
+            color: var(--builder-primary);
+        }
+
+        .builder-subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 0.25rem;
+        }
+
+        /* Frequency Spectrum Display */
+        .spectrum-container {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(57, 255, 20, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .spectrum-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .spectrum-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            color: var(--builder-primary);
+        }
+
+        .spectrum-display {
+            height: 120px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spectrum-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .spectrum-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+        }
+
+        .frequency-zones {
+            display: flex;
+            margin-top: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .freq-zone {
+            flex: 1;
+            padding: 0.5rem;
+            text-align: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .freq-zone:hover {
+            filter: brightness(1.2);
+        }
+
+        .freq-zone.active {
+            border-color: white;
+            transform: scale(1.02);
+        }
+
+        .freq-zone.sub { background: rgba(255, 0, 110, 0.3); color: #FF006E; }
+        .freq-zone.bass { background: rgba(255, 107, 53, 0.3); color: #FF6B35; }
+        .freq-zone.low-mid { background: rgba(255, 215, 0, 0.3); color: #FFD700; }
+        .freq-zone.mid { background: rgba(57, 255, 20, 0.3); color: #39FF14; }
+        .freq-zone.high-mid { background: rgba(0, 217, 255, 0.3); color: #00D9FF; }
+        .freq-zone.high { background: rgba(139, 92, 246, 0.3); color: #8B5CF6; }
+
+        /* Parameter Panels */
+        .param-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .param-panel {
+            background: var(--bg-panel);
+            border: 1px solid rgba(57, 255, 20, 0.15);
+            border-radius: 16px;
+            padding: 1.25rem;
+        }
+
+        .param-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .param-panel-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            color: var(--builder-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .param-panel-icon {
+            font-size: 0.85rem;
+        }
+
+        .knob-row {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        /* Waveform Selector */
+        .waveform-selector {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .waveform-btn {
+            width: 50px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .waveform-btn svg {
+            width: 30px;
+            height: 20px;
+            stroke: var(--text-dim);
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .waveform-btn:hover {
+            border-color: var(--builder-primary);
+        }
+
+        .waveform-btn:hover svg {
+            stroke: var(--builder-primary);
+        }
+
+        .waveform-btn.active {
+            background: rgba(57, 255, 20, 0.1);
+            border-color: var(--builder-primary);
+        }
+
+        .waveform-btn.active svg {
+            stroke: var(--builder-primary);
+        }
+
+        /* Variation Generator */
+        .variation-section {
+            background: rgba(57, 255, 20, 0.05);
+            border: 1px solid rgba(57, 255, 20, 0.2);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .variation-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .variation-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            color: var(--builder-primary);
+        }
+
+        .variation-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .variation-slider {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .variation-slider label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .variation-slider input[type="range"] {
+            width: 100px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            -webkit-appearance: none;
+        }
+
+        .variation-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--builder-primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .variation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .variation-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .variation-card:hover {
+            background: rgba(57, 255, 20, 0.1);
+            border-color: var(--builder-primary);
+            transform: translateY(-2px);
+        }
+
+        .variation-card.selected {
+            background: rgba(57, 255, 20, 0.15);
+            border-color: var(--builder-primary);
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+        }
+
+        .variation-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            color: var(--builder-primary);
+        }
+
+        .variation-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            margin-top: 0.25rem;
+        }
+
+        .variation-preview {
+            width: 100%;
+            height: 30px;
+            margin-top: 0.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        /* Action Buttons */
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn--generate {
+            background: var(--builder-primary);
+            border: none;
+            color: #000;
+        }
+
+        .action-btn--generate:hover {
+            filter: brightness(1.1);
+            box-shadow: 0 0 20px var(--builder-glow);
+        }
+
+        .action-btn--play {
+            background: transparent;
+            border: 2px solid var(--builder-accent);
+            color: var(--builder-accent);
+        }
+
+        .action-btn--play:hover {
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .action-btn--play.playing {
+            background: var(--builder-accent);
+            color: #000;
+        }
+
+        .action-btn--save {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: var(--text);
+        }
+
+        .action-btn--save:hover {
+            border-color: var(--builder-primary);
+            color: var(--builder-primary);
+        }
+
+        .action-btn--export {
+            background: transparent;
+            border: 2px solid #00D9FF;
+            color: #00D9FF;
+        }
+
+        .action-btn--export:hover {
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            grid-column: 1 / -1;
+            background: rgba(15, 15, 20, 0.98);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .status-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--builder-primary);
+            box-shadow: 0 0 6px var(--builder-glow);
+        }
+
+        /* Animations */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px var(--builder-glow); }
+            50% { box-shadow: 0 0 20px var(--builder-glow); }
+        }
+
+        .generating {
+            animation: pulse-glow 0.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Manager -->
+    <haos-theme-manager workspace="builder" theme="dark"></haos-theme-manager>
+
+    <div class="builder">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="workspace-title">
+                <a href="/" style="text-decoration: none;">
+                    <span class="workspace-logo">HAOS</span>
+                </a>
+                <span class="workspace-name">BUILDER</span>
+            </div>
+            <div class="top-controls">
+                <button class="top-btn" onclick="openWorkspaceSwitcher()">
+                    <i class="fas fa-th-large"></i>
+                    SWITCH
+                </button>
+                <button class="top-btn top-btn--primary" id="audioToggle" onclick="toggleAudio()">
+                    <i class="fas fa-power-off"></i>
+                    AUDIO
+                </button>
+            </div>
+        </div>
+
+        <!-- Left Panel - Categories -->
+        <div class="left-panel">
+            <div class="panel-title">Sound Type</div>
+            
+            <div class="category-card active" data-category="kick" style="--cat-color: #FF006E;">
+                <span class="category-icon">💥</span>
+                <div class="category-info">
+                    <div class="category-name">KICK</div>
+                    <div class="category-desc">Punchy low-end hits</div>
+                    <div class="category-freq">20-150 Hz</div>
+                </div>
+            </div>
+
+            <div class="category-card" data-category="sub" style="--cat-color: #FF6B35;">
+                <span class="category-icon">🔊</span>
+                <div class="category-info">
+                    <div class="category-name">SUB</div>
+                    <div class="category-desc">Deep sub-bass tones</div>
+                    <div class="category-freq">20-80 Hz</div>
+                </div>
+            </div>
+
+            <div class="category-card" data-category="lead" style="--cat-color: #FFD700;">
+                <span class="category-icon">🎹</span>
+                <div class="category-info">
+                    <div class="category-name">LEAD</div>
+                    <div class="category-desc">Melodic lead synths</div>
+                    <div class="category-freq">200-5000 Hz</div>
+                </div>
+            </div>
+
+            <div class="category-card" data-category="synth" style="--cat-color: #39FF14;">
+                <span class="category-icon">🎛️</span>
+                <div class="category-info">
+                    <div class="category-name">SYNTH</div>
+                    <div class="category-desc">General synthesizers</div>
+                    <div class="category-freq">100-10000 Hz</div>
+                </div>
+            </div>
+
+            <div class="category-card" data-category="fx" style="--cat-color: #00D9FF;">
+                <span class="category-icon">✨</span>
+                <div class="category-info">
+                    <div class="category-name">FX</div>
+                    <div class="category-desc">Effects & textures</div>
+                    <div class="category-freq">Full spectrum</div>
+                </div>
+            </div>
+
+            <div class="category-card" data-category="percussion" style="--cat-color: #8B5CF6;">
+                <span class="category-icon">🪘</span>
+                <div class="category-info">
+                    <div class="category-name">PERC</div>
+                    <div class="category-desc">Percussion hits</div>
+                    <div class="category-freq">100-8000 Hz</div>
+                </div>
+            </div>
+
+            <div class="category-card" data-category="hat" style="--cat-color: #E0E0E0;">
+                <span class="category-icon">🎩</span>
+                <div class="category-info">
+                    <div class="category-name">HAT</div>
+                    <div class="category-desc">Hi-hats & cymbals</div>
+                    <div class="category-freq">5000-20000 Hz</div>
+                </div>
+            </div>
+
+            <div class="category-card" data-category="ride" style="--cat-color: #C0C0C0;">
+                <span class="category-icon">🛎️</span>
+                <div class="category-info">
+                    <div class="category-name">RIDE</div>
+                    <div class="category-desc">Rides & bells</div>
+                    <div class="category-freq">3000-15000 Hz</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="builder-header">
+                <div>
+                    <div class="builder-title">
+                        <span class="builder-title-icon" id="currentIcon">💥</span>
+                        <span class="builder-title-text" id="currentTitle">KICK BUILDER</span>
+                    </div>
+                    <div class="builder-subtitle" id="currentDesc">Design punchy low-end kicks with precision control</div>
+                </div>
+            </div>
+
+            <!-- Frequency Spectrum -->
+            <div class="spectrum-container">
+                <div class="spectrum-header">
+                    <span class="spectrum-title"><i class="fas fa-wave-square"></i> FREQUENCY SPECTRUM</span>
+                </div>
+                <div class="spectrum-display">
+                    <canvas class="spectrum-canvas" id="spectrumCanvas"></canvas>
+                </div>
+                <div class="spectrum-labels">
+                    <span>20 Hz</span>
+                    <span>100 Hz</span>
+                    <span>1 kHz</span>
+                    <span>10 kHz</span>
+                    <span>20 kHz</span>
+                </div>
+                <div class="frequency-zones">
+                    <div class="freq-zone sub active" data-zone="sub">SUB<br>20-60</div>
+                    <div class="freq-zone bass" data-zone="bass">BASS<br>60-250</div>
+                    <div class="freq-zone low-mid" data-zone="low-mid">LOW MID<br>250-500</div>
+                    <div class="freq-zone mid" data-zone="mid">MID<br>500-2k</div>
+                    <div class="freq-zone high-mid" data-zone="high-mid">HI MID<br>2k-6k</div>
+                    <div class="freq-zone high" data-zone="high">HIGH<br>6k-20k</div>
+                </div>
+            </div>
+
+            <!-- Parameter Panels -->
+            <div class="param-grid">
+                <!-- Oscillator Panel -->
+                <div class="param-panel">
+                    <div class="param-panel-header">
+                        <span class="param-panel-title">
+                            <i class="fas fa-wave-square param-panel-icon"></i>
+                            OSCILLATOR
+                        </span>
+                    </div>
+                    <div class="waveform-selector">
+                        <button class="waveform-btn active" data-wave="sine" title="Sine">
+                            <svg viewBox="0 0 30 20"><path d="M0,10 Q7.5,0 15,10 T30,10"/></svg>
+                        </button>
+                        <button class="waveform-btn" data-wave="triangle" title="Triangle">
+                            <svg viewBox="0 0 30 20"><path d="M0,10 L7.5,2 L22.5,18 L30,10"/></svg>
+                        </button>
+                        <button class="waveform-btn" data-wave="sawtooth" title="Sawtooth">
+                            <svg viewBox="0 0 30 20"><path d="M0,18 L15,2 L15,18 L30,2"/></svg>
+                        </button>
+                        <button class="waveform-btn" data-wave="square" title="Square">
+                            <svg viewBox="0 0 30 20"><path d="M0,18 L0,2 L15,2 L15,18 L30,18 L30,2"/></svg>
+                        </button>
+                    </div>
+                    <div class="knob-row" id="osc-knobs"></div>
+                </div>
+
+                <!-- Pitch Envelope Panel -->
+                <div class="param-panel">
+                    <div class="param-panel-header">
+                        <span class="param-panel-title">
+                            <i class="fas fa-chart-line param-panel-icon"></i>
+                            PITCH ENVELOPE
+                        </span>
+                    </div>
+                    <div class="knob-row" id="pitch-knobs"></div>
+                </div>
+
+                <!-- Amp Envelope Panel -->
+                <div class="param-panel">
+                    <div class="param-panel-header">
+                        <span class="param-panel-title">
+                            <i class="fas fa-volume-up param-panel-icon"></i>
+                            AMP ENVELOPE
+                        </span>
+                    </div>
+                    <div class="knob-row" id="amp-knobs"></div>
+                </div>
+
+                <!-- Filter Panel -->
+                <div class="param-panel">
+                    <div class="param-panel-header">
+                        <span class="param-panel-title">
+                            <i class="fas fa-filter param-panel-icon"></i>
+                            FILTER
+                        </span>
+                    </div>
+                    <div class="knob-row" id="filter-knobs"></div>
+                </div>
+
+                <!-- Drive & Saturation Panel -->
+                <div class="param-panel">
+                    <div class="param-panel-header">
+                        <span class="param-panel-title">
+                            <i class="fas fa-fire param-panel-icon"></i>
+                            DRIVE
+                        </span>
+                    </div>
+                    <div class="knob-row" id="drive-knobs"></div>
+                </div>
+
+                <!-- Output Panel -->
+                <div class="param-panel">
+                    <div class="param-panel-header">
+                        <span class="param-panel-title">
+                            <i class="fas fa-sliders-h param-panel-icon"></i>
+                            OUTPUT
+                        </span>
+                    </div>
+                    <div class="knob-row" id="output-knobs"></div>
+                </div>
+            </div>
+
+            <!-- Variation Generator -->
+            <div class="variation-section">
+                <div class="variation-header">
+                    <span class="variation-title">🎲 VARIATIONS</span>
+                    <div class="variation-controls">
+                        <div class="variation-slider">
+                            <label>AMOUNT</label>
+                            <input type="range" id="variationAmount" min="0" max="100" value="30">
+                            <span id="variationValue">30%</span>
+                        </div>
+                        <button class="action-btn action-btn--generate" onclick="generateVariations()">
+                            <i class="fas fa-dice"></i>
+                            GENERATE
+                        </button>
+                    </div>
+                </div>
+                <div class="variation-grid" id="variationGrid">
+                    <!-- Generated variations -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-bar">
+                <button class="action-btn action-btn--play" id="playBtn" onclick="togglePlay()">
+                    <i class="fas fa-play"></i>
+                    PREVIEW
+                </button>
+                <button class="action-btn action-btn--save" onclick="savePreset()">
+                    <i class="fas fa-save"></i>
+                    SAVE PRESET
+                </button>
+                <button class="action-btn action-btn--export" onclick="exportSound()">
+                    <i class="fas fa-download"></i>
+                    EXPORT WAV
+                </button>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="bottom-bar">
+            <div class="status-info">
+                <div class="status-item">
+                    <span class="status-indicator"></span>
+                    <span id="audioStatus">Audio Ready</span>
+                </div>
+                <div class="status-item">
+                    <span>Category:</span>
+                    <span id="currentCategory" style="color: var(--builder-primary);">KICK</span>
+                </div>
+            </div>
+            <div style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text-dim);">
+                <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px; font-family: inherit;">Space</kbd> Preview
+                <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px; font-family: inherit; margin-left: 0.5rem;">Ctrl+K</kbd> Switch
+            </div>
+        </div>
+    </div>
+
+    <!-- Load HAOS Components -->
+    <script src="/js/components/haos-theme-manager.js"></script>
+    <script src="/js/components/haos-workspace-switcher.js"></script>
+    <script src="/js/components/haos-knob.js"></script>
+
+    <script>
+        // Audio Context
+        let audioContext = null;
+        let isPlaying = false;
+
+        // Current state
+        let currentCategory = 'kick';
+        let currentWaveform = 'sine';
+        let currentParams = {};
+        let variations = [];
+
+        // Category configurations
+        const categoryConfig = {
+            kick: {
+                icon: '💥',
+                title: 'KICK BUILDER',
+                desc: 'Design punchy low-end kicks with precision control',
+                color: '#FF006E',
+                freqRange: [20, 150],
+                defaultParams: {
+                    osc: { freq: 60, click: 40, body: 70 },
+                    pitch: { start: 200, end: 40, decay: 50 },
+                    amp: { attack: 0, decay: 200, sustain: 0, release: 100 },
+                    filter: { cutoff: 2000, res: 20, env: 30 },
+                    drive: { amount: 30, mix: 50 },
+                    output: { volume: 80, pan: 0 }
+                }
+            },
+            sub: {
+                icon: '🔊',
+                title: 'SUB BUILDER',
+                desc: 'Create deep rumbling sub-bass tones',
+                color: '#FF6B35',
+                freqRange: [20, 80],
+                defaultParams: {
+                    osc: { freq: 40, detune: 0, sub: 100 },
+                    pitch: { start: 40, end: 40, decay: 0 },
+                    amp: { attack: 10, decay: 500, sustain: 80, release: 300 },
+                    filter: { cutoff: 120, res: 0, env: 0 },
+                    drive: { amount: 10, mix: 30 },
+                    output: { volume: 85, pan: 0 }
+                }
+            },
+            lead: {
+                icon: '🎹',
+                title: 'LEAD BUILDER',
+                desc: 'Craft cutting melodic lead sounds',
+                color: '#FFD700',
+                freqRange: [200, 5000],
+                defaultParams: {
+                    osc: { freq: 440, detune: 5, pwm: 50 },
+                    pitch: { vibrato: 20, rate: 5, delay: 200 },
+                    amp: { attack: 20, decay: 300, sustain: 70, release: 200 },
+                    filter: { cutoff: 4000, res: 40, env: 50 },
+                    drive: { amount: 20, mix: 40 },
+                    output: { volume: 75, pan: 0 }
+                }
+            },
+            synth: {
+                icon: '🎛️',
+                title: 'SYNTH BUILDER',
+                desc: 'Build versatile synthesizer patches',
+                color: '#39FF14',
+                freqRange: [100, 10000],
+                defaultParams: {
+                    osc: { freq: 220, detune: 10, mix: 50 },
+                    pitch: { bend: 0, glide: 50, range: 12 },
+                    amp: { attack: 50, decay: 400, sustain: 60, release: 300 },
+                    filter: { cutoff: 5000, res: 30, env: 40 },
+                    drive: { amount: 15, mix: 35 },
+                    output: { volume: 75, pan: 0 }
+                }
+            },
+            fx: {
+                icon: '✨',
+                title: 'FX BUILDER',
+                desc: 'Design atmospheric effects and textures',
+                color: '#00D9FF',
+                freqRange: [20, 20000],
+                defaultParams: {
+                    osc: { freq: 1000, noise: 50, mod: 70 },
+                    pitch: { sweep: 50, rate: 2, random: 30 },
+                    amp: { attack: 200, decay: 1000, sustain: 50, release: 500 },
+                    filter: { cutoff: 8000, res: 50, env: 60 },
+                    drive: { amount: 40, mix: 60 },
+                    output: { volume: 70, pan: 0 }
+                }
+            },
+            percussion: {
+                icon: '🪘',
+                title: 'PERCUSSION BUILDER',
+                desc: 'Create snappy percussion hits',
+                color: '#8B5CF6',
+                freqRange: [100, 8000],
+                defaultParams: {
+                    osc: { freq: 300, noise: 40, tone: 60 },
+                    pitch: { start: 500, end: 200, decay: 30 },
+                    amp: { attack: 0, decay: 150, sustain: 0, release: 80 },
+                    filter: { cutoff: 6000, res: 25, env: 40 },
+                    drive: { amount: 25, mix: 45 },
+                    output: { volume: 80, pan: 0 }
+                }
+            },
+            hat: {
+                icon: '🎩',
+                title: 'HI-HAT BUILDER',
+                desc: 'Shape crispy hi-hat sounds',
+                color: '#E0E0E0',
+                freqRange: [5000, 20000],
+                defaultParams: {
+                    osc: { freq: 8000, noise: 80, metallic: 50 },
+                    pitch: { start: 12000, end: 8000, decay: 20 },
+                    amp: { attack: 0, decay: 80, sustain: 0, release: 50 },
+                    filter: { cutoff: 12000, res: 20, env: 20 },
+                    drive: { amount: 10, mix: 30 },
+                    output: { volume: 70, pan: 0 }
+                }
+            },
+            ride: {
+                icon: '🛎️',
+                title: 'RIDE BUILDER',
+                desc: 'Create shimmering ride cymbals',
+                color: '#C0C0C0',
+                freqRange: [3000, 15000],
+                defaultParams: {
+                    osc: { freq: 6000, shimmer: 60, bell: 40 },
+                    pitch: { wobble: 10, rate: 3, decay: 200 },
+                    amp: { attack: 5, decay: 800, sustain: 30, release: 400 },
+                    filter: { cutoff: 10000, res: 15, env: 25 },
+                    drive: { amount: 5, mix: 20 },
+                    output: { volume: 65, pan: 0 }
+                }
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initCategory('kick');
+            setupCategoryListeners();
+            setupWaveformListeners();
+            setupFrequencyZones();
+            setupVariationSlider();
+            setupKeyboardShortcuts();
+            initSpectrum();
+            generateVariations();
+        });
+
+        function initCategory(category) {
+            currentCategory = category;
+            const config = categoryConfig[category];
+            
+            // Update UI
+            document.getElementById('currentIcon').textContent = config.icon;
+            document.getElementById('currentTitle').textContent = config.title;
+            document.getElementById('currentDesc').textContent = config.desc;
+            document.getElementById('currentCategory').textContent = category.toUpperCase();
+            document.getElementById('currentCategory').style.color = config.color;
+            
+            // Update active card
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.classList.toggle('active', card.dataset.category === category);
+            });
+
+            // Update CSS variable for color
+            document.documentElement.style.setProperty('--builder-primary', config.color);
+
+            // Create knobs for this category
+            currentParams = JSON.parse(JSON.stringify(config.defaultParams));
+            createKnobs();
+            
+            // Update spectrum
+            updateSpectrum();
+        }
+
+        function createKnobs() {
+            const config = categoryConfig[currentCategory];
+            
+            // Clear existing knobs
+            ['osc-knobs', 'pitch-knobs', 'amp-knobs', 'filter-knobs', 'drive-knobs', 'output-knobs'].forEach(id => {
+                document.getElementById(id).innerHTML = '';
+            });
+
+            // OSC knobs
+            const oscKnobs = Object.entries(currentParams.osc).map(([name, value]) => ({
+                name: name.toUpperCase(),
+                value,
+                min: 0,
+                max: name === 'freq' ? 20000 : 100,
+                format: name === 'freq' ? 'frequency' : 'percent',
+                color: config.color
+            }));
+            createKnobSet('osc-knobs', oscKnobs);
+
+            // Pitch knobs
+            const pitchKnobs = Object.entries(currentParams.pitch).map(([name, value]) => ({
+                name: name.toUpperCase(),
+                value,
+                min: 0,
+                max: name.includes('start') || name.includes('end') ? 20000 : (name === 'decay' || name === 'delay' ? 2000 : 100),
+                format: name.includes('start') || name.includes('end') ? 'frequency' : (name === 'decay' || name === 'delay' ? 'time' : 'percent'),
+                color: config.color
+            }));
+            createKnobSet('pitch-knobs', pitchKnobs);
+
+            // Amp ADSR knobs
+            createKnobSet('amp-knobs', [
+                { name: 'ATK', value: currentParams.amp.attack, min: 0, max: 2000, format: 'time', color: config.color },
+                { name: 'DEC', value: currentParams.amp.decay, min: 0, max: 2000, format: 'time', color: config.color },
+                { name: 'SUS', value: currentParams.amp.sustain, min: 0, max: 100, format: 'percent', color: config.color },
+                { name: 'REL', value: currentParams.amp.release, min: 0, max: 2000, format: 'time', color: config.color }
+            ]);
+
+            // Filter knobs
+            createKnobSet('filter-knobs', [
+                { name: 'CUTOFF', value: currentParams.filter.cutoff, min: 20, max: 20000, format: 'frequency', color: config.color },
+                { name: 'RES', value: currentParams.filter.res, min: 0, max: 100, format: 'percent', color: config.color },
+                { name: 'ENV', value: currentParams.filter.env, min: 0, max: 100, format: 'percent', color: config.color }
+            ]);
+
+            // Drive knobs
+            createKnobSet('drive-knobs', [
+                { name: 'DRIVE', value: currentParams.drive.amount, min: 0, max: 100, format: 'percent', color: config.color },
+                { name: 'MIX', value: currentParams.drive.mix, min: 0, max: 100, format: 'percent', color: config.color }
+            ]);
+
+            // Output knobs
+            createKnobSet('output-knobs', [
+                { name: 'VOLUME', value: currentParams.output.volume, min: 0, max: 100, format: 'percent', color: config.color },
+                { name: 'PAN', value: currentParams.output.pan, min: -100, max: 100, format: 'pan', color: config.color, bipolar: true }
+            ]);
+        }
+
+        function createKnobSet(containerId, knobs) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            knobs.forEach(knob => {
+                const el = document.createElement('haos-knob');
+                el.setAttribute('name', knob.name);
+                el.setAttribute('min', knob.min);
+                el.setAttribute('max', knob.max);
+                el.setAttribute('value', knob.value);
+                el.setAttribute('color', knob.color);
+                el.setAttribute('format', knob.format);
+                el.setAttribute('size', '65');
+                if (knob.bipolar) {
+                    el.setAttribute('bipolar', 'true');
+                }
+                
+                el.addEventListener('change', (e) => {
+                    handleKnobChange(knob.name, e.detail.value);
+                });
+
+                container.appendChild(el);
+            });
+        }
+
+        function handleKnobChange(name, value) {
+            // Update params
+            // (In production, map knob names back to param structure)
+            console.log(`${name}: ${value}`);
+            updateSpectrum();
+        }
+
+        function setupCategoryListeners() {
+            document.querySelectorAll('.category-card[data-category]').forEach(card => {
+                card.addEventListener('click', () => {
+                    const category = card.dataset.category;
+                    initCategory(category);
+                    generateVariations();
+                });
+            });
+        }
+
+        function setupWaveformListeners() {
+            document.querySelectorAll('.waveform-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.waveform-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentWaveform = btn.dataset.wave;
+                    updateSpectrum();
+                });
+            });
+        }
+
+        function setupFrequencyZones() {
+            document.querySelectorAll('.freq-zone').forEach(zone => {
+                zone.addEventListener('click', () => {
+                    document.querySelectorAll('.freq-zone').forEach(z => z.classList.remove('active'));
+                    zone.classList.add('active');
+                });
+            });
+        }
+
+        function setupVariationSlider() {
+            const slider = document.getElementById('variationAmount');
+            const display = document.getElementById('variationValue');
+            
+            slider.addEventListener('input', () => {
+                display.textContent = slider.value + '%';
+            });
+        }
+
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT') return;
+                
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    togglePlay();
+                }
+            });
+        }
+
+        function initSpectrum() {
+            const canvas = document.getElementById('spectrumCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = canvas.offsetWidth * 2;
+            canvas.height = canvas.offsetHeight * 2;
+            ctx.scale(2, 2);
+            
+            updateSpectrum();
+        }
+
+        function updateSpectrum() {
+            const canvas = document.getElementById('spectrumCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.offsetWidth;
+            const height = canvas.offsetHeight;
+            
+            // Clear
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw spectrum based on current category
+            const config = categoryConfig[currentCategory];
+            const gradient = ctx.createLinearGradient(0, height, 0, 0);
+            gradient.addColorStop(0, 'rgba(57, 255, 20, 0.1)');
+            gradient.addColorStop(0.5, config.color + '40');
+            gradient.addColorStop(1, config.color);
+            
+            // Simulate frequency response
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            
+            const [minFreq, maxFreq] = config.freqRange;
+            const minLog = Math.log10(20);
+            const maxLog = Math.log10(20000);
+            const minFreqLog = Math.log10(minFreq);
+            const maxFreqLog = Math.log10(maxFreq);
+            
+            for (let x = 0; x < width; x++) {
+                const freq = Math.pow(10, minLog + (x / width) * (maxLog - minLog));
+                let amplitude = 0;
+                
+                // Simple frequency response simulation
+                if (freq >= minFreq && freq <= maxFreq) {
+                    const normalizedPos = (Math.log10(freq) - minFreqLog) / (maxFreqLog - minFreqLog);
+                    amplitude = Math.sin(normalizedPos * Math.PI) * 0.8;
+                    // Add some noise for realism
+                    amplitude += (Math.random() - 0.5) * 0.1;
+                }
+                
+                const y = height - (amplitude * height * 0.9);
+                ctx.lineTo(x, y);
+            }
+            
+            ctx.lineTo(width, height);
+            ctx.closePath();
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Draw line on top
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            
+            for (let x = 0; x < width; x++) {
+                const freq = Math.pow(10, minLog + (x / width) * (maxLog - minLog));
+                let amplitude = 0;
+                
+                if (freq >= minFreq && freq <= maxFreq) {
+                    const normalizedPos = (Math.log10(freq) - minFreqLog) / (maxFreqLog - minFreqLog);
+                    amplitude = Math.sin(normalizedPos * Math.PI) * 0.8;
+                }
+                
+                const y = height - (amplitude * height * 0.9);
+                ctx.lineTo(x, y);
+            }
+            
+            ctx.strokeStyle = config.color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function generateVariations() {
+            const config = categoryConfig[currentCategory];
+            const amount = document.getElementById('variationAmount').value / 100;
+            const grid = document.getElementById('variationGrid');
+            
+            // Generate 8 variations
+            variations = [];
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= 8; i++) {
+                const variation = generateSingleVariation(config.defaultParams, amount);
+                variations.push(variation);
+                
+                const card = document.createElement('div');
+                card.className = 'variation-card' + (i === 1 ? ' selected' : '');
+                card.innerHTML = `
+                    <div class="variation-num">#${i}</div>
+                    <div class="variation-name">${getVariationName()}</div>
+                    <div class="variation-preview">
+                        <canvas id="var-preview-${i}" width="100" height="30"></canvas>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.variation-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    applyVariation(i - 1);
+                });
+                
+                grid.appendChild(card);
+                
+                // Draw mini waveform preview
+                drawMiniPreview(i, variation);
+            }
+        }
+
+        function generateSingleVariation(baseParams, amount) {
+            const variation = JSON.parse(JSON.stringify(baseParams));
+            
+            // Randomize each parameter within the amount range
+            Object.keys(variation).forEach(section => {
+                Object.keys(variation[section]).forEach(param => {
+                    const base = variation[section][param];
+                    const range = base * amount;
+                    variation[section][param] = base + (Math.random() - 0.5) * 2 * range;
+                });
+            });
+            
+            return variation;
+        }
+
+        function getVariationName() {
+            const adjectives = ['Punchy', 'Tight', 'Fat', 'Crisp', 'Warm', 'Bright', 'Dark', 'Deep', 'Soft', 'Hard'];
+            return adjectives[Math.floor(Math.random() * adjectives.length)];
+        }
+
+        function drawMiniPreview(index, variation) {
+            const canvas = document.getElementById(`var-preview-${index}`);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const config = categoryConfig[currentCategory];
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw simple waveform
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            
+            for (let x = 0; x < width; x++) {
+                const t = x / width;
+                let y = height / 2;
+                
+                // Simple envelope visualization
+                if (t < 0.1) {
+                    y = height / 2 - (t / 0.1) * (height / 2 - 5);
+                } else if (t < 0.4) {
+                    const decay = (t - 0.1) / 0.3;
+                    y = 5 + decay * (height / 2 - 5);
+                } else {
+                    y = height / 2;
+                }
+                
+                // Add some wave
+                y += Math.sin(x * 0.5) * 3;
+                
+                ctx.lineTo(x, y);
+            }
+            
+            ctx.strokeStyle = config.color;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        function applyVariation(index) {
+            currentParams = variations[index];
+            createKnobs();
+            updateSpectrum();
+        }
+
+        function togglePlay() {
+            const btn = document.getElementById('playBtn');
+            
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            if (isPlaying) {
+                isPlaying = false;
+                btn.classList.remove('playing');
+                btn.innerHTML = '<i class="fas fa-play"></i> PREVIEW';
+            } else {
+                isPlaying = true;
+                btn.classList.add('playing');
+                btn.innerHTML = '<i class="fas fa-stop"></i> STOP';
+                
+                // Play preview sound
+                playPreview();
+                
+                // Stop after a short time for one-shot sounds
+                setTimeout(() => {
+                    if (isPlaying) {
+                        togglePlay();
+                    }
+                }, 1000);
+            }
+        }
+
+        function playPreview() {
+            if (!audioContext) return;
+            
+            // Simple preview sound generation
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.type = currentWaveform;
+            osc.frequency.value = currentParams.osc?.freq || 60;
+            
+            gain.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.5);
+        }
+
+        function toggleAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                document.getElementById('audioStatus').textContent = 'Audio Active';
+            } else if (audioContext.state === 'suspended') {
+                audioContext.resume();
+                document.getElementById('audioStatus').textContent = 'Audio Active';
+            } else {
+                audioContext.suspend();
+                document.getElementById('audioStatus').textContent = 'Audio Suspended';
+            }
+        }
+
+        function savePreset() {
+            const name = prompt('Enter preset name:', `${currentCategory.toUpperCase()} - ${getVariationName()}`);
+            if (name) {
+                const preset = {
+                    name,
+                    category: currentCategory,
+                    waveform: currentWaveform,
+                    params: currentParams,
+                    timestamp: Date.now()
+                };
+                
+                // Save to localStorage for now
+                const presets = JSON.parse(localStorage.getItem('haos_builder_presets') || '[]');
+                presets.push(preset);
+                localStorage.setItem('haos_builder_presets', JSON.stringify(presets));
+                
+                alert(`Preset "${name}" saved!`);
+            }
+        }
+
+        function exportSound() {
+            alert('WAV export coming soon! This will render the sound to a downloadable audio file.');
+        }
+
+        function openWorkspaceSwitcher() {
+            if (window.HAOSWorkspaceSwitcher) {
+                HAOSWorkspaceSwitcher.show();
+            }
+        }
+
+        // Handle window resize for spectrum
+        window.addEventListener('resize', () => {
+            initSpectrum();
+        });
+        
+        // ============================================================================
+        // PREMIUM ACCESS GATE
+        // ============================================================================
+        
+        /**
+         * Check if user has access to BUILDER workspace
+         * Requires Premium or Pro plan
+         */
+        function checkPremiumAccess() {
+            // Wait for HaosPremium to be available
+            if (!window.HaosPremium) {
+                setTimeout(checkPremiumAccess, 100);
+                return;
+            }
+            
+            // Check if user has builder workspace access
+            const hasAccess = window.HaosPremium.hasFeature('builderWorkspace');
+            
+            if (!hasAccess) {
+                showPremiumGate();
+            }
+        }
+        
+        /**
+         * Show the premium gate overlay
+         */
+        function showPremiumGate() {
+            // Create gate overlay if it doesn't exist
+            let gate = document.getElementById('premiumGateOverlay');
+            if (!gate) {
+                gate = document.createElement('div');
+                gate.id = 'premiumGateOverlay';
+                gate.className = 'premium-gate-overlay';
+                gate.innerHTML = `
+                    <div class="premium-gate-content">
+                        <div class="premium-gate-icon">🔒</div>
+                        <h2 class="premium-gate-title">BUILDER WORKSPACE</h2>
+                        <p class="premium-gate-message">
+                            The BUILDER workspace lets you create frequency-based presets for 
+                            KICK, SUB, LEAD, SYNTH, FX, PERCUSSION, HAT, and RIDE - available with a Premium subscription.
+                        </p>
+                        <a href="/premium" class="premium-gate-btn">⭐ Upgrade to Premium</a>
+                        <a href="/sounds" class="premium-gate-btn secondary">Browse Free Presets</a>
+                    </div>
+                `;
+                document.body.appendChild(gate);
+            }
+            
+            gate.classList.add('show');
+        }
+        
+        // Check access on load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(checkPremiumAccess, 300);
+        });
+    </script>
+</body>
+</html>

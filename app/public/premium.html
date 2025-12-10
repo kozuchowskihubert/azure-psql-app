@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAOS.fm | Premium - Upgrade Your Sound</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- HAOS Professional Theme -->
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    
+    <!-- HAOS Components -->
+    <script src="/js/components/haos-components.js" defer></script>
+    <script src="/js/components/haos-premium.js" defer></script>
+    
+    <style>
+        :root {
+            --haos-black: #0a0a0a;
+            --haos-panel: rgba(20, 20, 20, 0.85);
+            --haos-orange: #FF6B35;
+            --haos-gold: #D4AF37;
+            --haos-green: #39FF14;
+            --haos-cyan: #00D9FF;
+            --haos-text: #F4E8D8;
+            --haos-dim: #6B6B6B;
+            --haos-border: rgba(255, 107, 53, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--haos-black);
+            color: var(--haos-text);
+            min-height: 100vh;
+            padding-top: 70px;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Film grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+            opacity: 0.03;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 30px 40px;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.05));
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 30px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--haos-gold);
+            margin-bottom: 25px;
+        }
+
+        .hero-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3rem, 8vw, 5rem);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--haos-gold) 0%, #FFD700 50%, var(--haos-orange) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            color: var(--haos-dim);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Billing Toggle */
+        .billing-toggle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 50px;
+        }
+
+        .billing-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--haos-dim);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .billing-label.active {
+            color: var(--haos-text);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: rgba(50, 50, 50, 0.5);
+            border-radius: 15px;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: var(--haos-gold);
+            border-radius: 50%;
+            top: 2px;
+            left: 3px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.4);
+        }
+
+        .toggle-switch.yearly::after {
+            transform: translateX(29px);
+        }
+
+        .save-badge {
+            background: var(--haos-green);
+            color: #0a0a0a;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* Pricing Cards */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            padding: 0 30px;
+        }
+
+        .pricing-card {
+            background: var(--haos-panel);
+            border: 2px solid var(--haos-border);
+            border-radius: 16px;
+            padding: 35px 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 107, 53, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .pricing-card.featured {
+            border: 2px solid var(--haos-gold);
+            background: linear-gradient(145deg, rgba(30, 28, 20, 0.95), rgba(20, 20, 20, 0.95));
+            transform: scale(1.03);
+        }
+
+        .pricing-card.featured:hover {
+            transform: scale(1.03) translateY(-5px);
+            border-color: var(--haos-gold);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(212, 175, 55, 0.2);
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--haos-gold), #B8942A);
+            color: #0a0a0a;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .plan-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 3px;
+            color: var(--haos-text);
+            margin-bottom: 5px;
+        }
+
+        .plan-description {
+            font-size: 0.9rem;
+            color: var(--haos-dim);
+            margin-bottom: 25px;
+        }
+
+        .plan-price {
+            margin-bottom: 25px;
+        }
+
+        .price-amount {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.5rem;
+            color: var(--haos-text);
+        }
+
+        .price-currency {
+            font-size: 1.5rem;
+            vertical-align: super;
+            color: var(--haos-dim);
+        }
+
+        .price-period {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--haos-dim);
+        }
+
+        .original-price {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--haos-dim);
+            text-decoration: line-through;
+            margin-left: 10px;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .plan-features li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        .feature-icon.yes { color: var(--haos-green); }
+        .feature-icon.no { color: #555; }
+        .feature-icon.limited { color: var(--haos-cyan); }
+
+        .plan-cta {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .plan-cta.primary {
+            background: linear-gradient(135deg, var(--haos-gold), #B8942A);
+            color: #0a0a0a;
+        }
+
+        .plan-cta.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+        }
+
+        .plan-cta.secondary {
+            background: transparent;
+            border: 2px solid var(--haos-orange);
+            color: var(--haos-orange);
+        }
+
+        .plan-cta.secondary:hover {
+            background: var(--haos-orange);
+            color: #0a0a0a;
+        }
+
+        .plan-cta.current {
+            background: rgba(50, 50, 50, 0.5);
+            color: var(--haos-dim);
+            cursor: default;
+        }
+
+        /* Feature Comparison */
+        .comparison-section {
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            padding: 0 30px;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--haos-text);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--haos-panel);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .comparison-table th {
+            background: rgba(0, 0, 0, 0.3);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--haos-dim);
+        }
+
+        .comparison-table th.plan-header {
+            color: var(--haos-text);
+            font-size: 1rem;
+        }
+
+        .comparison-table th.premium-header {
+            color: var(--haos-gold);
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .comparison-table td.feature-name {
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+            color: var(--haos-text);
+        }
+
+        .comparison-table td.premium-cell {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .category-row td {
+            background: rgba(0, 0, 0, 0.2);
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: var(--haos-orange);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: left !important;
+        }
+
+        .check { color: var(--haos-green); font-size: 1.2rem; }
+        .cross { color: #555; font-size: 1.2rem; }
+
+        /* FAQ Section */
+        .faq-section {
+            max-width: 800px;
+            margin: 0 auto 80px;
+            padding: 0 30px;
+        }
+
+        .faq-item {
+            background: var(--haos-panel);
+            border: 1px solid var(--haos-border);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            width: 100%;
+            padding: 20px;
+            background: none;
+            border: none;
+            color: var(--haos-text);
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .faq-question::after {
+            content: '+';
+            font-size: 1.5rem;
+            color: var(--haos-orange);
+            transition: transform 0.3s;
+        }
+
+        .faq-item.open .faq-question::after {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+        }
+
+        .faq-answer p {
+            padding: 0 20px 20px;
+            color: var(--haos-dim);
+            line-height: 1.7;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 60px 30px;
+            background: linear-gradient(180deg, transparent, rgba(212, 175, 55, 0.05));
+        }
+
+        .cta-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+        }
+
+        .cta-subtitle {
+            font-family: 'Space Mono', monospace;
+            color: var(--haos-dim);
+            margin-bottom: 30px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .cta-btn.primary {
+            background: linear-gradient(135deg, var(--haos-gold), #B8942A);
+            color: #0a0a0a;
+        }
+
+        .cta-btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .cta-btn.secondary {
+            background: transparent;
+            border: 2px solid var(--haos-orange);
+            color: var(--haos-orange);
+        }
+
+        .cta-btn.secondary:hover {
+            background: var(--haos-orange);
+            color: #0a0a0a;
+        }
+
+        /* Money-back badge */
+        .guarantee-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background: rgba(57, 255, 20, 0.1);
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            border-radius: 30px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--haos-green);
+        }
+
+        @media (max-width: 768px) {
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+            
+            .comparison-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HAOS Navigation -->
+    <haos-navigation></haos-navigation>
+
+    <section class="hero">
+        <div class="hero-badge">
+            <span>⭐</span>
+            <span>HAOS.fm Premium</span>
+        </div>
+        <h1 class="hero-title">Upgrade Your Sound</h1>
+        <p class="hero-subtitle">Unlock unlimited downloads, exclusive presets, all workspaces, and professional-grade tools for serious producers.</p>
+        
+        <div class="billing-toggle">
+            <span class="billing-label active" data-billing="monthly">Monthly</span>
+            <div class="toggle-switch" id="billingToggle"></div>
+            <span class="billing-label" data-billing="yearly">Yearly</span>
+            <span class="save-badge">Save 17%</span>
+        </div>
+    </section>
+
+    <section class="pricing-grid" id="pricingGrid">
+        <!-- Free Plan -->
+        <div class="pricing-card" data-plan="free">
+            <h3 class="plan-name">Free</h3>
+            <p class="plan-description">Get started with HAOS.fm</p>
+            <div class="plan-price">
+                <span class="price-amount"><span class="price-currency">$</span>0</span>
+                <span class="price-period">/month</span>
+            </div>
+            <ul class="plan-features">
+                <li><span class="feature-icon limited">5</span> Preset downloads/day</li>
+                <li><span class="feature-icon yes">✓</span> SOUNDS page access</li>
+                <li><span class="feature-icon no">✗</span> TECHNO workspace</li>
+                <li><span class="feature-icon no">✗</span> MODULAR workspace</li>
+                <li><span class="feature-icon no">✗</span> BUILDER workspace</li>
+                <li><span class="feature-icon no">✗</span> Exclusive presets</li>
+                <li><span class="feature-icon limited">3</span> Saved patches</li>
+                <li><span class="feature-icon yes">✓</span> Community support</li>
+            </ul>
+            <button class="plan-cta current" disabled>Current Plan</button>
+        </div>
+
+        <!-- Basic Plan -->
+        <div class="pricing-card" data-plan="basic">
+            <h3 class="plan-name">Basic</h3>
+            <p class="plan-description">For hobbyist producers</p>
+            <div class="plan-price">
+                <span class="price-amount"><span class="price-currency">$</span><span class="price-value">4.99</span></span>
+                <span class="price-period">/month</span>
+                <span class="original-price yearly-price" style="display: none;">$59.88</span>
+            </div>
+            <ul class="plan-features">
+                <li><span class="feature-icon limited">25</span> Preset downloads/day</li>
+                <li><span class="feature-icon yes">✓</span> SOUNDS page access</li>
+                <li><span class="feature-icon yes">✓</span> TECHNO workspace</li>
+                <li><span class="feature-icon no">✗</span> MODULAR workspace</li>
+                <li><span class="feature-icon no">✗</span> BUILDER workspace</li>
+                <li><span class="feature-icon no">✗</span> Exclusive presets</li>
+                <li><span class="feature-icon limited">25</span> Saved patches</li>
+                <li><span class="feature-icon yes">✓</span> Email support</li>
+            </ul>
+            <button class="plan-cta secondary">Get Basic</button>
+        </div>
+
+        <!-- Premium Plan (Featured) -->
+        <div class="pricing-card featured" data-plan="premium">
+            <div class="featured-badge">Most Popular</div>
+            <h3 class="plan-name">Premium</h3>
+            <p class="plan-description">For serious producers</p>
+            <div class="plan-price">
+                <span class="price-amount"><span class="price-currency">$</span><span class="price-value">9.99</span></span>
+                <span class="price-period">/month</span>
+                <span class="original-price yearly-price" style="display: none;">$119.88</span>
+            </div>
+            <ul class="plan-features">
+                <li><span class="feature-icon yes">∞</span> Unlimited downloads</li>
+                <li><span class="feature-icon yes">✓</span> All workspaces</li>
+                <li><span class="feature-icon yes">✓</span> MODULAR workspace</li>
+                <li><span class="feature-icon yes">✓</span> BUILDER workspace</li>
+                <li><span class="feature-icon yes">✓</span> Exclusive presets</li>
+                <li><span class="feature-icon yes">∞</span> Unlimited patches</li>
+                <li><span class="feature-icon yes">✓</span> 1 GB cloud storage</li>
+                <li><span class="feature-icon yes">✓</span> Priority support</li>
+            </ul>
+            <button class="plan-cta primary">Get Premium</button>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="pricing-card" data-plan="pro">
+            <h3 class="plan-name">Pro</h3>
+            <p class="plan-description">For professional studios</p>
+            <div class="plan-price">
+                <span class="price-amount"><span class="price-currency">$</span><span class="price-value">24.99</span></span>
+                <span class="price-period">/month</span>
+                <span class="original-price yearly-price" style="display: none;">$299.88</span>
+            </div>
+            <ul class="plan-features">
+                <li><span class="feature-icon yes">∞</span> Everything in Premium</li>
+                <li><span class="feature-icon yes">✓</span> Pro-only presets</li>
+                <li><span class="feature-icon yes">∞</span> Unlimited collaboration</li>
+                <li><span class="feature-icon yes">✓</span> 10 GB cloud storage</li>
+                <li><span class="feature-icon yes">✓</span> 192kHz audio export</li>
+                <li><span class="feature-icon yes">✓</span> Stem exports</li>
+                <li><span class="feature-icon yes">✓</span> Commercial license</li>
+                <li><span class="feature-icon yes">✓</span> Dedicated support</li>
+            </ul>
+            <button class="plan-cta secondary">Get Pro</button>
+        </div>
+    </section>
+
+    <section class="comparison-section">
+        <h2 class="section-title">Feature Comparison</h2>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Feature</th>
+                    <th class="plan-header">Free</th>
+                    <th class="plan-header">Basic</th>
+                    <th class="plan-header premium-header">Premium</th>
+                    <th class="plan-header">Pro</th>
+                </tr>
+            </thead>
+            <tbody id="comparisonBody">
+                <!-- Preset Library -->
+                <tr class="category-row"><td colspan="5">Preset Library</td></tr>
+                <tr>
+                    <td class="feature-name">Daily Downloads</td>
+                    <td>5</td>
+                    <td>25</td>
+                    <td class="premium-cell">∞</td>
+                    <td>∞</td>
+                </tr>
+                <tr>
+                    <td class="feature-name">Exclusive Presets</td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td class="premium-cell"><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+                <tr>
+                    <td class="feature-name">Pro Presets</td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td class="premium-cell"><span class="cross">✗</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+                
+                <!-- Workspaces -->
+                <tr class="category-row"><td colspan="5">Workspaces</td></tr>
+                <tr>
+                    <td class="feature-name">SOUNDS Page</td>
+                    <td><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                    <td class="premium-cell"><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+                <tr>
+                    <td class="feature-name">TECHNO Workspace</td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="check">✓</span></td>
+                    <td class="premium-cell"><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+                <tr>
+                    <td class="feature-name">MODULAR Workspace</td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td class="premium-cell"><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+                <tr>
+                    <td class="feature-name">BUILDER Workspace</td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td class="premium-cell"><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+                <tr>
+                    <td class="feature-name">Saved Patches</td>
+                    <td>3</td>
+                    <td>25</td>
+                    <td class="premium-cell">∞</td>
+                    <td>∞</td>
+                </tr>
+                
+                <!-- Audio & Export -->
+                <tr class="category-row"><td colspan="5">Audio & Export</td></tr>
+                <tr>
+                    <td class="feature-name">Sample Rate</td>
+                    <td>44.1kHz</td>
+                    <td>48kHz</td>
+                    <td class="premium-cell">96kHz</td>
+                    <td>192kHz</td>
+                </tr>
+                <tr>
+                    <td class="feature-name">Export Formats</td>
+                    <td>WAV</td>
+                    <td>WAV, MP3</td>
+                    <td class="premium-cell">WAV, MP3, FLAC</td>
+                    <td>All + Stems</td>
+                </tr>
+                
+                <!-- Collaboration & Storage -->
+                <tr class="category-row"><td colspan="5">Collaboration & Storage</td></tr>
+                <tr>
+                    <td class="feature-name">Cloud Storage</td>
+                    <td>—</td>
+                    <td>100 MB</td>
+                    <td class="premium-cell">1 GB</td>
+                    <td>10 GB</td>
+                </tr>
+                <tr>
+                    <td class="feature-name">Collaboration Sessions</td>
+                    <td><span class="cross">✗</span></td>
+                    <td>2/month</td>
+                    <td class="premium-cell">10/month</td>
+                    <td>∞</td>
+                </tr>
+                <tr>
+                    <td class="feature-name">API Access</td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td class="premium-cell"><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+                
+                <!-- Support -->
+                <tr class="category-row"><td colspan="5">Support</td></tr>
+                <tr>
+                    <td class="feature-name">Community Support</td>
+                    <td><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                    <td class="premium-cell"><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+                <tr>
+                    <td class="feature-name">Email Support</td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="check">✓</span></td>
+                    <td class="premium-cell"><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+                <tr>
+                    <td class="feature-name">Priority Support</td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td class="premium-cell"><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+                <tr>
+                    <td class="feature-name">Dedicated Support</td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td class="premium-cell"><span class="cross">✗</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="faq-section">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        
+        <div class="faq-item">
+            <button class="faq-question">Can I upgrade or downgrade at any time?</button>
+            <div class="faq-answer">
+                <p>Yes! You can upgrade your plan instantly and the difference will be prorated. When downgrading, your current plan remains active until the end of the billing period, then switches to the new plan.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <button class="faq-question">What happens to my presets if I cancel?</button>
+            <div class="faq-answer">
+                <p>All presets you've downloaded are yours to keep forever! If you cancel, you'll lose access to exclusive/premium presets and workspace features, but your downloaded sounds remain on your device.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <button class="faq-question">Do you offer refunds?</button>
+            <div class="faq-answer">
+                <p>Yes, we offer a 7-day money-back guarantee on all paid plans. If you're not satisfied, contact our support team within 7 days of purchase for a full refund.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <button class="faq-question">Can I use the sounds commercially?</button>
+            <div class="faq-answer">
+                <p>Free, Basic, and Premium plans include a royalty-free license for personal and non-commercial use. The Pro plan includes a full commercial license for professional releases, sync licensing, and sample packs.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <button class="faq-question">How do collaboration sessions work?</button>
+            <div class="faq-answer">
+                <p>Collaboration sessions allow multiple producers to work on the same project in real-time. Basic gets 2 sessions per month, Premium gets 10, and Pro has unlimited sessions for teams and studios.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <h2 class="cta-title">Ready to Level Up?</h2>
+        <p class="cta-subtitle">Join thousands of producers creating professional sounds with HAOS.fm</p>
+        <div class="cta-buttons">
+            <a href="#pricingGrid" class="cta-btn primary">Choose Your Plan</a>
+            <a href="/sounds" class="cta-btn secondary">Try Free First</a>
+        </div>
+        <div class="guarantee-badge">
+            <span>🛡️</span>
+            <span>7-Day Money-Back Guarantee</span>
+        </div>
+    </section>
+
+    <!-- HAOS Footer -->
+    <haos-footer></haos-footer>
+
+    <script>
+        // Billing toggle
+        const billingToggle = document.getElementById('billingToggle');
+        const billingLabels = document.querySelectorAll('.billing-label');
+        let isYearly = false;
+
+        const prices = {
+            free: { monthly: 0, yearly: 0 },
+            basic: { monthly: 4.99, yearly: 49.90 },
+            premium: { monthly: 9.99, yearly: 99.90 },
+            pro: { monthly: 24.99, yearly: 249.90 },
+        };
+
+        billingToggle.addEventListener('click', () => {
+            isYearly = !isYearly;
+            billingToggle.classList.toggle('yearly', isYearly);
+            
+            billingLabels.forEach(label => {
+                label.classList.toggle('active', 
+                    (label.dataset.billing === 'yearly') === isYearly
+                );
+            });
+
+            // Update prices
+            document.querySelectorAll('.pricing-card').forEach(card => {
+                const plan = card.dataset.plan;
+                if (plan === 'free') return;
+                
+                const priceValue = card.querySelector('.price-value');
+                const period = card.querySelector('.price-period');
+                const original = card.querySelector('.original-price');
+                
+                if (isYearly) {
+                    priceValue.textContent = prices[plan].yearly.toFixed(2);
+                    period.textContent = '/year';
+                    original.style.display = 'inline';
+                    original.textContent = '$' + (prices[plan].monthly * 12).toFixed(2);
+                } else {
+                    priceValue.textContent = prices[plan].monthly.toFixed(2);
+                    period.textContent = '/month';
+                    original.style.display = 'none';
+                }
+            });
+        });
+
+        // FAQ toggles
+        document.querySelectorAll('.faq-question').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.parentElement;
+                const wasOpen = item.classList.contains('open');
+                
+                // Close all
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+                
+                // Toggle current
+                if (!wasOpen) {
+                    item.classList.add('open');
+                }
+            });
+        });
+
+        // Plan selection
+        document.querySelectorAll('.plan-cta:not(.current)').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const card = btn.closest('.pricing-card');
+                const plan = card.dataset.plan;
+                const billing = isYearly ? 'yearly' : 'monthly';
+                
+                // In production, redirect to checkout
+                console.log(`Selected ${plan} plan with ${billing} billing`);
+                
+                // For demo, show confirmation
+                if (confirm(`Subscribe to ${plan.toUpperCase()} plan for $${prices[plan][billing === 'yearly' ? 'yearly' : 'monthly'].toFixed(2)}/${billing === 'yearly' ? 'year' : 'month'}?`)) {
+                    // Redirect to payment flow
+                    window.location.href = `/api/payments/checkout?plan=${plan}&billing=${billing}`;
+                }
+            });
+        });
+
+        // Update current plan badge based on user's actual plan
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.HaosPremium) {
+                const currentPlan = window.HaosPremium.getPlan()?.code || 'free';
+                
+                document.querySelectorAll('.pricing-card').forEach(card => {
+                    const planCode = card.dataset.plan;
+                    const btn = card.querySelector('.plan-cta');
+                    
+                    if (planCode === currentPlan) {
+                        btn.className = 'plan-cta current';
+                        btn.textContent = 'Current Plan';
+                        btn.disabled = true;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

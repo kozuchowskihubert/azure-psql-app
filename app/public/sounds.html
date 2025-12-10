@@ -3,1051 +3,2170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HAOS.fm | Sounds - 300+ Techno Presets Explorer</title>
+    <title>HAOS.fm | SOUNDS - Professional Preset Library</title>
     
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+    
+    <!-- HAOS Professional Theme -->
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    
+    <!-- HAOS Components -->
+    <script src="/js/components/haos-components.js" defer></script>
+    <script src="/js/components/haos-premium.js" defer></script>
+    <script src="/js/audio-export.js" defer></script>
+    <script src="/js/components/haos-export-modal.js" defer></script>
+    <script src="/js/synth-database.js" defer></script>
     
     <style>
         :root {
-            --haos-black: #0a0a0a;
-            --haos-panel: rgba(20, 20, 25, 0.85);
-            --haos-orange: #FF6B35;
-            --haos-orange-bright: #FF8C42;
-            --haos-green: #39FF14;
-            --haos-cyan: #00D9FF;
-            --haos-pink: #FF006E;
-            --haos-text: #e0e0e0;
-            --haos-dim: #888;
-            --haos-border: rgba(255, 107, 53, 0.2);
-            
+            --bg-dark: #050508;
+            --bg-card: rgba(15, 15, 20, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --accent-orange: #FF6B35;
+            --accent-gold: #D4AF37;
+            --accent-cyan: #00D9FF;
+            --accent-green: #39FF14;
+            --accent-purple: #8B5CF6;
+            --accent-pink: #EC4899;
+            --text-primary: #F4E8D8;
+            --text-secondary: rgba(244, 232, 216, 0.6);
+            --text-dim: rgba(244, 232, 216, 0.3);
+            --border-subtle: rgba(255, 107, 53, 0.1);
+            --border-glow: rgba(255, 107, 53, 0.3);
             --font-display: 'Bebas Neue', sans-serif;
             --font-mono: 'Space Mono', monospace;
             --font-body: 'Inter', sans-serif;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { scroll-behavior: smooth; }
         
         body {
             font-family: var(--font-body);
-            background: var(--haos-black);
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(255, 140, 66, 0.06) 0%, transparent 50%);
-            color: var(--haos-text);
+            background: var(--bg-dark);
+            color: var(--text-primary);
             min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .haos-header {
-            position: sticky;
+        /* ============================================
+           ANIMATED BACKGROUND
+           ============================================ */
+        .bg-canvas {
+            position: fixed;
             top: 0;
-            z-index: 1000;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--haos-border);
-            padding: 15px 30px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bg-gradient {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(0, 217, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse 100% 80% at 50% 100%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+        }
+        
+        .bg-grid {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background-image: 
+                linear-gradient(rgba(255, 107, 53, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 107, 53, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 30s linear infinite;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(60px, 60px) rotate(1deg); }
+        }
+        
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 107, 53, 0.15);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(0, 217, 255, 0.1);
+            top: 60%;
+            right: 10%;
+            animation-delay: -7s;
+        }
+        
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: rgba(139, 92, 246, 0.1);
+            bottom: 20%;
+            left: 30%;
+            animation-delay: -14s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 30px) scale(1.02); }
         }
 
-        .header-content {
-            max-width: 1400px;
+        /* ============================================
+           NAVIGATION
+           ============================================ */
+        .nav-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 15px 30px;
+            background: rgba(5, 5, 8, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        
+        .nav-inner {
+            max-width: 1600px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 20px;
-            flex-wrap: wrap;
         }
-
-        .logo-section {
+        
+        .nav-logo {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             text-decoration: none;
         }
-
-        .brand-name {
-            font-family: var(--font-display);
+        
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--accent-orange), #CC5529);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.5rem;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+            animation: pulse-glow 3s ease-in-out infinite;
         }
-
-        .brand-tagline {
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            color: var(--haos-dim);
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3); }
+            50% { box-shadow: 0 4px 30px rgba(255, 107, 53, 0.5); }
         }
-
+        
+        .logo-text {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            letter-spacing: 0.05em;
+        }
+        
         .nav-links {
             display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
+            gap: 8px;
         }
-
+        
         .nav-link {
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            color: var(--haos-text);
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: 1px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover {
-            background: rgba(255, 107, 53, 0.1);
-            border-color: var(--haos-orange);
-        }
-
-        .nav-link.active {
-            background: var(--haos-orange);
-            color: white;
-        }
-
-        .hero {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 50px 30px 40px;
-            text-align: center;
-        }
-
-        .hero-title {
-            font-family: var(--font-display);
-            font-size: 3.5rem;
-            letter-spacing: 4px;
-            background: linear-gradient(135deg, var(--haos-orange), var(--haos-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 15px;
-        }
-
-        .hero-subtitle {
-            font-family: var(--font-mono);
-            font-size: 1.1rem;
-            color: var(--haos-dim);
-            margin-bottom: 30px;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .stat {
-            padding: 15px 25px;
-            background: var(--haos-panel);
-            border: 2px solid var(--haos-border);
-            border-radius: 10px;
-        }
-
-        .stat-number {
-            font-family: var(--font-display);
-            font-size: 2.5rem;
-            color: var(--haos-orange);
-        }
-
-        .stat-label {
+            padding: 10px 20px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: 30px;
+            color: var(--text-secondary);
             font-family: var(--font-mono);
             font-size: 0.8rem;
-            color: var(--haos-dim);
-            text-transform: uppercase;
-        }
-
-        .action-btn {
-            padding: 14px 28px;
-            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-family: var(--font-mono);
-            font-size: 0.95rem;
-            font-weight: bold;
-            cursor: pointer;
+            font-weight: 500;
             text-decoration: none;
-            display: inline-block;
-            margin: 5px;
             transition: all 0.3s ease;
         }
-
-        .action-btn:hover {
+        
+        .nav-link:hover {
+            background: rgba(255, 107, 53, 0.1);
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
             transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(255, 107, 53, 0.5);
+        }
+        
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--accent-orange), #CC5529);
+            border-color: transparent;
+            color: white;
         }
 
-        .controls {
-            max-width: 1400px;
-            margin: 0 auto 30px;
-            padding: 0 30px;
-        }
-
-        .controls-bar {
-            background: var(--haos-panel);
-            border: 2px solid var(--haos-border);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            flex: 1;
-            min-width: 250px;
+        /* ============================================
+           HERO SECTION
+           ============================================ */
+        .hero {
+            padding: 140px 30px 60px;
+            text-align: center;
             position: relative;
         }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 30px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent-orange);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 25px;
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: blink 2s ease-in-out infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 12vw, 10rem);
+            line-height: 0.9;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.6s ease 0.1s both;
+        }
+        
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, var(--accent-orange) 0%, #FFB347 50%, var(--accent-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.3));
+        }
+        
+        .hero-subtitle {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+            animation: fadeInUp 0.6s ease 0.2s both;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
+        /* Stats Cards */
+        .stats-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            animation: fadeInUp 0.6s ease 0.3s both;
+        }
+        
+        .stat-card {
+            padding: 20px 35px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        /* ============================================
+           SEARCH & FILTERS
+           ============================================ */
+        .controls-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px 40px;
+        }
+        
+        .search-container {
+            position: relative;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+        
         .search-input {
             width: 100%;
-            padding: 12px 20px 12px 45px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid var(--haos-border);
-            border-radius: 8px;
-            color: var(--haos-text);
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
+            padding: 18px 25px 18px 55px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 50px;
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            transition: all 0.3s ease;
         }
-
+        
         .search-input:focus {
             outline: none;
-            border-color: var(--haos-orange);
-            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1), 0 10px 40px rgba(0, 0, 0, 0.2);
         }
-
+        
+        .search-input::placeholder {
+            color: var(--text-dim);
+        }
+        
         .search-icon {
             position: absolute;
-            left: 15px;
+            left: 22px;
             top: 50%;
             transform: translateY(-50%);
             font-size: 1.2rem;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+        
+        .search-shortcut {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-dim);
         }
 
+        /* Filter Pills */
+        .filter-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
         .filter-group {
             display: flex;
+            align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
+            padding: 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 40px;
+        }
+        
+        .filter-label {
+            padding-left: 12px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .filter-select {
+            padding: 10px 35px 10px 18px;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23FF6B35' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+        
+        .filter-select:focus { outline: none; }
+        
+        .filter-select option {
+            background: var(--bg-dark);
+            color: var(--text-primary);
         }
 
-        .filter-btn {
-            padding: 10px 18px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid var(--haos-border);
-            border-radius: 8px;
-            color: var(--haos-text);
+        /* Category Pills */
+        .category-pills {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+        
+        .category-pill {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            border-radius: 30px;
+            color: var(--text-secondary);
             font-family: var(--font-mono);
             font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            white-space: nowrap;
         }
-
-        .filter-btn:hover {
-            border-color: var(--haos-orange);
-            background: rgba(255, 107, 53, 0.1);
+        
+        .category-pill:hover {
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
+            background: rgba(255, 107, 53, 0.05);
         }
-
-        .filter-btn.active {
-            background: var(--haos-orange);
+        
+        .category-pill.active {
+            background: linear-gradient(135deg, var(--accent-orange), #CC5529);
+            border-color: transparent;
             color: white;
-            box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
         }
 
-        .presets {
-            max-width: 1400px;
+        /* ============================================
+           PRESET GRID
+           ============================================ */
+        .presets-section {
+            max-width: 1600px;
             margin: 0 auto;
-            padding: 0 30px 60px;
+            padding: 0 30px 100px;
         }
-
-        .category-section {
-            margin-bottom: 50px;
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-subtle);
         }
-
-        .category-header {
+        
+        .section-title {
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: var(--haos-panel);
-            border: 2px solid var(--haos-border);
-            border-radius: 10px;
         }
-
-        .category-icon {
-            font-size: 2rem;
+        
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 107, 53, 0.05));
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
         }
-
-        .category-title {
-            flex: 1;
+        
+        .section-text h2 {
             font-family: var(--font-display);
-            font-size: 2rem;
-            color: var(--haos-orange);
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            letter-spacing: 0.02em;
         }
-
-        .category-count {
+        
+        .section-text span {
             font-family: var(--font-mono);
-            font-size: 0.9rem;
-            color: var(--haos-text);
-            background: rgba(255, 107, 53, 0.2);
-            padding: 6px 14px;
-            border-radius: 15px;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        
+        .section-count {
+            padding: 8px 18px;
+            background: rgba(255, 107, 53, 0.1);
+            border-radius: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent-orange);
         }
 
-        .presets-grid {
+        /* Preset Grid */
+        .preset-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
         }
 
+        /* ============================================
+           PRESET CARD - THE STAR
+           ============================================ */
         .preset-card {
-            background: var(--haos-panel);
-            border: 2px solid var(--haos-border);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s ease;
             position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            cursor: pointer;
         }
-
+        
         .preset-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--haos-orange), var(--haos-cyan));
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-orange), var(--accent-gold), var(--accent-orange));
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
-
+        
         .preset-card:hover {
-            border-color: var(--haos-orange);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.3);
+            border-color: var(--border-glow);
+            transform: translateY(-8px);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 60px rgba(255, 107, 53, 0.1);
         }
-
+        
         .preset-card:hover::before {
-            transform: scaleX(1);
+            opacity: 1;
+        }
+        
+        /* Synth-specific card styling */
+        .preset-card[data-manufacturer="Moog"] { --card-accent: #FF6B35; }
+        .preset-card[data-manufacturer="Roland"] { --card-accent: #00D9FF; }
+        .preset-card[data-manufacturer="Korg"] { --card-accent: #39FF14; }
+        .preset-card[data-manufacturer="Behringer"] { --card-accent: #FFD700; }
+        .preset-card[data-manufacturer="Sequential"] { --card-accent: #8B5CF6; }
+        .preset-card[data-manufacturer="Oberheim"] { --card-accent: #EC4899; }
+        .preset-card[data-manufacturer="Yamaha"] { --card-accent: #14B8A6; }
+        
+        .preset-card[data-manufacturer]::before {
+            background: linear-gradient(90deg, var(--card-accent), transparent);
+        }
+        
+        .preset-card[data-manufacturer]:hover {
+            border-color: var(--card-accent);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 60px color-mix(in srgb, var(--card-accent) 20%, transparent);
         }
 
-        .preset-header {
+        /* Card Header */
+        .card-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-
-        .preset-name {
+        
+        .card-info {
+            flex: 1;
+        }
+        
+        .card-badges {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .synth-badge {
+            padding: 4px 10px;
+            background: rgba(255, 107, 53, 0.15);
+            border-radius: 6px;
             font-family: var(--font-mono);
-            font-size: 1.05rem;
-            font-weight: bold;
-            color: var(--haos-text);
-            margin-bottom: 5px;
+            font-size: 0.65rem;
+            color: var(--accent-orange);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-
-        .preset-id {
+        
+        .preset-card[data-manufacturer] .synth-badge {
+            background: color-mix(in srgb, var(--card-accent) 15%, transparent);
+            color: var(--card-accent);
+        }
+        
+        .premium-badge {
+            padding: 4px 10px;
+            background: linear-gradient(135deg, var(--accent-gold), #B8942A);
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: #0a0a0a;
+            font-weight: 600;
+        }
+        
+        .card-name {
+            font-family: var(--font-body);
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .card-id {
             font-family: var(--font-mono);
             font-size: 0.7rem;
-            color: var(--haos-dim);
+            color: var(--text-dim);
         }
 
-        .play-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+        /* Play Button */
+        .play-button {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--accent-orange) 0%, #CC5529 100%);
             border: none;
+            border-radius: 50%;
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+            flex-shrink: 0;
         }
-
-        .play-btn:hover {
+        
+        .play-button:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+            box-shadow: 0 6px 30px rgba(255, 107, 53, 0.6);
         }
-
-        .play-btn:active {
+        
+        .play-button:active {
             transform: scale(0.95);
         }
-
-        .preset-params {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
+        
+        .play-button.playing {
+            background: var(--accent-green);
+            box-shadow: 0 4px 20px rgba(57, 255, 20, 0.4);
+            animation: pulse-green 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 4px 20px rgba(57, 255, 20, 0.4); }
+            50% { box-shadow: 0 4px 40px rgba(57, 255, 20, 0.8); }
+        }
+        
+        /* Card playing state */
+        .preset-card.audio-playing {
+            border-color: var(--accent-green) !important;
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.3) !important;
+        }
+        
+        .preset-card.audio-playing .waveform-bar {
+            background: linear-gradient(to top, var(--accent-green), #7FFF00) !important;
+            animation: waveform 0.3s ease-in-out infinite !important;
         }
 
-        .param-item {
+        /* Waveform Visualizer */
+        .waveform-container {
+            height: 60px;
+            margin-bottom: 20px;
             background: rgba(0, 0, 0, 0.3);
-            padding: 8px 10px;
-            border-radius: 6px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .waveform-bars {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 3px;
+            padding: 0 15px;
+        }
+        
+        .waveform-bar {
+            width: 4px;
+            background: linear-gradient(to top, var(--accent-orange), var(--accent-gold));
+            border-radius: 2px;
+            transition: height 0.1s ease;
+        }
+        
+        .preset-card:not(:hover) .waveform-bar {
+            height: 20%;
+            opacity: 0.3;
+        }
+        
+        .preset-card:hover .waveform-bar {
+            animation: waveform 0.5s ease-in-out infinite;
+        }
+        
+        .waveform-bar:nth-child(1) { animation-delay: 0s; }
+        .waveform-bar:nth-child(2) { animation-delay: 0.1s; }
+        .waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+        .waveform-bar:nth-child(4) { animation-delay: 0.3s; }
+        .waveform-bar:nth-child(5) { animation-delay: 0.4s; }
+        .waveform-bar:nth-child(6) { animation-delay: 0.3s; }
+        .waveform-bar:nth-child(7) { animation-delay: 0.2s; }
+        .waveform-bar:nth-child(8) { animation-delay: 0.1s; }
+        .waveform-bar:nth-child(9) { animation-delay: 0s; }
+        .waveform-bar:nth-child(10) { animation-delay: 0.1s; }
+        .waveform-bar:nth-child(11) { animation-delay: 0.2s; }
+        .waveform-bar:nth-child(12) { animation-delay: 0.3s; }
+        
+        @keyframes waveform {
+            0%, 100% { height: 20%; }
+            50% { height: 80%; }
         }
 
+        /* Parameters Grid */
+        .params-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .param-box {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 10px;
+            padding: 12px 10px;
+            text-align: center;
+        }
+        
         .param-label {
             font-family: var(--font-mono);
-            font-size: 0.65rem;
-            color: var(--haos-dim);
+            font-size: 0.6rem;
+            color: var(--text-dim);
             text-transform: uppercase;
-            margin-bottom: 3px;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
         }
-
+        
         .param-value {
             font-family: var(--font-mono);
             font-size: 0.85rem;
-            color: var(--haos-orange);
-            font-weight: bold;
+            color: var(--accent-orange);
+            font-weight: 600;
         }
 
-        .preset-tags {
+        /* Tags */
+        .card-tags {
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-
+        
         .tag {
+            padding: 5px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
             font-family: var(--font-mono);
             font-size: 0.65rem;
-            padding: 4px 10px;
-            border-radius: 10px;
-            background: rgba(255, 107, 53, 0.1);
-            border: 1px solid rgba(255, 107, 53, 0.3);
-            color: var(--haos-orange);
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+        
+        .tag:hover {
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
         }
 
-        .use-btn {
-            width: 100%;
-            padding: 10px;
-            background: rgba(0, 217, 255, 0.1);
-            border: 2px solid var(--haos-cyan);
-            border-radius: 8px;
-            color: var(--haos-cyan);
+        /* Card Actions */
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 12px;
             font-family: var(--font-mono);
-            font-size: 0.85rem;
-            font-weight: bold;
+            font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .btn-use {
+            background: linear-gradient(135deg, var(--accent-orange), #CC5529);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-use:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 107, 53, 0.5);
+        }
+        
+        .btn-export {
+            background: transparent;
+            border: 2px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        
+        .btn-export:hover {
+            background: var(--accent-cyan);
+            color: var(--bg-dark);
         }
 
-        .use-btn:hover {
-            background: var(--haos-cyan);
-            color: var(--haos-black);
+        /* ============================================
+           LOADING STATE
+           ============================================ */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px;
         }
-
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--haos-dim);
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 107, 53, 0.2);
-            border-top-color: var(--haos-orange);
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--accent-orange);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
         }
-
+        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-        /* Mobile */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem;
-            }
-
-            .stats {
-                gap: 15px;
-            }
-
-            .stat {
-                padding: 12px 20px;
-            }
-
-            .stat-number {
-                font-size: 2rem;
-            }
-
-            .controls-bar {
-                flex-direction: column;
-            }
-
-            .search-box {
-                min-width: 100%;
-            }
-
-            .presets-grid {
-                grid-template-columns: 1fr;
-            }
+        
+        .loading-text {
+            margin-top: 20px;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
         }
 
-        @media (max-width: 480px) {
-            .haos-header {
-                padding: 10px 15px;
-            }
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero { padding: 120px 20px 40px; }
+            .hero-title { font-size: clamp(3rem, 15vw, 5rem); }
+            .stats-grid { gap: 12px; }
+            .stat-card { padding: 15px 25px; }
+            .filter-row { flex-direction: column; align-items: center; }
+            .preset-grid { grid-template-columns: 1fr; }
+            .params-grid { grid-template-columns: repeat(2, 1fr); }
+        }
 
-            .hero {
-                padding: 40px 20px 30px;
-            }
-
-            .hero-title {
-                font-size: 2rem;
-            }
-
-            .preset-params {
-                grid-template-columns: 1fr;
-            }
+        /* ============================================
+           SCROLLBAR
+           ============================================ */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-subtle);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-orange);
         }
     </style>
 </head>
 <body>
-    <header class="haos-header">
-        <div class="header-content">
-            <a href="/" class="logo-section">
-                <div class="brand-text">
-                    <div class="brand-name">HAOS.FM</div>
-                    <div class="brand-tagline">SOUNDS</div>
-                </div>
-            </a>
-            <nav class="nav-links">
-                <a href="/" class="nav-link">🏠 Home</a>
-                <a href="/techno-workspace" class="nav-link">🎛️ Workspace</a>
-                <a href="/sounds" class="nav-link active">🎵 Sounds</a>
-            </nav>
-        </div>
-    </header>
+    <!-- Animated Background -->
+    <div class="bg-canvas">
+        <div class="bg-gradient"></div>
+        <div class="bg-grid"></div>
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+    </div>
 
+    <!-- Navigation -->
+    <nav class="nav-wrapper">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">
+                <div class="logo-icon">🎵</div>
+                <span class="logo-text">HAOS.FM</span>
+            </a>
+            <div class="nav-links">
+                <a href="/techno-workspace" class="nav-link">TECHNO</a>
+                <a href="/modular-workspace" class="nav-link">MODULAR</a>
+                <a href="/builder" class="nav-link">BUILDER</a>
+                <a href="/sounds" class="nav-link active">SOUNDS</a>
+                <a href="/premium" class="nav-link" style="background: linear-gradient(135deg, var(--accent-gold), #B8942A); color: #0a0a0a; border-color: transparent;">⭐ PREMIUM</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
     <section class="hero">
-        <h1 class="hero-title">🎵 SOUNDS</h1>
-        <p class="hero-subtitle">300+ Professional Techno Presets • Ready to Use</p>
+        <div class="hero-badge">
+            <span>Live</span> Professional Preset Library
+            <span id="audioStatus" style="margin-left: 10px; padding: 4px 8px; background: rgba(57,255,20,0.2); border-radius: 10px; font-size: 0.65rem;">🔊 Audio Ready</span>
+            <span id="adminBadge" style="margin-left: 10px; padding: 4px 8px; background: linear-gradient(135deg, #D4AF37, #B8942A); color: #0a0a0a; border-radius: 10px; font-size: 0.65rem; display: none;">👑 ADMIN</span>
+        </div>
+        <h1 class="hero-title">
+            <span class="gradient-text">SOUNDS</span>
+        </h1>
+        <p class="hero-subtitle">
+            Explore our collection of <strong>1000+ professional presets</strong> from legendary synthesizers. 
+            Preview, customize, and export to your favorite workspace.
+        </p>
         
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-number" id="totalPresets">300+</div>
+        <!-- Test Audio Button -->
+        <button id="testAudioBtn" onclick="testAudio()" style="
+            margin-bottom: 30px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #39FF14, #2ECC71);
+            border: none;
+            border-radius: 30px;
+            color: #0a0a0a;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(57, 255, 20, 0.3);
+        ">🔊 Test Audio System</button>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalPresets">1000+</div>
                 <div class="stat-label">Presets</div>
             </div>
-            <div class="stat">
-                <div class="stat-number" id="totalCategories">12</div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalSynths">25+</div>
+                <div class="stat-label">Synthesizers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalCategories">15</div>
                 <div class="stat-label">Categories</div>
             </div>
-            <div class="stat">
-                <div class="stat-number">100%</div>
-                <div class="stat-label">Free</div>
-            </div>
-        </div>
-
-        <a href="/techno-workspace" class="action-btn">🎛️ Open Workspace</a>
-    </section>
-
-    <section class="controls">
-        <div class="controls-bar">
-            <div class="search-box">
-                <span class="search-icon">🔍</span>
-                <input 
-                    type="text" 
-                    class="search-input" 
-                    id="searchInput" 
-                    placeholder="Search... (acid, bass, detroit, 303)"
-                >
-            </div>
-            <div class="filter-group" id="filterButtons">
-                <button class="filter-btn active" data-category="all">All</button>
+            <div class="stat-card" onclick="window.location='/premium'" style="cursor: pointer;">
+                <div class="stat-value">⭐</div>
+                <div class="stat-label">Go Premium</div>
             </div>
         </div>
     </section>
 
-    <main class="presets" id="presetsContainer">
-        <div class="loading">
-            <div class="spinner"></div>
-            <div>Loading presets...</div>
+    <!-- Controls Section -->
+    <section class="controls-section">
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search presets by name, synth, category...">
+            <span class="search-shortcut">/</span>
+        </div>
+        
+        <div class="filter-row">
+            <div class="filter-group">
+                <span class="filter-label">Workspace</span>
+                <select class="filter-select" id="workspaceFilter">
+                    <option value="all">All Workspaces</option>
+                    <option value="techno">🎛️ Techno</option>
+                    <option value="modular">🎸 Modular</option>
+                    <option value="builder">🔧 Builder</option>
+                    <option value="synths">🎹 Synths</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Synth</span>
+                <select class="filter-select" id="synthFilter">
+                    <option value="all">All Synths</option>
+                    <option value="Moog">🎹 Moog</option>
+                    <option value="Roland">🎛️ Roland</option>
+                    <option value="Korg">🎧 Korg</option>
+                    <option value="Behringer">⚡ Behringer</option>
+                    <option value="Sequential">🎼 Sequential</option>
+                    <option value="Oberheim">🔊 Oberheim</option>
+                    <option value="Yamaha">🎵 Yamaha</option>
+                    <option value="Nord">❄️ Nord</option>
+                    <option value="Arturia">🌀 Arturia</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="category-pills" id="categoryPills">
+            <button class="category-pill active" data-category="all">All</button>
+        </div>
+    </section>
+
+    <!-- Presets Section -->
+    <main class="presets-section" id="presetsContainer">
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading presets...</div>
         </div>
     </main>
 
-    <script>
-        let allPresets = {};
+    <!-- Export Modal -->
+    <haos-export-modal></haos-export-modal>
 
-        fetch('/techno-workspace')
-            .then(r => r.text())
-            .then(html => {
-                const match = html.match(/const ARP2600_PRESETS = \{([\s\S]*?)\n        \};/);
-                if (match) {
-                    eval(match[0].replace('const ARP2600_PRESETS', 'allPresets'));
-                    render();
+    <script>
+        // ============================================
+        // ADMIN MODE - Full Premium Access
+        // ============================================
+        const ADMIN_MODE = true; // Set to true for admin access to all presets
+        const isAdmin = () => ADMIN_MODE || localStorage.getItem('haos_admin') === 'true';
+        
+        // Enable admin mode via console: enableAdminMode()
+        window.enableAdminMode = () => {
+            localStorage.setItem('haos_admin', 'true');
+            console.log('🔓 Admin mode enabled - Full premium access granted!');
+            location.reload();
+        };
+        
+        window.disableAdminMode = () => {
+            localStorage.removeItem('haos_admin');
+            console.log('🔒 Admin mode disabled');
+            location.reload();
+        };
+
+        // ============================================
+        // HAOS UNIVERSAL AUDIO ENGINE v2.0
+        // Supports: Single/Dual Oscillator, Drum Kits, FM, Noise
+        // ============================================
+        class HAOSAudioEngine {
+            constructor() {
+                this.ctx = null;
+                this.masterGain = null;
+                this.currentNodes = [];
+                this.isPlaying = false;
+                this.initialized = false;
+            }
+
+            async init() {
+                if (this.initialized && this.ctx) return this.ctx;
+                
+                try {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // Create master gain with limiter
+                    this.masterGain = this.ctx.createGain();
+                    this.masterGain.gain.value = 0.7;
+                    
+                    // Add limiter to prevent clipping
+                    this.limiter = this.ctx.createDynamicsCompressor();
+                    this.limiter.threshold.value = -6;
+                    this.limiter.knee.value = 3;
+                    this.limiter.ratio.value = 12;
+                    this.limiter.attack.value = 0.001;
+                    this.limiter.release.value = 0.1;
+                    
+                    this.masterGain.connect(this.limiter);
+                    this.limiter.connect(this.ctx.destination);
+                    
+                    if (this.ctx.state === 'suspended') {
+                        await this.ctx.resume();
+                    }
+                    
+                    this.initialized = true;
+                    console.log('🔊 HAOS Audio Engine v2.0 initialized:', this.ctx.state);
+                    return this.ctx;
+                } catch (error) {
+                    console.error('❌ Audio initialization failed:', error);
+                    throw error;
+                }
+            }
+
+            stop() {
+                this.currentNodes.forEach(node => {
+                    try {
+                        if (node.stop) node.stop();
+                        if (node.disconnect) node.disconnect();
+                    } catch(e) {}
+                });
+                this.currentNodes = [];
+                this.isPlaying = false;
+            }
+
+            // Create white noise buffer
+            createNoiseBuffer() {
+                const bufferSize = this.ctx.sampleRate * 2;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const output = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+                return buffer;
+            }
+
+            // Create a single drum hit
+            createDrumHit(type, time, output) {
+                const ctx = this.ctx;
+                
+                switch(type) {
+                    case 'kick':
+                        // 808-style kick
+                        const kickOsc = ctx.createOscillator();
+                        const kickGain = ctx.createGain();
+                        kickOsc.type = 'sine';
+                        kickOsc.frequency.setValueAtTime(150, time);
+                        kickOsc.frequency.exponentialRampToValueAtTime(40, time + 0.1);
+                        kickGain.gain.setValueAtTime(1, time);
+                        kickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
+                        kickOsc.connect(kickGain);
+                        kickGain.connect(output);
+                        kickOsc.start(time);
+                        kickOsc.stop(time + 0.5);
+                        this.currentNodes.push(kickOsc);
+                        break;
+                        
+                    case 'snare':
+                        // Snare with noise + tone
+                        const snareOsc = ctx.createOscillator();
+                        const snareNoise = ctx.createBufferSource();
+                        const snareOscGain = ctx.createGain();
+                        const snareNoiseGain = ctx.createGain();
+                        const snareFilter = ctx.createBiquadFilter();
+                        
+                        snareOsc.type = 'triangle';
+                        snareOsc.frequency.value = 200;
+                        snareOscGain.gain.setValueAtTime(0.5, time);
+                        snareOscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+                        
+                        snareNoise.buffer = this.createNoiseBuffer();
+                        snareFilter.type = 'highpass';
+                        snareFilter.frequency.value = 1500;
+                        snareNoiseGain.gain.setValueAtTime(0.6, time);
+                        snareNoiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+                        
+                        snareOsc.connect(snareOscGain);
+                        snareOscGain.connect(output);
+                        snareNoise.connect(snareFilter);
+                        snareFilter.connect(snareNoiseGain);
+                        snareNoiseGain.connect(output);
+                        
+                        snareOsc.start(time);
+                        snareOsc.stop(time + 0.2);
+                        snareNoise.start(time);
+                        snareNoise.stop(time + 0.2);
+                        this.currentNodes.push(snareOsc, snareNoise);
+                        break;
+                        
+                    case 'hihat':
+                    case 'closedHat':
+                        // Hi-hat (filtered noise)
+                        const hatNoise = ctx.createBufferSource();
+                        const hatGain = ctx.createGain();
+                        const hatFilter = ctx.createBiquadFilter();
+                        
+                        hatNoise.buffer = this.createNoiseBuffer();
+                        hatFilter.type = 'highpass';
+                        hatFilter.frequency.value = 7000;
+                        hatGain.gain.setValueAtTime(0.3, time);
+                        hatGain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
+                        
+                        hatNoise.connect(hatFilter);
+                        hatFilter.connect(hatGain);
+                        hatGain.connect(output);
+                        
+                        hatNoise.start(time);
+                        hatNoise.stop(time + 0.1);
+                        this.currentNodes.push(hatNoise);
+                        break;
+                        
+                    case 'openHat':
+                        // Open hi-hat (longer)
+                        const openHatNoise = ctx.createBufferSource();
+                        const openHatGain = ctx.createGain();
+                        const openHatFilter = ctx.createBiquadFilter();
+                        
+                        openHatNoise.buffer = this.createNoiseBuffer();
+                        openHatFilter.type = 'highpass';
+                        openHatFilter.frequency.value = 6000;
+                        openHatGain.gain.setValueAtTime(0.35, time);
+                        openHatGain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
+                        
+                        openHatNoise.connect(openHatFilter);
+                        openHatFilter.connect(openHatGain);
+                        openHatGain.connect(output);
+                        
+                        openHatNoise.start(time);
+                        openHatNoise.stop(time + 0.5);
+                        this.currentNodes.push(openHatNoise);
+                        break;
+                        
+                    case 'clap':
+                        // Clap (multiple noise bursts)
+                        for (let i = 0; i < 3; i++) {
+                            const clapNoise = ctx.createBufferSource();
+                            const clapGain = ctx.createGain();
+                            const clapFilter = ctx.createBiquadFilter();
+                            
+                            clapNoise.buffer = this.createNoiseBuffer();
+                            clapFilter.type = 'bandpass';
+                            clapFilter.frequency.value = 1200;
+                            clapGain.gain.setValueAtTime(0.5, time + i * 0.01);
+                            clapGain.gain.exponentialRampToValueAtTime(0.001, time + i * 0.01 + 0.15);
+                            
+                            clapNoise.connect(clapFilter);
+                            clapFilter.connect(clapGain);
+                            clapGain.connect(output);
+                            
+                            clapNoise.start(time + i * 0.01);
+                            clapNoise.stop(time + i * 0.01 + 0.2);
+                            this.currentNodes.push(clapNoise);
+                        }
+                        break;
+                        
+                    case 'tom':
+                    case 'lowTom':
+                    case 'midTom':
+                    case 'highTom':
+                        // Tom drum
+                        const tomFreq = type === 'highTom' ? 200 : type === 'midTom' ? 150 : 100;
+                        const tomOsc = ctx.createOscillator();
+                        const tomGain = ctx.createGain();
+                        tomOsc.type = 'sine';
+                        tomOsc.frequency.setValueAtTime(tomFreq * 1.5, time);
+                        tomOsc.frequency.exponentialRampToValueAtTime(tomFreq, time + 0.05);
+                        tomGain.gain.setValueAtTime(0.8, time);
+                        tomGain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
+                        tomOsc.connect(tomGain);
+                        tomGain.connect(output);
+                        tomOsc.start(time);
+                        tomOsc.stop(time + 0.5);
+                        this.currentNodes.push(tomOsc);
+                        break;
+                        
+                    case 'rimshot':
+                    case 'rim':
+                        // Rimshot
+                        const rimOsc = ctx.createOscillator();
+                        const rimGain = ctx.createGain();
+                        rimOsc.type = 'square';
+                        rimOsc.frequency.value = 400;
+                        rimGain.gain.setValueAtTime(0.4, time);
+                        rimGain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+                        rimOsc.connect(rimGain);
+                        rimGain.connect(output);
+                        rimOsc.start(time);
+                        rimOsc.stop(time + 0.1);
+                        this.currentNodes.push(rimOsc);
+                        break;
+                        
+                    case 'cowbell':
+                        // Cowbell (two detuned squares)
+                        const cow1 = ctx.createOscillator();
+                        const cow2 = ctx.createOscillator();
+                        const cowGain = ctx.createGain();
+                        const cowFilter = ctx.createBiquadFilter();
+                        cow1.type = 'square';
+                        cow2.type = 'square';
+                        cow1.frequency.value = 560;
+                        cow2.frequency.value = 845;
+                        cowFilter.type = 'bandpass';
+                        cowFilter.frequency.value = 700;
+                        cowGain.gain.setValueAtTime(0.3, time);
+                        cowGain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+                        cow1.connect(cowFilter);
+                        cow2.connect(cowFilter);
+                        cowFilter.connect(cowGain);
+                        cowGain.connect(output);
+                        cow1.start(time);
+                        cow2.start(time);
+                        cow1.stop(time + 0.4);
+                        cow2.stop(time + 0.4);
+                        this.currentNodes.push(cow1, cow2);
+                        break;
+                }
+            }
+
+            // Play drum kit preset
+            async playDrumKit(preset, onComplete) {
+                const ctx = this.ctx;
+                const now = ctx.currentTime;
+                
+                console.log(`🥁 Playing Drum Kit: ${preset.name}`);
+                
+                // Create a simple beat pattern
+                const compressor = ctx.createDynamicsCompressor();
+                compressor.threshold.value = -12;
+                compressor.ratio.value = 4;
+                compressor.connect(this.masterGain);
+                this.currentNodes.push(compressor);
+                
+                // Play a sample pattern (2 bars of 4/4)
+                const bpm = 120;
+                const beatDuration = 60 / bpm;
+                const totalDuration = beatDuration * 8;
+                
+                // Kick on 1 and 3
+                this.createDrumHit('kick', now, compressor);
+                this.createDrumHit('kick', now + beatDuration * 2, compressor);
+                this.createDrumHit('kick', now + beatDuration * 4, compressor);
+                this.createDrumHit('kick', now + beatDuration * 6, compressor);
+                
+                // Snare on 2 and 4
+                this.createDrumHit('snare', now + beatDuration * 1, compressor);
+                this.createDrumHit('snare', now + beatDuration * 3, compressor);
+                this.createDrumHit('snare', now + beatDuration * 5, compressor);
+                this.createDrumHit('snare', now + beatDuration * 7, compressor);
+                
+                // Hi-hats on every 8th
+                for (let i = 0; i < 16; i++) {
+                    const hatType = i % 4 === 2 ? 'openHat' : 'hihat';
+                    this.createDrumHit(hatType, now + (beatDuration / 2) * i, compressor);
+                }
+                
+                setTimeout(() => {
+                    this.isPlaying = false;
+                    if (onComplete) onComplete();
+                }, totalDuration * 1000);
+                
+                return totalDuration;
+            }
+
+            // Play standard synth preset (single or dual oscillator)
+            async playSynthPreset(preset, onComplete) {
+                const ctx = this.ctx;
+                const now = ctx.currentTime;
+
+                // Determine note based on category
+                const noteMap = {
+                    'Bass': 55, 'SUB': 55, 'Pluck': 110,
+                    'Lead': 440, 'LEAD': 440, 'Arp': 330,
+                    'Pad': 220, 'Strings': 220, 'Brass': 220, 'Ambient': 165,
+                    'Acid': 65, 'Techno': 65, 'House': 65,
+                    'Keys': 440, 'Piano': 440, 'Organ': 262,
+                    'FX': 330, 'Noise': 440, 'Texture': 220,
+                    'Guitar': 196, 'Woodwinds': 392,
+                    'Experimental': 220, 'Cinematic': 165
+                };
+                const note = noteMap[preset.category] || 220;
+                
+                // Duration based on category
+                const durationMap = {
+                    'Bass': 2.5, 'SUB': 3, 'Pluck': 1.5,
+                    'Lead': 2, 'LEAD': 2, 'Arp': 3,
+                    'Pad': 4, 'Strings': 3.5, 'Ambient': 5,
+                    'Acid': 2, 'Techno': 2, 'House': 2,
+                    'Keys': 2, 'Piano': 2.5, 'Organ': 3,
+                    'FX': 3, 'Noise': 2, 'Texture': 4,
+                    'Guitar': 2, 'Brass': 2.5
+                };
+                const duration = durationMap[preset.category] || 2;
+
+                // Check if this is a single-oscillator preset (like Behringer Crave)
+                const hasSingleOsc = preset.vco1 && !preset.vco2;
+                const hasDualOsc = preset.vco1 && preset.vco2;
+                
+                console.log(`▶ Playing: ${preset.name} | ${preset.category} | ${note}Hz | ${duration}s | ${hasDualOsc ? 'Dual OSC' : 'Single OSC'}`);
+
+                // Create oscillator(s)
+                const osc1 = ctx.createOscillator();
+                const osc1Gain = ctx.createGain();
+                
+                // Set waveform for OSC1
+                let wf1 = preset.vco1?.waveform || 'sawtooth';
+                const isNoise1 = wf1 === 'noise';
+                
+                if (isNoise1) {
+                    // Use noise source instead
+                    const noiseSource = ctx.createBufferSource();
+                    noiseSource.buffer = this.createNoiseBuffer();
+                    noiseSource.loop = true;
+                    noiseSource.connect(osc1Gain);
+                    noiseSource.start(now);
+                    noiseSource.stop(now + duration + 0.1);
+                    this.currentNodes.push(noiseSource);
+                } else {
+                    osc1.type = wf1;
+                    osc1.frequency.setValueAtTime(note * (preset.vco1?.octave ? Math.pow(2, preset.vco1.octave) : 1), now);
+                    osc1.connect(osc1Gain);
+                    osc1.start(now);
+                    osc1.stop(now + duration + 0.1);
+                    this.currentNodes.push(osc1);
+                }
+                
+                osc1Gain.gain.value = preset.vco1?.level ?? 0.6;
+                
+                // Create mixer node
+                const mixer = ctx.createGain();
+                mixer.gain.value = 1;
+                osc1Gain.connect(mixer);
+                
+                // Only create OSC2 if preset has vco2 defined
+                if (hasDualOsc || preset.vco2) {
+                    const osc2 = ctx.createOscillator();
+                    const osc2Gain = ctx.createGain();
+                    
+                    let wf2 = preset.vco2?.waveform || 'square';
+                    const isNoise2 = wf2 === 'noise';
+                    
+                    if (isNoise2) {
+                        const noiseSource2 = ctx.createBufferSource();
+                        noiseSource2.buffer = this.createNoiseBuffer();
+                        noiseSource2.loop = true;
+                        noiseSource2.connect(osc2Gain);
+                        noiseSource2.start(now);
+                        noiseSource2.stop(now + duration + 0.1);
+                        this.currentNodes.push(noiseSource2);
+                    } else {
+                        osc2.type = wf2;
+                        const detune = preset.vco2?.detune || 5;
+                        const osc2Freq = note * (preset.vco2?.octave ? Math.pow(2, preset.vco2.octave) : 1);
+                        osc2.frequency.setValueAtTime(osc2Freq * (1 + detune/1000), now);
+                        osc2.connect(osc2Gain);
+                        osc2.start(now);
+                        osc2.stop(now + duration + 0.1);
+                        this.currentNodes.push(osc2);
+                    }
+                    
+                    osc2Gain.gain.value = preset.vco2?.level ?? 0.4;
+                    osc2Gain.connect(mixer);
+                    this.currentNodes.push(osc2Gain);
+                } else if (hasSingleOsc) {
+                    // For single oscillator presets, boost the volume slightly
+                    osc1Gain.gain.value = Math.min((preset.vco1?.level ?? 0.6) * 1.3, 1);
+                }
+
+                // Create filter
+                const filter = ctx.createBiquadFilter();
+                filter.type = preset.vcf?.type || 'lowpass';
+                const cutoff = Math.min(preset.vcf?.cutoff || 2000, ctx.sampleRate / 2.5);
+                const resonance = Math.min((preset.vcf?.resonance || 0.3) * 25, 25);
+                filter.frequency.setValueAtTime(cutoff, now);
+                filter.Q.value = resonance;
+
+                // Filter envelope modulation - enhanced for acid sounds
+                const envAmount = preset.vcf?.envAmount ?? 0.5;
+                const isAcidSound = preset.category === 'Acid' || (envAmount > 0.5 && resonance > 15);
+                
+                if (envAmount > 0) {
+                    // For acid sounds, start higher and sweep more dramatically
+                    const peakMultiplier = isAcidSound ? 8 : 4;
+                    const peakFreq = Math.min(cutoff * (1 + envAmount * peakMultiplier), ctx.sampleRate / 2.5);
+                    const filterDecay = isAcidSound ? 0.15 : (preset.envelope?.decay || 0.3);
+                    
+                    if (isAcidSound) {
+                        // Repeated filter sweeps for acid
+                        const noteInterval = 0.25;
+                        for (let i = 0; i < 4; i++) {
+                            const noteStart = now + i * noteInterval;
+                            filter.frequency.setValueAtTime(peakFreq, noteStart);
+                            filter.frequency.exponentialRampToValueAtTime(Math.max(cutoff, 80), noteStart + filterDecay);
+                        }
+                    } else {
+                        filter.frequency.setValueAtTime(peakFreq, now);
+                        filter.frequency.exponentialRampToValueAtTime(Math.max(cutoff, 20), now + filterDecay);
+                    }
+                }
+
+                // Create VCA (amplitude envelope)
+                const vca = ctx.createGain();
+                const env = preset.envelope || { attack: 0.01, decay: 0.2, sustain: 0.6, release: 0.3 };
+                const attack = Math.max(env.attack || 0.01, 0.001);
+                const decay = env.decay || 0.2;
+                // Handle zero sustain (common in acid/pluck sounds) - use minimum sustain for preview
+                const rawSustain = env.sustain;
+                const sustain = (rawSustain === 0 || rawSustain === undefined) ? 0.001 : Math.max(rawSustain, 0.001);
+                const release = env.release || 0.3;
+                
+                // For zero-sustain sounds (acid, pluck), play repeated notes
+                const isPercussive = rawSustain === 0 || rawSustain < 0.1;
+                
+                if (isPercussive && preset.category === 'Acid') {
+                    // Play acid sequence - 4 notes
+                    const noteLength = 0.15;
+                    const gapLength = 0.1;
+                    const noteInterval = noteLength + gapLength;
+                    const peakGain = 0.8;
+                    
+                    vca.gain.setValueAtTime(0, now);
+                    
+                    for (let i = 0; i < 4; i++) {
+                        const noteStart = now + i * noteInterval;
+                        // Attack
+                        vca.gain.linearRampToValueAtTime(peakGain, noteStart + attack);
+                        // Decay to near zero
+                        vca.gain.linearRampToValueAtTime(0.01, noteStart + attack + decay);
+                        // Gap
+                        vca.gain.setValueAtTime(0, noteStart + noteLength);
+                    }
+                    // Final release
+                    vca.gain.linearRampToValueAtTime(0, now + duration);
+                } else {
+                    // Standard ADSR envelope
+                    vca.gain.setValueAtTime(0, now);
+                    vca.gain.linearRampToValueAtTime(0.7, now + attack);
+                    vca.gain.linearRampToValueAtTime(0.7 * sustain, now + attack + decay);
+                    vca.gain.setValueAtTime(0.7 * sustain, now + duration - release);
+                    vca.gain.linearRampToValueAtTime(0, now + duration);
+                }
+
+                // Compression
+                const compressor = ctx.createDynamicsCompressor();
+                compressor.threshold.value = -20;
+                compressor.ratio.value = 4;
+
+                // Connect the chain
+                mixer.connect(filter);
+                filter.connect(vca);
+                vca.connect(compressor);
+                compressor.connect(this.masterGain);
+
+                // LFO for vibrato/tremolo
+                if (preset.lfo && preset.lfo.rate > 0) {
+                    const lfo = ctx.createOscillator();
+                    const lfoGain = ctx.createGain();
+                    lfo.frequency.value = preset.lfo.rate;
+                    lfoGain.gain.value = preset.lfo.depth * 50;
+                    lfo.connect(lfoGain);
+                    if (preset.lfo.destination === 'filter') {
+                        lfoGain.connect(filter.frequency);
+                    } else {
+                        // Connect to all active oscillators
+                        if (!isNoise1 && osc1.frequency) {
+                            lfoGain.connect(osc1.frequency);
+                        }
+                    }
+                    lfo.start(now);
+                    lfo.stop(now + duration);
+                    this.currentNodes.push(lfo);
+                }
+
+                // Track nodes for cleanup
+                this.currentNodes.push(osc1Gain, mixer, filter, vca, compressor);
+
+                // Callback when done
+                setTimeout(() => {
+                    this.isPlaying = false;
+                    if (onComplete) onComplete();
+                }, duration * 1000);
+
+                return duration;
+            }
+
+            // Main play method - routes to appropriate player
+            async playPreset(preset, onComplete) {
+                await this.init();
+                this.stop();
+                this.isPlaying = true;
+
+                // Detect preset type and route accordingly
+                if (preset.voices || preset.category === 'Drums' || preset.category === 'Percussion') {
+                    // Drum kit preset
+                    return this.playDrumKit(preset, onComplete);
+                } else {
+                    // Standard synth preset
+                    return this.playSynthPreset(preset, onComplete);
+                }
+            }
+        }
+
+        // Global audio engine instance
+        const audioEngine = new HAOSAudioEngine();
+
+        // Initialize on first user interaction
+        const initAudioOnInteraction = async () => {
+            try {
+                await audioEngine.init();
+                document.getElementById('audioStatus')?.classList.add('active');
+            } catch(e) {
+                console.error('Audio init failed:', e);
+            }
+        };
+        
+        document.addEventListener('click', initAudioOnInteraction, { once: true });
+        document.addEventListener('keydown', initAudioOnInteraction, { once: true });
+        document.addEventListener('touchstart', initAudioOnInteraction, { once: true });
+
+        // ============================================
+        // PRESET MANAGER
+        // ============================================
+        let allPresets = {};
+        let currentFilters = {
+            workspace: 'all',
+            synth: 'all',
+            category: 'all',
+            search: ''
+        };
+
+        // Load all presets
+        async function loadPresets() {
+            const sources = [
+                { url: '/techno-workspace', pattern: /const ARP2600_PRESETS = \{([\s\S]*?)\n        \};/, workspace: 'techno' },
+                { url: '/data/factory-presets.json', workspace: 'builder' },
+                { url: '/data/synth-presets.json', workspace: 'synths' }
+            ];
+
+            for (const source of sources) {
+                try {
+                    const response = await fetch(source.url);
+                    if (source.pattern) {
+                        const html = await response.text();
+                        const match = html.match(source.pattern);
+                        if (match) {
+                            const tempPresets = {};
+                            eval(match[0].replace('const ARP2600_PRESETS', 'tempPresets'));
+                            Object.keys(tempPresets).forEach(id => {
+                                allPresets[`${source.workspace}_${id}`] = {
+                                    ...tempPresets[id],
+                                    workspace: source.workspace,
+                                    originalId: id
+                                };
+                            });
+                        }
+                    } else {
+                        const jsonPresets = await response.json();
+                        jsonPresets.forEach((preset, idx) => {
+                            const presetId = preset.id || `preset_${idx}`;
+                            allPresets[`${source.workspace}_${presetId}`] = {
+                                ...preset,
+                                workspace: source.workspace,
+                                name: preset.name || `Preset ${idx}`,
+                                category: preset.category || 'Synth'
+                            };
+                        });
+                    }
+                } catch (error) {
+                    console.warn(`Failed to load presets from ${source.url}:`, error);
+                }
+            }
+
+            addModularPresets();
+            addBuilderPresets();
+            addGeneratedSynthPresets(); // Add 900+ more presets
+            render();
+        }
+
+        function addModularPresets() {
+            const categories = {
+                'Strings': ['Violin Solo', 'Cello Deep', 'Viola Warm', 'String Quartet', 'Orchestral Strings', 'Chamber Strings', 'Pizzicato', 'Tremolo Strings'],
+                'Guitar': ['Acoustic Bright', 'Electric Lead', 'Bass Guitar', 'Jazz Guitar', 'Classical Nylon', 'Clean Strat', 'Distorted Rock', '12-String'],
+                'Brass': ['Trumpet Bright', 'Trombone Deep', 'French Horn', 'Brass Section', 'Jazz Trumpet', 'Muted Trumpet', 'Tuba', 'Flugelhorn'],
+                'Woodwinds': ['Flute Airy', 'Clarinet Warm', 'Oboe Bright', 'Saxophone', 'Bassoon', 'Piccolo', 'Pan Flute', 'Recorder'],
+                'Keys': ['Grand Piano', 'Electric Piano', 'Wurlitzer', 'Clavinet', 'Harpsichord', 'Celesta', 'Vibraphone', 'Marimba']
+            };
+
+            Object.entries(categories).forEach(([cat, names]) => {
+                names.forEach((name, idx) => {
+                    allPresets[`modular_${cat.toLowerCase()}_${idx}`] = {
+                        name, category: cat, workspace: 'modular',
+                        vco1: {waveform: ['sawtooth', 'triangle', 'square'][idx % 3], frequency: 220},
+                        vco2: {waveform: ['triangle', 'square', 'sawtooth'][idx % 3], frequency: 220, detune: idx * 3},
+                        vcf: {cutoff: 800 + idx * 200, resonance: 0.2 + (idx * 0.05)},
+                        envelope: {attack: 0.1 + idx * 0.05, decay: 0.4, sustain: 0.6, release: 0.5 + idx * 0.1}
+                    };
+                });
+            });
+        }
+
+        function addBuilderPresets() {
+            const types = {
+                'KICK': [20, 80], 'SUB': [30, 120], 'LEAD': [200, 2000],
+                'SYNTH': [100, 5000], 'FX': [500, 8000], 'HAT': [2000, 16000],
+                'SNARE': [150, 400], 'CLAP': [200, 600], 'TOM': [60, 200],
+                'PERC': [100, 1000], 'BASS': [30, 150], 'PAD': [100, 800]
+            };
+
+            const variations = ['Classic', 'Punchy', 'Deep', 'Bright', 'Dark', 'Modern', 'Vintage', 'Analog', 'Digital', 'Warm'];
+
+            Object.entries(types).forEach(([type, [min, max]]) => {
+                variations.forEach((v, i) => {
+                    const freq = min + ((max - min) / variations.length) * i;
+                    allPresets[`builder_${type.toLowerCase()}_${i}`] = {
+                        name: `${type} ${v}`, category: type, workspace: 'builder', frequency: freq,
+                        vco1: {waveform: ['sine', 'triangle', 'sawtooth'][i % 3], frequency: freq},
+                        vco2: {waveform: ['square', 'sawtooth', 'triangle'][i % 3], frequency: freq, detune: i * 2},
+                        vcf: {cutoff: freq * (1.5 + i * 0.3), resonance: 0.3 + (i * 0.05)},
+                        envelope: {attack: 0.001 + i * 0.01, decay: 0.2 + i * 0.05, sustain: 0.3 + i * 0.05, release: 0.1 + i * 0.03}
+                    };
+                });
+            });
+        }
+
+        // Generate 900+ additional presets for premium library
+        function addGeneratedSynthPresets() {
+            const synths = ['Minimoog', 'Prophet5', 'Juno106', 'DX7', 'TB303', 'SH101', 'MS20', 'OBX', 'Jupiter8', 'Polysix'];
+            const categories = ['Bass', 'Lead', 'Pad', 'Arp', 'FX', 'Keys', 'Brass', 'Strings'];
+            const adjectives = ['Fat', 'Warm', 'Bright', 'Dark', 'Punchy', 'Soft', 'Screaming', 'Mellow', 'Gritty', 'Smooth', 'Aggressive', 'Lush', 'Sharp', 'Deep', 'Airy'];
+            const waveforms = ['sawtooth', 'square', 'triangle', 'sine', 'pulse'];
+
+            let presetCount = 0;
+            
+            synths.forEach((synth, synthIdx) => {
+                categories.forEach((category, catIdx) => {
+                    adjectives.forEach((adj, adjIdx) => {
+                        // Create unique preset
+                        const id = `gen_${synth.toLowerCase()}_${category.toLowerCase()}_${adjIdx}`;
+                        const isPremium = adjIdx > 7; // Later adjectives are premium
+                        
+                        // Generate musical parameters
+                        const baseFreq = category === 'Bass' ? 60 : category === 'Lead' ? 400 : 220;
+                        const cutoffBase = category === 'Bass' ? 400 : category === 'Lead' ? 2000 : 1000;
+                        
+                        allPresets[id] = {
+                            name: `${adj} ${synth} ${category}`,
+                            category: category,
+                            workspace: 'synths',
+                            manufacturer: ['Moog', 'Sequential', 'Roland', 'Yamaha', 'Roland', 'Roland', 'Korg', 'Oberheim', 'Roland', 'Korg'][synthIdx],
+                            synth: synth.toLowerCase(),
+                            tier: isPremium ? 'premium' : 'free',
+                            vco1: {
+                                waveform: waveforms[(synthIdx + catIdx) % waveforms.length],
+                                frequency: baseFreq,
+                                level: 0.6 + (adjIdx * 0.02)
+                            },
+                            vco2: {
+                                waveform: waveforms[(synthIdx + catIdx + 1) % waveforms.length],
+                                frequency: baseFreq,
+                                detune: 3 + adjIdx,
+                                level: 0.5 + (adjIdx * 0.02)
+                            },
+                            vcf: {
+                                cutoff: cutoffBase + (adjIdx * 100) + (catIdx * 50),
+                                resonance: 0.2 + (adjIdx * 0.04),
+                                envAmount: 0.3 + (adjIdx * 0.03)
+                            },
+                            envelope: {
+                                attack: category === 'Pad' ? 0.5 + adjIdx * 0.1 : 0.01 + adjIdx * 0.01,
+                                decay: 0.2 + adjIdx * 0.05,
+                                sustain: 0.5 + adjIdx * 0.03,
+                                release: category === 'Pad' ? 1.0 + adjIdx * 0.1 : 0.2 + adjIdx * 0.05
+                            },
+                            lfo: adjIdx > 5 ? {
+                                rate: 2 + adjIdx * 0.5,
+                                depth: 0.1 + adjIdx * 0.02,
+                                destination: catIdx % 2 === 0 ? 'pitch' : 'filter'
+                            } : null
+                        };
+                        presetCount++;
+                    });
+                });
+            });
+
+            // Add genre-specific presets
+            const genres = {
+                'Techno': { cutoff: 800, resonance: 0.6, attack: 0.01, wf1: 'sawtooth', wf2: 'square' },
+                'House': { cutoff: 1200, resonance: 0.4, attack: 0.02, wf1: 'triangle', wf2: 'sawtooth' },
+                'Trance': { cutoff: 2000, resonance: 0.5, attack: 0.1, wf1: 'sawtooth', wf2: 'pulse' },
+                'DnB': { cutoff: 600, resonance: 0.7, attack: 0.005, wf1: 'square', wf2: 'sawtooth' },
+                'Ambient': { cutoff: 3000, resonance: 0.2, attack: 1.0, wf1: 'triangle', wf2: 'sine' },
+                'Industrial': { cutoff: 400, resonance: 0.8, attack: 0.001, wf1: 'pulse', wf2: 'square' }
+            };
+
+            Object.entries(genres).forEach(([genre, params]) => {
+                for (let i = 1; i <= 20; i++) {
+                    const id = `genre_${genre.toLowerCase()}_${i}`;
+                    allPresets[id] = {
+                        name: `${genre} ${['Bass', 'Lead', 'Stab', 'Pad', 'Arp'][i % 5]} ${i}`,
+                        category: ['Bass', 'Lead', 'Synth', 'Pad', 'Arp'][i % 5],
+                        workspace: 'synths',
+                        manufacturer: 'HAOS',
+                        synth: genre.toLowerCase(),
+                        tier: i > 10 ? 'premium' : 'free',
+                        vco1: { waveform: params.wf1, frequency: 110 * (i % 4 + 1), level: 0.7 },
+                        vco2: { waveform: params.wf2, frequency: 110 * (i % 4 + 1), detune: i * 2, level: 0.5 },
+                        vcf: { cutoff: params.cutoff + i * 50, resonance: params.resonance, envAmount: 0.4 },
+                        envelope: { attack: params.attack, decay: 0.3, sustain: 0.6, release: 0.4 }
+                    };
+                    presetCount++;
                 }
             });
 
+            console.log(`🎹 Generated ${presetCount} additional presets`);
+        }
+
+        // Filter presets
+        function getFilteredPresets() {
+            return Object.entries(allPresets).filter(([id, p]) => {
+                if (currentFilters.workspace !== 'all' && p.workspace !== currentFilters.workspace) return false;
+                if (currentFilters.synth !== 'all' && p.manufacturer !== currentFilters.synth) return false;
+                if (currentFilters.category !== 'all' && p.category !== currentFilters.category) return false;
+                if (currentFilters.search) {
+                    const term = currentFilters.search.toLowerCase();
+                    const searchable = `${p.name} ${p.category} ${p.manufacturer || ''} ${p.synth || ''} ${id}`.toLowerCase();
+                    if (!searchable.includes(term)) return false;
+                }
+                return true;
+            });
+        }
+
+        // Render UI
         function render() {
             const container = document.getElementById('presetsContainer');
-            container.innerHTML = '';
-
-            const categories = {};
-            Object.entries(allPresets).forEach(([id, preset]) => {
-                if (!categories[preset.category]) categories[preset.category] = [];
-                categories[preset.category].push({ id, ...preset });
+            const filtered = getFilteredPresets();
+            
+            // Group by category
+            const byCategory = {};
+            filtered.forEach(([id, preset]) => {
+                if (!byCategory[preset.category]) byCategory[preset.category] = [];
+                byCategory[preset.category].push({ id, ...preset });
             });
 
-            const filterGroup = document.getElementById('filterButtons');
-            Object.keys(categories).sort().forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-btn';
-                btn.dataset.category = cat;
-                btn.textContent = `${getIcon(cat)} ${cat}`;
-                btn.onclick = () => filter(cat);
-                filterGroup.appendChild(btn);
-            });
+            // Update category pills
+            updateCategoryPills(byCategory);
+            
+            // Update stats
+            document.getElementById('totalPresets').textContent = Object.keys(allPresets).length;
+            document.getElementById('totalCategories').textContent = Object.keys(byCategory).length;
 
-            Object.entries(categories).sort((a, b) => a[0].localeCompare(b[0])).forEach(([cat, presets]) => {
-                container.innerHTML += `
-                    <div class="category-section" data-category="${cat}">
-                        <div class="category-header">
-                            <span class="category-icon">${getIcon(cat)}</span>
-                            <h2 class="category-title">${cat}</h2>
-                            <span class="category-count">${presets.length}</span>
+            // Render sections
+            container.innerHTML = Object.entries(byCategory)
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .map(([category, presets]) => `
+                    <div class="category-section" data-category="${category}">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <div class="section-icon">${getCategoryIcon(category)}</div>
+                                <div class="section-text">
+                                    <h2>${category}</h2>
+                                    <span>${presets.length} presets available</span>
+                                </div>
+                            </div>
+                            <div class="section-count">${presets.length}</div>
                         </div>
-                        <div class="presets-grid">
-                            ${presets.map(p => card(p)).join('')}
+                        <div class="preset-grid">
+                            ${presets.map(p => renderCard(p)).join('')}
                         </div>
                     </div>
-                `;
+                `).join('') || '<div class="loading-container"><div class="loading-text">No presets match your filters</div></div>';
+
+            attachListeners();
+        }
+
+        function updateCategoryPills(byCategory) {
+            const pills = document.getElementById('categoryPills');
+            const categories = Object.keys(byCategory).sort();
+            
+            pills.innerHTML = `
+                <button class="category-pill ${currentFilters.category === 'all' ? 'active' : ''}" data-category="all">All</button>
+                ${categories.map(cat => `
+                    <button class="category-pill ${currentFilters.category === cat ? 'active' : ''}" data-category="${cat}">
+                        ${getCategoryIcon(cat)} ${cat}
+                    </button>
+                `).join('')}
+            `;
+
+            pills.querySelectorAll('.category-pill').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentFilters.category = btn.dataset.category;
+                    render();
+                });
             });
-
-            document.getElementById('totalPresets').textContent = Object.keys(allPresets).length;
-            document.getElementById('totalCategories').textContent = Object.keys(categories).length;
-
-            document.getElementById('searchInput').oninput = e => search(e.target.value);
         }
 
-        function getIcon(cat) {
-            const icons = {Bass:'🎸',Lead:'🎺',Pad:'🌊',Percussion:'🥁',FX:'✨',Synth:'🎛️',Keys:'🎹',Bells:'🔔',Mallets:'🔨',Woodwinds:'🎷',Ambient:'🌌',Piano:'🎹',Strings:'🎻',Violin:'🎻',Cello:'🎻',Brass:'🎺',Flute:'🪈',Organ:'🎹'};
-            return icons[cat] || '🎵';
-        }
-
-        function card(p) {
-            const tags = [];
-            if (p.id.includes('acid')) tags.push('Acid');
-            if (p.id.includes('303')) tags.push('TB-303');
-            if (p.id.includes('909')) tags.push('TR-909');
-            if (p.id.includes('detroit')) tags.push('Detroit');
-            if (p.id.includes('berlin')) tags.push('Berlin');
-            if (p.id.includes('techno')) tags.push('Techno');
+        function renderCard(p) {
+            const isPremium = p.tier === 'premium' || p.tier === 'pro' || p.exclusive;
+            const manufacturerAttr = p.manufacturer ? `data-manufacturer="${p.manufacturer}"` : '';
             
             return `
-                <div class="preset-card" data-preset-id="${p.id}">
-                    <div class="preset-header">
-                        <div>
-                            <div class="preset-name">${p.name}</div>
-                            <div class="preset-id">${p.id}</div>
+                <div class="preset-card" data-preset-id="${p.id}" ${manufacturerAttr}>
+                    <div class="card-header">
+                        <div class="card-info">
+                            <div class="card-badges">
+                                ${p.manufacturer ? `<span class="synth-badge">${p.manufacturer}</span>` : ''}
+                                ${isPremium ? `<span class="premium-badge">⭐ PREMIUM</span>` : ''}
+                            </div>
+                            <div class="card-name">${p.name}</div>
+                            <div class="card-id">${p.synth || p.workspace} • ${p.id}</div>
                         </div>
-                        <button class="play-btn" onclick="previewSound('${p.id}')" title="Preview sound">▶</button>
+                        <button class="play-button" data-preset-id="${p.id}" title="Preview">▶</button>
                     </div>
-                    <div class="preset-params">
-                        <div class="param-item">
+                    
+                    <div class="waveform-container">
+                        <div class="waveform-bars">
+                            ${Array(12).fill(0).map(() => '<div class="waveform-bar"></div>').join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="params-grid">
+                        <div class="param-box">
                             <div class="param-label">VCO1</div>
-                            <div class="param-value">${(p.vco1?.waveform || 'N/A')[0].toUpperCase() + (p.vco1?.waveform || 'N/A').slice(1)}</div>
+                            <div class="param-value">${formatWaveform(p.vco1?.waveform)}</div>
                         </div>
-                        <div class="param-item">
+                        <div class="param-box">
                             <div class="param-label">VCO2</div>
-                            <div class="param-value">${(p.vco2?.waveform || 'N/A')[0].toUpperCase() + (p.vco2?.waveform || 'N/A').slice(1)}</div>
+                            <div class="param-value">${formatWaveform(p.vco2?.waveform)}</div>
                         </div>
-                        <div class="param-item">
+                        <div class="param-box">
                             <div class="param-label">Cutoff</div>
-                            <div class="param-value">${p.vcf?.cutoff || 'N/A'}Hz</div>
+                            <div class="param-value">${p.vcf?.cutoff ? Math.round(p.vcf.cutoff) + 'Hz' : '—'}</div>
                         </div>
-                        <div class="param-item">
+                        <div class="param-box">
                             <div class="param-label">Res</div>
-                            <div class="param-value">${((p.vcf?.resonance || 0) * 100).toFixed(0)}%</div>
+                            <div class="param-value">${p.vcf?.resonance ? Math.round(p.vcf.resonance * 100) + '%' : '—'}</div>
                         </div>
                     </div>
-                    <div class="preset-tags">
-                        ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                    
+                    <div class="card-tags">
+                        <span class="tag">${getWorkspaceIcon(p.workspace)} ${p.workspace}</span>
+                        ${p.category ? `<span class="tag">${p.category}</span>` : ''}
+                        ${p.synth ? `<span class="tag">${p.synth}</span>` : ''}
                     </div>
-                    <button class="use-btn" onclick="location.href='/techno-workspace?preset=${p.id}'">
-                        🎛️ Use in Workspace →
-                    </button>
+                    
+                    <div class="card-actions">
+                        <button class="action-btn btn-use" data-workspace="${p.workspace}" data-preset-id="${p.id}">
+                            ${getWorkspaceIcon(p.workspace)} Use Preset
+                        </button>
+                        <button class="action-btn btn-export" data-preset-id="${p.id}">
+                            💾
+                        </button>
+                    </div>
                 </div>
             `;
         }
 
-        function filter(cat) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            document.querySelectorAll('.category-section').forEach(s => {
-                s.style.display = cat === 'all' || s.dataset.category === cat ? 'block' : 'none';
-            });
+        function formatWaveform(wf) {
+            if (!wf) return '—';
+            const icons = { sawtooth: '⊿', square: '⊏', triangle: '△', sine: '∿', pulse: '⊐', noise: '※' };
+            return icons[wf] || wf.charAt(0).toUpperCase() + wf.slice(1);
         }
 
-        function search(term) {
-            term = term.toLowerCase();
-            document.querySelectorAll('.preset-card').forEach(card => {
-                const text = card.textContent.toLowerCase();
-                card.style.display = text.includes(term) ? 'block' : 'none';
-            });
+        function getCategoryIcon(cat) {
+            const icons = {
+                Bass: '🎸', Lead: '🎺', Pad: '🌊', Percussion: '🥁', FX: '✨', Synth: '🎛️',
+                Keys: '🎹', Strings: '🎻', Brass: '🎺', Woodwinds: '🎷', Guitar: '🎸',
+                KICK: '🥁', SUB: '🔊', LEAD: '🎺', HAT: '🎩', Acid: '🧪', Arp: '🔄'
+            };
+            return icons[cat] || '🎵';
         }
 
-        // ============================================================================
-        // AUDIO PREVIEW ENGINE
-        // ============================================================================
-        
-        let audioContext = null;
-        let currentPreview = null;
-        
-        function initAudio() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            return audioContext;
+        function getWorkspaceIcon(ws) {
+            const icons = { techno: '🎛️', modular: '🎸', builder: '🔧', synths: '🎹' };
+            return icons[ws] || '🎵';
         }
-        
-        function stopCurrentPreview() {
-            if (currentPreview) {
-                try {
-                    currentPreview.stop();
-                } catch (e) {
-                    // Already stopped
-                }
-                currentPreview = null;
+
+        // Resolve a preset from allPresets by flexible id matching.
+        // Presets are stored with workspace prefixes like "synths_behringer-crave-acid-seq"
+        // but the card uses the raw id "behringer-crave-acid-seq".
+        function resolvePresetById(id) {
+            if (!id) return null;
+            // Exact match
+            if (allPresets[id]) return allPresets[id];
+            // Try with common prefixes
+            const prefixes = ['synths_', 'techno_', 'modular_', 'builder_'];
+            for (const prefix of prefixes) {
+                if (allPresets[prefix + id]) return allPresets[prefix + id];
             }
+            // Try suffix match (find any key ending with the id)
+            const suffixMatch = Object.entries(allPresets).find(([k]) => k.endsWith('_' + id) || k.endsWith(id));
+            if (suffixMatch) return suffixMatch[1];
+            // Try contains match as last resort
+            const containsMatch = Object.entries(allPresets).find(([k]) => k.includes(id));
+            return containsMatch ? containsMatch[1] : null;
         }
-        
-        function previewSound(presetId) {
-            const preset = allPresets[presetId];
-            if (!preset) {
-                console.error('Preset not found:', presetId);
-                return;
-            }
-            
-            const ctx = initAudio();
-            
-            // Resume audio context if suspended (browser autoplay policy)
-            if (ctx.state === 'suspended') {
-                ctx.resume();
-            }
-            
-            // Stop any currently playing preview
-            stopCurrentPreview();
-            
-            // Visual feedback
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '⏹';
-            btn.style.background = 'var(--haos-green)';
-            
-            // Play the preset
-            const now = ctx.currentTime;
-            
-            // Determine note and duration based on category
-            let note = 220; // Default A3
-            let duration = 2.0; // Default duration
-            
-            if (preset.category === 'Bass') {
-                note = 55; // A1
-                duration = 2.5;
-            } else if (preset.category === 'Lead') {
-                note = 440; // A4
-                duration = 1.8;
-            } else if (preset.category === 'Pad') {
-                note = 220; // A3
-                duration = 3.0; // Longer for pads
-            } else if (preset.category === 'Percussion') {
-                note = 110; // A2
-                duration = 0.8; // Short for percussion
-            } else if (preset.category === 'FX') {
-                note = 330; // E4
-                duration = 2.5;
-            } else if (preset.category === 'Piano' || preset.category === 'Keys') {
-                note = 440; // A4
-                duration = 2.0;
-            }
-            
-            try {
-                playARP2600Preview(preset, note, now, 0.65, duration);
-                
-                // Reset button after preview duration
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.style.background = '';
-                }, duration * 1000);
-            } catch (error) {
-                console.error('Error playing preview:', error);
-                btn.textContent = originalText;
-                btn.style.background = '';
-            }
-        }
-        
-        function playARP2600Preview(preset, note = 440, time, velocity = 1.0, duration = 0.5) {
-            const ctx = audioContext;
-            const now = time || ctx.currentTime;
-            
-            // Nodes array for cleanup
-            const nodes = [];
-            
-            //============ VCO 1 & 2 (Oscillators) ============
-            let vco1Source, vco2Source;
-            const vco1Gain = ctx.createGain();
-            const vco2Gain = ctx.createGain();
-            nodes.push(vco1Gain, vco2Gain);
-            
-            // VCO 1
-            if (preset.vco1?.waveform === 'noise') {
-                vco1Source = ctx.createBufferSource();
-                const buffer = ctx.createBuffer(1, ctx.sampleRate * (duration + 0.5), ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < buffer.length; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
-                vco1Source.buffer = buffer;
-                vco1Source.loop = false;
-            } else {
-                vco1Source = ctx.createOscillator();
-                vco1Source.type = preset.vco1?.waveform || 'sawtooth';
-                // Clamp frequency to valid range
-                const baseFreq1 = Math.max(20, Math.min((preset.vco1?.frequency || note), 20000));
-                const freq1 = baseFreq1 * Math.pow(2, (preset.vco1?.fine || 0) / 1200);
-                vco1Source.frequency.setValueAtTime(Math.min(freq1, ctx.sampleRate / 3), now);
-                
-                // Apply VCO1 modulation (PWM simulation with detune)
-                if ((preset.vco1?.mod || 0) > 0) {
-                    vco1Source.detune.setValueAtTime(preset.vco1.mod * 150, now);
-                }
-            }
-            vco1Source.connect(vco1Gain);
-            nodes.push(vco1Source);
-            
-            // VCO 2
-            if (preset.vco2?.waveform === 'noise') {
-                vco2Source = ctx.createBufferSource();
-                const buffer = ctx.createBuffer(1, ctx.sampleRate * (duration + 0.5), ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < buffer.length; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
-                vco2Source.buffer = buffer;
-                vco2Source.loop = false;
-            } else {
-                vco2Source = ctx.createOscillator();
-                vco2Source.type = preset.vco2?.waveform || 'square';
-                const baseFreq2 = Math.max(20, Math.min((preset.vco2?.frequency || note), 20000));
-                const freq2 = baseFreq2 * Math.pow(2, (preset.vco2?.fine || 0) / 1200);
-                vco2Source.frequency.setValueAtTime(Math.min(freq2, ctx.sampleRate / 3), now);
-                
-                // Apply VCO2 modulation
-                if ((preset.vco2?.mod || 0) > 0) {
-                    vco2Source.detune.setValueAtTime(preset.vco2.mod * 150, now);
-                }
-            }
-            vco2Source.connect(vco2Gain);
-            nodes.push(vco2Source);
-            
-            // Oscillator mix levels (ARP 2600 style - slightly unequal for richness)
-            vco1Gain.gain.value = 0.6;
-            vco2Gain.gain.value = 0.5;
-            
-            // ============ MIXER ============
-            const mixer = ctx.createGain();
-            mixer.gain.value = 1.0;
-            nodes.push(mixer);
-            vco1Gain.connect(mixer);
-            vco2Gain.connect(mixer);
-            
-            // ============ VCF (Voltage Controlled Filter) ============
-            const vcf = ctx.createBiquadFilter();
-            vcf.type = 'lowpass';
-            nodes.push(vcf);
-            
-            // Base filter settings with clamping
-            const cutoff = Math.max(30, Math.min(preset.vcf?.cutoff || 1000, 18000));
-            const resonance = Math.max(0, Math.min(preset.vcf?.resonance || 0.5, 1));
-            const envMod = preset.vcf?.envMod || 0;
-            
-            // Resonance scaling (ARP 2600 has aggressive resonance)
-            vcf.Q.value = Math.min(30, 1 + (resonance * resonance * 25));
-            
-            // Filter envelope modulation
-            const env = preset.envelope || {attack: 0.01, decay: 0.1, sustain: 0.7, release: 0.2};
-            
-            if (Math.abs(envMod) > 0.01) {
-                // Support both positive and negative envelope modulation
-                const envAmount = envMod * 8;
-                const envPeak = cutoff * (1 + envAmount);
-                const clampedPeak = Math.max(30, Math.min(envPeak, 18000));
-                const clampedCutoff = Math.max(30, cutoff);
-                
-                // Exponential envelope for filter (more natural)
-                if (envMod > 0) {
-                    // Positive modulation (opening filter)
-                    vcf.frequency.setValueAtTime(clampedPeak, now);
-                    vcf.frequency.exponentialRampToValueAtTime(clampedPeak * 0.9, now + 0.001);
-                    vcf.frequency.exponentialRampToValueAtTime(clampedPeak * 0.85, now + env.attack);
-                    vcf.frequency.exponentialRampToValueAtTime(
-                        clampedCutoff + ((clampedPeak - clampedCutoff) * env.sustain * 0.3),
-                        now + env.attack + env.decay
-                    );
-                } else {
-                    // Negative modulation (closing filter)
-                    vcf.frequency.setValueAtTime(clampedCutoff, now);
-                    vcf.frequency.exponentialRampToValueAtTime(
-                        Math.max(30, clampedCutoff * 0.7),
-                        now + env.attack + env.decay
-                    );
-                }
-            } else {
-                vcf.frequency.setValueAtTime(cutoff, now);
-            }
-            
-            mixer.connect(vcf);
-            
-            // ============ LFO (Low Frequency Oscillator) ============
-            if (preset.lfo && preset.lfo.rate > 0 && preset.lfo.depth > 0) {
-                const lfo = ctx.createOscillator();
-                const lfoGain = ctx.createGain();
-                nodes.push(lfo, lfoGain);
-                
-                lfo.frequency.value = Math.min(preset.lfo.rate, 40); // Clamp LFO rate
-                lfo.type = 'sine';
-                
-                // Route LFO to destination
-                if (preset.lfo.destination === 'filter') {
-                    lfoGain.gain.value = cutoff * preset.lfo.depth * 0.6;
-                    lfo.connect(lfoGain);
-                    lfoGain.connect(vcf.frequency);
-                } else if (preset.lfo.destination === 'pitch') {
-                    lfoGain.gain.value = preset.lfo.depth * 100;
-                    lfo.connect(lfoGain);
-                    if (vco1Source.detune) lfoGain.connect(vco1Source.detune);
-                    if (vco2Source.detune) lfoGain.connect(vco2Source.detune);
-                } else if (preset.lfo.destination === 'vca') {
-                    // Tremolo effect
-                    const tremoloGain = ctx.createGain();
-                    lfoGain.gain.value = preset.lfo.depth * 0.5;
-                    tremoloGain.gain.value = 1.0 - (preset.lfo.depth * 0.3);
-                    lfo.connect(lfoGain);
-                    lfoGain.connect(tremoloGain.gain);
-                    nodes.push(tremoloGain);
-                    // Will be connected in signal chain below
-                }
-                
-                lfo.start(now);
-                lfo.stop(now + duration + 0.5);
-            }
-            
-            // ============ VCA (Voltage Controlled Amplifier) ============
-            const vca = ctx.createGain();
-            vca.gain.setValueAtTime(0, now);
-            nodes.push(vca);
-            
-            // ADSR Envelope with exponential curves (more analog feel)
-            const vcaLevel = Math.max(0.1, Math.min((preset.vca?.level || 0.8) * velocity, 1.0));
-            const attackEnd = now + Math.max(0.001, env.attack);
-            const decayEnd = attackEnd + Math.max(0.01, env.decay);
-            const releaseStart = now + duration - Math.min(env.release, duration * 0.4);
-            const sustainLevel = Math.max(0.001, Math.min(env.sustain, 1.0));
-            
-            // Attack (exponential)
-            vca.gain.setValueAtTime(0.001, now);
-            vca.gain.exponentialRampToValueAtTime(vcaLevel, attackEnd);
-            
-            // Decay (exponential to sustain)
-            vca.gain.exponentialRampToValueAtTime(
-                Math.max(0.001, vcaLevel * sustainLevel),
-                decayEnd
-            );
-            
-            // Sustain (hold)
-            vca.gain.setValueAtTime(Math.max(0.001, vcaLevel * sustainLevel), releaseStart);
-            
-            // Release (exponential)
-            vca.gain.exponentialRampToValueAtTime(0.001, releaseStart + Math.max(0.05, env.release));
-            
-            vcf.connect(vca);
-            
-            // ============ OUTPUT SECTION ============
-            // Soft clipping / saturation
-            const waveshaper = ctx.createWaveShaper();
-            waveshaper.curve = createSaturationCurve(1.3);
-            waveshaper.oversample = '2x';
-            nodes.push(waveshaper);
-            vca.connect(waveshaper);
-            
-            // Compression (glue it together)
-            const compressor = ctx.createDynamicsCompressor();
-            compressor.threshold.value = -20;
-            compressor.knee.value = 12;
-            compressor.ratio.value = 6;
-            compressor.attack.value = 0.002;
-            compressor.release.value = 0.08;
-            nodes.push(compressor);
-            waveshaper.connect(compressor);
-            
-            // High-pass filter to remove DC offset and rumble
-            const hpf = ctx.createBiquadFilter();
-            hpf.type = 'highpass';
-            hpf.frequency.value = 20;
-            hpf.Q.value = 0.707;
-            nodes.push(hpf);
-            compressor.connect(hpf);
-            
-            // Master gain (preview level)
-            const masterGain = ctx.createGain();
-            masterGain.gain.value = 0.32;
-            nodes.push(masterGain);
-            hpf.connect(masterGain);
-            masterGain.connect(ctx.destination);
-            
-            // ============ START & STOP ============
-            vco1Source.start(now);
-            vco2Source.start(now);
-            
-            const stopTime = now + duration + 0.5;
-            vco1Source.stop(stopTime);
-            vco2Source.stop(stopTime);
-            
-            currentPreview = vco1Source;
-            
-            // Cleanup
-            setTimeout(() => {
-                nodes.forEach(node => {
+
+        function attachListeners() {
+            // Play buttons
+            document.querySelectorAll('.play-button').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const presetId = btn.dataset.presetId;
+                    const preset = resolvePresetById(presetId);
+                    
+                    if (!preset) {
+                        console.error('Preset not found:', presetId);
+                        return;
+                    }
+
+                    // Visual feedback
+                    btn.classList.add('playing');
+                    btn.textContent = '⏹';
+                    
+                    // Animate waveform bars
+                    const card = btn.closest('.preset-card');
+                    card?.classList.add('audio-playing');
+
                     try {
-                        node.disconnect();
-                    } catch (e) {
-                        // Already disconnected
+                        await audioEngine.playPreset(preset, () => {
+                            btn.classList.remove('playing');
+                            btn.textContent = '▶';
+                            card?.classList.remove('audio-playing');
+                        });
+                    } catch(error) {
+                        console.error('Playback error:', error);
+                        btn.classList.remove('playing');
+                        btn.textContent = '▶';
+                        card?.classList.remove('audio-playing');
                     }
                 });
-            }, (duration + 1) * 1000);
+            });
+
+            // Use buttons
+            document.querySelectorAll('.btn-use').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const ws = btn.dataset.workspace;
+                    const rawId = btn.dataset.presetId;
+                    const preset = resolvePresetById(rawId);
+                    const id = preset?.originalId || preset?.id || rawId;
+                    const urls = { techno: '/techno-workspace', modular: '/modular-workspace', builder: '/builder', synths: '/techno-workspace' };
+                    window.location.href = `${urls[ws] || '/'}?preset=${encodeURIComponent(id)}`;
+                });
+            });
+
+            // Export / Save buttons
+            document.querySelectorAll('.btn-export').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const preset = resolvePresetById(btn.dataset.presetId);
+                    if (!preset) {
+                        console.error('Export: preset not found for', btn.dataset.presetId);
+                        return;
+                    }
+
+                    // Prefer web component modal if available
+                    const modal = document.querySelector('haos-export-modal');
+                    if (modal && typeof modal.open === 'function') {
+                        modal.open(preset.name, preset);
+                        return;
+                    }
+
+                    // Fallback: download JSON file
+                    try {
+                        const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(preset, null, 2));
+                        const dl = document.createElement('a');
+                        dl.setAttribute('href', dataStr);
+                        dl.setAttribute('download', `${preset.id || 'preset'}.json`);
+                        document.body.appendChild(dl);
+                        dl.click();
+                        dl.remove();
+                    } catch (err) {
+                        console.error('Export fallback failed:', err);
+                    }
+                });
+            });
         }
-        
-        // Saturation curve for analog warmth
-        function createSaturationCurve(amount = 1) {
-            const samples = 2048;
-            const curve = new Float32Array(samples);
-            const deg = Math.PI / 180;
-            
-            for (let i = 0; i < samples; i++) {
-                const x = (i * 2 / samples) - 1;
-                // Soft clipping with smooth curve
-                curve[i] = (3 + amount) * x * 20 * deg / (Math.PI + amount * Math.abs(x));
-                // Clamp to prevent harsh clipping
-                curve[i] = Math.max(-0.95, Math.min(0.95, curve[i]));
+
+        // ============================================
+        // EVENT HANDLERS
+        // ============================================
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            currentFilters.search = e.target.value;
+            render();
+        });
+
+        document.getElementById('workspaceFilter').addEventListener('change', (e) => {
+            currentFilters.workspace = e.target.value;
+            currentFilters.category = 'all';
+            render();
+        });
+
+        document.getElementById('synthFilter').addEventListener('change', (e) => {
+            currentFilters.synth = e.target.value;
+            currentFilters.category = 'all';
+            render();
+        });
+
+        // Keyboard shortcut for search
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
             }
-            return curve;
+        });
+
+        // Load presets on page load
+        loadPresets();
+        
+        // Show admin status
+        if (isAdmin()) {
+            console.log('👑 ADMIN MODE ACTIVE - Full premium access enabled');
+            document.getElementById('adminBadge').style.display = 'inline-block';
         }
+
+        // Test audio function
+        async function testAudio() {
+            const btn = document.getElementById('testAudioBtn');
+            btn.textContent = '🔄 Initializing...';
+            
+            try {
+                await audioEngine.init();
+                
+                const ctx = audioEngine.ctx;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.value = 440;
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+                
+                btn.textContent = '✅ Audio Working!';
+                btn.style.background = 'linear-gradient(135deg, #39FF14, #2ECC71)';
+                document.getElementById('audioStatus').textContent = '🔊 Audio Active';
+                document.getElementById('audioStatus').style.background = 'rgba(57,255,20,0.3)';
+                
+                setTimeout(() => {
+                    btn.textContent = '🔊 Test Audio System';
+                }, 2000);
+                
+                console.log('✅ Audio test successful - 440Hz tone played');
+            } catch(error) {
+                btn.textContent = '❌ Audio Failed';
+                btn.style.background = 'linear-gradient(135deg, #FF4444, #CC0000)';
+                console.error('Audio test failed:', error);
+            }
+        }
+
+        // Expose test function globally
+        window.testAudio = testAudio;
     </script>
 </body>
 </html>

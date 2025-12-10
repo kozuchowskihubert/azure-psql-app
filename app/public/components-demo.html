@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAOS Components Demo | HAOS.fm</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .demo-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-top: 80px; /* Space for nav */
+        }
+
+        .demo-header h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, #FF6B35, #FF8C42);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-header p {
+            font-family: 'Space Mono', monospace;
+            color: #888;
+        }
+
+        .demo-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(20, 20, 25, 0.8);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            border-radius: 16px;
+        }
+
+        .demo-section h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: #FF6B35;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-section-desc {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 1.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .demo-section-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        /* Knobs Demo */
+        .knobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .knob-group {
+            text-align: center;
+        }
+
+        .knob-group-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        /* Value Display */
+        .value-display {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Space Mono', monospace;
+            min-width: 200px;
+        }
+
+        .value-display h3 {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .value-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .value-item:last-child {
+            border-bottom: none;
+        }
+
+        .value-name {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .value-val {
+            color: #FF6B35;
+            font-size: 0.8rem;
+        }
+
+        /* Preset Manager Demo */
+        .preset-demo {
+            width: 350px;
+        }
+
+        /* Code Example */
+        .code-example {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: #39FF14;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        /* Buttons */
+        .demo-btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .demo-btn--primary {
+            background: #FF6B35;
+            border: none;
+            color: white;
+        }
+
+        .demo-btn--primary:hover {
+            background: #FF8C42;
+        }
+
+        .demo-btn--secondary {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e0e0e0;
+        }
+
+        .demo-btn--secondary:hover {
+            border-color: #FF6B35;
+            color: #FF6B35;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        /* Theme Toggle */
+        .theme-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .workspace-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 2px solid;
+            border-radius: 20px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .workspace-btn.techno {
+            border-color: #FF6B35;
+            color: #FF6B35;
+        }
+
+        .workspace-btn.modular {
+            border-color: #00D9FF;
+            color: #00D9FF;
+        }
+
+        .workspace-btn.builder {
+            border-color: #39FF14;
+            color: #39FF14;
+        }
+
+        .workspace-btn.sounds {
+            border-color: #FF006E;
+            color: #FF006E;
+        }
+
+        .workspace-btn:hover,
+        .workspace-btn.active {
+            background: currentColor;
+            color: white;
+        }
+
+        /* Console */
+        .console {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .console-entry {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .console-time {
+            color: #666;
+        }
+
+        .console-msg {
+            color: #39FF14;
+        }
+
+        /* Footer */
+        .demo-footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .demo-footer a {
+            color: #FF6B35;
+            text-decoration: none;
+        }
+
+        .demo-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .demo-container {
+                padding: 1rem;
+            }
+
+            .demo-section-content {
+                flex-direction: column;
+            }
+
+            .preset-demo {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Manager (auto-initializes) -->
+    <haos-theme-manager workspace="techno" theme="dark"></haos-theme-manager>
+
+    <!-- Navigation Component -->
+    <haos-navigation variant="full" workspace-name="COMPONENTS DEMO"></haos-navigation>
+
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>HAOS COMPONENTS</h1>
+            <p>Reusable Web Components for the HAOS Platform</p>
+        </div>
+
+        <!-- Theme Section -->
+        <section class="demo-section">
+            <h2>THEME MANAGER</h2>
+            <p class="demo-section-desc">Change workspace themes and color schemes</p>
+            
+            <div class="theme-controls">
+                <button class="workspace-btn techno active" onclick="setWorkspace('techno')">🎛️ TECHNO</button>
+                <button class="workspace-btn modular" onclick="setWorkspace('modular')">🎹 MODULAR</button>
+                <button class="workspace-btn builder" onclick="setWorkspace('builder')">🔧 BUILDER</button>
+                <button class="workspace-btn sounds" onclick="setWorkspace('sounds')">🎵 SOUNDS</button>
+            </div>
+
+            <div class="button-group">
+                <button class="demo-btn demo-btn--secondary" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i> Toggle Dark/Light
+                </button>
+                <button class="demo-btn demo-btn--secondary" onclick="openWorkspaceSwitcher()">
+                    <i class="fas fa-th-large"></i> Open Workspace Switcher (Ctrl+K)
+                </button>
+            </div>
+
+            <div class="code-example" style="margin-top: 1rem;">
+&lt;haos-theme-manager workspace="techno" theme="dark"&gt;&lt;/haos-theme-manager&gt;
+
+// JavaScript API
+HAOSTheme.setWorkspace('modular');
+HAOSTheme.setTheme('light');
+HAOSTheme.toggle();</div>
+        </section>
+
+        <!-- Knob Section -->
+        <section class="demo-section">
+            <h2>KNOB CONTROLS</h2>
+            <p class="demo-section-desc">Drag up/down, scroll wheel, double-click to reset</p>
+            
+            <div class="demo-section-content">
+                <div class="knobs-grid">
+                    <div class="knob-group">
+                        <haos-knob name="CUTOFF" min="20" max="20000" value="5000" color="#FF6B35" format="frequency" size="80"></haos-knob>
+                        <div class="knob-group-label">Frequency</div>
+                    </div>
+                    <div class="knob-group">
+                        <haos-knob name="RESONANCE" min="0" max="100" value="30" color="#00D9FF" format="percent" size="80"></haos-knob>
+                        <div class="knob-group-label">Percent</div>
+                    </div>
+                    <div class="knob-group">
+                        <haos-knob name="ATTACK" min="0" max="2000" value="50" color="#39FF14" format="time" size="80"></haos-knob>
+                        <div class="knob-group-label">Time (ms)</div>
+                    </div>
+                    <div class="knob-group">
+                        <haos-knob name="GAIN" min="-24" max="24" value="0" color="#FF006E" format="db" bipolar="true" size="80"></haos-knob>
+                        <div class="knob-group-label">Bipolar dB</div>
+                    </div>
+                    <div class="knob-group">
+                        <haos-knob name="PAN" min="-100" max="100" value="0" color="#8B5CF6" format="pan" bipolar="true" size="80"></haos-knob>
+                        <div class="knob-group-label">Stereo Pan</div>
+                    </div>
+                    <div class="knob-group">
+                        <haos-knob name="PITCH" min="-24" max="24" value="0" color="#FFD700" format="semitone" bipolar="true" size="80"></haos-knob>
+                        <div class="knob-group-label">Semitones</div>
+                    </div>
+                </div>
+
+                <div class="value-display">
+                    <h3>Live Values</h3>
+                    <div id="knob-values">
+                        <div class="value-item">
+                            <span class="value-name">CUTOFF</span>
+                            <span class="value-val" id="val-cutoff">5000 Hz</span>
+                        </div>
+                        <div class="value-item">
+                            <span class="value-name">RESONANCE</span>
+                            <span class="value-val" id="val-resonance">30%</span>
+                        </div>
+                        <div class="value-item">
+                            <span class="value-name">ATTACK</span>
+                            <span class="value-val" id="val-attack">50ms</span>
+                        </div>
+                        <div class="value-item">
+                            <span class="value-name">GAIN</span>
+                            <span class="value-val" id="val-gain">0dB</span>
+                        </div>
+                        <div class="value-item">
+                            <span class="value-name">PAN</span>
+                            <span class="value-val" id="val-pan">C</span>
+                        </div>
+                        <div class="value-item">
+                            <span class="value-name">PITCH</span>
+                            <span class="value-val" id="val-pitch">0 st</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-example" style="margin-top: 1rem;">
+&lt;haos-knob 
+    name="CUTOFF" 
+    min="20" 
+    max="20000" 
+    value="5000" 
+    color="#FF6B35" 
+    format="frequency"&gt;
+&lt;/haos-knob&gt;
+
+// Listen for changes
+knob.addEventListener('change', (e) => {
+    console.log(e.detail.value, e.detail.name);
+});</div>
+        </section>
+
+        <!-- Preset Manager Section -->
+        <section class="demo-section">
+            <h2>PRESET MANAGER</h2>
+            <p class="demo-section-desc">Browse, favorite, save and load presets</p>
+            
+            <div class="demo-section-content">
+                <div class="preset-demo">
+                    <haos-preset-manager workspace="techno" category="all"></haos-preset-manager>
+                </div>
+
+                <div style="flex: 1; min-width: 300px;">
+                    <h3 style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: #888; margin-bottom: 0.75rem;">EVENT LOG</h3>
+                    <div class="console" id="preset-console">
+                        <div class="console-entry">
+                            <span class="console-time">[00:00:00]</span>
+                            <span class="console-msg">Preset Manager initialized</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-example" style="margin-top: 1rem;">
+&lt;haos-preset-manager 
+    workspace="techno" 
+    category="all"
+    compact="false"&gt;
+&lt;/haos-preset-manager&gt;
+
+// Events
+manager.addEventListener('preset-load', (e) => {
+    loadPreset(e.detail.preset);
+});
+
+manager.addEventListener('preset-save', (e) => {
+    savePreset(e.detail.name, e.detail.category);
+});</div>
+        </section>
+
+        <!-- Navigation Section -->
+        <section class="demo-section">
+            <h2>NAVIGATION</h2>
+            <p class="demo-section-desc">Three variants: full, workspace, minimal</p>
+            
+            <div class="button-group">
+                <button class="demo-btn demo-btn--secondary" onclick="setNavVariant('full')">Full Navigation</button>
+                <button class="demo-btn demo-btn--secondary" onclick="setNavVariant('workspace')">Workspace Mode</button>
+                <button class="demo-btn demo-btn--secondary" onclick="setNavVariant('minimal')">Minimal Mode</button>
+            </div>
+
+            <div class="code-example" style="margin-top: 1rem;">
+&lt;!-- Full navigation for landing pages --&gt;
+&lt;haos-navigation variant="full"&gt;&lt;/haos-navigation&gt;
+
+&lt;!-- Workspace navigation for production --&gt;
+&lt;haos-navigation 
+    variant="workspace" 
+    workspace-name="TECHNO WORKSPACE"&gt;
+&lt;/haos-navigation&gt;
+
+&lt;!-- Minimal for instruments --&gt;
+&lt;haos-navigation variant="minimal"&gt;&lt;/haos-navigation&gt;</div>
+        </section>
+
+        <footer class="demo-footer">
+            <p>HAOS Components Library v1.0.0 | <a href="/">Return to HAOS.fm</a></p>
+            <p style="margin-top: 0.5rem; font-size: 0.75rem;">Press <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px;">Ctrl/Cmd + K</kbd> to open Workspace Switcher</p>
+        </footer>
+    </div>
+
+    <!-- Load HAOS Components -->
+    <script src="/js/components/haos-theme-manager.js"></script>
+    <script src="/js/components/haos-navigation.js"></script>
+    <script src="/js/components/haos-workspace-switcher.js"></script>
+    <script src="/js/components/haos-knob.js"></script>
+    <script src="/js/components/haos-preset-manager.js"></script>
+
+    <script>
+        // Wait for components to be defined
+        document.addEventListener('DOMContentLoaded', () => {
+            // Knob value listeners
+            document.querySelectorAll('haos-knob').forEach(knob => {
+                knob.addEventListener('input', (e) => {
+                    updateKnobDisplay(e.detail.name, e.detail.value, knob.getAttribute('format'));
+                });
+                knob.addEventListener('change', (e) => {
+                    updateKnobDisplay(e.detail.name, e.detail.value, knob.getAttribute('format'));
+                });
+            });
+
+            // Preset Manager listeners
+            const presetManager = document.querySelector('haos-preset-manager');
+            if (presetManager) {
+                presetManager.addEventListener('preset-load', (e) => {
+                    logToConsole(`Loaded preset: ${e.detail.preset.name}`);
+                });
+                presetManager.addEventListener('preset-preview', (e) => {
+                    logToConsole(`Previewing: ${e.detail.preset.name}`);
+                });
+                presetManager.addEventListener('preset-save', (e) => {
+                    logToConsole(`Saved preset: ${e.detail.name} [${e.detail.category}]`);
+                });
+            }
+        });
+
+        function updateKnobDisplay(name, value, format) {
+            const id = `val-${name.toLowerCase()}`;
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            let display = value;
+            switch (format) {
+                case 'frequency':
+                    display = value >= 1000 ? `${(value/1000).toFixed(1)}k Hz` : `${Math.round(value)} Hz`;
+                    break;
+                case 'percent':
+                    display = `${Math.round(value)}%`;
+                    break;
+                case 'time':
+                    display = value >= 1000 ? `${(value/1000).toFixed(1)}s` : `${Math.round(value)}ms`;
+                    break;
+                case 'db':
+                    display = `${value >= 0 ? '+' : ''}${value.toFixed(1)}dB`;
+                    break;
+                case 'pan':
+                    display = value === 0 ? 'C' : (value > 0 ? `R${Math.round(value)}` : `L${Math.round(Math.abs(value))}`);
+                    break;
+                case 'semitone':
+                    display = `${value >= 0 ? '+' : ''}${Math.round(value)} st`;
+                    break;
+            }
+            el.textContent = display;
+        }
+
+        function logToConsole(msg) {
+            const console = document.getElementById('preset-console');
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const entry = document.createElement('div');
+            entry.className = 'console-entry';
+            entry.innerHTML = `<span class="console-time">[${time}]</span><span class="console-msg">${msg}</span>`;
+            console.appendChild(entry);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function setWorkspace(ws) {
+            if (window.HAOSTheme) {
+                HAOSTheme.setWorkspace(ws);
+            }
+            document.querySelectorAll('.workspace-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.classList.contains(ws));
+            });
+            
+            // Update navigation
+            const nav = document.querySelector('haos-navigation');
+            if (nav) {
+                nav.setAttribute('workspace-name', ws.toUpperCase() + ' WORKSPACE');
+            }
+        }
+
+        function toggleTheme() {
+            if (window.HAOSTheme) {
+                const newTheme = HAOSTheme.toggle();
+                console.log('Theme:', newTheme);
+            }
+        }
+
+        function openWorkspaceSwitcher() {
+            if (window.HAOSWorkspaceSwitcher) {
+                HAOSWorkspaceSwitcher.show();
+            }
+        }
+
+        function setNavVariant(variant) {
+            const nav = document.querySelector('haos-navigation');
+            if (nav) {
+                nav.setAttribute('variant', variant);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -510,9 +510,14 @@
     </style>
 
     <!-- ============================================================================
+         ANIMATED BACKGROUND CANVAS
+         ============================================================================ -->
+    <canvas id="bgCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></canvas>
+    
+    <!-- ============================================================================
          NAVIGATION HEADER - HAOS.fm BRANDED
          ============================================================================ -->
-    <header class="haos-card-glass sticky top-0 z-50" style="backdrop-filter: blur(20px);">
+    <header class="haos-card-glass sticky top-0 z-50" style="backdrop-filter: blur(20px); background: rgba(5, 5, 8, 0.85)">
         <div class="haos-container">
             <div class="flex items-center justify-between h-20">
                 <!-- HAOS.fm Logo -->
@@ -610,95 +615,96 @@
     </script>
 
     <!-- ============================================================================
-         HERO SECTION - VINTAGE VINYL AESTHETIC
+         HERO SECTION - ENHANCED MODERN AESTHETIC
          ============================================================================ -->
-    <section class="haos-section" style="background: linear-gradient(180deg, var(--haos-vinyl-black) 0%, var(--haos-tape-brown) 100%); position: relative; overflow: hidden;">
-        <!-- Animated waveform background -->
-        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; display: flex; align-items: flex-end; justify-content: center; gap: 4px; opacity: 0.1;">
-            <div class="waveform-bar" style="width: 8px; height: 60%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 80%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 40%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 90%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 70%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 50%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 85%; background: var(--haos-groove-orange);"></div>
-            <div class="waveform-bar" style="width: 8px; height: 65%; background: var(--haos-groove-orange);"></div>
-        </div>
-        
+    <section class="haos-section" style="background: transparent; position: relative; overflow: hidden; padding: 100px 20px 80px;">
         <div class="haos-container text-center haos-slide-up" style="position: relative; z-index: 10;">
-            <!-- Main Logo - Your Custom PNG -->
-            <div class="mb-8" style="max-width: 800px; margin: 0 auto;">
-                <img src="/images/haos-logo-white.png" alt="HAOS.fm - Hardware Analog Oscillator Synthesis" class="w-full logo-glow" style="max-width: 600px; margin: 0 auto;">
+            <!-- Main Logo - Enhanced with Glow -->
+            <div class="mb-8" style="max-width: 800px; margin: 0 auto; position: relative;">
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm - Hardware Analog Oscillator Synthesis" class="w-full logo-glow" style="max-width: 600px; margin: 0 auto; filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.4)) drop-shadow(0 0 60px rgba(255, 107, 53, 0.2)); animation: pulse 3s ease-in-out infinite;">
             </div>
             
-            <h2 class="haos-display-md haos-text-gradient-gold mb-4">
+            <h2 class="haos-display-md mb-4" style="background: linear-gradient(135deg, #FF6B35, #FFD700, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: 0.1em; text-shadow: 0 0 40px rgba(255, 107, 53, 0.3);">
                 HARDWARE ANALOG SYNTHESIS
             </h2>
             
-            <p class="haos-body-lg mb-8 max-w-3xl mx-auto" style="color: var(--haos-sepia-cream);">
+            <p class="haos-body-lg mb-8 max-w-3xl mx-auto" style="color: rgba(244, 232, 216, 0.9); font-size: 1.25rem; line-height: 1.8; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);">
                 Create electronic music with authentic hardware-inspired synthesis engines. 
-                <br>TB-303 acid bass, TR-909 drums, 16-step sequencer, and live modular workspace.
+                <br><strong style="color: #FF6B35;">TB-303</strong> acid bass, <strong style="color: #00D9FF;">TR-909</strong> drums, <strong style="color: #8B5CF6;">16-step sequencer</strong>, and live <strong style="color: #FFD700;">modular workspace</strong>.
             </p>
             
-            <div class="flex flex-wrap justify-center gap-4 mb-12">
-                <!-- Modular Workspace as main theme -->
-                <a href="/techno-workspace.html" class="haos-btn haos-btn-primary" style="font-size: 1.2em; padding: 18px 36px; background: linear-gradient(135deg, #FF6B35, #FF8C42);">
-                    🔧 MODULAR WORKSPACE
+            <!-- New HAOS.fm Studio Buttons -->
+            <div style="max-width: 1000px; margin: 0 auto 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                <!-- Techno Workspace -->
+                <a href="/techno-workspace.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(255, 107, 53, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(255, 107, 53, 0.8)'; this.style.boxShadow='0 15px 40px rgba(255, 107, 53, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255, 107, 53, 0.4)'; this.style.boxShadow='none';">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #FF6B35, #D4AF37);"></div>
+                    <div style="font-size: 3rem; margin-bottom: 15px;">🔧</div>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #FF6B35; margin-bottom: 10px; letter-spacing: 0.05em;">TECHNO WORKSPACE</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">16-step sequencer, drum machine, synthesis engine with export & MIDI</p>
                 </a>
-                <a href="/haos-platform.html" class="haos-btn haos-btn-primary" style="font-size: 1.2em; padding: 18px 36px;">
-                    🎛️ PLATFORM
+                
+                <!-- Sounds Library -->
+                <a href="/sounds.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(212, 175, 55, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(212, 175, 55, 0.8)'; this.style.boxShadow='0 15px 40px rgba(212, 175, 55, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(212, 175, 55, 0.4)'; this.style.boxShadow='none';">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #D4AF37, #FFD700);"></div>
+                    <div style="font-size: 3rem; margin-bottom: 15px;">🎵</div>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #D4AF37; margin-bottom: 10px; letter-spacing: 0.05em;">SOUNDS LIBRARY</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">100+ hardware presets from Moog, Roland, Korg, and more</p>
                 </a>
-                <!-- Legacy Radio 24/7 button - hidden (we have live radio player now) -->
-                <a href="/radio.html" class="haos-btn haos-btn-secondary" style="display: none; background: linear-gradient(135deg, #39FF14, #00FF00); color: #000; font-weight: 700;">
-                    📻 RADIO 24/7
+                
+                <!-- HAOS Platform -->
+                <a href="/haos-platform.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(255, 107, 53, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(255, 107, 53, 0.8)'; this.style.boxShadow='0 15px 40px rgba(255, 107, 53, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255, 107, 53, 0.4)'; this.style.boxShadow='none';">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #FF6B35, #D4AF37);"></div>
+                    <div style="font-size: 3rem; margin-bottom: 15px;">🎛️</div>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #FF6B35; margin-bottom: 10px; letter-spacing: 0.05em;">HAOS PLATFORM</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Complete DAW with TB-303, TR-808, modular synth & collaboration</p>
                 </a>
             </div>
             
-            <!-- Stats - Equipment Rack Style -->
-            <div class="haos-rack" style="max-width: 1200px; margin: var(--haos-space-3xl) auto 0;">
+            <!-- Stats - Equipment Rack Style with Enhanced Glow -->
+            <div class="haos-rack" style="max-width: 1200px; margin: var(--haos-space-3xl) auto 0; background: rgba(15, 15, 20, 0.6); padding: 30px; border-radius: 20px; border: 1px solid rgba(255, 107, 53, 0.2); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 107, 53, 0.1); backdrop-filter: blur(10px);">
                 <div class="haos-rack-strip"></div>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-6">
-                    <div class="text-center">
+                    <div class="text-center" style="padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 12px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.background='rgba(255, 107, 53, 0.1)'; this.style.boxShadow='0 10px 30px rgba(255, 107, 53, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='';">
                         <div class="haos-vu-meter mb-3">
                             <div class="haos-vu-fill vu-animate" style="width: 85%;"></div>
                         </div>
-                        <div class="haos-display-md haos-text-gradient-orange" style="font-size: 2rem;">15+</div>
-                        <div class="haos-label" style="color: var(--haos-sepia-cream); font-size: 0.75rem;">SYNTHESIS TOOLS</div>
+                        <div class="haos-display-md" style="font-size: 2.5rem; background: linear-gradient(135deg, #FF6B35, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);">15+</div>
+                        <div class="haos-label" style="color: rgba(244, 232, 216, 0.9); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;">SYNTHESIS TOOLS</div>
                     </div>
-                    <div class="text-center">
+                    <div class="text-center" style="padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 12px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.background='rgba(139, 92, 246, 0.1)'; this.style.boxShadow='0 10px 30px rgba(139, 92, 246, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='';">
                         <div class="haos-vu-meter mb-3">
-                            <div class="haos-vu-fill vu-animate" style="width: 90%; animation-delay: 0.1s;"></div>
+                            <div class="haos-vu-fill vu-animate" style="width: 90%; animation-delay: 0.1s; background: linear-gradient(90deg, #8B5CF6, #A78BFA);"></div>
                         </div>
-                        <div class="haos-display-md haos-text-gradient-orange" style="font-size: 2rem;">50+</div>
-                        <div class="haos-label" style="color: var(--haos-sepia-cream); font-size: 0.75rem;">MODULAR PATCHES</div>
+                        <div class="haos-display-md" style="font-size: 2.5rem; background: linear-gradient(135deg, #8B5CF6, #A78BFA); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);">50+</div>
+                        <div class="haos-label" style="color: rgba(244, 232, 216, 0.9); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;">MODULAR PATCHES</div>
                     </div>
-                    <div class="text-center">
+                    <div class="text-center" style="padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 12px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.background='rgba(0, 217, 255, 0.1)'; this.style.boxShadow='0 10px 30px rgba(0, 217, 255, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='';">
                         <div class="haos-vu-meter mb-3">
-                            <div class="haos-vu-fill vu-animate" style="width: 95%; animation-delay: 0.2s;"></div>
+                            <div class="haos-vu-fill vu-animate" style="width: 95%; animation-delay: 0.2s; background: linear-gradient(90deg, #00D9FF, #00B8D4);"></div>
                         </div>
-                        <div class="haos-display-md haos-text-gradient-orange" style="font-size: 2rem;">100+</div>
-                        <div class="haos-label" style="color: var(--haos-sepia-cream); font-size: 0.75rem;">SOUND PRESETS</div>
+                        <div class="haos-display-md" style="font-size: 2.5rem; background: linear-gradient(135deg, #00D9FF, #00B8D4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);">100+</div>
+                        <div class="haos-label" style="color: rgba(244, 232, 216, 0.9); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;">SOUND PRESETS</div>
                     </div>
-                    <div class="text-center">
+                    <div class="text-center" style="padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 12px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.background='rgba(57, 255, 20, 0.1)'; this.style.boxShadow='0 10px 30px rgba(57, 255, 20, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='';">
                         <div class="haos-vu-meter mb-3">
-                            <div class="haos-vu-fill vu-animate" style="width: 75%; animation-delay: 0.3s;"></div>
+                            <div class="haos-vu-fill vu-animate" style="width: 75%; animation-delay: 0.3s; background: linear-gradient(90deg, #39FF14, #00FF00);"></div>
                         </div>
-                        <div class="haos-display-md haos-text-gradient-orange" style="font-size: 2rem;">8+</div>
-                        <div class="haos-label" style="color: var(--haos-sepia-cream); font-size: 0.75rem;">ANALOG OSCILLATORS</div>
+                        <div class="haos-display-md" style="font-size: 2.5rem; background: linear-gradient(135deg, #39FF14, #00FF00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 20px rgba(57, 255, 20, 0.5);">8+</div>
+                        <div class="haos-label" style="color: rgba(244, 232, 216, 0.9); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;">ANALOG OSCILLATORS</div>
                     </div>
-                    <div class="text-center">
+                    <div class="text-center" style="padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 12px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.background='rgba(212, 175, 55, 0.1)'; this.style.boxShadow='0 10px 30px rgba(212, 175, 55, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='';">
                         <div class="haos-vu-meter mb-3">
-                            <div class="haos-vu-fill vu-animate" style="width: 100%; animation-delay: 0.4s;"></div>
+                            <div class="haos-vu-fill vu-animate" style="width: 100%; animation-delay: 0.4s; background: linear-gradient(90deg, #D4AF37, #FFD700);"></div>
                         </div>
-                        <div class="haos-display-md haos-text-gradient-orange" style="font-size: 2rem;">24/7</div>
-                        <div class="haos-label" style="color: var(--haos-sepia-cream); font-size: 0.75rem;">LIVE BROADCAST</div>
+                        <div class="haos-display-md" style="font-size: 2.5rem; background: linear-gradient(135deg, #D4AF37, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);">24/7</div>
+                        <div class="haos-label" style="color: rgba(244, 232, 216, 0.9); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;">LIVE BROADCAST</div>
                     </div>
-                    <div class="text-center">
+                    <div class="text-center" style="padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 12px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.background='rgba(236, 72, 153, 0.1)'; this.style.boxShadow='0 10px 30px rgba(236, 72, 153, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(0, 0, 0, 0.3)'; this.style.boxShadow='';">
                         <div class="haos-vu-meter mb-3">
-                            <div class="haos-vu-fill vu-animate" style="width: 88%; animation-delay: 0.5s;"></div>
+                            <div class="haos-vu-fill vu-animate" style="width: 88%; animation-delay: 0.5s; background: linear-gradient(90deg, #EC4899, #F472B6);"></div>
                         </div>
-                        <div class="haos-display-md haos-text-gradient-orange" style="font-size: 2rem;">∞</div>
-                        <div class="haos-label" style="color: var(--haos-sepia-cream); font-size: 0.75rem;">SONIC POSSIBILITIES</div>
+                        <div class="haos-display-md" style="font-size: 2.5rem; background: linear-gradient(135deg, #EC4899, #F472B6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 20px rgba(236, 72, 153, 0.5);">∞</div>
+                        <div class="haos-label" style="color: rgba(244, 232, 216, 0.9); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;">SONIC POSSIBILITIES</div>
                     </div>
                 </div>
             </div>
@@ -715,17 +721,17 @@
              ======================================================================== -->
         <section id="studios" class="haos-section">
             <div class="text-center mb-12">
-                <h2 class="haos-display-lg mb-4" style="background: linear-gradient(135deg, #39FF14, #00D9FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                <h2 class="haos-display-lg mb-4" style="background: linear-gradient(135deg, #39FF14, #00D9FF, #8B5CF6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: clamp(2.5rem, 6vw, 4rem); text-shadow: 0 0 60px rgba(57, 255, 20, 0.3); letter-spacing: 0.05em;">
                     SYNTHESIS STUDIOS
                 </h2>
-                <p class="haos-body-lg" style="color: var(--haos-sepia-cream);">
+                <p class="haos-body-lg" style="color: rgba(244, 232, 216, 0.9); font-size: 1.2rem; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);">
                     Hardware-inspired music creation with complete track integration
                 </p>
             </div>
 
             <!-- FEATURED: Modular Workspace - Main Theme -->
             <div class="mb-12">
-                <a href="/techno-workspace.html" class="haos-studio-card block" style="border: 3px solid #FF6B35; box-shadow: 0 0 40px rgba(255, 107, 53, 0.5); background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 140, 66, 0.1));">
+                <a href="/techno-workspace.html" class="haos-studio-card block" style="border: 3px solid #FF6B35; box-shadow: 0 15px 60px rgba(255, 107, 53, 0.5), 0 0 100px rgba(255, 107, 53, 0.2); background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 140, 66, 0.1)); border-radius: 20px; transition: all 0.4s ease; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-10px) scale(1.02)'; this.style.boxShadow='0 20px 80px rgba(255, 107, 53, 0.7), 0 0 120px rgba(255, 107, 53, 0.3)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 15px 60px rgba(255, 107, 53, 0.5), 0 0 100px rgba(255, 107, 53, 0.2)';">
                     <div class="flex items-start justify-between mb-6">
                         <div class="text-6xl">🔧</div>
                         <span class="haos-badge haos-badge-new" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-size: 1.2rem; padding: 0.5rem 1rem;">FEATURED</span>
@@ -1977,6 +1983,93 @@
 
             console.log('🎧 Track upload system initialized');
         }
+    </script>
+
+    <!-- ============================================================================
+         ANIMATED BACKGROUND - Canvas Animation
+         ============================================================================ -->
+    <script>
+        // Animated background with particles and grid
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Grid animation
+        let gridOffset = 0;
+        
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(255, 107, 53, 0.03)';
+            ctx.lineWidth = 1;
+            
+            const gridSize = 60;
+            const offsetX = gridOffset % gridSize;
+            const offsetY = gridOffset % gridSize;
+            
+            // Vertical lines
+            for (let x = -gridSize + offsetX; x < canvas.width + gridSize; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Horizontal lines
+            for (let y = -gridSize + offsetY; y < canvas.height + gridSize; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            gridOffset += 0.2;
+        }
+        
+        // HAOS.fm gradient background
+        function drawHAOSGradient() {
+            // Create radial gradients matching HAOS.fm branding
+            const gradient1 = ctx.createRadialGradient(
+                canvas.width * 0.3, canvas.height * 0.3, 0,
+                canvas.width * 0.3, canvas.height * 0.3, canvas.width * 0.6
+            );
+            gradient1.addColorStop(0, 'rgba(255, 107, 53, 0.15)');
+            gradient1.addColorStop(0.5, 'rgba(255, 107, 53, 0.05)');
+            gradient1.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = gradient1;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const gradient2 = ctx.createRadialGradient(
+                canvas.width * 0.7, canvas.height * 0.6, 0,
+                canvas.width * 0.7, canvas.height * 0.6, canvas.width * 0.5
+            );
+            gradient2.addColorStop(0, 'rgba(212, 175, 55, 0.12)');
+            gradient2.addColorStop(0.5, 'rgba(212, 175, 55, 0.04)');
+            gradient2.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = gradient2;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        // Animation loop
+        function animate() {
+            // Clear with dark background
+            ctx.fillStyle = 'rgba(5, 5, 8, 0.98)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw layers
+            drawHAOSGradient();
+            drawGrid();
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+        
+        console.log('🎨 Animated background initialized');
     </script>
 </body>
 </html>
