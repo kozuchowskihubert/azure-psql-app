@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HAOS.fm | Sounds - 300+ Techno Presets Explorer</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --haos-black: #0a0a0a;
+            --haos-panel: rgba(20, 20, 25, 0.85);
+            --haos-orange: #FF6B35;
+            --haos-orange-bright: #FF8C42;
+            --haos-green: #39FF14;
+            --haos-cyan: #00D9FF;
+            --haos-pink: #FF006E;
+            --haos-text: #e0e0e0;
+            --haos-dim: #888;
+            --haos-border: rgba(255, 107, 53, 0.2);
+            
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            background: var(--haos-black);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 140, 66, 0.06) 0%, transparent 50%);
+            color: var(--haos-text);
+            min-height: 100vh;
+        }
+
+        .haos-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--haos-border);
+            padding: 15px 30px;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+        }
+
+        .brand-name {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-tagline {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--haos-dim);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--haos-text);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 107, 53, 0.1);
+            border-color: var(--haos-orange);
+        }
+
+        .nav-link.active {
+            background: var(--haos-orange);
+            color: white;
+        }
+
+        .hero {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 50px 30px 40px;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .hero-subtitle {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            color: var(--haos-dim);
+            margin-bottom: 30px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            padding: 15px 25px;
+            background: var(--haos-panel);
+            border: 2px solid var(--haos-border);
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: var(--haos-orange);
+        }
+
+        .stat-label {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--haos-dim);
+            text-transform: uppercase;
+        }
+
+        .action-btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 107, 53, 0.5);
+        }
+
+        .controls {
+            max-width: 1400px;
+            margin: 0 auto 30px;
+            padding: 0 30px;
+        }
+
+        .controls-bar {
+            background: var(--haos-panel);
+            border: 2px solid var(--haos-border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--haos-border);
+            border-radius: 8px;
+            color: var(--haos-text);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--haos-orange);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 18px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--haos-border);
+            border-radius: 8px;
+            color: var(--haos-text);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--haos-orange);
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .filter-btn.active {
+            background: var(--haos-orange);
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .presets {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px 60px;
+        }
+
+        .category-section {
+            margin-bottom: 50px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--haos-panel);
+            border: 2px solid var(--haos-border);
+            border-radius: 10px;
+        }
+
+        .category-icon {
+            font-size: 2rem;
+        }
+
+        .category-title {
+            flex: 1;
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: var(--haos-orange);
+        }
+
+        .category-count {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--haos-text);
+            background: rgba(255, 107, 53, 0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+        }
+
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .preset-card {
+            background: var(--haos-panel);
+            border: 2px solid var(--haos-border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .preset-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--haos-orange), var(--haos-cyan));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .preset-card:hover {
+            border-color: var(--haos-orange);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .preset-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .preset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .preset-name {
+            font-family: var(--font-mono);
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: var(--haos-text);
+            margin-bottom: 5px;
+        }
+
+        .preset-id {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--haos-dim);
+        }
+
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-bright));
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+        }
+
+        .play-btn:active {
+            transform: scale(0.95);
+        }
+
+        .preset-params {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .param-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 10px;
+            border-radius: 6px;
+        }
+
+        .param-label {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--haos-dim);
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .param-value {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--haos-orange);
+            font-weight: bold;
+        }
+
+        .preset-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            border-radius: 10px;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            color: var(--haos-orange);
+        }
+
+        .use-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 217, 255, 0.1);
+            border: 2px solid var(--haos-cyan);
+            border-radius: 8px;
+            color: var(--haos-cyan);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .use-btn:hover {
+            background: var(--haos-cyan);
+            color: var(--haos-black);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--haos-dim);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 107, 53, 0.2);
+            border-top-color: var(--haos-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .stats {
+                gap: 15px;
+            }
+
+            .stat {
+                padding: 12px 20px;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .controls-bar {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .presets-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .haos-header {
+                padding: 10px 15px;
+            }
+
+            .hero {
+                padding: 40px 20px 30px;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .preset-params {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="haos-header">
+        <div class="header-content">
+            <a href="/" class="logo-section">
+                <div class="brand-text">
+                    <div class="brand-name">HAOS.FM</div>
+                    <div class="brand-tagline">SOUNDS</div>
+                </div>
+            </a>
+            <nav class="nav-links">
+                <a href="/" class="nav-link">🏠 Home</a>
+                <a href="/techno-workspace" class="nav-link">🎛️ Workspace</a>
+                <a href="/sounds" class="nav-link active">🎵 Sounds</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1 class="hero-title">🎵 SOUNDS</h1>
+        <p class="hero-subtitle">300+ Professional Techno Presets • Ready to Use</p>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number" id="totalPresets">300+</div>
+                <div class="stat-label">Presets</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="totalCategories">12</div>
+                <div class="stat-label">Categories</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Free</div>
+            </div>
+        </div>
+
+        <a href="/techno-workspace" class="action-btn">🎛️ Open Workspace</a>
+    </section>
+
+    <section class="controls">
+        <div class="controls-bar">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput" 
+                    placeholder="Search... (acid, bass, detroit, 303)"
+                >
+            </div>
+            <div class="filter-group" id="filterButtons">
+                <button class="filter-btn active" data-category="all">All</button>
+            </div>
+        </div>
+    </section>
+
+    <main class="presets" id="presetsContainer">
+        <div class="loading">
+            <div class="spinner"></div>
+            <div>Loading presets...</div>
+        </div>
+    </main>
+
+    <script>
+        let allPresets = {};
+
+        fetch('/techno-workspace')
+            .then(r => r.text())
+            .then(html => {
+                const match = html.match(/const ARP2600_PRESETS = \{([\s\S]*?)\n        \};/);
+                if (match) {
+                    eval(match[0].replace('const ARP2600_PRESETS', 'allPresets'));
+                    render();
+                }
+            });
+
+        function render() {
+            const container = document.getElementById('presetsContainer');
+            container.innerHTML = '';
+
+            const categories = {};
+            Object.entries(allPresets).forEach(([id, preset]) => {
+                if (!categories[preset.category]) categories[preset.category] = [];
+                categories[preset.category].push({ id, ...preset });
+            });
+
+            const filterGroup = document.getElementById('filterButtons');
+            Object.keys(categories).sort().forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.dataset.category = cat;
+                btn.textContent = `${getIcon(cat)} ${cat}`;
+                btn.onclick = () => filter(cat);
+                filterGroup.appendChild(btn);
+            });
+
+            Object.entries(categories).sort((a, b) => a[0].localeCompare(b[0])).forEach(([cat, presets]) => {
+                container.innerHTML += `
+                    <div class="category-section" data-category="${cat}">
+                        <div class="category-header">
+                            <span class="category-icon">${getIcon(cat)}</span>
+                            <h2 class="category-title">${cat}</h2>
+                            <span class="category-count">${presets.length}</span>
+                        </div>
+                        <div class="presets-grid">
+                            ${presets.map(p => card(p)).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('totalPresets').textContent = Object.keys(allPresets).length;
+            document.getElementById('totalCategories').textContent = Object.keys(categories).length;
+
+            document.getElementById('searchInput').oninput = e => search(e.target.value);
+        }
+
+        function getIcon(cat) {
+            const icons = {Bass:'🎸',Lead:'🎺',Pad:'🌊',Percussion:'🥁',FX:'✨',Synth:'🎛️',Keys:'🎹',Bells:'🔔',Mallets:'🔨',Woodwinds:'🎷',Ambient:'🌌',Piano:'🎹',Strings:'🎻',Violin:'🎻',Cello:'🎻',Brass:'🎺',Flute:'🪈',Organ:'🎹'};
+            return icons[cat] || '🎵';
+        }
+
+        function card(p) {
+            const tags = [];
+            if (p.id.includes('acid')) tags.push('Acid');
+            if (p.id.includes('303')) tags.push('TB-303');
+            if (p.id.includes('909')) tags.push('TR-909');
+            if (p.id.includes('detroit')) tags.push('Detroit');
+            if (p.id.includes('berlin')) tags.push('Berlin');
+            if (p.id.includes('techno')) tags.push('Techno');
+            
+            return `
+                <div class="preset-card" data-preset-id="${p.id}">
+                    <div class="preset-header">
+                        <div>
+                            <div class="preset-name">${p.name}</div>
+                            <div class="preset-id">${p.id}</div>
+                        </div>
+                        <button class="play-btn" onclick="previewSound('${p.id}')" title="Preview sound">▶</button>
+                    </div>
+                    <div class="preset-params">
+                        <div class="param-item">
+                            <div class="param-label">VCO1</div>
+                            <div class="param-value">${(p.vco1?.waveform || 'N/A')[0].toUpperCase() + (p.vco1?.waveform || 'N/A').slice(1)}</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">VCO2</div>
+                            <div class="param-value">${(p.vco2?.waveform || 'N/A')[0].toUpperCase() + (p.vco2?.waveform || 'N/A').slice(1)}</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Cutoff</div>
+                            <div class="param-value">${p.vcf?.cutoff || 'N/A'}Hz</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Res</div>
+                            <div class="param-value">${((p.vcf?.resonance || 0) * 100).toFixed(0)}%</div>
+                        </div>
+                    </div>
+                    <div class="preset-tags">
+                        ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                    </div>
+                    <button class="use-btn" onclick="location.href='/techno-workspace?preset=${p.id}'">
+                        🎛️ Use in Workspace →
+                    </button>
+                </div>
+            `;
+        }
+
+        function filter(cat) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.category-section').forEach(s => {
+                s.style.display = cat === 'all' || s.dataset.category === cat ? 'block' : 'none';
+            });
+        }
+
+        function search(term) {
+            term = term.toLowerCase();
+            document.querySelectorAll('.preset-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(term) ? 'block' : 'none';
+            });
+        }
+
+        // ============================================================================
+        // AUDIO PREVIEW ENGINE
+        // ============================================================================
+        
+        let audioContext = null;
+        let currentPreview = null;
+        
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+        
+        function stopCurrentPreview() {
+            if (currentPreview) {
+                try {
+                    currentPreview.stop();
+                } catch (e) {
+                    // Already stopped
+                }
+                currentPreview = null;
+            }
+        }
+        
+        function previewSound(presetId) {
+            const preset = allPresets[presetId];
+            if (!preset) {
+                console.error('Preset not found:', presetId);
+                return;
+            }
+            
+            const ctx = initAudio();
+            
+            // Resume audio context if suspended (browser autoplay policy)
+            if (ctx.state === 'suspended') {
+                ctx.resume();
+            }
+            
+            // Stop any currently playing preview
+            stopCurrentPreview();
+            
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '⏹';
+            btn.style.background = 'var(--haos-green)';
+            
+            // Play the preset
+            const now = ctx.currentTime;
+            
+            // Determine note and duration based on category
+            let note = 220; // Default A3
+            let duration = 2.0; // Default duration
+            
+            if (preset.category === 'Bass') {
+                note = 55; // A1
+                duration = 2.5;
+            } else if (preset.category === 'Lead') {
+                note = 440; // A4
+                duration = 1.8;
+            } else if (preset.category === 'Pad') {
+                note = 220; // A3
+                duration = 3.0; // Longer for pads
+            } else if (preset.category === 'Percussion') {
+                note = 110; // A2
+                duration = 0.8; // Short for percussion
+            } else if (preset.category === 'FX') {
+                note = 330; // E4
+                duration = 2.5;
+            } else if (preset.category === 'Piano' || preset.category === 'Keys') {
+                note = 440; // A4
+                duration = 2.0;
+            }
+            
+            try {
+                playARP2600Preview(preset, note, now, 0.65, duration);
+                
+                // Reset button after preview duration
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                }, duration * 1000);
+            } catch (error) {
+                console.error('Error playing preview:', error);
+                btn.textContent = originalText;
+                btn.style.background = '';
+            }
+        }
+        
+        function playARP2600Preview(preset, note = 440, time, velocity = 1.0, duration = 0.5) {
+            const ctx = audioContext;
+            const now = time || ctx.currentTime;
+            
+            // Nodes array for cleanup
+            const nodes = [];
+            
+            //============ VCO 1 & 2 (Oscillators) ============
+            let vco1Source, vco2Source;
+            const vco1Gain = ctx.createGain();
+            const vco2Gain = ctx.createGain();
+            nodes.push(vco1Gain, vco2Gain);
+            
+            // VCO 1
+            if (preset.vco1?.waveform === 'noise') {
+                vco1Source = ctx.createBufferSource();
+                const buffer = ctx.createBuffer(1, ctx.sampleRate * (duration + 0.5), ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < buffer.length; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                vco1Source.buffer = buffer;
+                vco1Source.loop = false;
+            } else {
+                vco1Source = ctx.createOscillator();
+                vco1Source.type = preset.vco1?.waveform || 'sawtooth';
+                // Clamp frequency to valid range
+                const baseFreq1 = Math.max(20, Math.min((preset.vco1?.frequency || note), 20000));
+                const freq1 = baseFreq1 * Math.pow(2, (preset.vco1?.fine || 0) / 1200);
+                vco1Source.frequency.setValueAtTime(Math.min(freq1, ctx.sampleRate / 3), now);
+                
+                // Apply VCO1 modulation (PWM simulation with detune)
+                if ((preset.vco1?.mod || 0) > 0) {
+                    vco1Source.detune.setValueAtTime(preset.vco1.mod * 150, now);
+                }
+            }
+            vco1Source.connect(vco1Gain);
+            nodes.push(vco1Source);
+            
+            // VCO 2
+            if (preset.vco2?.waveform === 'noise') {
+                vco2Source = ctx.createBufferSource();
+                const buffer = ctx.createBuffer(1, ctx.sampleRate * (duration + 0.5), ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < buffer.length; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                vco2Source.buffer = buffer;
+                vco2Source.loop = false;
+            } else {
+                vco2Source = ctx.createOscillator();
+                vco2Source.type = preset.vco2?.waveform || 'square';
+                const baseFreq2 = Math.max(20, Math.min((preset.vco2?.frequency || note), 20000));
+                const freq2 = baseFreq2 * Math.pow(2, (preset.vco2?.fine || 0) / 1200);
+                vco2Source.frequency.setValueAtTime(Math.min(freq2, ctx.sampleRate / 3), now);
+                
+                // Apply VCO2 modulation
+                if ((preset.vco2?.mod || 0) > 0) {
+                    vco2Source.detune.setValueAtTime(preset.vco2.mod * 150, now);
+                }
+            }
+            vco2Source.connect(vco2Gain);
+            nodes.push(vco2Source);
+            
+            // Oscillator mix levels (ARP 2600 style - slightly unequal for richness)
+            vco1Gain.gain.value = 0.6;
+            vco2Gain.gain.value = 0.5;
+            
+            // ============ MIXER ============
+            const mixer = ctx.createGain();
+            mixer.gain.value = 1.0;
+            nodes.push(mixer);
+            vco1Gain.connect(mixer);
+            vco2Gain.connect(mixer);
+            
+            // ============ VCF (Voltage Controlled Filter) ============
+            const vcf = ctx.createBiquadFilter();
+            vcf.type = 'lowpass';
+            nodes.push(vcf);
+            
+            // Base filter settings with clamping
+            const cutoff = Math.max(30, Math.min(preset.vcf?.cutoff || 1000, 18000));
+            const resonance = Math.max(0, Math.min(preset.vcf?.resonance || 0.5, 1));
+            const envMod = preset.vcf?.envMod || 0;
+            
+            // Resonance scaling (ARP 2600 has aggressive resonance)
+            vcf.Q.value = Math.min(30, 1 + (resonance * resonance * 25));
+            
+            // Filter envelope modulation
+            const env = preset.envelope || {attack: 0.01, decay: 0.1, sustain: 0.7, release: 0.2};
+            
+            if (Math.abs(envMod) > 0.01) {
+                // Support both positive and negative envelope modulation
+                const envAmount = envMod * 8;
+                const envPeak = cutoff * (1 + envAmount);
+                const clampedPeak = Math.max(30, Math.min(envPeak, 18000));
+                const clampedCutoff = Math.max(30, cutoff);
+                
+                // Exponential envelope for filter (more natural)
+                if (envMod > 0) {
+                    // Positive modulation (opening filter)
+                    vcf.frequency.setValueAtTime(clampedPeak, now);
+                    vcf.frequency.exponentialRampToValueAtTime(clampedPeak * 0.9, now + 0.001);
+                    vcf.frequency.exponentialRampToValueAtTime(clampedPeak * 0.85, now + env.attack);
+                    vcf.frequency.exponentialRampToValueAtTime(
+                        clampedCutoff + ((clampedPeak - clampedCutoff) * env.sustain * 0.3),
+                        now + env.attack + env.decay
+                    );
+                } else {
+                    // Negative modulation (closing filter)
+                    vcf.frequency.setValueAtTime(clampedCutoff, now);
+                    vcf.frequency.exponentialRampToValueAtTime(
+                        Math.max(30, clampedCutoff * 0.7),
+                        now + env.attack + env.decay
+                    );
+                }
+            } else {
+                vcf.frequency.setValueAtTime(cutoff, now);
+            }
+            
+            mixer.connect(vcf);
+            
+            // ============ LFO (Low Frequency Oscillator) ============
+            if (preset.lfo && preset.lfo.rate > 0 && preset.lfo.depth > 0) {
+                const lfo = ctx.createOscillator();
+                const lfoGain = ctx.createGain();
+                nodes.push(lfo, lfoGain);
+                
+                lfo.frequency.value = Math.min(preset.lfo.rate, 40); // Clamp LFO rate
+                lfo.type = 'sine';
+                
+                // Route LFO to destination
+                if (preset.lfo.destination === 'filter') {
+                    lfoGain.gain.value = cutoff * preset.lfo.depth * 0.6;
+                    lfo.connect(lfoGain);
+                    lfoGain.connect(vcf.frequency);
+                } else if (preset.lfo.destination === 'pitch') {
+                    lfoGain.gain.value = preset.lfo.depth * 100;
+                    lfo.connect(lfoGain);
+                    if (vco1Source.detune) lfoGain.connect(vco1Source.detune);
+                    if (vco2Source.detune) lfoGain.connect(vco2Source.detune);
+                } else if (preset.lfo.destination === 'vca') {
+                    // Tremolo effect
+                    const tremoloGain = ctx.createGain();
+                    lfoGain.gain.value = preset.lfo.depth * 0.5;
+                    tremoloGain.gain.value = 1.0 - (preset.lfo.depth * 0.3);
+                    lfo.connect(lfoGain);
+                    lfoGain.connect(tremoloGain.gain);
+                    nodes.push(tremoloGain);
+                    // Will be connected in signal chain below
+                }
+                
+                lfo.start(now);
+                lfo.stop(now + duration + 0.5);
+            }
+            
+            // ============ VCA (Voltage Controlled Amplifier) ============
+            const vca = ctx.createGain();
+            vca.gain.setValueAtTime(0, now);
+            nodes.push(vca);
+            
+            // ADSR Envelope with exponential curves (more analog feel)
+            const vcaLevel = Math.max(0.1, Math.min((preset.vca?.level || 0.8) * velocity, 1.0));
+            const attackEnd = now + Math.max(0.001, env.attack);
+            const decayEnd = attackEnd + Math.max(0.01, env.decay);
+            const releaseStart = now + duration - Math.min(env.release, duration * 0.4);
+            const sustainLevel = Math.max(0.001, Math.min(env.sustain, 1.0));
+            
+            // Attack (exponential)
+            vca.gain.setValueAtTime(0.001, now);
+            vca.gain.exponentialRampToValueAtTime(vcaLevel, attackEnd);
+            
+            // Decay (exponential to sustain)
+            vca.gain.exponentialRampToValueAtTime(
+                Math.max(0.001, vcaLevel * sustainLevel),
+                decayEnd
+            );
+            
+            // Sustain (hold)
+            vca.gain.setValueAtTime(Math.max(0.001, vcaLevel * sustainLevel), releaseStart);
+            
+            // Release (exponential)
+            vca.gain.exponentialRampToValueAtTime(0.001, releaseStart + Math.max(0.05, env.release));
+            
+            vcf.connect(vca);
+            
+            // ============ OUTPUT SECTION ============
+            // Soft clipping / saturation
+            const waveshaper = ctx.createWaveShaper();
+            waveshaper.curve = createSaturationCurve(1.3);
+            waveshaper.oversample = '2x';
+            nodes.push(waveshaper);
+            vca.connect(waveshaper);
+            
+            // Compression (glue it together)
+            const compressor = ctx.createDynamicsCompressor();
+            compressor.threshold.value = -20;
+            compressor.knee.value = 12;
+            compressor.ratio.value = 6;
+            compressor.attack.value = 0.002;
+            compressor.release.value = 0.08;
+            nodes.push(compressor);
+            waveshaper.connect(compressor);
+            
+            // High-pass filter to remove DC offset and rumble
+            const hpf = ctx.createBiquadFilter();
+            hpf.type = 'highpass';
+            hpf.frequency.value = 20;
+            hpf.Q.value = 0.707;
+            nodes.push(hpf);
+            compressor.connect(hpf);
+            
+            // Master gain (preview level)
+            const masterGain = ctx.createGain();
+            masterGain.gain.value = 0.32;
+            nodes.push(masterGain);
+            hpf.connect(masterGain);
+            masterGain.connect(ctx.destination);
+            
+            // ============ START & STOP ============
+            vco1Source.start(now);
+            vco2Source.start(now);
+            
+            const stopTime = now + duration + 0.5;
+            vco1Source.stop(stopTime);
+            vco2Source.stop(stopTime);
+            
+            currentPreview = vco1Source;
+            
+            // Cleanup
+            setTimeout(() => {
+                nodes.forEach(node => {
+                    try {
+                        node.disconnect();
+                    } catch (e) {
+                        // Already disconnected
+                    }
+                });
+            }, (duration + 1) * 1000);
+        }
+        
+        // Saturation curve for analog warmth
+        function createSaturationCurve(amount = 1) {
+            const samples = 2048;
+            const curve = new Float32Array(samples);
+            const deg = Math.PI / 180;
+            
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2 / samples) - 1;
+                // Soft clipping with smooth curve
+                curve[i] = (3 + amount) * x * 20 * deg / (Math.PI + amount * Math.abs(x));
+                // Clamp to prevent harsh clipping
+                curve[i] = Math.max(-0.95, Math.min(0.95, curve[i]));
+            }
+            return curve;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enabled Features - Notes App</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .feature-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .gradient-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .badge-enabled {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .badge-disabled {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .badge-auth {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="gradient-header text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">🎯 Enabled Features</h1>
+                    <p class="text-purple-100">Explore all available features in this application</p>
+                </div>
+                <div class="text-right">
+                    <div id="feature-count" class="text-4xl font-bold mb-1">-</div>
+                    <div class="text-purple-100">Active Features</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex space-x-8 py-4">
+                <a href="/index.html" class="text-gray-600 hover:text-purple-600 flex items-center gap-2">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="#" class="text-purple-600 font-semibold flex items-center gap-2">
+                    <i class="fas fa-list"></i> Features
+                </a>
+                <a href="/features.html" class="text-gray-600 hover:text-purple-600 flex items-center gap-2">
+                    <i class="fas fa-road"></i> Roadmap
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            <p class="mt-4 text-gray-600">Loading features...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <i class="fas fa-exclamation-triangle text-red-500 text-3xl mb-2"></i>
+            <p class="text-red-800 font-semibold">Failed to load features</p>
+            <p class="text-red-600 text-sm mt-1" id="error-message"></p>
+            <button onclick="loadFeatures()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                Retry
+            </button>
+        </div>
+
+        <!-- Features Grid -->
+        <div id="features-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Features will be loaded here -->
+        </div>
+
+        <!-- Disabled Features Section -->
+        <div id="disabled-section" class="hidden mt-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-lock text-gray-400"></i> Disabled Features
+            </h2>
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                <p class="text-yellow-800 mb-4">
+                    The following features are available but not currently enabled. 
+                    Set the required environment variables to activate them.
+                </p>
+                <div id="disabled-features" class="space-y-3">
+                    <!-- Disabled features will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadFeatures() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const grid = document.getElementById('features-grid');
+            const featureCount = document.getElementById('feature-count');
+            const disabledSection = document.getElementById('disabled-section');
+            const disabledFeatures = document.getElementById('disabled-features');
+
+            try {
+                loading.classList.remove('hidden');
+                error.classList.add('hidden');
+                grid.classList.add('hidden');
+
+                const response = await fetch('/api/features');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+                
+                if (!data.success) throw new Error(data.error || 'Unknown error');
+
+                // Update count
+                featureCount.textContent = data.enabled;
+
+                // Render enabled features
+                grid.innerHTML = Object.entries(data.features)
+                    .sort(([, a], [, b]) => a.name.localeCompare(b.name))
+                    .map(([key, feature]) => createFeatureCard(key, feature))
+                    .join('');
+
+                // Render disabled features if any
+                if (data.disabled && Object.keys(data.disabled).length > 0) {
+                    disabledSection.classList.remove('hidden');
+                    disabledFeatures.innerHTML = Object.entries(data.disabled)
+                        .map(([key, info]) => `
+                            <div class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200">
+                                <div>
+                                    <span class="font-semibold text-gray-900">${info.name}</span>
+                                    <span class="text-gray-500 text-sm ml-2">(${key})</span>
+                                </div>
+                                ${info.envVar ? `
+                                    <code class="text-sm bg-gray-100 px-3 py-1 rounded border border-gray-300">
+                                        ${info.envVar}=true
+                                    </code>
+                                ` : ''}
+                            </div>
+                        `)
+                        .join('');
+                } else {
+                    disabledSection.classList.add('hidden');
+                }
+
+                loading.classList.add('hidden');
+                grid.classList.remove('hidden');
+
+            } catch (err) {
+                console.error('Error loading features:', err);
+                loading.classList.add('hidden');
+                error.classList.remove('hidden');
+                document.getElementById('error-message').textContent = err.message;
+            }
+        }
+
+        function createFeatureCard(key, feature) {
+            const authBadge = feature.requiresAuth 
+                ? '<span class="badge-auth text-white text-xs px-2 py-1 rounded-full">Requires Auth</span>'
+                : '';
+
+            return `
+                <div class="feature-card bg-white rounded-lg shadow-md p-6 border border-gray-200"
+                     onclick="navigateToFeature('${feature.route}')">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="text-4xl">${feature.icon}</div>
+                        <div class="badge-enabled text-white text-xs px-2 py-1 rounded-full">
+                            Enabled
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">${feature.name}</h3>
+                    <p class="text-gray-600 text-sm mb-4">${feature.description}</p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${authBadge}
+                        ${feature.api ? `
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded border border-blue-200">
+                                API: ${feature.api}
+                            </span>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">
+                            <i class="fas fa-link"></i> ${feature.route}
+                        </span>
+                        <i class="fas fa-arrow-right text-purple-600"></i>
+                    </div>
+                </div>
+            `;
+        }
+
+        function navigateToFeature(route) {
+            if (route) {
+                window.location.href = route;
+            }
+        }
+
+        // Load features on page load
+        loadFeatures();
+    </script>
+</body>
+</html>

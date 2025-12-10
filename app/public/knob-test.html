@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knob Rotation Test</title>
+    <style>
+        body {
+            background: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            color: #39FF14;
+        }
+
+        .test-container {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .knob {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 107, 53, 0.3), rgba(0, 0, 0, 0.8));
+            border: 4px solid #FF6B35;
+            position: relative;
+            cursor: pointer;
+            transition: box-shadow 0.3s ease;
+            margin: 20px auto;
+        }
+
+        .knob:hover {
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.8);
+        }
+
+        .knob::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            width: 4px;
+            height: 30px;
+            background: #FFD700;
+            border-radius: 2px;
+            box-shadow: 0 0 10px #FFD700;
+            transform-origin: center bottom;
+            transform: translateX(-50%) rotate(var(--rotation, -135deg));
+        }
+
+        .value-display {
+            font-size: 24px;
+            margin: 20px 0;
+            color: #39FF14;
+        }
+
+        .instructions {
+            margin-top: 30px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        .test-buttons {
+            margin-top: 20px;
+        }
+
+        button {
+            background: #FF6B35;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #FF8C55;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎛️ Knob Rotation Test</h1>
+        
+        <div class="knob" id="test-knob" data-value="0.5"></div>
+        
+        <div class="value-display">
+            Value: <span id="value-text">50%</span><br>
+            Rotation: <span id="rotation-text">0°</span>
+        </div>
+
+        <div class="test-buttons">
+            <button onclick="setValue(0)">Min (0%)</button>
+            <button onclick="setValue(0.25)">25%</button>
+            <button onclick="setValue(0.5)">50%</button>
+            <button onclick="setValue(0.75)">75%</button>
+            <button onclick="setValue(1)">Max (100%)</button>
+        </div>
+
+        <div class="instructions">
+            <strong>DRAG TEST:</strong> Click and drag the knob up/down<br>
+            The orange line should rotate smoothly from -135° to +135°
+        </div>
+    </div>
+
+    <script>
+        const knob = document.getElementById('test-knob');
+        const valueText = document.getElementById('value-text');
+        const rotationText = document.getElementById('rotation-text');
+        
+        let isDragging = false;
+        let startY = 0;
+        let value = parseFloat(knob.dataset.value) || 0.5;
+
+        function updateVisual(v) {
+            value = Math.max(0, Math.min(1, v));
+            const rotation = (value * 270) - 135;
+            
+            knob.style.setProperty('--rotation', `${rotation}deg`);
+            knob.dataset.value = value;
+            
+            valueText.textContent = Math.round(value * 100) + '%';
+            rotationText.textContent = Math.round(rotation) + '°';
+            
+            // Visual feedback
+            knob.style.boxShadow = '0 0 30px rgba(255, 107, 53, 1)';
+            setTimeout(() => {
+                knob.style.boxShadow = '0 0 20px rgba(255, 107, 53, 0.5)';
+            }, 100);
+        }
+
+        function setValue(v) {
+            updateVisual(v);
+        }
+
+        knob.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startY = e.clientY;
+            knob.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            const delta = startY - e.clientY;
+            const newValue = value + (delta * 0.005);
+            
+            updateVisual(newValue);
+            startY = e.clientY;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            knob.style.cursor = 'pointer';
+        });
+
+        // Initialize
+        updateVisual(value);
+        
+        console.log('🎛️ Knob Test Ready!');
+        console.log('Current value:', value);
+        console.log('Rotation:', (value * 270) - 135, 'degrees');
+    </script>
+</body>
+</html>

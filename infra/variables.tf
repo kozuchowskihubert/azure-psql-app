@@ -39,3 +39,26 @@ variable "image_tag" {
   type        = string
   default     = "latest"
 }
+
+# ====================================================================
+# Virtual Machine Variables (feat/tracks)
+# ====================================================================
+
+variable "vm_size" {
+  description = "Azure VM size for tracks processing"
+  type        = string
+  default     = "Standard_B1s" # Cheapest: 1 vCPU, 1GB RAM (~$7.50/month)
+}
+
+variable "vm_admin_username" {
+  description = "Admin username for the VM"
+  type        = string
+  default     = "azureuser"
+}
+
+variable "vm_ssh_public_key" {
+  description = "SSH public key for VM access"
+  type        = string
+  sensitive   = true
+  default     = "" # Will be generated if not provided
+}

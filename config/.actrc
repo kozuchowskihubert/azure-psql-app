@@ -1,0 +1,21 @@
+# Act configuration
+# Use GitHub's larger runner image for better compatibility
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+
+# Load secrets from file
+--secret-file .secrets
+
+# Use .env file if it exists
+--env-file .env.act
+
+# Container architecture
+--container-architecture linux/amd64
+
+# Verbose output for debugging
+# --verbose
+
+# Reuse containers for faster iterations
+--reuse
+
+# Bind Docker socket for Docker-in-Docker
+--bind

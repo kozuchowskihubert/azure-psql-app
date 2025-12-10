@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behringer 2600 - Patch Visualizer</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e4e4e4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .synth-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            background: linear-gradient(45deg, #00d4ff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .header p {
+            color: #888;
+            font-size: 1.2em;
+        }
+
+        .synth-panel {
+            background: linear-gradient(135deg, #2a2a3e 0%, #1f1f2e 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #00d4ff;
+            border-bottom: 2px solid #00d4ff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .module {
+            background: rgba(0, 212, 255, 0.05);
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .module:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+            border-color: #ff00ff;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .module-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .module-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00d4ff;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .parameter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .parameter-label {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .parameter-value {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .knob-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .knob {
+            text-align: center;
+        }
+
+        .knob-visual {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #3a3a4e, #1a1a2e);
+            border: 3px solid #00d4ff;
+            position: relative;
+            margin: 0 auto 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .knob-visual:hover {
+            border-color: #ff00ff;
+            transform: scale(1.1);
+        }
+
+        .knob-indicator {
+            position: absolute;
+            width: 4px;
+            height: 35px;
+            background: linear-gradient(to bottom, #ff00ff, #00d4ff);
+            left: 50%;
+            top: 5px;
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(0deg);
+            border-radius: 2px;
+        }
+
+        .knob-label {
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .knob-value {
+            font-size: 0.9em;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .patch-cable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .patch-point {
+            background: rgba(255, 0, 255, 0.1);
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .patch-point:hover {
+            background: rgba(255, 0, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .patch-point.active {
+            background: rgba(255, 0, 255, 0.3);
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+
+        .patch-jack {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff00ff, #8800aa);
+            border: 3px solid #fff;
+            margin: 0 auto 10px;
+        }
+
+        .patch-jack.connected {
+            background: radial-gradient(circle at 30% 30%, #00d4ff, #0088aa);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+        }
+
+        .waveform-display {
+            background: #000;
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            height: 150px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .waveform-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .preset-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00d4ff, #0088aa);
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preset-btn:hover {
+            background: linear-gradient(135deg, #ff00ff, #aa0088);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 0, 255, 0.4);
+        }
+
+        .arp-sequencer {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .arp-steps {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .arp-step {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #888;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .arp-step:hover {
+            border-color: #00d4ff;
+            transform: scale(1.05);
+        }
+
+        .arp-step.active {
+            background: linear-gradient(135deg, #00d4ff, #0088aa);
+            border-color: #00d4ff;
+            animation: stepPulse 0.5s ease;
+        }
+
+        @keyframes stepPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .info-panel {
+            background: rgba(255, 0, 255, 0.1);
+            border-left: 4px solid #ff00ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .info-panel h3 {
+            color: #ff00ff;
+            margin-top: 0;
+        }
+
+        .control-panel {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+            border-radius: 20px;
+            color: #00d4ff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 212, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .control-btn.active {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .spec-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid #00d4ff;
+        }
+
+        .spec-item strong {
+            color: #00d4ff;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="synth-container">
+        <div class="header">
+            <h1>🎹 Behringer 2600 Synthesizer</h1>
+            <p>Interactive Patch Visualizer & Learning Tool</p>
+        </div>
+
+        <!-- Oscillators Section -->
+        <div class="synth-panel">
+            <div class="section-title">
+                <span>🌊</span>
+                <span>Voltage Controlled Oscillators (VCO)</span>
+            </div>
+
+            <div class="module-grid">
+                <!-- VCO 1 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-title">VCO 1</span>
+                        <div class="module-indicator"></div>
+                    </div>
+                    
+                    <div class="knob-container">
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="vco1-freq">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(120deg);"></div>
+                            </div>
+                            <div class="knob-label">Frequency</div>
+                            <div class="knob-value">440 Hz</div>
+                        </div>
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="vco1-fine">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(0deg);"></div>
+                            </div>
+                            <div class="knob-label">Fine Tune</div>
+                            <div class="knob-value">0¢</div>
+                        </div>
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="vco1-pwm">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(180deg);"></div>
+                            </div>
+                            <div class="knob-label">PWM</div>
+                            <div class="knob-value">50%</div>
+                        </div>
+                    </div>
+
+                    <div class="waveform-display">
+                        <canvas class="waveform-canvas" id="vco1-wave"></canvas>
+                    </div>
+
+                    <div class="parameter">
+                        <span class="parameter-label">Waveform</span>
+                        <span class="parameter-value">Sawtooth</span>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-label">Octave</span>
+                        <span class="parameter-value">4'</span>
+                    </div>
+                </div>
+
+                <!-- VCO 2 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-title">VCO 2</span>
+                        <div class="module-indicator"></div>
+                    </div>
+                    
+                    <div class="knob-container">
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="vco2-freq">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(90deg);"></div>
+                            </div>
+                            <div class="knob-label">Frequency</div>
+                            <div class="knob-value">220 Hz</div>
+                        </div>
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="vco2-fine">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(-20deg);"></div>
+                            </div>
+                            <div class="knob-label">Fine Tune</div>
+                            <div class="knob-value">-5¢</div>
+                        </div>
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="vco2-sync">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(0deg);"></div>
+                            </div>
+                            <div class="knob-label">Sync</div>
+                            <div class="knob-value">Off</div>
+                        </div>
+                    </div>
+
+                    <div class="waveform-display">
+                        <canvas class="waveform-canvas" id="vco2-wave"></canvas>
+                    </div>
+
+                    <div class="parameter">
+                        <span class="parameter-label">Waveform</span>
+                        <span class="parameter-value">Square</span>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-label">Octave</span>
+                        <span class="parameter-value">8'</span>
+                    </div>
+                </div>
+
+                <!-- VCO 3 (LFO) -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-title">VCO 3 (LFO)</span>
+                        <div class="module-indicator" style="animation-duration: 4s;"></div>
+                    </div>
+                    
+                    <div class="knob-container">
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="vco3-rate">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(45deg);"></div>
+                            </div>
+                            <div class="knob-label">Rate</div>
+                            <div class="knob-value">2.5 Hz</div>
+                        </div>
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="vco3-depth">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(135deg);"></div>
+                            </div>
+                            <div class="knob-label">Depth</div>
+                            <div class="knob-value">30%</div>
+                        </div>
+                    </div>
+
+                    <div class="waveform-display">
+                        <canvas class="waveform-canvas" id="vco3-wave"></canvas>
+                    </div>
+
+                    <div class="parameter">
+                        <span class="parameter-label">Waveform</span>
+                        <span class="parameter-value">Triangle</span>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-label">Mode</span>
+                        <span class="parameter-value">LFO</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h3>💡 What to Expect from Oscillators</h3>
+                <p><strong>VCO 1 & 2:</strong> Generate the primary tones. VCO 1 typically provides the fundamental pitch, while VCO 2 adds harmonic richness through detuning or different waveforms.</p>
+                <p><strong>VCO 3 (LFO):</strong> Modulates other parameters at sub-audio frequencies (0.1-20Hz) for vibrato, tremolo, and filter sweeps.</p>
+                <p><strong>Waveforms:</strong> Sawtooth (bright, buzzy), Square/Pulse (hollow, woody), Triangle (pure, flute-like), Sine (fundamental only)</p>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="synth-panel">
+            <div class="section-title">
+                <span>🎚️</span>
+                <span>Voltage Controlled Filters (VCF)</span>
+            </div>
+
+            <div class="module-grid">
+                <!-- Low Pass Filter -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-title">Low Pass Filter (24dB)</span>
+                        <div class="module-indicator"></div>
+                    </div>
+                    
+                    <div class="knob-container">
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="lpf-cutoff">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(200deg);"></div>
+                            </div>
+                            <div class="knob-label">Cutoff</div>
+                            <div class="knob-value">800 Hz</div>
+                        </div>
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="lpf-res">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(100deg);"></div>
+                            </div>
+                            <div class="knob-label">Resonance</div>
+                            <div class="knob-value">6.5</div>
+                        </div>
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="lpf-env">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(120deg);"></div>
+                            </div>
+                            <div class="knob-label">Envelope</div>
+                            <div class="knob-value">+70%</div>
+                        </div>
+                    </div>
+
+                    <div class="parameter">
+                        <span class="parameter-label">Filter Type</span>
+                        <span class="parameter-value">Moog Ladder (4-pole)</span>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-label">Self-Oscillation</span>
+                        <span class="parameter-value">Enabled</span>
+                    </div>
+                </div>
+
+                <!-- High Pass Filter -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-title">High Pass Filter</span>
+                        <div class="module-indicator"></div>
+                    </div>
+                    
+                    <div class="knob-container">
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="hpf-cutoff">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(30deg);"></div>
+                            </div>
+                            <div class="knob-label">Cutoff</div>
+                            <div class="knob-value">80 Hz</div>
+                        </div>
+                        <div class="knob">
+                            <div class="knob-visual" data-knob="hpf-res">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(60deg);"></div>
+                            </div>
+                            <div class="knob-label">Resonance</div>
+                            <div class="knob-value">3.2</div>
+                        </div>
+                    </div>
+
+                    <div class="parameter">
+                        <span class="parameter-label">Slope</span>
+                        <span class="parameter-value">12dB/octave</span>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-label">Use Case</span>
+                        <span class="parameter-value">Remove Sub Bass</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h3>💡 What to Expect from Filters</h3>
+                <p><strong>Low Pass Filter (LPF):</strong> Cuts high frequencies, creating warm, mellow tones. The 24dB/octave Moog ladder design provides creamy, musical resonance.</p>
+                <p><strong>Resonance:</strong> Emphasizes frequencies at the cutoff point. High resonance creates a "wah" effect and can self-oscillate into pure sine tones.</p>
+                <p><strong>Envelope Modulation:</strong> Control filter cutoff dynamically with ADSR envelope - opening bright at note attack, closing for warmth.</p>
+                <p><strong>Sweet Spot:</strong> Try cutoff around 800-1200Hz with resonance at 6-7 for classic analog warmth.</p>
+            </div>
+        </div>
+
+        <!-- ARP Sequencer Section -->
+        <div class="synth-panel">
+            <div class="section-title">
+                <span>🎼</span>
+                <span>ARP Sequencer (16-Step)</span>
+            </div>
+
+            <div class="arp-sequencer">
+                <div class="control-panel">
+                    <button class="control-btn active" id="arp-play">▶ Play</button>
+                    <button class="control-btn" id="arp-stop">⏹ Stop</button>
+                    <button class="control-btn" id="arp-clear">🗑 Clear</button>
+                    <button class="control-btn" id="arp-random">🎲 Randomize</button>
+                </div>
+
+                <div class="parameter">
+                    <span class="parameter-label">Tempo</span>
+                    <span class="parameter-value">120 BPM</span>
+                </div>
+                <div class="parameter">
+                    <span class="parameter-label">Mode</span>
+                    <span class="parameter-value">Forward</span>
+                </div>
+
+                <h3 style="color: #00d4ff; margin: 20px 0 10px 0;">Step Sequencer</h3>
+                <div class="arp-steps" id="arp-steps">
+                    <div class="arp-step active" data-step="0">1</div>
+                    <div class="arp-step" data-step="1">2</div>
+                    <div class="arp-step" data-step="2">3</div>
+                    <div class="arp-step" data-step="3">4</div>
+                    <div class="arp-step" data-step="4">5</div>
+                    <div class="arp-step" data-step="5">6</div>
+                    <div class="arp-step" data-step="6">7</div>
+                    <div class="arp-step" data-step="7">8</div>
+                    <div class="arp-step" data-step="8">9</div>
+                    <div class="arp-step" data-step="9">10</div>
+                    <div class="arp-step" data-step="10">11</div>
+                    <div class="arp-step" data-step="11">12</div>
+                    <div class="arp-step" data-step="12">13</div>
+                    <div class="arp-step" data-step="13">14</div>
+                    <div class="arp-step" data-step="14">15</div>
+                    <div class="arp-step" data-step="15">16</div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h3>💡 What to Expect from ARP Sequencer</h3>
+                <p><strong>Step Sequencing:</strong> Program up to 16 steps of pitch, gate, or modulation values. Perfect for creating evolving basslines and melodic patterns.</p>
+                <p><strong>Modes:</strong> Forward, Reverse, Pendulum, Random - each creates different rhythmic feels.</p>
+                <p><strong>CV Control:</strong> Each step outputs control voltage that can modulate oscillator pitch, filter cutoff, or any parameter.</p>
+                <p><strong>Classic Use:</strong> Berlin-school sequences, Kraftwerk-style arpeggios, evolving ambient textures.</p>
+            </div>
+        </div>
+
+        <!-- Patch Matrix Section -->
+        <div class="synth-panel">
+            <div class="section-title">
+                <span>🔌</span>
+                <span>Patch Matrix - Semi-Modular Routing</span>
+            </div>
+
+            <div class="info-panel">
+                <h3>📍 Patch Point Philosophy</h3>
+                <p>The 2600 is <strong>semi-modular</strong> - it works without cables, but patch points allow creative signal routing. Click patch points below to connect and experiment!</p>
+            </div>
+
+            <h3 style="color: #ff00ff; margin: 20px 0;">Outputs (Sources)</h3>
+            <div class="patch-cable-grid" id="patch-outputs">
+                <div class="patch-point" data-type="output" data-signal="vco1-saw">
+                    <div class="patch-jack"></div>
+                    <div>VCO 1 Saw</div>
+                </div>
+                <div class="patch-point" data-type="output" data-signal="vco1-pulse">
+                    <div class="patch-jack"></div>
+                    <div>VCO 1 Pulse</div>
+                </div>
+                <div class="patch-point" data-type="output" data-signal="vco2-saw">
+                    <div class="patch-jack"></div>
+                    <div>VCO 2 Saw</div>
+                </div>
+                <div class="patch-point" data-type="output" data-signal="vco2-tri">
+                    <div class="patch-jack"></div>
+                    <div>VCO 2 Triangle</div>
+                </div>
+                <div class="patch-point" data-type="output" data-signal="vco3-sine">
+                    <div class="patch-jack"></div>
+                    <div>VCO 3 Sine</div>
+                </div>
+                <div class="patch-point" data-type="output" data-signal="env-adsr">
+                    <div class="patch-jack"></div>
+                    <div>ADSR Envelope</div>
+                </div>
+                <div class="patch-point" data-type="output" data-signal="noise-white">
+                    <div class="patch-jack"></div>
+                    <div>White Noise</div>
+                </div>
+                <div class="patch-point" data-type="output" data-signal="noise-pink">
+                    <div class="patch-jack"></div>
+                    <div>Pink Noise</div>
+                </div>
+            </div>
+
+            <h3 style="color: #00d4ff; margin: 30px 0 20px 0;">Inputs (Destinations)</h3>
+            <div class="patch-cable-grid" id="patch-inputs">
+                <div class="patch-point" data-type="input" data-signal="vcf-cutoff">
+                    <div class="patch-jack"></div>
+                    <div>VCF Cutoff CV</div>
+                </div>
+                <div class="patch-point" data-type="input" data-signal="vco1-fm">
+                    <div class="patch-jack"></div>
+                    <div>VCO 1 FM</div>
+                </div>
+                <div class="patch-point" data-type="input" data-signal="vco2-fm">
+                    <div class="patch-jack"></div>
+                    <div>VCO 2 FM</div>
+                </div>
+                <div class="patch-point" data-type="input" data-signal="vca-cv">
+                    <div class="patch-jack"></div>
+                    <div>VCA Level CV</div>
+                </div>
+                <div class="patch-point" data-type="input" data-signal="mix-in">
+                    <div class="patch-jack"></div>
+                    <div>Mixer Input</div>
+                </div>
+                <div class="patch-point" data-type="input" data-signal="ring-mod">
+                    <div class="patch-jack"></div>
+                    <div>Ring Mod CV</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Presets Section -->
+        <div class="synth-panel">
+            <div class="section-title">
+                <span>💾</span>
+                <span>Classic Patches</span>
+            </div>
+
+            <div class="preset-buttons">
+                <button class="preset-btn" data-preset="bass">🎸 Fat Bass</button>
+                <button class="preset-btn" data-preset="lead">🎺 Screaming Lead</button>
+                <button class="preset-btn" data-preset="pad">🌌 Lush Pad</button>
+                <button class="preset-btn" data-preset="seq">🎼 Berlin Sequence</button>
+                <button class="preset-btn" data-preset="fx">⚡ Sci-Fi FX</button>
+                <button class="preset-btn" data-preset="brass">🎷 Brass Stab</button>
+                <button class="preset-btn" data-preset="pluck">🎹 Plucked Synth</button>
+                <button class="preset-btn" data-preset="drone">🌊 Evolving Drone</button>
+            </div>
+
+            <div class="info-panel" style="margin-top: 20px;">
+                <h3>🎨 Preset Descriptions</h3>
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <strong>Fat Bass</strong>
+                        Both VCOs detuned slightly, LPF at 400Hz, high resonance, envelope-controlled filter
+                    </div>
+                    <div class="spec-item">
+                        <strong>Screaming Lead</strong>
+                        Single VCO sawtooth, LPF at 2kHz, maximum resonance, fast attack
+                    </div>
+                    <div class="spec-item">
+                        <strong>Lush Pad</strong>
+                        VCO1+VCO2 mixed, slow attack/release, chorus-like detuning, gentle filtering
+                    </div>
+                    <div class="spec-item">
+                        <strong>Berlin Sequence</strong>
+                        16-step pattern, VCO sync, filter modulated by sequencer, classic Tangerine Dream
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Specifications -->
+        <div class="synth-panel">
+            <div class="section-title">
+                <span>📊</span>
+                <span>Technical Specifications</span>
+            </div>
+
+            <div class="spec-grid">
+                <div class="spec-item">
+                    <strong>Oscillators</strong>
+                    3 VCOs with multiple waveforms (saw, triangle, pulse, sine)
+                </div>
+                <div class="spec-item">
+                    <strong>Filter</strong>
+                    24dB/octave low-pass (Moog ladder), 12dB/octave high-pass
+                </div>
+                <div class="spec-item">
+                    <strong>Envelopes</strong>
+                    2x ADSR with voltage control, 1x AR envelope
+                </div>
+                <div class="spec-item">
+                    <strong>Modulation</strong>
+                    Ring modulator, sample & hold, voltage processor
+                </div>
+                <div class="spec-item">
+                    <strong>Sequencer</strong>
+                    16-step with multiple modes, CV outputs per step
+                </div>
+                <div class="spec-item">
+                    <strong>Keyboard</strong>
+                    49 keys, velocity sensitive, aftertouch
+                </div>
+                <div class="spec-item">
+                    <strong>Patch Points</strong>
+                    86 3.5mm jacks for complete signal routing
+                </div>
+                <div class="spec-item">
+                    <strong>Output</strong>
+                    Main stereo out, headphone out, individual outs
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Controls & Keyboard -->
+    <div class="synth-panel">
+        <div class="section-title">
+            <i class="fas fa-volume-up"></i>
+            <span>Audio Controls & Virtual Keyboard</span>
+        </div>
+        
+        <div class="audio-controls" style="margin-bottom: 20px;">
+            <button id="power-btn" class="control-btn power-btn" style="background: linear-gradient(135deg, #ff4444, #cc0000); color: white; border: none; padding: 15px 40px; border-radius: 10px; font-size: 1.2em; cursor: pointer; margin-right: 10px; box-shadow: 0 5px 15px rgba(255, 68, 68, 0.4);">
+                <i class="fas fa-power-off"></i> POWER ON
+            </button>
+            
+            <button id="preset-bass" class="control-btn" style="background: #2a2a3e; color: #00d4ff; border: 2px solid #00d4ff; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-right: 5px;">
+                <i class="fas fa-music"></i> Bass
+            </button>
+            
+            <button id="preset-lead" class="control-btn" style="background: #2a2a3e; color: #00d4ff; border: 2px solid #00d4ff; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-right: 5px;">
+                <i class="fas fa-guitar"></i> Lead
+            </button>
+            
+            <button id="preset-pad" class="control-btn" style="background: #2a2a3e; color: #00d4ff; border: 2px solid #00d4ff; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-right: 5px;">
+                <i class="fas fa-wave-square"></i> Pad
+            </button>
+            
+            <label style="color: #888; margin-left: 20px;">
+                Volume: 
+                <input type="range" id="master-volume" min="0" max="100" value="30" style="vertical-align: middle;">
+                <span id="volume-value">30%</span>
+            </label>
+        </div>
+        
+        <!-- Virtual Piano Keyboard -->
+        <div class="keyboard-container" style="background: linear-gradient(135deg, #1a1a2e, #2a2a3e); padding: 20px; border-radius: 15px; margin-top: 20px;">
+            <div style="text-align: center; color: #888; margin-bottom: 15px;">
+                <i class="fas fa-keyboard"></i> Play using your computer keyboard (A-L = C-B, W-P = C#-B♭)
+            </div>
+            
+            <div id="piano-keyboard" style="display: flex; justify-content: center; gap: 2px; position: relative; height: 180px;">
+                <!-- White keys -->
+                <div class="piano-key white" data-note="C4" data-freq="261.63" data-key="a" style="width: 50px; height: 180px; background: linear-gradient(to bottom, #ffffff, #e0e0e0); border: 2px solid #000; border-radius: 0 0 8px 8px; cursor: pointer; position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font-weight: bold;">
+                    <div style="position: absolute; bottom: 10px; color: #666;">C<br><small style="font-size: 0.7em;">A</small></div>
+                </div>
+                <div class="piano-key black" data-note="C#4" data-freq="277.18" data-key="w" style="width: 35px; height: 120px; background: linear-gradient(to bottom, #1a1a1a, #000); border: 2px solid #000; border-radius: 0 0 5px 5px; cursor: pointer; position: absolute; left: 38px; z-index: 2; color: #fff; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; font-size: 0.8em;">
+                    <div style="position: absolute; bottom: 5px;">W</div>
+                </div>
+                <div class="piano-key white" data-note="D4" data-freq="293.66" data-key="s" style="width: 50px; height: 180px; background: linear-gradient(to bottom, #ffffff, #e0e0e0); border: 2px solid #000; border-radius: 0 0 8px 8px; cursor: pointer; position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font-weight: bold; margin-left: 50px;">
+                    <div style="position: absolute; bottom: 10px; color: #666;">D<br><small style="font-size: 0.7em;">S</small></div>
+                </div>
+                <div class="piano-key black" data-note="D#4" data-freq="311.13" data-key="e" style="width: 35px; height: 120px; background: linear-gradient(to bottom, #1a1a1a, #000); border: 2px solid #000; border-radius: 0 0 5px 5px; cursor: pointer; position: absolute; left: 90px; z-index: 2; color: #fff; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; font-size: 0.8em;">
+                    <div style="position: absolute; bottom: 5px;">E</div>
+                </div>
+                <div class="piano-key white" data-note="E4" data-freq="329.63" data-key="d" style="width: 50px; height: 180px; background: linear-gradient(to bottom, #ffffff, #e0e0e0); border: 2px solid #000; border-radius: 0 0 8px 8px; cursor: pointer; position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font-weight: bold; margin-left: 50px;">
+                    <div style="position: absolute; bottom: 10px; color: #666;">E<br><small style="font-size: 0.7em;">D</small></div>
+                </div>
+                <div class="piano-key white" data-note="F4" data-freq="349.23" data-key="f" style="width: 50px; height: 180px; background: linear-gradient(to bottom, #ffffff, #e0e0e0); border: 2px solid #000; border-radius: 0 0 8px 8px; cursor: pointer; position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font-weight: bold; margin-left: 50px;">
+                    <div style="position: absolute; bottom: 10px; color: #666;">F<br><small style="font-size: 0.7em;">F</small></div>
+                </div>
+                <div class="piano-key black" data-note="F#4" data-freq="369.99" data-key="t" style="width: 35px; height: 120px; background: linear-gradient(to bottom, #1a1a1a, #000); border: 2px solid #000; border-radius: 0 0 5px 5px; cursor: pointer; position: absolute; left: 192px; z-index: 2; color: #fff; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; font-size: 0.8em;">
+                    <div style="position: absolute; bottom: 5px;">T</div>
+                </div>
+                <div class="piano-key white" data-note="G4" data-freq="392.00" data-key="g" style="width: 50px; height: 180px; background: linear-gradient(to bottom, #ffffff, #e0e0e0); border: 2px solid #000; border-radius: 0 0 8px 8px; cursor: pointer; position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font-weight: bold; margin-left: 50px;">
+                    <div style="position: absolute; bottom: 10px; color: #666;">G<br><small style="font-size: 0.7em;">G</small></div>
+                </div>
+                <div class="piano-key black" data-note="G#4" data-freq="415.30" data-key="y" style="width: 35px; height: 120px; background: linear-gradient(to bottom, #1a1a1a, #000); border: 2px solid #000; border-radius: 0 0 5px 5px; cursor: pointer; position: absolute; left: 244px; z-index: 2; color: #fff; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; font-size: 0.8em;">
+                    <div style="position: absolute; bottom: 5px;">Y</div>
+                </div>
+                <div class="piano-key white" data-note="A4" data-freq="440.00" data-key="h" style="width: 50px; height: 180px; background: linear-gradient(to bottom, #ffffff, #e0e0e0); border: 2px solid #000; border-radius: 0 0 8px 8px; cursor: pointer; position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font-weight: bold; margin-left: 50px;">
+                    <div style="position: absolute; bottom: 10px; color: #666;">A<br><small style="font-size: 0.7em;">H</small></div>
+                </div>
+                <div class="piano-key black" data-note="A#4" data-freq="466.16" data-key="u" style="width: 35px; height: 120px; background: linear-gradient(to bottom, #1a1a1a, #000); border: 2px solid #000; border-radius: 0 0 5px 5px; cursor: pointer; position: absolute; left: 296px; z-index: 2; color: #fff; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; font-size: 0.8em;">
+                    <div style="position: absolute; bottom: 5px;">U</div>
+                </div>
+                <div class="piano-key white" data-note="B4" data-freq="493.88" data-key="j" style="width: 50px; height: 180px; background: linear-gradient(to bottom, #ffffff, #e0e0e0); border: 2px solid #000; border-radius: 0 0 8px 8px; cursor: pointer; position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font-weight: bold; margin-left: 50px;">
+                    <div style="position: absolute; bottom: 10px; color: #666;">B<br><small style="font-size: 0.7em;">J</small></div>
+                </div>
+                <div class="piano-key white" data-note="C5" data-freq="523.25" data-key="k" style="width: 50px; height: 180px; background: linear-gradient(to bottom, #ffffff, #e0e0e0); border: 2px solid #000; border-radius: 0 0 8px 8px; cursor: pointer; position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font-weight: bold; margin-left: 50px;">
+                    <div style="position: absolute; bottom: 10px; color: #666;">C<br><small style="font-size: 0.7em;">K</small></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLI Output Panel -->
+    <div class="synth-panel">
+        <div class="section-title">
+            <i class="fas fa-terminal"></i>
+            CLI Output & Presets
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+            <!-- Preset Selector -->
+            <div style="background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 10px;">
+                <h3 style="color: #00d4ff; margin-top: 0;">Load Preset</h3>
+                <select id="preset-selector" style="width: 100%; padding: 10px; background: #1a1a2e; color: #00d4ff; border: 2px solid #00d4ff; border-radius: 5px; font-size: 1em; margin-bottom: 10px;">
+                    <option value="">Select a preset...</option>
+                </select>
+                <button id="load-preset-btn" style="width: 100%; padding: 12px; background: linear-gradient(45deg, #00d4ff, #0099cc); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 1em;">
+                    <i class="fas fa-download"></i> Load Preset
+                </button>
+                
+                <div style="margin-top: 20px;">
+                    <h3 style="color: #00d4ff; margin-top: 0;">Export MIDI</h3>
+                    <input type="text" id="midi-filename" placeholder="output.mid" value="synth2600_export.mid" style="width: 100%; padding: 10px; background: #1a1a2e; color: #00d4ff; border: 2px solid #00d4ff; border-radius: 5px; font-size: 1em; margin-bottom: 10px;">
+                    <label style="display: block; color: #888; margin-bottom: 5px;">Bars: <span id="bars-value">4</span></label>
+                    <input type="range" id="midi-bars" min="1" max="16" value="4" style="width: 100%; margin-bottom: 10px;">
+                    <button id="export-midi-btn" style="width: 100%; padding: 12px; background: linear-gradient(45deg, #ff00ff, #cc00cc); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 1em;">
+                        <i class="fas fa-file-export"></i> Export MIDI
+                    </button>
+                </div>
+            </div>
+            
+            <!-- CLI Output Display -->
+            <div style="background: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px; border: 2px solid #00d4ff;">
+                <h3 style="color: #00d4ff; margin-top: 0;">
+                    <i class="fas fa-terminal"></i> CLI Output
+                </h3>
+                <pre id="cli-output" style="color: #0f0; font-family: 'Courier New', monospace; font-size: 0.9em; overflow-x: auto; max-height: 400px; overflow-y: auto; background: #000; padding: 15px; border-radius: 5px; margin: 0;">Ready. Load a preset or export MIDI to see output...</pre>
+            </div>
+        </div>
+        
+        <!-- Patch Connections Display -->
+        <div id="patch-connections" style="margin-top: 20px; display: none;">
+            <h3 style="color: #00d4ff;">
+                <i class="fas fa-project-diagram"></i> Patch Connections
+            </h3>
+            <div id="connections-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-top: 15px;">
+                <!-- Patch connections will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/synth-2600-audio.js"></script>
+    <script src="js/synth-2600.js"></script>
+    <script>
+        // Initialize audio engine
+        const synthEngine = new Synth2600AudioEngine();
+        let isPoweredOn = false;
+        const activeKeys = new Map();
+        
+        // Power button
+        document.getElementById('power-btn').addEventListener('click', function() {
+            if (!isPoweredOn) {
+                synthEngine.start();
+                this.innerHTML = '<i class="fas fa-power-off"></i> POWER OFF';
+                this.style.background = 'linear-gradient(135deg, #44ff44, #00cc00)';
+                isPoweredOn = true;
+            } else {
+                synthEngine.stop();
+                this.innerHTML = '<i class="fas fa-power-off"></i> POWER ON';
+                this.style.background = 'linear-gradient(135deg, #ff4444, #cc0000)';
+                isPoweredOn = false;
+            }
+        });
+        
+        // Preset buttons
+        document.getElementById('preset-bass').addEventListener('click', () => {
+            synthEngine.loadPreset('bass');
+        });
+        
+        document.getElementById('preset-lead').addEventListener('click', () => {
+            synthEngine.loadPreset('lead');
+        });
+        
+        document.getElementById('preset-pad').addEventListener('click', () => {
+            synthEngine.loadPreset('pad');
+        });
+        
+        // Master volume
+        document.getElementById('master-volume').addEventListener('input', function(e) {
+            const volume = e.target.value / 100;
+            synthEngine.setMasterVolume(volume);
+            document.getElementById('volume-value').textContent = e.target.value + '%';
+        });
+        
+        // Piano keyboard click events
+        document.querySelectorAll('.piano-key').forEach(key => {
+            key.addEventListener('mousedown', () => {
+                if (!isPoweredOn) return;
+                const freq = parseFloat(key.getAttribute('data-freq'));
+                const noteId = synthEngine.playNote(freq);
+                key.style.opacity = '0.7';
+                key.setAttribute('data-note-id', noteId);
+            });
+            
+            key.addEventListener('mouseup', () => {
+                const noteId = parseInt(key.getAttribute('data-note-id'));
+                if (noteId) {
+                    synthEngine.releaseNote(noteId);
+                }
+                key.style.opacity = '1';
+            });
+            
+            key.addEventListener('mouseleave', () => {
+                const noteId = parseInt(key.getAttribute('data-note-id'));
+                if (noteId) {
+                    synthEngine.releaseNote(noteId);
+                }
+                key.style.opacity = '1';
+            });
+        });
+        
+        // Computer keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (!isPoweredOn || e.repeat) return;
+            
+            const key = e.key.toLowerCase();
+            const pianoKey = document.querySelector(`.piano-key[data-key="${key}"]`);
+            
+            if (pianoKey && !activeKeys.has(key)) {
+                const freq = parseFloat(pianoKey.getAttribute('data-freq'));
+                const noteId = synthEngine.playNote(freq);
+                activeKeys.set(key, noteId);
+                pianoKey.style.opacity = '0.7';
+                pianoKey.style.transform = 'translateY(2px)';
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            const pianoKey = document.querySelector(`.piano-key[data-key="${key}"]`);
+            
+            if (pianoKey && activeKeys.has(key)) {
+                const noteId = activeKeys.get(key);
+                synthEngine.releaseNote(noteId);
+                activeKeys.delete(key);
+                pianoKey.style.opacity = '1';
+                pianoKey.style.transform = 'translateY(0)';
+            }
+        });
+        
+        console.log('🎛️ Behringer 2600 Synthesizer Ready!');
+        console.log('💡 Click POWER ON to start');
+        console.log('🎹 Use your computer keyboard or click the piano keys to play');
+
+        // ============================================
+        // CLI Integration & API Calls
+        // ============================================
+        
+        const cliOutput = document.getElementById('cli-output');
+        const presetSelector = document.getElementById('preset-selector');
+        const loadPresetBtn = document.getElementById('load-preset-btn');
+        const exportMidiBtn = document.getElementById('export-midi-btn');
+        const midiBarsSlider = document.getElementById('midi-bars');
+        const barsValueDisplay = document.getElementById('bars-value');
+        const patchConnectionsDiv = document.getElementById('patch-connections');
+        const connectionsGrid = document.getElementById('connections-grid');
+        
+        // Update bars display
+        midiBarsSlider.addEventListener('input', (e) => {
+            barsValueDisplay.textContent = e.target.value;
+        });
+        
+        // Load available presets on page load
+        async function loadPresetList() {
+            try {
+                cliOutput.textContent = 'Loading presets...';
+                const response = await fetch('/api/music/synth2600/presets');
+                const data = await response.json();
+                
+                if (data.success) {
+                    presetSelector.innerHTML = '<option value="">Select a preset...</option>';
+                    
+                    // Add presets by category
+                    const categories = {
+                        soundscape: 'Soundscape Generators',
+                        rhythmic: 'Rhythmic Experiments',
+                        modulation: 'Modulation Madness',
+                        cinematic: 'Cinematic FX',
+                        psychedelic: 'Psychedelic',
+                        performance: 'Performance',
+                        musical: 'Musical Techniques'
+                    };
+                    
+                    Object.entries(data.categories).forEach(([category, presets]) => {
+                        if (presets.length > 0) {
+                            const optgroup = document.createElement('optgroup');
+                            optgroup.label = categories[category];
+                            presets.forEach(preset => {
+                                const option = document.createElement('option');
+                                option.value = preset;
+                                option.textContent = preset.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                optgroup.appendChild(option);
+                            });
+                            presetSelector.appendChild(optgroup);
+                        }
+                    });
+                    
+                    cliOutput.textContent = 'Ready. Select a preset to load.';
+                } else {
+                    cliOutput.textContent = 'Error loading presets: ' + data.error;
+                }
+            } catch (error) {
+                cliOutput.textContent = 'Error: ' + error.message;
+                console.error('Error loading presets:', error);
+            }
+        }
+        
+        // Load a specific preset
+        loadPresetBtn.addEventListener('click', async () => {
+            const presetName = presetSelector.value;
+            if (!presetName) {
+                alert('Please select a preset first');
+                return;
+            }
+            
+            try {
+                cliOutput.textContent = `Loading preset: ${presetName}...\n`;
+                loadPresetBtn.disabled = true;
+                loadPresetBtn.textContent = 'Loading...';
+                
+                const response = await fetch(`/api/music/synth2600/preset/${presetName}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    cliOutput.textContent = data.rawOutput;
+                    
+                    // Display patch connections visually
+                    if (data.patchConnections && data.patchConnections.length > 0) {
+                        patchConnectionsDiv.style.display = 'block';
+                        connectionsGrid.innerHTML = '';
+                        
+                        data.patchConnections.forEach(conn => {
+                            const connDiv = document.createElement('div');
+                            connDiv.style.cssText = `
+                                background: rgba(0, 212, 255, 0.1);
+                                border: 2px solid ${getConnectionColor(conn.color)};
+                                border-radius: 10px;
+                                padding: 15px;
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
+                            `;
+                            
+                            connDiv.innerHTML = `
+                                <div style="width: 20px; height: 20px; background: ${getConnectionColor(conn.color)}; border-radius: 50%;"></div>
+                                <div style="flex: 1;">
+                                    <div style="color: #00d4ff; font-weight: bold;">${conn.source}</div>
+                                    <div style="color: #888; font-size: 0.9em;">→</div>
+                                    <div style="color: #0f0; font-weight: bold;">${conn.destination}</div>
+                                </div>
+                                <div style="color: #ff00ff; font-weight: bold;">
+                                    ${(conn.level * 100).toFixed(0)}%
+                                </div>
+                            `;
+                            
+                            connectionsGrid.appendChild(connDiv);
+                        });
+                    } else {
+                        patchConnectionsDiv.style.display = 'none';
+                    }
+                } else {
+                    cliOutput.textContent = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                cliOutput.textContent = 'Error: ' + error.message;
+                console.error('Error loading preset:', error);
+            } finally {
+                loadPresetBtn.disabled = false;
+                loadPresetBtn.innerHTML = '<i class="fas fa-download"></i> Load Preset';
+            }
+        });
+        
+        // Export to MIDI
+        exportMidiBtn.addEventListener('click', async () => {
+            const filename = document.getElementById('midi-filename').value;
+            const bars = parseInt(midiBarsSlider.value);
+            
+            if (!filename.endsWith('.mid')) {
+                alert('Filename must end with .mid');
+                return;
+            }
+            
+            try {
+                cliOutput.textContent = `Exporting MIDI: ${filename} (${bars} bars)...\n`;
+                exportMidiBtn.disabled = true;
+                exportMidiBtn.textContent = 'Exporting...';
+                
+                const response = await fetch('/api/music/synth2600/export', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ filename, bars })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    cliOutput.textContent = data.rawOutput + '\n\n✓ MIDI file exported successfully!';
+                    
+                    // Download the MIDI file
+                    const midiBlob = new Blob([Uint8Array.from(atob(data.midiData), c => c.charCodeAt(0))], { type: 'audio/midi' });
+                    const url = URL.createObjectURL(midiBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } else {
+                    cliOutput.textContent = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                cliOutput.textContent = 'Error: ' + error.message;
+                console.error('Error exporting MIDI:', error);
+            } finally {
+                exportMidiBtn.disabled = false;
+                exportMidiBtn.innerHTML = '<i class="fas fa-file-export"></i> Export MIDI';
+            }
+        });
+        
+        // Helper function to get color hex from name
+        function getConnectionColor(colorName) {
+            const colors = {
+                'red': '#ff0000',
+                'blue': '#00d4ff',
+                'green': '#0f0',
+                'yellow': '#ffff00',
+                'white': '#fff',
+                'orange': '#ff8800',
+                'purple': '#ff00ff'
+            };
+            return colors[colorName.toLowerCase()] || '#00d4ff';
+        }
+        
+        // Initialize preset list on load
+        loadPresetList();
+    </script>
+</body>
+</html>

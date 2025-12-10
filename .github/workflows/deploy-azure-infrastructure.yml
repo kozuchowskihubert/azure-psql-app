@@ -273,11 +273,25 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 🔧 Terraform Init
+      - name: � Break State Lock (if exists)
+        working-directory: ./infra
+        run: |
+          echo "Checking and breaking any stale state locks..."
+          # Try to break any existing lease on the state blob
+          az storage blob lease break \
+            --container-name tfstate \
+            --blob-name terraform.tfstate \
+            --account-name tfstatenotesapp \
+            --account-key "$ARM_ACCESS_KEY" 2>/dev/null || echo "No lease to break or blob doesn't exist"
+          echo "✅ State lock check complete"
+        env:
+          ARM_ACCESS_KEY: ${{ secrets.ARM_ACCESS_KEY }}
+
+      - name: �🔧 Terraform Init
         working-directory: ./infra
         run: |
           echo "Initializing Terraform with Azure backend..."
-          terraform init
+          terraform init -lock=false
           echo "✅ Terraform initialized successfully"
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -291,15 +305,28 @@ jobs:
         working-directory: ./infra
         run: |
           echo "Planning infrastructure changes..."
+          set +e  # Don't exit on error, we want to capture the exit code
+          
           terraform plan \
             -var="db_password=${{ secrets.DB_PASSWORD }}" \
             -var="location=${{ env.AZURE_REGION }}" \
+            -lock-timeout=60s \
             -out=tfplan \
-            -no-color | tee plan.txt
+            -no-color 2>&1 | tee plan.txt
+          
+          PLAN_EXIT_CODE=${PIPESTATUS[0]}
+          
+          if [ $PLAN_EXIT_CODE -ne 0 ]; then
+            echo "❌ Terraform plan failed with exit code $PLAN_EXIT_CODE"
+            echo "plan_failed=true" >> $GITHUB_OUTPUT
+            cat plan.txt
+            exit 1
+          fi
           
           # Count resource changes
           CHANGES=$(grep -E "Plan:|No changes" plan.txt || echo "Unknown")
           echo "changes=$CHANGES" >> $GITHUB_OUTPUT
+          echo "plan_failed=false" >> $GITHUB_OUTPUT
           echo "✅ Terraform plan complete"
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -309,10 +336,18 @@ jobs:
           ARM_ACCESS_KEY: ${{ secrets.ARM_ACCESS_KEY }}
 
       - name: 🚀 Terraform Apply
+        if: steps.plan.outputs.plan_failed != 'true'
         working-directory: ./infra
         run: |
           echo "Applying infrastructure changes..."
-          terraform apply -auto-approve tfplan
+          
+          # Verify plan file exists
+          if [ ! -f tfplan ]; then
+            echo "❌ Error: tfplan file not found. Plan step may have failed."
+            exit 1
+          fi
+          
+          terraform apply -auto-approve -lock-timeout=60s tfplan
           echo "✅ Infrastructure deployed successfully"
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}

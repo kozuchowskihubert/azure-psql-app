@@ -1,0 +1,507 @@
+/**
+ * Mobile Responsive Enhancements
+ * ===============================
+ * Universal CSS for improved mobile experience across all haos.fm pages
+ * 
+ * Features:
+ * - Responsive breakpoints (320px, 768px, 1024px, 1440px)
+ * - Touch-friendly controls
+ * - Optimized grid layouts
+ * - Better typography scaling
+ * - Improved navigation
+ * 
+ * Usage:
+ * <link rel="stylesheet" href="/css/responsive.css">
+ */
+
+/* ========================================
+   CORE RESPONSIVE FOUNDATION
+   ======================================== */
+
+/* Ensure proper box sizing */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Prevent text size adjustment on orientation change */
+html {
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* Smooth scrolling for better UX */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Base body improvements */
+body {
+    min-width: 320px;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================
+   TOUCH-FRIENDLY CONTROLS
+   ======================================== */
+
+/* Increase touch target size (minimum 44x44px per Apple/Google guidelines) */
+button,
+.btn,
+.mode-button,
+.nav-btn,
+.channel-btn,
+.theme-toggle-btn,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+a.button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+}
+
+/* Remove tap highlight on iOS */
+button,
+a,
+input,
+select,
+textarea {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Improve touch scrolling */
+.container,
+.module-container,
+.mode-grid {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ========================================
+   TYPOGRAPHY SCALING
+   ======================================== */
+
+/* Mobile-first typography */
+h1 {
+    font-size: clamp(1.75rem, 5vw, 3.5rem);
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    line-height: 1.4;
+}
+
+p,
+.subtitle {
+    font-size: clamp(0.95rem, 2vw, 1.2rem);
+    line-height: 1.6;
+}
+
+/* ========================================
+   MOBILE BREAKPOINTS
+   ======================================== */
+
+/* Extra Small Devices (320px - 480px) */
+@media (max-width: 480px) {
+    /* Header adjustments */
+    .header {
+        padding: 15px 10px !important;
+    }
+    
+    .header h1 {
+        font-size: 1.75rem !important;
+        margin-bottom: 5px;
+    }
+    
+    .header p,
+    .subtitle {
+        font-size: 0.9rem !important;
+        margin-bottom: 10px;
+    }
+    
+    /* Navigation */
+    .nav-links,
+    .top-nav {
+        flex-wrap: wrap;
+        gap: 8px !important;
+        justify-content: center;
+    }
+    
+    .nav-btn,
+    .nav-links a {
+        font-size: 0.85rem !important;
+        padding: 10px 12px !important;
+    }
+    
+    /* Grid layouts */
+    .module-container,
+    .mode-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+        padding: 10px !important;
+    }
+    
+    /* Cards */
+    .mode-card,
+    .module,
+    .card {
+        padding: 15px !important;
+        margin: 10px 5px !important;
+    }
+    
+    /* Forms and controls */
+    .control-group,
+    .tool-grid {
+        gap: 10px !important;
+    }
+    
+    input[type="range"] {
+        height: 12px !important;
+    }
+    
+    /* Hide non-essential elements on tiny screens */
+    .guidance-panel,
+    .quick-stats {
+        font-size: 0.85rem;
+    }
+}
+
+/* Small Devices (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    /* Header */
+    .header {
+        padding: 20px 15px !important;
+    }
+    
+    .header h1 {
+        font-size: 2.25rem !important;
+    }
+    
+    /* Grid - 2 columns */
+    .module-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+    }
+    
+    .mode-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    }
+    
+    /* Navigation */
+    .nav-links,
+    .top-nav {
+        gap: 10px;
+    }
+}
+
+/* Medium Devices (769px - 1024px) - Tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+    /* Grid - 2-3 columns */
+    .module-container {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+        gap: 25px;
+    }
+    
+    .mode-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+    }
+    
+    /* Optimize sidebar/main content split */
+    .main-layout {
+        grid-template-columns: 250px 1fr !important;
+    }
+}
+
+/* Large Devices (1025px - 1440px) - Laptops */
+@media (min-width: 1025px) and (max-width: 1440px) {
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 30px;
+    }
+    
+    .module-container {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
+}
+
+/* Extra Large Devices (1441px+) - Desktops */
+@media (min-width: 1441px) {
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 40px;
+    }
+    
+    .module-container {
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    }
+}
+
+/* ========================================
+   ORIENTATION SPECIFIC
+   ======================================== */
+
+/* Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .header {
+        padding: 10px 15px !important;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .guidance-panel {
+        display: none; /* Hide guide in landscape */
+    }
+    
+    /* Compact mode controls */
+    .mode-selector {
+        padding: 8px !important;
+    }
+}
+
+/* ========================================
+   FLEXBOX IMPROVEMENTS
+   ======================================== */
+
+/* Better flex wrapping */
+.flex-wrap,
+.nav-links,
+.top-nav,
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Responsive flex direction */
+@media (max-width: 768px) {
+    .flex-row-desktop {
+        flex-direction: column !important;
+    }
+}
+
+/* ========================================
+   SPACING UTILITIES
+   ======================================== */
+
+/* Responsive padding */
+.p-responsive {
+    padding: clamp(10px, 3vw, 30px);
+}
+
+.px-responsive {
+    padding-left: clamp(10px, 3vw, 30px);
+    padding-right: clamp(10px, 3vw, 30px);
+}
+
+.py-responsive {
+    padding-top: clamp(10px, 3vw, 30px);
+    padding-bottom: clamp(10px, 3vw, 30px);
+}
+
+/* Responsive margin */
+.m-responsive {
+    margin: clamp(10px, 3vw, 30px);
+}
+
+.mb-responsive {
+    margin-bottom: clamp(15px, 4vw, 40px);
+}
+
+/* ========================================
+   SPECIFIC COMPONENT FIXES
+   ======================================== */
+
+/* Music Creator Experience Cards */
+@media (max-width: 768px) {
+    .experience-levels {
+        flex-direction: column !important;
+        gap: 15px;
+    }
+    
+    .experience-card {
+        width: 100% !important;
+        max-width: none !important;
+    }
+}
+
+/* Mode Selector Tabs */
+@media (max-width: 480px) {
+    .mode-selector {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .mode-tab {
+        width: 100%;
+    }
+}
+
+/* Sequencer Grids */
+@media (max-width: 768px) {
+    .pattern-grid,
+    .sequencer-grid {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .pattern-grid table {
+        min-width: 500px; /* Ensure horizontal scroll instead of squish */
+    }
+}
+
+/* Patch Matrix (Modular pages) */
+@media (max-width: 1024px) {
+    .patch-matrix {
+        transform: scale(0.8);
+        transform-origin: top left;
+    }
+}
+
+@media (max-width: 768px) {
+    .patch-matrix {
+        transform: scale(0.6);
+    }
+}
+
+/* ========================================
+   ACCESSIBILITY IMPROVEMENTS
+   ======================================== */
+
+/* Focus indicators for keyboard navigation */
+@media (min-width: 769px) {
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+        outline: 3px solid var(--primary, #00d4ff);
+        outline-offset: 2px;
+    }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    button,
+    .btn,
+    .card {
+        border-width: 2px !important;
+    }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+    .header,
+    .nav-links,
+    .top-nav,
+    .guidance-panel,
+    button,
+    .theme-toggle-btn {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+}
+
+/* ========================================
+   PWA SAFE AREAS (iOS Notch Support)
+   ======================================== */
+
+@supports (padding: max(0px)) {
+    body {
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
+    
+    .header {
+        padding-top: max(20px, env(safe-area-inset-top));
+    }
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+/* Show/hide based on screen size */
+.mobile-only {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-only {
+        display: block;
+    }
+    
+    .desktop-only {
+        display: none !important;
+    }
+}
+
+.tablet-only {
+    display: none;
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .tablet-only {
+        display: block;
+    }
+}
+
+/* Text alignment utilities */
+@media (max-width: 768px) {
+    .text-center-mobile {
+        text-align: center !important;
+    }
+}
+
+/* Stack on mobile */
+.stack-mobile {
+    display: flex;
+    flex-direction: row;
+}
+
+@media (max-width: 768px) {
+    .stack-mobile {
+        flex-direction: column !important;
+    }
+}

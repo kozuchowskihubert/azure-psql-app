@@ -1,3 +1,19 @@
+/**
+ * Express Application Configuration
+ *
+ * This module configures and exports the Express application with all middleware,
+ * security settings, routes, and session management.
+ *
+ * Features:
+ * - Security middleware (Helmet, CORS, Rate Limiting)
+ * - Session management (in-memory for dev, PostgreSQL for production)
+ * - SSO authentication (Passport.js with Azure AD and Google OAuth)
+ * - Optional features (Calendar sync, Meeting rooms)
+ * - Static file serving and SPA routing
+ *
+ * @module app
+ */
+
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
@@ -11,55 +27,193 @@ const { apiRouter, pwaRouter } = require('./routes');
 
 const app = express();
 
-// Security middleware
+// ============================================================================
+// Security Middleware
+// ============================================================================
+
+/**
+ * Helmet: Sets various HTTP headers for security
+ * - X-DNS-Prefetch-Control
+ * - X-Frame-Options
+ * - X-Content-Type-Options
+ * - Referrer-Policy
+ * Note: CSP disabled to allow external resources (Tailwind CDN, etc.)
+ */
 app.use(helmet({
   contentSecurityPolicy: false, // Disable for now to allow external resources
 }));
+
+/**
+ * CORS: Enable Cross-Origin Resource Sharing
+ * Allows frontend to make requests from different origins
+ */
 app.use(cors());
 
-// Rate limiting
+/**
+ * Rate Limiting: Prevent abuse by limiting requests per IP
+ * - 100 requests per 15 minutes per IP
+ * - Applied only to /api/ routes
+ */
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
 });
 app.use('/api/', limiter);
 
-// Body parser
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ============================================================================
+// Request Parsing Middleware
+// ============================================================================
 
-// Serve static files from public directory
+/**
+ * Body parser for JSON payloads
+ * Parses incoming request bodies in JSON format
+ * Increased limit to 350MB for large audio file uploads
+ */
+app.use(express.json({ limit: '350mb' }));
+
+/**
+ * Body parser for URL-encoded payloads
+ * Parses incoming request bodies in URL-encoded format (form data)
+ * Increased limit to 350MB for large audio file uploads
+ */
+app.use(express.urlencoded({ extended: true, limit: '350mb' }));
+
+// ============================================================================
+// Custom Routes - Must come BEFORE static files
+// ============================================================================
+
+/**
+ * Platform alias - Redirect /platform to /haos-platform
+ * Route: /platform (backward compatibility)
+ * IMPORTANT: Must come before static middleware to override /platform/ directory
+ */
+app.get('/platform', (req, res) => {
+  res.redirect(301, '/haos-platform');
+});
+
+/**
+ * Workspace alias - Redirect /workspace to /techno-workspace
+ * Route: /workspace (backward compatibility)
+ */
+app.get('/workspace', (req, res) => {
+  res.redirect(301, '/techno-workspace');
+});
+
+/**
+ * HAOS Platform - Main integrated studio
+ * Route: /haos-platform (cleaner URL without .html)
+ */
+app.get('/haos-platform', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'haos-platform.html'));
+});
+
+/**
+ * Techno Workspace - Modular synthesis environment
+ * Route: /techno-workspace (cleaner URL without .html)
+ */
+app.get('/techno-workspace', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'techno-workspace.html'));
+});
+
+/**
+ * Sounds Browser - Preset library explorer
+ * Route: /sounds (300+ techno presets)
+ */
+app.get('/sounds', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'sounds.html'));
+});
+
+/**
+ * Preset Library - Alternative route
+ * Route: /preset-library
+ */
+app.get('/preset-library', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'preset-library.html'));
+});
+
+/**
+ * Preset Browser - Redirects to working sounds page
+ * Route: /preset-browser
+ */
+app.get('/preset-browser', (req, res) => {
+  res.redirect('/sounds');
+});
+
+/**
+ * Trap Studio - 808 bass production
+ * Route: /trap-studio (cleaner URL without .html)
+ */
+app.get('/trap-studio', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'trap-studio.html'));
+});
+
+// ============================================================================
+// Static Files
+// ============================================================================
+
+/**
+ * Serve static files from the public directory
+ * Includes: HTML, CSS, JS, images, PWA files
+ */
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Make pool available to routes
+// ============================================================================
+// Database Connection
+// ============================================================================
+
+/**
+ * Make database pool available to all routes via app.locals
+ * Routes can access it using req.app.locals.db
+ */
 app.locals.db = pool;
 
-// Session configuration
+// ============================================================================
+// Session Management
+// ============================================================================
+
+/**
+ * Session configuration
+ * - Development: In-memory sessions (lost on restart)
+ * - Production: PostgreSQL sessions (persistent across restarts)
+ * - Cookie settings: Secure in production, HTTP-only, 7-day expiry
+ */
 const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    httpOnly: true, // Prevent XSS attacks
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    sameSite: 'lax',
+    sameSite: 'lax', // CSRF protection
   },
-  name: 'notes.sid',
+  name: 'notes.sid', // Custom session cookie name
 };
 
-// Use PostgreSQL for session storage in production
+/**
+ * Use PostgreSQL for session storage in production
+ * This ensures sessions persist across server restarts
+ */
 if (process.env.NODE_ENV === 'production') {
   const pgSession = require('connect-pg-simple')(session);
   sessionConfig.store = new pgSession({
     pool,
     tableName: 'session',
   });
+  console.log('✓ Using PostgreSQL session store');
 }
 
 app.use(session(sessionConfig));
 
-// Initialize Passport (only if SSO is enabled)
+// ============================================================================
+// Authentication (SSO)
+// ============================================================================
+
+/**
+ * Initialize Passport.js for SSO authentication (optional feature)
+ * Supports Azure AD and Google OAuth
+ * Enabled via ENABLE_SSO=true environment variable
+ */
 const enableSSO = process.env.ENABLE_SSO === 'true';
 if (enableSSO) {
   try {
@@ -77,7 +231,14 @@ if (enableSSO) {
   }
 }
 
-// Calendar routes (if enabled)
+// ============================================================================
+// Optional Feature Routes
+// ============================================================================
+
+/**
+ * Calendar Sync Feature (optional)
+ * Enabled via ENABLE_CALENDAR_SYNC=true environment variable
+ */
 if (process.env.ENABLE_CALENDAR_SYNC === 'true') {
   try {
     const calendarRoutes = require('./routes/calendar-routes');
@@ -88,7 +249,10 @@ if (process.env.ENABLE_CALENDAR_SYNC === 'true') {
   }
 }
 
-// Meeting routes (if enabled)
+/**
+ * Meeting Room Booking Feature (optional)
+ * Enabled via ENABLE_MEETING_ROOMS=true environment variable
+ */
 if (process.env.ENABLE_MEETING_ROOMS === 'true') {
   try {
     const meetingRoutes = require('./routes/meeting-routes');
@@ -99,13 +263,77 @@ if (process.env.ENABLE_MEETING_ROOMS === 'true') {
   }
 }
 
-// Mount PWA routes (root level)
+// ============================================================================
+// Core Routes
+// ============================================================================
+
+/**
+ * PWA Routes (manifest.json, service-worker.js)
+ * Mounted at root level for proper PWA functionality
+ */
 app.use('/', pwaRouter);
 
-// Mount API routes
+/**
+ * API Routes (/api/notes, /api/health, /api/music, etc.)
+ * All core API endpoints
+ */
 app.use('/api', apiRouter); // /api/notes, /api/health
 
-// Serve index.html for all other routes (SPA support)
+/**
+ * Root-level health endpoint for Azure App Service
+ * Simplified - always returns 200 OK if server is running
+ * Database check is optional and non-blocking
+ */
+app.get('/health', async (req, res) => {
+  const response = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    app: 'HAOS.fm Music Platform',
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+  };
+
+  // Try database check with short timeout, but don't block
+  try {
+    const client = await Promise.race([
+      pool.connect(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000))
+    ]);
+    
+    if (client) {
+      try {
+        await client.query('SELECT 1');
+        response.database = 'connected';
+      } catch (dbErr) {
+        response.database = 'error';
+      } finally {
+        client.release();
+      }
+    }
+  } catch (err) {
+    response.database = 'unavailable';
+  }
+
+  // Always return 200 OK - server is running
+  res.status(200).json(response);
+});
+
+/**
+ * Code Statistics API
+ * Real-time code metrics for development dashboard
+ */
+const { getCodeStatsHandler } = require('./utils/code-stats');
+app.get('/api/code-stats', getCodeStatsHandler);
+
+// ============================================================================
+// SPA Fallback
+// ============================================================================
+
+/**
+ * Serve index.html for all other routes (SPA support)
+ * This enables client-side routing for the Single Page Application
+ * Skips files with extensions (except .html) to avoid breaking static assets
+ */
 app.get('*', (req, res) => {
   // Skip if request is for a file with an extension (except .html routes)
   const ext = path.extname(req.path);

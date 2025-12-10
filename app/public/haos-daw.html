@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAOS.fm | Unified Interactive Studio</title>
+    
+    <!-- HAOS.fm Brand CSS -->
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Unified Theme Variables */
+            --bg-dark: #0a0a0a;
+            --bg-panel: rgba(20, 20, 25, 0.8);
+            --accent-techno: #39FF14; /* Acid Green */
+            --accent-trap: #FF006E;   /* Hot Pink */
+            --accent-ambient: #00D9FF; /* Cyan */
+            --text-main: #e0e0e0;
+            --text-dim: #888;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glass-blur: blur(12px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(57, 255, 20, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 110, 0.05) 0%, transparent 50%);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- TOP BAR --- */
+        .top-bar {
+            height: 70px;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-main {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #fff, #888);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-sub {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent-techno);
+            letter-spacing: 4px;
+        }
+
+        /* Genre Selector */
+        .genre-selector {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            padding: 5px;
+            gap: 5px;
+        }
+
+        .genre-btn {
+            padding: 8px 20px;
+            border-radius: 25px;
+            border: none;
+            background: transparent;
+            color: var(--text-dim);
+            font-family: 'Space Mono', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .genre-btn:hover {
+            color: #fff;
+        }
+
+        .genre-btn.active {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .genre-btn[data-genre="techno"].active {
+            background: var(--accent-techno);
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);
+        }
+
+        .genre-btn[data-genre="trap"].active {
+            background: var(--accent-trap);
+            box-shadow: 0 0 20px rgba(255, 0, 110, 0.4);
+        }
+
+        .genre-btn[data-genre="ambient"].active {
+            background: var(--accent-ambient);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.4);
+        }
+
+        /* Transport */
+        .transport-controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--text-main);
+            background: transparent;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            border-color: var(--accent-techno);
+            color: var(--accent-techno);
+        }
+
+        .play-btn.playing {
+            background: var(--accent-techno);
+            border-color: var(--accent-techno);
+            color: #000;
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.3);
+        }
+
+        /* --- MAIN STUDIO AREA --- */
+        .studio-container {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .onboarding-panel {
+            width: 100%;
+            max-width: 1200px;
+            border-radius: 28px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(135deg, rgba(57,255,20,0.12), rgba(0,217,255,0.08));
+            padding: 32px;
+            display: grid;
+            grid-template-columns: minmax(280px, 360px) 1fr;
+            gap: 30px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.45);
+        }
+
+        .onboarding-meta h1 {
+            font-family: 'Bebas Neue';
+            font-size: 2.8rem;
+            line-height: 1;
+        }
+
+        .onboarding-meta p {
+            margin-top: 10px;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .onboarding-cta {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .beginner-start-btn {
+            border: none;
+            border-radius: 999px;
+            padding: 12px 24px;
+            font-family: 'Space Mono';
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: #000;
+            color: var(--accent-techno);
+            box-shadow: 0 10px 30px rgba(57,255,20,0.35);
+            cursor: pointer;
+        }
+
+        .beginner-secondary-btn {
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px 20px;
+            font-family: 'Space Mono';
+            font-size: 0.85rem;
+            color: var(--text-main);
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .onboarding-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 18px;
+        }
+
+        .onboarding-step {
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(0,0,0,0.4);
+            padding: 18px;
+        }
+
+        .onboarding-step span {
+            font-family: 'Space Mono';
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: var(--accent-ambient);
+        }
+
+        .onboarding-step h3 {
+            margin-top: 6px;
+            font-family: 'Bebas Neue';
+            font-size: 1.4rem;
+        }
+
+        .onboarding-step p {
+            color: var(--text-dim);
+            margin-top: 6px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .system-setup-panel {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: minmax(280px, 320px) 1fr;
+            gap: 24px;
+            padding: 28px;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(135deg, rgba(57,255,20,0.04), rgba(0,217,255,0.04));
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+        }
+
+        .system-branding {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .system-branding img {
+            width: 180px;
+            filter: drop-shadow(0 6px 18px rgba(0,0,0,0.7));
+        }
+
+        .system-tagline {
+            font-family: 'Space Mono';
+            letter-spacing: 2px;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .system-headline {
+            font-family: 'Bebas Neue';
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+        }
+
+        .system-status-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .system-chip {
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.15);
+            font-family: 'Space Mono';
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+        }
+
+        .system-chip.online {
+            border-color: rgba(57,255,20,0.5);
+            color: var(--accent-techno);
+        }
+
+        .system-chip.pending {
+            border-color: rgba(255,0,110,0.4);
+            color: var(--accent-trap);
+        }
+
+        .system-config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .system-config-card {
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.35);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .system-config-card h4 {
+            font-family: 'Space Mono';
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: var(--accent-ambient);
+        }
+
+        .system-config-card p {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .system-config-card select,
+        .system-config-card button {
+            font-family: 'Space Mono';
+            font-size: 0.8rem;
+        }
+
+        .system-config-card select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+        }
+
+        .setup-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .setup-actions button {
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .setup-actions button:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-techno);
+            color: var(--accent-techno);
+        }
+
+        .setup-actions button.ghost {
+            background: transparent;
+        }
+
+        /* Instrument Rack */
+        .instrument-rack {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+        }
+
+        .instrument-rack.hybrid-glow {
+            box-shadow: 0 0 30px rgba(255, 0, 110, 0.25), 0 0 50px rgba(57, 255, 20, 0.2);
+            border-radius: 20px;
+        }
+
+        .instrument-panel {
+            background: var(--bg-panel);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .instrument-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent-color, #fff);
+            box-shadow: 0 0 15px var(--accent-color, #fff);
+        }
+
+        /* Mode Tabs */
+        .mode-tabs {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            justify-content: space-between;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            background: rgba(0,0,0,0.35);
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 14px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 2px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .mode-tab:not(:last-child) {
+            border-right: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .mode-tab.active {
+            background: linear-gradient(135deg, rgba(57,255,20,0.2), rgba(0,217,255,0.2));
+            color: #fff;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
+        }
+
+        .mode-panel {
+            width: 100%;
+            max-width: 1200px;
+            display: none;
+            flex-direction: column;
+            gap: 25px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .mode-panel.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Basic Mode */
+        .basic-hero {
+            text-align: center;
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: linear-gradient(145deg, rgba(57,255,20,0.06), rgba(255,0,110,0.06));
+        }
+
+        .basic-hero h2 {
+            font-family: 'Bebas Neue';
+            font-size: 2.6rem;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .basic-hero p {
+            color: var(--text-dim);
+        }
+
+        .quick-beat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .beat-card {
+            padding: 20px;
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.35);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+
+        .beat-card h3 {
+            font-family: 'Bebas Neue';
+            font-size: 1.6rem;
+            letter-spacing: 1px;
+        }
+
+        .beat-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+        }
+
+        .beat-card button {
+            margin-top: auto;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: none;
+            font-family: 'Space Mono';
+            cursor: pointer;
+            background: var(--accent-techno);
+            color: #000;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+        }
+
+        .beat-card button:hover {
+            transform: translateY(-2px);
+        }
+
+        .quick-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.25);
+        }
+
+        .quick-control {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .quick-control label {
+            display: block;
+            font-family: 'Space Mono';
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 6px;
+        }
+
+        .quick-control button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Space Mono';
+        }
+
+        /* Advanced Mode */
+        .advanced-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .advanced-card {
+            padding: 20px;
+            border-radius: 18px;
+            border: 1px solid rgba(0,217,255,0.4);
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .advanced-card h3 {
+            font-family: 'Bebas Neue';
+            font-size: 1.5rem;
+            color: var(--accent-ambient);
+        }
+
+        .advanced-card button {
+            align-self: flex-start;
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--accent-ambient);
+            background: transparent;
+            color: var(--accent-ambient);
+            cursor: pointer;
+            font-family: 'Space Mono';
+        }
+
+        .advanced-card button:hover {
+            background: var(--accent-ambient);
+            color: #000;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .instrument-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            color: var(--accent-color, #fff);
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        /* Controls Grid */
+        .controls-grid {
+            display: flex;
+            gap: 20px;
+            justify-content: space-around;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        /* Knob Style */
+        .knob-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .knob-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+            border: 2px solid #333;
+            position: relative;
+            cursor: ns-resize;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .knob-circle::after {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            width: 2px;
+            height: 40%;
+            background: var(--accent-color, #fff);
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(var(--rotation, -135deg));
+            box-shadow: 0 0 5px var(--accent-color, #fff);
+        }
+
+        .knob-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        /* Sequencer Strip */
+        .sequencer-strip {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 4px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .seq-step {
+            aspect-ratio: 1;
+            background: #222;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.1s;
+            border: 1px solid #333;
+        }
+
+        .seq-step.active {
+            background: var(--accent-color, #fff);
+            box-shadow: 0 0 10px var(--accent-color, #fff);
+            border-color: #fff;
+        }
+
+        .seq-step.playing {
+            border: 2px solid #fff;
+            transform: scale(1.1);
+        }
+
+        /* Visualizer Area */
+        .visualizer-container {
+            width: 100%;
+            height: 150px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #main-visualizer {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Patch Bay Styles */
+        .patch-management {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .patch-bay {
+            display: none; /* Hidden by default */
+            grid-column: 1 / -1;
+            background: rgba(0,0,0,0.3);
+            border-top: 1px solid var(--border-color);
+            padding: 15px;
+        }
+
+        .patch-bay.visible {
+            display: block;
+        }
+
+        .patch-bay-header {
+            color: var(--accent-color);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .patch-bay-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .patch-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .patch-group-title {
+            font-weight: bold;
+            color: #ccc;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
+        }
+
+        .patch-point {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .patch-point label {
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+
+        .patch-select {
+            background: #222;
+            color: var(--accent-color);
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 5px;
+            font-size: 0.8rem;
+        }
+
+        .patch-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .patch-btn:hover {
+            background: var(--accent-techno);
+            border-color: var(--accent-techno);
+            color: #000;
+        }
+
+        /* Modal Overlay */
+        .studio-modal {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 9998;
+        }
+
+        .studio-modal.active {
+            pointer-events: auto;
+            opacity: 1;
+        }
+
+        .studio-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+        }
+
+        .studio-modal-panel {
+            position: relative;
+            width: min(900px, 90vw);
+            max-height: 85vh;
+            overflow-y: auto;
+            background: rgba(12, 12, 16, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+        }
+
+        .studio-modal-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            font-size: 1.5rem;
+            background: transparent;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .studio-modal-header {
+            margin-bottom: 20px;
+        }
+
+        .studio-modal-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: var(--accent-ambient);
+        }
+
+        .studio-modal-header h3 {
+            font-family: 'Bebas Neue';
+            font-size: 2rem;
+            margin: 10px 0 6px;
+        }
+
+        .studio-modal-header p {
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        .modal-grid section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .modal-grid h4 {
+            font-family: 'Space Mono';
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            color: var(--accent-techno);
+        }
+
+        .modal-grid ul,
+        .modal-grid ol {
+            padding-left: 18px;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .modal-tip {
+            margin-top: 14px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
+            font-size: 0.8rem;
+            color: var(--text-main);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .modal-tip span {
+            font-family: 'Space Mono';
+            letter-spacing: 2px;
+            font-size: 0.7rem;
+            color: var(--accent-ambient);
+            text-transform: uppercase;
+        }
+
+        .modal-control {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+            font-family: 'Space Mono';
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .modal-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0,1fr));
+            gap: 10px;
+            margin-top: 14px;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .modal-kpi-grid strong {
+            display: block;
+            font-size: 1rem;
+            color: #fff;
+            margin-top: 2px;
+        }
+
+        .preset-tags {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .preset-tags span {
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.15);
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--text-main);
+        }
+
+        .preset-browser {
+            margin-top: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            overflow: hidden;
+            font-size: 0.8rem;
+        }
+
+        .preset-row {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr 0.6fr;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .preset-row:nth-child(odd) {
+            background: rgba(255,255,255,0.04);
+        }
+
+        .preset-row.header {
+            font-family: 'Space Mono';
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: rgba(0,0,0,0.4);
+        }
+
+        .cli-shell {
+            margin-top: 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(0,0,0,0.6);
+            padding: 12px;
+            font-family: 'Space Mono';
+            font-size: 0.8rem;
+            color: #39ff14;
+        }
+
+        .cli-shell .cli-line.faint {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .modal-control input[type="range"] {
+            accent-color: var(--accent-techno);
+        }
+
+        .studio-modal-footer {
+            margin-top: 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-primary,
+        .modal-secondary {
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            font-family: 'Space Mono';
+            cursor: pointer;
+        }
+
+        .modal-primary {
+            background: linear-gradient(120deg, var(--accent-techno), var(--accent-ambient));
+            color: #000;
+            border: none;
+        }
+
+        .modal-secondary {
+            background: transparent;
+            color: var(--text-main);
+        }
+
+        @media (max-width: 768px) {
+            .mode-tabs {
+                flex-direction: column;
+            }
+            .onboarding-panel {
+                grid-template-columns: 1fr;
+            }
+            .system-setup-panel {
+                grid-template-columns: 1fr;
+            }
+            .studio-modal-panel {
+                padding: 24px;
+            }
+            .studio-modal-footer {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+        }
+
+        .studio-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.85);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            color: #fff;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 9999;
+        }
+
+        .studio-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="logo-area">
+            <div class="logo-main">HAOS.FM</div>
+            <div class="logo-sub">INTERACTIVE STUDIO</div>
+        </div>
+        
+        <div class="genre-selector">
+            <button class="genre-btn active" data-genre="techno" onclick="switchGenre('techno')">TECHNO</button>
+            <button class="genre-btn" data-genre="trap" onclick="switchGenre('trap')">TRAP</button>
+            <button class="genre-btn" data-genre="ambient" onclick="switchGenre('ambient')">AMBIENT</button>
+            <button class="genre-btn" data-genre="hard_techno" onclick="switchGenre('hard_techno')">HARD TECHNO</button>
+            <button class="genre-btn" data-genre="acid" onclick="switchGenre('acid')">ACID</button>
+            <button class="genre-btn" data-genre="dub_techno" onclick="switchGenre('dub_techno')">DUB</button>
+        </div>
+
+        <!-- Living System Controls -->
+        <div class="living-controls" style="display: flex; gap: 15px; align-items: center; margin: 0 20px; padding: 5px 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="text-align: center;">
+                <div style="font-family: 'Space Mono'; font-size: 0.6rem; color: #888; margin-bottom: 4px;">CHAOS</div>
+                <input type="range" min="0" max="100" value="20" style="width: 80px; accent-color: var(--accent-techno);" oninput="window.LIVING_SYSTEM.chaosLevel = this.value / 100">
+            </div>
+            <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+                <div style="font-family: 'Space Mono'; font-size: 0.6rem; color: #888; margin-bottom: 4px;">EVOLVE</div>
+                <label class="toggle-switch" style="position: relative; display: inline-block; width: 30px; height: 16px;">
+                    <input type="checkbox" checked onchange="window.LIVING_SYSTEM.active = this.checked" style="opacity: 0; width: 0; height: 0;">
+                    <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 16px;"></span>
+                    <span class="slider-knob" style="position: absolute; content: ''; height: 12px; width: 12px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                </label>
+                <style>
+                    input:checked + span { background-color: var(--accent-techno); }
+                    input:checked + span + .slider-knob { transform: translateX(14px); }
+                </style>
+            </div>
+        </div>
+
+        <div class="transport-controls">
+            <div style="font-family: 'Space Mono'; color: #888;">
+                <span id="bpm-display">135</span> BPM
+            </div>
+            <button class="play-btn" id="play-btn">
+                <i class="fas fa-play"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN STUDIO -->
+    <div class="studio-container">
+
+        <div class="onboarding-panel" id="beginner-onboarding">
+            <div class="onboarding-meta">
+                <span class="system-tagline">Welcome · First Take</span>
+                <h1>From idea to loop in under a minute.</h1>
+                <p>
+                    Pick a vibe, tap <em>Start My First Loop</em>, and HAOS will load the right drums, bass, and automation.
+                    Each mode lights up with prompts so you always know where to click next.
+                </p>
+                <div class="onboarding-cta">
+                    <button class="beginner-start-btn" data-beginner-primary="techno" data-beginner-secondary="trap">
+                        Start My First Loop
+                    </button>
+                    <button class="beginner-secondary-btn" data-beginner-guide>Watch 45s Tour</button>
+                </div>
+            </div>
+            <div class="onboarding-steps">
+                <div class="onboarding-step">
+                    <span>Step 1</span>
+                    <h3>Pick a blend</h3>
+                    <p>Choose any two genres. We auto-route kicks, bass, and swing so it just works.</p>
+                </div>
+                <div class="onboarding-step">
+                    <span>Step 2</span>
+                    <h3>Let Living System play</h3>
+                    <p>The AI arranger animates mutes, fills, and filter rides while you explore sounds.</p>
+                </div>
+                <div class="onboarding-step">
+                    <span>Step 3</span>
+                    <h3>Level up instantly</h3>
+                    <p>Hop into Pro or Advanced when you’re ready—everything stays synced and labeled.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="system-setup-panel" id="system-setup-panel">
+            <div class="system-branding">
+                <img src="/images/haos-logo-full.svg" alt="HAOS.fm Logo">
+                <div class="system-tagline">System Setup · Unified Signal Chain</div>
+                <div class="system-headline">Lock HAOS Studio to Your DAW</div>
+                <p style="color: var(--text-dim); line-height: 1.5;">
+                    Confirm your audio engine, interface routing, and Ableton Link clock before jumping into Basic, Pro, or Advanced modes.
+                </p>
+                <div class="system-status-chips">
+                    <span class="system-chip online">Ableton Link · Live</span>
+                    <span class="system-chip online">Hybrid DSP · Stable</span>
+                    <span class="system-chip pending">MIDI Bridge · Pending</span>
+                </div>
+            </div>
+            <div class="system-config-grid">
+                <div class="system-config-card">
+                    <h4>Audio Engine</h4>
+                    <p>HAOS Hybrid DSP optimized for cross-genre routing.</p>
+                    <div class="setup-actions">
+                        <button data-setup-action="engine">Restart Engine</button>
+                        <button class="ghost" data-setup-action="interface">Switch I/O</button>
+                    </div>
+                </div>
+                <div class="system-config-card">
+                    <h4>Audio Interface</h4>
+                    <select data-system-select>
+                        <option value="apollo">Universal Audio Apollo x8</option>
+                        <option value="scarlett">Focusrite Scarlett 18i20</option>
+                        <option value="aggregate">Aggregate Device</option>
+                    </select>
+                    <p>Choose the live rig receiving HAOS output.</p>
+                </div>
+                <div class="system-config-card">
+                    <h4>Sync & Clock</h4>
+                    <p>Keep Ableton Link and HAOS transport phase-aligned.</p>
+                    <div class="setup-actions">
+                        <button data-setup-action="sync">Link to Ableton</button>
+                        <button class="ghost" data-setup-action="calibrate">Calibrate Clock</button>
+                    </div>
+                </div>
+                <div class="system-config-card">
+                    <h4>Session Tools</h4>
+                    <p>Push the current hybrid arrangement directly into Live.</p>
+                    <div class="setup-actions">
+                        <button data-setup-action="session">Push to Ableton</button>
+                        <button class="ghost" data-setup-action="guide">Setup Guide</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mode-tabs">
+            <button class="mode-tab active" data-mode="basic">Basic</button>
+            <button class="mode-tab" data-mode="pro">Pro</button>
+            <button class="mode-tab" data-mode="advanced">Advanced</button>
+        </div>
+
+        <!-- BASIC MODE -->
+        <div class="mode-panel active" id="basic-mode">
+            <div class="basic-hero">
+                <h2>Hybrid Beats in One Tap</h2>
+                <p>Blend techno power with trap swing. Choose a recipe, launch it, and let the studio auto-arrange the groove.</p>
+            </div>
+
+            <div class="quick-beat-grid">
+                <div class="beat-card">
+                    <h3>Industrial 4x4 x 808 Pressure</h3>
+                    <div class="beat-meta">
+                        <span>HARD TECHNO</span>
+                        <span>TRAP LOW END</span>
+                    </div>
+                    <p>Relentless TR-909 kicks ride over tuned 808 bass hits for modern warehouse energy.</p>
+                    <button class="beat-launch" data-primary="hard_techno" data-secondary="trap">Launch Hybrid</button>
+                </div>
+                <div class="beat-card">
+                    <h3>Acid Runner x Memphis Shuffle</h3>
+                    <div class="beat-meta">
+                        <span>ACID</span>
+                        <span>TRAP SWING</span>
+                    </div>
+                    <p>TB-303 squelch pairs with laid-back hats and claps for hypnotic crossover grooves.</p>
+                    <button class="beat-launch" data-primary="acid" data-secondary="trap">Launch Hybrid</button>
+                </div>
+                <div class="beat-card">
+                    <h3>Dub Mist x Drill Pulse</h3>
+                    <div class="beat-meta">
+                        <span>DUB TECHNO</span>
+                        <span>808 GLIDE</span>
+                    </div>
+                    <p>Saturated chords, filtered noise, and gliding subs for atmospheric club experiments.</p>
+                    <button class="beat-launch" data-primary="dub_techno" data-secondary="trap">Launch Hybrid</button>
+                </div>
+            </div>
+
+            <div class="quick-controls">
+                <div class="quick-control">
+                    <label>Auto-Arrange</label>
+                    <button class="basic-auto-btn" data-action="arrange">Let Living System Drive</button>
+                </div>
+                <div class="quick-control">
+                    <label>Auto-Playback</label>
+                    <button class="basic-auto-btn" data-action="play">Start & Loop Beat</button>
+                </div>
+                <div class="quick-control">
+                    <label>Preset Browser</label>
+                    <button class="basic-auto-btn" data-action="presets">Open Featured Presets</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRO MODE -->
+        <div class="mode-panel" id="pro-mode">
+            <div class="visualizer-container">
+                <canvas id="main-visualizer"></canvas>
+            </div>
+            <div class="instrument-rack" id="instrument-rack">
+                <!-- Instruments will be injected here by JS -->
+            </div>
+        </div>
+
+        <!-- ADVANCED MODE -->
+        <div class="mode-panel" id="advanced-mode">
+            <div class="advanced-grid">
+                <div class="advanced-card">
+                    <h3>AI Patch Designer</h3>
+                    <p>Generate, randomize, and store ARP/TB patches with the neural designer.</p>
+                    <button data-advanced="patch-designer">Launch Designer</button>
+                </div>
+                <div class="advanced-card">
+                    <h3>Preset Library</h3>
+                    <p>Browse factory + user banks, drag sounds onto any instrument, and audition instantly.</p>
+                    <button data-advanced="preset-library">Open Library</button>
+                </div>
+                <div class="advanced-card">
+                    <h3>CLI & Automation</h3>
+                    <p>Send sequences to Ableton Live, spawn MIDI generator, or script patches through the HAOS CLI.</p>
+                    <button data-advanced="cli">Open CLI Terminal</button>
+                </div>
+            </div>
+
+            <div class="advanced-card" style="margin-top: 10px;">
+                <h3>Patch Routing Sandbox</h3>
+                <p>Use the compact matrix to cable modulation between modules while keeping the main rack focused.</p>
+                <div class="patch-bay visible" id="patch-bay">
+                    <div class="patch-bay-header">Patch Bay</div>
+                    <div class="patch-bay-grid">
+                        <!-- Patch bay content will be injected here by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL / TOOL OVERLAY -->
+    <div class="studio-modal" id="studio-modal" aria-hidden="true">
+        <div class="studio-modal-backdrop" data-modal-close></div>
+        <div class="studio-modal-panel">
+            <button class="studio-modal-close" data-modal-close aria-label="Close advanced tool">&times;</button>
+            <div class="studio-modal-header">
+                <span class="studio-modal-pill" id="modal-pill">ADVANCED</span>
+                <h3 id="modal-title">Tool Title</h3>
+                <p id="modal-description">Detailed description of the selected experience.</p>
+            </div>
+            <div class="studio-modal-body" id="modal-body"></div>
+            <div class="studio-modal-footer">
+                <button class="modal-secondary" data-modal-close>Close</button>
+                <button class="modal-primary" id="modal-primary-action">Trigger</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TEMPLATES -->
+    <template id="template-patch-designer">
+        <div class="modal-grid">
+            <section>
+                <h4>Neural Patch Recipes</h4>
+                <ul>
+                    <li>Acid Mutations – Squelch bass driven by evolving envelopes.</li>
+                    <li>Industrial Resonators – Harsh filters with macro drive.</li>
+                    <li>Ambient Bloom – Shimmering mod matrix for pads.</li>
+                </ul>
+                <div class="modal-tip">
+                    <span>Tip</span>
+                    Balance chaos vs precision: keep Character Blend under 40% for clean techno bass.
+                </div>
+            </section>
+            <section>
+                <h4>Live Controls</h4>
+                <div class="modal-control">
+                    <label>Character Blend</label>
+                    <input type="range" min="0" max="100" value="45">
+                </div>
+                <div class="modal-control">
+                    <label>Modulation Chaos</label>
+                    <input type="range" min="0" max="100" value="65">
+                </div>
+                <button class="modal-primary" data-patch-action="randomize">Randomize Patch</button>
+                <div class="modal-kpi-grid">
+                    <div>
+                        <span>Macros</span>
+                        <strong>3 Active</strong>
+                    </div>
+                    <div>
+                        <span>Envelopes</span>
+                        <strong>Dual</strong>
+                    </div>
+                    <div>
+                        <span>Routing</span>
+                        <strong>AI Weighted</strong>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </template>
+
+    <template id="template-preset-library">
+        <div class="modal-grid">
+            <section>
+                <h4>Featured Banks</h4>
+                <ul>
+                    <li>Warehouse Systems – Hard techno kits.</li>
+                    <li>Memphis Voltage – Trap / Drill 808 stacks.</li>
+                    <li>Oceanic Bloom – Ambient pads & drones.</li>
+                </ul>
+                <div class="preset-tags">
+                    <span>Techno</span>
+                    <span>Trap</span>
+                    <span>Ambient</span>
+                    <span>Hybrid</span>
+                </div>
+            </section>
+            <section>
+                <h4>Load Workflow</h4>
+                <ol>
+                    <li>Select a preset from the browser.</li>
+                    <li>Choose a target instrument in the Pro rack.</li>
+                    <li>Click <em>Inject</em> to audition instantly.</li>
+                </ol>
+                <button class="modal-primary" data-preset-action="open-browser">Open Browser</button>
+                <div class="preset-browser">
+                    <div class="preset-row header">
+                        <span>Name</span>
+                        <span>Genre</span>
+                        <span>Energy</span>
+                    </div>
+                    <div class="preset-row">
+                        <span>HADES-909</span>
+                        <span>Hard Techno</span>
+                        <span>⚡⚡⚡</span>
+                    </div>
+                    <div class="preset-row">
+                        <span>Memphis Glide</span>
+                        <span>Trap</span>
+                        <span>⚡⚡</span>
+                    </div>
+                    <div class="preset-row">
+                        <span>Vapor Bloom</span>
+                        <span>Ambient</span>
+                        <span>⚡</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </template>
+
+    <template id="template-cli">
+        <div class="modal-grid">
+            <section>
+                <h4>CLI Shortcuts</h4>
+                <pre><code>haos cli connect ableton
+haos cli push-pattern acid_runner
+haos cli render stems --format wav
+</code></pre>
+                <div class="modal-tip">
+                    <span>Sync</span>
+                    Use `--follow clock` to lock to Ableton Link tempo.
+                </div>
+            </section>
+            <section>
+                <h4>Automation Hooks</h4>
+                <p>Trigger render, modulation sweeps, or preset swaps over OSC/MIDI.</p>
+                <button class="modal-primary" data-cli-action="launch">Launch Terminal</button>
+                <div class="cli-shell">
+                    <div class="cli-line">$ awaiting commands...</div>
+                    <div class="cli-line faint">tip: type `haos cli help` for verbs</div>
+                </div>
+            </section>
+        </div>
+    </template>
+
+    <!-- Load Scripts -->
+    <script src="/js/synths/tb303.js"></script>
+    <script src="/js/synths/tr808.js"></script>
+    <script src="/js/synths/tr909.js"></script>
+    <script src="/js/synths/arp2600.js"></script>
+    <script src="/js/synths/string-machine.js"></script>
+    <script src="/js/daw-engine.js"></script>
+    <script src="/js/ai-patch-designer.js"></script>
+    <script src="/js/track-integrator.js"></script>
+    <script src="/js/haos-master-system.js"></script>
+    <script src="/js/haos-daw.js"></script>
+
+</body>
+</html>

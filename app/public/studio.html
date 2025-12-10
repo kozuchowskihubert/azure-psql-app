@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎛️ HAOS.fm - Unified Studio | Complete Music Production</title>
+    
+    <!-- HAOS.fm Brand CSS -->
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--haos-font-body);
+            background: var(--haos-vinyl-black);
+            color: var(--haos-sepia-cream);
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Main Layout */
+        .studio-layout {
+            display: grid;
+            grid-template-rows: 60px 1fr 80px;
+            height: 100vh;
+        }
+        
+        /* Top Bar */
+        .top-bar {
+            background: linear-gradient(135deg, rgba(26,26,46,0.95), rgba(15,15,30,0.95));
+            border-bottom: 2px solid var(--haos-acid-green);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        
+        .logo {
+            font-family: var(--haos-font-display);
+            font-size: 1.8em;
+            background: linear-gradient(135deg, var(--haos-acid-green), var(--haos-groove-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .top-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .model-selector {
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--haos-acid-green);
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: var(--haos-sepia-cream);
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .model-selector:hover {
+            border-color: var(--haos-groove-orange);
+            background: rgba(57,255,20,0.1);
+        }
+        
+        .patch-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+            border: 2px solid transparent;
+        }
+        
+        .patch-status.verified {
+            border-color: var(--haos-acid-green);
+        }
+        
+        .patch-status.warning {
+            border-color: #FFD700;
+        }
+        
+        .patch-status.error {
+            border-color: #FF4444;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-indicator.verified {
+            background: var(--haos-acid-green);
+        }
+        
+        .status-indicator.warning {
+            background: #FFD700;
+        }
+        
+        .status-indicator.error {
+            background: #FF4444;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 0;
+            overflow: hidden;
+        }
+        
+        /* Left Sidebar - Synth Selection */
+        .left-sidebar {
+            background: linear-gradient(180deg, rgba(26,26,46,0.95), rgba(15,15,30,0.95));
+            border-right: 2px solid var(--haos-acid-green);
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .synth-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .synth-card {
+            background: rgba(0,0,0,0.5);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .synth-card:hover {
+            transform: translateX(5px);
+            border-color: var(--haos-acid-green);
+            background: rgba(57,255,20,0.1);
+        }
+        
+        .synth-card.active {
+            border-color: var(--haos-groove-orange);
+            background: linear-gradient(135deg, rgba(255,107,53,0.2), rgba(57,255,20,0.1));
+        }
+        
+        .synth-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .synth-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            color: var(--haos-acid-green);
+        }
+        
+        .synth-desc {
+            font-size: 0.9em;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        /* Center - Control Panel */
+        .control-panel {
+            background: linear-gradient(135deg, rgba(15,15,30,0.98), rgba(26,26,46,0.98));
+            overflow-y: auto;
+            padding: 30px;
+        }
+        
+        .control-section {
+            background: rgba(0,0,0,0.4);
+            border: 2px solid rgba(57,255,20,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-family: var(--haos-font-display);
+            font-size: 1.8em;
+            color: var(--haos-acid-green);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .control-label {
+            font-weight: 600;
+            color: var(--haos-sepia-cream);
+            font-size: 0.95em;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .control-value {
+            color: var(--haos-groove-orange);
+            font-family: var(--haos-font-mono);
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.5);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--haos-acid-green), var(--haos-groove-orange));
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(57,255,20,0.5);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--haos-acid-green), var(--haos-groove-orange));
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(57,255,20,0.5);
+            border: none;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: 2px solid var(--haos-acid-green);
+            background: rgba(0,0,0,0.5);
+            color: var(--haos-sepia-cream);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            background: rgba(57,255,20,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(57,255,20,0.3);
+        }
+        
+        .btn.active {
+            background: var(--haos-acid-green);
+            color: var(--haos-vinyl-black);
+        }
+        
+        /* Right Sidebar - Modulation & Status */
+        .right-sidebar {
+            background: linear-gradient(180deg, rgba(26,26,46,0.95), rgba(15,15,30,0.95));
+            border-left: 2px solid var(--haos-groove-orange);
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .mod-matrix {
+            margin-bottom: 25px;
+        }
+        
+        .mod-connection {
+            background: rgba(0,0,0,0.4);
+            border-left: 4px solid var(--haos-909-cyan);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+        
+        .mod-route {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: var(--haos-sepia-cream);
+        }
+        
+        .mod-arrow {
+            color: var(--haos-acid-green);
+        }
+        
+        .validation-panel {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .validation-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .validation-item.error {
+            background: rgba(255,68,68,0.2);
+            border-left: 4px solid #FF4444;
+        }
+        
+        .validation-item.warning {
+            background: rgba(255,215,0,0.2);
+            border-left: 4px solid #FFD700;
+        }
+        
+        .validation-item.success {
+            background: rgba(57,255,20,0.2);
+            border-left: 4px solid var(--haos-acid-green);
+        }
+        
+        /* Bottom Transport */
+        .transport-bar {
+            background: linear-gradient(135deg, rgba(26,26,46,0.95), rgba(15,15,30,0.95));
+            border-top: 2px solid var(--haos-groove-orange);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+        }
+        
+        .transport-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .transport-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--haos-acid-green);
+            background: rgba(0,0,0,0.5);
+            color: var(--haos-acid-green);
+            font-size: 1.3em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .transport-btn:hover {
+            background: rgba(57,255,20,0.2);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(57,255,20,0.5);
+        }
+        
+        .transport-btn.playing {
+            background: var(--haos-acid-green);
+            color: var(--haos-vinyl-black);
+        }
+        
+        .bpm-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .bpm-display {
+            font-family: var(--haos-font-mono);
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--haos-acid-green);
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .level-meter {
+            display: flex;
+            gap: 3px;
+            align-items: flex-end;
+            height: 50px;
+        }
+        
+        .meter-bar {
+            width: 6px;
+            background: linear-gradient(0deg, var(--haos-acid-green), var(--haos-groove-orange), #FF4444);
+            border-radius: 3px;
+            transition: height 0.1s;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 250px 1fr 300px;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .left-sidebar, .right-sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="studio-layout">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="logo">🎛️ HAOS.fm UNIFIED STUDIO</div>
+            
+            <div class="top-controls">
+                <select class="model-selector" id="modelSelector" onchange="switchModel()">
+                    <option value="tb303">TB-303 Acid Bass</option>
+                    <option value="tr808">TR-808 Drums</option>
+                    <option value="arp2600">ARP-2600 Modular</option>
+                    <option value="strings">String Machine</option>
+                </select>
+                
+                <div class="patch-status" id="patchStatus">
+                    <div class="status-indicator verified" id="statusIndicator"></div>
+                    <span id="statusText">Patch Verified</span>
+                </div>
+                
+                <button class="btn" onclick="verifyPatch()">
+                    <i class="fas fa-check-circle"></i> Verify
+                </button>
+                
+                <button class="btn" onclick="goToHub()">
+                    <i class="fas fa-home"></i> Hub
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Sidebar - Synth List -->
+            <div class="left-sidebar">
+                <h3 style="color: var(--haos-acid-green); margin-bottom: 20px; font-size: 1.3em;">
+                    <i class="fas fa-layer-group"></i> Synthesizers
+                </h3>
+                
+                <div class="synth-list">
+                    <div class="synth-card active" onclick="selectSynth('tb303')">
+                        <div class="synth-icon">🎸</div>
+                        <div class="synth-name">TB-303</div>
+                        <div class="synth-desc">Legendary acid bass synthesizer</div>
+                    </div>
+                    
+                    <div class="synth-card" onclick="selectSynth('tr808')">
+                        <div class="synth-icon">🥁</div>
+                        <div class="synth-name">TR-808</div>
+                        <div class="synth-desc">Iconic drum machine</div>
+                    </div>
+                    
+                    <div class="synth-card" onclick="selectSynth('arp2600')">
+                        <div class="synth-icon">🎛️</div>
+                        <div class="synth-name">ARP-2600</div>
+                        <div class="synth-desc">Semi-modular synthesizer</div>
+                    </div>
+                    
+                    <div class="synth-card" onclick="selectSynth('strings')">
+                        <div class="synth-icon">🎻</div>
+                        <div class="synth-name">String Machine</div>
+                        <div class="synth-desc">Lush string ensemble</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h4 style="color: var(--haos-groove-orange); margin-bottom: 15px;">Presets</h4>
+                    <div class="button-group">
+                        <button class="btn" onclick="loadPreset('classic')">Classic</button>
+                        <button class="btn" onclick="loadPreset('acid')">Acid</button>
+                        <button class="btn" onclick="loadPreset('deep')">Deep</button>
+                        <button class="btn" onclick="loadPreset('hard')">Hard</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Center - Control Panel -->
+            <div class="control-panel" id="controlPanel">
+                <!-- TB-303 Controls -->
+                <div class="control-section">
+                    <div class="section-title">
+                        <i class="fas fa-sliders-h"></i> TB-303 Synthesis
+                    </div>
+                    
+                    <div class="control-grid">
+                        <div class="control-item">
+                            <div class="control-label">
+                                <span>Cutoff</span>
+                                <span class="control-value" id="cutoffValue">800 Hz</span>
+                            </div>
+                            <input type="range" class="slider" id="cutoff" min="50" max="5000" value="800" oninput="updateParam('cutoff', this.value)">
+                        </div>
+                        
+                        <div class="control-item">
+                            <div class="control-label">
+                                <span>Resonance</span>
+                                <span class="control-value" id="resonanceValue">15</span>
+                            </div>
+                            <input type="range" class="slider" id="resonance" min="0" max="30" value="15" oninput="updateParam('resonance', this.value)">
+                        </div>
+                        
+                        <div class="control-item">
+                            <div class="control-label">
+                                <span>Env Mod</span>
+                                <span class="control-value" id="envModValue">70%</span>
+                            </div>
+                            <input type="range" class="slider" id="envMod" min="0" max="100" value="70" oninput="updateParam('envMod', this.value)">
+                        </div>
+                        
+                        <div class="control-item">
+                            <div class="control-label">
+                                <span>Decay</span>
+                                <span class="control-value" id="decayValue">0.3 s</span>
+                            </div>
+                            <input type="range" class="slider" id="decay" min="0.01" max="2" step="0.01" value="0.3" oninput="updateParam('decay', this.value)">
+                        </div>
+                        
+                        <div class="control-item">
+                            <div class="control-label">
+                                <span>Accent</span>
+                                <span class="control-value" id="accentValue">50%</span>
+                            </div>
+                            <input type="range" class="slider" id="accent" min="0" max="100" value="50" oninput="updateParam('accent', this.value)">
+                        </div>
+                        
+                        <div class="control-item">
+                            <div class="control-label">
+                                <span>Distortion</span>
+                                <span class="control-value" id="distortionValue">20%</span>
+                            </div>
+                            <input type="range" class="slider" id="distortion" min="0" max="100" value="20" oninput="updateParam('distortion', this.value)">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <div class="button-group">
+                            <button class="btn active" onclick="setWaveform('sawtooth')">
+                                <i class="fas fa-wave-square"></i> Sawtooth
+                            </button>
+                            <button class="btn" onclick="setWaveform('square')">
+                                <i class="fas fa-square"></i> Square
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modulation Section -->
+                <div class="control-section">
+                    <div class="section-title">
+                        <i class="fas fa-waveform-path"></i> Modulation
+                    </div>
+                    
+                    <div class="control-grid">
+                        <div class="control-item">
+                            <div class="control-label">
+                                <span>LFO Rate</span>
+                                <span class="control-value" id="lfoRateValue">5 Hz</span>
+                            </div>
+                            <input type="range" class="slider" id="lfoRate" min="0.1" max="20" step="0.1" value="5" oninput="updateModulation('lfoRate', this.value)">
+                        </div>
+                        
+                        <div class="control-item">
+                            <div class="control-label">
+                                <span>LFO Depth</span>
+                                <span class="control-value" id="lfoDepthValue">0%</span>
+                            </div>
+                            <input type="range" class="slider" id="lfoDepth" min="0" max="100" value="0" oninput="updateModulation('lfoDepth', this.value)">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <label style="color: var(--haos-sepia-cream); margin-bottom: 10px; display: block;">
+                            LFO Destination
+                        </label>
+                        <div class="button-group">
+                            <button class="btn active" onclick="setLFODest('cutoff')">Filter</button>
+                            <button class="btn" onclick="setLFODest('pitch')">Pitch</button>
+                            <button class="btn" onclick="setLFODest('distortion')">Distortion</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Test Audio Section -->
+                <div class="control-section">
+                    <div class="section-title">
+                        <i class="fas fa-vial"></i> Test Audio
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn" onclick="playTestNote()">
+                            <i class="fas fa-play"></i> Play Test Note
+                        </button>
+                        <button class="btn" onclick="playPattern()">
+                            <i class="fas fa-music"></i> Play Pattern
+                        </button>
+                        <button class="btn" onclick="stopAll()">
+                            <i class="fas fa-stop"></i> Stop All
+                        </button>
+                    </div>
+                    
+                    <div id="audioStatus" style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; color: var(--haos-sepia-cream);">
+                        <i class="fas fa-info-circle"></i> Click "Play Test Note" to verify audio playback
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Sidebar - Modulation Matrix & Status -->
+            <div class="right-sidebar">
+                <div class="mod-matrix">
+                    <h3 style="color: var(--haos-groove-orange); margin-bottom: 15px;">
+                        <i class="fas fa-project-diagram"></i> Modulation Matrix
+                    </h3>
+                    
+                    <div class="mod-connection">
+                        <div class="mod-route">
+                            <span>ENV1</span>
+                            <i class="fas fa-arrow-right mod-arrow"></i>
+                            <span>Filter Cutoff</span>
+                        </div>
+                        <input type="range" class="slider" min="0" max="100" value="70" style="width: 100%;">
+                    </div>
+                    
+                    <div class="mod-connection">
+                        <div class="mod-route">
+                            <span>LFO</span>
+                            <i class="fas fa-arrow-right mod-arrow"></i>
+                            <span>Filter Cutoff</span>
+                        </div>
+                        <input type="range" class="slider" min="0" max="100" value="0" style="width: 100%;">
+                    </div>
+                    
+                    <div class="mod-connection">
+                        <div class="mod-route">
+                            <span>Velocity</span>
+                            <i class="fas fa-arrow-right mod-arrow"></i>
+                            <span>Amplitude</span>
+                        </div>
+                        <input type="range" class="slider" min="0" max="100" value="50" style="width: 100%;">
+                    </div>
+                </div>
+                
+                <div class="validation-panel">
+                    <h3 style="color: var(--haos-acid-green); margin-bottom: 15px;">
+                        <i class="fas fa-check-double"></i> Patch Validation
+                    </h3>
+                    
+                    <div id="validationResults">
+                        <div class="validation-item success">
+                            <i class="fas fa-check-circle"></i>
+                            <span>All parameters within range</span>
+                        </div>
+                        <div class="validation-item success">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Audio routing verified</span>
+                        </div>
+                        <div class="validation-item success">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Modulation connections valid</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(0,0,0,0.4); border-radius: 12px; padding: 20px;">
+                    <h4 style="color: var(--haos-909-cyan); margin-bottom: 15px;">Session Info</h4>
+                    <div style="font-size: 0.9em; color: rgba(255,255,255,0.7);">
+                        <div style="margin-bottom: 8px;">
+                            <strong>BPM:</strong> <span id="sessionBPM">130</span>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <strong>Key:</strong> C Minor
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <strong>Synth:</strong> <span id="activeSynth">TB-303</span>
+                        </div>
+                        <div>
+                            <strong>Status:</strong> <span style="color: var(--haos-acid-green);">Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Transport Bar -->
+        <div class="transport-bar">
+            <div class="transport-controls">
+                <button class="transport-btn" onclick="transport('play')" id="playBtn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="transport-btn" onclick="transport('stop')">
+                    <i class="fas fa-stop"></i>
+                </button>
+                <button class="transport-btn" onclick="transport('record')">
+                    <i class="fas fa-circle"></i>
+                </button>
+            </div>
+            
+            <div class="bpm-control">
+                <button class="btn" onclick="adjustBPM(-5)">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <div class="bpm-display" id="bpmDisplay">130</div>
+                <button class="btn" onclick="adjustBPM(5)">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            
+            <div class="level-meter" id="levelMeter">
+                <div class="meter-bar" style="height: 10px;"></div>
+                <div class="meter-bar" style="height: 15px;"></div>
+                <div class="meter-bar" style="height: 20px;"></div>
+                <div class="meter-bar" style="height: 25px;"></div>
+                <div class="meter-bar" style="height: 30px;"></div>
+                <div class="meter-bar" style="height: 20px;"></div>
+                <div class="meter-bar" style="height: 15px;"></div>
+                <div class="meter-bar" style="height: 10px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import TB303 from '/js/synths/tb303.js';
+        import TR808 from '/js/synths/tr808.js';
+        import ARP2600 from '/js/synths/arp2600.js';
+        import DAWEngine from '/js/daw-engine.js';
+        
+        let audioContext;
+        let daw;
+        let tb303, tr808, arp2600;
+        let currentSynth = 'tb303';
+        let isPlaying = false;
+        
+        // Initialize audio on user interaction
+        document.addEventListener('DOMContentLoaded', async () => {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Initialize synths
+            tb303 = new TB303(audioContext);
+            tr808 = new TR808(audioContext);
+            arp2600 = new ARP2600(audioContext);
+            
+            // Initialize DAW
+            daw = new DAWEngine(audioContext);
+            daw.setSynths({ tb303, tr808, arp2600 });
+            
+            // Initial verification
+            verifyPatch();
+            
+            console.log('✅ Studio initialized successfully');
+            updateAudioStatus('✅ Audio system ready - Click play to test');
+        });
+        
+        // Parameter updates
+        window.updateParam = function(param, value) {
+            const numValue = parseFloat(value);
+            
+            switch(param) {
+                case 'cutoff':
+                    tb303.setParam('cutoff', numValue);
+                    document.getElementById('cutoffValue').textContent = numValue + ' Hz';
+                    break;
+                case 'resonance':
+                    tb303.setParam('resonance', numValue);
+                    document.getElementById('resonanceValue').textContent = numValue;
+                    break;
+                case 'envMod':
+                    tb303.setParam('envMod', numValue);
+                    document.getElementById('envModValue').textContent = numValue + '%';
+                    break;
+                case 'decay':
+                    tb303.setParam('decay', numValue);
+                    document.getElementById('decayValue').textContent = numValue + ' s';
+                    break;
+                case 'accent':
+                    tb303.setParam('accentLevel', numValue);
+                    document.getElementById('accentValue').textContent = numValue + '%';
+                    break;
+                case 'distortion':
+                    tb303.setParam('distortion', numValue);
+                    document.getElementById('distortionValue').textContent = numValue + '%';
+                    break;
+            }
+            
+            verifyPatch();
+        };
+        
+        window.updateModulation = function(param, value) {
+            const numValue = parseFloat(value);
+            
+            switch(param) {
+                case 'lfoRate':
+                    tb303.setModulation('lfo', 'rate', numValue);
+                    document.getElementById('lfoRateValue').textContent = numValue + ' Hz';
+                    break;
+                case 'lfoDepth':
+                    tb303.setModulation('lfo', 'depth', numValue);
+                    document.getElementById('lfoDepthValue').textContent = numValue + '%';
+                    tb303.setLFO(numValue > 0);
+                    break;
+            }
+        };
+        
+        window.setWaveform = function(waveform) {
+            tb303.setParam('waveform', waveform);
+            
+            // Update button states
+            document.querySelectorAll('[onclick^="setWaveform"]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        };
+        
+        window.setLFODest = function(dest) {
+            tb303.setModulation('lfo', 'destination', dest);
+            
+            // Update button states
+            document.querySelectorAll('[onclick^="setLFODest"]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        };
+        
+        // Test audio playback
+        window.playTestNote = async function() {
+            if (!audioContext) return;
+            
+            // Resume context if suspended
+            if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+            
+            updateAudioStatus('🎵 Playing test note...');
+            
+            const step = {
+                active: true,
+                note: 'C3',
+                accent: false,
+                slide: false,
+                gate: false
+            };
+            
+            tb303.playNote(step);
+            
+            setTimeout(() => {
+                updateAudioStatus('✅ Test note played successfully!');
+            }, 500);
+        };
+        
+        window.playPattern = function() {
+            updateAudioStatus('🎵 Playing pattern...');
+            tb303.loadPresetPattern('classic303');
+            tb303.play();
+            
+            setTimeout(() => {
+                updateAudioStatus('✅ Pattern playing');
+            }, 100);
+        };
+        
+        window.stopAll = function() {
+            tb303.stop();
+            updateAudioStatus('⏹️ Stopped');
+        };
+        
+        window.verifyPatch = function() {
+            const results = daw.verifyPatches();
+            const statusEl = document.getElementById('patchStatus');
+            const indicatorEl = document.getElementById('statusIndicator');
+            const textEl = document.getElementById('statusText');
+            const resultsEl = document.getElementById('validationResults');
+            
+            // Update status
+            if (results.errors.length > 0) {
+                statusEl.className = 'patch-status error';
+                indicatorEl.className = 'status-indicator error';
+                textEl.textContent = `${results.errors.length} Error(s)`;
+            } else if (results.warnings.length > 0) {
+                statusEl.className = 'patch-status warning';
+                indicatorEl.className = 'status-indicator warning';
+                textEl.textContent = `${results.warnings.length} Warning(s)`;
+            } else {
+                statusEl.className = 'patch-status verified';
+                indicatorEl.className = 'status-indicator verified';
+                textEl.textContent = 'Patch Verified';
+            }
+            
+            // Update validation display
+            let html = '';
+            
+            if (results.errors.length === 0 && results.warnings.length === 0) {
+                html = '<div class="validation-item success"><i class="fas fa-check-circle"></i><span>All systems operational</span></div>';
+            }
+            
+            results.errors.forEach(err => {
+                html += `<div class="validation-item error"><i class="fas fa-times-circle"></i><span>${err}</span></div>`;
+            });
+            
+            results.warnings.forEach(warn => {
+                html += `<div class="validation-item warning"><i class="fas fa-exclamation-triangle"></i><span>${warn}</span></div>`;
+            });
+            
+            resultsEl.innerHTML = html;
+        };
+        
+        window.selectSynth = function(synth) {
+            currentSynth = synth;
+            document.getElementById('activeSynth').textContent = synth.toUpperCase();
+            
+            // Update active card
+            document.querySelectorAll('.synth-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.closest('.synth-card').classList.add('active');
+        };
+        
+        window.transport = function(action) {
+            const playBtn = document.getElementById('playBtn');
+            
+            switch(action) {
+                case 'play':
+                    if (!isPlaying) {
+                        daw.play();
+                        isPlaying = true;
+                        playBtn.classList.add('playing');
+                        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    } else {
+                        daw.pause();
+                        isPlaying = false;
+                        playBtn.classList.remove('playing');
+                        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    }
+                    break;
+                case 'stop':
+                    daw.stop();
+                    isPlaying = false;
+                    playBtn.classList.remove('playing');
+                    playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    break;
+                case 'record':
+                    console.log('Recording...');
+                    break;
+            }
+        };
+        
+        window.adjustBPM = function(delta) {
+            const currentBPM = parseInt(document.getElementById('bpmDisplay').textContent);
+            const newBPM = Math.max(40, Math.min(300, currentBPM + delta));
+            document.getElementById('bpmDisplay').textContent = newBPM;
+            document.getElementById('sessionBPM').textContent = newBPM;
+            daw.setBPM(newBPM);
+            tb303.setBPM(newBPM);
+        };
+        
+        window.loadPreset = function(preset) {
+            tb303.loadPresetPattern(preset === 'classic' ? 'classic303' : preset);
+            updateAudioStatus(`✅ Loaded ${preset} preset`);
+        };
+        
+        window.goToHub = function() {
+            window.location.href = '/';
+        };
+        
+        function updateAudioStatus(message) {
+            document.getElementById('audioStatus').innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+        }
+        
+        // Meter animation
+        setInterval(() => {
+            const bars = document.querySelectorAll('.meter-bar');
+            bars.forEach(bar => {
+                const height = Math.random() * 50;
+                bar.style.height = height + 'px';
+            });
+        }, 100);
+    </script>
+</body>
+</html>

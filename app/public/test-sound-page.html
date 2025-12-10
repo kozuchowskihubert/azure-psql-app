@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔊 HAOS Sound Test Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #39FF14;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #39FF14;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #FFD700;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+        
+        .test-section {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #39FF14;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .test-section h2 {
+            color: #FFD700;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .test-btn {
+            padding: 20px;
+            background: linear-gradient(135deg, #39FF14, #00D9FF);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(57, 255, 20, 0.4);
+        }
+        
+        .test-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(57, 255, 20, 0.6);
+        }
+        
+        .test-btn:active {
+            transform: translateY(0);
+        }
+        
+        .test-btn.bass {
+            background: linear-gradient(135deg, #FF6B35, #FF1493);
+            color: #fff;
+        }
+        
+        .test-btn.drums {
+            background: linear-gradient(135deg, #39FF14, #00D9FF);
+        }
+        
+        .test-btn.lead {
+            background: linear-gradient(135deg, #FFD700, #FF6B35);
+        }
+        
+        .test-btn.pad {
+            background: linear-gradient(135deg, #9D4EDD, #00D9FF);
+            color: #fff;
+        }
+        
+        .test-btn.action {
+            background: linear-gradient(135deg, #FF1493, #9D4EDD);
+            color: #fff;
+            font-size: 1.2em;
+        }
+        
+        #console {
+            background: #000;
+            border: 2px solid #39FF14;
+            border-radius: 8px;
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #39FF14;
+            margin-top: 20px;
+        }
+        
+        #console div {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        
+        #console .success { color: #39FF14; }
+        #console .error { color: #FF6B35; }
+        #console .info { color: #00D9FF; }
+        #console .warning { color: #FFD700; }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.loading {
+            background: #FFD700;
+            animation: pulse 1s infinite;
+        }
+        
+        .status-indicator.ready {
+            background: #39FF14;
+        }
+        
+        .status-indicator.error {
+            background: #FF6B35;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .instructions {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions h3 {
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            margin-left: 20px;
+            color: #fff;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔊 HAOS SOUND TEST PAGE</h1>
+        <p class="subtitle">Test all synthesis engines and instant sound features</p>
+        
+        <div class="instructions">
+            <h3>📋 Testing Instructions</h3>
+            <ul>
+                <li><strong>Step 1:</strong> 👆 <span style="color: #FFD700;">CLICK ANYWHERE ON PAGE</span> to initialize audio (browser requirement)</li>
+                <li><strong>Step 2:</strong> Wait for status to show "SYSTEM READY ✅"</li>
+                <li><strong>Step 3:</strong> Click any sound button to test</li>
+                <li><strong>Step 4:</strong> Check console output below for results</li>
+                <li><strong>Step 5:</strong> 🔊 Listen for audio output from your speakers</li>
+            </ul>
+            <p style="background: rgba(255, 107, 53, 0.2); padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #FF6B35;">
+                <strong>⚠️ Browser Autoplay Policy:</strong> Web browsers require a user interaction (click/key press) before playing audio. 
+                This is why you need to click once first!
+            </p>
+        </div>
+        
+        <!-- System Status -->
+        <div class="test-section">
+            <h2><span class="status-indicator loading" id="statusDot"></span>System Status: <span id="systemStatus">NOT INITIALIZED</span></h2>
+            <div class="button-grid">
+                <button class="test-btn action" onclick="initializeSystem()">
+                    🚀 INITIALIZE SYSTEM
+                </button>
+                <button class="test-btn action" onclick="runFullTest()">
+                    🧪 RUN FULL TEST SUITE
+                </button>
+                <button class="test-btn action" onclick="clearConsole()">
+                    🗑️ CLEAR CONSOLE
+                </button>
+            </div>
+        </div>
+        
+        <!-- Bass Sounds -->
+        <div class="test-section">
+            <h2>🔊 TB-303 Bass Sounds</h2>
+            <div class="button-grid">
+                <button class="test-btn bass" onclick="testSound('bass', 'C2')">303 BASS C2</button>
+                <button class="test-btn bass" onclick="testSound('bass', 'D2')">303 BASS D2</button>
+                <button class="test-btn bass" onclick="testSound('bass', 'E2')">303 BASS E2</button>
+                <button class="test-btn bass" onclick="testSound('bass', 'G2')">303 BASS G2</button>
+            </div>
+        </div>
+        
+        <!-- Drums -->
+        <div class="test-section">
+            <h2>🥁 TR-808 Drums</h2>
+            <div class="button-grid">
+                <button class="test-btn drums" onclick="testSound('kick')">808 KICK</button>
+                <button class="test-btn drums" onclick="testSound('snare')">808 SNARE</button>
+                <button class="test-btn drums" onclick="testSound('clap')">808 CLAP</button>
+                <button class="test-btn drums" onclick="testSound('hat')">808 HI-HAT</button>
+            </div>
+        </div>
+        
+        <!-- Leads -->
+        <div class="test-section">
+            <h2>🎹 ARP-2600 Leads</h2>
+            <div class="button-grid">
+                <button class="test-btn lead" onclick="testSound('lead', 'C4')">2600 LEAD C4</button>
+                <button class="test-btn lead" onclick="testSound('lead', 'E4')">2600 LEAD E4</button>
+                <button class="test-btn lead" onclick="testSound('lead', 'G4')">2600 LEAD G4</button>
+                <button class="test-btn lead" onclick="testSound('lead', 'C5')">2600 LEAD C5</button>
+            </div>
+        </div>
+        
+        <!-- Pads -->
+        <div class="test-section">
+            <h2>🌊 String Machine Pads</h2>
+            <div class="button-grid">
+                <button class="test-btn pad" onclick="testSound('pad', 'Cmaj')">PAD C MAJOR</button>
+                <button class="test-btn pad" onclick="testSound('pad', 'Amin')">PAD A MINOR</button>
+                <button class="test-btn pad" onclick="testSound('pad', 'Fmaj')">PAD F MAJOR</button>
+                <button class="test-btn pad" onclick="testSound('pad', 'Gmin')">PAD G MINOR</button>
+            </div>
+        </div>
+        
+        <!-- Console Output -->
+        <div class="test-section">
+            <h2>📊 Test Console Output</h2>
+            <div id="console"></div>
+        </div>
+    </div>
+    
+    <!-- Load HAOS System Scripts -->
+    <script type="module">
+        import TB303 from '/js/synths/tb303.js';
+        import TR808 from '/js/synths/tr808.js';
+        import ARP2600 from '/js/synths/arp2600.js';
+        import StringMachine from '/js/synths/string-machine.js';
+        
+        // Global variables
+        window.audioContext = null;
+        window.tb303 = null;
+        window.tr808 = null;
+        window.arp2600 = null;
+        window.stringMachine = null;
+        window.testResults = {
+            initialized: false,
+            soundsPlayed: 0,
+            errors: []
+        };
+        
+        // Console logging
+        function log(message, type = 'info') {
+            const consoleDiv = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = `[${timestamp}] ${message}`;
+            consoleDiv.appendChild(div);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        window.log = log;
+        
+        // Clear console
+        window.clearConsole = function() {
+            document.getElementById('console').innerHTML = '';
+            log('Console cleared', 'info');
+        };
+        
+        // Initialize system
+        window.initializeSystem = async function() {
+            log('🚀 Initializing HAOS system...', 'info');
+            updateStatus('INITIALIZING...', 'loading');
+            
+            try {
+                // Create audio context
+                window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                log('✅ Audio context created', 'success');
+                log(`   Sample rate: ${audioContext.sampleRate} Hz`, 'info');
+                
+                // Initialize synthesis engines
+                log('Initializing synthesis engines...', 'info');
+                
+                window.tb303 = new TB303(audioContext);
+                log('✅ TB-303 Bass initialized', 'success');
+                
+                window.tr808 = new TR808(audioContext);
+                log('✅ TR-808 Drums initialized', 'success');
+                
+                window.arp2600 = new ARP2600(audioContext);
+                log('✅ ARP-2600 Synth initialized', 'success');
+                
+                window.stringMachine = new StringMachine(audioContext);
+                log('✅ String Machine initialized', 'success');
+                
+                // Mark as initialized
+                window.testResults.initialized = true;
+                updateStatus('SYSTEM READY ✅', 'ready');
+                log('🎵 System ready! Click any sound button to test.', 'success');
+                
+            } catch (error) {
+                log(`❌ Initialization failed: ${error.message}`, 'error');
+                window.testResults.errors.push(error);
+                updateStatus('INITIALIZATION FAILED ❌', 'error');
+            }
+        };
+        
+        // Update status indicator
+        function updateStatus(text, state) {
+            document.getElementById('systemStatus').textContent = text;
+            const dot = document.getElementById('statusDot');
+            dot.className = `status-indicator ${state}`;
+        }
+        
+        // Test individual sound
+        window.testSound = function(type, noteOrChord = null) {
+            if (!window.testResults.initialized) {
+                log('⚠️ System not initialized! Click "INITIALIZE SYSTEM" first.', 'warning');
+                return;
+            }
+            
+            const now = audioContext.currentTime;
+            let soundLabel = `${type}${noteOrChord ? ' ' + noteOrChord : ''}`;
+            
+            try {
+                log(`🎵 Playing ${soundLabel}...`, 'info');
+                
+                const noteToFreq = {
+                    'C2': 65.41, 'D2': 73.42, 'E2': 82.41, 'G2': 98.00,
+                    'C4': 261.63, 'E4': 329.63, 'G4': 392.00, 'C5': 523.25
+                };
+                
+                const chordToFreqs = {
+                    'Cmaj': [261.63, 329.63, 392.00],
+                    'Amin': [220.00, 261.63, 329.63],
+                    'Fmaj': [174.61, 220.00, 261.63],
+                    'Gmin': [196.00, 233.08, 293.66]
+                };
+                
+                switch(type) {
+                    case 'bass':
+                        const freq = noteToFreq[noteOrChord];
+                        tb303.playNote({ frequency: freq, duration: 0.5, accent: true }, now);
+                        break;
+                    case 'kick':
+                        tr808.playKick('classic', now);
+                        break;
+                    case 'snare':
+                        tr808.playSnare('classic', now);
+                        break;
+                    case 'clap':
+                        tr808.playClap('classic', now);
+                        break;
+                    case 'hat':
+                        tr808.playHat('closed', now);
+                        break;
+                    case 'lead':
+                        const leadFreq = noteToFreq[noteOrChord];
+                        arp2600.playNote(leadFreq, 0.4, 1.0, now);
+                        break;
+                    case 'pad':
+                        const chordFreqs = chordToFreqs[noteOrChord];
+                        chordFreqs.forEach((f, i) => {
+                            setTimeout(() => {
+                                stringMachine.playNote(f, 2.0, 0.7, audioContext.currentTime);
+                            }, i * 30);
+                        });
+                        break;
+                }
+                
+                window.testResults.soundsPlayed++;
+                log(`✅ ${soundLabel} played successfully (total: ${testResults.soundsPlayed})`, 'success');
+                
+            } catch (error) {
+                log(`❌ Failed to play ${soundLabel}: ${error.message}`, 'error');
+                window.testResults.errors.push({ sound: soundLabel, error });
+            }
+        };
+        
+        // Run full test suite
+        window.runFullTest = async function() {
+            log('═══════════════════════════════════════', 'info');
+            log('🧪 RUNNING FULL TEST SUITE', 'info');
+            log('═══════════════════════════════════════', 'info');
+            
+            if (!window.testResults.initialized) {
+                log('Initializing system first...', 'info');
+                await initializeSystem();
+                await new Promise(r => setTimeout(r, 1000));
+            }
+            
+            const testSequence = [
+                { type: 'bass', note: 'C2', delay: 0 },
+                { type: 'kick', delay: 500 },
+                { type: 'lead', note: 'C4', delay: 1000 },
+                { type: 'snare', delay: 1500 },
+                { type: 'bass', note: 'E2', delay: 2000 },
+                { type: 'hat', delay: 2500 },
+                { type: 'lead', note: 'G4', delay: 3000 },
+                { type: 'clap', delay: 3500 },
+                { type: 'pad', note: 'Cmaj', delay: 4000 }
+            ];
+            
+            log('Playing test sequence...', 'info');
+            
+            testSequence.forEach(test => {
+                setTimeout(() => {
+                    testSound(test.type, test.note);
+                }, test.delay);
+            });
+            
+            setTimeout(() => {
+                log('═══════════════════════════════════════', 'info');
+                log('✅ Full test suite completed!', 'success');
+                log(`📊 Sounds played: ${testResults.soundsPlayed}`, 'info');
+                log(`❌ Errors: ${testResults.errors.length}`, testResults.errors.length > 0 ? 'error' : 'success');
+                log('═══════════════════════════════════════', 'info');
+            }, 5000);
+        };
+        
+        // Initial console message
+        log('🎵 HAOS Sound Test Page Loaded', 'success');
+        log('Auto-initializing system...', 'info');
+        
+        // Auto-initialize on first user interaction
+        let autoInitDone = false;
+        
+        async function autoInit() {
+            if (autoInitDone) return;
+            autoInitDone = true;
+            
+            log('👆 User interaction detected - initializing...', 'info');
+            await initializeSystem();
+        }
+        
+        // Listen for any user interaction
+        document.addEventListener('click', autoInit, { once: true });
+        document.addEventListener('keydown', autoInit, { once: true });
+        
+        log('👆 Click anywhere or press any key to initialize', 'warning');
+    </script>
+</body>
+</html>

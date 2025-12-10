@@ -2,11 +2,19 @@ name: Deploy to Azure
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, production ]
   workflow_dispatch:
+    inputs:
+      promote_to_prod:
+        description: 'Promote to production'
+        required: false
+        type: boolean
+        default: false
 
 env:
-  AZURE_WEBAPP_NAME: azure-psql-app
+  AZURE_WEBAPP_NAME_STAGING: azure-psql-app-staging
+  AZURE_WEBAPP_NAME_PROD: azure-psql-app
+  PROD_URL: haos.fm
   NODE_VERSION: '18.x'
 
 jobs:
@@ -83,15 +91,15 @@ jobs:
       with:
         name: node-app
         path: deployment.zip
-        retention-days: 1
+        retention-days: 7
 
-  deploy:
-    name: Deploy to Azure App Service
+  deploy-staging:
+    name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: 'production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      name: 'staging'
+      url: ${{ steps.deploy-to-staging.outputs.webapp-url }}
 
     steps:
     - name: Download artifact
@@ -102,34 +110,84 @@ jobs:
     - name: Unzip artifact
       run: unzip deployment.zip -d ./app
 
-    - name: Deploy to Azure Web App
-      id: deploy-to-webapp
+    - name: Deploy to Staging
+      id: deploy-to-staging
       uses: azure/webapps-deploy@v2
       with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        app-name: ${{ env.AZURE_WEBAPP_NAME_STAGING }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
+        package: ./app
+
+    - name: Run database migrations (staging)
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
+      run: |
+        cd app
+        npm run migrate || echo "Migration completed or already up to date"
+
+  health-check-staging:
+    name: Verify Staging Deployment
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+
+    steps:
+    - name: Check staging health
+      run: |
+        sleep 30
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME_STAGING }}.azurewebsites.net/health)
+        if [ $response -eq 200 ]; then
+          echo "Staging health check passed!"
+        else
+          echo "Staging health check failed with status code: $response"
+          exit 1
+        fi
+
+  promote-to-prod:
+    name: Promote to Production
+    runs-on: ubuntu-latest
+    needs: health-check-staging
+    if: github.event.inputs.promote_to_prod == 'true' || github.ref == 'refs/heads/production'
+    environment:
+      name: 'production'
+      url: https://${{ env.PROD_URL }}
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: node-app
+
+    - name: Unzip artifact
+      run: unzip deployment.zip -d ./app
+
+    - name: Deploy to Production
+      id: deploy-to-prod
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME_PROD }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: ./app
 
-    - name: Run database migrations
+    - name: Run database migrations (production)
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run: |
         cd app
         npm run migrate || echo "Migration completed or already up to date"
 
-  health-check:
-    name: Verify Deployment
+  health-check-prod:
+    name: Verify Production Deployment
     runs-on: ubuntu-latest
-    needs: deploy
+    needs: promote-to-prod
 
     steps:
-    - name: Check application health
+    - name: Check production health
       run: |
         sleep 30
-        response=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/health)
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.PROD_URL }}/health)
         if [ $response -eq 200 ]; then
-          echo "Health check passed!"
+          echo "Production health check passed!"
         else
-          echo "Health check failed with status code: $response"
+          echo "Production health check failed with status code: $response"
           exit 1
         fi

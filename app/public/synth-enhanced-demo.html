@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behringer 2600 Enhanced - Sound Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .preset-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .preset-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .preset-card.active {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .preset-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preset-emoji {
+            font-size: 2rem;
+        }
+
+        .preset-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .preset-specs {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .preset-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preset-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .preset-button:active {
+            transform: scale(0.98);
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .slider-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .value-display {
+            min-width: 60px;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .transport {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .transport-button {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .transport-button.play {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .transport-button.stop {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+            color: white;
+        }
+
+        .transport-button.panic {
+            background: linear-gradient(135deg, #ff0000 0%, #ff6b6b 100%);
+            color: white;
+        }
+
+        .transport-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .transport-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats {
+            text-align: center;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.playing {
+            background: #4CAF50;
+        }
+
+        .status-indicator.stopped {
+            background: #f44336;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .subtitle { font-size: 1rem; }
+            .preset-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎛️ Behringer 2600 Enhanced</h1>
+        <div class="subtitle">Professional Sound Quality with Sequencer Integration</div>
+
+        <div class="preset-grid">
+            <div class="preset-card" data-preset="acid-bass">
+                <div class="preset-title">
+                    <span class="preset-emoji">🔊</span>
+                    Acid Bass
+                </div>
+                <div class="preset-description">
+                    Aggressive, squelchy 303-style bassline with resonant filter sweep.
+                    Perfect for techno and acid house.
+                </div>
+                <div class="preset-specs">
+                    Filter: 400 Hz | Res: 12<br>
+                    Envelope: 1/50/30/100 ms<br>
+                    Pattern: Bassline (16-step)
+                </div>
+                <button class="preset-button" onclick="loadPreset('acid-bass')">
+                    Load Preset
+                </button>
+            </div>
+
+            <div class="preset-card" data-preset="techno-lead">
+                <div class="preset-title">
+                    <span class="preset-emoji">⚡</span>
+                    Techno Lead
+                </div>
+                <div class="preset-description">
+                    Bright, cutting lead with fast LFO modulation.
+                    Great for arpeggios and melodic lines.
+                </div>
+                <div class="preset-specs">
+                    Filter: 2000 Hz | Res: 6<br>
+                    Envelope: 10/200/600/300 ms<br>
+                    Pattern: Arpeggio (ascending)
+                </div>
+                <button class="preset-button" onclick="loadPreset('techno-lead')">
+                    Load Preset
+                </button>
+            </div>
+
+            <div class="preset-card" data-preset="ambient-pad">
+                <div class="preset-title">
+                    <span class="preset-emoji">🌊</span>
+                    Ambient Pad
+                </div>
+                <div class="preset-description">
+                    Lush, atmospheric pad with deep chorus and long delay.
+                    Perfect for soundscapes and backgrounds.
+                </div>
+                <div class="preset-specs">
+                    Filter: 1500 Hz | Res: 2<br>
+                    Envelope: 1000/800/700/2000 ms<br>
+                    Pattern: Arpeggio (slow)
+                </div>
+                <button class="preset-button" onclick="loadPreset('ambient-pad')">
+                    Load Preset
+                </button>
+            </div>
+
+            <div class="preset-card" data-preset="percussion">
+                <div class="preset-title">
+                    <span class="preset-emoji">🥁</span>
+                    Percussion
+                </div>
+                <div class="preset-description">
+                    Sharp, punchy percussion with fast envelope.
+                    Ideal for rhythmic elements and drums.
+                </div>
+                <div class="preset-specs">
+                    Filter: 800 Hz | Res: 8<br>
+                    Envelope: 1/20/100/50 ms<br>
+                    Pattern: Rhythm (16-step)
+                </div>
+                <button class="preset-button" onclick="loadPreset('percussion')">
+                    Load Preset
+                </button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <h2 style="margin-bottom: 20px; text-align: center;">🎚️ Real-Time Controls</h2>
+            
+            <div class="control-group">
+                <label class="control-label">Sequencer BPM</label>
+                <div class="control-row">
+                    <div class="slider-container">
+                        <input type="range" id="bpm" min="60" max="180" value="120" oninput="updateBPM(this.value)">
+                    </div>
+                    <span class="value-display" id="bpm-value">120 BPM</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Delay Mix</label>
+                <div class="control-row">
+                    <div class="slider-container">
+                        <input type="range" id="delay-mix" min="0" max="100" value="30" oninput="updateDelayMix(this.value)">
+                    </div>
+                    <span class="value-display" id="delay-mix-value">30%</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Chorus Depth</label>
+                <div class="control-row">
+                    <div class="slider-container">
+                        <input type="range" id="chorus-depth" min="0" max="100" value="30" oninput="updateChorusDepth(this.value)">
+                    </div>
+                    <span class="value-display" id="chorus-depth-value">30%</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Gate Length</label>
+                <div class="control-row">
+                    <div class="slider-container">
+                        <input type="range" id="gate-length" min="10" max="100" value="80" oninput="updateGateLength(this.value)">
+                    </div>
+                    <span class="value-display" id="gate-length-value">80%</span>
+                </div>
+            </div>
+
+            <div class="transport">
+                <button class="transport-button play" onclick="startSequencer()">
+                    ▶️ Play
+                </button>
+                <button class="transport-button stop" onclick="stopSequencer()">
+                    ⏹️ Stop
+                </button>
+                <button class="transport-button panic" onclick="panicButton()">
+                    🚨 Panic
+                </button>
+            </div>
+
+            <div class="stats">
+                <div id="status">
+                    <span class="status-indicator stopped"></span>
+                    Status: Stopped
+                </div>
+                <div id="voices" style="margin-top: 10px;">
+                    Voices: 0/8 active
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include synthesizer scripts -->
+    <script src="js/synth-2600-audio.js"></script>
+    <script src="js/synth-modules.js"></script>
+    <script src="js/synth-2600-enhanced.js"></script>
+
+    <script>
+        // Initialize synthesizer and sequencer
+        let synth = new Synth2600Enhanced();
+        let sequencer = new StepSequencer();
+        
+        // Connect sequencer to synth
+        synth.connectSequencer(sequencer);
+        
+        let currentPreset = null;
+        let isPlaying = false;
+
+        // Load preset
+        function loadPreset(presetName) {
+            synth.loadEnhancedPreset(presetName);
+            currentPreset = presetName;
+            
+            // Update UI
+            document.querySelectorAll('.preset-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-preset="${presetName}"]`).classList.add('active');
+            
+            console.log(`✅ Loaded preset: ${presetName}`);
+        }
+
+        // Transport controls
+        function startSequencer() {
+            if (!currentPreset) {
+                alert('⚠️ Please load a preset first!');
+                return;
+            }
+            
+            sequencer.start();
+            isPlaying = true;
+            updateStatus();
+        }
+
+        function stopSequencer() {
+            sequencer.stop();
+            isPlaying = false;
+            updateStatus();
+        }
+
+        function panicButton() {
+            synth.panic();
+            stopSequencer();
+        }
+
+        // Real-time controls
+        function updateBPM(value) {
+            sequencer.setBPM(parseInt(value));
+            document.getElementById('bpm-value').textContent = value + ' BPM';
+            
+            // Sync delay
+            synth.setDelayTimeSynced(0.375);
+        }
+
+        function updateDelayMix(value) {
+            synth.setDelayMix(value / 100);
+            document.getElementById('delay-mix-value').textContent = value + '%';
+        }
+
+        function updateChorusDepth(value) {
+            synth.setChorusDepth(value / 100);
+            document.getElementById('chorus-depth-value').textContent = value + '%';
+        }
+
+        function updateGateLength(value) {
+            synth.setSequencerGateLength(value / 100);
+            document.getElementById('gate-length-value').textContent = value + '%';
+        }
+
+        // Update UI status
+        function updateStatus() {
+            const statusEl = document.getElementById('status');
+            const indicator = statusEl.querySelector('.status-indicator');
+            
+            if (isPlaying) {
+                indicator.className = 'status-indicator playing';
+                statusEl.innerHTML = '<span class="status-indicator playing"></span>Status: Playing';
+            } else {
+                indicator.className = 'status-indicator stopped';
+                statusEl.innerHTML = '<span class="status-indicator stopped"></span>Status: Stopped';
+            }
+        }
+
+        // Update voice stats
+        setInterval(() => {
+            const stats = synth.getVoiceStats();
+            document.getElementById('voices').textContent = 
+                `Voices: ${stats.active}/${stats.total} active`;
+        }, 100);
+
+        // Auto-load first preset on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                loadPreset('acid-bass');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

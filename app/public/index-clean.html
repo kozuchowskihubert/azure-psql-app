@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAOS.fm - Hardware Analog Synthesis Platform</title>
+    
+    <!-- Meta -->
+    <meta name="description" content="HAOS.fm - Professional hardware-inspired synthesis platform. Create electronic music with TB-303, TR-909, and live radio streaming.">
+    <meta name="theme-color" content="#FF6B35">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" href="/images/haos-logo-white.png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- HAOS Brand CSS -->
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    
+    <style>
+        :root {
+            --haos-orange: #FF6B35;
+            --haos-orange-light: #FF8C42;
+            --haos-dark: #1A1A2E;
+            --haos-black: #0F0F1E;
+        }
+        
+        body {
+            font-family: 'Space Mono', monospace;
+            background: var(--haos-black);
+            color: #fff;
+        }
+        
+        .haos-header {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 2px;
+        }
+        
+        .gradient-orange {
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .glow-orange {
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.6);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 30px rgba(255, 107, 53, 0.6); }
+            50% { transform: scale(1.05); box-shadow: 0 12px 40px rgba(255, 107, 53, 0.8); }
+        }
+        
+        .pulse-btn {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .float-anim {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-lg border-b-2 border-orange-500/30">
+        <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center gap-4">
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm" class="h-12 md:h-16">
+                <div>
+                    <h1 class="haos-header text-2xl md:text-3xl gradient-orange">HAOS.fm</h1>
+                    <p class="text-xs text-gray-400 uppercase tracking-widest">Analog Synthesis</p>
+                </div>
+            </div>
+            
+            <!-- Nav -->
+            <nav class="hidden md:flex items-center gap-6">
+                <a href="/platform/studio.html" class="text-orange-400 hover:text-orange-300 transition font-bold text-lg">
+                    <i class="fas fa-sliders-h mr-2"></i>STUDIO
+                </a>
+                <button onclick="toggleRadio()" class="text-orange-400 hover:text-orange-300 transition font-bold text-lg">
+                    <i class="fas fa-broadcast-tower mr-2"></i>RADIO
+                </button>
+            </nav>
+            
+            <!-- Mobile Menu -->
+            <button class="md:hidden text-orange-400 text-2xl">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="min-h-screen flex items-center justify-center relative pt-24 px-6">
+        <!-- Background -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-b from-black via-orange-900/10 to-black"></div>
+        </div>
+        
+        <!-- Content -->
+        <div class="relative z-10 text-center max-w-5xl mx-auto">
+            <!-- Logo -->
+            <div class="mb-8 float-anim">
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm" class="w-full max-w-2xl mx-auto glow-orange">
+            </div>
+            
+            <!-- Title -->
+            <h2 class="haos-header text-5xl md:text-7xl gradient-orange mb-6">
+                HARDWARE ANALOG SYNTHESIS
+            </h2>
+            
+            <!-- Description -->
+            <p class="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto">
+                Professional music production platform with TB-303 acid bass, TR-909 drums, 
+                16-step sequencer, and live radio streaming. <br>
+                <strong class="text-orange-400">All in your browser.</strong>
+            </p>
+            
+            <!-- CTA Buttons -->
+            <div class="flex flex-wrap gap-6 justify-center">
+                <a href="/platform/studio.html" 
+                   class="pulse-btn px-12 py-5 text-2xl font-bold rounded-lg transition"
+                   style="background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-light)); color: #000;">
+                    🎛️ ENTER STUDIO
+                </a>
+                
+                <button onclick="toggleRadio()"
+                        class="px-12 py-5 text-2xl font-bold rounded-lg border-2 border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-black transition">
+                    📻 LIVE RADIO
+                </button>
+            </div>
+            
+            <!-- Features -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16">
+                <div class="p-6 bg-white/5 rounded-lg border border-orange-500/30">
+                    <div class="text-4xl mb-3">🧪</div>
+                    <h3 class="text-orange-400 font-bold text-lg mb-2">TB-303</h3>
+                    <p class="text-sm text-gray-400">Acid Bass Synthesis</p>
+                </div>
+                <div class="p-6 bg-white/5 rounded-lg border border-orange-500/30">
+                    <div class="text-4xl mb-3">🥁</div>
+                    <h3 class="text-orange-400 font-bold text-lg mb-2">TR-909</h3>
+                    <p class="text-sm text-gray-400">Drum Machine</p>
+                </div>
+                <div class="p-6 bg-white/5 rounded-lg border border-orange-500/30">
+                    <div class="text-4xl mb-3">⏱️</div>
+                    <h3 class="text-orange-400 font-bold text-lg mb-2">Sequencer</h3>
+                    <p class="text-sm text-gray-400">16-Step Pattern</p>
+                </div>
+                <div class="p-6 bg-white/5 rounded-lg border border-orange-500/30">
+                    <div class="text-4xl mb-3">📻</div>
+                    <h3 class="text-orange-400 font-bold text-lg mb-2">Live Radio</h3>
+                    <p class="text-sm text-gray-400">24/7 Streaming</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Radio Modal -->
+    <div id="radio-modal" class="fixed inset-0 bg-black/95 backdrop-blur-lg z-50 hidden flex items-center justify-center p-6">
+        <div class="bg-gray-900 rounded-2xl border-2 border-orange-500 p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="haos-header text-4xl gradient-orange">
+                    <i class="fas fa-broadcast-tower mr-3"></i>HAOS RADIO 24/7
+                </h3>
+                <button onclick="toggleRadio()" class="text-3xl text-gray-400 hover:text-orange-400 transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Radio Player -->
+            <div class="bg-black/50 rounded-xl p-6 mb-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center text-3xl animate-pulse">
+                        📻
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-xl font-bold text-orange-400">HAOS.FM - Live Techno</h4>
+                        <p class="text-gray-400">24/7 Electronic Music Stream</p>
+                    </div>
+                    <button id="radio-play-btn" onclick="togglePlay()" class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-2xl hover:scale-110 transition">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                
+                <!-- Volume -->
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-volume-up text-orange-400"></i>
+                    <input type="range" id="volume-slider" min="0" max="100" value="70" class="flex-1" style="accent-color: var(--haos-orange);">
+                </div>
+            </div>
+            
+            <!-- Spotify Embeds -->
+            <div class="space-y-4">
+                <h4 class="haos-header text-2xl text-orange-400 mb-4">FEATURED ARTIST - HAOS (Warsaw)</h4>
+                <iframe style="border-radius: 12px; width: 100%; height: 352px;" 
+                        src="https://open.spotify.com/embed/artist/2ddgNA6J3ATCZrfT1qUXw0?utm_source=generator" 
+                        frameborder="0" allowfullscreen 
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t-2 border-orange-500/30 bg-black/90 py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- About -->
+                <div>
+                    <h4 class="haos-header text-2xl gradient-orange mb-4">HAOS.fm</h4>
+                    <p class="text-gray-400">Professional hardware-inspired synthesis platform for electronic music production.</p>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="haos-header text-xl text-orange-400 mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="/platform/studio.html" class="text-gray-400 hover:text-orange-400 transition">Unified Studio</a></li>
+                        <li><button onclick="toggleRadio()" class="text-gray-400 hover:text-orange-400 transition">Live Radio</button></li>
+                        <li><a href="/haos-platform.html" class="text-gray-400 hover:text-orange-400 transition">HAOS Platform</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact -->
+                <div>
+                    <h4 class="haos-header text-xl text-orange-400 mb-4">Connect</h4>
+                    <button onclick="toggleRadio()" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-black font-bold py-3 px-6 rounded-lg hover:scale-105 transition">
+                        <i class="fas fa-broadcast-tower mr-2"></i>TUNE IN NOW
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-8 border-t border-orange-500/20 text-center text-gray-500">
+                <p>&copy; 2025 HAOS.fm - Hardware Analog Oscillator Synthesis. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Audio Element -->
+    <audio id="radio-audio" preload="metadata">
+        <source src="https://stream.zeno.fm/f3wvbbqmdg8uv" type="audio/mpeg">
+    </audio>
+
+    <!-- JavaScript -->
+    <script>
+        const radioModal = document.getElementById('radio-modal');
+        const radioAudio = document.getElementById('radio-audio');
+        const playBtn = document.getElementById('radio-play-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        
+        let isPlaying = false;
+        
+        // Toggle Radio Modal
+        function toggleRadio() {
+            radioModal.classList.toggle('hidden');
+        }
+        
+        // Toggle Play/Pause
+        function togglePlay() {
+            if (isPlaying) {
+                radioAudio.pause();
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                isPlaying = false;
+            } else {
+                radioAudio.play().catch(err => console.log('Playback failed:', err));
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                isPlaying = true;
+            }
+        }
+        
+        // Volume Control
+        volumeSlider.addEventListener('input', (e) => {
+            radioAudio.volume = e.target.value / 100;
+        });
+        
+        // Set initial volume
+        radioAudio.volume = 0.7;
+        
+        // Close modal on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !radioModal.classList.contains('hidden')) {
+                toggleRadio();
+            }
+        });
+    </script>
+</body>
+</html>

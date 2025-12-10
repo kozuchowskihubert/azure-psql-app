@@ -4,12 +4,35 @@ require('dotenv').config();
 const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
-  console.error('DATABASE_URL is not set');
+  console.warn('⚠️  DATABASE_URL is not set - database features will be disabled');
+  // Export a dummy pool that won't cause errors
+  module.exports = {
+    connect: async () => {
+      throw new Error('Database not configured');
+    },
+    query: async () => {
+      throw new Error('Database not configured');
+    },
+    end: async () => {},
+    on: () => {}
+  };
+} else {
+  const pool = new Pool({
+    connectionString: databaseUrl,
+    ssl: { rejectUnauthorized: false },
+    // Add connection timeouts to prevent hanging
+    connectionTimeoutMillis: 5000,
+    idleTimeoutMillis: 30000,
+    max: 10,
+    // Allow graceful degradation
+    allowExitOnIdle: true
+  });
+
+  // Handle pool errors gracefully
+  pool.on('error', (err) => {
+    console.error('Unexpected database error:', err.message);
+    // Don't crash the app on database errors
+  });
+
+  module.exports = pool;
 }
-
-const pool = new Pool({
-  connectionString: databaseUrl,
-  ssl: { rejectUnauthorized: false },
-});
-
-module.exports = pool;

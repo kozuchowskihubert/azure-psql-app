@@ -1,0 +1,118 @@
+name: Update Feature Flags
+
+on:
+  workflow_dispatch:
+    inputs:
+      feature_path:
+        description: 'Feature path (e.g., haos_platform.midi_export)'
+        required: true
+        type: string
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - enable
+          - disable
+          - toggle
+      commit_message:
+        description: 'Custom commit message (optional)'
+        required: false
+        type: string
+
+jobs:
+  update-features:
+    name: Update Feature Configuration
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: 🎛️ Update Feature Flag
+        id: update
+        run: |
+          FEATURE_PATH="${{ github.event.inputs.feature_path }}"
+          ACTION="${{ github.event.inputs.action }}"
+          CONFIG_FILE="app/public/config/features.json"
+          
+          echo "📝 Updating feature: $FEATURE_PATH"
+          echo "⚙️  Action: $ACTION"
+          
+          # Parse feature path
+          IFS='.' read -ra PATH_PARTS <<< "$FEATURE_PATH"
+          MODULE="${PATH_PARTS[0]}"
+          FEATURE="${PATH_PARTS[1]}"
+          
+          # Update using jq
+          if [ "$ACTION" = "enable" ]; then
+            jq ".features.${MODULE}.subFeatures.${FEATURE}.enabled = true" "$CONFIG_FILE" > tmp.json
+            echo "status=✅ Enabled $FEATURE_PATH" >> $GITHUB_OUTPUT
+          elif [ "$ACTION" = "disable" ]; then
+            jq ".features.${MODULE}.subFeatures.${FEATURE}.enabled = false" "$CONFIG_FILE" > tmp.json
+            echo "status=❌ Disabled $FEATURE_PATH" >> $GITHUB_OUTPUT
+          elif [ "$ACTION" = "toggle" ]; then
+            CURRENT=$(jq -r ".features.${MODULE}.subFeatures.${FEATURE}.enabled" "$CONFIG_FILE")
+            if [ "$CURRENT" = "true" ]; then
+              jq ".features.${MODULE}.subFeatures.${FEATURE}.enabled = false" "$CONFIG_FILE" > tmp.json
+              echo "status=❌ Toggled OFF $FEATURE_PATH" >> $GITHUB_OUTPUT
+            else
+              jq ".features.${MODULE}.subFeatures.${FEATURE}.enabled = true" "$CONFIG_FILE" > tmp.json
+              echo "status=✅ Toggled ON $FEATURE_PATH" >> $GITHUB_OUTPUT
+            fi
+          fi
+          
+          # Update timestamp and version
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          jq ".lastUpdated = \"$TIMESTAMP\"" tmp.json > "$CONFIG_FILE"
+          rm tmp.json
+          
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+          
+          # Show diff
+          echo "📊 Changes:"
+          git diff "$CONFIG_FILE"
+      
+      - name: 💾 Commit Changes
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          
+          COMMIT_MSG="${{ github.event.inputs.commit_message }}"
+          if [ -z "$COMMIT_MSG" ]; then
+            COMMIT_MSG="feat(config): ${{ steps.update.outputs.status }}"
+          fi
+          
+          git add app/public/config/features.json
+          git commit -m "$COMMIT_MSG"
+          git push
+      
+      - name: 📊 Summary
+        run: |
+          echo "## 🎛️ Feature Flag Updated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Feature:** \`${{ github.event.inputs.feature_path }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Action:** ${{ github.event.inputs.action }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ steps.update.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Updated:** ${{ steps.update.outputs.timestamp }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Configuration updated successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Configuration is live immediately" >> $GITHUB_STEP_SUMMARY
+          echo "2. No deployment required" >> $GITHUB_STEP_SUMMARY
+          echo "3. Users will see changes within 5 minutes (cache TTL)" >> $GITHUB_STEP_SUMMARY
+          echo "4. Force refresh: Clear browser cache or wait for TTL" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🔔 Notify Success
+        if: success()
+        run: |
+          echo "✅ Feature flag updated successfully!"
+          echo "${{ steps.update.outputs.status }}"

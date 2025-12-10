@@ -7,7 +7,6 @@ This guide shows you how to use **act** to run your GitHub Actions workflows loc
 Act runs your GitHub Actions locally using Docker containers. It's perfect for:
 - Testing workflows before pushing to GitHub
 - Debugging workflow issues
-- Saving GitHub Actions minutes
 - Faster iteration during development
 
 ## Quick Start
@@ -23,7 +22,7 @@ brew install act
 
 ```bash
 # Copy the example secrets file
-cp .secrets.example .secrets
+cp config/.secrets.example .secrets
 
 # Edit with your actual values
 nano .secrets
@@ -191,7 +190,7 @@ Pass act options through the helper:
 
 ## Configuration Files
 
-### `.actrc`
+### `config/.actrc`
 Global act configuration (already set up):
 
 ```bash
@@ -212,10 +211,10 @@ Global act configuration (already set up):
 ```
 
 ### `.secrets`
-Your GitHub secrets (create from `.secrets.example`):
+Your GitHub secrets (create from `config/.secrets.example`):
 
 ```bash
-cp .secrets.example .secrets
+cp config/.secrets.example .secrets
 # Edit with real values
 nano .secrets
 ```
@@ -349,7 +348,7 @@ docker ps
 
 ```bash
 # Create secrets file
-cp .secrets.example .secrets
+cp config/.secrets.example .secrets
 
 # Edit with your values
 nano .secrets
@@ -439,8 +438,8 @@ act -W .github/workflows/deploy-azure-infrastructure.yml -l
 # Reuse containers between runs
 act push --reuse
 
-# Add to .actrc for automatic reuse
-echo "--reuse" >> .actrc
+# Add to config/.actrc for automatic reuse
+echo "--reuse" >> config/.actrc
 ```
 
 ### Pre-pull Images

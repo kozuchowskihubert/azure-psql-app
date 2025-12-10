@@ -3,598 +3,1974 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Notes App - Cloud Workspace</title>
+    <title>HAOS.fm - Hardware Analog Oscillator Synthesis | Electronic Music Production</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="description" content="Complete productivity suite with notes, Excel workspace, calendar, and SSO - works offline!">
-    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="HAOS.fm - Professional hardware-inspired synthesis platform. Create electronic music with authentic TB-303, TR-808, ARP 2600, and modular synthesis engines. Real analog sound in your browser.">
+    <meta name="theme-color" content="#FF6B35">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Notes App">
-    <meta name="mobile-web-app-capable" content="yes">
     
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
-    
-    <!-- Manifest -->
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/haos-logo-white.png">
     <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/images/haos-logo-white.png">
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png">
+    <!-- Google Fonts - HAOS.fm Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
+    <!-- External Resources -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    
+    <!-- HAOS.fm Brand CSS -->
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    
     <style>
+        /* HAOS.fm Landing Page Styles */
+        
+        /* Custom Scrollbar - Vintage Style */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: var(--haos-vinyl-black); }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, var(--haos-groove-orange), var(--haos-turntable-gold)); 
+            border-radius: 6px; 
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--haos-groove-orange);
+        }
+        
+        /* Enhanced Monitoring Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { transform: translateX(500px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        
+        @keyframes ripple {
+            0% { width: 80px; height: 80px; opacity: 1; }
+            100% { width: 140px; height: 140px; opacity: 0; }
         }
-        .slide-in { animation: slideIn 0.3s ease-out; }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
-        .note-card {
+        
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(50%); }
+        }
+        
+        @keyframes dotPulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 25px rgba(147, 112, 219, 0.9); }
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .enhanced-card {
             transition: all 0.3s ease;
         }
-        .note-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        
+        .enhanced-card:hover {
+            transform: translateY(-5px) scale(1.02);
         }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .dark .gradient-bg {
-            background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            transform: scale(1.02);
-        }
-        .loading-spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 3px solid white;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .toast {
-            animation: slideIn 0.3s ease-out;
-        }
-        .category-badge {
-            transition: all 0.2s ease;
-        }
-        .category-badge:hover {
-            transform: scale(1.05);
-        }
-        /* Diagram Editor Styles */
-        .diagram-canvas {
-            border: 2px dashed #cbd5e0;
-            min-height: 400px;
-            position: relative;
-            background: #f7fafc;
-            background-image: radial-gradient(circle, #e2e8f0 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-        .dark .diagram-canvas {
-            background: #1a202c;
-            background-image: radial-gradient(circle, #2d3748 1px, transparent 1px);
-            border-color: #4a5568;
-        }
-        .diagram-node {
-            position: absolute;
-            padding: 12px 20px;
-            border: 2px solid #667eea;
-            border-radius: 8px;
-            background: white;
-            cursor: move;
-            user-select: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.2s;
-        }
-        .diagram-node:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transform: scale(1.05);
-        }
-        .diagram-node.dragging {
-            opacity: 0.5;
-            cursor: grabbing;
+        
+        .enhanced-card:hover .metric-value {
             transform: scale(1.1);
-            box-shadow: 0 8px 20px rgba(102,126,234,0.4);
         }
-        .diagram-node.selected {
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 3px rgba(245,158,11,0.2);
+        
+        /* Additional vintage effects specific to landing page */
+        body {
+            min-height: 100vh;
+            position: relative;
         }
-        .dark .diagram-node {
-            background: #2d3748;
-            color: white;
-        }
-        .connection-line {
+        
+        /* Vinyl scratch overlay */
+        .vinyl-scratch {
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii45IiBudW1PY3RhdmVzPSI0IiB0eXBlPSJmcmFjdGFsTm9pc2UiLz48ZmVDb2xvck1hdHJpeCB0eXBlPSJzYXR1cmF0ZSIgdmFsdWVzPSIwIi8+PGZlQ29tcG9uZW50VHJhbnNmZXI+PGZlRnVuY0EgdHlwZT0iZGlzY3JldGUiIHRhYmxlVmFsdWVzPSIwIDAuNSAxIi8+PC9mZUNvbXBvbmVudFRyYW5zZmVyPjwvZmlsdGVyPjwvZGVmcz48cmVjdCB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDMiLz48L3N2Zz4=');
             position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.02;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+        
+        /* Animated waveform */
+        @keyframes waveform-pulse {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.2); }
+        }
+        
+        .waveform-bar {
+            animation: waveform-pulse 1s ease-in-out infinite;
+        }
+        
+        .waveform-bar:nth-child(2) { animation-delay: 0.1s; }
+        .waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+        .waveform-bar:nth-child(4) { animation-delay: 0.3s; }
+        .waveform-bar:nth-child(5) { animation-delay: 0.4s; }
+        
+        /* Logo glow effect */
+        .logo-glow {
+            filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.6));
+        }
+        
+        /* Rotating vinyl animation */
+        @keyframes vinyl-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .vinyl-rotating {
+            animation: vinyl-rotate 8s linear infinite;
+        }
+        
+        /* Vintage scanlines (optional - can be toggled) */
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 0, 0, 0.05) 50%
+            );
+            background-size: 100% 4px;
             pointer-events: none;
         }
-        .mermaid-preview {
-            min-height: 300px;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
+        
+        /* Equipment rack meter animation */
+        @keyframes vu-bounce {
+            0%, 100% { width: 20%; }
+            50% { width: 85%; }
         }
-        .dark .mermaid-preview {
-            background: #2d3748;
+        
+        .vu-animate {
+            animation: vu-bounce 2s ease-in-out infinite;
         }
-        .shape-button {
-            transition: all 0.2s;
+        
+        /* Testing Dashboard Animations */
+        @keyframes data-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
         }
-        .shape-button:active {
-            cursor: grabbing !important;
+        
+        .test-card-animate {
+            animation: data-pulse 3s ease-in-out infinite;
         }
-        .shape-button.dragging {
-            opacity: 0.5;
-            transform: scale(0.95);
+        
+        /* Chart container styling */
+        canvas {
+            max-width: 100%;
+            height: auto;
         }
-        .diagram-canvas.drag-over {
-            background-color: rgba(102, 126, 234, 0.1);
-            border-color: #667eea;
+        
+        /* Metric counter animation */
+        @keyframes counter-glow {
+            0%, 100% { text-shadow: 0 0 10px currentColor; }
+            50% { text-shadow: 0 0 20px currentColor; }
+        }
+        
+        .metric-value {
+            animation: counter-glow 2s ease-in-out infinite;
         }
     </style>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#667eea',
-                        secondary: '#764ba2'
-                    }
-                }
-            }
-        }
-    </script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <!-- Toast Notifications -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+<body class="haos-theme">
+    <div class="vinyl-scratch"></div>
 
-    <!-- Header -->
-    <header class="gradient-bg shadow-lg sticky top-0 z-40">
-        <div class="container mx-auto px-4 py-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-sticky-note text-white text-3xl"></i>
-                    <h1 class="text-3xl font-bold text-white">Notes App</h1>
+    <!-- ============================================================================
+         TRACK UPLOAD SECTION
+         ============================================================================ -->
+    <div id="track-upload-panel" style="position: fixed; top: 20px; right: 20px; z-index: 9999; width: 420px; max-width: 90vw; display: none;">
+        <div style="background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(30,15,0,0.98)); border: 2px solid #FF5500; border-radius: 12px; padding: 20px; backdrop-filter: blur(10px); box-shadow: 0 10px 40px rgba(255,85,0,0.5);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.5rem;">🎧</span>
+                    <span style="font-family: 'Bebas Neue', sans-serif; color: #FF5500; font-size: 1.2rem; letter-spacing: 2px;">UPLOAD TRACK</span>
                 </div>
+                <button id="upload-panel-close" style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 1.5rem; padding: 0; line-height: 1;">×</button>
+            </div>
+            
+            <form id="track-upload-form" enctype="multipart/form-data">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">
+                        Track Title <span style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">(Optional for multiple files - will use filename)</span>
+                    </label>
+                    <input type="text" id="track-title" name="title"
+                           minlength="1" maxlength="100"
+                           style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,85,0,0.3); border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 0.9rem;"
+                           placeholder="Enter track name or leave empty for auto-name...">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">
+                        Artist Name <span style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">(Optional - defaults to "Unknown Artist")</span>
+                    </label>
+                    <input type="text" id="track-artist" name="artist"
+                           minlength="1" maxlength="100"
+                           style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,85,0,0.3); border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 0.9rem;"
+                           placeholder="Your artist name or leave empty...">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">Genre</label>
+                    <select id="track-genre" name="genre"
+                            style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,85,0,0.3); border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 0.9rem;">
+                        <option value="Techno">Techno</option>
+                        <option value="Detroit Techno">Detroit Techno</option>
+                        <option value="Industrial">Industrial</option>
+                        <option value="Acid House">Acid House</option>
+                        <option value="Deep Techno">Deep Techno</option>
+                        <option value="Minimal">Minimal</option>
+                        <option value="Trap">Trap</option>
+                        <option value="Electronic">Electronic</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">Audio Files * (.mp3, .wav, .ogg) - Multiple files allowed</label>
+                    <input type="file" id="track-file" name="audioFile" accept="audio/mp3,audio/wav,audio/ogg,audio/mpeg" required multiple
+                           style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,85,0,0.3); border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 0.85rem;">
+                    <div id="file-info" style="margin-top: 5px; font-size: 0.75rem; color: rgba(255,255,255,0.5); font-family: var(--font-mono);"></div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.8); font-family: var(--font-mono); font-size: 0.8rem; cursor: pointer;">
+                        <input type="checkbox" id="track-copyright" name="copyright" required
+                               style="width: 18px; height: 18px; cursor: pointer;">
+                        <span>I own the copyright to these tracks *</span>
+                    </label>
+                    <div style="margin-top: 4px; font-size: 0.7rem; color: rgba(255,255,255,0.4); font-family: var(--font-mono); padding-left: 26px;">
+                        Required for single or multiple file uploads
+                    </div>
+                </div>
+                
+                <div id="upload-status" style="margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 6px; display: none; font-family: var(--font-mono); font-size: 0.85rem;"></div>
+                
+                <button type="submit" id="upload-submit-btn"
+                        style="width: 100%; padding: 12px; background: linear-gradient(135deg, #FF5500, #FF8833); border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(255,85,0,0.4); transition: all 0.2s;">
+                    🎵 UPLOAD TRACK
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================================
+         EUPHONY ASSISTANT - Hidden from basic view
+         ============================================================================ -->
+    <div id="euphony-assistant" style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; width: 400px; max-width: 90vw; display: none;">
+        <!-- Euphony Panel -->
+        <div id="euphony-panel" style="background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,10,30,0.98)); border: 2px solid #9370DB; border-radius: 12px; padding: 15px; backdrop-filter: blur(10px); box-shadow: 0 10px 40px rgba(147,112,219,0.4);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #9370DB, #BA55D3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; animation: pulse 2s infinite; box-shadow: 0 0 20px rgba(147,112,219,0.5);">
+                        🎵
+                    </div>
+                    <span style="font-family: 'Space Mono', monospace; color: #BA55D3; font-size: 1rem; letter-spacing: 2px; font-weight: bold;">EUPHONY AI</span>
+                </div>
+                <button id="euphony-minimize" style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 1.2rem; padding: 0; width: 24px; height: 24px;" title="Minimize">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+            
+            <div id="euphony-chat" style="max-height: 250px; overflow-y: auto; margin-bottom: 10px; padding: 12px; background: rgba(0,0,0,0.4); border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem;">
+                <div class="euphony-message" style="color: #BA55D3; margin-bottom: 10px; line-height: 1.6;">
+                    <strong>🎵 Euphony:</strong> Welcome to HAOS intelligent music system! I have access to <strong>50+ presets</strong>, <strong>26 tracks</strong>, and <strong>6 curated playlists</strong> including <strong>SoundCloud Radio</strong>! You can also <strong>upload your own tracks</strong>! Subscribe to <a href="https://www.youtube.com/@haos_" target="_blank" style="color: #FF0000; text-decoration: underline;">YouTube @haos_</a> for more!
+                </div>
+                <div style="color: rgba(255,255,255,0.75); margin-left: 20px; font-size: 0.8rem; line-height: 1.8;">
+                    <strong style="color: #9370DB;">🎵 Playlists:</strong><br>
+                    • "soundcloud" / "radio" - SoundCloud Radio Player 🎧<br>
+                    • "uploaded" / "my tracks" - Your uploaded tracks 📁<br>
+                    • "haos" / "exclusive" - HAOS Exclusive (6 tracks)<br>
+                    • "detroit" / "techno" - Technobot Detroit (5 tracks)<br>
+                    • "industrial" - Industrial Techno (5 tracks)<br>
+                    • "acid" / "classics" - Acid Classics (4 tracks)<br>
+                    • "deep" - Deep Techno (4 tracks)<br><br>
+                    
+                    <strong style="color: #9370DB;">🎹 Synth Presets:</strong><br>
+                    • "show tb303" - TB-303 presets (17)<br>
+                    • "show arp2600" - ARP 2600 patches (14)<br>
+                    • "show tr909" - TR-909 kits (9)<br>
+                    • "show tr808" - TR-808 kits (10)<br><br>
+                    
+                    <strong style="color: #9370DB;">⚡ Commands:</strong><br>
+                    • "play soundcloud" - SoundCloud Radio 🎧<br>
+                    • "rave rage" - Play the hit! 🔥<br>
+                    • "next" / "prev" - Navigate<br>
+                    • "shuffle" - Randomize queue<br>
+                    • "volume [0-100]" - Adjust level
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 5px;">
+                <input id="euphony-input" type="text" placeholder="Ask Euphony..." style="flex: 1; padding: 10px 12px; background: rgba(0,0,0,0.5); border: 2px solid #9370DB; border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 0.85rem;" />
+                <button id="euphony-send" style="padding: 10px 16px; background: linear-gradient(135deg, #9370DB, #BA55D3); border: none; border-radius: 6px; color: #fff; font-weight: bold; cursor: pointer; font-family: var(--font-mono); box-shadow: 0 4px 12px rgba(147,112,219,0.3);">
+                    ASK
+                </button>
+            </div>
+            
+            <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px;">
+                <button class="euphony-quick-btn" data-command="play soundcloud" style="background: rgba(255, 85, 0, 0.2); border-color: #FF5500;">🎧 SoundCloud</button>
+                <button class="euphony-quick-btn" data-command="play haos">🎵 HAOS</button>
+                <button class="euphony-quick-btn" data-command="play detroit">⚡ Detroit</button>
+                <button class="euphony-quick-btn" data-command="play acid">🧪 Acid</button>
+                <button class="euphony-quick-btn" data-command="show arp2600">🎹 ARP</button>
+                <button class="euphony-quick-btn" data-command="next">⏭️ Next</button>
+                <button class="euphony-quick-btn" data-command="status">📊 Status</button>
+            </div>
+        </div>
+        
+        <!-- Minimized state -->
+        <div id="euphony-minimized" style="display: none; background: linear-gradient(135deg, #9370DB, #BA55D3); border-radius: 50%; width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 25px rgba(147,112,219,0.6); animation: pulse 2s infinite;">
+            <span style="font-size: 2.2rem;">🎵</span>
+        </div>
+    </div>
+
+    <style>
+        .euphony-quick-btn {
+            padding: 6px 12px;
+            background: rgba(147, 112, 219, 0.2);
+            border: 1px solid #9370DB;
+            border-radius: 6px;
+            color: #BA55D3;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            transition: all 0.3s;
+        }
+        .euphony-quick-btn:hover {
+            background: linear-gradient(135deg, #9370DB, #BA55D3);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(147,112,219,0.4);
+        }
+        #euphony-chat::-webkit-scrollbar {
+            width: 6px;
+        }
+        #euphony-chat::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+        }
+        #euphony-chat::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #9370DB, #BA55D3);
+            border-radius: 3px;
+        }
+    </style>
+
+    <!-- ============================================================================
+         BACKGROUND MUSIC PLAYER - Hidden by default
+         ============================================================================ -->
+    <div id="haos-bg-music-player" class="haos-radio-player" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 400px; max-width: 90vw; display: none; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+        
+        <!-- Minimized State -->
+        <div id="haos-radio-minimized" class="haos-radio-minimized" style="display: none; background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,20,0.98)); border: 2px solid var(--haos-orange-primary); border-radius: 50px; padding: 12px 20px; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(255,107,53,0.4); cursor: pointer; transition: all 0.3s;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 10px; height: 10px; background: #39FF14; border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 10px #39FF14;"></div>
+                <div style="flex: 1; min-width: 0;">
+                    <div id="haos-mini-title" style="font-family: var(--font-display); color: #fff; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold;">
+                        Loading...
+                    </div>
+                    <div id="haos-mini-artist" style="font-family: var(--font-mono); color: rgba(255,255,255,0.6); font-size: 0.7rem;">
+                        HAOS Radio
+                    </div>
+                </div>
+                <button id="haos-mini-playpause" style="background: rgba(255, 107, 53, 0.3); border: 2px solid var(--haos-orange-primary); border-radius: 50%; color: var(--haos-orange-primary); cursor: pointer; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; font-size: 0.9rem;">
+                    <i class="fas fa-pause"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Expanded State (Full Control Panel) -->
+        <div id="haos-music-controls" class="haos-radio-expanded" style="background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,20,0.98)); border: 2px solid var(--haos-orange-primary); border-radius: 12px; padding: 15px; backdrop-filter: blur(10px); box-shadow: 0 10px 40px rgba(255,107,53,0.3); transition: all 0.3s;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 8px; height: 8px; background: #39FF14; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                    <span style="font-family: 'Space Mono', monospace; color: var(--haos-orange-primary); font-size: 0.75rem; letter-spacing: 2px; font-weight: bold;">📻 HAOS RADIO</span>
+                </div>
+                <button id="haos-music-close" style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 1.2rem; padding: 0; width: 24px; height: 24px;" title="Close player">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="haos-track-info" style="margin-bottom: 12px;">
+                <div id="haos-track-title" style="font-family: var(--font-display); color: #fff; font-size: 1rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    Loading...
+                </div>
+                <div id="haos-track-artist" style="font-family: var(--font-mono); color: rgba(255,255,255,0.6); font-size: 0.85rem;">
+                    HAOS Radio
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <button id="haos-music-prev" class="haos-music-btn" title="Previous">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                <button id="haos-music-playpause" class="haos-music-btn haos-music-btn-large" title="Play/Pause">
+                    <i class="fas fa-pause"></i>
+                </button>
+                <button id="haos-music-next" class="haos-music-btn" title="Next">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+                <button id="haos-music-shuffle" class="haos-music-btn" title="Shuffle: ON" style="color: #FFD700;">
+                    <i class="fas fa-random"></i>
+                </button>
+                <div style="flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; position: relative; margin: 0 10px;">
+                    <div id="haos-music-progress" style="height: 100%; background: linear-gradient(90deg, var(--haos-orange-primary), #FFD700); border-radius: 2px; width: 0%; transition: width 0.3s;"></div>
+                </div>
+                <input id="haos-music-volume" type="range" min="0" max="100" value="70" style="width: 80px; cursor: pointer;" title="Volume">
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+                <a href="https://www.youtube.com/@haos_" target="_blank" rel="noopener noreferrer" 
+                   style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.7rem; color: #FF0000; text-decoration: none; background: rgba(255,0,0,0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,0,0,0.3); transition: all 0.3s;"
+                   onmouseover="this.style.background='rgba(255,0,0,0.2)'; this.style.borderColor='#FF0000';"
+                   onmouseout="this.style.background='rgba(255,0,0,0.1)'; this.style.borderColor='rgba(255,0,0,0.3)';">
+                    <i class="fab fa-youtube"></i>
+                    <span>@haos_</span>
+                </a>
+                <button id="my-uploads-btn" 
+                   style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.7rem; color: #FFD700; text-decoration: none; background: rgba(255,215,0,0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,215,0,0.3); transition: all 0.3s; cursor: pointer;"
+                   onmouseover="this.style.background='rgba(255,215,0,0.2)'; this.style.borderColor='#FFD700';"
+                   onmouseout="this.style.background='rgba(255,215,0,0.1)'; this.style.borderColor='rgba(255,215,0,0.3)';"
+                   title="Switch to your uploaded tracks">
+                    <span>📁</span>
+                    <span>MY UPLOADS</span>
+                </button>
+                <button id="open-upload-btn" 
+                   style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.7rem; color: #FF5500; text-decoration: none; background: rgba(255,85,0,0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,85,0,0.3); transition: all 0.3s; cursor: pointer;"
+                   onmouseover="this.style.background='rgba(255,85,0,0.2)'; this.style.borderColor='#FF5500';"
+                   onmouseout="this.style.background='rgba(255,85,0,0.1)'; this.style.borderColor='rgba(255,85,0,0.3)';">
+                    <span>⬆️</span>
+                    <span>UPLOAD TRACK</span>
+                </button>
+            </div>
+            
+            <div style="font-family: var(--font-mono); font-size: 0.7rem; color: rgba(255,255,255,0.4); text-align: center; margin-top: 8px;">
+                🎵 Streaming Quality Audio
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .haos-music-btn {
+            background: rgba(255, 107, 53, 0.2);
+            border: 2px solid var(--haos-orange-primary);
+            border-radius: 8px;
+            color: var(--haos-orange-primary);
+            cursor: pointer;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .haos-music-btn:hover {
+            background: var(--haos-orange-primary);
+            color: #000;
+            transform: translateY(-2px);
+        }
+        .haos-music-btn-large {
+            padding: 12px 20px;
+            font-size: 1.1rem;
+        }
+        #haos-music-volume {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            outline: none;
+        }
+        #haos-music-volume::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--haos-orange-primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        #haos-music-volume::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            background: var(--haos-orange-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+    </style>
+
+    <!-- ============================================================================
+         NAVIGATION HEADER - HAOS.fm BRANDED
+         ============================================================================ -->
+    <header class="haos-card-glass sticky top-0 z-50" style="backdrop-filter: blur(20px);">
+        <div class="haos-container">
+            <div class="flex items-center justify-between h-20">
+                <!-- HAOS.fm Logo -->
                 <div class="flex items-center space-x-4">
-                    <!-- User Profile / Login Button -->
-                    <div id="user-profile-section" class="hidden">
-                        <div class="flex items-center space-x-3 bg-white/20 rounded-lg px-4 py-2">
-                            <img id="user-avatar" src="" alt="User" class="w-8 h-8 rounded-full hidden">
-                            <div class="text-white">
-                                <p class="text-sm font-medium" id="user-display-name">Guest</p>
-                                <p class="text-xs opacity-75" id="user-mode-badge">Public Mode</p>
-                            </div>
-                            <button id="logout-btn" class="ml-2 p-1 hover:bg-white/20 rounded transition-colors hidden" title="Sign Out">
-                                <i class="fas fa-sign-out-alt text-white"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <a href="/login.html" id="login-link" class="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 transition-colors flex items-center space-x-2 font-medium">
-                        <i class="fas fa-sign-in-alt text-white"></i>
-                        <span class="text-white hidden md:inline">Sign In</span>
-                    </a>
-                    
-                    <a href="/excel.html" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 transition-colors flex items-center space-x-2" title="Excel Workspace">
-                        <i class="fas fa-table text-white"></i>
-                        <span class="text-white font-medium hidden md:inline">Excel</span>
-                    </a>
-                    <a href="/calendar.html" class="px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors flex items-center space-x-2" title="Calendar">
-                        <i class="fas fa-calendar-alt text-white"></i>
-                        <span class="text-white font-medium hidden md:inline">Calendar</span>
-                    </a>
-                    <a href="/meetings.html" class="px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors flex items-center space-x-2" title="Meetings">
-                        <i class="fas fa-handshake text-white"></i>
-                        <span class="text-white font-medium hidden md:inline">Meetings</span>
-                    </a>
-                    <a href="/features.html" class="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors" title="View Features & Roadmap">
-                        <i class="fas fa-rocket text-white text-xl"></i>
-                    </a>
-                    <button id="theme-toggle" class="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors">
-                        <i class="fas fa-moon text-white text-xl" id="theme-icon"></i>
-                    </button>
-                    <button id="refresh-btn" class="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors" title="Refresh notes">
-                        <i class="fas fa-sync text-white text-xl"></i>
-                    </button>
-                    <div class="text-white text-sm">
-                        <i class="fas fa-database mr-2"></i>
-                        <span id="db-status" class="font-medium">Checking...</span>
+                    <img src="/images/haos-logo-white.png" alt="HAOS.fm" class="h-10 vinyl-rotating logo-glow" style="width: auto;">
+                    <div>
+                        <h1 class="haos-display-sm haos-text-gradient-orange" style="font-size: 1.5rem; line-height: 1;">
+                            HAOS.fm
+                        </h1>
+                        <p class="haos-mono" style="font-size: 0.65rem; color: var(--haos-dust-gray); letter-spacing: 0.15em;">
+                            HARDWARE ANALOG OSCILLATOR SYNTHESIS
+                        </p>
                     </div>
                 </div>
+                
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/haos-platform" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
+                        <i class="fas fa-cubes mr-2"></i>HAOS PLATFORM
+                    </a>
+                    <a href="/techno-workspace" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
+                        <i class="fas fa-project-diagram mr-2"></i>WORKSPACE
+                    </a>
+                    <a href="/sounds" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
+                        <i class="fas fa-music mr-2"></i>SOUNDS
+                    </a>
+                    <a href="#features" class="haos-label hover:text-orange-400 transition-colors">
+                        <i class="fas fa-star mr-2"></i>FEATURES
+                    </a>
+                    <a href="/platform/studio.html#radio" class="haos-label transition-colors flex items-center gap-2" style="color: #39FF14; font-weight: bold;">
+                        <i class="fas fa-broadcast-tower"></i>RADIO
+                        <span class="haos-badge" style="background: linear-gradient(135deg, #39FF14, #00FF00); color: #000; font-weight: 700; font-size: 0.7em; padding: 2px 8px;">LIVE</span>
+                    </a>
+                    <a href="https://www.youtube.com/@haos_" target="_blank" rel="noopener noreferrer" class="haos-label transition-colors flex items-center gap-2" style="color: #FF0000; font-weight: bold;" title="Watch on YouTube">
+                        <i class="fab fa-youtube"></i>@haos_
+                    </a>
+                </nav>
+                
+                <!-- Mobile Menu -->
+                <button id="mobile-menu-btn" class="md:hidden haos-btn-secondary px-4 py-2">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu" class="md:hidden hidden mt-4 pb-4">
+                <nav class="flex flex-col space-y-3">
+                    <a href="/haos-platform" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded" style="font-weight: bold;">
+                        <i class="fas fa-cubes mr-2"></i>HAOS PLATFORM
+                    </a>
+                    <a href="/techno-workspace" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded" style="font-weight: bold;">
+                        <i class="fas fa-project-diagram mr-2"></i>WORKSPACE
+                    </a>
+                    <a href="/sounds" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded" style="font-weight: bold;">
+                        <i class="fas fa-music mr-2"></i>SOUNDS
+                    </a>
+                    <a href="#features" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded">
+                        <i class="fas fa-star mr-2"></i>FEATURES
+                    </a>
+                    <a href="/platform/studio.html#radio" class="haos-label transition-colors py-2 px-4 rounded flex items-center gap-2" style="color: #39FF14; font-weight: bold;">
+                        <i class="fas fa-broadcast-tower"></i>RADIO
+                        <span class="haos-badge" style="background: linear-gradient(135deg, #39FF14, #00FF00); color: #000; font-weight: 700; font-size: 0.7em; padding: 2px 8px;">LIVE</span>
+                    </a>
+                    <a href="https://www.youtube.com/@haos_" target="_blank" rel="noopener noreferrer" class="haos-label transition-colors py-2 px-4 rounded flex items-center gap-2" style="color: #FF0000; font-weight: bold;">
+                        <i class="fab fa-youtube mr-2"></i>@haos_
+                    </a>
+                </nav>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
-        <!-- Stats Bar -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 fade-in">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Notes</p>
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white" id="total-notes">0</p>
-                    </div>
-                    <i class="fas fa-note-sticky text-blue-500 text-3xl"></i>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-green-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Important</p>
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white" id="important-notes">0</p>
-                    </div>
-                    <i class="fas fa-star text-green-500 text-3xl"></i>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-purple-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Categories</p>
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white" id="category-count">0</p>
-                    </div>
-                    <i class="fas fa-tags text-purple-500 text-3xl"></i>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-orange-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Recent</p>
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white" id="recent-notes">0</p>
-                    </div>
-                    <i class="fas fa-clock text-orange-500 text-3xl"></i>
-                </div>
-            </div>
-        </div>
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // Close menu when clicking on a link
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+        }
+    </script>
 
-        <!-- Search and Filter Bar -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8 slide-in">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="relative">
-                    <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
-                    <input 
-                        type="text" 
-                        id="search-input" 
-                        placeholder="Search notes..." 
-                        class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
-                    >
-                </div>
-                <select 
-                    id="category-filter" 
-                    class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
-                >
-                    <option value="">All Categories</option>
-                </select>
-                <select 
-                    id="sort-select" 
-                    class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
-                >
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="title-asc">Title (A-Z)</option>
-                    <option value="title-desc">Title (Z-A)</option>
-                </select>
-            </div>
+    <!-- ============================================================================
+         HERO SECTION - VINTAGE VINYL AESTHETIC
+         ============================================================================ -->
+    <section class="haos-section" style="background: linear-gradient(180deg, var(--haos-vinyl-black) 0%, var(--haos-tape-brown) 100%); position: relative; overflow: hidden;">
+        <!-- Animated waveform background -->
+        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; display: flex; align-items: flex-end; justify-content: center; gap: 4px; opacity: 0.1;">
+            <div class="waveform-bar" style="width: 8px; height: 60%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 80%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 40%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 90%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 70%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 50%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 85%; background: var(--haos-groove-orange);"></div>
+            <div class="waveform-bar" style="width: 8px; height: 65%; background: var(--haos-groove-orange);"></div>
         </div>
-
-        <!-- Create Note Form -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8 slide-in">
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
-                <i class="fas fa-plus-circle text-primary mr-2"></i>
-                Create New Note
+        
+        <div class="haos-container text-center haos-slide-up" style="position: relative; z-index: 10;">
+            <!-- Main Logo - Your Custom PNG -->
+            <div class="mb-8" style="max-width: 800px; margin: 0 auto;">
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm - Hardware Analog Oscillator Synthesis" class="w-full logo-glow" style="max-width: 600px; margin: 0 auto;">
+            </div>
+            
+            <h2 class="haos-display-md haos-text-gradient-gold mb-4">
+                HARDWARE ANALOG SYNTHESIS
             </h2>
-            <form id="note-form" class="space-y-4">
-                <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Title <span class="text-red-500">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="title" 
-                        name="title" 
-                        required 
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
-                        placeholder="Enter note title..."
-                    >
-                </div>
-                <div>
-                    <label for="note-type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        <i class="fas fa-layer-group mr-1"></i>
-                        Note Type
-                    </label>
-                    <select 
-                        id="note-type" 
-                        name="note_type"
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
-                    >
-                        <option value="text">📝 Text Note</option>
-                        <option value="diagram">📊 Mermaid Diagram</option>
-                    </select>
-                </div>
-                <div id="text-content-section">
-                    <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Content <span class="text-red-500">*</span>
-                    </label>
-                    <textarea 
-                        id="content" 
-                        name="content" 
-                        required 
-                        rows="4" 
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all resize-none"
-                        placeholder="Write your note here..."
-                    ></textarea>
-                </div>
-                <div id="diagram-content-section" class="hidden">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        <i class="fas fa-project-diagram mr-1"></i>
-                        Mermaid Diagram Editor
-                    </label>
-                    <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-                        <!-- Diagram Toolbar -->
-                        <div class="bg-gray-100 dark:bg-gray-700 p-3 border-b border-gray-300 dark:border-gray-600 flex items-center space-x-2">
-                            <div class="text-sm text-gray-600 dark:text-gray-300 mr-2">
-                                <i class="fas fa-hand-pointer mr-1"></i> Drag shapes to canvas:
-                            </div>
-                            <button type="button" draggable="true" data-shape="rect" data-label="Process" class="shape-button px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm cursor-grab">
-                                <i class="fas fa-square mr-1"></i> Rectangle
-                            </button>
-                            <button type="button" draggable="true" data-shape="round" data-label="Start/End" class="shape-button px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm cursor-grab">
-                                <i class="fas fa-circle mr-1"></i> Round
-                            </button>
-                            <button type="button" draggable="true" data-shape="diamond" data-label="Decision" class="shape-button px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm cursor-grab">
-                                <i class="fas fa-diamond mr-1"></i> Diamond
-                            </button>
-                            <button type="button" onclick="clearDiagram()" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm ml-auto">
-                                <i class="fas fa-trash mr-1"></i> Clear
-                            </button>
+            
+            <p class="haos-body-lg mb-8 max-w-3xl mx-auto" style="color: var(--haos-sepia-cream);">
+                Create electronic music with authentic hardware-inspired synthesis engines. 
+                <br>TB-303 acid bass, TR-909 drums, 16-step sequencer, and live modular workspace.
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <!-- Modular Workspace as main theme -->
+                <a href="/techno-workspace" class="haos-btn haos-btn-primary" style="font-size: 1.2em; padding: 18px 36px; background: linear-gradient(135deg, #FF6B35, #FF8C42);">
+                    🔧 MODULAR WORKSPACE
+                </a>
+                <a href="/haos-platform" class="haos-btn haos-btn-primary" style="font-size: 1.2em; padding: 18px 36px;">
+                    🎛️ PLATFORM
+                </a>
+                <!-- Legacy Radio 24/7 button - hidden (we have live radio player now) -->
+                <a href="/radio.html" class="haos-btn haos-btn-secondary" style="display: none; background: linear-gradient(135deg, #39FF14, #00FF00); color: #000; font-weight: 700;">
+                    📻 RADIO 24/7
+                </a>
+            </div>
+            
+            <!-- Stats - Equipment Rack Style -->
+            <div class="haos-rack" style="max-width: 1200px; margin: var(--haos-space-3xl) auto 0;">
+                <div class="haos-rack-strip"></div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-6">
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 85%;"></div>
                         </div>
-                        <!-- Visual Editor Canvas -->
-                        <div id="diagram-canvas" class="diagram-canvas" style="height: 400px; position: relative;">
-                            <p class="text-gray-400 dark:text-gray-500 text-center pt-32">
-                                <i class="fas fa-mouse-pointer mr-2"></i>
-                                Drag shapes from toolbar above to create diagram nodes
-                            </p>
+                        <div class="haos-display-md haos-text-gradient-orange" style="font-size: 2rem;">15+</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream); font-size: 0.75rem;">SYNTHESIS TOOLS</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 90%; animation-delay: 0.1s;"></div>
                         </div>
+                        <div class="haos-display-md haos-text-gradient-orange" style="font-size: 2rem;">50+</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream); font-size: 0.75rem;">MODULAR PATCHES</div>
                     </div>
-                    <!-- Mermaid Code Editor -->
-                    <label for="mermaid-code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 mt-4">
-                        <i class="fas fa-code mr-1"></i>
-                        Mermaid Code
-                    </label>
-                    <textarea 
-                        id="mermaid-code" 
-                        name="mermaid_code"
-                        rows="6" 
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all resize-none font-mono text-sm"
-                        placeholder="graph TD&#10;    A[Start] --> B{Decision}&#10;    B -->|Yes| C[Process]&#10;    B -->|No| D[End]"
-                    ></textarea>
-                    <!-- Live Preview -->
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <i class="fas fa-eye mr-1"></i>
-                            Live Preview
-                        </label>
-                        <div id="mermaid-preview" class="mermaid-preview border border-gray-300 dark:border-gray-600 rounded-lg">
-                            <p class="text-gray-400 dark:text-gray-500 text-center">Preview will appear here...</p>
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 95%; animation-delay: 0.2s;"></div>
                         </div>
+                        <div class="haos-display-md haos-text-gradient-orange" style="font-size: 2rem;">100+</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream); font-size: 0.75rem;">SOUND PRESETS</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 75%; animation-delay: 0.3s;"></div>
+                        </div>
+                        <div class="haos-display-md haos-text-gradient-orange" style="font-size: 2rem;">8+</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream); font-size: 0.75rem;">ANALOG OSCILLATORS</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 100%; animation-delay: 0.4s;"></div>
+                        </div>
+                        <div class="haos-display-md haos-text-gradient-orange" style="font-size: 2rem;">24/7</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream); font-size: 0.75rem;">LIVE BROADCAST</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="haos-vu-meter mb-3">
+                            <div class="haos-vu-fill vu-animate" style="width: 88%; animation-delay: 0.5s;"></div>
+                        </div>
+                        <div class="haos-display-md haos-text-gradient-orange" style="font-size: 2rem;">∞</div>
+                        <div class="haos-label" style="color: var(--haos-sepia-cream); font-size: 0.75rem;">SONIC POSSIBILITIES</div>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Category
-                        </label>
-                        <input 
-                            type="text" 
-                            id="category" 
-                            name="category" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
-                            placeholder="e.g., Personal, Work, Ideas..."
-                        >
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================================
+         SYNTHESIS STUDIOS
+         ============================================================================ -->
+    <main class="haos-container py-12">
+
+        <!-- ========================================================================
+             MUSIC CREATION
+             ======================================================================== -->
+        <section id="studios" class="haos-section">
+            <div class="text-center mb-12">
+                <h2 class="haos-display-lg mb-4" style="background: linear-gradient(135deg, #39FF14, #00D9FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    SYNTHESIS STUDIOS
+                </h2>
+                <p class="haos-body-lg" style="color: var(--haos-sepia-cream);">
+                    Hardware-inspired music creation with complete track integration
+                </p>
+            </div>
+
+            <!-- FEATURED: Modular Workspace - Main Theme -->
+            <div class="mb-12">
+                <a href="/techno-workspace" class="haos-studio-card block" style="border: 3px solid #FF6B35; box-shadow: 0 0 40px rgba(255, 107, 53, 0.5); background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 140, 66, 0.1));">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="text-6xl">🔧</div>
+                        <span class="haos-badge haos-badge-new" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-size: 1.2rem; padding: 0.5rem 1rem;">FEATURED</span>
                     </div>
-                    <div class="flex items-end">
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="important" name="important" class="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary">
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                <i class="fas fa-star text-yellow-500 mr-1"></i>
-                                Mark as Important
-                            </span>
-                        </label>
+                    <h3 class="text-4xl md:text-5xl font-bold mb-4" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                        Modular Workspace
+                    </h3>
+                    <p class="text-xl haos-body mb-6" style="color: var(--haos-sepia-cream);">
+                        Eurorack-inspired modular synthesis environment with <strong>Visual Patch Routing</strong>, <strong>Drag-and-Drop Cables</strong>, <strong>CV Modulation Matrix</strong>, and <strong>Real-time Signal Flow</strong>. Build complex sonic architectures with complete hardware workflow.
+                    </p>
+                    <div class="flex flex-wrap gap-3 mb-4">
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🔌 PATCH CABLES</span>
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">⚡ CV ROUTING</span>
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🎛️ MODULAR SYNTH</span>
+                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">� VISUAL FLOW</span>
                     </div>
+                    <div class="text-2xl font-bold" style="color: #FF6B35;">
+                        ▶ LAUNCH MODULAR WORKSPACE
+                    </div>
+                </a>
+            </div>
+
+            <!-- SECONDARY: Radio - Hidden from main page -->
+            <div class="haos-grid haos-grid-2 mb-12" style="display: none;">
+                <a href="/radio.html" class="haos-studio-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="text-5xl"><i class="fas fa-broadcast-tower" style="color: #39FF14;"></i></div>
+                        <span class="haos-badge" style="background: linear-gradient(135deg, #39FF14, #00FF00); color: #000; font-weight: 700;">LIVE</span>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-3" style="color: #39FF14;">
+                        HAOS.FM RADIO 24/7
+                    </h3>
+                    <p class="haos-body" style="color: var(--haos-sepia-cream); margin-bottom: var(--haos-space-md);">
+                        Non-stop streaming with live visualization. Listen to community tracks and share your creations.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="haos-tag" style="background: rgba(57, 255, 20, 0.2); color: #39FF14;">LIVE STREAM</span>
+                        <span class="haos-tag" style="background: rgba(57, 255, 20, 0.2); color: #39FF14;">VISUALIZER</span>
+                        <span class="haos-tag" style="background: rgba(57, 255, 20, 0.2); color: #39FF14;">24/7</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Complete Production Suite - SIMPLIFIED -->
+            <div class="mt-12">
+                <div class="text-center mb-8">
+                    <h3 class="text-3xl font-bold mb-3" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        Professional Synthesis Tools
+                    </h3>
+                    <p class="text-lg" style="color: var(--haos-sepia-cream);">
+                        Curated selection of hardware-inspired synthesis platforms
+                    </p>
                 </div>
-                <div class="flex space-x-3">
-                    <button 
-                        type="submit" 
-                        class="flex-1 btn-primary text-white font-semibold py-3 px-6 rounded-lg shadow-lg flex items-center justify-center space-x-2"
-                    >
-                        <i class="fas fa-save"></i>
-                        <span>Create Note</span>
-                    </button>
-                    <button 
-                        type="reset" 
-                        class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                    >
-                        <i class="fas fa-times mr-2"></i>Clear
-                    </button>
+
+                <!-- Strategic Studios Only -->
+                <div class="haos-grid haos-grid-2 gap-6">
+                    <!-- HAOS Platform - HOT FEATURE -->
+                    <a href="/haos-platform" class="haos-studio-card hover:scale-105 transition-all" style="border: 2px solid #FF6B35; box-shadow: 0 0 25px rgba(255, 107, 53, 0.4); background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 140, 66, 0.05));">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-5xl">🎛️</div>
+                            <span class="haos-badge" style="background: linear-gradient(135deg, #FF0000, #FF6B35); color: #FFF; font-weight: 700; animation: pulse 2s infinite;">🔥 HOT</span>
+                        </div>
+                        <h5 class="text-2xl font-bold mb-2" style="color: #FF6B35;">HAOS Platform</h5>
+                        <p class="haos-body text-sm mb-3" style="color: var(--haos-sepia-cream);">
+                            Complete production suite with <strong>TB-303</strong>, <strong>TR-909</strong>, <strong>16-Step Sequencer</strong>, and <strong>all Modular Workspace modules</strong> pre-loaded. Instant access to full synthesis arsenal.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <span class="haos-tag text-xs" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42;">TB-303 ACID</span>
+                            <span class="haos-tag text-xs" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42;">TR-909 DRUMS</span>
+                            <span class="haos-tag text-xs" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42;">SEQUENCER</span>
+                            <span class="haos-tag text-xs" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42;">ALL MODULES</span>
+                        </div>
+                        <div class="text-sm font-bold" style="color: #FF6B35;">
+                            ▶ LAUNCH STUDIO
+                        </div>
+                    </a>
+
+                    <!-- ARP 2600 Studio -->
+                    <a href="/synth-2600-studio.html" class="haos-studio-card hover:scale-105 transition-all">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-5xl"><i class="fas fa-sliders-h" style="color: #FF6B35;"></i></div>
+                            <span class="haos-badge" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-weight: 700;">CLASSIC</span>
+                        </div>
+                        <h5 class="text-2xl font-bold mb-2" style="color: #FF6B35;">ARP 2600 Studio</h5>
+                        <p class="haos-body text-sm mb-3">Legendary modular synthesizer with complete patch matrix</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="haos-tag text-xs">VINTAGE</span>
+                            <span class="haos-tag text-xs">ANALOG</span>
+                            <span class="haos-tag text-xs">MODULAR</span>
+                        </div>
+                    </a>
+
+                    <!-- Unified Studio -->
+                    <a href="/platform/studio.html" class="haos-studio-card hover:scale-105 transition-all">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-5xl"><i class="fas fa-th-large" style="color: #FF6B35;"></i></div>
+                            <span class="haos-badge" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-weight: 700;">UNIFIED</span>
+                        </div>
+                        <h5 class="text-2xl font-bold mb-2" style="color: #FF6B35;">Unified Studio</h5>
+                        <p class="haos-body text-sm mb-3">All-in-one production suite with TB-303, TR-909, and radio</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="haos-tag text-xs">ALL-IN-ONE</span>
+                            <span class="haos-tag text-xs">RADIO</span>
+                            <span class="haos-tag text-xs">COLLAB</span>
+                        </div>
+                    </a>
+
+                    <!-- Patch Sequencer -->
+                    <a href="/synth-patch-sequencer.html" class="haos-studio-card hover:scale-105 transition-all">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-5xl"><i class="fas fa-sitemap" style="color: #FF6B35;"></i></div>
+                            <span class="haos-badge" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-weight: 700;">ADVANCED</span>
+                        </div>
+                        <h5 class="text-2xl font-bold mb-2" style="color: #FF6B35;">Patch Sequencer</h5>
+                        <p class="haos-body text-sm mb-3">Advanced 16-step sequencer with visual patch matrix, parameter automation, and modulation routing for complex generative patterns</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="haos-tag text-xs">16-STEP SEQ</span>
+                            <span class="haos-tag text-xs">AUTOMATION</span>
+                            <span class="haos-tag text-xs">MODULATION</span>
+                        </div>
+                    </a>
                 </div>
-            </form>
-        </div>
+            </div>
 
-        <!-- Notes Grid -->
-        <div class="mb-4 flex items-center justify-between">
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
-                <i class="fas fa-list text-primary mr-2"></i>
-                Your Notes
-                <span id="filtered-count" class="ml-3 text-sm font-normal text-gray-500 dark:text-gray-400"></span>
-            </h2>
-        </div>
+        </section>
 
-        <!-- Loading State -->
-        <div id="loading" class="text-center py-12 hidden">
-            <div class="loading-spinner mx-auto mb-4"></div>
-            <p class="text-gray-500 dark:text-gray-400">Loading notes...</p>
-        </div>
-
-        <!-- Empty State -->
-        <div id="empty-state" class="text-center py-12 hidden">
-            <i class="fas fa-inbox text-gray-300 dark:text-gray-600 text-6xl mb-4"></i>
-            <p class="text-xl text-gray-500 dark:text-gray-400 mb-2">No notes yet</p>
-            <p class="text-gray-400 dark:text-gray-500">Create your first note to get started!</p>
-        </div>
-
-        <!-- Notes Container -->
-        <div id="notes-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Notes will be inserted here dynamically -->
-        </div>
     </main>
 
-    <!-- Edit Modal -->
-    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto slide-in">
-            <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                <h3 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
-                    <i class="fas fa-edit text-primary mr-2"></i>
-                    Edit Note
-                </h3>
-                <button id="close-modal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
-            </div>
-            <form id="edit-form" class="p-6 space-y-4">
-                <input type="hidden" id="edit-id">
-                <div>
-                    <label for="edit-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Title <span class="text-red-500">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="edit-title" 
-                        required 
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
-                    >
-                </div>
-                <div>
-                    <label for="edit-content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Content <span class="text-red-500">*</span>
-                    </label>
-                    <textarea 
-                        id="edit-content" 
-                        required 
-                        rows="6" 
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all resize-none"
-                    ></textarea>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="edit-category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Category
-                        </label>
-                        <input 
-                            type="text" 
-                            id="edit-category" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
-                        >
-                    </div>
-                    <div class="flex items-end">
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="edit-important" class="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary">
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                <i class="fas fa-star text-yellow-500 mr-1"></i>
-                                Mark as Important
-                            </span>
-                        </label>
-                    </div>
-                </div>
-                <div class="flex space-x-3 pt-4">
-                    <button 
-                        type="submit" 
-                        class="flex-1 btn-primary text-white font-semibold py-3 px-6 rounded-lg shadow-lg flex items-center justify-center space-x-2"
-                    >
-                        <i class="fas fa-save"></i>
-                        <span>Save Changes</span>
-                    </button>
-                    <button 
-                        type="button" 
-                        id="cancel-edit" 
-                        class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- Scripts -->
+    <script>
+        // ============================================
+        // DARK MODE / LIGHT MODE TOGGLE
+        // ============================================
+        
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        // Load saved theme preference or default to dark
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        
+        function setTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.body.classList.remove('light-mode');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Apply saved theme on load
+        setTheme(savedTheme);
+        
+        // Toggle theme on button click
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            
+            // Show toast notification
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 9999;
+                animation: slideIn 0.3s ease-out;
+            `;
+            toast.textContent = `${newTheme === 'light' ? '☀️' : '🌙'} ${newTheme === 'light' ? 'Light' : 'Dark'} mode activated`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        });
+        
+        // ============================================
+        // SMOOTH SCROLL
+        // ============================================
+        
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+        
+        // ============================================
+        // SCROLL ANIMATIONS
+        // ============================================
+        
+        // Animate on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease-out';
+            observer.observe(card);
+        });
+    </script>
 
-    <!-- Share Modal -->
-    <div id="share-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-md">
-        <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Share Note</h2>
-        <form id="share-form" onsubmit="handleShareNote(event)">
-          <input type="hidden" id="share-note-id">
-          <div class="mb-4">
-            <label for="share-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">User Email</label>
-            <input type="email" id="share-email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-          </div>
-          <div class="mb-6">
-            <label for="share-permission" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Permission</label>
-            <select id="share-permission" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-              <option value="viewer">Viewer</option>
-              <option value="commenter">Commenter</option>
-              <option value="editor">Editor</option>
-            </select>
-          </div>
-          <div class="flex justify-end space-x-4">
-            <button type="button" onclick="closeShareModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">Cancel</button>
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">Share</button>
-          </div>
-        </form>
-        <div class="mt-6">
-            <h3 class="text-lg font-bold mb-2 text-gray-800 dark:text-white">Shared With</h3>
-            <ul id="shared-users-list" class="list-disc list-inside text-gray-600 dark:text-gray-300">
-                <!-- Shared users will be populated here -->
-            </ul>
-        </div>
-      </div>
-    </div>
+    <!-- HAOS State Manager for Cross-Page Integration -->
+    <script src="/js/state-manager.js"></script>
+    <script src="/js/system-monitor.js"></script>
+    
+    <script>
+        console.log('🎛️ HAOS.fm Platform - State Manager Active');
+        
+        // Listen for cross-page state updates
+        window.addEventListener('haos:state-synced', (e) => {
+            console.log('📡 State synced:', e.detail);
+        });
 
-    <!-- Footer -->
-    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12">
-        <div class="container mx-auto px-4 py-6 text-center text-gray-600 dark:text-gray-400">
-            <p class="flex items-center justify-center space-x-2">
-                <i class="fas fa-cloud"></i>
-                <span>Powered by Azure PostgreSQL & App Service</span>
-            </p>
-            <p class="text-sm mt-2">
-                <i class="fas fa-code mr-1"></i>
-                Built with Node.js, Express & Tailwind CSS
-            </p>
-        </div>
-    </footer>
+        // Track page analytics
+        window.HAOSState.updateSettings({
+            lastVisit: new Date().toISOString(),
+            landingPage: 'index'
+        });
+    </script>
 
-    <script src="app.js"></script>
-    <script src="/pwa-installer.js"></script>
+    <!-- HAOS Background Radio Player - Integrated with Studio Radio -->
+    <script>
+        window.HAOS_BG_RADIO = {
+            audioContext: null,
+            oscillator: null,
+            gainNode: null,
+            isPlaying: false,
+            currentTrackIndex: 0,
+            currentPlaylist: 'technobot-detroit',
+            volume: 70,
+            
+            // Import playlists from Studio Radio system
+            playlists: {
+                'technobot-detroit': [
+                    { title: 'HAOS - Rave Rage', artist: 'HAOS', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+                    { title: 'HAOS - Techno Track', artist: 'HAOS', duration: 360, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' },
+                    { title: 'Detroit Techno Mix 01', artist: 'Various Artists', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' },
+                    { title: 'Underground Resistance Set', artist: 'UR', duration: 380, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' },
+                    { title: 'Juan Atkins - Classics', artist: 'Juan Atkins', duration: 360, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3' }
+                ],
+                'industrial-techno': [
+                    { title: 'HAOS - Rave Rage', artist: 'HAOS', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+                    { title: 'HAOS - Industrial Mix', artist: 'HAOS', duration: 450, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3' },
+                    { title: 'Hard Industrial Mix', artist: 'Various Artists', duration: 480, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3' },
+                    { title: 'Berghain Sound', artist: 'Various Artists', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3' },
+                    { title: 'Dark Techno Selection', artist: 'Various Artists', duration: 390, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3' }
+                ],
+                'acid-classics': [
+                    { title: 'HAOS - Acid Session', artist: 'HAOS', duration: 320, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3' },
+                    { title: 'TB-303 Anthology', artist: 'Various Artists', duration: 300, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3' },
+                    { title: 'Acid House Classics', artist: 'Various Artists', duration: 330, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3' },
+                    { title: 'Squelchy Basslines', artist: 'Various Artists', duration: 290, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3' }
+                ],
+                'deep-techno': [
+                    { title: 'HAOS - Deep Journey', artist: 'HAOS', duration: 600, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3' },
+                    { title: 'Deep Techno Journey', artist: 'Various Artists', duration: 540, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3' },
+                    { title: 'Hypnotic Grooves', artist: 'Various Artists', duration: 480, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3' },
+                    { title: 'Minimal Deep Set', artist: 'Various Artists', duration: 510, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3' }
+                ],
+                'haos-exclusive': [
+                    { title: 'HAOS - Rave Rage', artist: 'HAOS', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+                    { title: 'HAOS - Exclusive Track 1', artist: 'HAOS', duration: 380, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' },
+                    { title: 'HAOS - Exclusive Track 2', artist: 'HAOS', duration: 400, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' },
+                    { title: 'HAOS - Exclusive Track 3', artist: 'HAOS', duration: 360, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' },
+                    { title: 'HAOS - Exclusive Track 4', artist: 'HAOS', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3' },
+                    { title: 'HAOS - Exclusive Track 5', artist: 'HAOS', duration: 390, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3' }
+                ],
+                'youtube-radio': [
+                    { title: 'YouTube Radio - Live Mix', artist: 'HAOS YouTube Channel', duration: 10142, url: 'https://www.youtube.com/watch?v=sH4o0fTXCLI&list=RDsH4o0fTXCLI&start_radio=1&t=10142s', isYouTube: true }
+                ]
+            },
+
+            audioElement: null,
+            progressInterval: null,
+            isMinimized: false,
+            minimizeTimeout: null,
+            isShuffled: true, // Auto-shuffle enabled
+            originalPlaylistOrders: {}, // Store original order for un-shuffle
+
+            // Shuffle array helper
+            shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            },
+
+            // Shuffle current playlist
+            shuffle() {
+                const currentTrack = this.getCurrentTrack();
+                
+                // Store original order if not already stored
+                if (!this.originalPlaylistOrders[this.currentPlaylist]) {
+                    this.originalPlaylistOrders[this.currentPlaylist] = [...this.playlists[this.currentPlaylist]];
+                }
+                
+                // Shuffle the playlist
+                this.playlists[this.currentPlaylist] = this.shuffleArray(this.playlists[this.currentPlaylist]);
+                
+                // Find the current track in the new order
+                this.currentTrackIndex = this.playlists[this.currentPlaylist].findIndex(t => t.url === currentTrack.url);
+                if (this.currentTrackIndex === -1) this.currentTrackIndex = 0;
+                
+                this.isShuffled = true;
+                console.log('🔀 Playlist shuffled');
+                this.updateDisplay();
+            },
+
+            // Unshuffle - restore original order
+            unshuffle() {
+                if (this.originalPlaylistOrders[this.currentPlaylist]) {
+                    const currentTrack = this.getCurrentTrack();
+                    this.playlists[this.currentPlaylist] = [...this.originalPlaylistOrders[this.currentPlaylist]];
+                    
+                    // Find the current track in original order
+                    this.currentTrackIndex = this.playlists[this.currentPlaylist].findIndex(t => t.url === currentTrack.url);
+                    if (this.currentTrackIndex === -1) this.currentTrackIndex = 0;
+                    
+                    this.isShuffled = false;
+                    console.log('🔁 Playlist un-shuffled');
+                    this.updateDisplay();
+                }
+            },
+
+            async init() {
+                console.log('🎵 Initializing HAOS Background Radio Player');
+                
+                // Create audio element
+                this.audioElement = new Audio();
+                this.audioElement.volume = this.volume / 100;
+                
+                // Audio event listeners
+                this.audioElement.addEventListener('ended', () => {
+                    console.log('🎵 Track ended, playing next');
+                    this.next();
+                });
+                
+                this.audioElement.addEventListener('error', (e) => {
+                    console.error('❌ Audio error:', e);
+                    console.log('⏭️ Skipping to next track');
+                    setTimeout(() => this.next(), 1000);
+                });
+                
+                // Setup expanded controls
+                document.getElementById('haos-music-playpause')?.addEventListener('click', () => this.togglePlay());
+                document.getElementById('haos-music-next')?.addEventListener('click', () => this.next());
+                document.getElementById('haos-music-prev')?.addEventListener('click', () => this.prev());
+                document.getElementById('haos-music-shuffle')?.addEventListener('click', () => this.toggleShuffle());
+                document.getElementById('haos-music-volume')?.addEventListener('input', (e) => this.setVolume(e.target.value));
+                document.getElementById('haos-music-close')?.addEventListener('click', () => this.close());
+                
+                // My Uploads button - switch to uploaded tracks
+                document.getElementById('my-uploads-btn')?.addEventListener('click', () => {
+                    if (this.playlists['uploaded'] && this.playlists['uploaded'].length > 0) {
+                        this.loadPlaylist('uploaded');
+                        if (this.isPlaying) {
+                            this.play();
+                        }
+                        console.log('📁 Switched to uploaded tracks');
+                    } else {
+                        console.log('⚠️ No uploaded tracks available');
+                        alert('No uploaded tracks found. Please upload some tracks first!');
+                    }
+                });
+                
+                // Setup minimized controls
+                document.getElementById('haos-mini-playpause')?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.togglePlay();
+                });
+                
+                // Setup hover to expand/minimize
+                const playerEl = document.getElementById('haos-bg-music-player');
+                const minimizedEl = document.getElementById('haos-radio-minimized');
+                
+                if (playerEl && minimizedEl) {
+                    // Click minimized to expand
+                    minimizedEl.addEventListener('click', () => {
+                        this.expand();
+                    });
+                    
+                    // Hover to expand
+                    playerEl.addEventListener('mouseenter', () => {
+                        if (this.isMinimized) {
+                            this.expand();
+                        }
+                    });
+                    
+                    // Leave to minimize (with delay)
+                    playerEl.addEventListener('mouseleave', () => {
+                        if (this.isMinimized) {
+                            setTimeout(() => this.minimize(), 500);
+                        }
+                    });
+                }
+                
+                // Load uploaded tracks first, or fallback to HAOS Exclusive
+                await this.loadDefaultPlaylist();
+                this.updateDisplay();
+                
+                // Show the radio player widget (expanded initially)
+                if (playerEl) {
+                    playerEl.style.display = 'block';
+                    this.showExpanded();
+                    console.log('📻 Radio player widget displayed');
+                }
+                
+                // Auto-play with user interaction (click anywhere to start)
+                const startAudio = () => {
+                    console.log('🎵 User interaction detected, starting playback...');
+                    this.play().then(() => {
+                        // Minimize after 3 seconds of playback
+                        console.log('⏱️ Starting 3-second timer to minimize player...');
+                        this.minimizeTimeout = setTimeout(() => {
+                            this.minimize();
+                        }, 3000);
+                    });
+                    document.removeEventListener('click', startAudio);
+                };
+                
+                // Try auto-play immediately
+                setTimeout(() => {
+                    console.log('🎵 Attempting auto-play...');
+                    this.play().catch(() => {
+                        console.log('🎵 Auto-play blocked, waiting for user interaction');
+                        document.addEventListener('click', startAudio, { once: true });
+                        // Show notification
+                        const notification = document.createElement('div');
+                        notification.style.cssText = 'position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#FF6B35,#F7931E);color:#000;padding:15px 25px;border-radius:8px;font-family:Space Mono,monospace;font-weight:bold;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.3);animation:slideIn 0.5s ease;';
+                        notification.innerHTML = '🎵 Click anywhere to start HAOS Radio 📻';
+                        document.body.appendChild(notification);
+                        setTimeout(() => notification.remove(), 5000);
+                    });
+                }, 500);
+            },
+
+            loadPlaylist(playlistId) {
+                if (this.playlists[playlistId]) {
+                    this.currentPlaylist = playlistId;
+                    this.currentTrackIndex = 0;
+                    this.updateDisplay();
+                    console.log(`📻 Loaded playlist: ${playlistId} (${this.playlists[playlistId].length} tracks)`);
+                }
+            },
+
+            async loadDefaultPlaylist() {
+                try {
+                    console.log('📻 Loading default playlist...');
+                    // Try to load uploaded tracks first
+                    const response = await fetch('/api/tracks/list');
+                    const data = await response.json();
+                    
+                    console.log('📊 API Response:', data);
+                    
+                    if (data.tracks && data.tracks.length > 0) {
+                        // Load uploaded tracks as default - ensure full URLs
+                        const baseUrl = window.location.origin;
+                        this.playlists['uploaded'] = data.tracks.map(track => ({
+                            title: track.title,
+                            artist: track.artist,
+                            duration: track.duration,
+                            url: track.url.startsWith('http') ? track.url : baseUrl + track.url
+                        }));
+                        this.currentPlaylist = 'uploaded';
+                        this.currentTrackIndex = 0;
+                        
+                        // Auto-shuffle the playlist
+                        if (this.isShuffled) {
+                            this.playlists['uploaded'] = this.shuffleArray(this.playlists['uploaded']);
+                            console.log('🔀 Auto-shuffled uploaded tracks');
+                        }
+                        
+                        console.log(`✅ Loaded ${data.tracks.length} uploaded track(s) as default playlist`);
+                        console.log('🎵 First track:', this.playlists['uploaded'][0]);
+                        return true;
+                    } else {
+                        // Fallback to HAOS Exclusive
+                        this.currentPlaylist = 'haos-exclusive';
+                        this.currentTrackIndex = 0;
+                        
+                        // Auto-shuffle fallback playlist
+                        if (this.isShuffled) {
+                            this.playlists['haos-exclusive'] = this.shuffleArray(this.playlists['haos-exclusive']);
+                            console.log('� Auto-shuffled HAOS Exclusive');
+                        }
+                        
+                        console.log('�📻 No uploaded tracks, using HAOS Exclusive as default');
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('❌ Error loading uploaded tracks:', error);
+                    // Fallback to HAOS Exclusive on error
+                    this.currentPlaylist = 'haos-exclusive';
+                    this.currentTrackIndex = 0;
+                    
+                    // Auto-shuffle fallback playlist
+                    if (this.isShuffled) {
+                        this.playlists['haos-exclusive'] = this.shuffleArray(this.playlists['haos-exclusive']);
+                        console.log('🔀 Auto-shuffled HAOS Exclusive (error fallback)');
+                    }
+                    
+                    return false;
+                }
+            },
+
+            async play() {
+                const track = this.getCurrentTrack();
+                
+                if (!track) {
+                    console.error('❌ No track available to play');
+                    return;
+                }
+                
+                console.log('🎵 Attempting to play:', track.title, 'URL:', track.url);
+                
+                // Load and play audio
+                if (this.audioElement.src !== track.url) {
+                    console.log('📥 Loading new track:', track.url);
+                    this.audioElement.src = track.url;
+                }
+                
+                try {
+                    await this.audioElement.play();
+                    this.isPlaying = true;
+                    document.getElementById('haos-music-playpause').innerHTML = '<i class="fas fa-pause"></i>';
+                    document.getElementById('haos-mini-playpause').innerHTML = '<i class="fas fa-pause"></i>';
+                    this.updateDisplay();
+                    this.startProgressTracking();
+                    console.log('✅ Now playing:', track.title);
+                } catch (error) {
+                    console.error('❌ Playback failed:', error);
+                    console.error('Track URL:', track.url);
+                    console.error('Audio element src:', this.audioElement.src);
+                    throw error;
+                }
+            },
+
+            pause() {
+                this.audioElement.pause();
+                this.isPlaying = false;
+                document.getElementById('haos-music-playpause').innerHTML = '<i class="fas fa-play"></i>';
+                document.getElementById('haos-mini-playpause').innerHTML = '<i class="fas fa-play"></i>';
+                this.stopProgressTracking();
+                console.log('⏸️ Paused');
+            },
+
+            togglePlay() {
+                if (this.isPlaying) {
+                    this.pause();
+                } else {
+                    this.play();
+                }
+            },
+
+            minimize() {
+                console.log('🔽 Minimizing radio player');
+                this.isMinimized = true;
+                document.getElementById('haos-music-controls').style.display = 'none';
+                document.getElementById('haos-radio-minimized').style.display = 'block';
+                
+                // Adjust player container width for minimized state
+                const playerEl = document.getElementById('haos-bg-music-player');
+                if (playerEl) {
+                    playerEl.style.width = 'auto';
+                    playerEl.style.maxWidth = '350px';
+                }
+            },
+
+            expand() {
+                console.log('🔼 Expanding radio player');
+                this.isMinimized = false;
+                this.showExpanded();
+                
+                // Cancel minimize timeout if exists
+                if (this.minimizeTimeout) {
+                    clearTimeout(this.minimizeTimeout);
+                    this.minimizeTimeout = null;
+                }
+            },
+
+            showExpanded() {
+                document.getElementById('haos-radio-minimized').style.display = 'none';
+                document.getElementById('haos-music-controls').style.display = 'block';
+                
+                // Reset player container width
+                const playerEl = document.getElementById('haos-bg-music-player');
+                if (playerEl) {
+                    playerEl.style.width = '400px';
+                    playerEl.style.maxWidth = '90vw';
+                }
+            },
+
+            // Toggle shuffle on/off
+            toggleShuffle() {
+                if (this.isShuffled) {
+                    this.unshuffle();
+                } else {
+                    this.shuffle();
+                }
+                this.updateShuffleButton();
+            },
+
+            // Update shuffle button appearance
+            updateShuffleButton() {
+                const shuffleBtn = document.getElementById('haos-music-shuffle');
+                if (shuffleBtn) {
+                    if (this.isShuffled) {
+                        shuffleBtn.style.color = '#FFD700';
+                        shuffleBtn.title = 'Shuffle: ON';
+                    } else {
+                        shuffleBtn.style.color = 'rgba(255,255,255,0.4)';
+                        shuffleBtn.title = 'Shuffle: OFF';
+                    }
+                }
+            },
+
+            next() {
+                const playlist = this.playlists[this.currentPlaylist];
+                this.currentTrackIndex = (this.currentTrackIndex + 1) % playlist.length;
+                this.updateDisplay();
+                if (this.isPlaying) {
+                    this.play();
+                    console.log('⏭️ Next track:', this.getCurrentTrack().title);
+                }
+            },
+
+            prev() {
+                const playlist = this.playlists[this.currentPlaylist];
+                this.currentTrackIndex = (this.currentTrackIndex - 1 + playlist.length) % playlist.length;
+                this.updateDisplay();
+                if (this.isPlaying) {
+                    this.play();
+                    console.log('⏮️ Previous track:', this.getCurrentTrack().title);
+                }
+            },
+
+            getCurrentTrack() {
+                return this.playlists[this.currentPlaylist][this.currentTrackIndex];
+            },
+
+            updateDisplay() {
+                const track = this.getCurrentTrack();
+                const playlistName = this.getPlaylistName();
+                
+                // Update expanded view
+                document.getElementById('haos-track-title').textContent = track.title;
+                document.getElementById('haos-track-artist').textContent = track.artist + ' • ' + playlistName;
+                
+                // Update minimized view
+                document.getElementById('haos-mini-title').textContent = track.title;
+                document.getElementById('haos-mini-artist').textContent = track.artist + ' • ' + playlistName;
+                
+                // Sync play/pause buttons
+                const iconHTML = this.isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+                document.getElementById('haos-music-playpause').innerHTML = iconHTML;
+                document.getElementById('haos-mini-playpause').innerHTML = iconHTML;
+                
+                // Update "My Uploads" button state
+                const myUploadsBtn = document.getElementById('my-uploads-btn');
+                if (myUploadsBtn) {
+                    if (this.currentPlaylist === 'uploaded') {
+                        // Active state - brighter gold
+                        myUploadsBtn.style.background = 'rgba(255,215,0,0.3)';
+                        myUploadsBtn.style.borderColor = '#FFD700';
+                        myUploadsBtn.style.boxShadow = '0 0 15px rgba(255,215,0,0.5)';
+                    } else {
+                        // Inactive state - dimmed
+                        myUploadsBtn.style.background = 'rgba(255,215,0,0.1)';
+                        myUploadsBtn.style.borderColor = 'rgba(255,215,0,0.3)';
+                        myUploadsBtn.style.boxShadow = 'none';
+                    }
+                }
+            },
+
+            getPlaylistName() {
+                const names = {
+                    'technobot-detroit': 'Technobot Detroit',
+                    'industrial-techno': 'Industrial Techno',
+                    'acid-classics': 'Acid Classics',
+                    'deep-techno': 'Deep Techno',
+                    'haos-exclusive': '🎵 HAOS Artist Exclusive',
+                    'uploaded': '📁 Your Uploaded Tracks'
+                };
+                return names[this.currentPlaylist] || 'HAOS Radio';
+            },
+
+            setVolume(value) {
+                this.volume = parseInt(value);
+                this.audioElement.volume = this.volume / 100;
+                console.log('🔊 Volume:', this.volume + '%');
+            },
+
+            startProgressTracking() {
+                this.stopProgressTracking();
+                this.progressInterval = setInterval(() => {
+                    if (this.audioElement.duration > 0) {
+                        const percent = (this.audioElement.currentTime / this.audioElement.duration) * 100;
+                        document.getElementById('haos-music-progress').style.width = percent + '%';
+                    }
+                }, 500);
+            },
+
+            stopProgressTracking() {
+                if (this.progressInterval) {
+                    clearInterval(this.progressInterval);
+                    this.progressInterval = null;
+                }
+            },
+
+            close() {
+                const playerEl = document.getElementById('haos-bg-music-player');
+                if (playerEl) {
+                    playerEl.style.display = 'none';
+                }
+                this.pause();
+                console.log('📻 Radio player closed');
+            },
+
+            // Cycle through playlists
+            switchPlaylist() {
+                const playlists = Object.keys(this.playlists);
+                const currentIndex = playlists.indexOf(this.currentPlaylist);
+                const nextIndex = (currentIndex + 1) % playlists.length;
+                this.loadPlaylist(playlists[nextIndex]);
+                if (this.isPlaying) {
+                    this.play();
+                }
+            }
+        };
+
+        // Create local reference for convenience
+        const HAOS_BG_RADIO = window.HAOS_BG_RADIO;
+
+        // Initialize radio on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            HAOS_BG_RADIO.init();
+            
+            // Add playlist switcher (optional - click on "NOW PLAYING" to switch)
+            document.querySelector('#haos-music-controls').addEventListener('dblclick', () => {
+                HAOS_BG_RADIO.switchPlaylist();
+            });
+        });
+
+        // ====================================================================
+        // ====================================================================
+        // EUPHONY AI ASSISTANT - Intelligent Music System
+        // ====================================================================
+        const EUPHONY = {
+            chatHistory: [],
+            database: {
+                presets: { tb303: 17, tr909: 9, tr808: 10, arp2600: 14 },
+                totalPresets: 50,
+                tracks: 26,
+                playlists: {
+                    'haos-exclusive': { name: 'HAOS Exclusive', tracks: 6, genre: 'Original' },
+                    'technobot-detroit': { name: 'Technobot Detroit', tracks: 5, genre: 'Detroit Techno' },
+                    'industrial-techno': { name: 'Industrial Techno', tracks: 5, genre: 'Industrial' },
+                    'acid-classics': { name: 'Acid Classics', tracks: 4, genre: 'Acid House' },
+                    'deep-techno': { name: 'Deep Techno', tracks: 4, genre: 'Deep/Hypnotic' },
+                    'soundcloud-radio': { name: 'SoundCloud Radio', tracks: 1, genre: 'Electronic', url: 'https://soundcloud.com/haos-fm' }
+                }
+            },
+            
+            async loadUploadedTracks() {
+                try {
+                    console.log('🎧 Fetching uploaded tracks from API...');
+                    console.log('🔍 HAOS_BG_RADIO exists?', !!window.HAOS_BG_RADIO);
+                    console.log('🔍 HAOS_BG_RADIO.playlists exists?', window.HAOS_BG_RADIO?.playlists);
+                    
+                    const response = await fetch('/api/tracks/list');
+                    const data = await response.json();
+                    
+                    console.log('📊 Tracks data:', data);
+                    
+                    if (data.tracks && data.tracks.length > 0) {
+                        // Create playlist from uploaded tracks
+                        if (window.HAOS_BG_RADIO) {
+                            // Initialize playlists object if it doesn't exist
+                            if (!window.HAOS_BG_RADIO.playlists) {
+                                console.log('⚠️ Playlists object missing, initializing...');
+                                window.HAOS_BG_RADIO.playlists = {};
+                            }
+                            
+                            const playlist = data.tracks.map(track => ({
+                                title: track.title,
+                                artist: track.artist,
+                                duration: track.duration,
+                                url: track.url
+                            }));
+                            
+                            console.log('🎵 Created playlist:', playlist);
+                            window.HAOS_BG_RADIO.playlists['uploaded'] = playlist;
+                            
+                            console.log('📻 Loading playlist "uploaded"...');
+                            HAOS_BG_RADIO.loadPlaylist('uploaded');
+                            
+                            console.log('▶️ Starting playback...');
+                            await HAOS_BG_RADIO.play();
+                            
+                            this.addMessage('assistant', `🎧 <strong>Your Uploaded Tracks</strong> loaded!\n📁 ${data.tracks.length} track(s) ready to play.\n🎵 Now playing: ${data.tracks[0].title} by ${data.tracks[0].artist}`);
+                        } else {
+                            console.error('❌ HAOS_BG_RADIO not available');
+                            this.addMessage('assistant', '❌ Player not initialized. Please refresh the page.');
+                        }
+                    } else {
+                        console.log('📁 No tracks found');
+                        this.addMessage('assistant', '📁 No uploaded tracks found. Use the upload button to add your tracks!');
+                    }
+                } catch (error) {
+                    console.error('❌ Error loading uploaded tracks:', error);
+                    this.addMessage('assistant', `❌ Error loading uploaded tracks: ${error.message}`);
+                }
+            },
+            
+            init() {
+                console.log('🎵 Euphony AI Music Intelligence initialized');
+                console.log(`📊 Database: ${this.database.totalPresets} presets, ${this.database.tracks} tracks, 6 playlists`);
+                
+                // Setup event listeners
+                document.getElementById('euphony-send')?.addEventListener('click', () => this.sendCommand());
+                document.getElementById('euphony-input')?.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendCommand();
+                });
+                
+                // Quick command buttons
+                document.querySelectorAll('.euphony-quick-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const command = btn.getAttribute('data-command');
+                        document.getElementById('euphony-input').value = command;
+                        this.sendCommand();
+                    });
+                });
+                
+                // Minimize/maximize
+                document.getElementById('euphony-minimize')?.addEventListener('click', () => this.minimize());
+                document.getElementById('euphony-minimized')?.addEventListener('click', () => this.maximize());
+            },
+            
+            sendCommand() {
+                const input = document.getElementById('euphony-input');
+                const command = input.value.trim().toLowerCase();
+                
+                if (!command) return;
+                
+                // Add user message
+                this.addMessage('user', command);
+                input.value = '';
+                
+                // Process command
+                this.processCommand(command);
+            },
+            
+            async processCommand(cmd) {
+                let response = '';
+                
+                // Preset database queries
+                if (cmd.includes('show') || cmd.includes('list')) {
+                    if (cmd.includes('tb303') || cmd.includes('303')) {
+                        response = `🎹 <strong>TB-303 Presets (${this.database.presets.tb303})</strong>:\nAcid bass synthesizer presets including classic squelch, resonant bass, and acid leads. Categories: Classic, Bass, Lead, FX.`;
+                    } else if (cmd.includes('arp2600') || cmd.includes('arp') || cmd.includes('2600')) {
+                        response = `🎹 <strong>ARP 2600 Patches (${this.database.presets.arp2600})</strong>:\nFull modular patch cables including:\n• 5 Bass patches (Sub Bass, Acid, Reese, Wobble)\n• 2 Lead patches (Arpeggio, Vintage)\n• 2 Percussion (Hi-Hat, Snare)\n• 2 FX (Phaser, Random S&H)\n• 1 Pad (Dark Atmospheric)\nEach with complete cable routing!`;
+                    } else if (cmd.includes('tr909') || cmd.includes('909')) {
+                        response = `🥁 <strong>TR-909 Drum Kits (${this.database.presets.tr909})</strong>:\nClassic drum machine patterns. Categories: Classic, Techno, Minimal, Hard.`;
+                    } else if (cmd.includes('tr808') || cmd.includes('808')) {
+                        response = `🥁 <strong>TR-808 Drum Kits (${this.database.presets.tr808})</strong>:\nLegendary 808 sounds. Categories: Classic, Hip-Hop, Trap, Electronic.`;
+                    } else if (cmd.includes('preset') || cmd.includes('all')) {
+                        response = `📦 <strong>Complete Preset Database</strong>:\n• TB-303: ${this.database.presets.tb303} presets\n• ARP 2600: ${this.database.presets.arp2600} patches\n• TR-909: ${this.database.presets.tr909} kits\n• TR-808: ${this.database.presets.tr808} kits\n<strong>Total: ${this.database.totalPresets} factory presets</strong>`;
+                    } else {
+                        response = `📊 <strong>Available Categories</strong>:\n• "show tb303" - Acid bass presets\n• "show arp2600" - Modular patches\n• "show tr909" - Drum kits\n• "show tr808" - 808 kits`;
+                    }
+                }
+                // Special track commands
+                else if (cmd.includes('rave rage') || cmd.includes('raverage')) {
+                    HAOS_BG_RADIO.loadPlaylist('haos-exclusive');
+                    HAOS_BG_RADIO.currentTrackIndex = 0;
+                    HAOS_BG_RADIO.play();
+                    response = '🔥 <strong>HAOS - Rave Rage</strong> is ON! The signature track is playing! 🎵⚡';
+                }
+                // Playlist commands
+                else if (cmd.includes('play') || cmd.includes('load')) {
+                    if (cmd.includes('uploaded') || cmd.includes('my tracks') || cmd.includes('custom')) {
+                        // Load uploaded tracks
+                        await this.loadUploadedTracks();
+                        return; // loadUploadedTracks() handles its own messaging
+                    } else if (cmd.includes('soundcloud') || cmd.includes('radio') || cmd.includes('live')) {
+                        // Show SoundCloud player
+                        const player = document.getElementById('soundcloud-player-container');
+                        if (player) {
+                            player.style.display = 'block';
+                            response = `🎧 <strong>${this.database.playlists['soundcloud-radio'].name}</strong> is playing!\n🎵 Embedded player loaded\n🔊 Continuous HAOS music streaming!\n🎶 Enjoy the mix!`;
+                        }
+                    } else if (cmd.includes('haos') || cmd.includes('exclusive')) {
+                        HAOS_BG_RADIO.loadPlaylist('haos-exclusive');
+                        HAOS_BG_RADIO.play();
+                        response = `🎵 <strong>${this.database.playlists['haos-exclusive'].name}</strong> loaded!\n${this.database.playlists['haos-exclusive'].tracks} original HAOS tracks starting with Rave Rage!`;
+                    } else if (cmd.includes('detroit') || cmd.includes('techno')) {
+                        HAOS_BG_RADIO.loadPlaylist('technobot-detroit');
+                        HAOS_BG_RADIO.play();
+                        response = `⚡ <strong>${this.database.playlists['technobot-detroit'].name}</strong> activated!\nClassic Detroit techno - ${this.database.playlists['technobot-detroit'].tracks} tracks.`;
+                    } else if (cmd.includes('industrial')) {
+                        HAOS_BG_RADIO.loadPlaylist('industrial-techno');
+                        HAOS_BG_RADIO.play();
+                        response = `🏭 <strong>${this.database.playlists['industrial-techno'].name}</strong> loaded!\nHard and dark beats - ${this.database.playlists['industrial-techno'].tracks} tracks.`;
+                    } else if (cmd.includes('acid')) {
+                        HAOS_BG_RADIO.loadPlaylist('acid-classics');
+                        HAOS_BG_RADIO.play();
+                        response = `🧪 <strong>${this.database.playlists['acid-classics'].name}</strong> engaged!\nTB-303 squelches - ${this.database.playlists['acid-classics'].tracks} tracks.`;
+                    } else if (cmd.includes('deep')) {
+                        HAOS_BG_RADIO.loadPlaylist('deep-techno');
+                        HAOS_BG_RADIO.play();
+                        response = `🌊 <strong>${this.database.playlists['deep-techno'].name}</strong> started!\nHypnotic grooves - ${this.database.playlists['deep-techno'].tracks} tracks.`;
+                    } else {
+                        response = '🎵 Please specify a playlist: youtube, haos, detroit, industrial, acid, or deep.';
+                    }
+                }
+                // Playback controls
+                else if (cmd === 'play' || cmd === 'start' || cmd.includes('resume')) {
+                    HAOS_BG_RADIO.play();
+                    response = '▶️ Playback started!';
+                }
+                else if (cmd === 'pause' || cmd === 'stop') {
+                    HAOS_BG_RADIO.pause();
+                    response = '⏸️ Playback paused.';
+                }
+                else if (cmd === 'next' || cmd.includes('skip')) {
+                    HAOS_BG_RADIO.next();
+                    response = '⏭️ Skipped to next track!';
+                }
+                else if (cmd === 'previous' || cmd === 'prev' || cmd.includes('back')) {
+                    HAOS_BG_RADIO.prev();
+                    response = '⏮️ Going back to previous track!';
+                }
+                // Shuffle
+                else if (cmd.includes('shuffle') || cmd.includes('random')) {
+                    HAOS_BG_RADIO.switchPlaylist();
+                    response = '🎲 Random playlist loaded! Discovering new sounds...';
+                }
+                // Volume control
+                else if (cmd.includes('volume')) {
+                    const match = cmd.match(/\d+/);
+                    if (match) {
+                        const vol = parseInt(match[0]);
+                        HAOS_BG_RADIO.setVolume(vol);
+                        document.getElementById('haos-music-volume').value = vol;
+                        response = `🔊 Volume adjusted to ${vol}%`;
+                    } else {
+                        response = '🔊 Current volume: ' + HAOS_BG_RADIO.volume + '%';
+                    }
+                }
+                // Status
+                else if (cmd.includes('status') || cmd.includes('info') || cmd.includes('what') || cmd.includes('now playing')) {
+                    const track = HAOS_BG_RADIO.getCurrentTrack();
+                    const playlist = HAOS_BG_RADIO.getPlaylistName();
+                    const state = HAOS_BG_RADIO.isPlaying ? 'Playing' : 'Paused';
+                    const playlistInfo = this.database.playlists[HAOS_BG_RADIO.currentPlaylist];
+                    response = `📊 <strong>Status</strong>:\n▶️ ${state}\n🎵 "${track.title}" by ${track.artist}\n📻 ${playlist} (${playlistInfo.genre})\n🔊 Volume: ${HAOS_BG_RADIO.volume}%`;
+                }
+                // Database stats
+                else if (cmd.includes('stats') || cmd.includes('database')) {
+                    response = `📊 <strong>HAOS Database Statistics</strong>:\n🎹 ${this.database.totalPresets} Factory Presets\n🎵 ${this.database.tracks} Music Tracks\n📻 5 Curated Playlists\n🎨 4 Synthesizer Types\n⚡ Powered by Euphony AI`;
+                }
+                // Help
+                else if (cmd.includes('help') || cmd.includes('commands')) {
+                    response = `� <strong>Euphony AI Commands</strong>:\n\n<strong>Presets</strong>: show [tb303|arp2600|tr909|tr808]\n<strong>Playlists</strong>: play [haos|detroit|industrial|acid|deep]\n<strong>Controls</strong>: next, prev, pause, shuffle\n<strong>Info</strong>: status, stats, help`;
+                }
+                // Default
+                else {
+                    response = `🤔 I didn't recognize "${cmd}". Try <strong>"help"</strong> to see all available commands, or <strong>"show presets"</strong> to browse the database!`;
+                }
+                
+                // Add bot response
+                this.addMessage('bot', response);
+            },
+            
+            addMessage(type, text) {
+                const chat = document.getElementById('euphony-chat');
+                const msg = document.createElement('div');
+                msg.className = 'euphony-message';
+                msg.style.marginBottom = '10px';
+                msg.style.lineHeight = '1.6';
+                
+                if (type === 'user') {
+                    msg.style.color = '#00D9FF';
+                    msg.innerHTML = `<strong>👤 You:</strong> ${text}`;
+                } else {
+                    msg.style.color = '#BA55D3';
+                    msg.innerHTML = `<strong>🎵 Euphony:</strong> ${text.replace(/\n/g, '<br>')}`;
+                }
+                
+                chat.appendChild(msg);
+                chat.scrollTop = chat.scrollHeight;
+                
+                // Keep only last 25 messages (larger history)
+                while (chat.children.length > 25) {
+                    chat.removeChild(chat.firstChild);
+                }
+            },
+            
+            minimize() {
+                document.getElementById('euphony-panel').style.display = 'none';
+                document.getElementById('euphony-minimized').style.display = 'flex';
+            },
+            
+            maximize() {
+                document.getElementById('euphony-panel').style.display = 'block';
+                document.getElementById('euphony-minimized').style.display = 'none';
+            }
+        };
+
+        // Initialize Euphony
+        document.addEventListener('DOMContentLoaded', () => {
+            EUPHONY.init();
+            initTrackUpload();
+        });
+
+        // ============================================================================
+        // TRACK UPLOAD FUNCTIONALITY
+        // ============================================================================
+        function initTrackUpload() {
+            const uploadPanel = document.getElementById('track-upload-panel');
+            const openBtn = document.getElementById('open-upload-btn');
+            const closeBtn = document.getElementById('upload-panel-close');
+            const uploadForm = document.getElementById('track-upload-form');
+            const fileInput = document.getElementById('track-file');
+            const fileInfo = document.getElementById('file-info');
+            const uploadStatus = document.getElementById('upload-status');
+            const submitBtn = document.getElementById('upload-submit-btn');
+
+            // Open upload panel
+            openBtn.addEventListener('click', () => {
+                uploadPanel.style.display = 'block';
+            });
+
+            // Close upload panel
+            closeBtn.addEventListener('click', () => {
+                uploadPanel.style.display = 'none';
+                uploadForm.reset();
+                fileInfo.textContent = '';
+                uploadStatus.style.display = 'none';
+            });
+
+            // File input change - show file info
+            fileInput.addEventListener('change', (e) => {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                    if (files.length === 1) {
+                        const file = files[0];
+                        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        fileInfo.textContent = `📁 ${file.name} (${sizeMB} MB)`;
+                        fileInfo.style.color = '#FF5500';
+                    } else {
+                        let totalSize = 0;
+                        for (let i = 0; i < files.length; i++) {
+                            totalSize += files[i].size;
+                        }
+                        const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+                        fileInfo.innerHTML = `📁 <strong>${files.length} files</strong> selected (${totalSizeMB} MB total)<br>`;
+                        fileInfo.innerHTML += `<div style="margin-top:5px; max-height:100px; overflow-y:auto;">`;
+                        for (let i = 0; i < files.length; i++) {
+                            const sizeMB = (files[i].size / (1024 * 1024)).toFixed(2);
+                            fileInfo.innerHTML += `<div style="font-size:0.7rem; opacity:0.8;">• ${files[i].name} (${sizeMB} MB)</div>`;
+                        }
+                        fileInfo.innerHTML += `</div>`;
+                        fileInfo.style.color = '#FF5500';
+                    }
+                }
+            });
+
+            // Form submission - handle single or multiple files
+            uploadForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Validate copyright checkbox
+                const copyrightCheckbox = document.getElementById('track-copyright');
+                if (!copyrightCheckbox.checked) {
+                    uploadStatus.style.display = 'block';
+                    uploadStatus.style.color = '#FF0000';
+                    uploadStatus.innerHTML = '❌ <strong>Copyright confirmation required</strong><br>You must confirm that you own the copyright to upload tracks.';
+                    return;
+                }
+
+                // Validate files are selected
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    uploadStatus.style.display = 'block';
+                    uploadStatus.style.color = '#FF0000';
+                    uploadStatus.textContent = '❌ Please select at least one audio file';
+                    return;
+                }
+
+                const files = Array.from(fileInput.files);
+                const title = document.getElementById('track-title').value.trim();
+                const artist = document.getElementById('track-artist').value.trim();
+                const genre = document.getElementById('track-genre').value;
+                
+                // Disable submit button
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ UPLOADING...';
+                submitBtn.style.opacity = '0.6';
+                
+                // Show status
+                uploadStatus.style.display = 'block';
+                uploadStatus.style.color = '#FFD700';
+                
+                if (files.length === 1) {
+                    // Single file upload
+                    uploadStatus.textContent = '⏳ Uploading track to HAOS.fm...';
+                    
+                    const formData = new FormData();
+                    formData.append('audioFile', files[0]);
+                    formData.append('title', title || files[0].name.replace(/\.[^/.]+$/, ''));
+                    formData.append('artist', artist || 'Unknown Artist');
+                    formData.append('genre', genre);
+                    formData.append('copyright', 'on'); // Copyright checkbox confirmed
+
+                    try {
+                        const response = await fetch('/api/tracks/upload', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            uploadStatus.style.color = '#00FF00';
+                            uploadStatus.innerHTML = `✅ <strong>Success!</strong><br>Track "${result.track.title}" uploaded successfully!<br>Duration: ${result.track.duration}s`;
+                            
+                            // Reload uploaded tracks in radio player
+                            if (window.HAOS_BG_RADIO) {
+                                await window.HAOS_BG_RADIO.loadDefaultPlaylist();
+                                window.HAOS_BG_RADIO.updateDisplay();
+                            }
+                            
+                            // Reset form after 3 seconds
+                            setTimeout(() => {
+                                uploadForm.reset();
+                                fileInfo.textContent = '';
+                                uploadPanel.style.display = 'none';
+                            }, 3000);
+                        } else {
+                            throw new Error(result.error || 'Upload failed');
+                        }
+                    } catch (error) {
+                        uploadStatus.style.color = '#FF0000';
+                        uploadStatus.textContent = '❌ Upload failed: ' + error.message;
+                    }
+                } else {
+                    // Multiple files - bulk upload
+                    uploadStatus.innerHTML = `⏳ Uploading ${files.length} tracks...<br><div id="bulk-progress" style="margin-top:8px;"></div>`;
+                    const progressDiv = document.getElementById('bulk-progress');
+                    
+                    let successCount = 0;
+                    let failCount = 0;
+                    
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const fileName = file.name.replace(/\.[^/.]+$/, '');
+                        
+                        progressDiv.innerHTML += `<div style="font-size:0.75rem; opacity:0.8;">⏳ Uploading ${i + 1}/${files.length}: ${file.name}...</div>`;
+                        
+                        const formData = new FormData();
+                        formData.append('audioFile', file);
+                        formData.append('title', title || fileName);
+                        formData.append('artist', artist || 'Unknown Artist');
+                        formData.append('genre', genre);
+                        formData.append('copyright', 'on'); // Copyright checkbox confirmed
+
+                        try {
+                            const response = await fetch('/api/tracks/upload', {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                successCount++;
+                                progressDiv.lastChild.innerHTML = `✅ ${i + 1}/${files.length}: ${result.track.title} (${result.track.duration}s)`;
+                                progressDiv.lastChild.style.color = '#00FF00';
+                            } else {
+                                failCount++;
+                                progressDiv.lastChild.innerHTML = `❌ ${i + 1}/${files.length}: ${file.name} - ${result.error}`;
+                                progressDiv.lastChild.style.color = '#FF6B6B';
+                            }
+                        } catch (error) {
+                            failCount++;
+                            progressDiv.lastChild.innerHTML = `❌ ${i + 1}/${files.length}: ${file.name} - ${error.message}`;
+                            progressDiv.lastChild.style.color = '#FF6B6B';
+                        }
+                    }
+                    
+                    // Final status
+                    uploadStatus.style.color = successCount > 0 ? '#00FF00' : '#FF0000';
+                    uploadStatus.innerHTML = `<strong>${successCount > 0 ? '✅ Bulk Upload Complete!' : '❌ Upload Failed'}</strong><br>✅ ${successCount} succeeded, ❌ ${failCount} failed<br>${progressDiv.innerHTML}`;
+                    
+                    // Reload uploaded tracks in radio player
+                    if (successCount > 0 && window.HAOS_BG_RADIO) {
+                        await window.HAOS_BG_RADIO.loadDefaultPlaylist();
+                        window.HAOS_BG_RADIO.updateDisplay();
+                        if (!window.HAOS_BG_RADIO.isPlaying) {
+                            window.HAOS_BG_RADIO.play();
+                        }
+                    }
+                    
+                    // Reset form after 5 seconds for bulk uploads
+                    setTimeout(() => {
+                        uploadForm.reset();
+                        fileInfo.textContent = '';
+                        uploadStatus.style.display = 'none';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🎵 UPLOAD TRACK';
+                        submitBtn.style.opacity = '1';
+                    }, 5000);
+                }
+                
+                // Re-enable button for error cases
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🎵 UPLOAD TRACK';
+                submitBtn.style.opacity = '1';
+            });
+
+            console.log('🎧 Track upload system initialized');
+        }
+    </script>
 </body>
 </html>

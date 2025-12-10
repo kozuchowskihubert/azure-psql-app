@@ -3,6 +3,11 @@ output "app_url" {
   value       = "https://${azurerm_linux_web_app.app.default_hostname}"
 }
 
+output "music_app_url" {
+  description = "Music Production App Service URL"
+  value       = "https://${azurerm_linux_web_app.music_app.default_hostname}"
+}
+
 output "database_fqdn" {
   description = "PostgreSQL Server FQDN"
   value       = azurerm_postgresql_flexible_server.pg.fqdn
@@ -67,3 +72,26 @@ output "resource_group_name" {
 #   sensitive   = true
 # }
 
+# ====================================================================
+# Virtual Machine Outputs (feat/tracks)
+# ====================================================================
+
+output "vm_public_ip" {
+  description = "Public IP address of the tracks VM"
+  value       = azurerm_public_ip.vm_pip.ip_address
+}
+
+output "vm_name" {
+  description = "Name of the tracks VM"
+  value       = azurerm_linux_virtual_machine.tracks_vm.name
+}
+
+output "vm_admin_username" {
+  description = "Admin username for the VM"
+  value       = var.vm_admin_username
+}
+
+output "vm_ssh_command" {
+  description = "SSH command to connect to the VM"
+  value       = "ssh ${var.vm_admin_username}@${azurerm_public_ip.vm_pip.ip_address}"
+}

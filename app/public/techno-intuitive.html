@@ -1,0 +1,2996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ HAOS.fm Techno Creator - Intuitive Edition</title>
+    
+    <!-- HAOS.fm Brand CSS -->
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--haos-font-body);
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-bottom: 2px solid #39FF14;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-family: var(--haos-font-display);
+            font-size: 2em;
+            background: linear-gradient(135deg, #39FF14, #FF6B35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .transport {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .play-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #39FF14, #00D9FF);
+            color: #000;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(57, 255, 20, 0.4);
+        }
+        
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(57, 255, 20, 0.6);
+        }
+        
+        .play-btn.playing {
+            background: linear-gradient(135deg, #FF6B35, #FF1493);
+        }
+        
+        .bpm-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(57, 255, 20, 0.1);
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid #39FF14;
+        }
+        
+        .bpm-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #39FF14;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .bpm-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid #39FF14;
+            background: transparent;
+            color: #39FF14;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .bpm-btn:hover {
+            background: #39FF14;
+            color: #000;
+        }
+        
+        /* Main Layout */
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            min-height: calc(100vh - 100px);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: rgba(26, 26, 46, 0.9);
+            border-right: 2px solid #39FF14;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-section h3 {
+            color: #39FF14;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(57, 255, 20, 0.3);
+            padding-bottom: 8px;
+        }
+        
+        .instrument-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            font-size: 1em;
+        }
+        
+        .instrument-btn:hover {
+            border-color: #39FF14;
+            background: rgba(57, 255, 20, 0.1);
+        }
+        
+        .instrument-btn.active {
+            border-color: #39FF14;
+            background: linear-gradient(135deg, rgba(57, 255, 20, 0.2), rgba(0, 217, 255, 0.2));
+        }
+        
+        .instrument-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        
+        /* Main Area */
+        .main-area {
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        /* Step Sequencer */
+        .sequencer {
+            background: rgba(26, 26, 46, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #00D9FF;
+        }
+        
+        .sequencer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .sequencer-title {
+            font-size: 1.8em;
+            color: #00D9FF;
+        }
+        
+        .pattern-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .pattern-btn {
+            padding: 8px 16px;
+            background: rgba(0, 217, 255, 0.2);
+            border: 1px solid #00D9FF;
+            border-radius: 8px;
+            color: #00D9FF;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pattern-btn:hover {
+            background: #00D9FF;
+            color: #000;
+        }
+        
+        /* Grid */
+        .step-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .step {
+            aspect-ratio: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(57, 255, 20, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .step:hover {
+            border-color: #39FF14;
+            background: rgba(57, 255, 20, 0.2);
+        }
+        
+        .step.active {
+            background: linear-gradient(135deg, #39FF14, #00D9FF);
+            border-color: #39FF14;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.5);
+        }
+        
+        .step.playing {
+            animation: pulse 0.3s ease;
+            box-shadow: 0 0 25px #FF6B35;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .step-number {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 0.7em;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Controls Panel */
+        .controls-panel {
+            background: rgba(26, 26, 46, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #FF6B35;
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .control {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            color: #FFD700;
+            font-weight: 600;
+        }
+        
+        .control-value {
+            color: #39FF14;
+            font-family: var(--haos-font-mono);
+        }
+        
+        .knob-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+        }
+        
+        .knob {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a1a2e, #0a0a0a);
+            border: 3px solid #39FF14;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 2px 8px rgba(57, 255, 20, 0.2);
+        }
+        
+        .knob-indicator {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 35%;
+            background: #39FF14;
+            border-radius: 2px;
+            transform-origin: bottom center;
+            box-shadow: 0 0 10px #39FF14;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #39FF14, #00D9FF);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(57, 255, 20, 0.5);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #39FF14, #00D9FF);
+            cursor: pointer;
+            border: none;
+        }
+        
+        /* Preset Buttons */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .preset-btn {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #FF6B35;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.95em;
+        }
+        
+        .preset-btn:hover {
+            background: rgba(255, 107, 53, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+        }
+        
+        .preset-btn.active {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.3), rgba(255, 20, 147, 0.3));
+            border-color: #FF1493;
+        }
+        
+        /* Visual Feedback */
+        .visualizer {
+            height: 100px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            margin-top: 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            padding: 10px;
+            border: 1px solid rgba(57, 255, 20, 0.3);
+        }
+        
+        .viz-bar {
+            flex: 1;
+            background: linear-gradient(0deg, #39FF14, #00D9FF);
+            border-radius: 2px;
+            transition: height 0.1s;
+            min-height: 5px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                border-right: none;
+                border-bottom: 2px solid #39FF14;
+            }
+            
+            .step-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+        }
+        
+        /* Notification System */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #39FF14;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+        }
+        
+        .notification.success {
+            border-color: #39FF14;
+        }
+        
+        .notification.error {
+            border-color: #FF6B35;
+        }
+        
+        .notification.info {
+            border-color: #00D9FF;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Instant Sound Buttons */
+        .instant-sound-btn {
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .instant-sound-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .instant-sound-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            ⚡ HAOS.fm INTUITIVE CREATOR
+            <div style="font-size: 0.4em; color: #39FF14; font-family: 'Space Mono', monospace; margin-top: 5px;" id="system-status">
+                ● LOADING...
+            </div>
+        </div>
+        
+        <div class="transport">
+            <button class="bpm-btn" onclick="initHAOSSystem()" id="startAudioBtn" style="background: linear-gradient(135deg, #39FF14, #00D9FF); color: #000; font-weight: bold; padding: 10px 20px; margin-right: 15px; border-radius: 8px;">
+                � START SYSTEM
+            </button>
+            
+            <div class="bpm-control">
+                <button class="bpm-btn" onclick="changeBPM(-5)">-</button>
+                <div class="bpm-value" id="bpmDisplay">135</div>
+                <button class="bpm-btn" onclick="changeBPM(5)">+</button>
+                <span style="color: #39FF14; margin-left: 5px;">BPM</span>
+            </div>
+            
+            <button class="play-btn" id="playBtn" onclick="togglePlay()">
+                <i class="fas fa-play"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Instant Sounds Panel -->
+    <div style="background: rgba(0,0,0,0.8); border-bottom: 2px solid #39FF14; padding: 20px;">
+        <div style="max-width: 1600px; margin: 0 auto;">
+            <h3 style="color: #39FF14; font-family: 'Bebas Neue', sans-serif; font-size: 1.5em; margin-bottom: 15px; text-align: center;">
+                🎵 INSTANT SOUNDS - CLICK TO PLAY
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 10px;">
+                <!-- TB-303 Bass Sounds -->
+                <button onclick="playInstantSound('bass', 'C2')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF6B35, #FF1493); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🔊 303 BASS C2
+                </button>
+                <button onclick="playInstantSound('bass', 'D2')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF6B35, #FF1493); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🔊 303 BASS D2
+                </button>
+                <button onclick="playInstantSound('bass', 'E2')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF6B35, #FF1493); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🔊 303 BASS E2
+                </button>
+                <button onclick="playInstantSound('bass', 'G2')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF6B35, #FF1493); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🔊 303 BASS G2
+                </button>
+                
+                <!-- TR-808 Drums -->
+                <button onclick="playInstantSound('kick')" class="instant-sound-btn" style="background: linear-gradient(135deg, #39FF14, #00D9FF); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🥁 808 KICK
+                </button>
+                <button onclick="playInstantSound('snare')" class="instant-sound-btn" style="background: linear-gradient(135deg, #39FF14, #00D9FF); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🥁 808 SNARE
+                </button>
+                <button onclick="playInstantSound('clap')" class="instant-sound-btn" style="background: linear-gradient(135deg, #39FF14, #00D9FF); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    👏 808 CLAP
+                </button>
+                <button onclick="playInstantSound('hat')" class="instant-sound-btn" style="background: linear-gradient(135deg, #39FF14, #00D9FF); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🎩 808 HI-HAT
+                </button>
+                
+                <!-- TR-909 Drums (Advanced Techno) -->
+                <button onclick="playInstantSound('909kick')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    💥 909 KICK
+                </button>
+                <button onclick="playInstantSound('909snare')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    💥 909 SNARE
+                </button>
+                <button onclick="playInstantSound('909hatclosed')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    ⚡ 909 HH CLOSED
+                </button>
+                <button onclick="playInstantSound('909hatopen')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    ⚡ 909 HH OPEN
+                </button>
+                <button onclick="playInstantSound('909ride')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    🔔 909 RIDE
+                </button>
+                <button onclick="playInstantSound('909crash')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    💫 909 CRASH
+                </button>
+                <button onclick="playInstantSound('909rim')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    📍 909 RIMSHOT
+                </button>
+                <button onclick="playInstantSound('909tom')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em; box-shadow: 0 0 10px rgba(255,0,255,0.3);">
+                    🎵 909 TOM
+                </button>
+                
+                <!-- ARP-2600 Leads -->
+                <button onclick="playInstantSound('lead', 'C4')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FFD700, #FF6B35); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🎹 2600 LEAD C4
+                </button>
+                <button onclick="playInstantSound('lead', 'E4')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FFD700, #FF6B35); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🎹 2600 LEAD E4
+                </button>
+                <button onclick="playInstantSound('lead', 'G4')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FFD700, #FF6B35); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🎹 2600 LEAD G4
+                </button>
+                <button onclick="playInstantSound('lead', 'C5')" class="instant-sound-btn" style="background: linear-gradient(135deg, #FFD700, #FF6B35); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🎹 2600 LEAD C5
+                </button>
+                
+                <!-- Pads & Strings -->
+                <button onclick="playInstantSound('pad', 'Cmaj')" class="instant-sound-btn" style="background: linear-gradient(135deg, #9D4EDD, #00D9FF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🌊 PAD C MAJOR
+                </button>
+                <button onclick="playInstantSound('pad', 'Amin')" class="instant-sound-btn" style="background: linear-gradient(135deg, #9D4EDD, #00D9FF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🌊 PAD A MINOR
+                </button>
+                <button onclick="playInstantSound('pad', 'Fmaj')" class="instant-sound-btn" style="background: linear-gradient(135deg, #9D4EDD, #00D9FF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🌊 PAD F MAJOR
+                </button>
+                <button onclick="playInstantSound('pad', 'Gmin')" class="instant-sound-btn" style="background: linear-gradient(135deg, #9D4EDD, #00D9FF); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9em;">
+                    🌊 PAD G MINOR
+                </button>
+            </div>
+            
+            <div style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.85em; margin-top: 10px;">
+                💡 Tip: Click "START SYSTEM" first, then try these sounds! | Use keyboard: Q/W/E/R = Bass, A/S/D/F = Drums, Z/X/C/V = Leads
+            </div>
+            
+            <!-- Drum Machine Switcher -->
+            <div style="display: flex; gap: 15px; justify-content: center; align-items: center; margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(57, 255, 20, 0.3);">
+                <span style="color: #39FF14; font-weight: bold; font-size: 1em;">🥁 DRUM MACHINE:</span>
+                <button id="drum-808-btn" onclick="switchDrumMachine('808')" data-drum-machine="808" style="padding: 10px 24px; background: linear-gradient(135deg, #39FF14, #00D9FF); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.95em; transition: all 0.3s; box-shadow: 0 0 20px rgba(57, 255, 20, 0.8); transform: scale(1.05);">
+                    TR-808 CLASSIC
+                </button>
+                <button id="drum-909-btn" onclick="switchDrumMachine('909')" data-drum-machine="909" style="padding: 10px 24px; background: linear-gradient(135deg, #FF00FF, #00FFFF); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.95em; transition: all 0.3s;">
+                    TR-909 MODERN
+                </button>
+                <span id="drum-machine-indicator" style="color: #FFD700; font-size: 0.9em; font-weight: bold;">Active: 808</span>
+            </div>
+            
+            <!-- Pattern Library -->
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                <span style="color: #00D9FF; font-weight: bold; margin-right: 10px; align-self: center;">🎼 PATTERNS:</span>
+                <button onclick="loadPattern('techno')" style="padding: 8px 16px; background: linear-gradient(135deg, #FF6B35, #FF1493); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                    TECHNO 4/4
+                </button>
+                <button onclick="loadPattern('minimal')" style="padding: 8px 16px; background: linear-gradient(135deg, #9D4EDD, #00D9FF); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                    MINIMAL
+                </button>
+                <button onclick="loadPattern('acid')" style="padding: 8px 16px; background: linear-gradient(135deg, #FFD700, #39FF14); color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                    ACID 303
+                </button>
+                <button onclick="loadPattern('industrial')" style="padding: 8px 16px; background: linear-gradient(135deg, #666, #FF0000); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                    INDUSTRIAL
+                </button>
+            </div>
+            
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
+                <button onclick="playDemoSequence()" style="padding: 12px 24px; background: linear-gradient(135deg, #FFD700, #FF6B35); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.95em; box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4);">
+                    🎬 PLAY DEMO SEQUENCE
+                </button>
+                <button onclick="testAllEngines()" style="padding: 12px 24px; background: linear-gradient(135deg, #9D4EDD, #FF1493); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.95em; box-shadow: 0 4px 10px rgba(157, 78, 221, 0.4);">
+                    🔧 TEST ALL ENGINES
+                </button>
+                <button onclick="generateRandomTrack()" style="padding: 12px 24px; background: linear-gradient(135deg, #00D9FF, #39FF14); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.95em; box-shadow: 0 4px 10px rgba(0, 217, 255, 0.4);">
+                    🎲 RANDOM TRACK
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Layout -->
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3>🎹 BASS SOUNDS</h3>
+                <button class="instrument-btn active" onclick="selectInstrument('bass-303')" data-instrument="bass-303">
+                    <span class="instrument-icon">🔊</span>
+                    <span>303 Acid Bass</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('bass-deep')" data-instrument="bass-deep">
+                    <span class="instrument-icon">🎚️</span>
+                    <span>Deep Sub Bass</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('bass-distorted')" data-instrument="bass-distorted">
+                    <span class="instrument-icon">⚡</span>
+                    <span>Distorted Bass</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('bass-techno')" data-instrument="bass-techno">
+                    <span class="instrument-icon">🎵</span>
+                    <span>Techno Rumble</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>🥁 DRUMS & PERCUSSION</h3>
+                <button class="instrument-btn" onclick="selectInstrument('drums-808')" data-instrument="drums-808">
+                    <span class="instrument-icon">🥁</span>
+                    <span>TR-808 Kit</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('drums-industrial')" data-instrument="drums-industrial">
+                    <span class="instrument-icon">🔨</span>
+                    <span>Industrial Kit</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('drums-minimal')" data-instrument="drums-minimal">
+                    <span class="instrument-icon">📍</span>
+                    <span>Minimal Perc</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>🎹 LEADS & SYNTHS</h3>
+                <button class="instrument-btn" onclick="selectInstrument('arp-lead')" data-instrument="arp-lead">
+                    <span class="instrument-icon">🎹</span>
+                    <span>2600 Lead</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-sync-lead')" data-instrument="arp-sync-lead">
+                    <span class="instrument-icon">⚡</span>
+                    <span>2600 Sync Lead</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-scream')" data-instrument="arp-scream">
+                    <span class="instrument-icon">🔥</span>
+                    <span>2600 Screamer</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-pluck')" data-instrument="arp-pluck">
+                    <span class="instrument-icon">🎸</span>
+                    <span>2600 Pluck</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-marimba')" data-instrument="arp-marimba">
+                    <span class="instrument-icon">🎵</span>
+                    <span>2600 Marimba</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-kalimba')" data-instrument="arp-kalimba">
+                    <span class="instrument-icon">🔔</span>
+                    <span>2600 Kalimba</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-brass')" data-instrument="arp-brass">
+                    <span class="instrument-icon">🎺</span>
+                    <span>2600 Brass</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-soft-brass')" data-instrument="arp-soft-brass">
+                    <span class="instrument-icon">�</span>
+                    <span>2600 Soft Brass</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-flute')" data-instrument="arp-flute">
+                    <span class="instrument-icon">🪈</span>
+                    <span>2600 Flute</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>🎹 BASS FROM ARP-2600</h3>
+                <button class="instrument-btn" onclick="selectInstrument('arp-bass')" data-instrument="arp-bass">
+                    <span class="instrument-icon">�🎛️</span>
+                    <span>2600 Bass</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-sub-bass')" data-instrument="arp-sub-bass">
+                    <span class="instrument-icon">📻</span>
+                    <span>2600 Sub Bass</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-acid-bass')" data-instrument="arp-acid-bass">
+                    <span class="instrument-icon">🧪</span>
+                    <span>2600 Acid</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-fat-bass')" data-instrument="arp-fat-bass">
+                    <span class="instrument-icon">💪</span>
+                    <span>2600 Fat Bass</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>🎻 PADS & STRINGS</h3>
+                <button class="instrument-btn" onclick="selectInstrument('string-lush')" data-instrument="string-lush">
+                    <span class="instrument-icon">🎻</span>
+                    <span>Lush Strings</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('string-pad')" data-instrument="string-pad">
+                    <span class="instrument-icon">🌊</span>
+                    <span>Techno Pad</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('string-dark')" data-instrument="string-dark">
+                    <span class="instrument-icon">🌑</span>
+                    <span>Dark Ambient</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('string-ethereal')" data-instrument="string-ethereal">
+                    <span class="instrument-icon">✨</span>
+                    <span>Ethereal Wash</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-pad')" data-instrument="arp-pad">
+                    <span class="instrument-icon">🌌</span>
+                    <span>2600 Pad</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-string-pad')" data-instrument="arp-string-pad">
+                    <span class="instrument-icon">🎼</span>
+                    <span>2600 Strings</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-dark-pad')" data-instrument="arp-dark-pad">
+                    <span class="instrument-icon">🌃</span>
+                    <span>2600 Dark Pad</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-evolving')" data-instrument="arp-evolving">
+                    <span class="instrument-icon">🌀</span>
+                    <span>2600 Evolving</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>✨ FX & EXPERIMENTAL</h3>
+                <button class="instrument-btn" onclick="selectInstrument('arp-sweep')" data-instrument="arp-sweep">
+                    <span class="instrument-icon">🌊</span>
+                    <span>2600 Sweep</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-wobble')" data-instrument="arp-wobble">
+                    <span class="instrument-icon">〰️</span>
+                    <span>2600 Wobble</span>
+                </button>
+                <button class="instrument-btn" onclick="selectInstrument('arp-space')" data-instrument="arp-space">
+                    <span class="instrument-icon">🚀</span>
+                    <span>2600 Space</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>🎨 QUICK START STYLES</h3>
+                <div class="preset-grid">
+                    <button class="preset-btn" onclick="loadPreset('acid-minimal')">
+                        Acid Minimal
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('industrial-hard')">
+                        Industrial
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('detroit-classic')">
+                        Detroit Techno
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('berghain-style')">
+                        Berlin Tech
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('ambient-techno')">
+                        Ambient Tech
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('hypnotic')">
+                        Hypnotic
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('peak-time')">
+                        Peak Time
+                    </button>
+                    <button class="preset-btn" onclick="loadPreset('deep-minimal')">
+                        Deep Minimal
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Area -->
+        <div class="main-area">
+            <!-- Sequencer -->
+            <div class="sequencer">
+                <div class="sequencer-header">
+                    <h2 class="sequencer-title" id="sequencerTitle">TB-303 Bass Sequencer</h2>
+                    <div class="pattern-controls">
+                        <button class="pattern-btn" onclick="clearPattern()">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                        <button class="pattern-btn" onclick="randomPattern()">
+                            <i class="fas fa-dice"></i> Random
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 16-Step Grid -->
+                <div class="step-grid" id="stepGrid">
+                    <!-- Steps will be generated by JavaScript -->
+                </div>
+                
+                <!-- Visualizer -->
+                <div class="visualizer" id="visualizer">
+                    <!-- Bars will be generated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="controls-panel">
+                <h2 style="color: #FF6B35; margin-bottom: 10px;">🎛️ Sound Controls</h2>
+                <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Tweak the sound in real-time</p>
+                
+                <div class="controls-grid" id="controlsGrid">
+                    <!-- Controls will be generated dynamically -->
+                </div>
+            </div>
+            
+            <!-- AI Patch Designer -->
+            <div class="controls-panel" style="margin-top: 30px; border: 2px solid #39FF14;">
+                <h2 style="color: #39FF14; margin-bottom: 10px;">🤖 AI PATCH DESIGNER</h2>
+                <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Let AI design the perfect sound for you!</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                    <!-- Genre Selection -->
+                    <div>
+                        <label style="color: #FFD700; display: block; margin-bottom: 8px; font-weight: 600;">🎵 Genre</label>
+                        <select id="aiGenre" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid #39FF14; border-radius: 8px; color: #fff; font-size: 1em;">
+                            <option value="acid-techno">Acid Techno</option>
+                            <option value="hard-techno">Hard Techno</option>
+                            <option value="minimal-techno" selected>Minimal Techno</option>
+                            <option value="trap">Trap</option>
+                            <option value="ambient">Ambient</option>
+                            <option value="industrial">Industrial</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Sound Type Selection -->
+                    <div>
+                        <label style="color: #FFD700; display: block; margin-bottom: 8px; font-weight: 600;">🎹 Sound Type</label>
+                        <select id="aiSoundType" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid #39FF14; border-radius: 8px; color: #fff; font-size: 1em;">
+                            <option value="bass">Bass</option>
+                            <option value="lead" selected>Lead</option>
+                            <option value="pad">Pad</option>
+                            <option value="drums">Drums</option>
+                            <option value="fx">FX</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Mood Selection -->
+                    <div>
+                        <label style="color: #FFD700; display: block; margin-bottom: 8px; font-weight: 600;">😎 Mood</label>
+                        <select id="aiMood" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid #39FF14; border-radius: 8px; color: #fff; font-size: 1em;">
+                            <option value="aggressive">Aggressive 🔥</option>
+                            <option value="balanced" selected>Balanced ⚡</option>
+                            <option value="subtle">Subtle 🌙</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- AI Action Buttons -->
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button onclick="generateAIPatch()" style="flex: 1; min-width: 200px; padding: 15px 25px; background: linear-gradient(135deg, #39FF14, #00D9FF); color: #000; border: none; border-radius: 12px; font-size: 1.1em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(57, 255, 20, 0.4); transition: all 0.3s;">
+                        🎨 Generate AI Patch
+                    </button>
+                    
+                    <button onclick="evolveCurrentPatch()" style="flex: 1; min-width: 200px; padding: 15px 25px; background: linear-gradient(135deg, #FF6B35, #FF1493); color: #fff; border: none; border-radius: 12px; font-size: 1.1em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4); transition: all 0.3s;">
+                        🧬 Evolve Current
+                    </button>
+                    
+                    <button onclick="getAISuggestions()" style="flex: 1; min-width: 200px; padding: 15px 25px; background: linear-gradient(135deg, #FFD700, #FF6B35); color: #000; border: none; border-radius: 12px; font-size: 1.1em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); transition: all 0.3s;">
+                        💡 Get Suggestions
+                    </button>
+                </div>
+                
+                <!-- AI Status Display -->
+                <div id="aiStatus" style="margin-top: 20px; padding: 15px; background: rgba(57, 255, 20, 0.1); border: 1px solid #39FF14; border-radius: 8px; display: none;">
+                    <div style="color: #39FF14; font-weight: bold; margin-bottom: 8px;">🤖 AI Designer Status</div>
+                    <div id="aiStatusText" style="color: rgba(255,255,255,0.8);"></div>
+                </div>
+            </div>
+            
+            <!-- COMPLETE TRACK INTEGRATION -->
+            <div class="controls-panel" style="margin-top: 30px; border: 3px solid #FF6B35; background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 20, 147, 0.1));">
+                <h2 style="color: #FF6B35; margin-bottom: 10px; font-size: 2em;">🎼 COMPLETE TRACK INTEGRATION</h2>
+                <p style="color: rgba(255,255,255,0.8); margin-bottom: 25px; font-size: 1.1em;">Build a full multi-track composition, not just a preview!</p>
+                
+                <!-- Quick Generate Section -->
+                <div style="background: rgba(0,0,0,0.4); padding: 25px; border-radius: 12px; margin-bottom: 25px;">
+                    <h3 style="color: #FFD700; margin-bottom: 15px;">⚡ Quick Generate Complete Track</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <div>
+                            <label style="color: rgba(255,255,255,0.7); display: block; margin-bottom: 8px;">Genre</label>
+                            <select id="integrateGenre" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.6); border: 2px solid #FF6B35; border-radius: 8px; color: #fff; font-size: 1em;">
+                                <option value="acid-techno">Acid Techno</option>
+                                <option value="hard-techno">Hard Techno</option>
+                                <option value="minimal-techno" selected>Minimal Techno</option>
+                                <option value="trap">Trap</option>
+                                <option value="industrial">Industrial</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label style="color: rgba(255,255,255,0.7); display: block; margin-bottom: 8px;">Structure</label>
+                            <select id="integrateStructure" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.6); border: 2px solid #FF6B35; border-radius: 8px; color: #fff; font-size: 1em;">
+                                <option value="minimal">Minimal (3 tracks)</option>
+                                <option value="standard" selected>Standard (4 tracks)</option>
+                                <option value="epic">Epic (6+ tracks)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label style="color: rgba(255,255,255,0.7); display: block; margin-bottom: 8px;">Length</label>
+                            <select id="integrateBars" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.6); border: 2px solid #FF6B35; border-radius: 8px; color: #fff; font-size: 1em;">
+                                <option value="16">16 Bars (Short)</option>
+                                <option value="32" selected>32 Bars (Full Track)</option>
+                                <option value="64">64 Bars (Extended)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button onclick="generateCompleteTrack()" style="width: 100%; padding: 20px; background: linear-gradient(135deg, #FF6B35, #FF1493); color: #fff; border: none; border-radius: 12px; font-size: 1.3em; font-weight: bold; cursor: pointer; box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5); transition: all 0.3s;">
+                        🎼 GENERATE COMPLETE TRACK WITH AI
+                    </button>
+                </div>
+                
+                <!-- Track List -->
+                <div style="background: rgba(0,0,0,0.4); padding: 25px; border-radius: 12px; margin-bottom: 20px;">
+                    <h3 style="color: #FFD700; margin-bottom: 15px;">🎹 Track Layers</h3>
+                    <div id="trackList" style="max-height: 400px; overflow-y: auto;">
+                        <p style="color: rgba(255,255,255,0.5); text-align: center; padding: 40px;">
+                            No tracks yet. Generate a complete track above!
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Transport Controls -->
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button onclick="playCompleteTrack()" id="playCompleteBtn" style="flex: 1; min-width: 150px; padding: 18px; background: linear-gradient(135deg, #39FF14, #00D9FF); color: #000; border: none; border-radius: 12px; font-size: 1.2em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(57, 255, 20, 0.4);">
+                        ▶️ PLAY COMPLETE TRACK
+                    </button>
+                    
+                    <button onclick="stopCompleteTrack()" style="flex: 1; min-width: 150px; padding: 18px; background: linear-gradient(135deg, #FF6B35, #FF4500); color: #fff; border: none; border-radius: 12px; font-size: 1.2em; font-weight: bold; cursor: pointer;">
+                        ⏹️ STOP
+                    </button>
+                    
+                    <button onclick="exportCompleteTrack()" style="flex: 1; min-width: 150px; padding: 18px; background: linear-gradient(135deg, #FFD700, #FF6B35); color: #000; border: none; border-radius: 12px; font-size: 1.2em; font-weight: bold; cursor: pointer;">
+                        💾 EXPORT
+                    </button>
+                    
+                    <button onclick="saveProject()" style="flex: 1; min-width: 150px; padding: 18px; background: linear-gradient(135deg, #9D4EDD, #FF6B35); color: #fff; border: none; border-radius: 12px; font-size: 1.2em; font-weight: bold; cursor: pointer;">
+                        📁 SAVE PROJECT
+                    </button>
+                </div>
+                
+                <!-- Integration Status -->
+                <div id="integrateStatus" style="margin-top: 20px; padding: 15px; background: rgba(255, 107, 53, 0.1); border: 2px solid #FF6B35; border-radius: 8px; display: none;">
+                    <div style="color: #FF6B35; font-weight: bold; margin-bottom: 8px;">🎼 Integration Status</div>
+                    <div id="integrateStatusText" style="color: rgba(255,255,255,0.8);"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import TB303 from '/js/synths/tb303.js';
+        import TR808 from '/js/synths/tr808.js';
+        import TR909 from '/js/synths/tr909.js';
+        import ARP2600 from '/js/synths/arp2600.js';
+        import StringMachine from '/js/synths/string-machine.js';
+        import DAWEngine from '/js/daw-engine.js';
+        
+        // Initialize Audio
+        let audioContext;
+        let tb303, tr808, tr909, arp2600, stringMachine, daw;
+        let aiDesigner; // AI Patch Designer
+        let trackIntegrator; // Complete Track Integration
+        let isPlaying = false;
+        let currentInstrument = 'bass-303';
+        let bpm = 130;
+        let currentStep = 0;
+        let intervalId = null;
+        
+        // Advanced features
+        let currentDrumMachine = '808'; // '808' or '909'
+        let mixerLevels = {
+            bass: 0.8,
+            drums: 0.8,
+            lead: 0.7,
+            pad: 0.6
+        };
+        let effectsChain = {
+            reverb: null,
+            delay: null,
+            compressor: null,
+            filter: null
+        };
+        
+        // Pattern storage - expanded for all variations
+        const patterns = {
+            // Bass variations
+            'bass-303': Array(16).fill(false),
+            'bass-deep': Array(16).fill(false),
+            'bass-distorted': Array(16).fill(false),
+            'bass-techno': Array(16).fill(false),
+            
+            // Drums variations
+            'drums-808': Array(16).fill(false),
+            'drums-industrial': Array(16).fill(false),
+            'drums-minimal': Array(16).fill(false),
+            
+            // ARP-2600 Lead variations
+            'arp-lead': Array(16).fill(false),
+            'arp-sync-lead': Array(16).fill(false),
+            'arp-scream': Array(16).fill(false),
+            'arp-pluck': Array(16).fill(false),
+            'arp-marimba': Array(16).fill(false),
+            'arp-kalimba': Array(16).fill(false),
+            'arp-brass': Array(16).fill(false),
+            'arp-soft-brass': Array(16).fill(false),
+            'arp-flute': Array(16).fill(false),
+            
+            // ARP-2600 Bass variations
+            'arp-bass': Array(16).fill(false),
+            'arp-sub-bass': Array(16).fill(false),
+            'arp-acid-bass': Array(16).fill(false),
+            'arp-fat-bass': Array(16).fill(false),
+            
+            // ARP-2600 Pad variations
+            'arp-pad': Array(16).fill(false),
+            'arp-string-pad': Array(16).fill(false),
+            'arp-dark-pad': Array(16).fill(false),
+            'arp-evolving': Array(16).fill(false),
+            
+            // ARP-2600 FX variations
+            'arp-sweep': Array(16).fill(false),
+            'arp-wobble': Array(16).fill(false),
+            'arp-space': Array(16).fill(false),
+            
+            // String Machine variations
+            'string-lush': Array(16).fill(false),
+            'string-pad': Array(16).fill(false),
+            'string-dark': Array(16).fill(false),
+            'string-ethereal': Array(16).fill(false)
+        };
+        
+        // ========================================
+        // HAOS MASTER SYSTEM INITIALIZATION
+        // ========================================
+        
+        async function initHAOSSystem() {
+            console.log('🚀 Initializing HAOS Master System...');
+            
+            const statusElement = document.getElementById('system-status');
+            const startBtn = document.getElementById('startAudioBtn');
+            
+            try {
+                // Update status
+                if (statusElement) {
+                    statusElement.textContent = '● INITIALIZING...';
+                    statusElement.style.color = '#FFD700';
+                }
+                
+                // Initialize HAOS Master System
+                if (!HAOS.initialized) {
+                    await HAOS.init();
+                }
+                
+                // Load all synthesis engines
+                const tb303Engine = HAOS.engineManager.createTB303();
+                const tr808Engine = HAOS.engineManager.createTR808();
+                const tr909Engine = HAOS.engineManager.createTR909();
+                const arp2600Engine = HAOS.engineManager.createARP2600();
+                const stringEngine = HAOS.engineManager.createStringMachine();
+                const dawEngine = HAOS.engineManager.createDAWEngine();
+                
+                // Initialize AI components
+                HAOS.aiSystem.initPatchDesigner();
+                HAOS.aiSystem.initTrackIntegrator();
+                
+                // Set global references for backward compatibility
+                window.audioContext = HAOS.audioContext;
+                window.tb303 = tb303Engine;
+                window.tr808 = tr808Engine;
+                window.tr909 = tr909Engine;
+                window.arp2600 = arp2600Engine;
+                window.stringMachine = stringEngine;
+                window.daw = dawEngine;
+                window.aiDesigner = HAOS.aiComponents.patchDesigner;
+                window.trackIntegrator = HAOS.aiComponents.trackIntegrator;
+                
+                // Initialize effects chain
+                initEffectsChain();
+                
+                // Setup default sounds
+                if (tb303Engine) {
+                    tb303Engine.setParam('cutoff', 800);
+                    tb303Engine.setParam('resonance', 15);
+                    tb303Engine.setParam('envMod', 70);
+                    tb303Engine.loadPresetPattern('classic303');
+                }
+                
+                if (tr808Engine) {
+                    tr808Engine.setVolume(0.8);
+                }
+                
+                if (tr909Engine) {
+                    tr909Engine.setVolume(0.8);
+                    tr909Engine.setParam('kick', 'tune', 0);
+                    tr909Engine.setParam('kick', 'decay', 0.5);
+                    tr909Engine.setParam('snare', 'snappy', 0.7);
+                }
+                
+                if (arp2600Engine) {
+                    arp2600Engine.loadPreset('lead');
+                }
+                
+                // Set default BPM
+                HAOS.setBPM(135);
+                
+                // Update UI
+                if (statusElement) {
+                    statusElement.textContent = '● SYSTEM READY';
+                    statusElement.style.color = '#39FF14';
+                }
+                
+                if (startBtn) {
+                    startBtn.textContent = '✅ SYSTEM ACTIVE';
+                    startBtn.style.background = 'linear-gradient(135deg, #39FF14, #00FF00)';
+                    startBtn.style.cursor = 'default';
+                    startBtn.disabled = true;
+                }
+                
+                // Log system info
+                console.log('✅ HAOS Master System initialized!');
+                console.log('System Info:', HAOS.getSystemInfo());
+                
+                // Show welcome message
+                showNotification('🎵 HAOS System Ready! All features unlocked.', 'success');
+                
+            } catch (error) {
+                console.error('❌ HAOS System initialization failed:', error);
+                
+                if (statusElement) {
+                    statusElement.textContent = '● SYSTEM ERROR';
+                    statusElement.style.color = '#FF6B35';
+                }
+                
+                if (startBtn) {
+                    startBtn.textContent = '❌ INIT FAILED';
+                    startBtn.style.background = 'linear-gradient(135deg, #FF6B35, #FF0000)';
+                }
+                
+                showNotification('System initialization failed. Check console for details.', 'error');
+            }
+        }
+        
+        // Expose globally
+        window.initHAOSSystem = initHAOSSystem;
+        
+        // ========================================
+        // EFFECTS CHAIN INITIALIZATION
+        // ========================================
+        
+        function initEffectsChain() {
+            if (!audioContext) return;
+            
+            try {
+                // Create reverb
+                effectsChain.reverb = audioContext.createConvolver();
+                const reverbBuffer = createReverbImpulse(2.5, 2);
+                effectsChain.reverb.buffer = reverbBuffer;
+                
+                // Create delay
+                effectsChain.delay = audioContext.createDelay(1.0);
+                effectsChain.delay.delayTime.value = 0.375; // 3/16 note at 130 BPM
+                
+                const delayFeedback = audioContext.createGain();
+                delayFeedback.gain.value = 0.4;
+                
+                effectsChain.delay.connect(delayFeedback);
+                delayFeedback.connect(effectsChain.delay);
+                
+                // Create compressor (master)
+                effectsChain.compressor = audioContext.createDynamicsCompressor();
+                effectsChain.compressor.threshold.value = -24;
+                effectsChain.compressor.knee.value = 30;
+                effectsChain.compressor.ratio.value = 12;
+                effectsChain.compressor.attack.value = 0.003;
+                effectsChain.compressor.release.value = 0.25;
+                
+                // Create filter
+                effectsChain.filter = audioContext.createBiquadFilter();
+                effectsChain.filter.type = 'lowpass';
+                effectsChain.filter.frequency.value = 20000;
+                effectsChain.filter.Q.value = 1;
+                
+                console.log('✅ Effects chain initialized');
+            } catch (error) {
+                console.error('Error initializing effects:', error);
+            }
+        }
+        
+        function createReverbImpulse(duration, decay) {
+            const sampleRate = audioContext.sampleRate;
+            const length = sampleRate * duration;
+            const impulse = audioContext.createBuffer(2, length, sampleRate);
+            const left = impulse.getChannelData(0);
+            const right = impulse.getChannelData(1);
+            
+            for (let i = 0; i < length; i++) {
+                const n = length - i;
+                left[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
+                right[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
+            }
+            
+            return impulse;
+        }
+        
+        // ========================================
+        // MIXER CONTROLS
+        // ========================================
+        
+        function setMixerLevel(channel, level) {
+            mixerLevels[channel] = Math.max(0, Math.min(1, level));
+            
+            // Update synth volumes based on channel
+            switch(channel) {
+                case 'bass':
+                    if (tb303) tb303.setParam('volume', mixerLevels.bass);
+                    break;
+                case 'drums':
+                    if (tr808) tr808.setVolume(mixerLevels.drums);
+                    if (tr909) tr909.setVolume(mixerLevels.drums);
+                    break;
+                case 'lead':
+                    if (arp2600) arp2600.setParam('volume', mixerLevels.lead);
+                    break;
+                case 'pad':
+                    if (stringMachine) stringMachine.setParam('volume', mixerLevels.pad);
+                    break;
+            }
+            
+            showNotification(`${channel.toUpperCase()} level: ${Math.round(level * 100)}%`, 'info', 1000);
+        }
+        
+        window.setMixerLevel = setMixerLevel;
+        
+        // ========================================
+        // DRUM MACHINE SWITCHER
+        // ========================================
+        
+        function switchDrumMachine(machine) {
+            currentDrumMachine = machine;
+            showNotification(`Switched to TR-${machine}`, 'success');
+            
+            // Update UI to show active drum machine
+            const drumButtons = document.querySelectorAll('[data-drum-machine]');
+            drumButtons.forEach(btn => {
+                if (btn.dataset.drumMachine === machine) {
+                    btn.style.boxShadow = '0 0 20px rgba(57, 255, 20, 0.8)';
+                    btn.style.transform = 'scale(1.05)';
+                } else {
+                    btn.style.boxShadow = '';
+                    btn.style.transform = '';
+                }
+            });
+        }
+        
+        window.switchDrumMachine = switchDrumMachine;
+        
+        // ========================================
+        // ADVANCED SEQUENCER FEATURES
+        // ========================================
+        
+        function createTechnoPattern() {
+            // Create a classic techno 4/4 pattern
+            const pattern = {
+                kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+                snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+                hat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+                hatOpen: [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+                bass: ['C2', '', '', '', 'D#2', '', '', '', 'C2', '', '', '', 'F2', '', '', '']
+            };
+            return pattern;
+        }
+        
+        function createMinimalPattern() {
+            // Minimal techno pattern
+            const pattern = {
+                kick: [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+                snare: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+                hat: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+                bass: ['C2', '', '', '', '', '', 'C2', '', '', '', '', '', '', '', '', '']
+            };
+            return pattern;
+        }
+        
+        function createAcidPattern() {
+            // Acid techno pattern with 303 focus
+            const pattern = {
+                kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+                bass: ['C2', '', 'C3', '', 'D#2', '', '', 'C2', '', 'F2', '', '', 'G2', '', 'D#2', '']
+            };
+            return pattern;
+        }
+        
+        function createIndustrialPattern() {
+            // Hard industrial techno pattern
+            const pattern = {
+                kick: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+                snare: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+                hat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                bass: ['C2', '', '', '', 'C2', '', '', '', 'D#2', '', '', '', 'C2', '', '', '']
+            };
+            return pattern;
+        }
+        
+        window.createTechnoPattern = createTechnoPattern;
+        window.createMinimalPattern = createMinimalPattern;
+        window.createAcidPattern = createAcidPattern;
+        window.createIndustrialPattern = createIndustrialPattern;
+        
+        // ========================================
+        // PATTERN LOADER
+        // ========================================
+        
+        function loadPattern(patternName) {
+            if (!audioContext) {
+                showNotification('⚠️ Initialize system first!', 'error');
+                return;
+            }
+            
+            let pattern;
+            switch(patternName) {
+                case 'techno':
+                    pattern = createTechnoPattern();
+                    showNotification('🎵 Loaded: Classic Techno 4/4', 'success');
+                    break;
+                case 'minimal':
+                    pattern = createMinimalPattern();
+                    showNotification('🎵 Loaded: Minimal Pattern', 'success');
+                    break;
+                case 'acid':
+                    pattern = createAcidPattern();
+                    showNotification('🎵 Loaded: Acid 303 Pattern', 'success');
+                    break;
+                case 'industrial':
+                    pattern = createIndustrialPattern();
+                    showNotification('🎵 Loaded: Industrial Pattern', 'success');
+                    break;
+                default:
+                    showNotification('❌ Unknown pattern', 'error');
+                    return;
+            }
+            
+            // Apply pattern to sequencer (if sequencer exists)
+            if (typeof applyPatternToSequencer === 'function') {
+                applyPatternToSequencer(pattern);
+            } else {
+                // Play pattern demo
+                playPatternDemo(pattern);
+            }
+        }
+        
+        window.loadPattern = loadPattern;
+        
+        // ========================================
+        // PATTERN DEMO PLAYER
+        // ========================================
+        
+        function playPatternDemo(pattern) {
+            const stepTime = 60 / bpm / 4; // 16th note duration
+            let currentStep = 0;
+            
+            showNotification('▶️ Playing pattern demo...', 'info', 5000);
+            
+            const playStep = () => {
+                if (currentStep >= 16) {
+                    showNotification('✅ Pattern demo complete!', 'success');
+                    return;
+                }
+                
+                const now = audioContext.currentTime;
+                
+                // Play kick
+                if (pattern.kick && pattern.kick[currentStep] === 1) {
+                    const drumMachine = currentDrumMachine === '909' ? tr909 : tr808;
+                    if (drumMachine) drumMachine.playKick('classic', now);
+                }
+                
+                // Play snare
+                if (pattern.snare && pattern.snare[currentStep] === 1) {
+                    const drumMachine = currentDrumMachine === '909' ? tr909 : tr808;
+                    if (drumMachine) drumMachine.playSnare('classic', now);
+                }
+                
+                // Play hat
+                if (pattern.hat && pattern.hat[currentStep] === 1) {
+                    const drumMachine = currentDrumMachine === '909' ? tr909 : tr808;
+                    if (drumMachine && drumMachine.playHatClosed) {
+                        drumMachine.playHatClosed('classic', now);
+                    } else if (drumMachine && drumMachine.playHat) {
+                        drumMachine.playHat('closed', now);
+                    }
+                }
+                
+                // Play open hat
+                if (pattern.hatOpen && pattern.hatOpen[currentStep] === 1) {
+                    const drumMachine = currentDrumMachine === '909' ? tr909 : tr808;
+                    if (drumMachine && drumMachine.playHatOpen) {
+                        drumMachine.playHatOpen('classic', now);
+                    } else if (drumMachine && drumMachine.playHat) {
+                        drumMachine.playHat('open', now);
+                    }
+                }
+                
+                // Play bass
+                if (pattern.bass && pattern.bass[currentStep] && pattern.bass[currentStep] !== '') {
+                    const noteToFreq = {
+                        'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78,
+                        'E2': 82.41, 'F2': 87.31, 'F#2': 92.50, 'G2': 98.00,
+                        'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47,
+                        'C3': 130.81
+                    };
+                    const freq = noteToFreq[pattern.bass[currentStep]];
+                    if (tb303 && freq) {
+                        tb303.playNote({
+                            frequency: freq,
+                            duration: stepTime,
+                            accent: currentStep % 4 === 0,
+                            slide: false
+                        }, now);
+                    }
+                }
+                
+                currentStep++;
+                setTimeout(playStep, stepTime * 1000);
+            };
+            
+            playStep();
+        }
+        
+        window.playPatternDemo = playPatternDemo;
+        
+        // Legacy support - redirect old initAudio to new system
+        function initAudio() {
+            return initHAOSSystem();
+        }
+        
+        // Expose initAudio globally
+        window.initAudio = initAudio;
+        
+        // ========================================
+        // NOTIFICATION SYSTEM
+        // ========================================
+        
+        function showNotification(message, type = 'info', duration = 3000) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                notification.style.transform = 'translateX(400px)';
+                notification.style.opacity = '0';
+                
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, duration);
+        }
+        
+        window.showNotification = showNotification;
+        
+        // ========================================
+        // INSTANT SOUND PLAYBACK FUNCTIONS
+        // ========================================
+        
+        // Note to frequency mapping
+        const noteToFreq = {
+            'C2': 65.41, 'D2': 73.42, 'E2': 82.41, 'F2': 87.31, 'G2': 98.00, 'A2': 110.00,
+            'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'G3': 196.00,
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00,
+            'C5': 523.25, 'E5': 659.25, 'G5': 783.99
+        };
+        
+        // Chord to frequencies mapping
+        const chordToFreqs = {
+            'Cmaj': [261.63, 329.63, 392.00],  // C E G
+            'Amin': [220.00, 261.63, 329.63],  // A C E
+            'Fmaj': [174.61, 220.00, 261.63],  // F A C
+            'Gmin': [196.00, 233.08, 293.66],  // G Bb D
+            'Dmaj': [146.83, 185.00, 220.00],  // D F# A
+            'Emin': [164.81, 196.00, 246.94]   // E G B
+        };
+        
+        window.playInstantSound = function(type, noteOrChord = null) {
+            if (!audioContext) {
+                showNotification('⚠️ Click "START SYSTEM" first!', 'error');
+                return;
+            }
+            
+            const now = audioContext.currentTime;
+            
+            try {
+                switch(type) {
+                    case 'bass':
+                        if (!tb303) {
+                            showNotification('TB-303 not initialized', 'error');
+                            return;
+                        }
+                        const freq = noteToFreq[noteOrChord] || 65.41;
+                        tb303.playNote({
+                            frequency: freq,
+                            duration: 0.5,
+                            accent: true,
+                            slide: false
+                        }, now);
+                        flashButton('Bass: ' + noteOrChord);
+                        break;
+                        
+                    case 'kick':
+                        if (!tr808) {
+                            showNotification('TR-808 not initialized', 'error');
+                            return;
+                        }
+                        tr808.playKick('classic', now);
+                        flashButton('Kick');
+                        break;
+                        
+                    case 'snare':
+                        if (!tr808) return;
+                        tr808.playSnare('classic', now);
+                        flashButton('Snare');
+                        break;
+                        
+                    case 'clap':
+                        if (!tr808) return;
+                        tr808.playClap('classic', now);
+                        flashButton('Clap');
+                        break;
+                        
+                    case 'hat':
+                        if (!tr808) return;
+                        tr808.playHat('closed', now);
+                        flashButton('Hi-Hat');
+                        break;
+                    
+                    // TR-909 Drums
+                    case '909kick':
+                        if (!tr909) {
+                            showNotification('TR-909 not initialized', 'error');
+                            return;
+                        }
+                        tr909.playKick('classic', now);
+                        flashButton('909 Kick');
+                        break;
+                        
+                    case '909snare':
+                        if (!tr909) return;
+                        tr909.playSnare('classic', now);
+                        flashButton('909 Snare');
+                        break;
+                        
+                    case '909hatclosed':
+                        if (!tr909) return;
+                        tr909.playHatClosed('classic', now);
+                        flashButton('909 HH Closed');
+                        break;
+                        
+                    case '909hatopen':
+                        if (!tr909) return;
+                        tr909.playHatOpen('classic', now);
+                        flashButton('909 HH Open');
+                        break;
+                        
+                    case '909ride':
+                        if (!tr909) return;
+                        tr909.playRide(now);
+                        flashButton('909 Ride');
+                        break;
+                        
+                    case '909crash':
+                        if (!tr909) return;
+                        tr909.playCrash(now);
+                        flashButton('909 Crash');
+                        break;
+                        
+                    case '909rim':
+                        if (!tr909) return;
+                        tr909.playRimshot(now);
+                        flashButton('909 Rimshot');
+                        break;
+                        
+                    case '909tom':
+                        if (!tr909) return;
+                        tr909.playTom('mid', now);
+                        flashButton('909 Tom');
+                        break;
+                        
+                    case 'lead':
+                        if (!arp2600) {
+                            showNotification('ARP-2600 not initialized', 'error');
+                            return;
+                        }
+                        const leadFreq = noteToFreq[noteOrChord] || 261.63;
+                        arp2600.playNote(leadFreq, 0.4, 1.0, now);
+                        flashButton('Lead: ' + noteOrChord);
+                        break;
+                        
+                    case 'pad':
+                        if (!stringMachine && !arp2600) {
+                            showNotification('Pad synth not initialized', 'error');
+                            return;
+                        }
+                        const chordFreqs = chordToFreqs[noteOrChord] || chordToFreqs['Cmaj'];
+                        
+                        // Play chord
+                        if (stringMachine) {
+                            chordFreqs.forEach((f, i) => {
+                                setTimeout(() => {
+                                    stringMachine.playNote(f, 2.0, 0.7, audioContext.currentTime);
+                                }, i * 30); // Slight stagger
+                            });
+                        } else if (arp2600) {
+                            chordFreqs.forEach((f, i) => {
+                                setTimeout(() => {
+                                    arp2600.playNote(f, 2.0, 0.6, audioContext.currentTime);
+                                }, i * 30);
+                            });
+                        }
+                        flashButton('Pad: ' + noteOrChord);
+                        break;
+                }
+                
+                // Update visualizer
+                if (updateVisualizer) {
+                    updateVisualizer();
+                }
+                
+            } catch (error) {
+                console.error('Error playing sound:', error);
+                showNotification('Error playing sound: ' + error.message, 'error');
+            }
+        };
+        
+        function flashButton(label) {
+            const viz = document.getElementById('visualizer');
+            if (viz) {
+                const bars = viz.querySelectorAll('.viz-bar');
+                bars.forEach((bar, i) => {
+                    const height = Math.random() * 80 + 40;
+                    bar.style.height = height + 'px';
+                });
+                
+                setTimeout(() => {
+                    bars.forEach(bar => {
+                        bar.style.height = '10px';
+                    });
+                }, 200);
+            }
+        }
+        
+        // ========================================
+        // KEYBOARD CONTROLS
+        // ========================================
+        
+        document.addEventListener('keydown', function(e) {
+            // Ignore if user is typing in an input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                return;
+            }
+            
+            const key = e.key.toUpperCase();
+            
+            // Bass notes (Q, W, E, R)
+            if (key === 'Q') playInstantSound('bass', 'C2');
+            if (key === 'W') playInstantSound('bass', 'D2');
+            if (key === 'E') playInstantSound('bass', 'E2');
+            if (key === 'R') playInstantSound('bass', 'G2');
+            
+            // Drums (A, S, D, F)
+            if (key === 'A') playInstantSound('kick');
+            if (key === 'S') playInstantSound('snare');
+            if (key === 'D') playInstantSound('clap');
+            if (key === 'F') playInstantSound('hat');
+            
+            // Leads (Z, X, C, V)
+            if (key === 'Z') playInstantSound('lead', 'C4');
+            if (key === 'X') playInstantSound('lead', 'E4');
+            if (key === 'C') playInstantSound('lead', 'G4');
+            if (key === 'V') playInstantSound('lead', 'C5');
+            
+            // Pads (1, 2, 3, 4)
+            if (key === '1') playInstantSound('pad', 'Cmaj');
+            if (key === '2') playInstantSound('pad', 'Amin');
+            if (key === '3') playInstantSound('pad', 'Fmaj');
+            if (key === '4') playInstantSound('pad', 'Gmin');
+            
+            // Spacebar to play/pause
+            if (key === ' ' && audioContext) {
+                e.preventDefault();
+                togglePlay();
+            }
+        });
+        
+        // Expose globally
+        window.playInstantSound = playInstantSound;
+        
+        // ========================================
+        // DEMO & TEST FUNCTIONS
+        // ========================================
+        
+        window.playDemoSequence = function() {
+            if (!audioContext) {
+                showNotification('⚠️ Click "START SYSTEM" first!', 'error');
+                return;
+            }
+            
+            showNotification('🎬 Playing demo sequence...', 'info');
+            
+            // Play a sequence of sounds to demonstrate the system
+            const sequence = [
+                { delay: 0, fn: () => playInstantSound('kick') },
+                { delay: 250, fn: () => playInstantSound('bass', 'C2') },
+                { delay: 500, fn: () => playInstantSound('hat') },
+                { delay: 750, fn: () => playInstantSound('bass', 'E2') },
+                { delay: 1000, fn: () => playInstantSound('kick') },
+                { delay: 1000, fn: () => playInstantSound('lead', 'C4') },
+                { delay: 1250, fn: () => playInstantSound('snare') },
+                { delay: 1500, fn: () => playInstantSound('hat') },
+                { delay: 1500, fn: () => playInstantSound('bass', 'G2') },
+                { delay: 1750, fn: () => playInstantSound('lead', 'E4') },
+                { delay: 2000, fn: () => playInstantSound('kick') },
+                { delay: 2000, fn: () => playInstantSound('clap') },
+                { delay: 2250, fn: () => playInstantSound('bass', 'C2') },
+                { delay: 2500, fn: () => playInstantSound('hat') },
+                { delay: 2500, fn: () => playInstantSound('lead', 'G4') },
+                { delay: 3000, fn: () => playInstantSound('pad', 'Cmaj') },
+                { delay: 3250, fn: () => showNotification('✅ Demo complete!', 'success') }
+            ];
+            
+            sequence.forEach(item => {
+                setTimeout(item.fn, item.delay);
+            });
+        };
+        
+        window.testAllEngines = function() {
+            if (!audioContext) {
+                showNotification('⚠️ Click "START SYSTEM" first!', 'error');
+                return;
+            }
+            
+            showNotification('🔧 Testing all synthesis engines...', 'info');
+            
+            const tests = [];
+            let testResults = {
+                tb303: '❓',
+                tr808: '❓',
+                arp2600: '❓',
+                stringMachine: '❓',
+                daw: '❓'
+            };
+            
+            // Test TB-303
+            setTimeout(() => {
+                try {
+                    if (tb303) {
+                        playInstantSound('bass', 'C2');
+                        testResults.tb303 = '✅';
+                    } else {
+                        testResults.tb303 = '❌';
+                    }
+                } catch (e) {
+                    testResults.tb303 = '❌';
+                    console.error('TB-303 test failed:', e);
+                }
+            }, 0);
+            
+            // Test TR-808
+            setTimeout(() => {
+                try {
+                    if (tr808) {
+                        playInstantSound('kick');
+                        testResults.tr808 = '✅';
+                    } else {
+                        testResults.tr808 = '❌';
+                    }
+                } catch (e) {
+                    testResults.tr808 = '❌';
+                    console.error('TR-808 test failed:', e);
+                }
+            }, 500);
+            
+            // Test ARP-2600
+            setTimeout(() => {
+                try {
+                    if (arp2600) {
+                        playInstantSound('lead', 'C4');
+                        testResults.arp2600 = '✅';
+                    } else {
+                        testResults.arp2600 = '❌';
+                    }
+                } catch (e) {
+                    testResults.arp2600 = '❌';
+                    console.error('ARP-2600 test failed:', e);
+                }
+            }, 1000);
+            
+            // Test String Machine
+            setTimeout(() => {
+                try {
+                    if (stringMachine) {
+                        playInstantSound('pad', 'Cmaj');
+                        testResults.stringMachine = '✅';
+                    } else {
+                        testResults.stringMachine = '❌';
+                    }
+                } catch (e) {
+                    testResults.stringMachine = '❌';
+                    console.error('String Machine test failed:', e);
+                }
+            }, 1500);
+            
+            // Show results
+            setTimeout(() => {
+                const resultsMsg = `
+🔧 Engine Test Results:
+TB-303 Bass: ${testResults.tb303}
+TR-808 Drums: ${testResults.tr808}
+ARP-2600 Synth: ${testResults.arp2600}
+String Machine: ${testResults.stringMachine}
+DAW Engine: ${daw ? '✅' : '❌'}
+
+${Object.values(testResults).every(r => r === '✅') ? '✅ All engines working!' : '⚠️ Some engines failed - check console'}
+                `.trim();
+                
+                showNotification(resultsMsg, 'info', 5000);
+                console.log('Test Results:', testResults);
+            }, 2000);
+        };
+        
+        window.generateRandomTrack = function() {
+            if (!audioContext) {
+                showNotification('⚠️ Click "START SYSTEM" first!', 'error');
+                return;
+            }
+            
+            showNotification('🎲 Generating random track...', 'info');
+            
+            // Random parameters
+            const genres = ['acid-techno', 'hard-techno', 'minimal-techno', 'ambient', 'industrial'];
+            const structures = ['minimal', 'standard', 'epic'];
+            const randomGenre = genres[Math.floor(Math.random() * genres.length)];
+            const randomStructure = structures[Math.floor(Math.random() * structures.length)];
+            
+            // Set random values in UI
+            if (document.getElementById('integrateGenre')) {
+                document.getElementById('integrateGenre').value = randomGenre;
+            }
+            if (document.getElementById('integrateStructure')) {
+                document.getElementById('integrateStructure').value = randomStructure;
+            }
+            
+            // Generate AI patch first
+            if (aiDesigner) {
+                const soundTypes = ['bass', 'lead', 'pad', 'drums'];
+                const moods = ['aggressive', 'smooth', 'dark', 'bright'];
+                const randomSoundType = soundTypes[Math.floor(Math.random() * soundTypes.length)];
+                const randomMood = moods[Math.floor(Math.random() * moods.length)];
+                
+                if (document.getElementById('aiGenre')) {
+                    document.getElementById('aiGenre').value = randomGenre;
+                }
+                if (document.getElementById('aiSoundType')) {
+                    document.getElementById('aiSoundType').value = randomSoundType;
+                }
+                if (document.getElementById('aiMood')) {
+                    document.getElementById('aiMood').value = randomMood;
+                }
+                
+                // Generate patch
+                setTimeout(() => {
+                    generateAIPatch();
+                }, 500);
+            }
+            
+            // Generate complete track
+            if (trackIntegrator) {
+                setTimeout(() => {
+                    generateCompleteTrack();
+                    
+                    // Auto-play after generation
+                    setTimeout(() => {
+                        playCompleteTrack();
+                        showNotification(`🎲 Random ${randomGenre} track with ${randomStructure} structure is playing!`, 'success', 4000);
+                    }, 1500);
+                }, 1500);
+            } else {
+                // Just apply a random preset
+                const presets = ['acid-minimal', 'industrial-hard', 'detroit-classic', 'berghain-style', 'ambient-techno', 'hypnotic', 'peak-time', 'deep-minimal'];
+                const randomPreset = presets[Math.floor(Math.random() * presets.length)];
+                
+                setTimeout(() => {
+                    loadPreset(randomPreset);
+                    setTimeout(() => {
+                        togglePlay();
+                        showNotification(`🎲 Random preset "${randomPreset}" is playing!`, 'success');
+                    }, 500);
+                }, 1000);
+            }
+        };
+        
+        // Expose globally
+        window.playDemoSequence = playDemoSequence;
+        window.testAllEngines = testAllEngines;
+        window.generateRandomTrack = generateRandomTrack;
+        
+        // ========================================
+        // PRESET LOADER
+        // ========================================
+        
+        window.loadPreset = function(presetName) {
+            if (!audioContext) {
+                showNotification('⚠️ Click "START SYSTEM" first!', 'error');
+                return;
+            }
+            
+            showNotification(`🎨 Loading ${presetName} preset...`, 'info');
+            
+            const presets = {
+                'acid-minimal': {
+                    instrument: 'bass-303',
+                    pattern: [1,0,0,0,1,0,1,0,1,0,0,0,1,0,1,0],
+                    drums: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                    bpm: 128,
+                    params: { cutoff: 800, resonance: 15, envMod: 70 }
+                },
+                'industrial-hard': {
+                    instrument: 'bass-distorted',
+                    pattern: [1,0,1,0,1,1,0,0,1,0,1,0,1,1,0,0],
+                    drums: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],
+                    bpm: 140,
+                    params: { cutoff: 1200, resonance: 18, envMod: 85 }
+                },
+                'detroit-classic': {
+                    instrument: 'bass-303',
+                    pattern: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],
+                    drums: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+                    bpm: 130,
+                    params: { cutoff: 600, resonance: 12, envMod: 60 }
+                },
+                'berghain-style': {
+                    instrument: 'bass-techno',
+                    pattern: [1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0],
+                    drums: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                    bpm: 135,
+                    params: { cutoff: 700, resonance: 14, envMod: 75 }
+                },
+                'ambient-techno': {
+                    instrument: 'arp-pad',
+                    pattern: [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                    drums: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                    bpm: 120,
+                    params: { cutoff: 500, resonance: 5, envMod: 40 }
+                },
+                'hypnotic': {
+                    instrument: 'bass-deep',
+                    pattern: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],
+                    drums: [1,0,0,0,1,0,0,1,1,0,0,0,1,0,0,1],
+                    bpm: 125,
+                    params: { cutoff: 400, resonance: 10, envMod: 50 }
+                },
+                'peak-time': {
+                    instrument: 'bass-303',
+                    pattern: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
+                    drums: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
+                    bpm: 138,
+                    params: { cutoff: 1000, resonance: 16, envMod: 80 }
+                },
+                'deep-minimal': {
+                    instrument: 'bass-deep',
+                    pattern: [1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0],
+                    drums: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                    bpm: 122,
+                    params: { cutoff: 350, resonance: 8, envMod: 45 }
+                }
+            };
+            
+            const preset = presets[presetName];
+            if (!preset) {
+                showNotification('Preset not found: ' + presetName, 'error');
+                return;
+            }
+            
+            // Apply BPM
+            bpm = preset.bpm;
+            document.getElementById('bpmDisplay').textContent = bpm;
+            if (tb303) tb303.setBPM(bpm);
+            if (daw) daw.setBPM(bpm);
+            
+            // Select instrument
+            selectInstrument(preset.instrument);
+            
+            // Apply pattern
+            patterns[preset.instrument] = preset.pattern;
+            patterns['drums-808'] = preset.drums;
+            updatePattern();
+            
+            // Apply parameters
+            if (preset.params && tb303) {
+                Object.entries(preset.params).forEach(([key, val]) => {
+                    if (tb303.setParam) tb303.setParam(key, val);
+                });
+            }
+            
+            showNotification(`✅ Loaded ${presetName}! Press PLAY to hear it.`, 'success');
+            
+            console.log('Preset loaded:', presetName, preset);
+        };
+        
+        // Expose globally
+        window.loadPreset = loadPreset;
+        
+        // Initialize UI
+        function initUI() {
+            createStepGrid();
+            createControls();
+            createVisualizer();
+            updatePattern();
+        }
+        
+        // Create step grid
+        function createStepGrid() {
+            const grid = document.getElementById('stepGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 16; i++) {
+                const step = document.createElement('div');
+                step.className = 'step';
+                step.innerHTML = `<span class="step-number">${i + 1}</span>`;
+                step.onclick = () => toggleStep(i);
+                grid.appendChild(step);
+            }
+        }
+        
+        // Toggle step
+        window.toggleStep = function(index) {
+            patterns[currentInstrument][index] = !patterns[currentInstrument][index];
+            updatePattern();
+        };
+        
+        // Update pattern display
+        function updatePattern() {
+            const steps = document.querySelectorAll('.step');
+            const pattern = patterns[currentInstrument];
+            
+            steps.forEach((step, i) => {
+                if (pattern[i]) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+        
+        // Create controls
+        function createControls() {
+            const grid = document.getElementById('controlsGrid');
+            
+            // Determine which synth category this is
+            const synthType = currentInstrument.split('-')[0]; // 'bass', 'drums', 'arp', 'string'
+            
+            const controls = {
+                bass: [
+                    { label: 'Filter Cutoff', id: 'cutoff', min: 50, max: 5000, value: 800, unit: 'Hz' },
+                    { label: 'Resonance', id: 'resonance', min: 0, max: 30, value: 15, unit: '' },
+                    { label: 'Env Mod', id: 'envMod', min: 0, max: 100, value: 70, unit: '%' },
+                    { label: 'Accent', id: 'accent', min: 0, max: 100, value: 50, unit: '%' }
+                ],
+                drums: [
+                    { label: 'Volume', id: 'volume', min: 0, max: 100, value: 80, unit: '%' },
+                    { label: 'Kick Punch', id: 'kickPunch', min: 0, max: 100, value: 50, unit: '%' },
+                    { label: 'Hat Tone', id: 'hatTone', min: 0, max: 100, value: 50, unit: '%' },
+                    { label: 'Distortion', id: 'distortion', min: 0, max: 100, value: 30, unit: '%' }
+                ],
+                arp: [
+                    { label: 'Filter Cutoff', id: 'arpCutoff', min: 100, max: 10000, value: 3000, unit: 'Hz' },
+                    { label: 'Resonance', id: 'arpResonance', min: 0, max: 20, value: 8, unit: '' },
+                    { label: 'LFO Rate', id: 'lfoRate', min: 0, max: 20, value: 6, unit: 'Hz' },
+                    { label: 'LFO Depth', id: 'lfoDepth', min: 0, max: 100, value: 30, unit: '%' }
+                ],
+                string: [
+                    { label: 'Chorus Depth', id: 'chorusDepth', min: 0, max: 100, value: 50, unit: '%' },
+                    { label: 'Reverb Mix', id: 'reverbMix', min: 0, max: 100, value: 40, unit: '%' },
+                    { label: 'Attack', id: 'attack', min: 0, max: 3000, value: 800, unit: 'ms' },
+                    { label: 'Release', id: 'release', min: 0, max: 3000, value: 1200, unit: 'ms' }
+                ]
+            };
+            
+            const currentControls = controls[synthType] || controls.bass;
+            grid.innerHTML = currentControls.map(ctrl => `
+                <div class="control">
+                    <div class="control-label">
+                        <span>${ctrl.label}</span>
+                        <span class="control-value" id="${ctrl.id}-value">${ctrl.value}${ctrl.unit}</span>
+                    </div>
+                    <input type="range" 
+                           class="slider" 
+                           id="${ctrl.id}"
+                           min="${ctrl.min}" 
+                           max="${ctrl.max}" 
+                           value="${ctrl.value}"
+                           step="${ctrl.max > 100 ? 10 : 1}"
+                           oninput="updateControl('${ctrl.id}', this.value, '${ctrl.unit}')">
+                </div>
+            `).join('');
+        }
+        
+        // Update control
+        window.updateControl = function(id, value, unit) {
+            document.getElementById(`${id}-value`).textContent = value + unit;
+            
+            if (!audioContext) return;
+            
+            const synthType = currentInstrument.split('-')[0];
+            
+            // Apply to TB-303 bass synths
+            if (synthType === 'bass' && tb303) {
+                if (id === 'cutoff') tb303.setParam('cutoff', parseFloat(value));
+                if (id === 'resonance') tb303.setParam('resonance', parseFloat(value));
+                if (id === 'envMod') tb303.setParam('envMod', parseFloat(value));
+                if (id === 'accent') tb303.setParam('accentLevel', parseFloat(value));
+            } 
+            // Apply to TR-808 drums
+            else if (synthType === 'drums' && tr808) {
+                if (id === 'volume') tr808.setVolume(parseFloat(value) / 100);
+                if (id === 'distortion') {
+                    // Apply distortion to all drums
+                    ['kick', 'hat', 'clap'].forEach(drum => {
+                        tr808.setDrumModulation(drum, 'distortion', parseFloat(value));
+                    });
+                }
+            } 
+            // Apply to ARP-2600 synths
+            else if (synthType === 'arp' && arp2600) {
+                if (id === 'arpCutoff') arp2600.setVCF('cutoff', parseFloat(value));
+                if (id === 'arpResonance') arp2600.setVCF('resonance', parseFloat(value));
+                if (id === 'lfoRate') arp2600.setLFO('rate', parseFloat(value));
+                if (id === 'lfoDepth') arp2600.setLFO('amount', parseFloat(value) / 100);
+            }
+            // Apply to String Machine
+            else if (synthType === 'string' && stringMachine) {
+                if (id === 'chorusDepth') stringMachine.setChorus('depth', parseFloat(value) / 100);
+                if (id === 'reverbMix') stringMachine.setReverb('mix', parseFloat(value) / 100);
+                if (id === 'attack') stringMachine.setEnvelope('attack', parseFloat(value) / 1000);
+                if (id === 'release') stringMachine.setEnvelope('release', parseFloat(value) / 1000);
+            }
+        };
+        
+        // Create visualizer
+        function createVisualizer() {
+            const viz = document.getElementById('visualizer');
+            viz.innerHTML = '';
+            
+            for (let i = 0; i < 32; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'viz-bar';
+                bar.style.height = '10px';
+                viz.appendChild(bar);
+            }
+        }
+        
+        // Update visualizer
+        function updateVisualizer() {
+            if (!daw) return;
+            
+            const level = daw.getMasterLevel();
+            const bars = document.querySelectorAll('.viz-bar');
+            
+            bars.forEach((bar, i) => {
+                const height = Math.random() * 80 + (level * 100);
+                bar.style.height = height + 'px';
+            });
+        }
+        
+        // Select instrument
+        window.selectInstrument = function(instrument) {
+            currentInstrument = instrument;
+            
+            // Update UI
+            document.querySelectorAll('.instrument-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.instrument === instrument) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update title and apply preset
+            const instrumentConfig = {
+                // TB-303 Bass variations
+                'bass-303': { title: '🔊 TB-303 Acid Bass', preset: 'classic303', synth: 'tb303', params: { cutoff: 800, resonance: 15, envMod: 70 } },
+                'bass-deep': { title: '🎚️ Deep Sub Bass', preset: 'deepbass', synth: 'tb303', params: { cutoff: 400, resonance: 5, envMod: 30 } },
+                'bass-distorted': { title: '⚡ Distorted Bass', preset: 'distorted', synth: 'tb303', params: { cutoff: 1200, resonance: 20, envMod: 90 } },
+                'bass-techno': { title: '🎵 Techno Rumble', preset: 'squelch', synth: 'tb303', params: { cutoff: 600, resonance: 18, envMod: 80 } },
+                
+                // Drums variations
+                'drums-808': { title: '🥁 TR-808 Drum Kit', synth: 'tr808', params: { volume: 80 } },
+                'drums-industrial': { title: '🔨 Industrial Kit', synth: 'tr808', params: { volume: 90, distortion: 60 } },
+                'drums-minimal': { title: '📍 Minimal Percussion', synth: 'tr808', params: { volume: 70 } },
+                
+                // ARP-2600 Lead variations
+                'arp-lead': { title: '🎹 ARP-2600 Lead', preset: 'lead', synth: 'arp2600', params: { cutoff: 3000, resonance: 15 } },
+                'arp-sync-lead': { title: '⚡ ARP-2600 Sync Lead', preset: 'sync-lead', synth: 'arp2600', params: { cutoff: 4000, resonance: 18 } },
+                'arp-scream': { title: '🔥 ARP-2600 Screamer', preset: 'screaming-lead', synth: 'arp2600', params: { cutoff: 5000, resonance: 20 } },
+                'arp-pluck': { title: '🎸 ARP-2600 Pluck', preset: 'pluck', synth: 'arp2600', params: { cutoff: 5000, resonance: 2 } },
+                'arp-marimba': { title: '🎵 ARP-2600 Marimba', preset: 'marimba', synth: 'arp2600', params: { cutoff: 3000, resonance: 1 } },
+                'arp-kalimba': { title: '🔔 ARP-2600 Kalimba', preset: 'kalimba', synth: 'arp2600', params: { cutoff: 2500, resonance: 5 } },
+                'arp-brass': { title: '🎺 ARP-2600 Brass', preset: 'brass', synth: 'arp2600', params: { cutoff: 1500, resonance: 10 } },
+                'arp-soft-brass': { title: '🎷 ARP-2600 Soft Brass', preset: 'soft-brass', synth: 'arp2600', params: { cutoff: 1800, resonance: 6 } },
+                'arp-flute': { title: '🪈 ARP-2600 Flute', preset: 'flute', synth: 'arp2600', params: { cutoff: 2000, resonance: 3 } },
+                
+                // ARP-2600 Bass variations
+                'arp-bass': { title: '🎛️ ARP-2600 Bass', preset: 'bass', synth: 'arp2600', params: { cutoff: 800, resonance: 8 } },
+                'arp-sub-bass': { title: '📻 ARP-2600 Sub Bass', preset: 'sub-bass', synth: 'arp2600', params: { cutoff: 300, resonance: 2 } },
+                'arp-acid-bass': { title: '🧪 ARP-2600 Acid', preset: 'acid-bass', synth: 'arp2600', params: { cutoff: 1200, resonance: 25 } },
+                'arp-fat-bass': { title: '💪 ARP-2600 Fat Bass', preset: 'fat-bass', synth: 'arp2600', params: { cutoff: 600, resonance: 12 } },
+                
+                // ARP-2600 Pad variations
+                'arp-pad': { title: '🌌 ARP-2600 Pad', preset: 'pad', synth: 'arp2600', params: { cutoff: 2000, resonance: 5 } },
+                'arp-string-pad': { title: '🎼 ARP-2600 Strings', preset: 'string-pad', synth: 'arp2600', params: { cutoff: 2500, resonance: 3 } },
+                'arp-dark-pad': { title: '🌃 ARP-2600 Dark Pad', preset: 'dark-pad', synth: 'arp2600', params: { cutoff: 800, resonance: 2 } },
+                'arp-evolving': { title: '🌀 ARP-2600 Evolving', preset: 'evolving-pad', synth: 'arp2600', params: { cutoff: 1500, resonance: 8 } },
+                
+                // ARP-2600 FX variations
+                'arp-sweep': { title: '🌊 ARP-2600 Sweep', preset: 'sweep', synth: 'arp2600', params: { cutoff: 200, resonance: 15 } },
+                'arp-wobble': { title: '〰️ ARP-2600 Wobble', preset: 'wobble', synth: 'arp2600', params: { cutoff: 500, resonance: 20 } },
+                'arp-space': { title: '🚀 ARP-2600 Space', preset: 'space-sweep', synth: 'arp2600', params: { cutoff: 1000, resonance: 18 } },
+                
+                // String Machine variations
+                'string-lush': { title: '🎻 Lush Strings', preset: 'lush_strings', synth: 'string', params: {} },
+                'string-pad': { title: '🌊 Techno Pad', preset: 'techno_pad', synth: 'string', params: {} },
+                'string-dark': { title: '🌑 Dark Ambient', preset: 'dark_ambient', synth: 'string', params: {} },
+                'string-ethereal': { title: '✨ Ethereal Wash', preset: 'ethereal_wash', synth: 'string', params: {} }
+            };
+            
+            const config = instrumentConfig[instrument];
+            if (config) {
+                document.getElementById('sequencerTitle').textContent = config.title;
+                
+                // Apply preset if available
+                if (audioContext) {
+                    if (config.synth === 'tb303' && tb303) {
+                        if (config.preset) tb303.loadPresetPattern(config.preset);
+                        Object.entries(config.params).forEach(([key, val]) => tb303.setParam(key, val));
+                    } else if (config.synth === 'arp2600' && arp2600) {
+                        if (config.preset) arp2600.loadPreset(config.preset);
+                        if (config.params.cutoff) arp2600.setVCF('cutoff', config.params.cutoff);
+                        if (config.params.resonance) arp2600.setVCF('resonance', config.params.resonance);
+                    } else if (config.synth === 'string' && stringMachine) {
+                        if (config.preset) stringMachine.loadPreset(config.preset);
+                    } else if (config.synth === 'tr808' && tr808) {
+                        tr808.setVolume(config.params.volume / 100);
+                    }
+                }
+            }
+            
+            // Update controls and pattern
+            createControls();
+            updatePattern();
+        };
+        
+        // Clear pattern
+        window.clearPattern = function() {
+            patterns[currentInstrument].fill(false);
+            updatePattern();
+        };
+        
+        // Random pattern
+        window.randomPattern = function() {
+            patterns[currentInstrument] = patterns[currentInstrument].map(() => Math.random() > 0.6);
+            updatePattern();
+        };
+        
+        // Load preset
+        window.loadPreset = function(preset) {
+            initAudio();
+            
+            const presets = {
+                'acid-minimal': () => {
+                    selectInstrument('bass-303');
+                    tb303.setParam('cutoff', 900);
+                    tb303.setParam('resonance', 18);
+                    tb303.setParam('envMod', 85);
+                    tb303.loadPresetPattern('classic303');
+                    patterns['bass-303'] = [true, false, true, false, true, false, true, true, true, false, true, false, true, false, false, false];
+                    patterns['drums-minimal'] = [true, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false];
+                },
+                'industrial-hard': () => {
+                    selectInstrument('bass-distorted');
+                    tb303.setParam('cutoff', 1400);
+                    tb303.setParam('resonance', 22);
+                    tb303.setParam('envMod', 95);
+                    patterns['bass-distorted'] = [true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false];
+                    patterns['drums-industrial'] = [true, false, false, false, false, false, true, false, true, false, false, false, false, false, true, false];
+                    patterns['arp-lead'] = [false, false, false, true, false, false, false, false, false, false, false, true, false, false, false, false];
+                },
+                'detroit-classic': () => {
+                    selectInstrument('bass-303');
+                    tb303.setParam('cutoff', 700);
+                    tb303.setParam('resonance', 12);
+                    tb303.setParam('envMod', 65);
+                    patterns['bass-303'] = [true, false, false, true, false, false, true, false, true, false, false, true, false, false, false, false];
+                    patterns['drums-808'] = [true, false, false, false, true, false, false, true, true, false, false, false, true, false, false, true];
+                    patterns['string-pad'] = [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+                },
+                'berghain-style': () => {
+                    selectInstrument('bass-techno');
+                    tb303.setParam('cutoff', 500);
+                    tb303.setParam('resonance', 8);
+                    tb303.setParam('envMod', 45);
+                    patterns['bass-techno'] = [true, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false];
+                    patterns['drums-808'] = [true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false];
+                    patterns['arp-brass'] = [false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false];
+                },
+                'ambient-techno': () => {
+                    selectInstrument('string-ethereal');
+                    patterns['string-ethereal'] = [true, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false];
+                    patterns['arp-pad'] = [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+                    patterns['bass-deep'] = [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+                    patterns['drums-minimal'] = [true, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false];
+                },
+                'hypnotic': () => {
+                    selectInstrument('bass-303');
+                    tb303.setParam('cutoff', 600);
+                    tb303.setParam('resonance', 16);
+                    tb303.setParam('envMod', 70);
+                    patterns['bass-303'] = [true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false];
+                    patterns['arp-pluck'] = [false, true, false, false, false, true, false, false, false, true, false, false, false, true, false, false];
+                    patterns['drums-808'] = [true, false, false, false, false, false, true, false, true, false, false, false, false, false, true, false];
+                },
+                'peak-time': () => {
+                    selectInstrument('bass-distorted');
+                    tb303.setParam('cutoff', 2000);
+                    tb303.setParam('resonance', 25);
+                    tb303.setParam('envMod', 90);
+                    patterns['bass-distorted'] = [true, true, false, true, true, false, true, true, true, true, false, true, true, false, true, false];
+                    patterns['drums-808'] = [true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false];
+                    patterns['arp-lead'] = [false, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false];
+                },
+                'deep-minimal': () => {
+                    selectInstrument('bass-deep');
+                    tb303.setParam('cutoff', 350);
+                    tb303.setParam('resonance', 6);
+                    tb303.setParam('envMod', 30);
+                    patterns['bass-deep'] = [true, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false];
+                    patterns['drums-minimal'] = [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+                    patterns['string-dark'] = [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+                }
+            };
+            
+            if (presets[preset]) {
+                presets[preset]();
+                createControls();
+                updatePattern();
+                
+                // Visual feedback
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                console.log(`✓ Loaded preset: ${preset}`);
+            }
+        };
+        
+        // Transport controls
+        window.togglePlay = function() {
+            initAudio();
+            
+            isPlaying = !isPlaying;
+            const playBtn = document.getElementById('playBtn');
+            
+            if (isPlaying) {
+                playBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                playBtn.classList.add('playing');
+                startSequencer();
+            } else {
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                playBtn.classList.remove('playing');
+                stopSequencer();
+            }
+        };
+        
+        function startSequencer() {
+            currentStep = 0;
+            const stepTime = (60 / bpm) * 1000 / 4; // 16th notes
+            
+            intervalId = setInterval(() => {
+                playStep(currentStep);
+                highlightStep(currentStep);
+                currentStep = (currentStep + 1) % 16;
+            }, stepTime);
+            
+            // Start visualizer
+            setInterval(updateVisualizer, 50);
+        }
+        
+        function stopSequencer() {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            
+            // Remove highlight
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('playing');
+            });
+        }
+        
+        function playStep(step) {
+            const pattern = patterns[currentInstrument];
+            if (!pattern || !pattern[step]) return;
+            
+            const synthType = currentInstrument.split('-')[0];
+            
+            // Play TB-303 bass sounds
+            if (synthType === 'bass' && tb303) {
+                const noteNames = ['C3', 'E3', 'G3', 'A3']; // Note names for TB-303
+                const noteName = noteNames[step % 4];
+                tb303.playNote({
+                    note: noteName,
+                    accent: step % 4 === 0,
+                    slide: false,
+                    gate: true
+                }, audioContext.currentTime);
+            }
+            
+            // Play TR-808 drums
+            else if (synthType === 'drums' && tr808) {
+                if (step % 4 === 0) tr808.playKick('classic', audioContext.currentTime);
+                if (step % 2 === 1) tr808.playHat('closed', audioContext.currentTime);
+                if (step === 4 || step === 12) tr808.playClap('classic', audioContext.currentTime);
+            }
+            
+            // Play ARP-2600 sounds
+            else if (synthType === 'arp' && arp2600) {
+                const frequencies = [220, 277.18, 329.63, 440]; // A3, C#4, E4, A4
+                const freq = frequencies[step % 4];
+                const duration = 0.5;
+                const velocity = 0.7;
+                arp2600.playNote(freq, duration, velocity, audioContext.currentTime);
+            }
+            
+            // Play String Machine
+            else if (synthType === 'string' && stringMachine) {
+                const chord = [220, 277.18, 329.63]; // A minor chord
+                stringMachine.playChord(chord, 1.0);
+            }
+        }
+        
+        function highlightStep(step) {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((s, i) => {
+                if (i === step) {
+                    s.classList.add('playing');
+                } else {
+                    s.classList.remove('playing');
+                }
+            });
+        }
+        
+        window.changeBPM = function(delta) {
+            bpm = Math.max(60, Math.min(200, bpm + delta));
+            document.getElementById('bpmDisplay').textContent = bpm;
+            
+            if (tb303) tb303.setBPM(bpm);
+            if (daw) daw.setBPM(bpm);
+            
+            // Restart if playing
+            if (isPlaying) {
+                stopSequencer();
+                startSequencer();
+            }
+        };
+        
+        // ============================================================================
+        // AI PATCH DESIGNER FUNCTIONS
+        // ============================================================================
+        
+        window.generateAIPatch = function() {
+            if (!aiDesigner) {
+                showAIStatus('Please click "Start Audio" first!', 'error');
+                return;
+            }
+            
+            const genre = document.getElementById('aiGenre').value;
+            const soundType = document.getElementById('aiSoundType').value;
+            const mood = document.getElementById('aiMood').value;
+            
+            showAIStatus(`🎨 Generating ${mood} ${soundType} for ${genre}...`, 'loading');
+            
+            // Generate and apply patch
+            const patch = aiDesigner.generatePatch(genre, soundType, mood);
+            aiDesigner.applyPatch(patch, { tb303, tr808, arp2600, stringMachine });
+            
+            // Show success
+            setTimeout(() => {
+                showAIStatus(`✅ Generated "${patch.name}"! 
+                    \nSynth: ${patch.synth}
+                    \nTry playing now to hear the AI-designed sound!`, 'success');
+            }, 500);
+            
+            console.log('🎨 AI Patch applied:', patch);
+        };
+        
+        window.evolveCurrentPatch = function() {
+            if (!aiDesigner || !aiDesigner.currentPatch) {
+                showAIStatus('Generate an AI patch first!', 'error');
+                return;
+            }
+            
+            showAIStatus('🧬 Evolving current patch...', 'loading');
+            
+            const evolved = aiDesigner.evolvePatch(aiDesigner.currentPatch, 0.2);
+            aiDesigner.applyPatch(evolved, { tb303, tr808, arp2600, stringMachine });
+            
+            setTimeout(() => {
+                showAIStatus(`✅ Evolved to "${evolved.name}"!
+                    \nEvolution applied with 20% mutation.
+                    \nPlay to hear the variation!`, 'success');
+            }, 500);
+            
+            console.log('🧬 Patch evolved:', evolved);
+        };
+        
+        window.getAISuggestions = function() {
+            if (!aiDesigner || !aiDesigner.currentPatch) {
+                showAIStatus('Generate an AI patch first!', 'error');
+                return;
+            }
+            
+            const suggestions = aiDesigner.getSuggestions(aiDesigner.currentPatch);
+            
+            let suggestionsHTML = '💡 <strong>AI Suggestions:</strong><br><br>';
+            suggestions.forEach((suggestion, index) => {
+                suggestionsHTML += `${index + 1}. ${suggestion.description}<br>`;
+            });
+            suggestionsHTML += '<br>Click "Generate AI Patch" with different settings to explore these ideas!';
+            
+            showAIStatus(suggestionsHTML, 'info');
+            
+            console.log('💡 AI Suggestions:', suggestions);
+        };
+        
+        function showAIStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('aiStatus');
+            const statusText = document.getElementById('aiStatusText');
+            
+            statusDiv.style.display = 'block';
+            statusText.innerHTML = message;
+            
+            // Color coding
+            if (type === 'success') {
+                statusDiv.style.background = 'rgba(57, 255, 20, 0.15)';
+                statusDiv.style.borderColor = '#39FF14';
+            } else if (type === 'error') {
+                statusDiv.style.background = 'rgba(255, 107, 53, 0.15)';
+                statusDiv.style.borderColor = '#FF6B35';
+            } else if (type === 'loading') {
+                statusDiv.style.background = 'rgba(0, 217, 255, 0.15)';
+                statusDiv.style.borderColor = '#00D9FF';
+            } else {
+                statusDiv.style.background = 'rgba(255, 215, 0, 0.15)';
+                statusDiv.style.borderColor = '#FFD700';
+            }
+        }
+        
+        // ============================================================================
+        // COMPLETE TRACK INTEGRATION FUNCTIONS
+        // ============================================================================
+        
+        window.generateCompleteTrack = function() {
+            if (!trackIntegrator || !aiDesigner) {
+                showIntegrateStatus('Please click "Start Audio" first!', 'error');
+                return;
+            }
+            
+            const genre = document.getElementById('integrateGenre').value;
+            const structure = document.getElementById('integrateStructure').value;
+            const bars = parseInt(document.getElementById('integrateBars').value);
+            
+            showIntegrateStatus(`🎼 Generating complete ${genre} track with ${structure} structure...`, 'loading');
+            
+            // Update integrator settings
+            trackIntegrator.bpm = bpm;
+            trackIntegrator.totalBars = bars;
+            
+            // Generate complete track with AI
+            const trackIds = trackIntegrator.generateCompleteTrack(genre, structure);
+            
+            // Update UI with track list
+            updateTrackList();
+            
+            setTimeout(() => {
+                showIntegrateStatus(`✅ Complete track generated!
+                    \n${trackIds.length} tracks created
+                    \n${bars} bars total
+                    \nGenre: ${genre}
+                    \n\nClick "PLAY COMPLETE TRACK" to hear it!`, 'success');
+            }, 1000);
+            
+            console.log('🎼 Complete track generated:', trackIds);
+        };
+        
+        window.playCompleteTrack = function() {
+            if (!trackIntegrator) {
+                showIntegrateStatus('Generate a track first!', 'error');
+                return;
+            }
+            
+            if (trackIntegrator.tracks.size === 0) {
+                showIntegrateStatus('No tracks to play! Generate a complete track first.', 'error');
+                return;
+            }
+            
+            initAudio(); // Ensure audio is ready
+            
+            const playing = trackIntegrator.playCompleteTrack();
+            
+            const playBtn = document.getElementById('playCompleteBtn');
+            if (trackIntegrator.isPlaying) {
+                playBtn.textContent = '⏸️ PAUSE';
+                playBtn.style.background = 'linear-gradient(135deg, #FF6B35, #FF1493)';
+                showIntegrateStatus('▶️ Playing complete track...', 'loading');
+            } else {
+                playBtn.textContent = '▶️ PLAY COMPLETE TRACK';
+                playBtn.style.background = 'linear-gradient(135deg, #39FF14, #00D9FF)';
+                showIntegrateStatus('⏹️ Playback stopped', 'info');
+            }
+        };
+        
+        window.stopCompleteTrack = function() {
+            if (trackIntegrator) {
+                trackIntegrator.stopPlayback();
+                const playBtn = document.getElementById('playCompleteBtn');
+                playBtn.textContent = '▶️ PLAY COMPLETE TRACK';
+                playBtn.style.background = 'linear-gradient(135deg, #39FF14, #00D9FF)';
+                showIntegrateStatus('⏹️ Stopped', 'info');
+            }
+        };
+        
+        window.exportCompleteTrack = async function() {
+            if (!trackIntegrator || trackIntegrator.tracks.size === 0) {
+                showIntegrateStatus('Generate a track first!', 'error');
+                return;
+            }
+            
+            showIntegrateStatus('📀 Exporting complete track... This may take a moment.', 'loading');
+            
+            try {
+                const buffer = await trackIntegrator.exportTrack();
+                
+                // Convert buffer to WAV file
+                const wav = audioBufferToWav(buffer);
+                const blob = new Blob([wav], { type: 'audio/wav' });
+                
+                // Download
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `haos-complete-track-${Date.now()}.wav`;
+                a.click();
+                
+                showIntegrateStatus('✅ Track exported successfully!', 'success');
+            } catch (error) {
+                console.error('Export error:', error);
+                showIntegrateStatus('❌ Export failed: ' + error.message, 'error');
+            }
+        };
+        
+        window.saveProject = function() {
+            if (!trackIntegrator || trackIntegrator.tracks.size === 0) {
+                showIntegrateStatus('No project to save!', 'error');
+                return;
+            }
+            
+            const projectJSON = trackIntegrator.saveProject();
+            
+            // Download as JSON file
+            const blob = new Blob([projectJSON], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `haos-project-${Date.now()}.json`;
+            a.click();
+            
+            showIntegrateStatus('💾 Project saved!', 'success');
+        };
+        
+        window.toggleTrackMute = function(trackId) {
+            if (trackIntegrator) {
+                const muted = trackIntegrator.toggleMute(trackId);
+                updateTrackList();
+                return muted;
+            }
+        };
+        
+        window.toggleTrackSolo = function(trackId) {
+            if (trackIntegrator) {
+                const soloed = trackIntegrator.toggleSolo(trackId);
+                updateTrackList();
+                return soloed;
+            }
+        };
+        
+        window.setTrackVolume = function(trackId, volume) {
+            if (trackIntegrator) {
+                trackIntegrator.setTrackVolume(trackId, volume);
+            }
+        };
+        
+        function updateTrackList() {
+            if (!trackIntegrator) return;
+            
+            const trackListDiv = document.getElementById('trackList');
+            const tracks = trackIntegrator.getAllTracksInfo();
+            
+            if (tracks.length === 0) {
+                trackListDiv.innerHTML = `
+                    <p style="color: rgba(255,255,255,0.5); text-align: center; padding: 40px;">
+                        No tracks yet. Generate a complete track above!
+                    </p>
+                `;
+                return;
+            }
+            
+            let html = '';
+            tracks.forEach(track => {
+                html += `
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; margin-bottom: 12px; border-radius: 8px; border-left: 4px solid ${track.color};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <div style="font-weight: bold; color: ${track.color}; font-size: 1.1em;">${track.name}</div>
+                                <div style="color: rgba(255,255,255,0.6); font-size: 0.9em;">
+                                    ${track.synth} | ${track.soundType} | ${track.genre}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="toggleTrackMute('${track.id}')" 
+                                        style="padding: 8px 15px; background: ${track.mute ? '#FF6B35' : 'rgba(255,255,255,0.1)'}; 
+                                               border: 1px solid ${track.mute ? '#FF6B35' : 'rgba(255,255,255,0.3)'}; 
+                                               border-radius: 6px; color: #fff; cursor: pointer; font-size: 0.9em;">
+                                    ${track.mute ? '🔇' : '🔊'} ${track.mute ? 'MUTED' : 'M'}
+                                </button>
+                                <button onclick="toggleTrackSolo('${track.id}')"
+                                        style="padding: 8px 15px; background: ${track.solo ? '#FFD700' : 'rgba(255,255,255,0.1)'}; 
+                                               border: 1px solid ${track.solo ? '#FFD700' : 'rgba(255,255,255,0.3)'}; 
+                                               border-radius: 6px; color: ${track.solo ? '#000' : '#fff'}; cursor: pointer; font-size: 0.9em;">
+                                    ${track.solo ? '⭐' : '🎯'} ${track.solo ? 'SOLO' : 'S'}
+                                </button>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <span style="color: rgba(255,255,255,0.7); min-width: 60px;">Volume:</span>
+                            <input type="range" min="0" max="1" step="0.01" value="${track.volume}"
+                                   onInput="setTrackVolume('${track.id}', this.value)"
+                                   style="flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.2); outline: none;">
+                            <span style="color: ${track.color}; min-width: 40px; font-family: monospace;">${Math.round(track.volume * 100)}%</span>
+                        </div>
+                        <div style="margin-top: 8px; color: rgba(255,255,255,0.5); font-size: 0.85em;">
+                            ${track.patternCount} patterns | Pan: ${track.pan > 0 ? 'R' : track.pan < 0 ? 'L' : 'C'}${Math.abs(track.pan * 100).toFixed(0)}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            trackListDiv.innerHTML = html;
+        }
+        
+        function showIntegrateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('integrateStatus');
+            const statusText = document.getElementById('integrateStatusText');
+            
+            statusDiv.style.display = 'block';
+            statusText.innerHTML = message;
+            
+            // Color coding
+            if (type === 'success') {
+                statusDiv.style.background = 'rgba(57, 255, 20, 0.15)';
+                statusDiv.style.borderColor = '#39FF14';
+            } else if (type === 'error') {
+                statusDiv.style.background = 'rgba(255, 107, 53, 0.15)';
+                statusDiv.style.borderColor = '#FF6B35';
+            } else if (type === 'loading') {
+                statusDiv.style.background = 'rgba(0, 217, 255, 0.15)';
+                statusDiv.style.borderColor = '#00D9FF';
+            } else {
+                statusDiv.style.background = 'rgba(255, 215, 0, 0.15)';
+                statusDiv.style.borderColor = '#FFD700';
+            }
+        }
+        
+        // Helper function to convert audio buffer to WAV
+        function audioBufferToWav(buffer) {
+            const length = buffer.length * buffer.numberOfChannels * 2 + 44;
+            const arrayBuffer = new ArrayBuffer(length);
+            const view = new DataView(arrayBuffer);
+            const channels = [];
+            let offset = 0;
+            let pos = 0;
+            
+            // Write WAV header
+            const setUint16 = (data) => { view.setUint16(pos, data, true); pos += 2; };
+            const setUint32 = (data) => { view.setUint32(pos, data, true); pos += 4; };
+            
+            // "RIFF" chunk descriptor
+            setUint32(0x46464952); // "RIFF"
+            setUint32(length - 8); // file length - 8
+            setUint32(0x45564157); // "WAVE"
+            
+            // "fmt " sub-chunk
+            setUint32(0x20746d66); // "fmt "
+            setUint32(16); // subchunk size
+            setUint16(1); // audio format (1 = PCM)
+            setUint16(buffer.numberOfChannels);
+            setUint32(buffer.sampleRate);
+            setUint32(buffer.sampleRate * 2 * buffer.numberOfChannels); // byte rate
+            setUint16(buffer.numberOfChannels * 2); // block align
+            setUint16(16); // bits per sample
+            
+            // "data" sub-chunk
+            setUint32(0x61746164); // "data"
+            setUint32(length - pos - 4); // subchunk size
+            
+            // Write interleaved data
+            for (let i = 0; i < buffer.numberOfChannels; i++) {
+                channels.push(buffer.getChannelData(i));
+            }
+            
+            while (pos < length) {
+                for (let i = 0; i < buffer.numberOfChannels; i++) {
+                    let sample = Math.max(-1, Math.min(1, channels[i][offset]));
+                    sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                    view.setInt16(pos, sample, true);
+                    pos += 2;
+                }
+                offset++;
+            }
+            
+            return arrayBuffer;
+        }
+        
+        // ============================================================================
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initUI();
+            console.log('🎵 HAOS.fm Techno Creator - Intuitive Edition loaded!');
+        });
+    </script>
+    
+    <!-- Load Synth Engines -->
+    <script src="/js/synths/tb303.js"></script>
+    <script src="/js/synths/tr808.js"></script>
+    <script src="/js/synths/arp2600.js"></script>
+    <script src="/js/synths/string-machine.js"></script>
+    <script src="/js/daw-engine.js"></script>
+    <script src="/js/ai-patch-designer.js"></script>
+    <script src="/js/track-integrator.js"></script>
+    
+    <!-- Load HAOS Master System (Unified Architecture) -->
+    <script src="/js/haos-master-system.js"></script>
+    
+    <script>
+        // Auto-initialize flag
+        let autoInitialized = false;
+        
+        // Auto-initialize HAOS system on first user interaction
+        async function autoInitHAOS() {
+            if (autoInitialized) return;
+            autoInitialized = true;
+            
+            console.log('👆 User interaction detected - auto-initializing audio...');
+            
+            // Call the initialization function
+            if (typeof initHAOSSystem === 'function') {
+                try {
+                    await initHAOSSystem();
+                    console.log('✅ Audio auto-initialized successfully');
+                } catch (error) {
+                    console.error('❌ Auto-initialization failed:', error);
+                }
+            }
+        }
+        
+        // Listen for first click or key press anywhere on the page
+        document.addEventListener('click', autoInitHAOS, { once: true });
+        document.addEventListener('keydown', autoInitHAOS, { once: true });
+        
+        // Initialize HAOS Master System on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🎵 Page loaded - waiting for user interaction...');
+            console.log('👆 Click anywhere or press any key to initialize audio');
+            
+            // Show a helpful message
+            setTimeout(() => {
+                if (!autoInitialized) {
+                    showNotification('👆 Click anywhere to enable audio!', 'info', 5000);
+                }
+            }, 1000);
+            
+            try {
+                // Initialize the unified system (non-audio parts)
+                await HAOS.init();
+                
+                // System is now ready!
+                console.log('✅ HAOS Master System ready!');
+                console.log('   All engines, AI components, and systems loaded');
+                console.log('   Type HAOS.getSystemInfo() to see system status');
+                
+                // Update UI to show system is ready
+                const statusElement = document.getElementById('system-status');
+                if (statusElement) {
+                    statusElement.textContent = '● SYSTEM READY (Click to enable audio)';
+                    statusElement.style.color = '#FFD700';
+                }
+            } catch (error) {
+                console.error('❌ Failed to initialize HAOS Master System:', error);
+                
+                const statusElement = document.getElementById('system-status');
+                if (statusElement) {
+                    statusElement.textContent = '● SYSTEM ERROR';
+                    statusElement.style.color = '#FF6B35';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

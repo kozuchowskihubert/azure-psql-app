@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 HAOS.fm Audio Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #39FF14;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid #39FF14;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 0 40px rgba(57, 255, 20, 0.3);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #FF6B35;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+        
+        .test-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #39FF14;
+        }
+        
+        .test-section h2 {
+            color: #00D9FF;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #39FF14, #00D9FF);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(57, 255, 20, 0.5);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.stop {
+            background: linear-gradient(135deg, #FF6B35, #FF1493);
+        }
+        
+        .status {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(57, 255, 20, 0.1);
+            border-radius: 8px;
+            border: 1px solid #39FF14;
+        }
+        
+        .status.error {
+            background: rgba(255, 107, 53, 0.1);
+            border-color: #FF6B35;
+            color: #FF6B35;
+        }
+        
+        .status.success {
+            background: rgba(57, 255, 20, 0.1);
+            border-color: #39FF14;
+            color: #39FF14;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .control {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .control label {
+            color: #FFD700;
+            font-size: 0.9em;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #39FF14;
+            cursor: pointer;
+        }
+        
+        .value-display {
+            text-align: center;
+            font-size: 1.2em;
+            color: #00D9FF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 HAOS.fm Audio Test</h1>
+        <div class="subtitle">Verify all synths are working</div>
+        
+        <!-- TB-303 Test -->
+        <div class="test-section">
+            <h2>🔊 TB-303 Acid Bass</h2>
+            <div class="button-group">
+                <button onclick="testTB303()">Play TB-303</button>
+                <button class="stop" onclick="stopAll()">Stop</button>
+            </div>
+            <div class="controls">
+                <div class="control">
+                    <label>Cutoff: <span id="cutoff-value">800</span> Hz</label>
+                    <input type="range" id="cutoff" min="50" max="5000" value="800" oninput="updateTB303()">
+                </div>
+                <div class="control">
+                    <label>Resonance: <span id="resonance-value">15</span></label>
+                    <input type="range" id="resonance" min="0" max="30" value="15" oninput="updateTB303()">
+                </div>
+                <div class="control">
+                    <label>Env Mod: <span id="envmod-value">70</span>%</label>
+                    <input type="range" id="envmod" min="0" max="100" value="70" oninput="updateTB303()">
+                </div>
+            </div>
+            <div id="tb303-status" class="status" style="display:none;"></div>
+        </div>
+        
+        <!-- TR-808 Test -->
+        <div class="test-section">
+            <h2>🥁 TR-808 Drums</h2>
+            <div class="button-group">
+                <button onclick="testKick()">Kick</button>
+                <button onclick="testHat()">Hat</button>
+                <button onclick="testClap()">Clap</button>
+                <button onclick="testPattern()">Pattern</button>
+            </div>
+            <div id="tr808-status" class="status" style="display:none;"></div>
+        </div>
+        
+        <!-- ARP-2600 Test -->
+        <div class="test-section">
+            <h2>🎹 ARP-2600 Modular</h2>
+            <div class="button-group">
+                <button onclick="testARP2600()">Play Note</button>
+                <button onclick="testARPLead()">Lead Preset</button>
+                <button onclick="testARPBass()">Bass Preset</button>
+            </div>
+            <div class="controls">
+                <div class="control">
+                    <label>Filter Cutoff: <span id="arp-cutoff-value">2000</span> Hz</label>
+                    <input type="range" id="arp-cutoff" min="100" max="10000" value="2000" oninput="updateARP()">
+                </div>
+                <div class="control">
+                    <label>LFO Rate: <span id="lfo-rate-value">5</span> Hz</label>
+                    <input type="range" id="lfo-rate" min="0.1" max="20" value="5" step="0.1" oninput="updateARP()">
+                </div>
+            </div>
+            <div id="arp-status" class="status" style="display:none;"></div>
+        </div>
+        
+        <!-- String Machine Test -->
+        <div class="test-section">
+            <h2>🎻 String Machine</h2>
+            <div class="button-group">
+                <button onclick="testStrings()">Play Chord</button>
+                <button onclick="testStringPad()">Ambient Pad</button>
+            </div>
+            <div id="string-status" class="status" style="display:none;"></div>
+        </div>
+        
+        <!-- DAW Engine Test -->
+        <div class="test-section">
+            <h2>🎚️ DAW Engine Integration</h2>
+            <div class="button-group">
+                <button onclick="testDAW()">Test DAW</button>
+                <button onclick="verifyPatches()">Verify Patches</button>
+            </div>
+            <div id="daw-status" class="status" style="display:none;"></div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import TB303 from '/js/synths/tb303.js';
+        import TR808 from '/js/synths/tr808.js';
+        import ARP2600 from '/js/synths/arp2600.js';
+        import StringMachine from '/js/synths/string-machine.js';
+        import DAWEngine from '/js/daw-engine.js';
+        
+        // Initialize Audio Context
+        let audioContext;
+        let tb303, tr808, arp2600, stringMachine, daw;
+        
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                tb303 = new TB303(audioContext);
+                tr808 = new TR808(audioContext);
+                arp2600 = new ARP2600(audioContext);
+                stringMachine = new StringMachine(audioContext);
+                daw = new DAWEngine(audioContext);
+                
+                // Link synths to DAW
+                daw.setSynths({ tb303, tr808, arp2600, stringMachine });
+                
+                console.log('✓ All synths initialized');
+            }
+            
+            // Resume audio context (required by browsers)
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+        
+        // TB-303 Tests
+        window.testTB303 = function() {
+            initAudio();
+            const status = document.getElementById('tb303-status');
+            status.style.display = 'block';
+            status.className = 'status success';
+            status.textContent = '▶ Playing TB-303 acid bassline...';
+            
+            try {
+                // Set up acid pattern
+                tb303.loadPresetPattern('classic303');
+                tb303.setBPM(130);
+                
+                // Enable LFO modulation
+                tb303.setLFO(true);
+                tb303.setModulation('lfo', 'rate', 6);
+                tb303.setModulation('lfo', 'depth', 30);
+                tb303.setModulation('lfo', 'destination', 'cutoff');
+                
+                tb303.play();
+                
+                setTimeout(() => {
+                    status.textContent = '✓ TB-303 playing! LFO modulation active.';
+                }, 100);
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '✗ Error: ' + error.message;
+                console.error(error);
+            }
+        };
+        
+        window.updateTB303 = function() {
+            if (!tb303) return;
+            
+            const cutoff = document.getElementById('cutoff').value;
+            const resonance = document.getElementById('resonance').value;
+            const envmod = document.getElementById('envmod').value;
+            
+            document.getElementById('cutoff-value').textContent = cutoff;
+            document.getElementById('resonance-value').textContent = resonance;
+            document.getElementById('envmod-value').textContent = envmod;
+            
+            tb303.setParam('cutoff', cutoff);
+            tb303.setParam('resonance', resonance);
+            tb303.setParam('envMod', envmod);
+        };
+        
+        // TR-808 Tests
+        window.testKick = function() {
+            initAudio();
+            const status = document.getElementById('tr808-status');
+            status.style.display = 'block';
+            status.className = 'status success';
+            status.textContent = '🥁 Kick!';
+            
+            tr808.playKick('classic');
+        };
+        
+        window.testHat = function() {
+            initAudio();
+            const status = document.getElementById('tr808-status');
+            status.style.display = 'block';
+            status.className = 'status success';
+            status.textContent = '🎩 Hat!';
+            
+            tr808.playHat('classic');
+        };
+        
+        window.testClap = function() {
+            initAudio();
+            const status = document.getElementById('tr808-status');
+            status.style.display = 'block';
+            status.className = 'status success';
+            status.textContent = '👏 Clap!';
+            
+            tr808.playClap('classic');
+        };
+        
+        window.testPattern = function() {
+            initAudio();
+            const status = document.getElementById('tr808-status');
+            status.style.display = 'block';
+            status.className = 'status success';
+            status.textContent = '▶ Playing 808 pattern...';
+            
+            // Simple 4/4 pattern
+            const bpm = 130;
+            const interval = (60 / bpm) * 1000 / 4; // 16th notes
+            let step = 0;
+            
+            const pattern = setInterval(() => {
+                if (step % 4 === 0) tr808.playKick('classic');
+                if (step % 2 === 1) tr808.playHat('closed');
+                if (step === 4 || step === 12) tr808.playClap('classic');
+                
+                step++;
+                if (step >= 16) {
+                    clearInterval(pattern);
+                    status.textContent = '✓ Pattern complete!';
+                }
+            }, interval);
+        };
+        
+        // ARP-2600 Tests
+        window.testARP2600 = function() {
+            initAudio();
+            const status = document.getElementById('arp-status');
+            status.style.display = 'block';
+            status.className = 'status success';
+            status.textContent = '🎹 Playing ARP-2600...';
+            
+            // Play a simple melody
+            const notes = [261.63, 329.63, 392.00, 523.25]; // C, E, G, C
+            let i = 0;
+            
+            const melody = setInterval(() => {
+                arp2600.playNote(notes[i], 0.3, 0.8);
+                i++;
+                if (i >= notes.length) {
+                    clearInterval(melody);
+                    status.textContent = '✓ ARP-2600 melody complete!';
+                }
+            }, 300);
+        };
+        
+        window.testARPLead = function() {
+            initAudio();
+            const status = document.getElementById('arp-status');
+            status.style.display = 'block';
+            status.className = 'status success';
+            status.textContent = '🎹 Loading lead preset...';
+            
+            arp2600.loadPreset('lead');
+            arp2600.playNote(440, 1.0, 0.9);
+            
+            status.textContent = '✓ Lead preset loaded and playing!';
+        };
+        
+        window.testARPBass = function() {
+            initAudio();
+            const status = document.getElementById('arp-status');
+            status.style.display = 'block';
+            status.className = 'status success';
+            status.textContent = '🎹 Loading bass preset...';
+            
+            arp2600.loadPreset('bass');
+            arp2600.playNote(110, 1.0, 0.9);
+            
+            status.textContent = '✓ Bass preset loaded and playing!';
+        };
+        
+        window.updateARP = function() {
+            if (!arp2600) return;
+            
+            const cutoff = document.getElementById('arp-cutoff').value;
+            const lfoRate = document.getElementById('lfo-rate').value;
+            
+            document.getElementById('arp-cutoff-value').textContent = cutoff;
+            document.getElementById('lfo-rate-value').textContent = lfoRate;
+            
+            arp2600.setVCF('cutoff', parseFloat(cutoff));
+            arp2600.setLFO('rate', parseFloat(lfoRate));
+        };
+        
+        // String Machine Test
+        window.testStrings = function() {
+            initAudio();
+            const status = document.getElementById('string-status');
+            status.style.display = 'block';
+            status.className = 'status success';
+            status.textContent = '🎻 Playing string chord...';
+            
+            if (stringMachine && stringMachine.playChord) {
+                stringMachine.playChord([261.63, 329.63, 392.00], 2.0);
+                status.textContent = '✓ String chord playing!';
+            } else {
+                status.className = 'status error';
+                status.textContent = '✗ String Machine not available';
+            }
+        };
+        
+        window.testStringPad = function() {
+            initAudio();
+            const status = document.getElementById('string-status');
+            status.style.display = 'block';
+            status.className = 'status success';
+            status.textContent = '🎻 Playing ambient pad...';
+            
+            if (stringMachine && stringMachine.loadPreset) {
+                stringMachine.loadPreset('ambient');
+                if (stringMachine.playChord) {
+                    stringMachine.playChord([130.81, 164.81, 196.00, 246.94], 3.0);
+                    status.textContent = '✓ Ambient pad playing!';
+                }
+            } else {
+                status.className = 'status error';
+                status.textContent = '✗ String Machine not available';
+            }
+        };
+        
+        // DAW Engine Test
+        window.testDAW = function() {
+            initAudio();
+            const status = document.getElementById('daw-status');
+            status.style.display = 'block';
+            status.className = 'status success';
+            status.textContent = '🎚️ Testing DAW Engine...';
+            
+            try {
+                daw.setBPM(130);
+                const session = daw.exportSession();
+                
+                status.textContent = `✓ DAW initialized! ${session.tracks.length} tracks, ${session.transport.bpm} BPM`;
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '✗ Error: ' + error.message;
+                console.error(error);
+            }
+        };
+        
+        window.verifyPatches = function() {
+            initAudio();
+            const status = document.getElementById('daw-status');
+            status.style.display = 'block';
+            status.className = 'status';
+            status.textContent = '🔍 Verifying patches...';
+            
+            const validation = daw.verifyPatches();
+            
+            if (validation.verified) {
+                status.className = 'status success';
+                status.textContent = `✓ All patches verified! ${validation.warnings.length} warnings.`;
+            } else {
+                status.className = 'status error';
+                status.textContent = `✗ ${validation.errors.length} errors found!`;
+            }
+            
+            console.log('Patch Validation:', validation);
+        };
+        
+        // Stop all sounds
+        window.stopAll = function() {
+            if (tb303 && tb303.stop) tb303.stop();
+            if (arp2600 && arp2600.stopAll) arp2600.stopAll();
+            
+            document.querySelectorAll('.status').forEach(el => {
+                if (el.style.display !== 'none') {
+                    el.className = 'status';
+                    el.textContent = '⏹ Stopped';
+                }
+            });
+        };
+        
+        console.log('🎵 HAOS.fm Audio Test loaded!');
+        console.log('Click any button to test audio...');
+    </script>
+</body>
+</html>

@@ -1,0 +1,601 @@
+/*
+ * HAOS.fm Brand Design System
+ * Hardware Analog Oscillator Synthesis
+ * "Where Chaos Becomes Creation"
+ */
+
+/* ============================================
+   GOOGLE FONTS IMPORT
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&family=VT323&display=swap');
+
+/* ============================================
+   CSS VARIABLES - HAOS.fm Design Tokens
+   ============================================ */
+:root {
+  /* === BRAND COLORS === */
+  --haos-vinyl-black: #0A0A0A;
+  --haos-groove-orange: #FF6B35;
+  --haos-turntable-gold: #D4AF37;
+  --haos-tape-brown: #4A3C2E;
+  --haos-dust-gray: #6B6B6B;
+  --haos-oxide-red: #8B2635;
+  --haos-vu-green: #3D5A3D;
+  --haos-sepia-cream: #F4E8D8;
+  --haos-acid-green: #39FF14;
+  --haos-909-cyan: #00D9FF;
+  --haos-warehouse-purple: #6A0DAD;
+  
+  /* === TYPOGRAPHY === */
+  --haos-font-display: 'Bebas Neue', Arial, sans-serif;
+  --haos-font-mono: 'Space Mono', 'Courier New', monospace;
+  --haos-font-body: 'Inter', Arial, sans-serif;
+  --haos-font-terminal: 'VT323', monospace;
+  
+  /* === SPACING === */
+  --haos-space-xs: 4px;
+  --haos-space-sm: 8px;
+  --haos-space-md: 16px;
+  --haos-space-lg: 24px;
+  --haos-space-xl: 32px;
+  --haos-space-2xl: 48px;
+  --haos-space-3xl: 64px;
+  
+  /* === BORDER RADIUS === */
+  --haos-radius-sm: 4px;
+  --haos-radius-md: 8px;
+  --haos-radius-lg: 16px;
+  --haos-radius-circle: 50%;
+  
+  /* === SHADOWS === */
+  --haos-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --haos-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --haos-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.8);
+  --haos-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.9);
+  
+  /* === GLOWS === */
+  --haos-glow-orange: 0 0 20px rgba(255, 107, 53, 0.5);
+  --haos-glow-gold: 0 0 20px rgba(212, 175, 55, 0.4);
+  --haos-glow-green: 0 0 20px rgba(57, 255, 20, 0.5);
+  --haos-glow-cyan: 0 0 20px rgba(0, 217, 255, 0.5);
+  
+  /* === TRANSITIONS === */
+  --haos-transition-fast: 0.15s ease;
+  --haos-transition-normal: 0.3s ease;
+  --haos-transition-slow: 0.5s ease;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+body.haos-theme {
+  background-color: var(--haos-vinyl-black);
+  color: var(--haos-sepia-cream);
+  font-family: var(--haos-font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Film grain overlay */
+body.haos-theme::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ============================================
+   TYPOGRAPHY CLASSES
+   ============================================ */
+.haos-display-xl {
+  font-family: var(--haos-font-display);
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.haos-display-lg {
+  font-family: var(--haos-font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.haos-display-md {
+  font-family: var(--haos-font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.haos-display-sm {
+  font-family: var(--haos-font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.haos-body-lg {
+  font-family: var(--haos-font-body);
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.haos-body {
+  font-family: var(--haos-font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.haos-body-sm {
+  font-family: var(--haos-font-body);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.haos-mono {
+  font-family: var(--haos-font-mono);
+  font-size: 0.9em;
+  letter-spacing: 0.05em;
+}
+
+.haos-terminal {
+  font-family: var(--haos-font-terminal);
+  font-size: 1.2em;
+  letter-spacing: 0.1em;
+}
+
+.haos-label {
+  font-family: var(--haos-font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--haos-dust-gray);
+}
+
+/* ============================================
+   COLOR UTILITIES
+   ============================================ */
+.haos-text-orange { color: var(--haos-groove-orange); }
+.haos-text-gold { color: var(--haos-turntable-gold); }
+.haos-text-cream { color: var(--haos-sepia-cream); }
+.haos-text-gray { color: var(--haos-dust-gray); }
+.haos-text-green { color: var(--haos-acid-green); }
+.haos-text-cyan { color: var(--haos-909-cyan); }
+
+.haos-bg-black { background-color: var(--haos-vinyl-black); }
+.haos-bg-brown { background-color: var(--haos-tape-brown); }
+.haos-bg-orange { background-color: var(--haos-groove-orange); }
+
+/* Gradient text effects */
+.haos-text-gradient-orange {
+  background: linear-gradient(135deg, var(--haos-groove-orange), #FFB347);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.haos-text-gradient-gold {
+  background: linear-gradient(135deg, #F4E8A0, var(--haos-turntable-gold), #B8960C);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ============================================
+   BUTTON COMPONENTS
+   ============================================ */
+.haos-btn {
+  font-family: var(--haos-font-display);
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: var(--haos-space-md) var(--haos-space-xl);
+  border-radius: var(--haos-radius-sm);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--haos-transition-normal);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.haos-btn-primary {
+  background: var(--haos-groove-orange);
+  color: var(--haos-vinyl-black);
+  border-color: var(--haos-turntable-gold);
+  box-shadow: var(--haos-shadow-md), var(--haos-glow-orange);
+}
+
+.haos-btn-primary:hover {
+  background: #FF8C5E;
+  transform: translateY(-2px);
+  box-shadow: var(--haos-shadow-lg), var(--haos-glow-orange);
+}
+
+.haos-btn-primary:active {
+  transform: translateY(0);
+}
+
+.haos-btn-secondary {
+  background: transparent;
+  color: var(--haos-sepia-cream);
+  border-color: var(--haos-dust-gray);
+}
+
+.haos-btn-secondary:hover {
+  border-color: var(--haos-groove-orange);
+  color: var(--haos-groove-orange);
+  box-shadow: var(--haos-glow-orange);
+}
+
+.haos-btn-gold {
+  background: linear-gradient(135deg, #F4E8A0, var(--haos-turntable-gold), #B8960C);
+  color: var(--haos-vinyl-black);
+  border-color: var(--haos-turntable-gold);
+  box-shadow: var(--haos-shadow-md), var(--haos-glow-gold);
+}
+
+.haos-btn-gold:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   CARD COMPONENTS
+   ============================================ */
+.haos-card {
+  background: var(--haos-tape-brown);
+  border-radius: var(--haos-radius-md);
+  padding: var(--haos-space-lg);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: var(--haos-shadow-md);
+  transition: all var(--haos-transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.haos-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iYSIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjQiIGhlaWdodD0iNCI+PHBhdGggZD0iTTAgMGg0djRIMHoiIGZpbGw9IiMwMDAwMDAiLz48cGF0aCBkPSJNMCAwaDR2NEgweiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzMzIiBzdHJva2Utd2lkdGg9Ii4xIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNhKSIvPjwvc3ZnPg==');
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.haos-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--haos-groove-orange);
+  box-shadow: var(--haos-shadow-lg), var(--haos-glow-orange);
+}
+
+.haos-card-glass {
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: var(--haos-radius-md);
+  padding: var(--haos-space-lg);
+  box-shadow: var(--haos-shadow-md);
+}
+
+.haos-studio-card {
+  background: var(--haos-tape-brown);
+  border-radius: var(--haos-radius-lg);
+  padding: var(--haos-space-xl);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  box-shadow: var(--haos-shadow-lg);
+  transition: all var(--haos-transition-normal);
+  cursor: pointer;
+}
+
+.haos-studio-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--haos-groove-orange);
+  box-shadow: var(--haos-shadow-xl), var(--haos-glow-orange);
+}
+
+.haos-studio-card:hover .haos-vinyl-icon {
+  transform: rotate(180deg) scale(1.1);
+}
+
+/* ============================================
+   VINYL EFFECTS
+   ============================================ */
+.haos-vinyl-bg {
+  background: 
+    radial-gradient(circle at center, 
+      transparent 30%, 
+      rgba(10, 10, 10, 0.1) 30%, 
+      rgba(10, 10, 10, 0.1) 32%,
+      transparent 32%,
+      transparent 35%,
+      rgba(10, 10, 10, 0.1) 35%,
+      rgba(10, 10, 10, 0.1) 37%,
+      transparent 37%
+    );
+}
+
+.haos-vinyl-icon {
+  font-size: 3rem;
+  display: inline-block;
+  transition: transform var(--haos-transition-slow);
+}
+
+.haos-vinyl-spin {
+  animation: vinylSpin 3s linear infinite;
+}
+
+@keyframes vinylSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   EQUIPMENT RACK STYLING
+   ============================================ */
+.haos-rack {
+  background: 
+    linear-gradient(180deg, #5a4a3a 0%, var(--haos-tape-brown) 50%, #3a2a1a 100%);
+  border: 3px solid #2a2a2a;
+  border-radius: var(--haos-radius-md);
+  padding: var(--haos-space-2xl);
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.5),
+    var(--haos-shadow-xl);
+  position: relative;
+}
+
+/* Rack screws */
+.haos-rack::before,
+.haos-rack::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: 
+    radial-gradient(circle at 30% 30%, #888, #333);
+  border: 1px solid #222;
+  border-radius: 50%;
+  top: 12px;
+}
+
+.haos-rack::before { left: 12px; }
+.haos-rack::after { right: 12px; }
+
+/* Metal strip */
+.haos-rack-strip {
+  background: linear-gradient(180deg, #F4E8A0, var(--haos-turntable-gold), #B8960C);
+  height: 8px;
+  margin: 0 calc(-1 * var(--haos-space-2xl));
+  margin-bottom: var(--haos-space-lg);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   KNOB CONTROLS
+   ============================================ */
+.haos-knob-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--haos-space-sm);
+}
+
+.haos-knob {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: 
+    radial-gradient(circle at 30% 30%, #555, #222);
+  border: 3px solid var(--haos-dust-gray);
+  position: relative;
+  cursor: pointer;
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  transition: transform var(--haos-transition-fast);
+}
+
+.haos-knob:hover {
+  transform: scale(1.05);
+  border-color: var(--haos-groove-orange);
+}
+
+.haos-knob-indicator {
+  position: absolute;
+  width: 4px;
+  height: 24px;
+  background: var(--haos-groove-orange);
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  box-shadow: var(--haos-glow-orange);
+}
+
+.haos-value {
+  font-family: var(--haos-font-mono);
+  font-size: 0.875rem;
+  color: var(--haos-sepia-cream);
+  font-weight: 700;
+}
+
+/* ============================================
+   VU METER
+   ============================================ */
+.haos-vu-meter {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: var(--haos-radius-sm);
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.haos-vu-fill {
+  height: 100%;
+  background: linear-gradient(90deg, 
+    var(--haos-vu-green) 0%, 
+    var(--haos-vu-green) 70%, 
+    #FFD700 70%, 
+    #FFD700 90%, 
+    var(--haos-oxide-red) 90%
+  );
+  transition: width var(--haos-transition-fast);
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* ============================================
+   WAVEFORM DISPLAY
+   ============================================ */
+.haos-waveform {
+  background: #000;
+  border: 2px solid var(--haos-dust-gray);
+  border-radius: var(--haos-radius-sm);
+  padding: var(--haos-space-md);
+  min-height: 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.haos-waveform canvas {
+  filter: drop-shadow(0 0 8px var(--haos-acid-green));
+}
+
+/* ============================================
+   TAGS & BADGES
+   ============================================ */
+.haos-tag {
+  display: inline-block;
+  font-family: var(--haos-font-mono);
+  font-size: 0.75rem;
+  padding: var(--haos-space-xs) var(--haos-space-md);
+  background: rgba(255, 107, 53, 0.2);
+  border: 1px solid var(--haos-groove-orange);
+  border-radius: var(--haos-radius-sm);
+  color: var(--haos-groove-orange);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.haos-badge {
+  display: inline-block;
+  font-family: var(--haos-font-display);
+  font-size: 0.625rem;
+  padding: 2px 8px;
+  background: var(--haos-groove-orange);
+  color: var(--haos-vinyl-black);
+  border-radius: 3px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.haos-badge-new { background: var(--haos-acid-green); }
+.haos-badge-hot { background: var(--haos-oxide-red); }
+.haos-badge-pro { background: var(--haos-turntable-gold); }
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes haosGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes haosPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes haosSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.haos-glow-pulse {
+  animation: haosGlow 2s ease-in-out infinite;
+}
+
+.haos-pulse {
+  animation: haosPulse 2s ease-in-out infinite;
+}
+
+.haos-slide-up {
+  animation: haosSlideUp 0.6s ease-out;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.haos-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--haos-space-lg);
+}
+
+.haos-section {
+  padding: var(--haos-space-3xl) 0;
+}
+
+.haos-grid {
+  display: grid;
+  gap: var(--haos-space-lg);
+}
+
+.haos-grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.haos-grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.haos-grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+.haos-flex {
+  display: flex;
+  gap: var(--haos-space-md);
+}
+
+.haos-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.haos-text-center { text-align: center; }
+.haos-text-shadow { text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8); }
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .haos-display-xl { font-size: 3rem; }
+  .haos-display-lg { font-size: 2.5rem; }
+  .haos-display-md { font-size: 2rem; }
+  .haos-section { padding: var(--haos-space-xl) 0; }
+  .haos-rack { padding: var(--haos-space-lg); }
+}

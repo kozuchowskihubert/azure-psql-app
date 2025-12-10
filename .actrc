@@ -1,21 +1,21 @@
-# Act configuration
-# Use GitHub's larger runner image for better compatibility
+# Act Configuration for Local Testing
+# This file configures how GitHub Actions workflows run locally using `act`
+
+# Use medium-sized Docker container for better compatibility
 -P ubuntu-latest=catthehacker/ubuntu:act-latest
 
-# Load secrets from file
+# Secret file location
 --secret-file .secrets
 
-# Use .env file if it exists
---env-file .env.act
+# Environment variables for local testing
+--env ACR_NAME=notesappdevacr14363
+--env IMAGE_NAME=notesapp-music
+--env AZURE_REGION=westus2
+--env NODE_VERSION=20
+--env PYTHON_VERSION=3.11
 
-# Container architecture
---container-architecture linux/amd64
+# Container options
+--container-options "--privileged"
 
 # Verbose output for debugging
-# --verbose
-
-# Reuse containers for faster iterations
---reuse
-
-# Bind Docker socket for Docker-in-Docker
---bind
+--verbose

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <defs>
+    <!-- Gradient for vinyl record -->
+    <radialGradient id="vinylGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#0a0a0a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Gradient for gold accents -->
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F4E8A0;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#D4AF37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B8960C;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Glow effect -->
+    <filter id="orangeGlow">
+      <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Vinyl Record Base -->
+  <circle cx="150" cy="150" r="140" fill="url(#vinylGradient)" stroke="url(#goldGradient)" stroke-width="4"/>
+  
+  <!-- Groove circles -->
+  <circle cx="150" cy="150" r="130" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.6"/>
+  <circle cx="150" cy="150" r="115" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+  <circle cx="150" cy="150" r="100" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.4"/>
+  <circle cx="150" cy="150" r="85" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.3"/>
+  <circle cx="150" cy="150" r="70" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.2"/>
+  
+  <!-- Label area -->
+  <circle cx="150" cy="150" r="60" fill="#FF6B35" opacity="0.95"/>
+  
+  <!-- Center hole -->
+  <circle cx="150" cy="150" r="20" fill="#0a0a0a" stroke="url(#goldGradient)" stroke-width="3"/>
+  
+  <!-- Waveform cutting through -->
+  <g filter="url(#orangeGlow)">
+    <path d="M 20,150 Q 35,100 50,150 T 80,150 Q 95,200 110,150 T 140,150 Q 155,100 170,150 T 200,150 Q 215,200 230,150 T 260,150 Q 275,100 280,150" 
+          fill="none" stroke="#FF6B35" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+  </g>
+  
+  <!-- Decorative spiral grooves -->
+  <g opacity="0.2">
+    <circle cx="150" cy="150" r="125" fill="none" stroke="#fff" stroke-width="0.8"/>
+    <circle cx="150" cy="150" r="110" fill="none" stroke="#fff" stroke-width="0.8"/>
+    <circle cx="150" cy="150" r="95" fill="none" stroke="#fff" stroke-width="0.8"/>
+    <circle cx="150" cy="150" r="80" fill="none" stroke="#fff" stroke-width="0.8"/>
+    <circle cx="150" cy="150" r="65" fill="none" stroke="#fff" stroke-width="0.8"/>
+  </g>
+  
+  <!-- H letter in center (subtle) -->
+  <text x="150" y="170" font-family="'Bebas Neue', Arial, sans-serif" font-size="50" font-weight="bold" fill="#0a0a0a" text-anchor="middle" opacity="0.5">H</text>
+</svg>

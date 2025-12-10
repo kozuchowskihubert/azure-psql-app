@@ -1,0 +1,179 @@
+name: Bulk Feature Toggle
+
+on:
+  workflow_dispatch:
+    inputs:
+      preset:
+        description: 'Feature Preset'
+        required: true
+        type: choice
+        options:
+          - production_stable
+          - beta_features
+          - all_features
+          - minimal
+          - custom
+      custom_features:
+        description: 'Custom features (comma-separated, if preset=custom)'
+        required: false
+        type: string
+      show_beta:
+        description: 'Show beta features globally'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  bulk-update:
+    name: Bulk Feature Toggle
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: 🎛️ Apply Feature Preset
+        id: apply
+        run: |
+          CONFIG_FILE="app/public/config/features.json"
+          PRESET="${{ github.event.inputs.preset }}"
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          echo "📦 Applying preset: $PRESET"
+          
+          case "$PRESET" in
+            production_stable)
+              # Enable only stable features
+              jq '
+                .features.haos_platform.subFeatures.midi_export.enabled = true |
+                .features.haos_platform.subFeatures.audio_recording.enabled = true |
+                .features.haos_platform.subFeatures.pattern_management.enabled = true |
+                .features.haos_platform.subFeatures.tb303_presets.enabled = true |
+                .features.haos_platform.subFeatures.advanced_modulation.enabled = false |
+                .features.haos_platform.subFeatures.pattern_chaining.enabled = false |
+                .features.haos_platform.subFeatures.swing_timing.enabled = false |
+                .features.haos_platform.subFeatures.drum_tuning.enabled = false |
+                .features.global.show_beta_features = false
+              ' "$CONFIG_FILE" > tmp.json && mv tmp.json "$CONFIG_FILE"
+              echo "preset_description=✅ Production Stable (MIDI, Recording, Patterns, Presets)" >> $GITHUB_OUTPUT
+              ;;
+              
+            beta_features)
+              # Enable all beta features
+              jq '
+                .features.haos_platform.subFeatures.midi_export.enabled = true |
+                .features.haos_platform.subFeatures.audio_recording.enabled = true |
+                .features.haos_platform.subFeatures.pattern_management.enabled = true |
+                .features.haos_platform.subFeatures.tb303_presets.enabled = true |
+                .features.haos_platform.subFeatures.advanced_modulation.enabled = true |
+                .features.haos_platform.subFeatures.pattern_chaining.enabled = true |
+                .features.haos_platform.subFeatures.swing_timing.enabled = true |
+                .features.haos_platform.subFeatures.drum_tuning.enabled = true |
+                .features.global.show_beta_features = true
+              ' "$CONFIG_FILE" > tmp.json && mv tmp.json "$CONFIG_FILE"
+              echo "preset_description=🧪 Beta Features Enabled (All Features + Beta)" >> $GITHUB_OUTPUT
+              ;;
+              
+            all_features)
+              # Enable everything
+              jq '
+                .features.haos_platform.subFeatures |= map_values(.enabled = true) |
+                .features.techno_creator.subFeatures |= map_values(.enabled = true) |
+                .features.trap_studio.subFeatures |= map_values(.enabled = true) |
+                .features.global.show_beta_features = true
+              ' "$CONFIG_FILE" > tmp.json && mv tmp.json "$CONFIG_FILE"
+              echo "preset_description=🚀 All Features Enabled" >> $GITHUB_OUTPUT
+              ;;
+              
+            minimal)
+              # Minimal features only
+              jq '
+                .features.haos_platform.subFeatures |= map_values(.enabled = false) |
+                .features.haos_platform.subFeatures.pattern_management.enabled = true |
+                .features.global.show_beta_features = false
+              ' "$CONFIG_FILE" > tmp.json && mv tmp.json "$CONFIG_FILE"
+              echo "preset_description=🔒 Minimal (Pattern Management Only)" >> $GITHUB_OUTPUT
+              ;;
+              
+            custom)
+              FEATURES="${{ github.event.inputs.custom_features }}"
+              echo "Custom features: $FEATURES"
+              # Disable all first
+              jq '.features.haos_platform.subFeatures |= map_values(.enabled = false)' "$CONFIG_FILE" > tmp.json && mv tmp.json "$CONFIG_FILE"
+              
+              # Enable specified features
+              IFS=',' read -ra FEATURE_ARRAY <<< "$FEATURES"
+              for feature in "${FEATURE_ARRAY[@]}"; do
+                feature=$(echo "$feature" | xargs) # trim whitespace
+                jq ".features.haos_platform.subFeatures.${feature}.enabled = true" "$CONFIG_FILE" > tmp.json && mv tmp.json "$CONFIG_FILE"
+              done
+              
+              echo "preset_description=🎯 Custom Features: $FEATURES" >> $GITHUB_OUTPUT
+              ;;
+          esac
+          
+          # Update beta flag
+          if [ "${{ github.event.inputs.show_beta }}" = "true" ]; then
+            jq '.features.global.show_beta_features = true' "$CONFIG_FILE" > tmp.json && mv tmp.json "$CONFIG_FILE"
+          fi
+          
+          # Update timestamp
+          jq ".lastUpdated = \"$TIMESTAMP\"" "$CONFIG_FILE" > tmp.json && mv tmp.json "$CONFIG_FILE"
+          
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+          
+          # Show changes
+          echo "📊 Configuration diff:"
+          git diff "$CONFIG_FILE"
+      
+      - name: 💾 Commit Changes
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          
+          git add app/public/config/features.json
+          git commit -m "feat(config): apply ${{ github.event.inputs.preset }} preset - ${{ steps.apply.outputs.preset_description }}"
+          git push
+      
+      - name: 📊 Generate Summary
+        run: |
+          CONFIG_FILE="app/public/config/features.json"
+          
+          echo "## 🎛️ Feature Configuration Updated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Preset:** \`${{ github.event.inputs.preset }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Description:** ${{ steps.apply.outputs.preset_description }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Show Beta:** ${{ github.event.inputs.show_beta }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Updated:** ${{ steps.apply.outputs.timestamp }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### 📦 Enabled Features" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # List enabled features
+          ENABLED=$(jq -r '.features.haos_platform.subFeatures | to_entries[] | select(.value.enabled == true) | "- ✅ **\(.key)**: \(.value.description)"' "$CONFIG_FILE")
+          echo "$ENABLED" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ❌ Disabled Features" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          DISABLED=$(jq -r '.features.haos_platform.subFeatures | to_entries[] | select(.value.enabled == false) | "- ❌ **\(.key)**: \(.value.description)"' "$CONFIG_FILE")
+          echo "$DISABLED" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Changes are live!** Users will see updates within 5 minutes." >> $GITHUB_STEP_SUMMARY
+
+      - name: 🔔 Notify Success
+        if: success()
+        run: |
+          echo "✅ Feature configuration updated successfully!"
+          echo "${{ steps.apply.outputs.preset_description }}"

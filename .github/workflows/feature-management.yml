@@ -1,0 +1,355 @@
+# =============================================================================
+# Feature Management & Configuration Workflow
+# =============================================================================
+#
+# This workflow manages feature flags and configuration without rebuilding
+# the Docker image. Use this for:
+#   - Enabling/disabling features via environment variables
+#   - Updating configuration settings
+#   - Testing changes with dry-run mode
+#   - Quick configuration updates without full deployment
+#
+# Benefits:
+#   - ⚡ Fast: No Docker build (seconds vs minutes)
+#   - 🔧 Flexible: Toggle features on/off instantly
+#   - 🧪 Safe: Dry-run mode to preview changes
+#   - 💰 Cost-effective: No unnecessary rebuilds
+#
+# Usage:
+#   1. Go to Actions tab: https://github.com/kozuchowskihubert/azure-psql-app/actions
+#   2. Select "Feature Management & Configuration"
+#   3. Click "Run workflow"
+#   4. Choose operation and settings
+#
+# =============================================================================
+
+name: Feature Management & Configuration
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'Operation to perform'
+        required: true
+        type: choice
+        default: 'dry-run'
+        options:
+          - dry-run           # Preview changes without applying
+          - enable-features   # Enable specific features
+          - update-config     # Update configuration
+          - restart-app       # Restart app with current settings
+          - view-current      # View current configuration
+      
+      features:
+        description: 'Features to enable (comma-separated: haos-platform,radio-247,trap-studio,sequencer)'
+        required: false
+        default: 'haos-platform,sequencer'
+      
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        default: 'dev'
+        options:
+          - dev
+          - staging
+          - prod
+      
+      node_env:
+        description: 'Node environment (production/development)'
+        required: false
+        type: choice
+        default: 'production'
+        options:
+          - production
+          - development
+      
+      log_level:
+        description: 'Application log level'
+        required: false
+        type: choice
+        default: 'info'
+        options:
+          - error
+          - warn
+          - info
+          - debug
+      
+      restart_after:
+        description: 'Restart app after changes'
+        required: false
+        type: boolean
+        default: true
+
+env:
+  AZURE_REGION: westus2
+  MUSIC_APP_NAME: notesapp-dev-music-app
+  MUSIC_RG: notesapp-dev-rg
+
+jobs:
+  # =============================================================================
+  # Dry Run: Preview Changes
+  # =============================================================================
+  dry-run:
+    name: 🔍 Dry Run - Preview Changes
+    runs-on: ubuntu-latest
+    if: inputs.operation == 'dry-run' || inputs.operation == 'view-current'
+    
+    steps:
+      - name: 🔐 Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: 📊 Get Current Configuration
+        id: current
+        run: |
+          echo "📋 Current Azure Web App Configuration:"
+          echo "========================================"
+          
+          # Get current app settings
+          echo "🔧 App Settings:"
+          az webapp config appsettings list \
+            --name ${{ env.MUSIC_APP_NAME }} \
+            --resource-group ${{ env.MUSIC_RG }} \
+            --query "[].{Name:name, Value:value}" \
+            --output table
+          
+          echo ""
+          echo "🌐 General Settings:"
+          az webapp show \
+            --name ${{ env.MUSIC_APP_NAME }} \
+            --resource-group ${{ env.MUSIC_RG }} \
+            --query "{State:state, DefaultHostName:defaultHostName, Kind:kind, RuntimeStack:siteConfig.linuxFxVersion}" \
+            --output table
+          
+          echo ""
+          echo "💾 Current Scale:"
+          az appservice plan show \
+            --name notesapp-dev-music-plan \
+            --resource-group ${{ env.MUSIC_RG }} \
+            --query "{Tier:sku.tier, Size:sku.name, Instances:sku.capacity}" \
+            --output table
+      
+      - name: 🔮 Preview Proposed Changes
+        if: inputs.operation == 'dry-run'
+        run: |
+          echo "📝 Proposed Changes (DRY RUN - Not Applied):"
+          echo "============================================"
+          echo ""
+          echo "🎯 Features to enable: ${{ inputs.features }}"
+          echo "🌍 Environment: ${{ inputs.environment }}"
+          echo "⚙️  Node Environment: ${{ inputs.node_env }}"
+          echo "📊 Log Level: ${{ inputs.log_level }}"
+          echo "🔄 Restart after: ${{ inputs.restart_after }}"
+          echo ""
+          echo "📋 Settings that would be updated:"
+          echo "  ENABLED_FEATURES=${{ inputs.features }}"
+          echo "  NODE_ENV=${{ inputs.node_env }}"
+          echo "  LOG_LEVEL=${{ inputs.log_level }}"
+          echo "  ENVIRONMENT=${{ inputs.environment }}"
+          echo ""
+          echo "✅ To apply these changes, run with operation: 'enable-features' or 'update-config'"
+
+  # =============================================================================
+  # Enable Features: Update Feature Flags
+  # =============================================================================
+  enable-features:
+    name: 🎯 Enable Features
+    runs-on: ubuntu-latest
+    if: inputs.operation == 'enable-features'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🔐 Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: 🎯 Update Feature Flags
+        run: |
+          echo "🎯 Enabling features: ${{ inputs.features }}"
+          
+          # Update app settings
+          az webapp config appsettings set \
+            --name ${{ env.MUSIC_APP_NAME }} \
+            --resource-group ${{ env.MUSIC_RG }} \
+            --settings \
+              ENABLED_FEATURES="${{ inputs.features }}" \
+              NODE_ENV="${{ inputs.node_env }}" \
+              LOG_LEVEL="${{ inputs.log_level }}" \
+              ENVIRONMENT="${{ inputs.environment }}" \
+              LAST_UPDATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              UPDATED_BY="GitHub Actions (Feature Management)"
+          
+          echo "✅ Feature flags updated successfully"
+      
+      - name: 📊 Verify Settings
+        run: |
+          echo "📋 Verifying updated settings..."
+          az webapp config appsettings list \
+            --name ${{ env.MUSIC_APP_NAME }} \
+            --resource-group ${{ env.MUSIC_RG }} \
+            --query "[?name=='ENABLED_FEATURES' || name=='NODE_ENV' || name=='LOG_LEVEL']" \
+            --output table
+      
+      - name: 🔄 Restart Application
+        if: inputs.restart_after == true
+        run: |
+          echo "🔄 Restarting application to apply changes..."
+          az webapp restart \
+            --name ${{ env.MUSIC_APP_NAME }} \
+            --resource-group ${{ env.MUSIC_RG }}
+          
+          echo "⏳ Waiting 30 seconds for app to restart..."
+          sleep 30
+      
+      - name: ✅ Health Check
+        if: inputs.restart_after == true
+        run: |
+          echo "🏥 Checking application health..."
+          
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.MUSIC_APP_NAME }}.azurewebsites.net/health || echo "000")
+            
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Application is healthy (HTTP $HTTP_CODE)"
+              curl -s https://${{ env.MUSIC_APP_NAME }}.azurewebsites.net/health | jq '.' || true
+              exit 0
+            else
+              echo "⏳ Health check failed (HTTP $HTTP_CODE), retrying... ($((RETRY_COUNT + 1))/$MAX_RETRIES)"
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              sleep 15
+            fi
+          done
+          
+          echo "⚠️  Health check did not pass after $MAX_RETRIES attempts"
+          echo "ℹ️  Check application logs for details"
+          exit 1
+
+  # =============================================================================
+  # Update Configuration: Advanced Settings
+  # =============================================================================
+  update-config:
+    name: 🔧 Update Configuration
+    runs-on: ubuntu-latest
+    if: inputs.operation == 'update-config'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🔐 Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: 🔧 Update Configuration
+        run: |
+          echo "🔧 Updating application configuration..."
+          
+          # Update all configuration settings
+          az webapp config appsettings set \
+            --name ${{ env.MUSIC_APP_NAME }} \
+            --resource-group ${{ env.MUSIC_RG }} \
+            --settings \
+              PORT="8080" \
+              WEBSITES_PORT="8080" \
+              NODE_ENV="${{ inputs.node_env }}" \
+              LOG_LEVEL="${{ inputs.log_level }}" \
+              ENABLED_FEATURES="${{ inputs.features }}" \
+              ENVIRONMENT="${{ inputs.environment }}" \
+              WEBSITES_CONTAINER_START_TIME_LIMIT="600" \
+              WEBSITE_HTTPLOGGING_RETENTION_DAYS="7" \
+              LAST_CONFIG_UPDATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          
+          echo "✅ Configuration updated successfully"
+      
+      - name: 🔄 Restart if requested
+        if: inputs.restart_after == true
+        run: |
+          echo "🔄 Restarting application..."
+          az webapp restart \
+            --name ${{ env.MUSIC_APP_NAME }} \
+            --resource-group ${{ env.MUSIC_RG }}
+          
+          sleep 30
+          
+          echo "✅ Application restarted"
+
+  # =============================================================================
+  # Restart Application: Simple Restart
+  # =============================================================================
+  restart-app:
+    name: 🔄 Restart Application
+    runs-on: ubuntu-latest
+    if: inputs.operation == 'restart-app'
+    
+    steps:
+      - name: 🔐 Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: 🔄 Restart Application
+        run: |
+          echo "🔄 Restarting ${{ env.MUSIC_APP_NAME }}..."
+          
+          az webapp restart \
+            --name ${{ env.MUSIC_APP_NAME }} \
+            --resource-group ${{ env.MUSIC_RG }}
+          
+          echo "⏳ Waiting 30 seconds for restart..."
+          sleep 30
+          
+          echo "✅ Application restarted"
+      
+      - name: 🏥 Health Check
+        run: |
+          echo "🏥 Checking application health..."
+          
+          for i in {1..5}; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.MUSIC_APP_NAME }}.azurewebsites.net/health || echo "000")
+            
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Application is healthy"
+              exit 0
+            fi
+            
+            echo "⏳ Attempt $i/5 - HTTP $HTTP_CODE, waiting..."
+            sleep 15
+          done
+          
+          echo "⚠️  Application may not be fully healthy yet"
+
+  # =============================================================================
+  # Summary: Report Results
+  # =============================================================================
+  summary:
+    name: 📊 Summary
+    runs-on: ubuntu-latest
+    needs: [dry-run, enable-features, update-config, restart-app]
+    if: always()
+    
+    steps:
+      - name: 📊 Report Summary
+        run: |
+          echo "# Feature Management Summary 📊" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Operation:** ${{ inputs.operation }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Features:** ${{ inputs.features }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Quick Links 🔗" >> $GITHUB_STEP_SUMMARY
+          echo "- 🌐 [Application URL](https://${{ env.MUSIC_APP_NAME }}.azurewebsites.net)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🏥 [Health Endpoint](https://${{ env.MUSIC_APP_NAME }}.azurewebsites.net/health)" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚙️  [Azure Portal](https://portal.azure.com/#@/resource/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ env.MUSIC_RG }}/providers/Microsoft.Web/sites/${{ env.MUSIC_APP_NAME }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Updated: $(date -u +%Y-%m-%d\ %H:%M:%S) UTC*" >> $GITHUB_STEP_SUMMARY
