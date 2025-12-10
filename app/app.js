@@ -230,29 +230,43 @@ if (process.env.NODE_ENV === 'production') {
 app.use(session(sessionConfig));
 
 // ============================================================================
-// Authentication (SSO)
+// Authentication (SSO & Social Login)
 // ============================================================================
 
 /**
- * Initialize Passport.js for SSO authentication (optional feature)
- * Supports Azure AD and Google OAuth
- * Enabled via ENABLE_SSO=true environment variable
+ * Initialize Passport.js for authentication
+ * - SSO: Azure AD and Google OAuth (ENABLE_SSO=true)
+ * - Social: Facebook, Apple (ENABLE_SOCIAL_AUTH=true)
  */
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Enterprise SSO (Azure AD, Google) - optional
 const enableSSO = process.env.ENABLE_SSO === 'true';
 if (enableSSO) {
   try {
     const { initializePassport } = require('./auth/sso-config');
-    app.use(passport.initialize());
-    app.use(passport.session());
     initializePassport(pool);
     console.log('✓ SSO authentication enabled');
 
-    // Auth routes
+    // Legacy auth routes
     const authRoutes = require('./auth/auth-routes');
     app.use('/api/auth', authRoutes);
   } catch (error) {
     console.log('⚠ SSO not configured:', error.message);
   }
+}
+
+// Social Authentication (Google, Facebook, Apple) - always enabled
+try {
+  const { initializeSocialAuth } = require('./auth/social-auth');
+  const coreAuthRoutes = require('./auth/core-auth-routes');
+
+  initializeSocialAuth(pool);
+  app.use('/auth', coreAuthRoutes);
+  console.log('✓ Social authentication enabled (Google, Facebook, Apple)');
+} catch (error) {
+  console.log('⚠ Social auth not configured:', error.message);
 }
 
 // ============================================================================

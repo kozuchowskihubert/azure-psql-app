@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Notes App</title>
+    <title>Login - HAOS.fm</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -129,42 +130,52 @@
                     </div>
 
                     <!-- SSO Status Banner -->
-                    <div id="sso-status" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div id="sso-status" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg hidden">
                         <div class="flex items-center justify-center">
                             <div class="loading-spinner mr-3"></div>
                             <span class="text-sm text-yellow-700">Checking SSO availability...</span>
                         </div>
                     </div>
 
-                    <!-- Login Buttons -->
-                    <div id="login-buttons" class="space-y-3 hidden">
-                        <button onclick="loginWithAzure()" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg flex items-center justify-center">
-                            <i class="fab fa-microsoft mr-3 text-xl"></i>
-                            Sign in with Microsoft
-                        </button>
-                        
-                        <button onclick="loginWithGoogle()" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg border-2 border-gray-200 flex items-center justify-center">
-                            <i class="fab fa-google mr-3 text-xl text-red-500"></i>
-                            Sign in with Google
-                        </button>
+                    <!-- Error Banner -->
+                    <div id="error-banner" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg hidden">
+                        <span id="error-message" class="text-sm text-red-700"></span>
                     </div>
 
-                    <!-- SSO Not Available -->
-                    <div id="sso-unavailable" class="hidden">
-                        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
-                            <div class="flex items-start">
-                                <i class="fas fa-info-circle text-orange-500 mt-1 mr-3"></i>
-                                <div class="text-left">
-                                    <p class="text-sm text-orange-800 font-medium mb-2">SSO Not Configured</p>
-                                    <p class="text-xs text-orange-700">
-                                        Single Sign-On is not currently enabled. Contact your administrator to enable Azure AD or Google authentication.
-                                    </p>
-                                </div>
-                            </div>
+                    <!-- Social Login Buttons - Always Visible -->
+                    <div id="login-buttons" class="space-y-3">
+                        <a href="/auth/google" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg border-2 border-gray-200 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                            Continue with Google
+                        </a>
+                        
+                        <a href="/auth/facebook" class="w-full bg-[#1877f2] hover:bg-[#166fe5] text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="white">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            Continue with Facebook
+                        </a>
+                        
+                        <a href="/auth/apple" class="w-full bg-black hover:bg-gray-900 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="white">
+                                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                            </svg>
+                            Continue with Apple
+                        </a>
+                        
+                        <!-- Enterprise SSO (hidden by default) -->
+                        <div id="enterprise-sso" class="hidden border-t pt-3 mt-3">
+                            <p class="text-sm text-gray-500 mb-3">Enterprise SSO:</p>
+                            <button onclick="loginWithAzure()" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg flex items-center justify-center">
+                                <i class="fab fa-microsoft mr-3 text-xl"></i>
+                                Sign in with Microsoft
+                            </button>
                         </div>
-                        <button onclick="continueAsGuest()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-xl transition-all">
-                            Continue as Guest Instead
-                        </button>
                     </div>
                 </div>
             </div>
@@ -298,17 +309,19 @@
         // Check if user is already logged in
         async function checkExistingSession() {
             try {
-                const response = await fetch(`${API_BASE}/api/auth/me`, {
+                const response = await fetch('/auth/status', {
                     credentials: 'include'
                 });
                 
                 if (response.ok) {
-                    const user = await response.json();
-                    if (user && user.email) {
+                    const data = await response.json();
+                    if (data.authenticated && data.user) {
                         // User is already logged in, redirect to app
                         localStorage.setItem('userMode', 'authenticated');
-                        localStorage.setItem('userProfile', JSON.stringify(user));
-                        window.location.href = '/';
+                        localStorage.setItem('userProfile', JSON.stringify(data.user));
+                        const returnTo = sessionStorage.getItem('loginReturnTo') || '/';
+                        sessionStorage.removeItem('loginReturnTo');
+                        window.location.href = returnTo;
                         return true;
                     }
                 }
@@ -318,14 +331,44 @@
             return false;
         }
 
+        // Show error from URL params
+        function showError() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            
+            if (error) {
+                const errorBanner = document.getElementById('error-banner');
+                const errorMessage = document.getElementById('error-message');
+                
+                const errorMessages = {
+                    'google_failed': 'Google login failed. Please try again.',
+                    'facebook_failed': 'Facebook login failed. Please try again.',
+                    'apple_failed': 'Apple login failed. Please try again.',
+                    'unauthorized': 'You need to sign in to access this page.',
+                    'session_expired': 'Your session has expired. Please sign in again.',
+                };
+                
+                errorMessage.textContent = errorMessages[error] || 'An error occurred. Please try again.';
+                errorBanner.classList.remove('hidden');
+            }
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', async () => {
-            // First check if user is already logged in
-            const isLoggedIn = await checkExistingSession();
+            // Show any errors
+            showError();
             
-            if (!isLoggedIn) {
-                // Not logged in, check SSO availability
-                await checkSSOAvailability();
+            // Check if user is already logged in
+            await checkExistingSession();
+            
+            // Check if enterprise SSO is available
+            try {
+                const response = await fetch('/api/auth/status');
+                if (response.ok) {
+                    document.getElementById('enterprise-sso').classList.remove('hidden');
+                }
+            } catch (e) {
+                // Enterprise SSO not available
             }
         });
 
