@@ -1,0 +1,141 @@
+{
+  "version": 2,
+  "name": "haos-fm",
+  "builds": [
+    {
+      "src": "app/server.js",
+      "use": "@vercel/node",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/app/server.js"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "/app/server.js"
+    },
+    {
+      "src": "/(.*)\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|mp3|wav|ogg|json)",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      },
+      "dest": "/app/public/$1.$2"
+    },
+    {
+      "src": "/(.*)\\.html",
+      "dest": "/app/public/$1.html"
+    },
+    {
+      "src": "/",
+      "dest": "/app/public/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/app/server.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "APP_URL": "@app_url",
+    "DATABASE_URL": "@database_url",
+    "SESSION_SECRET": "@session_secret",
+    "GOOGLE_CLIENT_ID": "@google_client_id",
+    "GOOGLE_CLIENT_SECRET": "@google_client_secret",
+    "RESEND_API_KEY": "@resend_api_key"
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  },
+  "functions": {
+    "app/server.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(), microphone=(), camera=()"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://haos.fm"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/haos-platform",
+      "destination": "/app/public/haos-platform/index.html"
+    },
+    {
+      "source": "/presets",
+      "destination": "/app/public/presets.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/login",
+      "destination": "/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/register",
+      "destination": "/register.html",
+      "permanent": false
+    }
+  ]
+}
