@@ -360,23 +360,24 @@ resource "azurerm_linux_virtual_machine" "tracks_vm" {
 }
 
 # VM Extension for initial setup (install Docker, Node.js, etc.)
-resource "azurerm_virtual_machine_extension" "vm_init" {
-  name                 = "${var.prefix}-${var.env}-vm-init"
-  virtual_machine_id   = azurerm_linux_virtual_machine.tracks_vm.id
-  publisher            = "Microsoft.Azure.Extensions"
-  type                 = "CustomScript"
-  type_handler_version = "2.1"
-
-  settings = <<SETTINGS
-    {
-        "script": "${base64encode(file("${path.module}/vm-init.sh"))}"
-    }
-SETTINGS
-
-  tags = {
-    environment = var.env
-  }
-}
+# Temporarily disabled - run vm-init.sh manually via SSH
+# resource "azurerm_virtual_machine_extension" "vm_init" {
+#   name                 = "${var.prefix}-${var.env}-vm-init"
+#   virtual_machine_id   = azurerm_linux_virtual_machine.tracks_vm.id
+#   publisher            = "Microsoft.Azure.Extensions"
+#   type                 = "CustomScript"
+#   type_handler_version = "2.1"
+#
+#   settings = <<SETTINGS
+#     {
+#         "script": "${base64encode(file("${path.module}/vm-init.sh"))}"
+#     }
+# SETTINGS
+#
+#   tags = {
+#     environment = var.env
+#   }
+# }
 
 # ====================================================================
 # Custom Domain Configuration (haos.fm)
