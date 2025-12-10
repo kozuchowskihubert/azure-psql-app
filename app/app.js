@@ -319,6 +319,15 @@ try {
   console.log('⚠ Registration routes not available:', error.message);
 }
 
+// JWT Admin Authentication for HAOS Platform
+try {
+  const { router: adminAuthRoutes } = require('./routes/admin-auth-routes');
+  app.use('/api/admin/auth', adminAuthRoutes);
+  console.log('✓ JWT Admin authentication enabled for HAOS Platform');
+} catch (error) {
+  console.log('⚠ Admin JWT auth not configured:', error.message);
+}
+
 // ============================================================================
 // Optional Feature Routes
 // ============================================================================

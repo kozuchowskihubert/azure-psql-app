@@ -20,6 +20,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/haos-brand.css">
     
+    <!-- HAOS Platform Core Scripts -->
+    <script src="/js/haos-components.js" defer></script>
+    <script src="/js/haos-platform.js" defer></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -1053,25 +1057,129 @@
     </footer>
 
     <script>
-        // Intelligent Navigation System
-        class SmartNavigation {
+        // Enhanced HAOS Platform Integration
+        class EnhancedNavigation {
             constructor() {
                 this.nav = document.getElementById('smartNav');
                 this.lastScrollY = window.scrollY;
                 this.userMode = localStorage.getItem('userMode') || 'guest';
                 this.userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+                this.platformMap = this.initializePlatformMap();
                 
                 this.init();
             }
             
+            initializePlatformMap() {
+                return {
+                    // HAOS Platform Core
+                    home: { url: '/', title: 'HAOS Platform', category: 'platform', icon: 'fas fa-home' },
+                    
+                    // Legendary ARP 2600 Studio
+                    arp2600: { 
+                        url: '/synth-2600.html', 
+                        title: 'ARP 2600 Classic', 
+                        category: 'studio', 
+                        icon: 'fas fa-sliders-h',
+                        legendary: true 
+                    },
+                    arp2600Studio: { 
+                        url: '/synth-2600-studio.html', 
+                        title: 'ARP 2600 Studio', 
+                        category: 'studio', 
+                        icon: 'fas fa-broadcast-tower',
+                        legendary: true 
+                    },
+                    
+                    // Techno Workspace Environments
+                    technoWorkspace: { 
+                        url: '/techno-workspace.html', 
+                        title: 'Techno Workspace', 
+                        category: 'workspace', 
+                        icon: 'fas fa-cubes' 
+                    },
+                    technoIntuitive: { 
+                        url: '/techno-intuitive.html', 
+                        title: 'Techno Intuitive', 
+                        category: 'workspace', 
+                        icon: 'fas fa-magic' 
+                    },
+                    technoCreator: { 
+                        url: '/techno-creator.html', 
+                        title: 'Techno Creator', 
+                        category: 'workspace', 
+                        icon: 'fas fa-industry' 
+                    },
+                    
+                    // Authentication
+                    login: { url: '/login.html', title: 'Login', category: 'auth', icon: 'fas fa-sign-in-alt' },
+                    register: { url: '/register.html', title: 'Register', category: 'auth', icon: 'fas fa-user-plus' }
+                };
+            }
+            
             init() {
+                this.initializeHAOSPlatform();
                 this.updateUserInterface();
                 this.handleScroll();
-                this.handleAuthLinks();
+                this.setupPlatformNavigation();
+                this.setupKeyboardShortcuts();
                 this.setActiveNavItem();
                 
                 window.addEventListener('scroll', () => this.handleScroll());
                 window.addEventListener('storage', () => this.updateUserInterface());
+            }
+            
+            async initializeHAOSPlatform() {
+                try {
+                    // Initialize HAOS Components if available
+                    if (window.haosComponents) {
+                        console.log('HAOS Components initialized');
+                    }
+                    
+                    // Initialize HAOS Platform if available
+                    if (window.HaosPlatform) {
+                        await window.HaosPlatform.init();
+                        console.log('HAOS Platform initialized');
+                    }
+                    
+                    // Check authentication status via API
+                    this.checkAuthenticationStatus();
+                } catch (error) {
+                    console.log('Platform initialization:', error.message);
+                }
+            }
+            
+            async checkAuthenticationStatus() {
+                try {
+                    const response = await fetch('/api/user/profile', {
+                        credentials: 'include'
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.user) {
+                            this.userMode = 'authenticated';
+                            this.userProfile = data.user;
+                            localStorage.setItem('userMode', 'authenticated');
+                            localStorage.setItem('userProfile', JSON.stringify(data.user));
+                            this.updateUserInterface();
+                        } else {
+                            this.setGuestMode();
+                        }
+                    } else {
+                        this.setGuestMode();
+                    }
+                } catch (error) {
+                    console.log('Auth check failed:', error.message);
+                    this.setGuestMode();
+                }
+            }
+            
+            setGuestMode() {
+                this.userMode = 'guest';
+                this.userProfile = {};
+                localStorage.setItem('userMode', 'guest');
+                localStorage.removeItem('userProfile');
+                this.updateUserInterface();
             }
             
             updateUserInterface() {
@@ -1080,18 +1188,175 @@
                 const userAvatar = document.getElementById('userAvatar');
                 
                 if (this.userMode === 'authenticated' && this.userProfile.email) {
-                    guestNav.style.display = 'none';
-                    authNav.style.display = 'block';
+                    if (guestNav) guestNav.style.display = 'none';
+                    if (authNav) authNav.style.display = 'block';
                     
                     // Set avatar
-                    const initials = this.userProfile.name 
-                        ? this.userProfile.name.substring(0, 2).toUpperCase()
-                        : this.userProfile.email.substring(0, 2).toUpperCase();
-                    userAvatar.textContent = initials;
+                    if (userAvatar) {
+                        const initials = this.userProfile.name 
+                            ? this.userProfile.name.substring(0, 2).toUpperCase()
+                            : this.userProfile.email.substring(0, 2).toUpperCase();
+                        userAvatar.textContent = initials;
+                    }
+                    
+                    // Update auth-required links
+                    document.querySelectorAll('[data-auth-required]').forEach(link => {
+                        link.style.opacity = '1';
+                        link.style.pointerEvents = 'auto';
+                    });
                 } else {
-                    guestNav.style.display = 'flex';
-                    authNav.style.display = 'none';
+                    if (guestNav) guestNav.style.display = 'flex';
+                    if (authNav) authNav.style.display = 'none';
+                    
+                    // Disable auth-required links
+                    document.querySelectorAll('[data-auth-required]').forEach(link => {
+                        link.style.opacity = '0.5';
+                        link.style.pointerEvents = 'none';
+                    });
                 }
+            }
+            
+            setupPlatformNavigation() {
+                // Add platform navigation to existing menu
+                this.createPlatformDropdown();
+                
+                // Handle auth-required navigation
+                const authRequiredLinks = document.querySelectorAll('[data-auth-required]');
+                authRequiredLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        if (this.userMode !== 'authenticated') {
+                            e.preventDefault();
+                            sessionStorage.setItem('loginReturnTo', link.href);
+                            this.showLoginPrompt();
+                        }
+                    });
+                });
+            }
+            
+            createPlatformDropdown() {
+                // Find the features dropdown in nav
+                const featuresDropdown = document.querySelector('[data-nav="features"]');
+                if (featuresDropdown && featuresDropdown.nextElementSibling) {
+                    const dropdown = featuresDropdown.nextElementSibling;
+                    
+                    // Add platform environments
+                    const platformSection = document.createElement('div');
+                    platformSection.className = 'dropdown-section';
+                    platformSection.innerHTML = `
+                        <h4 class="dropdown-section-title">
+                            <i class="fas fa-broadcast-tower"></i>
+                            Synthesis Studios
+                        </h4>
+                        <div class="dropdown-grid">
+                            <a href="/synth-2600-studio.html" class="dropdown-item legendary" data-auth-required>
+                                <div class="dropdown-item-icon">
+                                    <i class="fas fa-crown"></i>
+                                    <i class="fas fa-broadcast-tower"></i>
+                                </div>
+                                <div class="dropdown-item-content">
+                                    <h5>ARP 2600 Studio</h5>
+                                    <p>Legendary modular synthesizer</p>
+                                </div>
+                            </a>
+                            <a href="/techno-workspace.html" class="dropdown-item">
+                                <div class="dropdown-item-icon">
+                                    <i class="fas fa-cubes"></i>
+                                </div>
+                                <div class="dropdown-item-content">
+                                    <h5>Techno Workspace</h5>
+                                    <p>Live modular techno environment</p>
+                                </div>
+                            </a>
+                            <a href="/techno-creator.html" class="dropdown-item">
+                                <div class="dropdown-item-icon">
+                                    <i class="fas fa-industry"></i>
+                                </div>
+                                <div class="dropdown-item-content">
+                                    <h5>Techno Creator</h5>
+                                    <p>Industrial synthesis studio</p>
+                                </div>
+                            </a>
+                            <a href="/techno-intuitive.html" class="dropdown-item">
+                                <div class="dropdown-item-icon">
+                                    <i class="fas fa-magic"></i>
+                                </div>
+                                <div class="dropdown-item-content">
+                                    <h5>Techno Intuitive</h5>
+                                    <p>Intuitive creation interface</p>
+                                </div>
+                            </a>
+                        </div>
+                    `;
+                    
+                    dropdown.appendChild(platformSection);
+                }
+            }
+            
+            setupKeyboardShortcuts() {
+                const shortcuts = {
+                    'KeyH': () => this.navigate('home'),           // Ctrl+H - Home
+                    'KeyS': () => this.navigate('arp2600Studio'), // Ctrl+S - ARP 2600 Studio
+                    'KeyW': () => this.navigate('technoWorkspace'), // Ctrl+W - Techno Workspace
+                    'KeyT': () => this.navigate('technoCreator'),  // Ctrl+T - Techno Creator
+                    'KeyI': () => this.navigate('technoIntuitive'), // Ctrl+I - Techno Intuitive
+                    'KeyL': () => this.navigate('login')           // Ctrl+L - Login
+                };
+                
+                document.addEventListener('keydown', (e) => {
+                    if ((e.ctrlKey || e.metaKey) && shortcuts[e.code]) {
+                        e.preventDefault();
+                        shortcuts[e.code]();
+                    }
+                });
+            }
+            
+            navigate(platformKey) {
+                const platform = this.platformMap[platformKey];
+                if (platform) {
+                    window.location.href = platform.url;
+                }
+            }
+            
+            showLoginPrompt() {
+                const modal = document.createElement('div');
+                modal.className = 'auth-modal';
+                modal.innerHTML = `
+                    <div class="auth-modal-content">
+                        <h3>Authentication Required</h3>
+                        <p>Please log in to access this feature.</p>
+                        <div class="auth-modal-actions">
+                            <button class="haos-btn secondary" onclick="this.closest('.auth-modal').remove()">
+                                Cancel
+                            </button>
+                            <a href="/login.html" class="haos-btn primary">
+                                Login
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                // Style the modal
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // Remove modal on click outside
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
             }
             
             handleScroll() {
@@ -1114,20 +1379,6 @@
                 this.lastScrollY = currentScrollY;
             }
             
-            handleAuthLinks() {
-                const authRequiredLinks = document.querySelectorAll('[data-auth-required]');
-                
-                authRequiredLinks.forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        if (this.userMode !== 'authenticated') {
-                            e.preventDefault();
-                            sessionStorage.setItem('loginReturnTo', link.href);
-                            window.location.href = '/login.html?error=unauthorized';
-                        }
-                    });
-                });
-            }
-            
             setActiveNavItem() {
                 const currentPath = window.location.pathname;
                 const navLinks = document.querySelectorAll('.nav-link');
@@ -1143,46 +1394,150 @@
             }
         }
         
-        // Logout handler
+        // Enhanced logout with better error handling
         async function handleLogout(event) {
             event.preventDefault();
             
             try {
-                const response = await fetch('/auth/logout', {
-                    method: 'POST',
-                    credentials: 'include'
-                });
+                // Try multiple logout endpoints for compatibility
+                const endpoints = ['/api/auth/logout', '/auth/logout'];
+                let success = false;
                 
-                if (response.ok) {
-                    localStorage.removeItem('userMode');
-                    localStorage.removeItem('userProfile');
-                    window.location.href = '/';
+                for (const endpoint of endpoints) {
+                    try {
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            credentials: 'include',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            success = true;
+                            break;
+                        }
+                    } catch (err) {
+                        console.log(`Logout attempt failed for ${endpoint}:`, err.message);
+                    }
                 }
-            } catch (error) {
-                console.error('Logout failed:', error);
-                // Fallback: clear local storage and redirect
+                
+                // Clear local storage regardless
                 localStorage.removeItem('userMode');
                 localStorage.removeItem('userProfile');
+                sessionStorage.clear();
+                
+                // Redirect to home
+                window.location.href = '/';
+                
+            } catch (error) {
+                console.error('Logout failed:', error);
+                // Force logout by clearing storage and redirecting
+                localStorage.clear();
+                sessionStorage.clear();
                 window.location.href = '/';
             }
         }
         
-        // Page loader
+        // Page loader with enhanced error handling
         window.addEventListener('load', () => {
             const loader = document.getElementById('pageLoader');
-            setTimeout(() => {
-                loader.classList.add('hidden');
-            }, 300);
+            if (loader) {
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                }, 300);
+            }
         });
         
-        // Initialize smart navigation
-        const smartNav = new SmartNavigation();
-        
-        // Mobile menu toggle
-        document.getElementById('mobileMenuToggle').addEventListener('click', () => {
+        // Initialize enhanced navigation when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            const enhancedNav = new EnhancedNavigation();
+            
+            // Global reference for console debugging
+            window.haosNav = enhancedNav;
+            
+            // Mobile menu toggle with improved handling
+            const mobileToggle = document.getElementById('mobileMenuToggle');
             const navMenu = document.getElementById('navMenu');
-            navMenu.style.display = navMenu.style.display === 'flex' ? 'none' : 'flex';
+            
+            if (mobileToggle && navMenu) {
+                mobileToggle.addEventListener('click', () => {
+                    const isVisible = navMenu.style.display === 'flex';
+                    navMenu.style.display = isVisible ? 'none' : 'flex';
+                    mobileToggle.setAttribute('aria-expanded', !isVisible);
+                });
+            }
+            
+            // Add keyboard navigation for accessibility
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    // Close any open modals or dropdowns
+                    document.querySelectorAll('.auth-modal, .haos-modal').forEach(modal => {
+                        modal.remove();
+                    });
+                    document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                        dropdown.style.display = 'none';
+                    });
+                }
+            });
         });
+        
+        // Add legendary styling for special components
+        const addLegendaryStyles = () => {
+            const style = document.createElement('style');
+            style.textContent = `
+                .legendary {
+                    position: relative;
+                }
+                .legendary::before {
+                    content: '👑';
+                    position: absolute;
+                    top: -5px;
+                    right: -5px;
+                    font-size: 12px;
+                    z-index: 1;
+                }
+                .legendary:hover {
+                    box-shadow: 0 0 20px gold;
+                }
+                
+                .auth-modal-content {
+                    background: var(--haos-panel, rgba(20, 20, 25, 0.95));
+                    border: 2px solid var(--haos-orange, #FF6B35);
+                    border-radius: 16px;
+                    padding: 30px;
+                    text-align: center;
+                    color: var(--haos-text, #e0e0e0);
+                    backdrop-filter: blur(10px);
+                }
+                
+                .auth-modal-actions {
+                    display: flex;
+                    gap: 15px;
+                    justify-content: center;
+                    margin-top: 20px;
+                }
+                
+                .dropdown-section {
+                    border-top: 1px solid rgba(255, 107, 53, 0.2);
+                    margin-top: 20px;
+                    padding-top: 20px;
+                }
+                
+                .dropdown-section-title {
+                    color: var(--haos-orange, #FF6B35);
+                    font-size: 14px;
+                    font-weight: 600;
+                    margin-bottom: 15px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+            `;
+            document.head.appendChild(style);
+        };
+        
+        addLegendaryStyles();
     </script>
 </body>
 </html>

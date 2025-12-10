@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAOS Admin Panel - Feature Management</title>
+    <link rel="icon" href="/images/haos-logo-white.png" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-bottom: 2px solid #00d4ff;
+        }
+
+        .admin-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d4ff, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .admin-header p {
+            opacity: 0.8;
+            font-size: 1.1em;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: fit-content;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+            color: #00d4ff;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.2em;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            border-color: #00d4ff;
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .feature-card.critical {
+            border-left: 4px solid #ff4757;
+        }
+
+        .feature-card.legendary {
+            border-left: 4px solid #ffd700;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+        }
+
+        .feature-card.disabled {
+            opacity: 0.6;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .feature-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #ffffff;
+        }
+
+        .feature-category {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+
+        .feature-description {
+            color: #cccccc;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .feature-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 0.8em;
+        }
+
+        .meta-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 8px;
+            color: #ffffff;
+        }
+
+        .feature-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #333;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.enabled {
+            background: #00d4ff;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.enabled::before {
+            transform: translateX(30px);
+        }
+
+        .toggle-status {
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+
+        .status-enabled {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
+        .status-disabled {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(45deg, #666, #888);
+        }
+
+        .btn.danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #cccccc;
+            margin-top: 5px;
+        }
+
+        .dependencies {
+            margin-top: 10px;
+        }
+
+        .dependency-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .dependency {
+            background: rgba(255, 107, 53, 0.2);
+            color: #ff6b35;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.7em;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #00d4ff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: #cccccc;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .filter-tab.active {
+            color: #00d4ff;
+            border-bottom-color: #00d4ff;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(46, 204, 113, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: rgba(231, 76, 60, 0.9);
+        }
+
+        /* Login Form Styles */
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-header h2 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .login-header p {
+            color: #cccccc;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .login-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .login-info {
+            margin-top: 20px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+        }
+
+        .admin-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            color: #ffffff;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1>🎛️ HAOS Admin Panel</h1>
+        <p>Feature Management & Service Control Center</p>
+        
+        <!-- Admin Info & Logout -->
+        <div id="adminInfo" class="admin-info" style="display: none;">
+            <div class="admin-profile">
+                <span id="adminUsername"></span>
+                <button class="btn secondary" onclick="logoutAdmin()" style="margin-left: 15px;">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="login-container" style="display: none;">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>🔐 Admin Login</h2>
+                <p>Enter your credentials to access the admin panel</p>
+            </div>
+            
+            <form id="adminLoginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" name="username" value="admin" required 
+                           placeholder="Enter username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="password" value="HAOS2025Admin!" required 
+                           placeholder="Enter password">
+                </div>
+                
+                <div id="loginError" class="error-message" style="display: none;"></div>
+                
+                <button type="submit" id="loginButton" class="btn login-btn">
+                    <span id="loginText">Login</span>
+                    <span id="loginSpinner" class="loading" style="display: none;"></span>
+                </button>
+            </form>
+            
+            <div class="login-info">
+                <p>Default credentials: <strong>admin</strong> / <strong>HAOS2025Admin!</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Left Sidebar: Stats & Quick Actions -->
+        <div class="sidebar">
+            <div class="section">
+                <h2><span class="section-icon">📊</span> System Overview</h2>
+                <div class="stats-grid" id="systemStats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="enabledCount">-</div>
+                        <div class="stat-label">Enabled</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="disabledCount">-</div>
+                        <div class="stat-label">Disabled</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="criticalCount">-</div>
+                        <div class="stat-label">Critical</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="legendaryCount">-</div>
+                        <div class="stat-label">Legendary</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="section-icon">⚡</span> Bulk Actions</h2>
+                <div class="bulk-actions">
+                    <button class="btn" onclick="bulkEnable()">Enable All</button>
+                    <button class="btn secondary" onclick="bulkDisableNonCritical()">Disable Non-Critical</button>
+                    <button class="btn danger" onclick="emergencyShutdown()">Emergency Shutdown</button>
+                    <button class="btn secondary" onclick="exportConfig()">Export Config</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="section-icon">💾</span> Configuration</h2>
+                <div style="margin-bottom: 15px;">
+                    <button class="btn secondary" onclick="saveConfiguration()">💾 Save Config</button>
+                </div>
+                <div>
+                    <button class="btn secondary" onclick="loadConfiguration()">📂 Load Config</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all" onclick="filterFeatures('all')">All</button>
+                <button class="filter-tab" data-filter="features" onclick="filterFeatures('features')">Core Features</button>
+                <button class="filter-tab" data-filter="instruments" onclick="filterFeatures('instruments')">Instruments</button>
+                <button class="filter-tab" data-filter="services" onclick="filterFeatures('services')">Services</button>
+                <button class="filter-tab" data-filter="enabled" onclick="filterFeatures('enabled')">Enabled</button>
+                <button class="filter-tab" data-filter="disabled" onclick="filterFeatures('disabled')">Disabled</button>
+            </div>
+
+            <!-- Search Box -->
+            <input type="text" class="search-box" placeholder="🔍 Search features, instruments, and services..." 
+                   id="searchBox" onkeyup="searchFeatures(this.value)">
+
+            <!-- Core Features Section -->
+            <div class="section" id="coreFeatures">
+                <h2><span class="section-icon">🔧</span> Core Platform Features</h2>
+                <div class="feature-grid" id="featuresGrid">
+                    <!-- Features will be populated here -->
+                </div>
+            </div>
+
+            <!-- Instruments Section -->
+            <div class="section" id="instrumentsSection">
+                <h2><span class="section-icon">🎹</span> Instruments</h2>
+                <div class="feature-grid" id="instrumentsGrid">
+                    <!-- Instruments will be populated here -->
+                </div>
+            </div>
+
+            <!-- Services Section -->
+            <div class="section" id="servicesSection">
+                <h2><span class="section-icon">⚙️</span> Platform Services</h2>
+                <div class="feature-grid" id="servicesGrid">
+                    <!-- Services will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar: Resource Monitor -->
+        <div class="sidebar">
+            <div class="section">
+                <h2><span class="section-icon">🖥️</span> Resource Monitor</h2>
+                <div id="resourceMonitor">
+                    <!-- Resource usage will be shown here -->
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="section-icon">🔗</span> Dependencies</h2>
+                <div id="dependencyGraph">
+                    <!-- Dependency info will be shown here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JWT Authentication System -->
+    <script src="/js/haos-auth.js"></script>
+    <!-- Load Feature Toggle System -->
+    <script src="/js/haos-feature-toggle.js"></script>
+    
+    <script>
+        let featureToggle;
+        let currentFilter = 'all';
+        let searchTerm = '';
+        let isAuthenticated = false;
+
+        // Initialize admin panel
+        async function initAdminPanel() {
+            console.log('[AdminPanel] Initializing...');
+            
+            // Check authentication first
+            const authResult = await initializeAuth();
+            
+            if (!authResult.authenticated) {
+                console.log('[AdminPanel] Not authenticated, showing login form');
+                showLoginForm();
+                return;
+            }
+            
+            console.log('[AdminPanel] Authenticated as:', authResult.admin?.username);
+            isAuthenticated = true;
+            
+            // Show admin info
+            showAdminInfo(authResult.admin);
+            
+            // Hide login form
+            hideLoginForm();
+            
+            // Wait for feature toggle system to be ready
+            await new Promise(resolve => {
+                const checkReady = () => {
+                    if (window.haosFeatureToggle) {
+                        featureToggle = window.haosFeatureToggle;
+                        resolve();
+                    } else {
+                        setTimeout(checkReady, 100);
+                    }
+                };
+                checkReady();
+            });
+
+            // Set up event listeners
+            featureToggle.addListener((event, data) => {
+                if (event === 'toggle' || event === 'remote_toggle') {
+                    updateFeatureDisplay(data.id);
+                    updateStats();
+                    updateResourceMonitor();
+                    showNotification(`${data.item.name} ${data.enabled ? 'enabled' : 'disabled'}`, data.enabled ? 'success' : 'info');
+                }
+            });
+
+            // Initial render
+            renderAllFeatures();
+            updateStats();
+            updateResourceMonitor();
+            updateDependencyGraph();
+        }
+
+        // Authentication handlers
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const loginButton = document.getElementById('loginButton');
+            const loginText = document.getElementById('loginText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            const errorDiv = document.getElementById('loginError');
+            
+            // Get form data
+            const formData = new FormData(event.target);
+            const username = formData.get('username');
+            const password = formData.get('password');
+            
+            try {
+                // Show loading state
+                loginButton.disabled = true;
+                loginText.style.display = 'none';
+                loginSpinner.style.display = 'inline-block';
+                errorDiv.style.display = 'none';
+                
+                console.log('[Login] Attempting login...');
+                const result = await login(username, password);
+                
+                console.log('[Login] Success! Redirecting...');
+                
+                // Refresh page to initialize admin panel
+                window.location.reload();
+                
+            } catch (error) {
+                console.error('[Login] Error:', error.message);
+                
+                // Show error
+                errorDiv.textContent = error.message || 'Login failed. Please try again.';
+                errorDiv.style.display = 'block';
+                
+                // Reset button state
+                loginButton.disabled = false;
+                loginText.style.display = 'inline';
+                loginSpinner.style.display = 'none';
+            }
+        }
+
+        async function logoutAdmin() {
+            try {
+                console.log('[AdminPanel] Logging out...');
+                await logout();
+                // Logout function handles redirect
+            } catch (error) {
+                console.error('[AdminPanel] Logout error:', error);
+                // Force logout anyway
+                clearAuthData();
+                window.location.reload();
+            }
+        }
+
+        function showLoginForm() {
+            document.getElementById('loginForm').style.display = 'flex';
+            document.querySelector('.dashboard-grid').style.display = 'none';
+        }
+
+        function hideLoginForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.querySelector('.dashboard-grid').style.display = 'grid';
+        }
+
+        function showAdminInfo(admin) {
+            const adminInfo = document.getElementById('adminInfo');
+            const adminUsername = document.getElementById('adminUsername');
+            
+            if (admin && adminUsername) {
+                adminUsername.textContent = `Welcome, ${admin.username}`;
+                adminInfo.style.display = 'block';
+            }
+        }
+
+        // Render all features
+        function renderAllFeatures() {
+            const state = featureToggle.getFeatureState();
+            
+            renderFeatureGroup('featuresGrid', state.features);
+            renderFeatureGroup('instrumentsGrid', state.instruments);
+            renderFeatureGroup('servicesGrid', state.services);
+            
+            applyFilters();
+        }
+
+        // Render a group of features
+        function renderFeatureGroup(containerId, items) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            items.forEach(item => {
+                const card = createFeatureCard(item);
+                container.appendChild(card);
+            });
+        }
+
+        // Create feature card element
+        function createFeatureCard(item) {
+            const card = document.createElement('div');
+            card.className = `feature-card ${item.enabled ? 'enabled' : 'disabled'}`;
+            if (item.impact === 'critical') card.classList.add('critical');
+            if (item.legendary) card.classList.add('legendary');
+            card.dataset.id = item.id;
+            card.dataset.category = item.category;
+
+            const dependencies = item.dependencies ? 
+                item.dependencies.map(dep => `<span class="dependency">${dep}</span>`).join('') : '';
+
+            const metaItems = [];
+            if (item.impact) metaItems.push(`<span class="meta-item">Impact: ${item.impact}</span>`);
+            if (item.presetCount) metaItems.push(`<span class="meta-item">${item.presetCount} presets</span>`);
+            if (item.urls) metaItems.push(`<span class="meta-item">${item.urls.length} URLs</span>`);
+
+            card.innerHTML = `
+                <div class="feature-header">
+                    <div class="feature-title">${item.name} ${item.legendary ? '⭐' : ''}</div>
+                    <div class="feature-category">${item.category}</div>
+                </div>
+                <div class="feature-description">${item.description}</div>
+                <div class="feature-meta">
+                    ${metaItems.join('')}
+                </div>
+                ${dependencies ? `
+                <div class="dependencies">
+                    <div style="font-size: 0.8em; color: #cccccc; margin-bottom: 5px;">Dependencies:</div>
+                    <div class="dependency-list">${dependencies}</div>
+                </div>
+                ` : ''}
+                <div class="feature-toggle">
+                    <div class="toggle-status ${item.enabled ? 'status-enabled' : 'status-disabled'}">
+                        ${item.enabled ? 'ENABLED' : 'DISABLED'}
+                    </div>
+                    <div class="toggle-switch ${item.enabled ? 'enabled' : ''}" onclick="toggleFeature('${item.id}')">
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Toggle individual feature
+        async function toggleFeature(id) {
+            const item = featureToggle.getItem(id);
+            if (!item) return;
+
+            try {
+                const loadingEl = showLoading(`Toggling ${item.name}...`);
+                await featureToggle.toggle(id, !item.enabled);
+                hideLoading(loadingEl);
+            } catch (error) {
+                showNotification(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Update feature display
+        function updateFeatureDisplay(id) {
+            const card = document.querySelector(`[data-id="${id}"]`);
+            if (!card) return;
+
+            const item = featureToggle.getItem(id);
+            
+            // Update card classes
+            card.classList.toggle('enabled', item.enabled);
+            card.classList.toggle('disabled', !item.enabled);
+            
+            // Update status
+            const status = card.querySelector('.toggle-status');
+            status.textContent = item.enabled ? 'ENABLED' : 'DISABLED';
+            status.className = `toggle-status ${item.enabled ? 'status-enabled' : 'status-disabled'}`;
+            
+            // Update toggle switch
+            const toggle = card.querySelector('.toggle-switch');
+            toggle.classList.toggle('enabled', item.enabled);
+        }
+
+        // Filter features
+        function filterFeatures(filter) {
+            currentFilter = filter;
+            
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.filter === filter);
+            });
+            
+            applyFilters();
+        }
+
+        // Search features
+        function searchFeatures(term) {
+            searchTerm = term.toLowerCase();
+            applyFilters();
+        }
+
+        // Apply current filters and search
+        function applyFilters() {
+            document.querySelectorAll('.feature-card').forEach(card => {
+                const id = card.dataset.id;
+                const item = featureToggle.getItem(id);
+                
+                let show = true;
+                
+                // Filter by category
+                if (currentFilter !== 'all') {
+                    if (currentFilter === 'enabled' && !item.enabled) show = false;
+                    else if (currentFilter === 'disabled' && item.enabled) show = false;
+                    else if (['features', 'instruments', 'services'].includes(currentFilter)) {
+                        const type = id.startsWith('instrument.') ? 'instruments' : 
+                                   id.startsWith('service.') ? 'services' : 'features';
+                        if (type !== currentFilter) show = false;
+                    }
+                }
+                
+                // Filter by search term
+                if (searchTerm && show) {
+                    const searchText = `${item.name} ${item.description} ${item.category}`.toLowerCase();
+                    show = searchText.includes(searchTerm);
+                }
+                
+                card.style.display = show ? 'block' : 'none';
+            });
+            
+            // Show/hide sections based on visible cards
+            ['coreFeatures', 'instrumentsSection', 'servicesSection'].forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                const grid = section.querySelector('.feature-grid');
+                const hasVisibleCards = Array.from(grid.children).some(card => card.style.display !== 'none');
+                section.style.display = hasVisibleCards ? 'block' : 'none';
+            });
+        }
+
+        // Update stats
+        function updateStats() {
+            const summary = featureToggle.getStateSummary();
+            
+            document.getElementById('enabledCount').textContent = summary.enabled;
+            document.getElementById('disabledCount').textContent = summary.disabled;
+            document.getElementById('criticalCount').textContent = summary.critical;
+            document.getElementById('legendaryCount').textContent = summary.legendary;
+        }
+
+        // Update resource monitor
+        function updateResourceMonitor() {
+            const usage = featureToggle.getResourceUsage();
+            const maxUsage = 15; // Approximate max for display
+            
+            const monitor = document.getElementById('resourceMonitor');
+            monitor.innerHTML = Object.entries(usage)
+                .filter(([_, value]) => value > 0)
+                .map(([resource, value]) => {
+                    const percent = Math.min((value / maxUsage) * 100, 100);
+                    const color = percent > 80 ? '#e74c3c' : percent > 60 ? '#f39c12' : '#2ecc71';
+                    return `
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="text-transform: capitalize;">${resource}</span>
+                                <span>${value}/${maxUsage}</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div style="background: ${color}; height: 100%; width: ${percent}%; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+        }
+
+        // Update dependency graph
+        function updateDependencyGraph() {
+            const graph = document.getElementById('dependencyGraph');
+            const state = featureToggle.getFeatureState();
+            const all = [...state.features, ...state.instruments, ...state.services];
+            
+            const dependencies = new Map();
+            all.forEach(item => {
+                if (item.dependencies && item.dependencies.length > 0) {
+                    dependencies.set(item.id, item.dependencies);
+                }
+            });
+            
+            if (dependencies.size === 0) {
+                graph.innerHTML = '<p style="color: #cccccc;">No dependencies</p>';
+                return;
+            }
+            
+            graph.innerHTML = Array.from(dependencies.entries())
+                .slice(0, 5) // Show first 5 to avoid clutter
+                .map(([id, deps]) => {
+                    const item = featureToggle.getItem(id);
+                    return `
+                        <div style="margin-bottom: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                            <div style="font-size: 0.9em; font-weight: 600;">${item.name}</div>
+                            <div style="font-size: 0.8em; color: #cccccc;">
+                                Depends on: ${deps.join(', ')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+        }
+
+        // Bulk actions
+        async function bulkEnable() {
+            try {
+                const state = featureToggle.getFeatureState();
+                const all = [...state.features, ...state.instruments, ...state.services];
+                const operations = all.filter(item => !item.enabled).map(item => ({ id: item.id, enabled: true }));
+                
+                if (operations.length === 0) {
+                    showNotification('All features are already enabled', 'info');
+                    return;
+                }
+                
+                const loadingEl = showLoading(`Enabling ${operations.length} features...`);
+                const result = await featureToggle.bulkToggle(operations);
+                hideLoading(loadingEl);
+                
+                if (result.errors.length > 0) {
+                    showNotification(`${result.results.length} enabled, ${result.errors.length} errors`, 'warning');
+                } else {
+                    showNotification(`All ${operations.length} features enabled successfully`, 'success');
+                }
+                
+                renderAllFeatures();
+                updateStats();
+                updateResourceMonitor();
+            } catch (error) {
+                showNotification(`Bulk enable failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function bulkDisableNonCritical() {
+            try {
+                const state = featureToggle.getFeatureState();
+                const all = [...state.features, ...state.instruments, ...state.services];
+                const operations = all
+                    .filter(item => item.enabled && item.impact !== 'critical')
+                    .map(item => ({ id: item.id, enabled: false }));
+                
+                if (operations.length === 0) {
+                    showNotification('No non-critical features to disable', 'info');
+                    return;
+                }
+                
+                if (!confirm(`This will disable ${operations.length} non-critical features. Continue?`)) {
+                    return;
+                }
+                
+                const loadingEl = showLoading(`Disabling ${operations.length} features...`);
+                const result = await featureToggle.bulkToggle(operations);
+                hideLoading(loadingEl);
+                
+                showNotification(`${result.results.length} non-critical features disabled`, 'success');
+                renderAllFeatures();
+                updateStats();
+                updateResourceMonitor();
+            } catch (error) {
+                showNotification(`Bulk disable failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function emergencyShutdown() {
+            if (!confirm('⚠️ EMERGENCY SHUTDOWN ⚠️\n\nThis will disable ALL non-critical features immediately. This action cannot be undone easily. Are you sure?')) {
+                return;
+            }
+            
+            if (!confirm('Final confirmation: This will affect all users currently using the platform. Continue?')) {
+                return;
+            }
+            
+            try {
+                const state = featureToggle.getFeatureState();
+                const all = [...state.features, ...state.instruments, ...state.services];
+                const operations = all
+                    .filter(item => item.enabled && item.impact !== 'critical')
+                    .map(item => ({ id: item.id, enabled: false }));
+                
+                const loadingEl = showLoading('🚨 Emergency shutdown in progress...');
+                const result = await featureToggle.bulkToggle(operations);
+                hideLoading(loadingEl);
+                
+                showNotification(`🚨 Emergency shutdown complete: ${result.results.length} features disabled`, 'warning');
+                renderAllFeatures();
+                updateStats();
+                updateResourceMonitor();
+            } catch (error) {
+                showNotification(`Emergency shutdown failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Configuration management
+        async function saveConfiguration() {
+            try {
+                const state = featureToggle.getFeatureState();
+                const config = {
+                    timestamp: new Date().toISOString(),
+                    state: state
+                };
+                
+                const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `haos-config-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showNotification('Configuration exported successfully', 'success');
+            } catch (error) {
+                showNotification(`Export failed: ${error.message}`, 'error');
+            }
+        }
+
+        function loadConfiguration() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = async (e) => {
+                try {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const text = await file.text();
+                    const config = JSON.parse(text);
+                    
+                    if (!config.state) {
+                        throw new Error('Invalid configuration file');
+                    }
+                    
+                    if (!confirm('This will overwrite the current configuration. Continue?')) {
+                        return;
+                    }
+                    
+                    // Apply configuration
+                    const operations = [];
+                    const all = [...config.state.features, ...config.state.instruments, ...config.state.services];
+                    
+                    all.forEach(item => {
+                        const current = featureToggle.getItem(item.id);
+                        if (current && current.enabled !== item.enabled) {
+                            operations.push({ id: item.id, enabled: item.enabled });
+                        }
+                    });
+                    
+                    if (operations.length > 0) {
+                        const loadingEl = showLoading(`Applying ${operations.length} configuration changes...`);
+                        await featureToggle.bulkToggle(operations);
+                        hideLoading(loadingEl);
+                    }
+                    
+                    renderAllFeatures();
+                    updateStats();
+                    updateResourceMonitor();
+                    showNotification('Configuration loaded successfully', 'success');
+                } catch (error) {
+                    showNotification(`Import failed: ${error.message}`, 'error');
+                }
+            };
+            input.click();
+        }
+
+        function exportConfig() {
+            saveConfiguration(); // Same as save for now
+        }
+
+        // Utility functions
+        function showLoading(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification show';
+            notification.innerHTML = `<div class="loading"></div> ${message}`;
+            document.body.appendChild(notification);
+            return notification;
+        }
+
+        function hideLoading(element) {
+            if (element && element.parentNode) {
+                element.parentNode.removeChild(element);
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification show ${type === 'error' ? 'error' : ''}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initAdminPanel);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 's':
+                        e.preventDefault();
+                        saveConfiguration();
+                        break;
+                    case 'l':
+                        e.preventDefault();
+                        loadConfiguration();
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        document.getElementById('searchBox').focus();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

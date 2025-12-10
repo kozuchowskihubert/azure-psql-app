@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAOS Admin - JWT Auth Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-section h2 {
+            color: #ffffff;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+        }
+        
+        .result {
+            background: #333;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .success {
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .error {
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .info {
+            border-left: 4px solid #00d4ff;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 HAOS JWT Authentication Test</h1>
+        
+        <!-- Login Test -->
+        <div class="test-section">
+            <h2>1. Login Test</h2>
+            <div class="form-group">
+                <label>Username:</label>
+                <input type="text" id="username" value="admin" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="password" value="HAOS2025Admin!" placeholder="Enter password">
+            </div>
+            <button onclick="testLogin()">🔑 Test Login</button>
+            <button onclick="clearResults()">🗑️ Clear Results</button>
+            <div id="loginResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- Auth Status Test -->
+        <div class="test-section">
+            <h2>2. Authentication Status</h2>
+            <button onclick="checkAuthStatus()">📊 Check Auth Status</button>
+            <button onclick="getCurrentAdmin()">👤 Get Current Admin</button>
+            <div id="statusResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- Protected Endpoint Test -->
+        <div class="test-section">
+            <h2>3. Protected Endpoints</h2>
+            <button onclick="testFeatureState()">🎛️ Test Feature State</button>
+            <button onclick="testAdminList()">👥 Test Admin List</button>
+            <div id="protectedResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- Token Management -->
+        <div class="test-section">
+            <h2>4. Token Management</h2>
+            <button onclick="refreshToken()">🔄 Refresh Token</button>
+            <button onclick="logout()">🚪 Logout</button>
+            <div id="tokenResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- Debug Info -->
+        <div class="test-section">
+            <h2>5. Debug Information</h2>
+            <button onclick="showDebugInfo()">🐛 Show Debug Info</button>
+            <div id="debugResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Load HAOS Auth System -->
+    <script src="/js/haos-auth.js"></script>
+    
+    <script>
+        // Test Functions
+        
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('loginResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Attempting login...';
+            resultDiv.className = 'result info';
+            
+            try {
+                const result = await login(username, password);
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ Login Successful!\n\n${JSON.stringify(result, null, 2)}`;
+                
+                // Show token info
+                setTimeout(() => {
+                    const token = localStorage.getItem('haosAdminToken');
+                    const admin = localStorage.getItem('haosAdmin');
+                    
+                    resultDiv.textContent += `\n\n📝 Stored Data:\nToken: ${token?.substring(0, 50)}...\nAdmin: ${admin}`;
+                }, 100);
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Login Failed!\n\nError: ${error.message}`;
+            }
+        }
+        
+        async function checkAuthStatus() {
+            const resultDiv = document.getElementById('statusResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Checking authentication status...';
+            resultDiv.className = 'result info';
+            
+            try {
+                const status = await checkAuthStatus();
+                
+                resultDiv.className = status.authenticated ? 'result success' : 'result error';
+                resultDiv.textContent = `${status.authenticated ? '✅' : '❌'} Authentication Status\n\n${JSON.stringify(status, null, 2)}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Status Check Failed!\n\nError: ${error.message}`;
+            }
+        }
+        
+        async function getCurrentAdmin() {
+            const resultDiv = document.getElementById('statusResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Getting current admin info...';
+            resultDiv.className = 'result info';
+            
+            try {
+                const admin = await getCurrentAdminFromAPI();
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ Current Admin Info\n\n${JSON.stringify(admin, null, 2)}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Get Admin Failed!\n\nError: ${error.message}`;
+            }
+        }
+        
+        async function testFeatureState() {
+            const resultDiv = document.getElementById('protectedResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Testing feature state endpoint...';
+            resultDiv.className = 'result info';
+            
+            try {
+                const response = await authFetch('/api/admin/features/state');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Feature State Endpoint\n\nResponse: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Feature State Failed\n\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`;
+                }
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Feature State Error!\n\nError: ${error.message}`;
+            }
+        }
+        
+        async function testAdminList() {
+            const resultDiv = document.getElementById('protectedResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Testing admin list endpoint...';
+            resultDiv.className = 'result info';
+            
+            try {
+                const response = await authFetch('/api/admin/auth/admins');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Admin List Endpoint\n\nResponse: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Admin List Failed\n\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`;
+                }
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Admin List Error!\n\nError: ${error.message}`;
+            }
+        }
+        
+        async function refreshToken() {
+            const resultDiv = document.getElementById('tokenResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Refreshing token...';
+            resultDiv.className = 'result info';
+            
+            try {
+                const result = await refreshToken();
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ Token Refreshed!\n\n${JSON.stringify(result, null, 2)}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Token Refresh Failed!\n\nError: ${error.message}`;
+            }
+        }
+        
+        async function logout() {
+            const resultDiv = document.getElementById('tokenResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Logging out...';
+            resultDiv.className = 'result info';
+            
+            try {
+                await logout();
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ Logout Successful!\n\nRedirecting to login...`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Logout Failed!\n\nError: ${error.message}`;
+            }
+        }
+        
+        function showDebugInfo() {
+            const resultDiv = document.getElementById('debugResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            
+            const debugInfo = getDebugInfo();
+            const localStorage_token = localStorage.getItem('haosAdminToken');
+            const localStorage_admin = localStorage.getItem('haosAdmin');
+            
+            const fullDebug = {
+                ...debugInfo,
+                localStorageKeys: {
+                    haosAdminToken: localStorage_token ? `${localStorage_token.substring(0, 30)}...` : null,
+                    haosAdmin: localStorage_admin
+                },
+                windowObjects: {
+                    authFetch: typeof window.authFetch,
+                    login: typeof window.login,
+                    logout: typeof window.logout,
+                    isAuthenticated: typeof window.isAuthenticated
+                },
+                apiUrls: {
+                    base: buildApiUrl(''),
+                    login: buildApiUrl('/api/admin/auth/login'),
+                    status: buildApiUrl('/api/admin/auth/status')
+                }
+            };
+            
+            resultDiv.textContent = `🐛 Debug Information\n\n${JSON.stringify(fullDebug, null, 2)}`;
+        }
+        
+        function clearResults() {
+            const results = document.querySelectorAll('.result');
+            results.forEach(result => {
+                result.style.display = 'none';
+                result.textContent = '';
+            });
+        }
+        
+        // Auto-check auth status on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('[AuthTest] Page loaded, checking initial auth status...');
+            
+            try {
+                const authStatus = await initializeAuth();
+                console.log('[AuthTest] Initial auth status:', authStatus);
+                
+                if (authStatus.authenticated) {
+                    document.querySelector('h1').innerHTML = '🔐 HAOS JWT Authentication Test <span style="color: #2ecc71; font-size: 0.8em;">✅ Authenticated</span>';
+                } else {
+                    document.querySelector('h1').innerHTML = '🔐 HAOS JWT Authentication Test <span style="color: #e74c3c; font-size: 0.8em;">❌ Not Authenticated</span>';
+                }
+            } catch (error) {
+                console.error('[AuthTest] Error checking auth:', error);
+            }
+        });
+        
+        // Make functions available globally for debugging in console
+        window.testLogin = testLogin;
+        window.checkAuthStatus = checkAuthStatus;
+        window.testFeatureState = testFeatureState;
+        window.authDebug = {
+            login,
+            logout,
+            isAuthenticated,
+            getCurrentAdmin,
+            checkAuthStatus,
+            getDebugInfo,
+            authFetch
+        };
+    </script>
+</body>
+</html>

@@ -285,30 +285,190 @@
         
         async function loadProviders() {
             try {
-                const response = await fetch('/auth/providers');
-                if (response.ok) {
-                    const data = await response.json();
-                    const providers = data.providers || [];
-                    providers.forEach(provider => {
-                        const btn = document.getElementById(provider.id + '-btn');
-                        if (btn) btn.classList.remove('hidden');
-                    });
-                    if (providers.length === 0) {
-                        const googleBtn = document.getElementById('google-btn');
-                        if (googleBtn) { googleBtn.style.opacity = '0.5'; googleBtn.style.pointerEvents = 'none'; }
+                // Try multiple endpoints for provider information
+                const endpoints = ['/auth/providers', '/api/auth/providers', '/api/platform/auth/providers'];
+                let providers = [];
+                
+                for (const endpoint of endpoints) {
+                    try {
+                        const response = await fetch(endpoint);
+                        if (response.ok) {
+                            const data = await response.json();
+                            providers = data.providers || data.auth?.providers || [];
+                            break;
+                        }
+                    } catch (e) {
+                        console.log(`Provider check failed for ${endpoint}`);
                     }
                 }
-            } catch (e) { console.log('Could not load providers:', e); }
+                
+                // Show available providers
+                providers.forEach(provider => {
+                    const btn = document.getElementById(provider.id + '-btn');
+                    if (btn) btn.classList.remove('hidden');
+                });
+                
+                // Handle OAuth provider issues
+                const googleBtn = document.getElementById('google-btn');
+                if (googleBtn && providers.find(p => p.id === 'google')) {
+                    // Add fallback for Google OAuth issues
+                    googleBtn.addEventListener('click', (e) => {
+                        // Set a timeout to check if OAuth succeeded
+                        setTimeout(() => {
+                            checkOAuthSuccess();
+                        }, 5000);
+                    });
+                } else if (googleBtn) {
+                    // Disable Google login and show alternative
+                    googleBtn.style.opacity = '0.5';
+                    googleBtn.style.pointerEvents = 'none';
+                    googleBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i>Google login temporarily unavailable';
+                    
+                    // Highlight email/password login
+                    document.getElementById('login-form').style.border = '2px solid #FF6B35';
+                    document.getElementById('login-form').style.borderRadius = '12px';
+                    document.getElementById('login-form').style.padding = '16px';
+                    document.getElementById('login-form').style.marginBottom = '24px';
+                    
+                    // Add note about Google issues
+                    const note = document.createElement('div');
+                    note.style.cssText = 'background: rgba(255, 107, 53, 0.1); border: 1px solid rgba(255, 107, 53, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px; font-size: 13px; color: #FF6B35;';
+                    note.innerHTML = '<i class="fas fa-info-circle"></i> Google login is currently experiencing issues. Please use email/password login or try again later.';
+                    document.getElementById('login-form').parentNode.insertBefore(note, document.getElementById('login-form'));
+                }
+                
+            } catch (e) { 
+                console.log('Could not load providers:', e);
+                // Fallback: assume email/password login works, disable OAuth
+                const oauthButtons = document.querySelectorAll('.btn-social[href*="/auth/"]');
+                oauthButtons.forEach(btn => {
+                    btn.style.opacity = '0.5';
+                    btn.style.pointerEvents = 'none';
+                });
+            }
+        }
+        
+        function checkOAuthSuccess() {
+            // Check if we're still on the login page after OAuth attempt
+            if (window.location.pathname === '/login.html') {
+                // OAuth might have failed silently
+                showError('OAuth login failed. Please try email/password login or contact support.');
+                
+                // Highlight alternative login methods
+                const emailInput = document.getElementById('login-email');
+                if (emailInput) {
+                    emailInput.focus();
+                    emailInput.style.borderColor = '#FF6B35';
+                    emailInput.style.boxShadow = '0 0 0 3px rgba(255, 107, 53, 0.2)';
+                }
+            }
+        }
+        
+        async function enhancedAuthCheck() {
+            try {
+                // Try multiple auth status endpoints
+                const endpoints = ['/auth/status', '/api/auth/status', '/api/user/profile'];
+                
+                for (const endpoint of endpoints) {
+                    try {
+                        const response = await fetch(endpoint, { credentials: 'include' });
+                        if (response.ok) {
+                            const data = await response.json();
+                            if ((data.authenticated || data.success) && data.user) {
+                                localStorage.setItem('userMode', 'authenticated');
+                                localStorage.setItem('userProfile', JSON.stringify(data.user));
+                                
+                                // Redirect to intended destination
+                                const returnTo = sessionStorage.getItem('loginReturnTo') || 
+                                               new URLSearchParams(window.location.search).get('returnTo') || 
+                                               '/';
+                                window.location.href = returnTo;
+                                sessionStorage.removeItem('loginReturnTo');
+                                return true;
+                            }
+                        }
+                    } catch (e) {
+                        console.log(`Auth check failed for ${endpoint}`);
+                    }
+                }
+            } catch (e) { 
+                console.log('No existing session'); 
+            }
+            return false;
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
             checkUrlError();
-            await checkExistingSession();
+            
+            // Enhanced authentication check
+            const isAuthenticated = await enhancedAuthCheck();
+            if (isAuthenticated) return;
+            
+            // Load OAuth providers with fallbacks
             await loadProviders();
-            try { const r = await fetch('/api/auth/status'); if (r.ok) document.getElementById('enterprise-sso').classList.remove('hidden'); } catch (e) {}
+            
+            // Check for enterprise SSO availability
+            try { 
+                const response = await fetch('/api/auth/status');
+                if (response.ok) {
+                    document.getElementById('enterprise-sso').classList.remove('hidden');
+                }
+            } catch (e) {
+                console.log('Enterprise SSO not available');
+            }
+            
+            // Auto-fill email from URL parameter if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const emailParam = urlParams.get('email');
+            if (emailParam) {
+                document.getElementById('login-email').value = emailParam;
+                document.getElementById('login-password').focus();
+            }
+            
+            // Add form validation enhancements
+            const loginForm = document.getElementById('login-form');
+            const emailInput = document.getElementById('login-email');
+            const passwordInput = document.getElementById('login-password');
+            
+            // Real-time validation
+            emailInput.addEventListener('input', () => {
+                const isValid = emailInput.validity.valid;
+                emailInput.style.borderColor = isValid ? '#2a2a2a' : '#ff4444';
+            });
+            
+            passwordInput.addEventListener('input', () => {
+                const isValid = passwordInput.value.length >= 6;
+                passwordInput.style.borderColor = isValid ? '#2a2a2a' : '#ff4444';
+            });
+            
+            // Focus management
+            emailInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && emailInput.validity.valid) {
+                    passwordInput.focus();
+                }
+            });
+            
+            passwordInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && passwordInput.value.length >= 6) {
+                    loginForm.dispatchEvent(new Event('submit'));
+                }
+            });
         });
         
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') continueAsGuest(); });
+        // Enhanced keyboard shortcuts
+        document.addEventListener('keydown', (e) => { 
+            if (e.key === 'Escape') {
+                continueAsGuest();
+            }
+            
+            // Quick login shortcuts
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('login-form').dispatchEvent(new Event('submit'));
+                }
+            }
+        });
     </script>
 </body>
 </html>
