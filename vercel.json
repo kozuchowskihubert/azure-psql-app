@@ -32,11 +32,17 @@
     },
     {
       "src": "/(.*)\\.html",
-      "dest": "/app/public/$1.html"
+      "dest": "/app/public/$1.html",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+      }
     },
     {
       "src": "/",
-      "dest": "/app/public/index.html"
+      "dest": "/app/public/index.html",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+      }
     },
     {
       "src": "/haos-platform(.*)",
