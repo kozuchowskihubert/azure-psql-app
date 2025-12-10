@@ -281,7 +281,8 @@ jobs:
           TF_VAR_vm_ssh_public_key: ${{ secrets.VM_SSH_PUBLIC_KEY }}
         run: |
           echo "📋 Planning infrastructure changes..."
-          terraform plan -out=tfplan -no-color | tee plan.txt
+          # Run plan and filter sensitive data from output
+          terraform plan -out=tfplan -no-color 2>&1 | sed -E 's/(DATABASE_URL[^"]*")[^"]+"/\1***REDACTED***"/g; s/(password[^"]*")[^"]+"/\1***REDACTED***"/g' | tee plan.txt
           
           # Count resource changes
           CHANGES=$(grep -E "Plan:|No changes" plan.txt || echo "Unknown")
