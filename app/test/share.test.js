@@ -1,7 +1,16 @@
 const request = require('supertest');
 const { Pool } = require('pg');
 
-jest.mock('pg');
+// Mock database pool with all needed methods
+jest.mock('pg', () => {
+  const mPool = {
+    connect: jest.fn(),
+    query: jest.fn(),
+    on: jest.fn(),
+    end: jest.fn(),
+  };
+  return { Pool: jest.fn(() => mPool) };
+});
 
 let app;
 let pool;
@@ -12,6 +21,7 @@ beforeAll(() => {
   process.env.NODE_ENV = 'test';
 
   pool = new Pool();
+  app = require('../index').app;
 });
 
 describe('Share Routes', () => {

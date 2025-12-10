@@ -28,11 +28,13 @@ if (!databaseUrl) {
     allowExitOnIdle: true,
   });
 
-  // Handle pool errors gracefully
-  pool.on('error', (err) => {
-    console.error('Unexpected database error:', err.message);
-    // Don't crash the app on database errors
-  });
+  // Handle pool errors gracefully (check if on exists for test compatibility)
+  if (typeof pool.on === 'function') {
+    pool.on('error', (err) => {
+      console.error('Unexpected database error:', err.message);
+      // Don't crash the app on database errors
+    });
+  }
 
   module.exports = pool;
 }
