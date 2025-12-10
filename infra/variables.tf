@@ -62,3 +62,19 @@ variable "vm_ssh_public_key" {
   sensitive   = true
   default     = "" # Will be generated if not provided
 }
+
+# ====================================================================
+# Custom Domain Variables (haos.fm)
+# ====================================================================
+
+variable "custom_domain" {
+  description = "Custom domain for the music app (e.g., haos.fm)"
+  type        = string
+  default     = "haos.fm"
+}
+
+variable "enable_custom_domain" {
+  description = "Whether to enable custom domain binding"
+  type        = bool
+  default     = false # Set to true when DNS is configured
+}

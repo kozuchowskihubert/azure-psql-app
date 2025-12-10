@@ -296,8 +296,8 @@ resource "azurerm_public_ip" "vm_pip" {
   name                = "${var.prefix}-${var.env}-vm-pip"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  allocation_method   = "Dynamic"
-  sku                 = "Basic"
+  allocation_method   = "Static"
+  sku                 = "Standard"
 }
 
 # Network Interface for VM
@@ -376,4 +376,47 @@ SETTINGS
   tags = {
     environment = var.env
   }
+}
+
+# ====================================================================
+# Custom Domain Configuration (haos.fm)
+# ====================================================================
+
+# Custom domain binding for Music App
+resource "azurerm_app_service_custom_hostname_binding" "music_app_domain" {
+  count               = var.enable_custom_domain ? 1 : 0
+  hostname            = var.custom_domain
+  app_service_name    = azurerm_linux_web_app.music_app.name
+  resource_group_name = azurerm_resource_group.rg.name
+
+  # SSL will be configured after domain verification
+  lifecycle {
+    ignore_changes = [ssl_state, thumbprint]
+  }
+}
+
+# WWW subdomain binding
+resource "azurerm_app_service_custom_hostname_binding" "music_app_www" {
+  count               = var.enable_custom_domain ? 1 : 0
+  hostname            = "www.${var.custom_domain}"
+  app_service_name    = azurerm_linux_web_app.music_app.name
+  resource_group_name = azurerm_resource_group.rg.name
+
+  lifecycle {
+    ignore_changes = [ssl_state, thumbprint]
+  }
+}
+
+# Managed SSL Certificate for custom domain
+resource "azurerm_app_service_managed_certificate" "music_app_cert" {
+  count                      = var.enable_custom_domain ? 1 : 0
+  custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.music_app_domain[0].id
+}
+
+# Bind the managed certificate
+resource "azurerm_app_service_certificate_binding" "music_app_cert_binding" {
+  count               = var.enable_custom_domain ? 1 : 0
+  hostname_binding_id = azurerm_app_service_custom_hostname_binding.music_app_domain[0].id
+  certificate_id      = azurerm_app_service_managed_certificate.music_app_cert[0].id
+  ssl_state           = "SniEnabled"
 }

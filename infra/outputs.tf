@@ -95,3 +95,57 @@ output "vm_ssh_command" {
   description = "SSH command to connect to the VM"
   value       = "ssh ${var.vm_admin_username}@${azurerm_public_ip.vm_pip.ip_address}"
 }
+
+# ====================================================================
+# Custom Domain Outputs (haos.fm)
+# ====================================================================
+
+output "custom_domain_enabled" {
+  description = "Whether custom domain is enabled"
+  value       = var.enable_custom_domain
+}
+
+output "custom_domain" {
+  description = "Custom domain name"
+  value       = var.custom_domain
+}
+
+output "music_app_verification_id" {
+  description = "Custom domain verification ID for DNS TXT record"
+  value       = azurerm_linux_web_app.music_app.custom_domain_verification_id
+  sensitive   = true
+}
+
+output "dns_setup_instructions" {
+  description = "DNS configuration instructions for haos.fm"
+  sensitive   = true
+  value       = <<-EOT
+    
+    ========================================
+    DNS SETUP FOR ${var.custom_domain}
+    ========================================
+    
+    Add these DNS records at your domain registrar:
+    
+    1. CNAME Record (for www subdomain):
+       Host: www
+       Points to: ${azurerm_linux_web_app.music_app.default_hostname}
+    
+    2. A Record (for apex domain) - Use Azure's IP:
+       Host: @
+       Points to: Use 'awverify' method below
+    
+    3. TXT Record (for domain verification):
+       Host: asuid
+       Value: ${azurerm_linux_web_app.music_app.custom_domain_verification_id}
+    
+    4. TXT Record (for www verification):
+       Host: asuid.www
+       Value: ${azurerm_linux_web_app.music_app.custom_domain_verification_id}
+    
+    After DNS propagation (may take up to 48 hours):
+    Set enable_custom_domain = true in terraform.tfvars
+    
+    ========================================
+  EOT
+}
