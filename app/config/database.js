@@ -17,9 +17,17 @@ if (!databaseUrl) {
     on: () => {},
   };
 } else {
+  // Determine SSL settings based on environment
+  const isLocalDev = process.env.NODE_ENV === 'development' || 
+                     process.env.DATABASE_SSL === 'false' ||
+                     databaseUrl.includes('localhost') ||
+                     databaseUrl.includes('127.0.0.1');
+  
+  const sslConfig = isLocalDev ? false : { rejectUnauthorized: false };
+
   const pool = new Pool({
     connectionString: databaseUrl,
-    ssl: { rejectUnauthorized: false },
+    ssl: sslConfig,
     // Add connection timeouts to prevent hanging
     connectionTimeoutMillis: 5000,
     idleTimeoutMillis: 30000,

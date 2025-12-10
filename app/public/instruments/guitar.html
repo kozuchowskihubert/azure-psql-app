@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Guitar - HAOS.fm</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.5);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .header-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .header-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s;
+    }
+
+    .header-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Guitar Type Selector */
+    .guitar-selector {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .guitar-type-btn {
+      padding: 1rem 2rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      min-width: 150px;
+    }
+
+    .guitar-type-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-3px);
+    }
+
+    .guitar-type-btn.active {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+      border-color: #667eea;
+    }
+
+    .guitar-type-btn i {
+      font-size: 2rem;
+      color: #667eea;
+    }
+
+    /* Fretboard Container */
+    .fretboard-container {
+      background: linear-gradient(180deg, #3d2914, #2a1d0d);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        inset 0 2px 3px rgba(255, 255, 255, 0.1);
+    }
+
+    .fretboard {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* String Row */
+    .string-row {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .string-name {
+      width: 40px;
+      text-align: center;
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+    }
+
+    .string-line {
+      flex: 1;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .string {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #d4af37, #ffd700, #d4af37);
+      box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+    }
+
+    .string.thick {
+      height: 4px;
+    }
+
+    .string.vibrating {
+      animation: vibrate 0.05s infinite;
+    }
+
+    @keyframes vibrate {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(2px); }
+    }
+
+    /* Frets */
+    .frets {
+      display: flex;
+      flex: 1;
+    }
+
+    .fret {
+      flex: 1;
+      height: 40px;
+      border-right: 3px solid #c4a35a;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .fret:hover {
+      background: rgba(102, 126, 234, 0.2);
+    }
+
+    .fret.active {
+      background: rgba(102, 126, 234, 0.4);
+    }
+
+    .fret:first-child {
+      border-left: 6px solid #e8d4a8;
+    }
+
+    /* Fret markers */
+    .fret-marker {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 12px;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+    }
+
+    .fret-marker.double {
+      width: 8px;
+      height: 8px;
+    }
+
+    /* Controls Panel */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .control-panel {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .panel-title i {
+      color: #667eea;
+    }
+
+    /* Chord Grid */
+    .chord-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    .chord-btn {
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .chord-btn:hover {
+      background: rgba(102, 126, 234, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .chord-btn.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-color: transparent;
+    }
+
+    .chord-btn .chord-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .chord-btn .chord-type {
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+
+    /* Strum Pattern */
+    .strum-pattern {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .strum-btn {
+      width: 40px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .strum-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .strum-btn.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .strum-btn.down i {
+      transform: rotate(180deg);
+    }
+
+    /* Effects Chain */
+    .effects-chain {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .effect-btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .effect-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .effect-btn.active {
+      background: rgba(102, 126, 234, 0.3);
+      border-color: #667eea;
+    }
+
+    .effect-btn i {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+      color: #667eea;
+    }
+
+    .effect-btn span {
+      font-size: 0.8rem;
+    }
+
+    /* Amp Visualizer */
+    .amp-visualizer {
+      background: #111;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      border: 2px solid #333;
+    }
+
+    .amp-brand {
+      font-size: 0.9rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+    }
+
+    .amp-display {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .amp-led {
+      width: 8px;
+      height: 8px;
+      background: #333;
+      border-radius: 50%;
+    }
+
+    .amp-led.active {
+      background: #4caf50;
+      box-shadow: 0 0 10px #4caf50;
+    }
+
+    .amp-knobs {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .amp-knob-container {
+      text-align: center;
+    }
+
+    .amp-knob {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(145deg, #333, #222);
+      border-radius: 50%;
+      margin: 0 auto 0.5rem;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .amp-knob::before {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      width: 2px;
+      height: 15px;
+      background: #fff;
+      transform-origin: bottom center;
+      transform: translateX(-50%) rotate(var(--rotation, 0deg));
+    }
+
+    .amp-knob-label {
+      font-size: 0.7rem;
+      color: #666;
+      text-transform: uppercase;
+    }
+
+    /* Slider */
+    .slider-container {
+      margin-bottom: 1rem;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .slider {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      appearance: none;
+      outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* Note Display */
+    .note-display {
+      text-align: center;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+    }
+
+    .current-chord {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .chord-notes {
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 0.5rem;
+    }
+
+    /* Waveform */
+    .waveform-container {
+      height: 80px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 1.5rem;
+    }
+
+    .waveform-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Play Controls */
+    .play-controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .play-btn {
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.3s;
+    }
+
+    .play-btn.primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+    }
+
+    .play-btn.primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .play-btn.secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .play-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Tutorial Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: #1a1a2e;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .modal-body p {
+      margin-bottom: 1rem;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.6;
+    }
+
+    .modal-body ul {
+      list-style: none;
+      margin-bottom: 1rem;
+    }
+
+    .modal-body li {
+      padding: 0.5rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .modal-body li::before {
+      content: '🎸';
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <a href="/virtual-lab.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+      Back to Lab
+    </a>
+    <h1 class="header-title">
+      <span>🎸</span> Virtual Guitar
+    </h1>
+    <div class="header-actions">
+      <button class="header-btn" onclick="showTutorial()">
+        <i class="fas fa-question-circle"></i>
+        Help
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Guitar Type Selector -->
+    <div class="guitar-selector">
+      <button class="guitar-type-btn active" data-type="acoustic">
+        <i class="fas fa-guitar"></i>
+        <span>Acoustic</span>
+      </button>
+      <button class="guitar-type-btn" data-type="electric">
+        <i class="fas fa-bolt"></i>
+        <span>Electric</span>
+      </button>
+      <button class="guitar-type-btn" data-type="classical">
+        <i class="fas fa-music"></i>
+        <span>Classical</span>
+      </button>
+    </div>
+
+    <!-- Fretboard -->
+    <div class="fretboard-container">
+      <div class="fretboard" id="fretboard">
+        <!-- Strings generated by JS -->
+      </div>
+    </div>
+
+    <!-- Controls Grid -->
+    <div class="controls-grid">
+      <!-- Chord Library -->
+      <div class="control-panel">
+        <h3 class="panel-title"><i class="fas fa-hand-rock"></i> Chords</h3>
+        <div class="chord-grid" id="chord-grid">
+          <!-- Generated by JS -->
+        </div>
+      </div>
+
+      <!-- Current Note/Chord Display -->
+      <div class="control-panel">
+        <h3 class="panel-title"><i class="fas fa-music"></i> Now Playing</h3>
+        <div class="note-display">
+          <div class="current-chord" id="current-chord">-</div>
+          <div class="chord-notes" id="chord-notes">Click a chord or string to play</div>
+        </div>
+        <div class="waveform-container">
+          <canvas id="waveform" class="waveform-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Strumming Pattern -->
+      <div class="control-panel">
+        <h3 class="panel-title"><i class="fas fa-hand-paper"></i> Strum Pattern</h3>
+        <div class="strum-pattern" id="strum-pattern">
+          <button class="strum-btn down active" data-direction="down"><i class="fas fa-arrow-down"></i></button>
+          <button class="strum-btn" data-direction="none"><i class="fas fa-minus"></i></button>
+          <button class="strum-btn down active" data-direction="down"><i class="fas fa-arrow-down"></i></button>
+          <button class="strum-btn up active" data-direction="up"><i class="fas fa-arrow-up"></i></button>
+          <button class="strum-btn" data-direction="none"><i class="fas fa-minus"></i></button>
+          <button class="strum-btn up active" data-direction="up"><i class="fas fa-arrow-up"></i></button>
+          <button class="strum-btn down active" data-direction="down"><i class="fas fa-arrow-down"></i></button>
+          <button class="strum-btn up active" data-direction="up"><i class="fas fa-arrow-up"></i></button>
+        </div>
+        <div class="slider-container" style="margin-top: 1.5rem;">
+          <div class="slider-label">
+            <span>Tempo</span>
+            <span id="tempo-value">120 BPM</span>
+          </div>
+          <input type="range" class="slider" id="tempo" min="60" max="180" value="120">
+        </div>
+      </div>
+
+      <!-- Effects -->
+      <div class="control-panel">
+        <h3 class="panel-title"><i class="fas fa-sliders-h"></i> Effects</h3>
+        <div class="effects-chain">
+          <button class="effect-btn" data-effect="distortion">
+            <i class="fas fa-fire"></i>
+            <span>Distortion</span>
+          </button>
+          <button class="effect-btn" data-effect="chorus">
+            <i class="fas fa-water"></i>
+            <span>Chorus</span>
+          </button>
+          <button class="effect-btn" data-effect="delay">
+            <i class="fas fa-clock"></i>
+            <span>Delay</span>
+          </button>
+          <button class="effect-btn active" data-effect="reverb">
+            <i class="fas fa-mountain"></i>
+            <span>Reverb</span>
+          </button>
+        </div>
+        
+        <!-- Amp Simulator -->
+        <div class="amp-visualizer" style="margin-top: 1.5rem;">
+          <div class="amp-brand">HAOS Amplifier</div>
+          <div class="amp-display">
+            <div class="amp-led active"></div>
+            <div class="amp-led"></div>
+            <div class="amp-led"></div>
+            <div class="amp-led"></div>
+            <div class="amp-led"></div>
+          </div>
+          <div class="amp-knobs">
+            <div class="amp-knob-container">
+              <div class="amp-knob" style="--rotation: 45deg;"></div>
+              <div class="amp-knob-label">Gain</div>
+            </div>
+            <div class="amp-knob-container">
+              <div class="amp-knob" style="--rotation: 90deg;"></div>
+              <div class="amp-knob-label">Tone</div>
+            </div>
+            <div class="amp-knob-container">
+              <div class="amp-knob" style="--rotation: 60deg;"></div>
+              <div class="amp-knob-label">Volume</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Play Controls -->
+    <div class="play-controls">
+      <button class="play-btn primary" onclick="strumChord()">
+        <i class="fas fa-play"></i>
+        Strum Chord
+      </button>
+      <button class="play-btn secondary" onclick="startPattern()">
+        <i class="fas fa-music"></i>
+        Play Pattern
+      </button>
+      <button class="play-btn secondary" onclick="stopAll()">
+        <i class="fas fa-stop"></i>
+        Stop
+      </button>
+    </div>
+  </div>
+
+  <!-- Tutorial Modal -->
+  <div id="tutorial-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🎸 Guitar Tutorial</h2>
+        <button class="modal-close" onclick="hideTutorial()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Welcome to the Virtual Guitar! Here's how to play:</p>
+        <ul>
+          <li>Click on chord buttons to select a chord</li>
+          <li>Click individual frets on the fretboard to play notes</li>
+          <li>Use "Strum Chord" to play the selected chord</li>
+          <li>Set up a strum pattern and click "Play Pattern"</li>
+          <li>Add effects like distortion and reverb for different sounds</li>
+        </ul>
+        <p><strong>Keyboard shortcuts:</strong></p>
+        <ul>
+          <li>1-6 keys: Play open strings (E-A-D-G-B-E)</li>
+          <li>Space: Strum current chord</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Audio Context
+    let audioCtx = null;
+    let masterGain = null;
+    let currentChord = null;
+    let isPlaying = false;
+    let patternInterval = null;
+    let guitarType = 'acoustic';
+
+    // String tuning (standard)
+    const stringFreqs = [329.63, 246.94, 196.00, 146.83, 110.00, 82.41]; // E4, B3, G3, D3, A2, E2
+    const stringNames = ['E', 'B', 'G', 'D', 'A', 'E'];
+
+    // Chord definitions (fret positions, -1 = muted)
+    const chords = {
+      'C': { name: 'C Major', frets: [-1, 3, 2, 0, 1, 0], notes: 'C E G' },
+      'D': { name: 'D Major', frets: [-1, -1, 0, 2, 3, 2], notes: 'D F# A' },
+      'E': { name: 'E Major', frets: [0, 2, 2, 1, 0, 0], notes: 'E G# B' },
+      'G': { name: 'G Major', frets: [3, 2, 0, 0, 0, 3], notes: 'G B D' },
+      'A': { name: 'A Major', frets: [-1, 0, 2, 2, 2, 0], notes: 'A C# E' },
+      'Am': { name: 'A Minor', frets: [-1, 0, 2, 2, 1, 0], notes: 'A C E' },
+      'Em': { name: 'E Minor', frets: [0, 2, 2, 0, 0, 0], notes: 'E G B' },
+      'Dm': { name: 'D Minor', frets: [-1, -1, 0, 2, 3, 1], notes: 'D F A' }
+    };
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      initFretboard();
+      initChordButtons();
+      initControls();
+      initWaveform();
+    });
+
+    function ensureAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.5;
+        masterGain.connect(audioCtx.destination);
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function initFretboard() {
+      const fretboard = document.getElementById('fretboard');
+      fretboard.innerHTML = '';
+
+      stringNames.forEach((name, stringIndex) => {
+        const row = document.createElement('div');
+        row.className = 'string-row';
+        
+        // String name
+        const nameEl = document.createElement('div');
+        nameEl.className = 'string-name';
+        nameEl.textContent = name;
+        row.appendChild(nameEl);
+
+        // String line with frets
+        const stringLine = document.createElement('div');
+        stringLine.className = 'string-line';
+        
+        // Actual string
+        const string = document.createElement('div');
+        string.className = `string ${stringIndex >= 4 ? 'thick' : ''}`;
+        string.id = `string-${stringIndex}`;
+        stringLine.appendChild(string);
+
+        // Frets
+        const frets = document.createElement('div');
+        frets.className = 'frets';
+        
+        for (let fretNum = 0; fretNum <= 12; fretNum++) {
+          const fret = document.createElement('div');
+          fret.className = 'fret';
+          fret.dataset.string = stringIndex;
+          fret.dataset.fret = fretNum;
+          
+          // Add fret markers
+          if ([3, 5, 7, 9].includes(fretNum) && stringIndex === 2) {
+            const marker = document.createElement('div');
+            marker.className = 'fret-marker';
+            fret.appendChild(marker);
+          }
+          if (fretNum === 12 && (stringIndex === 1 || stringIndex === 3)) {
+            const marker = document.createElement('div');
+            marker.className = 'fret-marker double';
+            fret.appendChild(marker);
+          }
+
+          fret.addEventListener('click', () => playFret(stringIndex, fretNum));
+          frets.appendChild(fret);
+        }
+
+        stringLine.appendChild(frets);
+        row.appendChild(stringLine);
+        fretboard.appendChild(row);
+      });
+    }
+
+    function initChordButtons() {
+      const grid = document.getElementById('chord-grid');
+      grid.innerHTML = '';
+
+      Object.entries(chords).forEach(([key, chord]) => {
+        const btn = document.createElement('button');
+        btn.className = 'chord-btn';
+        btn.dataset.chord = key;
+        btn.innerHTML = `
+          <div class="chord-name">${key}</div>
+          <div class="chord-type">${chord.name.split(' ')[1] || ''}</div>
+        `;
+        btn.addEventListener('click', () => selectChord(key));
+        grid.appendChild(btn);
+      });
+    }
+
+    function initControls() {
+      // Guitar type selector
+      document.querySelectorAll('.guitar-type-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.guitar-type-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          guitarType = btn.dataset.type;
+        });
+      });
+
+      // Strum pattern buttons
+      document.querySelectorAll('.strum-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('active');
+        });
+      });
+
+      // Effect buttons
+      document.querySelectorAll('.effect-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('active');
+        });
+      });
+
+      // Tempo slider
+      document.getElementById('tempo').addEventListener('input', (e) => {
+        document.getElementById('tempo-value').textContent = `${e.target.value} BPM`;
+      });
+    }
+
+    function playFret(stringIndex, fretNum) {
+      ensureAudioContext();
+
+      const baseFreq = stringFreqs[stringIndex];
+      const freq = baseFreq * Math.pow(2, fretNum / 12);
+      
+      playNote(freq, stringIndex);
+      
+      // Update display
+      const noteName = getNoteName(freq);
+      document.getElementById('current-chord').textContent = noteName;
+      document.getElementById('chord-notes').textContent = `${Math.round(freq)} Hz`;
+
+      // Visual feedback
+      highlightFret(stringIndex, fretNum);
+    }
+
+    function playNote(freq, stringIndex) {
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      // Guitar-like waveform
+      osc.type = guitarType === 'electric' ? 'sawtooth' : 'triangle';
+      osc.frequency.value = freq;
+
+      // Filter for tone
+      filter.type = 'lowpass';
+      filter.frequency.value = guitarType === 'acoustic' ? 2500 : 4000;
+      filter.Q.value = 1;
+
+      // Envelope
+      const now = audioCtx.currentTime;
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.5, now + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+
+      osc.connect(filter);
+      filter.connect(gainNode);
+      
+      // Apply active effects
+      let lastNode = gainNode;
+      
+      if (document.querySelector('[data-effect="reverb"].active')) {
+        const convolver = audioCtx.createConvolver();
+        // Simple reverb impulse
+        const rate = audioCtx.sampleRate;
+        const length = rate * 2;
+        const impulse = audioCtx.createBuffer(2, length, rate);
+        for (let i = 0; i < 2; i++) {
+          const channel = impulse.getChannelData(i);
+          for (let j = 0; j < length; j++) {
+            channel[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / length, 2);
+          }
+        }
+        convolver.buffer = impulse;
+        
+        const wet = audioCtx.createGain();
+        wet.gain.value = 0.3;
+        lastNode.connect(convolver);
+        convolver.connect(wet);
+        wet.connect(masterGain);
+        lastNode.connect(masterGain);
+      } else {
+        lastNode.connect(masterGain);
+      }
+
+      osc.start();
+      osc.stop(now + 2);
+
+      // Animate string
+      const stringEl = document.getElementById(`string-${stringIndex}`);
+      if (stringEl) {
+        stringEl.classList.add('vibrating');
+        setTimeout(() => stringEl.classList.remove('vibrating'), 500);
+      }
+    }
+
+    function selectChord(chordKey) {
+      currentChord = chordKey;
+      
+      // Update button states
+      document.querySelectorAll('.chord-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.chord === chordKey);
+      });
+
+      // Update display
+      const chord = chords[chordKey];
+      document.getElementById('current-chord').textContent = chordKey;
+      document.getElementById('chord-notes').textContent = chord.notes;
+
+      // Highlight frets on fretboard
+      clearFretHighlights();
+      chord.frets.forEach((fret, stringIndex) => {
+        if (fret >= 0) {
+          highlightFret(stringIndex, fret);
+        }
+      });
+    }
+
+    function strumChord() {
+      if (!currentChord) {
+        selectChord('C');
+      }
+
+      ensureAudioContext();
+      const chord = chords[currentChord];
+      
+      // Strum strings with slight delay between each
+      chord.frets.forEach((fret, stringIndex) => {
+        if (fret >= 0) {
+          setTimeout(() => {
+            const baseFreq = stringFreqs[stringIndex];
+            const freq = baseFreq * Math.pow(2, fret / 12);
+            playNote(freq, stringIndex);
+          }, stringIndex * 30);
+        }
+      });
+
+      isPlaying = true;
+    }
+
+    function startPattern() {
+      if (!currentChord) {
+        selectChord('C');
+      }
+
+      const tempo = parseInt(document.getElementById('tempo').value);
+      const beatDuration = 60000 / tempo / 2; // 8th notes
+
+      const pattern = Array.from(document.querySelectorAll('.strum-btn'))
+        .map(btn => btn.classList.contains('active') ? btn.dataset.direction : 'none');
+
+      let beatIndex = 0;
+      
+      if (patternInterval) clearInterval(patternInterval);
+      
+      patternInterval = setInterval(() => {
+        const direction = pattern[beatIndex % pattern.length];
+        
+        if (direction !== 'none') {
+          strumChord();
+        }
+
+        // Visual feedback
+        document.querySelectorAll('.strum-btn').forEach((btn, i) => {
+          btn.style.transform = i === (beatIndex % pattern.length) ? 'scale(1.1)' : 'scale(1)';
+        });
+
+        beatIndex++;
+      }, beatDuration);
+
+      isPlaying = true;
+    }
+
+    function stopAll() {
+      if (patternInterval) {
+        clearInterval(patternInterval);
+        patternInterval = null;
+      }
+      isPlaying = false;
+      
+      document.querySelectorAll('.strum-btn').forEach(btn => {
+        btn.style.transform = 'scale(1)';
+      });
+    }
+
+    function highlightFret(stringIndex, fretNum) {
+      const fret = document.querySelector(`.fret[data-string="${stringIndex}"][data-fret="${fretNum}"]`);
+      if (fret) {
+        fret.classList.add('active');
+        setTimeout(() => fret.classList.remove('active'), 500);
+      }
+    }
+
+    function clearFretHighlights() {
+      document.querySelectorAll('.fret').forEach(f => f.classList.remove('active'));
+    }
+
+    function getNoteName(freq) {
+      const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      const a4 = 440;
+      const c0 = a4 * Math.pow(2, -4.75);
+      const halfSteps = Math.round(12 * Math.log2(freq / c0));
+      const octave = Math.floor(halfSteps / 12);
+      const note = noteNames[halfSteps % 12];
+      return `${note}${octave}`;
+    }
+
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        strumChord();
+      }
+      
+      // Number keys for open strings
+      const keyMap = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5 };
+      if (keyMap[e.key] !== undefined) {
+        playFret(keyMap[e.key], 0);
+      }
+    });
+
+    // Waveform visualizer
+    function initWaveform() {
+      const canvas = document.getElementById('waveform');
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth * 2;
+      canvas.height = canvas.offsetHeight * 2;
+
+      function draw() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (isPlaying) {
+          const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+          gradient.addColorStop(0, '#667eea');
+          gradient.addColorStop(1, '#764ba2');
+          
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          
+          const sliceWidth = canvas.width / 100;
+          let x = 0;
+          
+          for (let i = 0; i < 100; i++) {
+            const v = Math.sin(i * 0.3 + Date.now() * 0.005) * 0.3 + 0.5;
+            const y = v * canvas.height;
+            
+            if (i === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+            x += sliceWidth;
+          }
+          
+          ctx.stroke();
+        } else {
+          ctx.strokeStyle = 'rgba(102, 126, 234, 0.3)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(0, canvas.height / 2);
+          ctx.lineTo(canvas.width, canvas.height / 2);
+          ctx.stroke();
+        }
+        
+        requestAnimationFrame(draw);
+      }
+      
+      draw();
+    }
+
+    function showTutorial() {
+      document.getElementById('tutorial-modal').classList.add('show');
+    }
+
+    function hideTutorial() {
+      document.getElementById('tutorial-modal').classList.remove('show');
+    }
+  </script>
+</body>
+</html>

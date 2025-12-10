@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>String Ensemble - HAOS.fm</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.5);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .header-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .header-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s;
+    }
+
+    .header-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .header-btn.primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Orchestra Layout */
+    .orchestra-stage {
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
+      border-radius: 200px 200px 20px 20px;
+      padding: 3rem 2rem 2rem;
+      margin-bottom: 2rem;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .conductor-position {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 3rem;
+      animation: conduct 1s ease-in-out infinite;
+    }
+
+    @keyframes conduct {
+      0%, 100% { transform: translateX(-50%) rotate(-5deg); }
+      50% { transform: translateX(-50%) rotate(5deg); }
+    }
+
+    /* Section Grid */
+    .sections-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1000px) {
+      .sections-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .sections-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Section Card */
+    .section-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .section-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(102, 126, 234, 0.3);
+      transform: translateY(-5px);
+    }
+
+    .section-card.active {
+      border-color: #667eea;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    }
+
+    .section-card.playing .section-icon {
+      animation: pulse 0.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .section-icon {
+      font-size: 2.5rem;
+    }
+
+    .section-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .section-players {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .section-mute {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .section-mute:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .section-mute.muted {
+      background: rgba(244, 67, 54, 0.3);
+      color: #f44336;
+    }
+
+    /* Visualizer in Section */
+    .section-visualizer {
+      height: 60px;
+      margin: 1rem 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px;
+    }
+
+    .visualizer-bar {
+      width: 6px;
+      background: linear-gradient(180deg, #667eea, #764ba2);
+      border-radius: 3px;
+      transition: height 0.1s;
+    }
+
+    /* Volume & Pan Controls */
+    .section-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .control-label {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+    }
+
+    .slider {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      appearance: none;
+      outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* Master Controls */
+    .master-controls {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .master-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .master-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+    }
+
+    .master-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    /* Play Buttons */
+    .play-controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .play-btn {
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.3s;
+    }
+
+    .play-btn.primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+    }
+
+    .play-btn.primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .play-btn.secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .play-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Articulations Panel */
+    .articulations-panel {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .panel-title i {
+      color: #667eea;
+    }
+
+    .articulation-grid {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .articulation-btn {
+      padding: 0.75rem 1.25rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .articulation-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .articulation-btn.active {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+      border-color: #667eea;
+    }
+
+    /* Keyboard Controller */
+    .keyboard-section {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .keyboard {
+      display: flex;
+      height: 140px;
+      position: relative;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .white-key {
+      width: 50px;
+      height: 100%;
+      background: linear-gradient(180deg, #f0f0f0, #d4d4d4);
+      border: 1px solid #999;
+      border-radius: 0 0 6px 6px;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .white-key:hover {
+      background: linear-gradient(180deg, #fff, #e8e8e8);
+    }
+
+    .white-key.active {
+      background: linear-gradient(180deg, #667eea, #764ba2);
+    }
+
+    .black-key {
+      width: 30px;
+      height: 65%;
+      background: linear-gradient(180deg, #333, #111);
+      border-radius: 0 0 4px 4px;
+      position: absolute;
+      z-index: 1;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .black-key:hover {
+      background: linear-gradient(180deg, #444, #222);
+    }
+
+    .black-key.active {
+      background: linear-gradient(180deg, #667eea, #764ba2);
+    }
+
+    /* Chord Progressions */
+    .progressions-panel {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .progression-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .progression-card {
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .progression-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .progression-card.active {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+      border-color: #667eea;
+    }
+
+    .progression-name {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .progression-chords {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .chord-badge {
+      background: rgba(102, 126, 234, 0.2);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    /* Waveform */
+    .waveform-container {
+      height: 100px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      margin: 1.5rem 0;
+      overflow: hidden;
+    }
+
+    .waveform-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Expression Curves */
+    .expression-panel {
+      margin-top: 1rem;
+    }
+
+    .expression-lanes {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .expression-lane {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .lane-label {
+      width: 80px;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .lane-slider {
+      flex: 1;
+    }
+
+    .lane-value {
+      width: 40px;
+      text-align: right;
+      font-size: 0.85rem;
+      color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <a href="/virtual-lab.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+      Back to Lab
+    </a>
+    <h1 class="header-title">
+      <span>🎼</span> String Ensemble
+    </h1>
+    <div class="header-actions">
+      <button class="header-btn" onclick="showHelp()">
+        <i class="fas fa-question-circle"></i>
+        Help
+      </button>
+      <button class="header-btn primary" id="record-btn" onclick="toggleRecording()">
+        <i class="fas fa-circle"></i>
+        Record
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Orchestra Stage -->
+    <div class="orchestra-stage">
+      <div class="sections-grid">
+        <!-- Violins 1 -->
+        <div class="section-card active" data-section="violins1">
+          <div class="section-header">
+            <div>
+              <div class="section-icon">🎻</div>
+              <div class="section-name">Violins I</div>
+              <div class="section-players">16 Players</div>
+            </div>
+            <button class="section-mute" onclick="toggleMute('violins1')">
+              <i class="fas fa-volume-up"></i>
+            </button>
+          </div>
+          <div class="section-visualizer" id="viz-violins1">
+            <!-- Dynamic bars -->
+          </div>
+          <div class="section-controls">
+            <div class="control-group">
+              <span class="control-label">Volume</span>
+              <input type="range" class="slider" data-control="volume" data-section="violins1" value="80">
+            </div>
+            <div class="control-group">
+              <span class="control-label">Pan</span>
+              <input type="range" class="slider" data-control="pan" data-section="violins1" min="-100" max="100" value="-50">
+            </div>
+          </div>
+        </div>
+
+        <!-- Violins 2 -->
+        <div class="section-card" data-section="violins2">
+          <div class="section-header">
+            <div>
+              <div class="section-icon">🎻</div>
+              <div class="section-name">Violins II</div>
+              <div class="section-players">14 Players</div>
+            </div>
+            <button class="section-mute" onclick="toggleMute('violins2')">
+              <i class="fas fa-volume-up"></i>
+            </button>
+          </div>
+          <div class="section-visualizer" id="viz-violins2"></div>
+          <div class="section-controls">
+            <div class="control-group">
+              <span class="control-label">Volume</span>
+              <input type="range" class="slider" data-control="volume" data-section="violins2" value="75">
+            </div>
+            <div class="control-group">
+              <span class="control-label">Pan</span>
+              <input type="range" class="slider" data-control="pan" data-section="violins2" min="-100" max="100" value="-25">
+            </div>
+          </div>
+        </div>
+
+        <!-- Violas -->
+        <div class="section-card" data-section="violas">
+          <div class="section-header">
+            <div>
+              <div class="section-icon">🎻</div>
+              <div class="section-name">Violas</div>
+              <div class="section-players">12 Players</div>
+            </div>
+            <button class="section-mute" onclick="toggleMute('violas')">
+              <i class="fas fa-volume-up"></i>
+            </button>
+          </div>
+          <div class="section-visualizer" id="viz-violas"></div>
+          <div class="section-controls">
+            <div class="control-group">
+              <span class="control-label">Volume</span>
+              <input type="range" class="slider" data-control="volume" data-section="violas" value="70">
+            </div>
+            <div class="control-group">
+              <span class="control-label">Pan</span>
+              <input type="range" class="slider" data-control="pan" data-section="violas" min="-100" max="100" value="25">
+            </div>
+          </div>
+        </div>
+
+        <!-- Cellos -->
+        <div class="section-card" data-section="cellos">
+          <div class="section-header">
+            <div>
+              <div class="section-icon">🎻</div>
+              <div class="section-name">Cellos</div>
+              <div class="section-players">10 Players</div>
+            </div>
+            <button class="section-mute" onclick="toggleMute('cellos')">
+              <i class="fas fa-volume-up"></i>
+            </button>
+          </div>
+          <div class="section-visualizer" id="viz-cellos"></div>
+          <div class="section-controls">
+            <div class="control-group">
+              <span class="control-label">Volume</span>
+              <input type="range" class="slider" data-control="volume" data-section="cellos" value="75">
+            </div>
+            <div class="control-group">
+              <span class="control-label">Pan</span>
+              <input type="range" class="slider" data-control="pan" data-section="cellos" min="-100" max="100" value="50">
+            </div>
+          </div>
+        </div>
+
+        <!-- Basses -->
+        <div class="section-card" data-section="basses">
+          <div class="section-header">
+            <div>
+              <div class="section-icon">🎻</div>
+              <div class="section-name">Double Basses</div>
+              <div class="section-players">8 Players</div>
+            </div>
+            <button class="section-mute" onclick="toggleMute('basses')">
+              <i class="fas fa-volume-up"></i>
+            </button>
+          </div>
+          <div class="section-visualizer" id="viz-basses"></div>
+          <div class="section-controls">
+            <div class="control-group">
+              <span class="control-label">Volume</span>
+              <input type="range" class="slider" data-control="volume" data-section="basses" value="70">
+            </div>
+            <div class="control-group">
+              <span class="control-label">Pan</span>
+              <input type="range" class="slider" data-control="pan" data-section="basses" min="-100" max="100" value="0">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="conductor-position">🎼</div>
+    </div>
+
+    <!-- Master Controls -->
+    <div class="master-controls">
+      <div class="master-section">
+        <span class="master-label">Tempo</span>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <input type="range" class="slider" id="tempo" min="40" max="180" value="80" style="width: 120px;">
+          <span class="master-value" id="tempo-value">80 BPM</span>
+        </div>
+      </div>
+      <div class="master-section">
+        <span class="master-label">Key</span>
+        <select id="key-select" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 0.5rem 1rem; border-radius: 8px;">
+          <option value="C">C Major</option>
+          <option value="G">G Major</option>
+          <option value="D">D Major</option>
+          <option value="Am">A Minor</option>
+          <option value="Em">E Minor</option>
+        </select>
+      </div>
+      <div class="play-controls">
+        <button class="play-btn primary" onclick="playEnsemble()">
+          <i class="fas fa-play"></i>
+          Play
+        </button>
+        <button class="play-btn secondary" onclick="stopEnsemble()">
+          <i class="fas fa-stop"></i>
+          Stop
+        </button>
+        <button class="play-btn secondary" onclick="sustainChord()">
+          <i class="fas fa-hand-holding"></i>
+          Sustain
+        </button>
+      </div>
+    </div>
+
+    <!-- Articulations -->
+    <div class="articulations-panel">
+      <h3 class="panel-title"><i class="fas fa-hand-paper"></i> Articulations</h3>
+      <div class="articulation-grid">
+        <button class="articulation-btn active" data-articulation="legato">Legato</button>
+        <button class="articulation-btn" data-articulation="staccato">Staccato</button>
+        <button class="articulation-btn" data-articulation="spiccato">Spiccato</button>
+        <button class="articulation-btn" data-articulation="pizzicato">Pizzicato</button>
+        <button class="articulation-btn" data-articulation="tremolo">Tremolo</button>
+        <button class="articulation-btn" data-articulation="harmonics">Harmonics</button>
+        <button class="articulation-btn" data-articulation="marcato">Marcato</button>
+        <button class="articulation-btn" data-articulation="sforzando">Sforzando</button>
+      </div>
+
+      <!-- Expression Lanes -->
+      <div class="expression-panel">
+        <h4 style="margin-bottom: 1rem; color: rgba(255,255,255,0.6);">Expression</h4>
+        <div class="expression-lanes">
+          <div class="expression-lane">
+            <span class="lane-label">Dynamics</span>
+            <input type="range" class="slider lane-slider" id="dynamics" min="0" max="127" value="80">
+            <span class="lane-value" id="dynamics-val">80</span>
+          </div>
+          <div class="expression-lane">
+            <span class="lane-label">Vibrato</span>
+            <input type="range" class="slider lane-slider" id="vibrato" min="0" max="127" value="40">
+            <span class="lane-value" id="vibrato-val">40</span>
+          </div>
+          <div class="expression-lane">
+            <span class="lane-label">Attack</span>
+            <input type="range" class="slider lane-slider" id="attack" min="0" max="127" value="30">
+            <span class="lane-value" id="attack-val">30</span>
+          </div>
+          <div class="expression-lane">
+            <span class="lane-label">Release</span>
+            <input type="range" class="slider lane-slider" id="release" min="0" max="127" value="60">
+            <span class="lane-value" id="release-val">60</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard -->
+    <div class="keyboard-section">
+      <h3 class="panel-title"><i class="fas fa-keyboard"></i> Play Chords</h3>
+      <div class="keyboard" id="keyboard">
+        <!-- Generated by JS -->
+      </div>
+      <div class="waveform-container">
+        <canvas id="waveform" class="waveform-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- Chord Progressions -->
+    <div class="progressions-panel">
+      <h3 class="panel-title"><i class="fas fa-layer-group"></i> Chord Progressions</h3>
+      <div class="progression-grid">
+        <div class="progression-card active" data-progression="classical">
+          <div class="progression-name">Classical I-V-vi-IV</div>
+          <div class="progression-chords">
+            <span class="chord-badge">I</span>
+            <span class="chord-badge">V</span>
+            <span class="chord-badge">vi</span>
+            <span class="chord-badge">IV</span>
+          </div>
+        </div>
+        <div class="progression-card" data-progression="romantic">
+          <div class="progression-name">Romantic i-VI-III-VII</div>
+          <div class="progression-chords">
+            <span class="chord-badge">i</span>
+            <span class="chord-badge">VI</span>
+            <span class="chord-badge">III</span>
+            <span class="chord-badge">VII</span>
+          </div>
+        </div>
+        <div class="progression-card" data-progression="epic">
+          <div class="progression-name">Epic vi-IV-I-V</div>
+          <div class="progression-chords">
+            <span class="chord-badge">vi</span>
+            <span class="chord-badge">IV</span>
+            <span class="chord-badge">I</span>
+            <span class="chord-badge">V</span>
+          </div>
+        </div>
+        <div class="progression-card" data-progression="melancholy">
+          <div class="progression-name">Melancholy i-iv-VII-III</div>
+          <div class="progression-chords">
+            <span class="chord-badge">i</span>
+            <span class="chord-badge">iv</span>
+            <span class="chord-badge">VII</span>
+            <span class="chord-badge">III</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Audio
+    let audioCtx = null;
+    let masterGain = null;
+    let isPlaying = false;
+    let currentArticulation = 'legato';
+    
+    // Section state
+    const sections = {
+      violins1: { muted: false, volume: 0.8, pan: -0.5, freq: 440 },
+      violins2: { muted: false, volume: 0.75, pan: -0.25, freq: 329.63 },
+      violas: { muted: false, volume: 0.7, pan: 0.25, freq: 261.63 },
+      cellos: { muted: false, volume: 0.75, pan: 0.5, freq: 130.81 },
+      basses: { muted: false, volume: 0.7, pan: 0, freq: 65.41 }
+    };
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      initVisualizers();
+      initKeyboard();
+      initControls();
+      initWaveform();
+    });
+
+    function ensureAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.5;
+        masterGain.connect(audioCtx.destination);
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function initVisualizers() {
+      Object.keys(sections).forEach(section => {
+        const container = document.getElementById(`viz-${section}`);
+        if (container) {
+          container.innerHTML = '';
+          for (let i = 0; i < 10; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'visualizer-bar';
+            bar.style.height = '5px';
+            container.appendChild(bar);
+          }
+        }
+      });
+    }
+
+    function initKeyboard() {
+      const keyboard = document.getElementById('keyboard');
+      const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'A', 'B'];
+      const blackKeyPositions = [0.7, 1.7, 3.7, 4.7, 5.7, 7.7, 8.7, 10.7, 11.7, 12.7];
+      
+      keyboard.innerHTML = '';
+      
+      // White keys
+      notes.forEach((note, i) => {
+        const octave = i < 7 ? 3 : 4;
+        const key = document.createElement('div');
+        key.className = 'white-key';
+        key.dataset.note = `${note}${octave}`;
+        key.addEventListener('mousedown', () => playChordNote(note, octave));
+        key.addEventListener('mouseup', stopChordNote);
+        keyboard.appendChild(key);
+      });
+
+      // Black keys
+      const blackNotes = ['C#', 'D#', 'F#', 'G#', 'A#', 'C#', 'D#', 'F#', 'G#', 'A#'];
+      blackKeyPositions.forEach((pos, i) => {
+        const octave = i < 5 ? 3 : 4;
+        const key = document.createElement('div');
+        key.className = 'black-key';
+        key.style.left = `${pos * 52 + 35}px`;
+        key.dataset.note = `${blackNotes[i]}${octave}`;
+        key.addEventListener('mousedown', () => playChordNote(blackNotes[i], octave));
+        key.addEventListener('mouseup', stopChordNote);
+        keyboard.appendChild(key);
+      });
+    }
+
+    function initControls() {
+      // Articulation buttons
+      document.querySelectorAll('.articulation-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.articulation-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentArticulation = btn.dataset.articulation;
+        });
+      });
+
+      // Section cards
+      document.querySelectorAll('.section-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.section-mute') || e.target.closest('.slider')) return;
+          document.querySelectorAll('.section-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+        });
+      });
+
+      // Progression cards
+      document.querySelectorAll('.progression-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.progression-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+        });
+      });
+
+      // Expression sliders
+      ['dynamics', 'vibrato', 'attack', 'release'].forEach(id => {
+        const slider = document.getElementById(id);
+        slider.addEventListener('input', (e) => {
+          document.getElementById(`${id}-val`).textContent = e.target.value;
+        });
+      });
+
+      // Tempo slider
+      document.getElementById('tempo').addEventListener('input', (e) => {
+        document.getElementById('tempo-value').textContent = `${e.target.value} BPM`;
+      });
+
+      // Volume/Pan sliders
+      document.querySelectorAll('.section-controls .slider').forEach(slider => {
+        slider.addEventListener('input', (e) => {
+          const section = e.target.dataset.section;
+          const control = e.target.dataset.control;
+          if (control === 'volume') {
+            sections[section].volume = e.target.value / 100;
+          } else if (control === 'pan') {
+            sections[section].pan = e.target.value / 100;
+          }
+        });
+      });
+    }
+
+    function toggleMute(section) {
+      sections[section].muted = !sections[section].muted;
+      const btn = document.querySelector(`[data-section="${section}"] .section-mute`);
+      btn.classList.toggle('muted', sections[section].muted);
+      btn.innerHTML = sections[section].muted 
+        ? '<i class="fas fa-volume-mute"></i>' 
+        : '<i class="fas fa-volume-up"></i>';
+    }
+
+    function playEnsemble() {
+      ensureAudioContext();
+      isPlaying = true;
+
+      Object.entries(sections).forEach(([name, section]) => {
+        if (!section.muted) {
+          playSection(name, section);
+        }
+      });
+
+      // Animate visualizers
+      animateVisualizers();
+    }
+
+    function playSection(name, section) {
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      const panner = audioCtx.createStereoPanner();
+
+      osc.type = 'sawtooth';
+      osc.frequency.value = section.freq;
+
+      // Filter for string sound
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 2500;
+      filter.Q.value = 2;
+
+      // Vibrato
+      const vibratoAmt = document.getElementById('vibrato').value / 127;
+      if (vibratoAmt > 0) {
+        const vibrato = audioCtx.createOscillator();
+        const vibratoGain = audioCtx.createGain();
+        vibrato.frequency.value = 5;
+        vibratoGain.gain.value = vibratoAmt * 10;
+        vibrato.connect(vibratoGain);
+        vibratoGain.connect(osc.frequency);
+        vibrato.start();
+        section.vibratoOsc = vibrato;
+      }
+
+      gainNode.gain.value = section.volume;
+      panner.pan.value = section.pan;
+
+      osc.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(panner);
+      panner.connect(masterGain);
+
+      osc.start();
+      section.oscillator = osc;
+      section.gain = gainNode;
+
+      // Mark section as playing
+      document.querySelector(`[data-section="${name}"]`).classList.add('playing');
+    }
+
+    function stopEnsemble() {
+      isPlaying = false;
+
+      Object.entries(sections).forEach(([name, section]) => {
+        if (section.oscillator) {
+          section.oscillator.stop();
+          section.oscillator = null;
+        }
+        if (section.vibratoOsc) {
+          section.vibratoOsc.stop();
+          section.vibratoOsc = null;
+        }
+        document.querySelector(`[data-section="${name}"]`).classList.remove('playing');
+      });
+    }
+
+    function sustainChord() {
+      ensureAudioContext();
+      
+      // Get current chord from progression
+      const activeProgression = document.querySelector('.progression-card.active');
+      const key = document.getElementById('key-select').value;
+      
+      // Play sustained chord across all sections
+      playEnsemble();
+      
+      // Apply long envelope
+      Object.values(sections).forEach(section => {
+        if (section.gain) {
+          const now = audioCtx.currentTime;
+          section.gain.gain.setValueAtTime(0, now);
+          section.gain.gain.linearRampToValueAtTime(section.volume, now + 2);
+        }
+      });
+    }
+
+    function playChordNote(note, octave) {
+      ensureAudioContext();
+      
+      const noteFreqs = {
+        'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13,
+        'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
+        'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
+      };
+
+      let freq = noteFreqs[note] || 440;
+      if (octave === 4) freq *= 2;
+      if (octave === 3) freq *= 1;
+
+      // Play across multiple sections for ensemble sound
+      const chord = [freq, freq * 1.25, freq * 1.5]; // Root, third, fifth
+      
+      chord.forEach((f, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.type = 'sawtooth';
+        osc.frequency.value = f;
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 2000;
+        
+        gain.gain.value = 0.2;
+        
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGain);
+        
+        osc.start();
+        
+        // Store for stopping
+        if (!window.activeNotes) window.activeNotes = [];
+        window.activeNotes.push(osc);
+      });
+
+      isPlaying = true;
+      animateVisualizers();
+    }
+
+    function stopChordNote() {
+      if (window.activeNotes) {
+        window.activeNotes.forEach(osc => {
+          try { osc.stop(); } catch (e) {}
+        });
+        window.activeNotes = [];
+      }
+      isPlaying = false;
+    }
+
+    function animateVisualizers() {
+      if (!isPlaying) return;
+
+      Object.keys(sections).forEach(section => {
+        if (sections[section].muted) return;
+        
+        const container = document.getElementById(`viz-${section}`);
+        if (!container) return;
+        
+        const bars = container.querySelectorAll('.visualizer-bar');
+        bars.forEach(bar => {
+          const height = Math.random() * 40 + 10;
+          bar.style.height = `${height}px`;
+        });
+      });
+
+      if (isPlaying) {
+        requestAnimationFrame(animateVisualizers);
+      }
+    }
+
+    // Waveform visualizer
+    function initWaveform() {
+      const canvas = document.getElementById('waveform');
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth * 2;
+      canvas.height = canvas.offsetHeight * 2;
+
+      function draw() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (isPlaying) {
+          const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+          gradient.addColorStop(0, '#667eea');
+          gradient.addColorStop(0.5, '#764ba2');
+          gradient.addColorStop(1, '#667eea');
+          
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          
+          const sliceWidth = canvas.width / 150;
+          let x = 0;
+          
+          for (let i = 0; i < 150; i++) {
+            const v = (Math.sin(i * 0.1 + Date.now() * 0.003) * 0.3 +
+                      Math.sin(i * 0.05 + Date.now() * 0.002) * 0.2) + 0.5;
+            const y = v * canvas.height;
+            
+            if (i === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+            x += sliceWidth;
+          }
+          
+          ctx.stroke();
+        } else {
+          ctx.strokeStyle = 'rgba(102, 126, 234, 0.3)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(0, canvas.height / 2);
+          ctx.lineTo(canvas.width, canvas.height / 2);
+          ctx.stroke();
+        }
+        
+        requestAnimationFrame(draw);
+      }
+      
+      draw();
+    }
+
+    function toggleRecording() {
+      const btn = document.getElementById('record-btn');
+      btn.classList.toggle('recording');
+      if (btn.classList.contains('recording')) {
+        btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+        btn.style.background = 'linear-gradient(135deg, #f44336, #d32f2f)';
+      } else {
+        btn.innerHTML = '<i class="fas fa-circle"></i> Record';
+        btn.style.background = '';
+      }
+    }
+
+    function showHelp() {
+      alert('String Ensemble Help:\n\n• Click section cards to select them\n• Use mute buttons to silence sections\n• Adjust volume and pan for each section\n• Choose articulations for different playing styles\n• Use keyboard to play chords\n• Select chord progressions to follow\n\nKeyboard shortcuts:\n• Space: Play/Stop ensemble\n• 1-5: Solo sections');
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        isPlaying ? stopEnsemble() : playEnsemble();
+      }
+    });
+  </script>
+</body>
+</html>

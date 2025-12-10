@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account - HAOS.fm</title>
+  <link rel="stylesheet" href="/css/haos-brand.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #0A0A0A;
+      min-height: 100vh;
+      color: #F4E8D8;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+      opacity: 0.03;
+      mix-blend-mode: overlay;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .bg-glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-glow.orange { background: #FF6B35; width: 400px; height: 400px; top: -100px; left: -100px; opacity: 0.15; }
+    .bg-glow.gold { background: #D4AF37; width: 300px; height: 300px; bottom: 20%; right: -50px; opacity: 0.1; }
+
+    /* Header */
+    .header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.5);
+      border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #F4E8D8;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+      color: #0A0A0A;
+    }
+
+    .logo-text {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.75rem;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: #6B6B6B;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-link:hover {
+      color: #F4E8D8;
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .nav-link.active {
+      color: #0A0A0A;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+    }
+
+    /* Container */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Page Header */
+    .page-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .page-header h1 {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+      color: #6B6B6B;
+      font-size: 1rem;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #2a2a2a;
+      padding-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      background: none;
+      border: none;
+      color: #6B6B6B;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-radius: 8px 8px 0 0;
+      transition: all 0.3s;
+    }
+
+    .tab:hover {
+      color: #F4E8D8;
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .tab.active {
+      color: #F4E8D8;
+      background: rgba(255, 107, 53, 0.2);
+      border-bottom: 2px solid #FF6B35;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .card {
+      background: linear-gradient(145deg, #151515, #0d0d0d);
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid #2a2a2a;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card-title i {
+      color: #FF6B35;
+    }
+
+    /* Subscription Card */
+    .subscription-status {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .plan-info {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .plan-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-badge.free { background: #2a2a2a; color: #6B6B6B; }
+    .plan-badge.basic { background: rgba(0, 217, 255, 0.2); color: #00D9FF; }
+    .plan-badge.premium { background: rgba(255, 107, 53, 0.2); color: #FF6B35; }
+    .plan-badge.pro { background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(255, 107, 53, 0.3)); color: #D4AF37; }
+
+    .plan-name {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 2rem;
+      letter-spacing: 2px;
+      margin-bottom: 0.25rem;
+    }
+
+    .plan-price {
+      color: #6B6B6B;
+      font-size: 0.95rem;
+    }
+
+    .plan-price span {
+      color: #FF6B35;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .billing-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      min-width: 250px;
+    }
+
+    .billing-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+    }
+
+    .billing-row .label {
+      color: #6B6B6B;
+    }
+
+    .billing-row .value {
+      color: #F4E8D8;
+    }
+
+    .billing-row .value.active { color: #39FF14; }
+    .billing-row .value.cancelled { color: #8B2635; }
+    .billing-row .value.past_due { color: #D4AF37; }
+
+    /* Plan Grid */
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .plan-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .plan-card:hover {
+      border-color: rgba(255, 107, 53, 0.3);
+      transform: translateY(-4px);
+    }
+
+    .plan-card.current {
+      border-color: #FF6B35;
+      box-shadow: 0 0 20px rgba(255, 107, 53, 0.2);
+    }
+
+    .plan-card.featured {
+      border-color: #D4AF37;
+    }
+
+    .plan-card .featured-badge {
+      position: absolute;
+      top: -10px;
+      right: 1rem;
+      background: linear-gradient(135deg, #D4AF37, #FF6B35);
+      color: #0A0A0A;
+      padding: 0.25rem 0.75rem;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .plan-card-name {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-card-price {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .plan-card-price span {
+      font-size: 0.9rem;
+      color: #6B6B6B;
+      font-weight: 400;
+    }
+
+    .plan-card-features {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .plan-card-features li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      font-size: 0.9rem;
+      color: #F4E8D8;
+    }
+
+    .plan-card-features li i {
+      color: #39FF14;
+      font-size: 0.8rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      color: #0A0A0A;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #F4E8D8;
+      border: 1px solid #2a2a2a;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 107, 53, 0.1);
+      border-color: rgba(255, 107, 53, 0.3);
+    }
+
+    .btn-danger {
+      background: rgba(139, 38, 53, 0.2);
+      color: #8B2635;
+      border: 1px solid rgba(139, 38, 53, 0.3);
+    }
+
+    .btn-danger:hover {
+      background: rgba(139, 38, 53, 0.3);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn.current {
+      background: #2a2a2a;
+      color: #6B6B6B;
+      cursor: default;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #F4E8D8;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      color: #F4E8D8;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #FF6B35;
+      background: rgba(255, 107, 53, 0.05);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    /* Payment History */
+    .payment-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .payment-table th,
+    .payment-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .payment-table th {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #6B6B6B;
+    }
+
+    .payment-table td {
+      font-size: 0.9rem;
+    }
+
+    .payment-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .payment-status.completed {
+      background: rgba(57, 255, 20, 0.2);
+      color: #39FF14;
+    }
+
+    .payment-status.pending {
+      background: rgba(212, 175, 55, 0.2);
+      color: #D4AF37;
+    }
+
+    .payment-status.failed {
+      background: rgba(139, 38, 53, 0.2);
+      color: #8B2635;
+    }
+
+    /* Feature List */
+    .features-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+    }
+
+    .feature-item i {
+      color: #39FF14;
+    }
+
+    .feature-item.locked i {
+      color: #6B6B6B;
+    }
+
+    .feature-item.locked {
+      opacity: 0.5;
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .alert-success {
+      background: rgba(57, 255, 20, 0.1);
+      border: 1px solid rgba(57, 255, 20, 0.3);
+      color: #39FF14;
+    }
+
+    .alert-warning {
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: #D4AF37;
+    }
+
+    .alert-error {
+      background: rgba(139, 38, 53, 0.1);
+      border: 1px solid rgba(139, 38, 53, 0.3);
+      color: #8B2635;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 4rem;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid #2a2a2a;
+      border-top-color: #FF6B35;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Not Logged In */
+    .not-logged-in {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .not-logged-in i {
+      font-size: 4rem;
+      color: #FF6B35;
+      margin-bottom: 1.5rem;
+    }
+
+    .not-logged-in h2 {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 2rem;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+    }
+
+    .not-logged-in p {
+      color: #6B6B6B;
+      margin-bottom: 2rem;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: linear-gradient(145deg, #151515, #0d0d0d);
+      border: 1px solid #2a2a2a;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #6B6B6B;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .modal-close:hover {
+      color: #F4E8D8;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .modal-actions .btn {
+      flex: 1;
+    }
+
+    /* Billing Toggle */
+    .billing-toggle {
+      display: flex;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+      padding: 0.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .billing-toggle button {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      background: none;
+      border: none;
+      color: #6B6B6B;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .billing-toggle button.active {
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      color: #0A0A0A;
+    }
+
+    .billing-toggle button:hover:not(.active) {
+      color: #F4E8D8;
+    }
+
+    .savings-badge {
+      display: inline-block;
+      background: rgba(57, 255, 20, 0.2);
+      color: #39FF14;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Glows -->
+  <div class="bg-glow orange"></div>
+  <div class="bg-glow gold"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <a href="/" class="logo">
+      <div class="logo-icon"><i class="fas fa-broadcast-tower"></i></div>
+      <span class="logo-text">HAOS.FM</span>
+    </a>
+    <nav class="header-nav">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/studio.html" class="nav-link">Studio</a>
+      <a href="/pricing.html" class="nav-link">Pricing</a>
+      <a href="/account.html" class="nav-link active">Account</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <!-- Loading State -->
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Not Logged In State -->
+    <div id="not-logged-in" class="not-logged-in" style="display: none;">
+      <i class="fas fa-user-lock"></i>
+      <h2>Sign In Required</h2>
+      <p>Please sign in to manage your account and subscription.</p>
+      <a href="/login.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+    </div>
+
+    <!-- Account Content -->
+    <div id="account-content" style="display: none;">
+      <div class="page-header">
+        <h1>MY ACCOUNT</h1>
+        <p>Manage your subscription, profile, and billing</p>
+      </div>
+
+      <!-- Alert Container -->
+      <div id="alert-container"></div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="subscription">Subscription</button>
+        <button class="tab" data-tab="profile">Profile</button>
+        <button class="tab" data-tab="billing">Billing History</button>
+        <button class="tab" data-tab="features">Features</button>
+      </div>
+
+      <!-- Subscription Tab -->
+      <div id="tab-subscription" class="tab-content active">
+        <!-- Current Plan Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-crown"></i> Current Plan</h2>
+          </div>
+          <div class="subscription-status">
+            <div class="plan-info">
+              <div id="plan-badge" class="plan-badge free">FREE</div>
+              <div id="plan-name" class="plan-name">Free Plan</div>
+              <div id="plan-price" class="plan-price">
+                <span>$0</span> / month
+              </div>
+            </div>
+            <div class="billing-info">
+              <div class="billing-row">
+                <span class="label">Status</span>
+                <span id="sub-status" class="value active">Active</span>
+              </div>
+              <div class="billing-row">
+                <span class="label">Billing Cycle</span>
+                <span id="sub-cycle" class="value">—</span>
+              </div>
+              <div class="billing-row">
+                <span class="label">Next Billing</span>
+                <span id="sub-next-billing" class="value">—</span>
+              </div>
+              <div class="billing-row" id="cancel-notice" style="display: none;">
+                <span class="label">Cancels On</span>
+                <span id="sub-cancel-date" class="value cancelled"></span>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button id="btn-change-plan" class="btn btn-primary" onclick="showChangePlanModal()">
+              <i class="fas fa-exchange-alt"></i> Change Plan
+            </button>
+            <button id="btn-manage-billing" class="btn btn-secondary" onclick="openBillingPortal()" style="display: none;">
+              <i class="fas fa-credit-card"></i> Manage Billing
+            </button>
+            <button id="btn-cancel" class="btn btn-danger" onclick="showCancelModal()" style="display: none;">
+              <i class="fas fa-times"></i> Cancel Subscription
+            </button>
+            <button id="btn-resume" class="btn btn-primary" onclick="resumeSubscription()" style="display: none;">
+              <i class="fas fa-undo"></i> Resume Subscription
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Upgrade -->
+        <div class="card" id="upgrade-card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-rocket"></i> Upgrade Your Plan</h2>
+          </div>
+          
+          <!-- Launch Promo Banner -->
+          <div style="background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(212,175,55,0.15)); border: 1px solid rgba(255,107,53,0.3); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; text-align: center;">
+            <p style="color: #FF6B35; font-weight: 600; margin: 0;">
+              <i class="fas fa-fire"></i>
+              🎉 Launch Special: Up to 50% OFF all plans! Limited time offer
+              <i class="fas fa-fire"></i>
+            </p>
+          </div>
+          
+          <div class="billing-toggle">
+            <button id="toggle-monthly" class="active" onclick="setBillingCycle('monthly')">Monthly</button>
+            <button id="toggle-yearly" onclick="setBillingCycle('yearly')">Yearly <span class="savings-badge">Save 33%</span></button>
+          </div>
+          <div id="plans-grid" class="plans-grid">
+            <!-- Plans will be loaded here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Tab -->
+      <div id="tab-profile" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-user"></i> Profile Information</h2>
+          </div>
+          <form id="profile-form" onsubmit="saveProfile(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Display Name</label>
+                <input type="text" id="profile-name" class="form-input" placeholder="Your name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" id="profile-email" class="form-input" placeholder="your@email.com" disabled>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Artist Bio</label>
+              <textarea id="profile-bio" class="form-input" rows="3" placeholder="Tell us about yourself..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i> Save Changes
+            </button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-shield-alt"></i> Security</h2>
+          </div>
+          <p style="color: #6B6B6B; margin-bottom: 1rem;">
+            Your account is secured with <span id="auth-provider" style="color: #FF6B35;">social login</span>.
+          </p>
+          <button class="btn btn-secondary" onclick="window.location.href='/auth/logout'">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+          </button>
+        </div>
+      </div>
+
+      <!-- Billing History Tab -->
+      <div id="tab-billing" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-history"></i> Payment History</h2>
+          </div>
+          <div id="billing-history">
+            <table class="payment-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Invoice</th>
+                </tr>
+              </thead>
+              <tbody id="payments-tbody">
+                <tr>
+                  <td colspan="5" style="text-align: center; color: #6B6B6B; padding: 2rem;">
+                    No payment history yet.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features Tab -->
+      <div id="tab-features" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-star"></i> Your Features</h2>
+          </div>
+          <p style="color: #6B6B6B; margin-bottom: 1.5rem;">
+            Features available with your current plan:
+          </p>
+          <div id="features-list" class="features-list">
+            <!-- Features will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Plan Modal -->
+  <div id="change-plan-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Change Plan</h3>
+        <button class="modal-close" onclick="closeModal('change-plan-modal')">&times;</button>
+      </div>
+      <div id="modal-plans-content">
+        <!-- Plans will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Cancel Modal -->
+  <div id="cancel-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Cancel Subscription</h3>
+        <button class="modal-close" onclick="closeModal('cancel-modal')">&times;</button>
+      </div>
+      <p style="color: #6B6B6B; margin-bottom: 1rem;">
+        Are you sure you want to cancel your subscription? You'll continue to have access until the end of your billing period.
+      </p>
+      <div class="form-group">
+        <label class="form-label">Reason for cancelling (optional)</label>
+        <textarea id="cancel-reason" class="form-input" rows="3" placeholder="Tell us why you're leaving..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('cancel-modal')">Keep Subscription</button>
+        <button class="btn btn-danger" onclick="cancelSubscription()">Cancel Subscription</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div id="payment-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Complete Purchase</h3>
+        <button class="modal-close" onclick="closeModal('payment-modal')">&times;</button>
+      </div>
+      <div id="payment-content">
+        <p style="color: #6B6B6B; margin-bottom: 1.5rem;">
+          You will be redirected to our secure payment provider to complete your purchase.
+        </p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeModal('payment-modal')">Cancel</button>
+          <button id="btn-proceed-payment" class="btn btn-primary" onclick="proceedToPayment()">
+            <i class="fas fa-lock"></i> Proceed to Payment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentUser = null;
+    let currentSubscription = null;
+    let plans = [];
+    let billingCycle = 'monthly';
+    let selectedPlan = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check URL params for plan selection
+      const urlParams = new URLSearchParams(window.location.search);
+      const planParam = urlParams.get('plan');
+      const successParam = urlParams.get('success');
+      
+      if (successParam === 'true') {
+        showAlert('success', 'Payment successful! Your subscription has been activated.');
+        // Clear the URL params
+        window.history.replaceState({}, document.title, '/account.html');
+      }
+
+      await checkAuth();
+      setupTabs();
+    });
+
+    async function checkAuth() {
+      try {
+        const response = await fetch('/auth/status', { credentials: 'include' });
+        const data = await response.json();
+
+        document.getElementById('loading').style.display = 'none';
+
+        if (data.authenticated && data.user) {
+          currentUser = data.user;
+          document.getElementById('account-content').style.display = 'block';
+          await loadAccountData();
+        } else {
+          document.getElementById('not-logged-in').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('not-logged-in').style.display = 'block';
+      }
+    }
+
+    async function loadAccountData() {
+      await Promise.all([
+        loadSubscription(),
+        loadPlans(),
+        loadProfile(),
+        loadFeatures(),
+        loadPaymentHistory()
+      ]);
+    }
+
+    async function loadSubscription() {
+      try {
+        const response = await fetch('/api/subscriptions/current', { credentials: 'include' });
+        const data = await response.json();
+
+        if (data.success) {
+          currentSubscription = data.subscription;
+          updateSubscriptionUI();
+        }
+      } catch (error) {
+        console.error('Failed to load subscription:', error);
+      }
+    }
+
+    function updateSubscriptionUI() {
+      const sub = currentSubscription;
+      const planCode = sub.plan_code || 'free';
+      
+      // Update badge
+      const badge = document.getElementById('plan-badge');
+      badge.className = `plan-badge ${planCode}`;
+      badge.textContent = (sub.plan_name || 'Free').toUpperCase();
+
+      // Update name and price
+      document.getElementById('plan-name').textContent = sub.plan_name || 'Free Plan';
+      
+      const priceMonthly = sub.price_monthly ? (sub.price_monthly / 100).toFixed(2) : '0';
+      const priceYearly = sub.price_yearly ? (sub.price_yearly / 100).toFixed(2) : '0';
+      const cycle = sub.billing_cycle || 'monthly';
+      const price = cycle === 'yearly' ? priceYearly : priceMonthly;
+      
+      document.getElementById('plan-price').innerHTML = 
+        planCode === 'free' 
+          ? '<span>$0</span> / month'
+          : `<span>$${price}</span> / ${cycle === 'yearly' ? 'year' : 'month'}`;
+
+      // Update status
+      const statusEl = document.getElementById('sub-status');
+      statusEl.textContent = sub.status || 'Active';
+      statusEl.className = `value ${sub.status || 'active'}`;
+
+      // Update billing info
+      document.getElementById('sub-cycle').textContent = 
+        planCode === 'free' ? '—' : (cycle === 'yearly' ? 'Yearly' : 'Monthly');
+
+      const nextBilling = sub.current_period_end 
+        ? new Date(sub.current_period_end).toLocaleDateString()
+        : '—';
+      document.getElementById('sub-next-billing').textContent = planCode === 'free' ? '—' : nextBilling;
+
+      // Show/hide buttons based on plan
+      const isPaid = planCode !== 'free';
+      const isCancelled = sub.cancel_at_period_end;
+      
+      document.getElementById('btn-manage-billing').style.display = isPaid ? 'inline-flex' : 'none';
+      document.getElementById('btn-cancel').style.display = isPaid && !isCancelled ? 'inline-flex' : 'none';
+      document.getElementById('btn-resume').style.display = isCancelled ? 'inline-flex' : 'none';
+
+      // Cancel notice
+      if (isCancelled && sub.current_period_end) {
+        document.getElementById('cancel-notice').style.display = 'flex';
+        document.getElementById('sub-cancel-date').textContent = 
+          new Date(sub.current_period_end).toLocaleDateString();
+      } else {
+        document.getElementById('cancel-notice').style.display = 'none';
+      }
+    }
+
+    async function loadPlans() {
+      try {
+        const response = await fetch('/api/subscriptions/plans');
+        const data = await response.json();
+
+        if (data.success) {
+          plans = data.plans;
+          renderPlans();
+        }
+      } catch (error) {
+        console.error('Failed to load plans:', error);
+      }
+    }
+
+    function renderPlans() {
+      const container = document.getElementById('plans-grid');
+      const currentPlan = currentSubscription?.plan_code || 'free';
+
+      container.innerHTML = plans.map(plan => {
+        const isCurrent = plan.plan_code === currentPlan;
+        const price = billingCycle === 'yearly' 
+          ? (plan.price_yearly / 100).toFixed(2)
+          : (plan.price_monthly / 100).toFixed(2);
+        const monthlyFromYearly = (plan.price_yearly / 12 / 100).toFixed(2);
+        
+        const features = plan.features || {};
+        const featureList = Object.entries(features)
+          .filter(([k, v]) => v === true || (typeof v === 'number' && v > 0))
+          .slice(0, 5)
+          .map(([key, value]) => {
+            const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            return `<li><i class="fas fa-check"></i> ${typeof value === 'number' ? `${value} ${label}` : label}</li>`;
+          }).join('');
+
+        return `
+          <div class="plan-card ${isCurrent ? 'current' : ''} ${plan.is_featured ? 'featured' : ''}">
+            ${plan.is_featured ? '<span class="featured-badge">Most Popular</span>' : ''}
+            <div class="plan-card-name">${plan.name}</div>
+            <div class="plan-card-price">
+              $${billingCycle === 'yearly' ? monthlyFromYearly : price}
+              <span>/ month${billingCycle === 'yearly' ? ' (billed yearly)' : ''}</span>
+            </div>
+            <ul class="plan-card-features">${featureList}</ul>
+            <button 
+              class="btn ${isCurrent ? 'current' : 'btn-primary'}" 
+              ${isCurrent ? 'disabled' : `onclick="selectPlan('${plan.plan_code}')"`}
+              style="width: 100%;"
+            >
+              ${isCurrent ? 'Current Plan' : plan.plan_code === 'free' ? 'Downgrade' : 'Upgrade'}
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function setBillingCycle(cycle) {
+      billingCycle = cycle;
+      document.getElementById('toggle-monthly').classList.toggle('active', cycle === 'monthly');
+      document.getElementById('toggle-yearly').classList.toggle('active', cycle === 'yearly');
+      renderPlans();
+    }
+
+    function selectPlan(planCode) {
+      selectedPlan = plans.find(p => p.plan_code === planCode);
+      if (!selectedPlan) return;
+
+      if (planCode === 'free') {
+        // Downgrade to free - just change plan
+        changePlan(planCode);
+      } else {
+        // Show payment modal
+        showModal('payment-modal');
+      }
+    }
+
+    async function proceedToPayment() {
+      if (!selectedPlan) return;
+
+      try {
+        const response = await fetch('/api/subscriptions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            planCode: selectedPlan.plan_code,
+            billingCycle: billingCycle,
+            provider: 'stripe'
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.url) {
+          window.location.href = data.url;
+        } else {
+          showAlert('error', data.error || 'Failed to start payment process');
+        }
+      } catch (error) {
+        console.error('Payment error:', error);
+        showAlert('error', 'Failed to process payment');
+      }
+
+      closeModal('payment-modal');
+    }
+
+    async function changePlan(planCode) {
+      try {
+        const response = await fetch('/api/subscriptions/change-plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ planCode, immediate: true })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('success', `Successfully changed to ${planCode} plan`);
+          await loadSubscription();
+          renderPlans();
+        } else {
+          showAlert('error', data.error || 'Failed to change plan');
+        }
+      } catch (error) {
+        console.error('Change plan error:', error);
+        showAlert('error', 'Failed to change plan');
+      }
+    }
+
+    async function cancelSubscription() {
+      const reason = document.getElementById('cancel-reason').value;
+
+      try {
+        const response = await fetch('/api/subscriptions/cancel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ immediate: false, reason })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('success', 'Subscription cancelled. You\'ll have access until the end of your billing period.');
+          await loadSubscription();
+        } else {
+          showAlert('error', data.error || 'Failed to cancel subscription');
+        }
+      } catch (error) {
+        console.error('Cancel error:', error);
+        showAlert('error', 'Failed to cancel subscription');
+      }
+
+      closeModal('cancel-modal');
+    }
+
+    async function resumeSubscription() {
+      try {
+        const response = await fetch('/api/subscriptions/resume', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('success', 'Subscription resumed successfully');
+          await loadSubscription();
+        } else {
+          showAlert('error', data.error || 'Failed to resume subscription');
+        }
+      } catch (error) {
+        console.error('Resume error:', error);
+        showAlert('error', 'Failed to resume subscription');
+      }
+    }
+
+    async function openBillingPortal() {
+      try {
+        const response = await fetch('/api/subscriptions/billing-portal', {
+          method: 'POST',
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          showAlert('error', 'Billing portal not available');
+        }
+      } catch (error) {
+        console.error('Billing portal error:', error);
+        showAlert('error', 'Failed to open billing portal');
+      }
+    }
+
+    async function loadProfile() {
+      if (!currentUser) return;
+
+      document.getElementById('profile-name').value = currentUser.name || '';
+      document.getElementById('profile-email').value = currentUser.email || '';
+      document.getElementById('profile-bio').value = currentUser.bio || '';
+      document.getElementById('auth-provider').textContent = currentUser.provider || 'social login';
+    }
+
+    async function saveProfile(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('profile-name').value;
+      const bio = document.getElementById('profile-bio').value;
+
+      try {
+        const response = await fetch('/api/users/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ name, bio })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('success', 'Profile saved successfully');
+          currentUser = { ...currentUser, name, bio };
+        } else {
+          showAlert('error', data.error || 'Failed to save profile');
+        }
+      } catch (error) {
+        console.error('Save profile error:', error);
+        showAlert('error', 'Failed to save profile');
+      }
+    }
+
+    async function loadFeatures() {
+      try {
+        const response = await fetch('/api/subscriptions/features', { credentials: 'include' });
+        const data = await response.json();
+
+        if (data.success) {
+          renderFeatures(data.features);
+        }
+      } catch (error) {
+        console.error('Failed to load features:', error);
+      }
+    }
+
+    function renderFeatures(features) {
+      const container = document.getElementById('features-list');
+      
+      const featureMap = {
+        modular_synth: { icon: 'fa-wave-square', label: 'Modular Synthesizer' },
+        pattern_sequencer: { icon: 'fa-th', label: 'Pattern Sequencer' },
+        collaboration: { icon: 'fa-users', label: 'Real-time Collaboration' },
+        export_wav: { icon: 'fa-file-audio', label: 'WAV Export' },
+        export_mp3: { icon: 'fa-file-audio', label: 'MP3 Export' },
+        cloud_storage: { icon: 'fa-cloud', label: 'Cloud Storage' },
+        presets: { icon: 'fa-sliders-h', label: 'Premium Presets' },
+        support: { icon: 'fa-headset', label: 'Priority Support' },
+        virtual_lab: { icon: 'fa-flask', label: 'Virtual Lab' },
+        radio_access: { icon: 'fa-broadcast-tower', label: '24/7 Radio' }
+      };
+
+      container.innerHTML = Object.entries(features).map(([code, value]) => {
+        const hasAccess = value === true || (typeof value === 'number' && value > 0);
+        const info = featureMap[code] || { icon: 'fa-check', label: code.replace(/_/g, ' ') };
+        
+        return `
+          <div class="feature-item ${hasAccess ? '' : 'locked'}">
+            <i class="fas ${info.icon}"></i>
+            <span>${info.label}${typeof value === 'number' ? ` (${value})` : ''}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadPaymentHistory() {
+      try {
+        const response = await fetch('/api/users/payments', { credentials: 'include' });
+        const data = await response.json();
+
+        if (data.success && data.payments?.length > 0) {
+          renderPayments(data.payments);
+        }
+      } catch (error) {
+        console.error('Failed to load payments:', error);
+      }
+    }
+
+    function renderPayments(payments) {
+      const tbody = document.getElementById('payments-tbody');
+
+      tbody.innerHTML = payments.map(payment => `
+        <tr>
+          <td>${new Date(payment.created_at).toLocaleDateString()}</td>
+          <td>${payment.description || 'Subscription Payment'}</td>
+          <td>$${(payment.amount / 100).toFixed(2)} ${payment.currency}</td>
+          <td>
+            <span class="payment-status ${payment.status}">
+              ${payment.status === 'completed' ? '<i class="fas fa-check"></i>' : ''}
+              ${payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+            </span>
+          </td>
+          <td>
+            ${payment.invoice_url 
+              ? `<a href="${payment.invoice_url}" target="_blank" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                  <i class="fas fa-download"></i> Invoice
+                </a>`
+              : '—'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Tab handling
+    function setupTabs() {
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabId = tab.dataset.tab;
+          
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          
+          tab.classList.add('active');
+          document.getElementById(`tab-${tabId}`).classList.add('active');
+        });
+      });
+    }
+
+    // Modal handling
+    function showModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    function showChangePlanModal() {
+      showModal('change-plan-modal');
+    }
+
+    function showCancelModal() {
+      showModal('cancel-modal');
+    }
+
+    // Alerts
+    function showAlert(type, message) {
+      const container = document.getElementById('alert-container');
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type}`;
+      alert.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+      `;
+      container.appendChild(alert);
+
+      setTimeout(() => {
+        alert.remove();
+      }, 5000);
+    }
+
+    // Close modals on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+          modal.classList.remove('active');
+        });
+      }
+    });
+
+    // Close modals on backdrop click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.remove('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

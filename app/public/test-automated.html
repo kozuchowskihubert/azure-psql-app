@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Module Test - HAOS Platform</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0A0A0A;
+            color: #F4E8D8;
+            font-family: 'Monaco', 'Courier New', monospace;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .status {
+            padding: 15px;
+            background: #151515;
+            border-left: 4px solid #FF6B35;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .test-result {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            background: #151515;
+        }
+        .test-result.pass {
+            border-left: 3px solid #39FF14;
+        }
+        .test-result.fail {
+            border-left: 3px solid #FF6B35;
+        }
+        .test-result.running {
+            border-left: 3px solid #00D9FF;
+        }
+        .summary {
+            padding: 20px;
+            background: #151515;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .summary.success {
+            border: 2px solid #39FF14;
+        }
+        .summary.failure {
+            border: 2px solid #FF6B35;
+        }
+        button {
+            background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
+            color: #0A0A0A;
+            border: none;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎛️ Automated Module Test Suite</h1>
+        
+        <div class="status" id="status">
+            <strong>Status:</strong> <span id="statusText">Ready to test</span>
+        </div>
+
+        <button onclick="runAllTests()">▶️ Run All Tests</button>
+
+        <div id="results"></div>
+
+        <div id="summary" style="display: none;"></div>
+    </div>
+
+    <!-- Load modules -->
+    <script type="module">
+        import { AudioModule } from '/haos-platform/js/core/audio-module.js';
+        import { ModuleRegistry } from '/haos-platform/js/core/module-registry.js';
+        import { WaveshaperModule } from '/haos-platform/js/modules/effects/waveshaper.js';
+        import { PhaserModule } from '/haos-platform/js/modules/effects/phaser.js';
+        import { DelayModule } from '/haos-platform/js/modules/effects/delay.js';
+        import { ReverbModule } from '/haos-platform/js/modules/effects/reverb.js';
+
+        // Make modules available globally for testing
+        window.AudioModule = AudioModule;
+        window.ModuleRegistry = ModuleRegistry;
+        window.WaveshaperModule = WaveshaperModule;
+        window.PhaserModule = PhaserModule;
+        window.DelayModule = DelayModule;
+        window.ReverbModule = ReverbModule;
+        
+        console.log('✓ All modules imported successfully');
+    </script>
+
+    <script>
+        let testResults = [];
+        let audioContext = null;
+
+        function updateStatus(text, isError = false) {
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = text;
+            statusText.style.color = isError ? '#FF6B35' : '#39FF14';
+        }
+
+        function addResult(testName, passed, message = '') {
+            const result = { testName, passed, message };
+            testResults.push(result);
+
+            const resultsDiv = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+            div.innerHTML = `
+                <strong>${passed ? '✓' : '✗'} ${testName}</strong>
+                ${message ? `<br><small style="color: #6B6B6B;">${message}</small>` : ''}
+            `;
+            resultsDiv.appendChild(div);
+        }
+
+        function showSummary() {
+            const passed = testResults.filter(r => r.passed).length;
+            const failed = testResults.filter(r => !r.passed).length;
+            const total = testResults.length;
+            const percentage = ((passed / total) * 100).toFixed(1);
+
+            const summaryDiv = document.getElementById('summary');
+            summaryDiv.className = `summary ${failed === 0 ? 'success' : 'failure'}`;
+            summaryDiv.style.display = 'block';
+            summaryDiv.innerHTML = `
+                <h2 style="margin-bottom: 15px;">📊 Test Summary</h2>
+                <p><strong>Total Tests:</strong> ${total}</p>
+                <p style="color: #39FF14;"><strong>Passed:</strong> ${passed}</p>
+                <p style="color: #FF6B35;"><strong>Failed:</strong> ${failed}</p>
+                <p><strong>Success Rate:</strong> ${percentage}%</p>
+                <br>
+                ${failed === 0 
+                    ? '<p style="color: #39FF14; font-size: 18px;">🎉 All tests passed! All 4 modules are working correctly.</p>'
+                    : '<p style="color: #FF6B35; font-size: 18px;">⚠️ Some tests failed. Check the results above.</p>'
+                }
+            `;
+        }
+
+        async function runAllTests() {
+            testResults = [];
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('summary').style.display = 'none';
+            updateStatus('Running tests...', false);
+
+            // Test 1: AudioContext Creation
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                addResult('AudioContext Creation', true, 'Web Audio API available');
+            } catch (err) {
+                addResult('AudioContext Creation', false, err.message);
+                showSummary();
+                return;
+            }
+
+            // Test 2: Module Registry Available
+            try {
+                if (window.ModuleRegistry) {
+                    addResult('ModuleRegistry Available', true, 'Registry loaded successfully');
+                } else {
+                    throw new Error('ModuleRegistry not found');
+                }
+            } catch (err) {
+                addResult('ModuleRegistry Available', false, err.message);
+            }
+
+            // Test 3-6: Module Registration
+            const modules = ['waveshaper', 'phaser', 'delay', 'reverb'];
+            for (const moduleName of modules) {
+                try {
+                    const registered = window.ModuleRegistry.listModules().some(m => 
+                        m.name.toLowerCase() === moduleName
+                    );
+                    if (registered) {
+                        addResult(`${moduleName.charAt(0).toUpperCase() + moduleName.slice(1)} Registration`, true, 'Module registered in registry');
+                    } else {
+                        throw new Error(`Module ${moduleName} not registered`);
+                    }
+                } catch (err) {
+                    addResult(`${moduleName.charAt(0).toUpperCase() + moduleName.slice(1)} Registration`, false, err.message);
+                }
+            }
+
+            // Test 7: Waveshaper Instantiation
+            try {
+                const waveshaper = await window.ModuleRegistry.createInstance('Waveshaper');
+                await waveshaper.init(audioContext);
+                waveshaper.setParam('drive', 2.0);
+                const params = waveshaper.getParams();
+                if (params.drive === 2.0) {
+                    addResult('Waveshaper Instantiation', true, 'Module created, initialized, and parameters work');
+                } else {
+                    throw new Error('Parameter setting failed');
+                }
+                waveshaper.destroy();
+            } catch (err) {
+                addResult('Waveshaper Instantiation', false, err.message);
+            }
+
+            // Test 8: Phaser Instantiation
+            try {
+                const phaser = await window.ModuleRegistry.createInstance('Phaser');
+                await phaser.init(audioContext);
+                phaser.loadPreset('Classic Phaser');
+                const params = phaser.getParams();
+                if (params.rate && params.depth) {
+                    addResult('Phaser Instantiation', true, 'Module created and preset loaded');
+                } else {
+                    throw new Error('Preset loading failed');
+                }
+                phaser.destroy();
+            } catch (err) {
+                addResult('Phaser Instantiation', false, err.message);
+            }
+
+            // Test 9: Delay Instantiation
+            try {
+                const delay = await window.ModuleRegistry.createInstance('Delay');
+                await delay.init(audioContext);
+                delay.loadPreset('Ping Pong');
+                const params = delay.getParams();
+                if (params.time_left && params.time_right) {
+                    addResult('Delay Instantiation', true, 'Module created and preset loaded');
+                } else {
+                    throw new Error('Preset loading failed');
+                }
+                delay.destroy();
+            } catch (err) {
+                addResult('Delay Instantiation', false, err.message);
+            }
+
+            // Test 10: Reverb Instantiation
+            try {
+                const reverb = await window.ModuleRegistry.createInstance('Reverb');
+                await reverb.init(audioContext);
+                reverb.loadPreset('Medium Hall');
+                const params = reverb.getParams();
+                if (params.size && params.decay) {
+                    addResult('Reverb Instantiation', true, 'Module created and preset loaded');
+                } else {
+                    throw new Error('Preset loading failed');
+                }
+                reverb.destroy();
+            } catch (err) {
+                addResult('Reverb Instantiation', false, err.message);
+            }
+
+            // Test 11: Audio Processing Chain
+            try {
+                const waveshaper = await window.ModuleRegistry.createInstance('Waveshaper');
+                await waveshaper.init(audioContext);
+                
+                const osc = audioContext.createOscillator();
+                osc.frequency.value = 440;
+                osc.type = 'sine';
+                
+                // Connect: Oscillator → Waveshaper → Destination
+                osc.connect(waveshaper.getInput());
+                waveshaper.connect(audioContext.destination);
+                
+                addResult('Audio Processing Chain', true, 'Signal routing works (Osc → Waveshaper → Out)');
+                
+                // Cleanup
+                osc.disconnect();
+                waveshaper.disconnect();
+                waveshaper.destroy();
+            } catch (err) {
+                addResult('Audio Processing Chain', false, err.message);
+            }
+
+            // Show summary
+            updateStatus(`Tests complete: ${testResults.filter(r => r.passed).length}/${testResults.length} passed`, testResults.some(r => !r.passed));
+            showSummary();
+        }
+
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                console.log('Auto-running tests in 2 seconds...');
+                setTimeout(runAllTests, 2000);
+            }, 100);
+        });
+    </script>
+</body>
+</html>

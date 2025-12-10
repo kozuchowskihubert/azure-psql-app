@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patch Editor - HAOS Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #0A0A0A;
+            color: #F4E8D8;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background: linear-gradient(145deg, #151515 0%, #0d0d0d 100%);
+            border-bottom: 1px solid #2a2a2a;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .patch-name {
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            padding: 8px 16px;
+            color: #F4E8D8;
+            font-size: 14px;
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .patch-name:focus {
+            outline: none;
+            border-color: #FF6B35;
+        }
+
+        .toolbar-center {
+            display: flex;
+            gap: 8px;
+        }
+
+        .toolbar-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
+            color: #0A0A0A;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: #2a2a2a;
+            color: #F4E8D8;
+            border: 1px solid #3a3a3a;
+        }
+
+        .btn-secondary:hover {
+            background: #3a3a3a;
+        }
+
+        .btn-danger {
+            background: #5A3D3D;
+            color: #FF6B35;
+            border: 1px solid #8B2635;
+        }
+
+        .btn-danger:hover {
+            background: #8B2635;
+            color: #F4E8D8;
+        }
+
+        .btn-icon {
+            background: transparent;
+            color: #6B6B6B;
+            border: 1px solid transparent;
+            padding: 8px 12px;
+        }
+
+        .btn-icon:hover {
+            color: #F4E8D8;
+            background: #2a2a2a;
+        }
+
+        .btn-icon.active {
+            color: #FF6B35;
+            background: rgba(255, 107, 53, 0.1);
+            border-color: rgba(255, 107, 53, 0.3);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        /* Module Library Sidebar */
+        .module-library {
+            width: 280px;
+            background: #151515;
+            border-right: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .library-header {
+            padding: 16px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .library-header h3 {
+            font-size: 14px;
+            color: #6B6B6B;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .library-search {
+            width: 100%;
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #F4E8D8;
+            font-size: 13px;
+        }
+
+        .library-search:focus {
+            outline: none;
+            border-color: #FF6B35;
+        }
+
+        .library-categories {
+            padding: 12px;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .category-tag {
+            padding: 4px 10px;
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #6B6B6B;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-tag:hover,
+        .category-tag.active {
+            background: rgba(255, 107, 53, 0.1);
+            border-color: #FF6B35;
+            color: #FF6B35;
+        }
+
+        .library-modules {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .library-module {
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: grab;
+            transition: all 0.3s ease;
+        }
+
+        .library-module:hover {
+            border-color: #FF6B35;
+            transform: translateX(4px);
+        }
+
+        .library-module:active {
+            cursor: grabbing;
+        }
+
+        .library-module-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .library-module-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .library-module-icon.effect { background: linear-gradient(135deg, #3D5A3D 0%, #39FF14 100%); color: #0A0A0A; }
+        .library-module-icon.oscillator { background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%); color: #0A0A0A; }
+        .library-module-icon.filter { background: linear-gradient(135deg, #6A0DAD 0%, #00D9FF 100%); color: #F4E8D8; }
+        .library-module-icon.modulator { background: linear-gradient(135deg, #00D9FF 0%, #6A0DAD 100%); color: #F4E8D8; }
+
+        .library-module-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #F4E8D8;
+        }
+
+        .library-module-desc {
+            font-size: 11px;
+            color: #6B6B6B;
+            margin-bottom: 6px;
+        }
+
+        .library-module-stats {
+            display: flex;
+            gap: 8px;
+            font-size: 10px;
+            color: #6B6B6B;
+        }
+
+        .library-module-stats span {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        /* Canvas Area */
+        .canvas-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: 
+                radial-gradient(circle at 20px 20px, #1a1a1a 1px, transparent 1px),
+                radial-gradient(circle at 20px 20px, #1a1a1a 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+        }
+
+        #patchCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: crosshair;
+        }
+
+        /* Rack Module */
+        .rack-module {
+            position: absolute;
+            background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%);
+            border: 2px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 16px;
+            min-width: 200px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            cursor: move;
+            transition: border-color 0.3s ease;
+            user-select: none;
+        }
+
+        .rack-module:hover {
+            border-color: #3a3a3a;
+        }
+
+        .rack-module.selected {
+            border-color: #FF6B35;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 107, 53, 0.2);
+        }
+
+        .rack-module.dragging {
+            opacity: 0.8;
+            cursor: grabbing;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .module-title-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-icon-small {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .module-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #F4E8D8;
+        }
+
+        .module-close {
+            background: transparent;
+            border: none;
+            color: #6B6B6B;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px 8px;
+            transition: all 0.3s ease;
+        }
+
+        .module-close:hover {
+            color: #FF6B35;
+        }
+
+        .module-ports {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .port-column {
+            flex: 1;
+        }
+
+        .port-column h4 {
+            font-size: 10px;
+            color: #6B6B6B;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .port {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+
+        .port-jack {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .port-jack:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 12px currentColor;
+        }
+
+        .port-jack.active {
+            transform: scale(1.2);
+            box-shadow: 0 0 16px currentColor;
+        }
+
+        .port-jack.audio {
+            background: #FF6B35;
+            border-color: #D4AF37;
+        }
+
+        .port-jack.cv {
+            background: #00D9FF;
+            border-color: #6A0DAD;
+        }
+
+        .port-jack.gate {
+            background: #39FF14;
+            border-color: #3D5A3D;
+        }
+
+        .port.input { justify-content: flex-start; }
+        .port.output { justify-content: flex-end; flex-direction: row-reverse; }
+
+        .port-label {
+            color: #8B8B8B;
+            white-space: nowrap;
+        }
+
+        /* Properties Panel */
+        .properties-panel {
+            width: 300px;
+            background: #151515;
+            border-left: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .properties-header {
+            padding: 16px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .properties-header h3 {
+            font-size: 14px;
+            color: #6B6B6B;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .properties-content {
+            padding: 16px;
+        }
+
+        .property-group {
+            margin-bottom: 20px;
+        }
+
+        .property-label {
+            font-size: 11px;
+            color: #6B6B6B;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .property-input {
+            width: 100%;
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #F4E8D8;
+            font-size: 13px;
+        }
+
+        .property-input:focus {
+            outline: none;
+            border-color: #FF6B35;
+        }
+
+        .property-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: #2a2a2a;
+            outline: none;
+        }
+
+        .property-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
+            cursor: pointer;
+        }
+
+        .property-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
+            cursor: pointer;
+            border: none;
+        }
+
+        .property-value {
+            text-align: right;
+            font-size: 12px;
+            color: #FF6B35;
+            margin-top: 4px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #3a3a3a;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            opacity: 0.4;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0d0d0d;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a3a3a;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .module-library {
+                width: 240px;
+            }
+            
+            .properties-panel {
+                width: 260px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+                height: auto;
+                gap: 8px;
+                padding: 12px;
+            }
+
+            .toolbar-left,
+            .toolbar-center,
+            .toolbar-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .patch-name {
+                width: 100%;
+            }
+
+            .module-library,
+            .properties-panel {
+                position: absolute;
+                height: 100%;
+                z-index: 100;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .module-library.open {
+                transform: translateX(0);
+            }
+
+            .properties-panel {
+                right: 0;
+                left: auto;
+                transform: translateX(100%);
+            }
+
+            .properties-panel.open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <div class="logo">
+                <i class="fas fa-th-large"></i>
+                <span>Patch Editor</span>
+            </div>
+            <input type="text" class="patch-name" id="patchName" placeholder="Untitled Patch" value="Untitled Patch">
+        </div>
+
+        <div class="toolbar-center">
+            <button class="btn btn-icon" id="undoBtn" title="Undo (Ctrl+Z)">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button class="btn btn-icon" id="redoBtn" title="Redo (Ctrl+Y)">
+                <i class="fas fa-redo"></i>
+            </button>
+            <button class="btn btn-icon" id="zoomInBtn" title="Zoom In">
+                <i class="fas fa-search-plus"></i>
+            </button>
+            <button class="btn btn-icon" id="zoomOutBtn" title="Zoom Out">
+                <i class="fas fa-search-minus"></i>
+            </button>
+            <button class="btn btn-icon" id="fitBtn" title="Fit to Screen">
+                <i class="fas fa-expand"></i>
+            </button>
+            <button class="btn btn-icon" id="gridBtn" title="Toggle Grid" class="active">
+                <i class="fas fa-grip-horizontal"></i>
+            </button>
+        </div>
+
+        <div class="toolbar-right">
+            <button class="btn btn-secondary" id="loadBtn">
+                <i class="fas fa-folder-open"></i> Load
+            </button>
+            <button class="btn btn-secondary" id="saveBtn">
+                <i class="fas fa-save"></i> Save
+            </button>
+            <button class="btn btn-danger" id="clearBtn">
+                <i class="fas fa-trash"></i> Clear
+            </button>
+            <button class="btn btn-primary" id="exportBtn">
+                <i class="fas fa-file-export"></i> Export
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='/'">
+                <i class="fas fa-arrow-left"></i> Exit
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Module Library -->
+        <div class="module-library" id="moduleLibrary">
+            <div class="library-header">
+                <h3>Module Library</h3>
+                <input type="text" class="library-search" id="librarySearch" placeholder="Search modules...">
+            </div>
+
+            <div class="library-categories">
+                <div class="category-tag active" data-category="all">All</div>
+                <div class="category-tag" data-category="effect">Effects</div>
+                <div class="category-tag" data-category="oscillator">Oscillators</div>
+                <div class="category-tag" data-category="filter">Filters</div>
+                <div class="category-tag" data-category="modulator">Modulators</div>
+            </div>
+
+            <div class="library-modules" id="libraryModules">
+                <!-- Modules will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Canvas Area -->
+        <div class="canvas-area" id="canvasArea">
+            <canvas id="patchCanvas"></canvas>
+            
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-project-diagram"></i>
+                <h3>Empty Patch</h3>
+                <p>Drag modules from the library to start building</p>
+            </div>
+
+            <!-- Rack modules will be added here dynamically -->
+        </div>
+
+        <!-- Properties Panel -->
+        <div class="properties-panel" id="propertiesPanel">
+            <div class="properties-header">
+                <h3>Properties</h3>
+            </div>
+            <div class="properties-content" id="propertiesContent">
+                <p style="color: #6B6B6B; font-size: 13px; text-align: center; padding: 40px 20px;">
+                    Select a module to view its properties
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Module Registry -->
+    <script type="module">
+        import { ModuleRegistry } from '/haos-platform/js/core/module-registry.js';
+        window.ModuleRegistry = ModuleRegistry;
+    </script>
+
+    <script src="/haos-platform/js/patch-editor.js"></script>
+</body>
+</html>

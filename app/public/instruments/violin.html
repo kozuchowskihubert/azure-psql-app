@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Violin - HAOS.fm</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.5);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .header-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .header-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s;
+    }
+
+    .header-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .header-btn.primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      min-height: 100vh;
+      padding-top: 60px;
+    }
+
+    @media (max-width: 1200px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Panel - Controls */
+    .left-panel {
+      background: rgba(0, 0, 0, 0.3);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .panel-section {
+      margin-bottom: 2rem;
+    }
+
+    .panel-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Knob Control */
+    .knob-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .knob {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(145deg, #2a2a3e, #1a1a2e);
+      border-radius: 50%;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 
+        0 5px 15px rgba(0, 0, 0, 0.5),
+        inset 0 2px 3px rgba(255, 255, 255, 0.1);
+    }
+
+    .knob::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 4px;
+      height: 25px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 2px;
+      transform-origin: bottom center;
+      transform: translate(-50%, -100%) rotate(var(--rotation, 0deg));
+    }
+
+    .knob::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      background: radial-gradient(circle, #333, #222);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .knob-label {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .knob-value {
+      font-size: 0.75rem;
+      color: #667eea;
+      margin-top: 0.25rem;
+    }
+
+    /* Slider Control */
+    .slider-container {
+      margin-bottom: 1.25rem;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .slider-label span:first-child {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .slider-label span:last-child {
+      color: #667eea;
+    }
+
+    .slider {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      appearance: none;
+      outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
+    }
+
+    /* Toggle Button */
+    .toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      margin-bottom: 0.75rem;
+      transition: all 0.3s;
+    }
+
+    .toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .toggle-btn.active {
+      background: rgba(102, 126, 234, 0.2);
+      border-color: rgba(102, 126, 234, 0.5);
+    }
+
+    .toggle-indicator {
+      width: 40px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    .toggle-indicator::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle-btn.active .toggle-indicator {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .toggle-btn.active .toggle-indicator::before {
+      transform: translateX(20px);
+    }
+
+    /* Center - Visualization Area */
+    .center-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      position: relative;
+    }
+
+    /* Violin Visualization */
+    .violin-container {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      height: 600px;
+    }
+
+    .violin-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .violin-body {
+      fill: url(#woodGradient);
+      stroke: #5d4e37;
+      stroke-width: 2;
+      filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+    }
+
+    .violin-string {
+      stroke: #c4a35a;
+      stroke-width: 1.5;
+      filter: drop-shadow(0 0 3px rgba(196, 163, 90, 0.5));
+    }
+
+    .violin-string.active {
+      stroke: #667eea;
+      stroke-width: 2;
+      filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.8));
+      animation: vibrate 0.1s infinite;
+    }
+
+    @keyframes vibrate {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-1px); }
+      75% { transform: translateX(1px); }
+    }
+
+    .violin-f-hole {
+      fill: #1a1a2e;
+      stroke: #5d4e37;
+      stroke-width: 1;
+    }
+
+    .bow {
+      position: absolute;
+      width: 400px;
+      height: 10px;
+      background: linear-gradient(90deg, #8b7355, #c4a35a, #8b7355);
+      border-radius: 5px;
+      top: 50%;
+      left: 50%;
+      transform-origin: center;
+      transform: translate(-50%, -50%) rotate(var(--bow-angle, 15deg));
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+      transition: transform 0.1s ease-out;
+    }
+
+    .bow::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 5%;
+      right: 5%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Waveform Visualizer */
+    .waveform-container {
+      width: 100%;
+      max-width: 600px;
+      height: 100px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      margin-top: 2rem;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .waveform-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Right Panel - Articulations & Notes */
+    .right-panel {
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    /* Articulation Buttons */
+    .articulation-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .articulation-btn {
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .articulation-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .articulation-btn.active {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+      border-color: #667eea;
+    }
+
+    .articulation-btn i {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+      color: #667eea;
+    }
+
+    .articulation-btn span {
+      font-size: 0.8rem;
+    }
+
+    /* Keyboard */
+    .keyboard-container {
+      margin-top: 2rem;
+    }
+
+    .keyboard {
+      display: flex;
+      position: relative;
+      height: 120px;
+    }
+
+    .white-key {
+      flex: 1;
+      background: linear-gradient(180deg, #f0f0f0, #d4d4d4);
+      border: 1px solid #999;
+      border-radius: 0 0 4px 4px;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .white-key:hover {
+      background: linear-gradient(180deg, #fff, #e0e0e0);
+    }
+
+    .white-key.active {
+      background: linear-gradient(180deg, #667eea, #764ba2);
+    }
+
+    .black-key {
+      position: absolute;
+      width: 60%;
+      height: 70%;
+      background: linear-gradient(180deg, #333, #111);
+      border-radius: 0 0 3px 3px;
+      z-index: 1;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .black-key:hover {
+      background: linear-gradient(180deg, #444, #222);
+    }
+
+    .black-key.active {
+      background: linear-gradient(180deg, #667eea, #764ba2);
+    }
+
+    /* Note Display */
+    .note-display {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .current-note {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .note-frequency {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Presets */
+    .preset-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .preset-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .preset-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .preset-item.active {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+      border: 1px solid rgba(102, 126, 234, 0.5);
+    }
+
+    /* Info Tooltip */
+    .info-tooltip {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      display: none;
+    }
+
+    .info-tooltip.show {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* Access Gate */
+    .access-gate {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      gap: 1.5rem;
+    }
+
+    .access-gate.hidden {
+      display: none;
+    }
+
+    .access-gate i {
+      font-size: 4rem;
+      color: #ffc107;
+    }
+
+    .access-gate h2 {
+      font-size: 1.5rem;
+    }
+
+    .access-gate p {
+      color: rgba(255, 255, 255, 0.6);
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .access-gate .btn-group {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .access-gate .btn {
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .access-gate .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+    }
+
+    .access-gate .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Access Gate (shown if user doesn't have premium) -->
+  <div id="access-gate" class="access-gate hidden">
+    <i class="fas fa-lock"></i>
+    <h2>Premium Feature</h2>
+    <p>The Virtual Violin requires a Premium subscription. Upgrade to unlock all instruments and features.</p>
+    <div class="btn-group">
+      <a href="/pricing.html" class="btn btn-primary">
+        <i class="fas fa-crown"></i> Upgrade to Premium
+      </a>
+      <a href="/virtual-lab.html" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Lab
+      </a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <a href="/virtual-lab.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+      Back to Lab
+    </a>
+    <h1 class="header-title">
+      <span>🎻</span> Virtual Violin
+    </h1>
+    <div class="header-actions">
+      <button class="header-btn" onclick="showTutorial()">
+        <i class="fas fa-question-circle"></i>
+        Tutorial
+      </button>
+      <button class="header-btn primary" onclick="toggleRecording()">
+        <i class="fas fa-circle" id="record-icon"></i>
+        Record
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <!-- Left Panel - Controls -->
+    <aside class="left-panel">
+      <div class="panel-section">
+        <h3 class="panel-title"><i class="fas fa-sliders-h"></i> Expression</h3>
+        
+        <div class="knob-container">
+          <div class="knob" id="knob-vibrato" style="--rotation: 45deg;"></div>
+          <span class="knob-label">Vibrato</span>
+          <span class="knob-value" id="vibrato-value">25%</span>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob" id="knob-bow-pressure" style="--rotation: 90deg;"></div>
+          <span class="knob-label">Bow Pressure</span>
+          <span class="knob-value" id="pressure-value">50%</span>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-label">
+            <span>Bow Position</span>
+            <span id="bow-pos-value">Bridge</span>
+          </div>
+          <input type="range" class="slider" id="bow-position" min="0" max="100" value="50">
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-label">
+            <span>Dynamics</span>
+            <span id="dynamics-value">mf</span>
+          </div>
+          <input type="range" class="slider" id="dynamics" min="0" max="100" value="60">
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3 class="panel-title"><i class="fas fa-cog"></i> Settings</h3>
+        
+        <button class="toggle-btn active" id="toggle-legato">
+          <span>Legato Mode</span>
+          <div class="toggle-indicator"></div>
+        </button>
+
+        <button class="toggle-btn" id="toggle-portamento">
+          <span>Portamento</span>
+          <div class="toggle-indicator"></div>
+        </button>
+
+        <button class="toggle-btn" id="toggle-reverb">
+          <span>Reverb</span>
+          <div class="toggle-indicator"></div>
+        </button>
+      </div>
+
+      <div class="panel-section">
+        <h3 class="panel-title"><i class="fas fa-bookmark"></i> Presets</h3>
+        <div class="preset-list">
+          <div class="preset-item active">
+            <span>Solo Violin</span>
+            <i class="fas fa-check"></i>
+          </div>
+          <div class="preset-item">
+            <span>Romantic</span>
+          </div>
+          <div class="preset-item">
+            <span>Aggressive</span>
+          </div>
+          <div class="preset-item">
+            <span>Ethereal</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center - Visualization -->
+    <main class="center-panel">
+      <div class="violin-container">
+        <!-- Violin SVG -->
+        <svg class="violin-svg" viewBox="0 0 200 400">
+          <defs>
+            <linearGradient id="woodGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#8B4513"/>
+              <stop offset="50%" style="stop-color:#A0522D"/>
+              <stop offset="100%" style="stop-color:#6B3E26"/>
+            </linearGradient>
+          </defs>
+          
+          <!-- Violin Body -->
+          <path class="violin-body" d="
+            M100,20 
+            C140,20 160,60 160,100
+            C160,140 140,160 160,200
+            C180,240 170,300 150,340
+            C140,360 120,380 100,380
+            C80,380 60,360 50,340
+            C30,300 20,240 40,200
+            C60,160 40,140 40,100
+            C40,60 60,20 100,20
+            Z
+          "/>
+          
+          <!-- F-holes -->
+          <ellipse class="violin-f-hole" cx="70" cy="200" rx="8" ry="35"/>
+          <ellipse class="violin-f-hole" cx="130" cy="200" rx="8" ry="35"/>
+          
+          <!-- Bridge -->
+          <rect x="75" y="230" width="50" height="8" fill="#5d4e37" rx="2"/>
+          
+          <!-- Strings -->
+          <line class="violin-string" id="string-g" x1="85" y1="60" x2="85" y2="340"/>
+          <line class="violin-string" id="string-d" x1="95" y1="60" x2="95" y2="340"/>
+          <line class="violin-string" id="string-a" x1="105" y1="60" x2="105" y2="340"/>
+          <line class="violin-string" id="string-e" x1="115" y1="60" x2="115" y2="340"/>
+          
+          <!-- Fingerboard -->
+          <rect x="82" y="40" width="36" height="140" fill="#1a1a2e" rx="3"/>
+          
+          <!-- Scroll -->
+          <circle cx="100" cy="25" r="15" fill="url(#woodGradient)" stroke="#5d4e37" stroke-width="2"/>
+        </svg>
+
+        <!-- Bow (overlaid on violin) -->
+        <div class="bow" id="bow"></div>
+      </div>
+
+      <!-- Waveform -->
+      <div class="waveform-container">
+        <canvas id="waveform" class="waveform-canvas"></canvas>
+      </div>
+    </main>
+
+    <!-- Right Panel - Articulations & Notes -->
+    <aside class="right-panel">
+      <div class="panel-section">
+        <h3 class="panel-title"><i class="fas fa-music"></i> Current Note</h3>
+        <div class="note-display">
+          <div class="current-note" id="current-note">A4</div>
+          <div class="note-frequency" id="note-freq">440 Hz</div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3 class="panel-title"><i class="fas fa-hand-paper"></i> Articulations</h3>
+        <div class="articulation-grid">
+          <button class="articulation-btn active" data-articulation="arco">
+            <i class="fas fa-grip-lines"></i>
+            <span>Arco</span>
+          </button>
+          <button class="articulation-btn" data-articulation="pizzicato">
+            <i class="fas fa-hand-point-up"></i>
+            <span>Pizzicato</span>
+          </button>
+          <button class="articulation-btn" data-articulation="tremolo">
+            <i class="fas fa-wave-square"></i>
+            <span>Tremolo</span>
+          </button>
+          <button class="articulation-btn" data-articulation="spiccato">
+            <i class="fas fa-arrows-alt-v"></i>
+            <span>Spiccato</span>
+          </button>
+          <button class="articulation-btn" data-articulation="harmonics">
+            <i class="fas fa-star"></i>
+            <span>Harmonics</span>
+          </button>
+          <button class="articulation-btn" data-articulation="col-legno">
+            <i class="fas fa-drumstick-bite"></i>
+            <span>Col Legno</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-section keyboard-container">
+        <h3 class="panel-title"><i class="fas fa-keyboard"></i> Play Notes</h3>
+        <div class="keyboard" id="keyboard">
+          <!-- Generated by JS -->
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3 class="panel-title"><i class="fas fa-info-circle"></i> String Selection</h3>
+        <div class="articulation-grid">
+          <button class="articulation-btn" data-string="g" onclick="selectString('g')">
+            <span style="font-size: 1.5rem; font-weight: bold;">G</span>
+            <span>196 Hz</span>
+          </button>
+          <button class="articulation-btn" data-string="d" onclick="selectString('d')">
+            <span style="font-size: 1.5rem; font-weight: bold;">D</span>
+            <span>294 Hz</span>
+          </button>
+          <button class="articulation-btn active" data-string="a" onclick="selectString('a')">
+            <span style="font-size: 1.5rem; font-weight: bold;">A</span>
+            <span>440 Hz</span>
+          </button>
+          <button class="articulation-btn" data-string="e" onclick="selectString('e')">
+            <span style="font-size: 1.5rem; font-weight: bold;">E</span>
+            <span>659 Hz</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Info Tooltip -->
+  <div id="info-tooltip" class="info-tooltip">
+    <p>Use your keyboard (A-L) or click the keys to play notes. Adjust expression controls for realistic sound.</p>
+  </div>
+
+  <script>
+    // Audio Context
+    let audioCtx = null;
+    let masterGain = null;
+    let oscillator = null;
+    let isPlaying = false;
+    let currentArticulation = 'arco';
+    let currentString = 'a';
+    let hasAccess = false;
+
+    // String frequencies (open strings)
+    const stringFreqs = {
+      g: 196.00,
+      d: 293.66,
+      a: 440.00,
+      e: 659.25
+    };
+
+    // Notes for keyboard
+    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const noteFreqs = {
+      'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13,
+      'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00,
+      'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88,
+      'C5': 523.25
+    };
+
+    // Check access
+    async function checkAccess() {
+      try {
+        const response = await fetch('/auth/can-access/virtual-violin');
+        const data = await response.json();
+        
+        if (data.canAccess) {
+          hasAccess = true;
+          document.getElementById('access-gate').classList.add('hidden');
+        } else {
+          // For demo, allow access anyway but show limited functionality
+          // In production, you'd show the gate
+          hasAccess = true; // Demo mode
+          document.getElementById('access-gate').classList.add('hidden');
+        }
+      } catch (error) {
+        // Demo mode - allow access
+        hasAccess = true;
+        document.getElementById('access-gate').classList.add('hidden');
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+      await checkAccess();
+      initAudio();
+      initKeyboard();
+      initControls();
+      initWaveform();
+      showTooltip();
+    });
+
+    function initAudio() {
+      // Will be initialized on first user interaction
+    }
+
+    function ensureAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.5;
+        masterGain.connect(audioCtx.destination);
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playNote(freq, noteName) {
+      ensureAudioContext();
+      
+      if (oscillator) {
+        oscillator.stop();
+      }
+
+      oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      // Violin-like waveform (sawtooth with filter)
+      oscillator.type = 'sawtooth';
+      oscillator.frequency.value = freq;
+
+      // Filter for violin-like tone
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 2000;
+      filter.Q.value = 5;
+
+      // Vibrato
+      const vibratoValue = parseFloat(document.getElementById('vibrato-value').textContent) / 100;
+      if (vibratoValue > 0) {
+        const vibrato = audioCtx.createOscillator();
+        const vibratoGain = audioCtx.createGain();
+        vibrato.frequency.value = 5 + vibratoValue * 3;
+        vibratoGain.gain.value = vibratoValue * 10;
+        vibrato.connect(vibratoGain);
+        vibratoGain.connect(oscillator.frequency);
+        vibrato.start();
+      }
+
+      // ADSR envelope
+      const now = audioCtx.currentTime;
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.7, now + 0.1); // Attack
+      gainNode.gain.linearRampToValueAtTime(0.5, now + 0.3); // Decay
+
+      oscillator.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(masterGain);
+
+      oscillator.start();
+      isPlaying = true;
+
+      // Update display
+      document.getElementById('current-note').textContent = noteName;
+      document.getElementById('note-freq').textContent = `${Math.round(freq)} Hz`;
+
+      // Animate string
+      animateString();
+    }
+
+    function stopNote() {
+      if (oscillator && isPlaying) {
+        const gainNode = audioCtx.createGain();
+        oscillator.disconnect();
+        oscillator.connect(gainNode);
+        gainNode.connect(masterGain);
+        
+        const now = audioCtx.currentTime;
+        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+        gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
+        
+        setTimeout(() => {
+          if (oscillator) {
+            oscillator.stop();
+            oscillator = null;
+          }
+        }, 200);
+        
+        isPlaying = false;
+        stopStringAnimation();
+      }
+    }
+
+    function initKeyboard() {
+      const keyboard = document.getElementById('keyboard');
+      const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C'];
+      const blackKeyPositions = [1, 2, 4, 5, 6]; // Positions after white keys
+      
+      let html = '';
+      whiteKeys.forEach((note, i) => {
+        const octave = i === 7 ? 5 : 4;
+        const noteName = `${note}${octave}`;
+        html += `<div class="white-key" data-note="${noteName}" 
+          onmousedown="playNote(${noteFreqs[noteName]}, '${noteName}')" 
+          onmouseup="stopNote()"
+          onmouseleave="stopNote()"></div>`;
+      });
+      
+      keyboard.innerHTML = html;
+
+      // Add black keys
+      const blackKeyNotes = ['C#4', 'D#4', 'F#4', 'G#4', 'A#4'];
+      blackKeyPositions.forEach((pos, i) => {
+        const blackKey = document.createElement('div');
+        blackKey.className = 'black-key';
+        blackKey.style.left = `${pos * (100/8) + 5}%`;
+        blackKey.dataset.note = blackKeyNotes[i];
+        blackKey.onmousedown = () => playNote(noteFreqs[blackKeyNotes[i]], blackKeyNotes[i]);
+        blackKey.onmouseup = stopNote;
+        blackKey.onmouseleave = stopNote;
+        keyboard.appendChild(blackKey);
+      });
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.repeat) return;
+      const keyMap = {
+        'a': 'C4', 'w': 'C#4', 's': 'D4', 'e': 'D#4',
+        'd': 'E4', 'f': 'F4', 't': 'F#4', 'g': 'G4',
+        'y': 'G#4', 'h': 'A4', 'u': 'A#4', 'j': 'B4',
+        'k': 'C5'
+      };
+      
+      const note = keyMap[e.key.toLowerCase()];
+      if (note && noteFreqs[note]) {
+        playNote(noteFreqs[note], note);
+        // Highlight key
+        const key = document.querySelector(`[data-note="${note}"]`);
+        if (key) key.classList.add('active');
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      stopNote();
+      // Remove highlight
+      document.querySelectorAll('.white-key, .black-key').forEach(k => k.classList.remove('active'));
+    });
+
+    function initControls() {
+      // Articulation buttons
+      document.querySelectorAll('.articulation-btn[data-articulation]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.articulation-btn[data-articulation]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentArticulation = btn.dataset.articulation;
+        });
+      });
+
+      // Toggle buttons
+      document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('active');
+        });
+      });
+
+      // Sliders
+      document.getElementById('bow-position').addEventListener('input', (e) => {
+        const positions = ['Fingerboard', 'Normal', 'Bridge'];
+        const pos = Math.floor(e.target.value / 34);
+        document.getElementById('bow-pos-value').textContent = positions[Math.min(pos, 2)];
+      });
+
+      document.getElementById('dynamics').addEventListener('input', (e) => {
+        const dynamics = ['pp', 'p', 'mp', 'mf', 'f', 'ff'];
+        const idx = Math.floor(e.target.value / 17);
+        document.getElementById('dynamics-value').textContent = dynamics[Math.min(idx, 5)];
+        if (masterGain) {
+          masterGain.gain.value = e.target.value / 100;
+        }
+      });
+
+      // Knobs (simplified - full implementation would track drag)
+      initKnob('knob-vibrato', 'vibrato-value');
+      initKnob('knob-bow-pressure', 'pressure-value');
+
+      // Preset items
+      document.querySelectorAll('.preset-item').forEach(item => {
+        item.addEventListener('click', () => {
+          document.querySelectorAll('.preset-item').forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+        });
+      });
+    }
+
+    function initKnob(knobId, valueId) {
+      const knob = document.getElementById(knobId);
+      let isDragging = false;
+      let startY = 0;
+      let startRotation = 0;
+
+      knob.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startY = e.clientY;
+        const style = getComputedStyle(knob);
+        startRotation = parseInt(style.getPropertyValue('--rotation')) || 0;
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const deltaY = startY - e.clientY;
+        let newRotation = startRotation + deltaY;
+        newRotation = Math.max(-135, Math.min(135, newRotation));
+        knob.style.setProperty('--rotation', `${newRotation}deg`);
+        
+        const value = Math.round(((newRotation + 135) / 270) * 100);
+        document.getElementById(valueId).textContent = `${value}%`;
+      });
+
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+    }
+
+    function selectString(string) {
+      currentString = string;
+      document.querySelectorAll('.articulation-btn[data-string]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.string === string);
+      });
+      
+      // Play open string
+      playNote(stringFreqs[string], string.toUpperCase() + '3');
+    }
+
+    function animateString() {
+      const stringEl = document.getElementById(`string-${currentString}`);
+      if (stringEl) {
+        stringEl.classList.add('active');
+      }
+    }
+
+    function stopStringAnimation() {
+      document.querySelectorAll('.violin-string').forEach(s => s.classList.remove('active'));
+    }
+
+    // Waveform visualizer
+    function initWaveform() {
+      const canvas = document.getElementById('waveform');
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth * 2;
+      canvas.height = canvas.offsetHeight * 2;
+
+      function draw() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (isPlaying && audioCtx) {
+          // Draw waveform
+          const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+          gradient.addColorStop(0, '#667eea');
+          gradient.addColorStop(1, '#764ba2');
+          
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          
+          const sliceWidth = canvas.width / 100;
+          let x = 0;
+          
+          for (let i = 0; i < 100; i++) {
+            const v = Math.sin(i * 0.2 + Date.now() * 0.01) * 0.5 + 0.5;
+            const y = v * canvas.height;
+            
+            if (i === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+            x += sliceWidth;
+          }
+          
+          ctx.stroke();
+        } else {
+          // Draw flat line
+          ctx.strokeStyle = 'rgba(102, 126, 234, 0.3)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(0, canvas.height / 2);
+          ctx.lineTo(canvas.width, canvas.height / 2);
+          ctx.stroke();
+        }
+        
+        requestAnimationFrame(draw);
+      }
+      
+      draw();
+    }
+
+    // Bow animation
+    function animateBow() {
+      const bow = document.getElementById('bow');
+      let angle = 15;
+      let direction = 1;
+      
+      setInterval(() => {
+        if (isPlaying) {
+          angle += direction * 0.5;
+          if (angle > 25 || angle < 5) direction *= -1;
+          bow.style.setProperty('--bow-angle', `${angle}deg`);
+        }
+      }, 50);
+    }
+    animateBow();
+
+    function showTooltip() {
+      const tooltip = document.getElementById('info-tooltip');
+      tooltip.classList.add('show');
+      setTimeout(() => tooltip.classList.remove('show'), 5000);
+    }
+
+    function showTutorial() {
+      alert('Tutorial: Use keyboard keys A-K to play notes, or click the piano keys. Adjust vibrato and bow pressure for expressive playing. Try different articulations like Pizzicato or Tremolo!');
+    }
+
+    let isRecording = false;
+    function toggleRecording() {
+      isRecording = !isRecording;
+      const icon = document.getElementById('record-icon');
+      if (isRecording) {
+        icon.style.color = '#ff4444';
+        icon.classList.add('fa-beat');
+      } else {
+        icon.style.color = '';
+        icon.classList.remove('fa-beat');
+      }
+    }
+  </script>
+</body>
+</html>

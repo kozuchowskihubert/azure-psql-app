@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Activated - HAOS.fm</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --haos-orange: #FF6B35;
+            --haos-gold: #D4AF37;
+            --haos-amber: #DAA520;
+            --vinyl-black: #0A0A0A;
+            --charcoal: #1A1A1A;
+            --slate: #2D2D2D;
+            --sepia-cream: #F4E8D8;
+            --warm-white: #FEFEFE;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--vinyl-black);
+            color: var(--sepia-cream);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Film grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            z-index: 1000;
+        }
+
+        .success-container {
+            text-align: center;
+            max-width: 600px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 60px rgba(255, 107, 53, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 60px rgba(255, 107, 53, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 80px rgba(255, 107, 53, 0.5);
+            }
+        }
+
+        .success-icon svg {
+            width: 60px;
+            height: 60px;
+            stroke: var(--vinyl-black);
+            stroke-width: 3;
+            fill: none;
+            animation: checkmark 0.6s ease-in-out 0.3s forwards;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+        }
+
+        @keyframes checkmark {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .success-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            letter-spacing: 0.05em;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .success-subtitle {
+            font-size: 1.25rem;
+            color: var(--sepia-cream);
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .plan-badge {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-gold));
+            border-radius: 50px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--vinyl-black);
+            text-transform: uppercase;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .features-unlocked {
+            background: var(--charcoal);
+            border: 1px solid var(--slate);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .features-unlocked h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.25rem;
+            letter-spacing: 0.05em;
+            color: var(--haos-gold);
+            margin-bottom: 1rem;
+        }
+
+        .features-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .feature-item svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--haos-gold);
+            flex-shrink: 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-gold));
+            color: var(--vinyl-black);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--haos-gold);
+            color: var(--haos-gold);
+        }
+
+        .btn-secondary:hover {
+            background: var(--haos-gold);
+            color: var(--vinyl-black);
+        }
+
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            animation: confetti-fall 4s ease-in-out infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .success-title {
+                font-size: 2rem;
+            }
+            .success-subtitle {
+                font-size: 1rem;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Confetti Animation -->
+    <div class="confetti" id="confetti"></div>
+
+    <div class="success-container">
+        <div class="success-icon">
+            <svg viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+
+        <h1 class="success-title">Subscription Activated!</h1>
+        <p class="success-subtitle">Welcome to the next level of music creation</p>
+
+        <div class="plan-badge" id="planBadge">Loading...</div>
+
+        <div class="features-unlocked" id="featuresUnlocked">
+            <h3>✨ Features Now Unlocked</h3>
+            <div class="features-list" id="featuresList">
+                <!-- Features populated by JS -->
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="/virtual-lab" class="btn btn-primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18V5l12-2v13"/>
+                    <circle cx="6" cy="18" r="3"/>
+                    <circle cx="18" cy="16" r="3"/>
+                </svg>
+                Open Virtual Lab
+            </a>
+            <a href="/account" class="btn btn-secondary">
+                Manage Account
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        const planCode = urlParams.get('plan') || 'premium';
+
+        // Plan features mapping
+        const planFeatures = {
+            basic: [
+                'Virtual Synth Access',
+                'Track Library (100 tracks)',
+                'Basic Presets',
+                'Standard Audio Quality'
+            ],
+            premium: [
+                'Full Virtual Lab Suite',
+                'Unlimited Track Library',
+                'All Premium Presets',
+                'High-Quality Audio (320kbps)',
+                'Cloud Sync',
+                'Priority Support'
+            ],
+            pro: [
+                'Everything in Premium',
+                'AI Music Generation',
+                'Custom Instrument Design',
+                'Lossless Audio (FLAC)',
+                'Commercial License',
+                'Dedicated Support',
+                'Early Access to Features'
+            ]
+        };
+
+        // Update plan badge
+        const planBadge = document.getElementById('planBadge');
+        const planNames = {
+            basic: 'Basic Plan',
+            premium: 'Premium Plan',
+            pro: 'Pro Plan'
+        };
+        planBadge.textContent = planNames[planCode] || 'Premium Plan';
+
+        // Populate features
+        const featuresList = document.getElementById('featuresList');
+        const features = planFeatures[planCode] || planFeatures.premium;
+        features.forEach(feature => {
+            const item = document.createElement('div');
+            item.className = 'feature-item';
+            item.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>${feature}</span>
+            `;
+            featuresList.appendChild(item);
+        });
+
+        // Create confetti
+        function createConfetti() {
+            const confettiContainer = document.getElementById('confetti');
+            const colors = ['#FF6B35', '#D4AF37', '#DAA520', '#F4E8D8', '#FFD700'];
+            
+            for (let i = 0; i < 50; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + 'vw';
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDelay = Math.random() * 3 + 's';
+                piece.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                confettiContainer.appendChild(piece);
+            }
+
+            // Remove confetti after animation
+            setTimeout(() => {
+                confettiContainer.innerHTML = '';
+            }, 6000);
+        }
+
+        createConfetti();
+
+        // Verify session if session_id provided
+        if (sessionId) {
+            fetch(`/api/subscriptions/verify-session?session_id=${sessionId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.planCode) {
+                        planBadge.textContent = planNames[data.planCode] || data.planCode;
+                    }
+                })
+                .catch(err => console.log('Session verification skipped'));
+        }
+    </script>
+</body>
+</html>

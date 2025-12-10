@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Lab - HAOS.fm</title>
+  <link rel="stylesheet" href="/css/haos-brand.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #0A0A0A;
+      min-height: 100vh;
+      color: #F4E8D8;
+      position: relative;
+    }
+
+    /* Film grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+      opacity: 0.03;
+      mix-blend-mode: overlay;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* Background glows */
+    .bg-glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-glow.orange { background: #FF6B35; width: 400px; height: 400px; top: -100px; right: -100px; opacity: 0.15; }
+    .bg-glow.gold { background: #D4AF37; width: 300px; height: 300px; bottom: 10%; left: -50px; opacity: 0.1; }
+    .bg-glow.cyan { background: #00D9FF; width: 200px; height: 200px; top: 50%; left: 50%; opacity: 0.05; }
+
+    /* Header */
+    .header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.5);
+      border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #F4E8D8;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+      color: #0A0A0A;
+    }
+
+    .logo-text {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.75rem;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: #6B6B6B;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-link:hover {
+      color: #F4E8D8;
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .nav-link.active {
+      color: #0A0A0A;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 107, 53, 0.1);
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .user-badge i {
+      color: #FF6B35;
+    }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 4rem 2rem;
+      background: linear-gradient(180deg, transparent, rgba(255, 107, 53, 0.05));
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      letter-spacing: 4px;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37, #00D9FF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      color: #6B6B6B;
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+
+    .hero-tags {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-tag {
+      background: rgba(255, 107, 53, 0.1);
+      color: #FF6B35;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      border: 1px solid rgba(255, 107, 53, 0.2);
+    }
+
+    /* Container */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Section Title */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.75rem;
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-title i {
+      color: #FF6B35;
+    }
+
+    /* Instruments Grid */
+    .instruments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    @media (max-width: 768px) {
+      .instruments-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Instrument Card */
+    .instrument-card {
+      position: relative;
+      background: linear-gradient(145deg, #151515, #0d0d0d);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+      transition: all 0.3s ease;
+    }
+
+    .instrument-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255, 107, 53, 0.5);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 107, 53, 0.1);
+    }
+
+    .instrument-card.locked {
+      opacity: 0.7;
+    }
+
+    .instrument-card.locked:hover {
+      transform: translateY(-4px);
+    }
+
+    .instrument-visual {
+      height: 200px;
+      background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .instrument-visual::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 107, 53, 0.1), transparent 70%);
+    }
+
+    .instrument-icon {
+      font-size: 5rem;
+      position: relative;
+      z-index: 1;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .instrument-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 2;
+      font-family: 'Space Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .instrument-badge.free {
+      background: rgba(57, 255, 20, 0.2);
+      color: #39FF14;
+    }
+
+    .instrument-badge.basic {
+      background: rgba(0, 217, 255, 0.2);
+      color: #00D9FF;
+    }
+
+    .instrument-badge.premium {
+      background: rgba(255, 107, 53, 0.2);
+      color: #FF6B35;
+    }
+
+    .instrument-badge.locked {
+      background: rgba(212, 175, 55, 0.2);
+      color: #D4AF37;
+    }
+
+    .instrument-content {
+      padding: 1.5rem;
+    }
+
+    .instrument-name {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .instrument-description {
+      color: #6B6B6B;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .instrument-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .instrument-feature {
+      background: rgba(255, 107, 53, 0.15);
+      color: #FF6B35;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    .instrument-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .instrument-btn {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s;
+    }
+
+    .instrument-btn.primary {
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      color: #0A0A0A;
+    }
+
+    .instrument-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .instrument-btn.secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #F4E8D8;
+      border: 1px solid #2a2a2a;
+    }
+
+    .instrument-btn.secondary:hover {
+      background: rgba(255, 107, 53, 0.1);
+      border-color: rgba(255, 107, 53, 0.3);
+    }
+
+    .instrument-btn.locked {
+      background: #2a2a2a;
+      color: #6B6B6B;
+      cursor: not-allowed;
+    }
+
+    .instrument-btn.locked:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Visualizer Container */
+    .visualizer-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px;
+      padding: 0 1rem;
+    }
+
+    .visualizer-bar {
+      width: 4px;
+      background: linear-gradient(180deg, #FF6B35, #D4AF37);
+      border-radius: 2px;
+      animation: pulse 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { height: 10px; }
+      to { height: var(--bar-height, 30px); }
+    }
+
+    /* Tutorials Section */
+    .tutorials-section {
+      margin-bottom: 4rem;
+    }
+
+    .tutorials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .tutorial-card {
+      background: linear-gradient(145deg, #151515, #0d0d0d);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+      transition: all 0.3s;
+    }
+
+    .tutorial-card:hover {
+      border-color: rgba(255, 107, 53, 0.3);
+      transform: translateY(-4px);
+    }
+
+    .tutorial-thumbnail {
+      height: 120px;
+      background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .tutorial-content {
+      padding: 1rem;
+    }
+
+    .tutorial-title {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.25rem;
+    }
+
+    .tutorial-meta {
+      display: flex;
+      gap: 1rem;
+      color: #6B6B6B;
+      font-size: 0.85rem;
+    }
+
+    /* Locked Overlay */
+    .locked-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .instrument-card.locked:hover .locked-overlay {
+      opacity: 1;
+    }
+
+    .locked-overlay i {
+      font-size: 3rem;
+      color: #D4AF37;
+    }
+
+    .locked-overlay span {
+      font-weight: 500;
+    }
+
+    .upgrade-btn {
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      color: #0A0A0A;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+    }
+
+    .upgrade-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+    }
+
+    /* Info Banner */
+    .info-banner {
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(212, 175, 55, 0.1));
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    @media (max-width: 768px) {
+      .info-banner {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    .info-banner-content h3 {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-banner-content p {
+      color: #6B6B6B;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      justify-content: center;
+      padding: 4rem;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid #2a2a2a;
+      border-top-color: #FF6B35;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Glows -->
+  <div class="bg-glow orange"></div>
+  <div class="bg-glow gold"></div>
+  <div class="bg-glow cyan"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <a href="/" class="logo">
+      <div class="logo-icon"><i class="fas fa-broadcast-tower"></i></div>
+      <span class="logo-text">HAOS.FM</span>
+    </a>
+    <nav class="header-nav">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/studio.html" class="nav-link">Studio</a>
+      <a href="/virtual-lab.html" class="nav-link active">Virtual Lab</a>
+      <a href="/user-dashboard.html" class="nav-link">Dashboard</a>
+      <div id="user-status" class="user-badge">
+        <i class="fas fa-user"></i>
+        <span id="user-plan">Guest</span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>🎻 VIRTUAL LAB</h1>
+    <p>Experience realistic virtual instruments with stunning visualizations and interactive tutorials</p>
+    <div class="hero-tags">
+      <span class="hero-tag">🎸 Guitar</span>
+      <span class="hero-tag">🎻 Violin</span>
+      <span class="hero-tag">🎼 Strings</span>
+      <span class="hero-tag">🎹 Piano</span>
+      <span class="hero-tag">🥁 Drums</span>
+    </div>
+  </section>
+
+  <div class="container">
+    <!-- Info Banner -->
+    <div class="info-banner" id="upgrade-banner" style="display: none;">
+      <div class="info-banner-content">
+        <h3><i class="fas fa-crown"></i> Unlock Premium Instruments</h3>
+        <p>Get access to Virtual Violin, Strings Ensemble, and more with a Premium subscription</p>
+      </div>
+      <a href="/pricing.html" class="upgrade-btn">
+        <i class="fas fa-rocket"></i> View Plans
+      </a>
+    </div>
+
+    <!-- String Instruments -->
+    <section>
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-guitar"></i>
+          String Instruments
+        </h2>
+      </div>
+      <div class="instruments-grid" id="strings-grid">
+        <!-- Dynamic instruments -->
+      </div>
+    </section>
+
+    <!-- Keyboards & Synths -->
+    <section>
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-keyboard"></i>
+          Keyboards & Synths
+        </h2>
+      </div>
+      <div class="instruments-grid" id="keyboards-grid">
+        <!-- Dynamic instruments -->
+      </div>
+    </section>
+
+    <!-- Percussion -->
+    <section>
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-drum"></i>
+          Percussion
+        </h2>
+      </div>
+      <div class="instruments-grid" id="percussion-grid">
+        <!-- Dynamic instruments -->
+      </div>
+    </section>
+
+    <!-- Tutorials -->
+    <section class="tutorials-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-graduation-cap"></i>
+          Tutorials & Guides
+        </h2>
+      </div>
+      <div class="tutorials-grid" id="tutorials-grid">
+        <!-- Dynamic tutorials -->
+      </div>
+    </section>
+  </div>
+
+  <!-- HAOS Platform Integration -->
+  <script src="/js/haos-platform.js"></script>
+  <script>
+    // Instrument definitions
+    const instruments = {
+      strings: [
+        {
+          id: 'virtual-violin',
+          name: 'Virtual Violin',
+          icon: '🎻',
+          description: 'Expressive solo violin with realistic bowing physics, vibrato control, and pizzicato articulation. Perfect for classical and cinematic compositions.',
+          features: ['Bow Physics', 'Vibrato Control', 'Pizzicato', 'Multiple Positions', 'Dynamic Expression'],
+          requiredPlan: 'premium',
+          href: '/instruments/violin.html',
+          visualizer: true
+        },
+        {
+          id: 'virtual-strings',
+          name: 'String Ensemble',
+          icon: '🎼',
+          description: 'Full orchestral string section with violins, violas, cellos, and basses. Control each section independently for rich arrangements.',
+          features: ['Section Control', 'Legato Mode', 'Divisi', 'Ensemble Blend', 'Expression Curves'],
+          requiredPlan: 'premium',
+          href: '/instruments/strings-ensemble.html',
+          visualizer: true
+        },
+        {
+          id: 'virtual-guitar',
+          name: 'Virtual Guitar',
+          icon: '🎸',
+          description: 'Versatile guitar with acoustic and electric modes. Features realistic strumming patterns, fingerpicking, and built-in effects.',
+          features: ['Acoustic/Electric', 'Strumming Patterns', 'Fingerpicking', 'Effects Chain', 'Chord Library'],
+          requiredPlan: 'basic',
+          href: '/instruments/guitar.html',
+          visualizer: true
+        },
+        {
+          id: 'virtual-bass',
+          name: 'Virtual Bass',
+          icon: '🎸',
+          description: 'Deep and punchy bass guitar with slap, fingerstyle, and pick techniques. Essential for any groove.',
+          features: ['Slap Bass', 'Fingerstyle', 'Pick Mode', 'Amp Simulation', 'EQ Controls'],
+          requiredPlan: 'basic',
+          href: '/instruments/bass.html',
+          visualizer: true
+        }
+      ],
+      keyboards: [
+        {
+          id: 'virtual-piano',
+          name: 'Concert Grand',
+          icon: '🎹',
+          description: 'Beautifully sampled concert grand piano with full 88-key range. Features sustain pedal, soft pedal, and sympathetic resonance.',
+          features: ['88 Keys', 'Sustain Pedal', 'Soft Pedal', 'Resonance', 'Velocity Layers'],
+          requiredPlan: 'free',
+          href: '/instruments/piano.html',
+          visualizer: true
+        },
+        {
+          id: 'synth-2600',
+          name: 'Synth 2600',
+          icon: '🎛️',
+          description: 'Classic analog synthesizer emulation with oscillators, filters, and modulation matrix. Create anything from warm pads to screaming leads.',
+          features: ['3 Oscillators', 'Multi-mode Filter', 'LFO Modulation', 'Envelope Shaping', 'Preset Library'],
+          requiredPlan: 'basic',
+          href: '/synth-2600.html',
+          visualizer: true
+        },
+        {
+          id: 'electric-piano',
+          name: 'Electric Piano',
+          icon: '🎹',
+          description: 'Vintage electric piano with that classic warm tone. Perfect for soul, jazz, and R&B productions.',
+          features: ['Rhodes Sound', 'Wurlitzer Mode', 'Tremolo', 'Phaser', 'Amp Simulation'],
+          requiredPlan: 'basic',
+          href: '/instruments/electric-piano.html',
+          visualizer: true
+        }
+      ],
+      percussion: [
+        {
+          id: 'virtual-drums',
+          name: 'Drum Studio',
+          icon: '🥁',
+          description: 'Professional drum kit with multiple kit selections, pattern sequencer, and mixer. Build beats with ease.',
+          features: ['Multiple Kits', 'Pattern Sequencer', 'Mixer Controls', 'Room Ambience', 'MIDI Export'],
+          requiredPlan: 'free',
+          href: '/instruments/drums.html',
+          visualizer: true
+        },
+        {
+          id: 'percussion-ensemble',
+          name: 'World Percussion',
+          icon: '🪘',
+          description: 'Collection of world percussion instruments including congas, bongos, djembe, and more.',
+          features: ['Congas', 'Bongos', 'Djembe', 'Shakers', 'Hand Drums'],
+          requiredPlan: 'basic',
+          href: '/instruments/world-percussion.html',
+          visualizer: true
+        }
+      ]
+    };
+
+    // Tutorials
+    const tutorials = [
+      { id: 1, title: 'Getting Started with Virtual Violin', icon: '🎻', duration: '10 min', level: 'Beginner' },
+      { id: 2, title: 'Creating Realistic String Arrangements', icon: '🎼', duration: '15 min', level: 'Intermediate' },
+      { id: 3, title: 'Guitar Strumming Patterns', icon: '🎸', duration: '8 min', level: 'Beginner' },
+      { id: 4, title: 'Advanced Synth Sound Design', icon: '🎛️', duration: '20 min', level: 'Advanced' },
+      { id: 5, title: 'Building Drum Patterns', icon: '🥁', duration: '12 min', level: 'Beginner' },
+      { id: 6, title: 'Orchestral Composition Tips', icon: '🎼', duration: '18 min', level: 'Intermediate' }
+    ];
+
+    // Plan hierarchy
+    const planHierarchy = { guest: 0, free: 1, basic: 2, premium: 3, pro: 4 };
+    let userPlan = 'guest';
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+      // Check auth status via HaosPlatform
+      try {
+        const state = await HaosPlatform.init();
+        
+        if (state.authenticated) {
+          userPlan = state.subscription?.plan || 'free';
+        } else {
+          userPlan = 'guest';
+        }
+        
+        // Update UI
+        const planDisplay = userPlan.charAt(0).toUpperCase() + userPlan.slice(1);
+        document.getElementById('user-plan').textContent = planDisplay;
+        
+        // Show upgrade banner for free/guest users
+        if (userPlan === 'free' || userPlan === 'guest') {
+          document.getElementById('upgrade-banner').style.display = 'flex';
+        }
+        
+        // Update auth-based nav visibility
+        HaosPlatform.applyAuthVisibility();
+      } catch (error) {
+        console.error('Platform init failed:', error);
+        document.getElementById('upgrade-banner').style.display = 'flex';
+      }
+
+      // Render instruments
+      renderInstruments('strings', 'strings-grid');
+      renderInstruments('keyboards', 'keyboards-grid');
+      renderInstruments('percussion', 'percussion-grid');
+      
+      // Render tutorials
+      renderTutorials();
+
+      // Check URL params for specific instrument
+      const params = new URLSearchParams(window.location.search);
+      const instrumentParam = params.get('instrument');
+      if (instrumentParam) {
+        // Could auto-open or highlight specific instrument
+        console.log('Opening instrument:', instrumentParam);
+      }
+    }
+
+    function renderInstruments(category, gridId) {
+      const grid = document.getElementById(gridId);
+      const categoryInstruments = instruments[category] || [];
+      const userPlanLevel = planHierarchy[userPlan] || 1;
+
+      grid.innerHTML = categoryInstruments.map(instrument => {
+        const requiredLevel = planHierarchy[instrument.requiredPlan] || 1;
+        const hasAccess = userPlanLevel >= requiredLevel;
+        const isLocked = !hasAccess;
+
+        return `
+          <div class="instrument-card ${isLocked ? 'locked' : ''}" data-instrument="${instrument.id}">
+            <div class="instrument-visual">
+              <span class="instrument-icon">${instrument.icon}</span>
+              ${instrument.visualizer ? renderVisualizer() : ''}
+              <span class="instrument-badge ${isLocked ? 'locked' : instrument.requiredPlan}">
+                ${isLocked ? '<i class="fas fa-lock"></i>' : '<i class="fas fa-check-circle"></i>'}
+                ${instrument.requiredPlan.toUpperCase()}
+              </span>
+            </div>
+            ${isLocked ? `
+              <div class="locked-overlay">
+                <i class="fas fa-lock"></i>
+                <span>Requires ${instrument.requiredPlan.charAt(0).toUpperCase() + instrument.requiredPlan.slice(1)} Plan</span>
+                <a href="/pricing.html" class="upgrade-btn">Upgrade Now</a>
+              </div>
+            ` : ''}
+            <div class="instrument-content">
+              <h3 class="instrument-name">${instrument.name}</h3>
+              <p class="instrument-description">${instrument.description}</p>
+              <div class="instrument-features">
+                ${instrument.features.map(f => `<span class="instrument-feature">${f}</span>`).join('')}
+              </div>
+              <div class="instrument-actions">
+                <button class="instrument-btn ${isLocked ? 'locked' : 'primary'}" 
+                  ${isLocked ? 'disabled' : `onclick="openInstrument('${instrument.id}', '${instrument.href}')"`}>
+                  ${isLocked ? '<i class="fas fa-lock"></i> Locked' : '<i class="fas fa-play"></i> Play Now'}
+                </button>
+                <button class="instrument-btn secondary" onclick="showTutorial('${instrument.id}')">
+                  <i class="fas fa-book"></i> Tutorial
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderVisualizer() {
+      const bars = Array.from({ length: 12 }, (_, i) => {
+        const height = Math.random() * 30 + 10;
+        const delay = i * 0.1;
+        return `<div class="visualizer-bar" style="--bar-height: ${height}px; animation-delay: ${delay}s;"></div>`;
+      }).join('');
+      return `<div class="visualizer-container">${bars}</div>`;
+    }
+
+    function renderTutorials() {
+      const grid = document.getElementById('tutorials-grid');
+      grid.innerHTML = tutorials.map(tutorial => `
+        <div class="tutorial-card" onclick="openTutorial(${tutorial.id})">
+          <div class="tutorial-thumbnail">${tutorial.icon}</div>
+          <div class="tutorial-content">
+            <h4 class="tutorial-title">${tutorial.title}</h4>
+            <div class="tutorial-meta">
+              <span><i class="fas fa-clock"></i> ${tutorial.duration}</span>
+              <span><i class="fas fa-signal"></i> ${tutorial.level}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openInstrument(id, href) {
+      // Log activity via platform
+      HaosPlatform.logActivity('open_instrument', id, { href });
+      
+      // For now, navigate to the instrument page
+      // In a full implementation, this could open a modal or dedicated interface
+      if (href.startsWith('/instruments/')) {
+        // Check if the instrument page exists, otherwise show coming soon
+        alert(`Opening ${id}... This instrument interface is coming soon!`);
+      } else {
+        window.location.href = href;
+      }
+    }
+
+    function showTutorial(instrumentId) {
+      // Find related tutorial
+      const instrument = Object.values(instruments).flat().find(i => i.id === instrumentId);
+      if (instrument) {
+        // Check if user has access to tutorials for this instrument
+        const userPlanLevel = planHierarchy[userPlan] || 0;
+        const requiredLevel = planHierarchy[instrument.requiredPlan] || 1;
+        
+        if (userPlanLevel < requiredLevel) {
+          HaosPlatform.showUpgradePrompt('tutorials', {
+            title: `Unlock ${instrument.name} Tutorials`,
+            message: `Tutorials for ${instrument.name} require the ${instrument.requiredPlan.toUpperCase()} plan.`
+          });
+        } else {
+          HaosPlatform.logActivity('open_tutorial', instrumentId);
+          alert(`Tutorial for ${instrument.name} coming soon!`);
+        }
+      }
+    }
+
+    function openTutorial(tutorialId) {
+      const tutorial = tutorials.find(t => t.id === tutorialId);
+      if (tutorial) {
+        alert(`Opening tutorial: ${tutorial.title}\n\nFull tutorial system coming soon!`);
+      }
+    }
+  </script>
+</body>
+</html>

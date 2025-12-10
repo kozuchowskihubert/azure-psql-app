@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - HAOS.fm</title>
+  <link rel="stylesheet" href="/css/haos-brand.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #0A0A0A;
+      min-height: 100vh;
+      color: #F4E8D8;
+      position: relative;
+    }
+
+    /* Film grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+      opacity: 0.03;
+      mix-blend-mode: overlay;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* Background glows */
+    .bg-glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-glow.orange { background: #FF6B35; width: 400px; height: 400px; top: -100px; left: -100px; opacity: 0.15; }
+    .bg-glow.gold { background: #D4AF37; width: 300px; height: 300px; bottom: 20%; right: -50px; opacity: 0.1; }
+
+    /* Header */
+    .header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.5);
+      border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #F4E8D8;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .logo-text {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.75rem;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: #6B6B6B;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-link:hover {
+      color: #F4E8D8;
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .nav-link.active {
+      color: #0A0A0A;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+    }
+
+    /* Main Container */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Profile Card */
+    .profile-card {
+      background: linear-gradient(145deg, #151515, #0d0d0d);
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid #2a2a2a;
+      text-align: center;
+    }
+
+    .avatar-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(255, 107, 53, 0.5);
+    }
+
+    .avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-weight: bold;
+      color: #0A0A0A;
+      border: 3px solid rgba(255, 107, 53, 0.5);
+    }
+
+    .edit-avatar {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      width: 32px;
+      height: 32px;
+      background: #FF6B35;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+      color: #0A0A0A;
+    }
+
+    .edit-avatar:hover {
+      transform: scale(1.1);
+    }
+
+    .profile-name {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.75rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+      color: #F4E8D8;
+    }
+
+    .profile-email {
+      color: #6B6B6B;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .profile-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #0A0A0A;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #2a2a2a;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.75rem;
+      color: #FF6B35;
+    }
+
+    .stat-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: #6B6B6B;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Main Content */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Sections */
+    .section {
+      background: linear-gradient(145deg, #151515, #0d0d0d);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid #2a2a2a;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #F4E8D8;
+    }
+
+    .section-title i {
+      color: #FF6B35;
+    }
+
+    .section-action {
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      color: #0A0A0A;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .section-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    /* Subscription Card */
+    .subscription-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(212, 175, 55, 0.1));
+      border-radius: 12px;
+      border: 1px solid rgba(255, 107, 53, 0.3);
+    }
+
+    .subscription-info h3 {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.25rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .subscription-plan {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #FF6B35;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #0A0A0A;
+    }
+
+    .subscription-plan.free { background: #6B6B6B; color: #F4E8D8; }
+    .subscription-plan.basic { background: #00D9FF; color: #0A0A0A; }
+    .subscription-plan.premium { background: #FF6B35; color: #0A0A0A; }
+    .subscription-plan.pro { background: linear-gradient(135deg, #D4AF37, #FF6B35); color: #0A0A0A; }
+
+    .subscription-details {
+      color: #6B6B6B;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+      border: 1px solid #2a2a2a;
+      transition: all 0.3s;
+    }
+
+    .feature-item.locked {
+      opacity: 0.5;
+    }
+
+    .feature-item.available {
+      border-color: rgba(255, 107, 53, 0.3);
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 107, 53, 0.2);
+      color: #FF6B35;
+    }
+
+    .feature-item.locked .feature-icon {
+      background: rgba(255, 255, 255, 0.05);
+      color: #6B6B6B;
+    }
+
+    .feature-name {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .feature-status {
+      font-size: 0.75rem;
+      color: #6B6B6B;
+    }
+
+    .feature-status.available {
+      color: #39FF14;
+    }
+
+    /* Virtual Lab Section */
+    .virtual-lab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .instrument-card {
+      position: relative;
+      background: linear-gradient(145deg, #151515, #0d0d0d);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+      transition: all 0.3s;
+    }
+
+    .instrument-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255, 107, 53, 0.5);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 107, 53, 0.1);
+    }
+
+    .instrument-card.locked {
+      opacity: 0.6;
+    }
+
+    .instrument-card.locked::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .instrument-preview {
+      height: 150px;
+      background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    }
+
+    .instrument-info {
+      padding: 1rem;
+    }
+
+    .instrument-name {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.25rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.25rem;
+      color: #F4E8D8;
+    }
+
+    .instrument-desc {
+      color: #6B6B6B;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .instrument-features {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .instrument-feature {
+      background: rgba(255, 107, 53, 0.2);
+      color: #FF6B35;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    .instrument-lock {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .instrument-lock i {
+      color: #D4AF37;
+    }
+
+    .instrument-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      color: #0A0A0A;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+    }
+
+    .instrument-btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .instrument-btn.locked {
+      background: #2a2a2a;
+      color: #6B6B6B;
+      cursor: not-allowed;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .quick-action {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.5rem 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      border: 1px solid #2a2a2a;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      color: #F4E8D8;
+    }
+
+    .quick-action:hover {
+      background: rgba(255, 107, 53, 0.1);
+      border-color: rgba(255, 107, 53, 0.3);
+      transform: translateY(-3px);
+    }
+
+    .quick-action-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #0A0A0A;
+    }
+
+    .quick-action-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* Settings Form */
+    .settings-form {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #F4E8D8;
+    }
+
+    .form-input {
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      color: #F4E8D8;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #FF6B35;
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .form-input option {
+      background: #0A0A0A;
+    }
+
+    /* Toggle Switch */
+    .toggle-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+    }
+
+    .toggle-label {
+      font-weight: 500;
+    }
+
+    .toggle-desc {
+      font-size: 0.8rem;
+      color: #6B6B6B;
+      margin-top: 0.25rem;
+    }
+
+    .toggle {
+      position: relative;
+      width: 50px;
+      height: 26px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #2a2a2a;
+      border-radius: 26px;
+      transition: 0.4s;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: #F4E8D8;
+      border-radius: 50%;
+      transition: 0.4s;
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+    }
+
+    .toggle input:checked + .toggle-slider:before {
+      transform: translateX(24px);
+    }
+
+    /* Loading State */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #2a2a2a;
+      border-top-color: #FF6B35;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Not Logged In State */
+    .not-logged-in {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .not-logged-in i {
+      font-size: 4rem;
+      color: rgba(255, 255, 255, 0.3);
+      margin-bottom: 1.5rem;
+    }
+
+    .not-logged-in h2 {
+      margin-bottom: 1rem;
+    }
+
+    .not-logged-in p {
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 2rem;
+    }
+
+    .login-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #2a2a2a;
+      padding-bottom: 0.5rem;
+    }
+
+    .tab {
+      background: none;
+      border: none;
+      color: #6B6B6B;
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-family: 'Space Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-radius: 8px 8px 0 0;
+      transition: all 0.3s;
+    }
+
+    .tab:hover {
+      color: #F4E8D8;
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .tab.active {
+      color: #F4E8D8;
+      background: rgba(255, 107, 53, 0.2);
+      border-bottom: 2px solid #FF6B35;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      color: #0A0A0A;
+      font-weight: 600;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    .notification.success {
+      background: linear-gradient(135deg, #39FF14, #2ecc71);
+    }
+
+    .notification.error {
+      background: linear-gradient(135deg, #8B2635, #c0392b);
+      color: #F4E8D8;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Glows -->
+  <div class="bg-glow orange"></div>
+  <div class="bg-glow gold"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <a href="/" class="logo">
+      <div class="logo-icon"><i class="fas fa-broadcast-tower"></i></div>
+      <span class="logo-text">HAOS.FM</span>
+    </a>
+    <nav class="header-nav">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/studio.html" class="nav-link">Studio</a>
+      <a href="/virtual-lab.html" class="nav-link">Virtual Lab</a>
+      <a href="/user-dashboard.html" class="nav-link active">Dashboard</a>
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Loading State -->
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Not Logged In State -->
+    <div id="not-logged-in" class="not-logged-in" style="display: none;">
+      <i class="fas fa-user-lock"></i>
+      <h2>Sign In to Access Your Dashboard</h2>
+      <p>Manage your profile, track your subscription, and unlock exclusive features.</p>
+      <a href="/login.html" class="login-btn">
+        <i class="fas fa-sign-in-alt"></i>
+        Sign In
+      </a>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div id="dashboard" class="dashboard-grid" style="display: none;">
+      <!-- Profile Card (Left Sidebar) -->
+      <aside class="profile-card">
+        <div class="avatar-container">
+          <img id="user-avatar" class="avatar" src="" alt="Avatar" style="display: none;">
+          <div id="avatar-placeholder" class="avatar-placeholder"></div>
+          <div class="edit-avatar">
+            <i class="fas fa-camera"></i>
+          </div>
+        </div>
+        <h2 id="user-name" class="profile-name">Loading...</h2>
+        <p id="user-email" class="profile-email">-</p>
+        <div id="user-badge" class="profile-badge">
+          <i class="fas fa-crown"></i>
+          <span id="plan-name">Free</span>
+        </div>
+        <div class="profile-stats">
+          <div class="stat-item">
+            <div id="days-member" class="stat-value">0</div>
+            <div class="stat-label">Days Member</div>
+          </div>
+          <div class="stat-item">
+            <div id="features-unlocked" class="stat-value">0</div>
+            <div class="stat-label">Features</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Quick Actions -->
+        <section class="section">
+          <h2 class="section-title">
+            <i class="fas fa-bolt"></i>
+            Quick Actions
+          </h2>
+          <div class="quick-actions">
+            <a href="/studio.html" class="quick-action">
+              <div class="quick-action-icon">
+                <i class="fas fa-music"></i>
+              </div>
+              <span class="quick-action-label">Open Studio</span>
+            </a>
+            <a href="/virtual-lab.html" class="quick-action">
+              <div class="quick-action-icon">
+                <i class="fas fa-flask"></i>
+              </div>
+              <span class="quick-action-label">Virtual Lab</span>
+            </a>
+            <a href="/presets.html" class="quick-action">
+              <div class="quick-action-icon">
+                <i class="fas fa-sliders-h"></i>
+              </div>
+              <span class="quick-action-label">My Presets</span>
+            </a>
+            <a href="/pricing.html" class="quick-action">
+              <div class="quick-action-icon">
+                <i class="fas fa-rocket"></i>
+              </div>
+              <span class="quick-action-label">Upgrade</span>
+            </a>
+          </div>
+        </section>
+
+        <!-- Subscription Section -->
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <i class="fas fa-crown"></i>
+              Subscription
+            </h2>
+            <button class="section-action" onclick="location.href='/pricing.html'">
+              <i class="fas fa-arrow-up"></i> Upgrade Plan
+            </button>
+          </div>
+          <div class="subscription-card">
+            <div class="subscription-info">
+              <h3>Current Plan</h3>
+              <span id="subscription-plan" class="subscription-plan free">FREE</span>
+              <p id="subscription-details" class="subscription-details">
+                Enjoy basic features. Upgrade for more!
+              </p>
+            </div>
+            <div id="subscription-status" style="text-align: right;">
+              <!-- Dynamic status info -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <i class="fas fa-unlock-alt"></i>
+              Your Features
+            </h2>
+          </div>
+          <div id="features-grid" class="features-grid">
+            <!-- Dynamic features list -->
+          </div>
+        </section>
+
+        <!-- Virtual Lab Instruments -->
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <i class="fas fa-flask"></i>
+              Virtual Lab Instruments
+            </h2>
+            <button class="section-action" onclick="location.href='/virtual-lab.html'">
+              <i class="fas fa-external-link-alt"></i> Open Lab
+            </button>
+          </div>
+          <div class="virtual-lab-grid" id="instruments-grid">
+            <!-- Dynamic instruments -->
+          </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <i class="fas fa-cog"></i>
+              Settings
+            </h2>
+          </div>
+          
+          <div class="tabs">
+            <button class="tab active" data-tab="profile">Profile</button>
+            <button class="tab" data-tab="preferences">Preferences</button>
+            <button class="tab" data-tab="notifications">Notifications</button>
+          </div>
+
+          <!-- Profile Tab -->
+          <div id="tab-profile" class="tab-content active">
+            <form id="profile-form" class="settings-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">First Name</label>
+                  <input type="text" id="firstName" class="form-input" placeholder="First Name">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Last Name</label>
+                  <input type="text" id="lastName" class="form-input" placeholder="Last Name">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Display Name</label>
+                <input type="text" id="displayName" class="form-input" placeholder="Display Name">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Timezone</label>
+                  <select id="timezone" class="form-input">
+                    <option value="UTC">UTC</option>
+                    <option value="America/New_York">Eastern Time</option>
+                    <option value="America/Chicago">Central Time</option>
+                    <option value="America/Denver">Mountain Time</option>
+                    <option value="America/Los_Angeles">Pacific Time</option>
+                    <option value="Europe/London">London</option>
+                    <option value="Europe/Paris">Paris</option>
+                    <option value="Europe/Warsaw">Warsaw</option>
+                    <option value="Asia/Tokyo">Tokyo</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Language</label>
+                  <select id="language" class="form-input">
+                    <option value="en">English</option>
+                    <option value="pl">Polski</option>
+                    <option value="de">Deutsch</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="section-action" style="margin-top: 1rem;">
+                <i class="fas fa-save"></i> Save Profile
+              </button>
+            </form>
+          </div>
+
+          <!-- Preferences Tab -->
+          <div id="tab-preferences" class="tab-content">
+            <div class="settings-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Default BPM</label>
+                  <input type="number" id="defaultBpm" class="form-input" min="60" max="200" value="120">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Default Key</label>
+                  <select id="defaultKey" class="form-input">
+                    <option value="C">C Major</option>
+                    <option value="G">G Major</option>
+                    <option value="D">D Major</option>
+                    <option value="A">A Major</option>
+                    <option value="E">E Major</option>
+                    <option value="Am">A Minor</option>
+                    <option value="Em">E Minor</option>
+                    <option value="Dm">D Minor</option>
+                  </select>
+                </div>
+              </div>
+              <div class="toggle-group">
+                <div>
+                  <div class="toggle-label">Auto-Save</div>
+                  <div class="toggle-desc">Automatically save your work every 30 seconds</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="autoSave" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="toggle-group">
+                <div>
+                  <div class="toggle-label">Grid Snap</div>
+                  <div class="toggle-desc">Snap notes to grid in the sequencer</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="gridSnap" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="toggle-group">
+                <div>
+                  <div class="toggle-label">Audio Visualizer</div>
+                  <div class="toggle-desc">Show waveform visualizations</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="visualizer" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <button type="button" class="section-action" style="margin-top: 1rem;" onclick="savePreferences()">
+                <i class="fas fa-save"></i> Save Preferences
+              </button>
+            </div>
+          </div>
+
+          <!-- Notifications Tab -->
+          <div id="tab-notifications" class="tab-content">
+            <div class="settings-form">
+              <div class="toggle-group">
+                <div>
+                  <div class="toggle-label">Email Notifications</div>
+                  <div class="toggle-desc">Receive updates and news via email</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="emailNotifications" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="toggle-group">
+                <div>
+                  <div class="toggle-label">Push Notifications</div>
+                  <div class="toggle-desc">Receive browser push notifications</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="pushNotifications">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="toggle-group">
+                <div>
+                  <div class="toggle-label">Marketing Emails</div>
+                  <div class="toggle-desc">Receive promotional offers and updates</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="marketingNotifications">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <button type="button" class="section-action" style="margin-top: 1rem;" onclick="saveNotifications()">
+                <i class="fas fa-save"></i> Save Notifications
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="notification" class="notification"></div>
+
+  <script>
+    // State
+    let userProfile = null;
+    let userFeatures = [];
+
+    // Virtual Lab Instruments Configuration
+    const virtualInstruments = [
+      {
+        id: 'virtual-violin',
+        name: 'Virtual Violin',
+        description: 'Expressive string instrument with realistic bowing',
+        icon: '🎻',
+        features: ['Bow Physics', 'Vibrato', 'Pizzicato'],
+        requiredPlan: 'premium',
+        href: '/virtual-lab.html?instrument=violin'
+      },
+      {
+        id: 'virtual-strings',
+        name: 'Virtual Strings',
+        description: 'Full orchestral string ensemble',
+        icon: '🎼',
+        features: ['Section Control', 'Legato', 'Ensemble'],
+        requiredPlan: 'premium',
+        href: '/virtual-lab.html?instrument=strings'
+      },
+      {
+        id: 'virtual-guitar',
+        name: 'Virtual Guitar',
+        description: 'Acoustic and electric guitar with effects',
+        icon: '🎸',
+        features: ['Strumming', 'Fingerpicking', 'Effects'],
+        requiredPlan: 'basic',
+        href: '/virtual-lab.html?instrument=guitar'
+      },
+      {
+        id: 'virtual-piano',
+        name: 'Virtual Piano',
+        description: 'Grand piano with multiple articulations',
+        icon: '🎹',
+        features: ['Velocity', 'Pedal', 'Resonance'],
+        requiredPlan: 'free',
+        href: '/virtual-lab.html?instrument=piano'
+      },
+      {
+        id: 'virtual-drums',
+        name: 'Virtual Drums',
+        description: 'Complete drum kit with patterns',
+        icon: '🥁',
+        features: ['Kit Selection', 'Patterns', 'Mixer'],
+        requiredPlan: 'free',
+        href: '/virtual-lab.html?instrument=drums'
+      },
+      {
+        id: 'synth-2600',
+        name: 'Synth 2600',
+        description: 'Classic analog synthesizer emulation',
+        icon: '🎛️',
+        features: ['Oscillators', 'Filters', 'Modulation'],
+        requiredPlan: 'basic',
+        href: '/synth2600.html'
+      }
+    ];
+
+    // Plan hierarchy
+    const planHierarchy = { free: 1, basic: 2, premium: 3, pro: 4 };
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+      try {
+        // Check auth status
+        const response = await fetch('/auth/status');
+        const data = await response.json();
+
+        if (!data.authenticated) {
+          showNotLoggedIn();
+          return;
+        }
+
+        userProfile = data;
+        userFeatures = data.features || {};
+
+        // Populate dashboard
+        populateProfile(data);
+        populateSubscription(data.subscription);
+        populateFeatures(data.features);
+        populateInstruments(data.subscription?.plan || 'free');
+        
+        // Load preferences
+        await loadPreferences();
+
+        // Show dashboard
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'grid';
+
+        // Setup tabs
+        setupTabs();
+        
+        // Setup forms
+        setupForms();
+      } catch (error) {
+        console.error('Init error:', error);
+        showNotLoggedIn();
+      }
+    }
+
+    function showNotLoggedIn() {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('not-logged-in').style.display = 'block';
+    }
+
+    function populateProfile(data) {
+      const user = data.user;
+      
+      // Avatar
+      if (user.avatarUrl) {
+        document.getElementById('user-avatar').src = user.avatarUrl;
+        document.getElementById('user-avatar').style.display = 'block';
+        document.getElementById('avatar-placeholder').style.display = 'none';
+      } else {
+        document.getElementById('avatar-placeholder').textContent = 
+          (user.displayName || user.email || '?')[0].toUpperCase();
+      }
+
+      // Name & Email
+      document.getElementById('user-name').textContent = user.displayName || user.email;
+      document.getElementById('user-email').textContent = user.email;
+
+      // Plan badge
+      const plan = data.subscription?.plan || 'free';
+      document.getElementById('plan-name').textContent = plan.toUpperCase();
+
+      // Stats
+      if (data.stats) {
+        document.getElementById('days-member').textContent = data.stats.daysSinceSignup || 0;
+      }
+
+      // Count available features
+      let availableCount = 0;
+      Object.values(data.features || {}).forEach(f => {
+        if (f.available) availableCount++;
+      });
+      document.getElementById('features-unlocked').textContent = availableCount;
+    }
+
+    function populateSubscription(subscription) {
+      const plan = subscription?.plan || 'free';
+      const planEl = document.getElementById('subscription-plan');
+      
+      planEl.textContent = plan.toUpperCase();
+      planEl.className = 'subscription-plan ' + plan;
+
+      const details = document.getElementById('subscription-details');
+      const status = document.getElementById('subscription-status');
+
+      if (subscription?.status === 'active' || subscription?.status === 'trialing') {
+        if (subscription.status === 'trialing') {
+          details.textContent = 'Trial period active';
+          status.innerHTML = `<div style="color: #ffc107;"><i class="fas fa-clock"></i> Trial ends ${formatDate(subscription.trialEndsAt)}</div>`;
+        } else {
+          details.textContent = `${subscription.billingCycle || 'Monthly'} billing`;
+          status.innerHTML = `<div style="color: #4caf50;"><i class="fas fa-check-circle"></i> Active</div>
+            <div style="color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-top: 0.25rem;">Renews ${formatDate(subscription.currentPeriodEnd)}</div>`;
+        }
+      } else {
+        details.textContent = 'Upgrade to unlock premium features';
+        status.innerHTML = '<div style="color: rgba(255,255,255,0.5);"><i class="fas fa-info-circle"></i> No active subscription</div>';
+      }
+    }
+
+    function populateFeatures(features) {
+      const grid = document.getElementById('features-grid');
+      grid.innerHTML = '';
+
+      const featureIcons = {
+        'notes': 'fa-sticky-note',
+        'preset-browser': 'fa-sliders-h',
+        'pwa': 'fa-mobile-alt',
+        'synth2600': 'fa-wave-square',
+        'midi-generator': 'fa-random',
+        'music-production': 'fa-music',
+        'offline-mode': 'fa-wifi-slash',
+        'collaboration': 'fa-users',
+        'priority-support': 'fa-headset',
+        'advanced-export': 'fa-file-export',
+        'unlimited-tracks': 'fa-layer-group',
+        'unlimited-presets': 'fa-database',
+        'api-access': 'fa-code',
+        'custom-branding': 'fa-palette',
+        'white-label': 'fa-tag',
+        'team-management': 'fa-user-friends'
+      };
+
+      Object.entries(features || {}).forEach(([code, feature]) => {
+        const item = document.createElement('div');
+        item.className = `feature-item ${feature.available ? 'available' : 'locked'}`;
+        
+        const icon = featureIcons[code] || 'fa-cube';
+        const statusText = feature.available ? 'Available' : `Requires ${feature.requiredPlan}`;
+
+        item.innerHTML = `
+          <div class="feature-icon">
+            <i class="fas ${feature.available ? icon : 'fa-lock'}"></i>
+          </div>
+          <div>
+            <div class="feature-name">${formatFeatureName(code)}</div>
+            <div class="feature-status ${feature.available ? 'available' : ''}">${statusText}</div>
+          </div>
+        `;
+
+        grid.appendChild(item);
+      });
+    }
+
+    function populateInstruments(userPlan) {
+      const grid = document.getElementById('instruments-grid');
+      grid.innerHTML = '';
+
+      const userPlanLevel = planHierarchy[userPlan] || 1;
+
+      virtualInstruments.forEach(instrument => {
+        const requiredLevel = planHierarchy[instrument.requiredPlan] || 1;
+        const hasAccess = userPlanLevel >= requiredLevel;
+
+        const card = document.createElement('div');
+        card.className = `instrument-card ${hasAccess ? '' : 'locked'}`;
+
+        card.innerHTML = `
+          <div class="instrument-preview">${instrument.icon}</div>
+          ${!hasAccess ? `<div class="instrument-lock"><i class="fas fa-lock"></i> ${instrument.requiredPlan}</div>` : ''}
+          <div class="instrument-info">
+            <h3 class="instrument-name">${instrument.name}</h3>
+            <p class="instrument-desc">${instrument.description}</p>
+            <div class="instrument-features">
+              ${instrument.features.map(f => `<span class="instrument-feature">${f}</span>`).join('')}
+            </div>
+          </div>
+          <button class="instrument-btn ${hasAccess ? '' : 'locked'}" 
+            ${hasAccess ? `onclick="location.href='${instrument.href}'"` : `onclick="showUpgradePrompt('${instrument.requiredPlan}')"`}>
+            ${hasAccess ? 'Open Instrument' : 'Upgrade to Unlock'}
+          </button>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    async function loadPreferences() {
+      try {
+        const response = await fetch('/api/user/preferences');
+        const data = await response.json();
+        
+        if (data.success) {
+          const prefs = data.preferences;
+          
+          // Profile fields
+          if (userProfile?.user) {
+            document.getElementById('firstName').value = userProfile.user.firstName || '';
+            document.getElementById('lastName').value = userProfile.user.lastName || '';
+            document.getElementById('displayName').value = userProfile.user.displayName || '';
+          }
+          
+          document.getElementById('timezone').value = prefs.timezone || 'UTC';
+          document.getElementById('language').value = prefs.language || 'en';
+          
+          // Studio preferences
+          document.getElementById('defaultBpm').value = prefs.studio?.defaultBpm || 120;
+          document.getElementById('defaultKey').value = prefs.studio?.defaultKey || 'C';
+          document.getElementById('autoSave').checked = prefs.studio?.autoSave !== false;
+          document.getElementById('gridSnap').checked = prefs.studio?.gridSnap !== false;
+          document.getElementById('visualizer').checked = prefs.audio?.visualizer !== false;
+          
+          // Notifications
+          document.getElementById('emailNotifications').checked = prefs.notifications?.email !== false;
+          document.getElementById('pushNotifications').checked = prefs.notifications?.push === true;
+          document.getElementById('marketingNotifications').checked = prefs.notifications?.marketing === true;
+        }
+      } catch (error) {
+        console.error('Failed to load preferences:', error);
+      }
+    }
+
+    function setupTabs() {
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabId = tab.dataset.tab;
+          
+          // Update active tab
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          
+          // Update content
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          document.getElementById(`tab-${tabId}`).classList.add('active');
+        });
+      });
+    }
+
+    function setupForms() {
+      document.getElementById('profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const data = {
+          firstName: document.getElementById('firstName').value,
+          lastName: document.getElementById('lastName').value,
+          displayName: document.getElementById('displayName').value,
+          timezone: document.getElementById('timezone').value,
+          language: document.getElementById('language').value
+        };
+
+        try {
+          const response = await fetch('/api/user/profile', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+
+          const result = await response.json();
+          
+          if (result.success) {
+            showNotification('Profile updated successfully!', 'success');
+            // Update displayed name
+            document.getElementById('user-name').textContent = data.displayName || data.firstName || userProfile.user.email;
+          } else {
+            showNotification(result.error || 'Failed to update profile', 'error');
+          }
+        } catch (error) {
+          showNotification('Error updating profile', 'error');
+        }
+      });
+    }
+
+    async function savePreferences() {
+      const data = {
+        studio: {
+          defaultBpm: parseInt(document.getElementById('defaultBpm').value),
+          defaultKey: document.getElementById('defaultKey').value,
+          autoSave: document.getElementById('autoSave').checked,
+          gridSnap: document.getElementById('gridSnap').checked
+        },
+        audio: {
+          visualizer: document.getElementById('visualizer').checked
+        }
+      };
+
+      try {
+        const response = await fetch('/api/user/preferences', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          showNotification('Preferences saved!', 'success');
+        } else {
+          showNotification(result.error || 'Failed to save preferences', 'error');
+        }
+      } catch (error) {
+        showNotification('Error saving preferences', 'error');
+      }
+    }
+
+    async function saveNotifications() {
+      const data = {
+        notifications: {
+          email: document.getElementById('emailNotifications').checked,
+          push: document.getElementById('pushNotifications').checked,
+          marketing: document.getElementById('marketingNotifications').checked
+        }
+      };
+
+      try {
+        const response = await fetch('/api/user/preferences', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          showNotification('Notification settings saved!', 'success');
+        } else {
+          showNotification(result.error || 'Failed to save settings', 'error');
+        }
+      } catch (error) {
+        showNotification('Error saving settings', 'error');
+      }
+    }
+
+    function showUpgradePrompt(requiredPlan) {
+      if (confirm(`This feature requires the ${requiredPlan.toUpperCase()} plan. Would you like to upgrade?`)) {
+        location.href = '/pricing.html';
+      }
+    }
+
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type} show`;
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    function formatFeatureName(code) {
+      return code.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'N/A';
+      return new Date(dateStr).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
+  </script>
+</body>
+</html>

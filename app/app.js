@@ -24,6 +24,7 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const pool = require('./config/database');
 const { apiRouter, pwaRouter } = require('./routes');
+const registrationRoutes = require('./routes/registration-routes');
 
 const app = express();
 
@@ -77,6 +78,9 @@ app.use(express.json({ limit: '350mb' }));
  * Increased limit to 350MB for large audio file uploads
  */
 app.use(express.urlencoded({ extended: true, limit: '350mb' }));
+
+// Registration & Authentication API
+app.use('/api/auth', registrationRoutes);
 
 // ============================================================================
 // Custom Routes - Must come BEFORE static files
@@ -169,6 +173,38 @@ app.get('/pricing', (req, res) => {
  */
 app.get('/account', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'account.html'));
+});
+
+/**
+ * Subscription Success/Cancel Pages
+ * Route: /subscription/success, /subscription/cancel
+ */
+app.get('/subscription/success', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'subscription-success.html'));
+});
+
+app.get('/subscription/cancel', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'subscription-cancel.html'));
+});
+
+/**
+ * Registration & Authentication Pages
+ * Route: /register, /verify-email, /forgot-password, /reset-password
+ */
+app.get('/register', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'register.html'));
+});
+
+app.get('/verify-email', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'verify-email.html'));
+});
+
+app.get('/forgot-password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'forgot-password.html'));
+});
+
+app.get('/reset-password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
 });
 
 // ============================================================================
@@ -269,6 +305,20 @@ try {
   console.log('⚠ Social auth not configured:', error.message);
 }
 
+// Email/Password Registration & Authentication
+try {
+  const registrationRoutes = require('./routes/registration-routes');
+  const emailService = require('./services/email-service');
+  
+  // Initialize email service
+  emailService.initialize();
+  
+  app.use('/api/auth', registrationRoutes);
+  console.log('✓ Email/Password registration enabled');
+} catch (error) {
+  console.log('⚠ Registration routes not available:', error.message);
+}
+
 // ============================================================================
 // Optional Feature Routes
 // ============================================================================
@@ -323,6 +373,42 @@ try {
   console.log('✓ Payment API enabled');
 } catch (error) {
   console.log('⚠ Payment routes not available:', error.message);
+}
+
+/**
+ * User Profile API
+ * User profile, preferences, and account management
+ */
+try {
+  const userRoutes = require('./routes/user-routes');
+  app.use('/api/user', userRoutes);
+  console.log('✓ User Profile API enabled');
+} catch (error) {
+  console.log('⚠ User routes not available:', error.message);
+}
+
+/**
+ * Platform Integration API
+ * Unified platform state, Virtual Lab instruments, feature gating
+ */
+try {
+  const platformRoutes = require('./services/platform-integration');
+  app.use('/api/platform', platformRoutes);
+  console.log('✓ Platform Integration API enabled');
+} catch (error) {
+  console.log('⚠ Platform routes not available:', error.message);
+}
+
+/**
+ * Preset Management API
+ * HAOS Platform modular synthesis presets with tier-based access
+ */
+try {
+  const presetRoutes = require('./routes/presets');
+  app.use('/api', presetRoutes);
+  console.log('✓ Preset API enabled (1000+ presets available)');
+} catch (error) {
+  console.log('⚠ Preset routes not available:', error.message);
 }
 
 /**

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - HAOS.fm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #FF6B35;
+            --primary-gold: #FFD700;
+            --bg-dark: #0a0a0a;
+            --bg-card: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --success-green: #4CAF50;
+            --error-red: #ff4444;
+            --border-color: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Film grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Animated background gradients */
+        .bg-gradient {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        .bg-gradient-1 {
+            background: var(--primary-orange);
+            top: -200px;
+            right: -200px;
+        }
+
+        .bg-gradient-2 {
+            background: var(--primary-gold);
+            bottom: -200px;
+            left: -200px;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 30px) scale(1.1); }
+        }
+
+        /* Logo */
+        .logo {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .logo a {
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        /* Card */
+        .verify-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 1rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Status Icon */
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.5rem;
+        }
+
+        .status-icon.loading {
+            background: rgba(255, 107, 53, 0.1);
+            border: 2px solid var(--primary-orange);
+        }
+
+        .status-icon.success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 2px solid var(--success-green);
+        }
+
+        .status-icon.error {
+            background: rgba(255, 68, 68, 0.1);
+            border: 2px solid var(--error-red);
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Content */
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .message.success {
+            color: var(--success-green);
+        }
+
+        .message.error {
+            color: var(--error-red);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 2rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-orange), #ff8c5a);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-orange);
+            color: var(--primary-orange);
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Resend link */
+        .resend-link {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .resend-link p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .resend-link button {
+            background: none;
+            border: none;
+            color: var(--primary-orange);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.875rem;
+            text-decoration: underline;
+            margin-top: 0.5rem;
+        }
+
+        .resend-link button:hover {
+            color: var(--primary-gold);
+        }
+
+        .resend-link button:disabled {
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        /* Email input for resend */
+        .resend-form {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .resend-form.active {
+            display: block;
+        }
+
+        .resend-form input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .resend-form input:focus {
+            outline: none;
+            border-color: var(--primary-orange);
+        }
+
+        /* Hidden states */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Footer */
+        .footer-links {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-orange);
+        }
+
+        /* Countdown */
+        .countdown {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .verify-card {
+                padding: 2rem 1.5rem;
+                margin: 0 1rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .status-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient bg-gradient-1"></div>
+    <div class="bg-gradient bg-gradient-2"></div>
+
+    <div class="logo">
+        <a href="/">
+            <span class="logo-text">HAOS.fm</span>
+        </a>
+    </div>
+
+    <div class="verify-card">
+        <!-- Loading State -->
+        <div id="loading-state">
+            <div class="status-icon loading">
+                <div class="spinner"></div>
+            </div>
+            <h1>Verifying Your Email</h1>
+            <p class="message">Please wait while we verify your email address...</p>
+        </div>
+
+        <!-- Success State -->
+        <div id="success-state" class="hidden">
+            <div class="status-icon success">
+                ✓
+            </div>
+            <h1>Email Verified!</h1>
+            <p class="message success">Your email has been successfully verified. You can now access all features of HAOS.fm.</p>
+            <div class="button-group">
+                <a href="/login" class="btn btn-primary">
+                    🎵 Go to Login
+                </a>
+                <a href="/" class="btn btn-secondary">
+                    Back to Home
+                </a>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden">
+            <div class="status-icon error">
+                ✕
+            </div>
+            <h1>Verification Failed</h1>
+            <p class="message error" id="error-message">The verification link is invalid or has expired.</p>
+            <div class="button-group">
+                <a href="/register" class="btn btn-primary">
+                    Register Again
+                </a>
+                <a href="/" class="btn btn-secondary">
+                    Back to Home
+                </a>
+            </div>
+            
+            <div class="resend-link">
+                <p>Didn't receive the email?</p>
+                <button type="button" onclick="showResendForm()">Resend verification email</button>
+                
+                <div id="resend-form" class="resend-form">
+                    <input type="email" id="resend-email" placeholder="Enter your email address">
+                    <button type="button" class="btn btn-primary" onclick="resendVerification()" style="width: 100%; padding: 0.75rem;">
+                        Send New Link
+                    </button>
+                    <p class="countdown" id="resend-countdown"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Already Verified State -->
+        <div id="already-verified-state" class="hidden">
+            <div class="status-icon success">
+                ✓
+            </div>
+            <h1>Already Verified</h1>
+            <p class="message">Your email address has already been verified. You can log in to your account.</p>
+            <div class="button-group">
+                <a href="/login" class="btn btn-primary">
+                    🎵 Go to Login
+                </a>
+            </div>
+        </div>
+
+        <!-- No Token State -->
+        <div id="no-token-state" class="hidden">
+            <div class="status-icon error">
+                ?
+            </div>
+            <h1>No Verification Token</h1>
+            <p class="message">No verification token was provided. Please check your email for the verification link.</p>
+            <div class="button-group">
+                <a href="/login" class="btn btn-primary">
+                    Go to Login
+                </a>
+                <a href="/register" class="btn btn-secondary">
+                    Register
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-links">
+        <a href="/support">Need help? Contact Support</a>
+    </div>
+
+    <script>
+        let resendCooldown = 0;
+
+        // Get token from URL
+        function getTokenFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('token');
+        }
+
+        // Show specific state
+        function showState(stateId) {
+            const states = ['loading-state', 'success-state', 'error-state', 'already-verified-state', 'no-token-state'];
+            states.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(stateId).classList.remove('hidden');
+        }
+
+        // Verify email
+        async function verifyEmail(token) {
+            try {
+                const response = await fetch(`/api/auth/verify-email/${token}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.message && data.message.includes('already verified')) {
+                        showState('already-verified-state');
+                    } else {
+                        showState('success-state');
+                    }
+                } else {
+                    document.getElementById('error-message').textContent = data.error || 'Verification failed. Please try again.';
+                    showState('error-state');
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                document.getElementById('error-message').textContent = 'An error occurred. Please try again later.';
+                showState('error-state');
+            }
+        }
+
+        // Show resend form
+        function showResendForm() {
+            document.getElementById('resend-form').classList.add('active');
+        }
+
+        // Resend verification email
+        async function resendVerification() {
+            if (resendCooldown > 0) return;
+
+            const email = document.getElementById('resend-email').value.trim();
+            
+            if (!email) {
+                alert('Please enter your email address');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/resend-verification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Verification email sent! Please check your inbox.');
+                    startCooldown(60);
+                } else {
+                    alert(data.error || 'Failed to send verification email');
+                }
+            } catch (error) {
+                console.error('Resend error:', error);
+                alert('An error occurred. Please try again later.');
+            }
+        }
+
+        // Start cooldown timer
+        function startCooldown(seconds) {
+            resendCooldown = seconds;
+            const countdownEl = document.getElementById('resend-countdown');
+            
+            const interval = setInterval(() => {
+                resendCooldown--;
+                if (resendCooldown > 0) {
+                    countdownEl.textContent = `You can resend in ${resendCooldown}s`;
+                } else {
+                    countdownEl.textContent = '';
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = getTokenFromUrl();
+            
+            if (!token) {
+                showState('no-token-state');
+            } else {
+                verifyEmail(token);
+            }
+        });
+    </script>
+</body>
+</html>

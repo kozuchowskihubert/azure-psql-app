@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Registry Test - HAOS Platform</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0A0A0A;
+            color: #F4E8D8;
+            font-family: 'Monaco', 'Courier New', monospace;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .status {
+            padding: 15px;
+            background: #151515;
+            border-left: 4px solid #FF6B35;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: #151515;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .card h3 {
+            color: #FF6B35;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .module-item {
+            padding: 10px;
+            background: #0d0d0d;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .module-item.loaded { border-left: 3px solid #39FF14; }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .badge.free { background: #2d452d; color: #39FF14; }
+        .badge.premium { background: #6A0DAD; color: #00D9FF; }
+        .badge.light { background: #3D5A3D; color: #39FF14; }
+        .badge.medium { background: #5A4D3D; color: #D4AF37; }
+        .badge.heavy { background: #5A3D3D; color: #FF6B35; }
+        button {
+            background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
+            color: #0A0A0A;
+            border: none;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover { opacity: 0.9; }
+        button.secondary {
+            background: #2a2a2a;
+            color: #F4E8D8;
+        }
+        .log {
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 4px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .log-entry:last-child { border-bottom: none; }
+        .log-entry.success { color: #39FF14; }
+        .log-entry.error { color: #FF6B35; }
+        .log-entry.info { color: #00D9FF; }
+        .preset-card {
+            background: #0d0d0d;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 3px solid #FF6B35;
+        }
+        .preset-card h4 { color: #D4AF37; margin-bottom: 8px; }
+        .preset-meta { font-size: 11px; color: #6B6B6B; }
+        .preset-meta span { margin-right: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎛️ HAOS Platform - Module Registry & Preset System Test</h1>
+        <p style="margin-bottom: 20px; color: #6B6B6B;">Testing modular architecture with 1000+ premium presets</p>
+
+        <div class="status" id="status">
+            <strong>Status:</strong> <span id="statusText">Initializing...</span>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <button onclick="testModuleRegistry()">Test Module Registry</button>
+            <button onclick="testWaveshaper()">Test Waveshaper Module</button>
+            <button onclick="testPhaser()">Test Phaser Module</button>
+            <button onclick="testDelay()">Test Delay Module</button>
+            <button onclick="testReverb()">Test Reverb Module</button>
+            <button onclick="fetchPresets()">Fetch Presets from API</button>
+            <button onclick="testAudioPath()" class="secondary">Test Audio Path</button>
+            <button onclick="clearLog()" class="secondary">Clear Log</button>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>📦 Registered Modules</h3>
+                <div id="moduleList"></div>
+            </div>
+
+            <div class="card">
+                <h3>🔌 Module Instances</h3>
+                <div id="instanceList"></div>
+            </div>
+
+            <div class="card">
+                <h3>🎵 Preset API Test</h3>
+                <div id="presetList"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📝 Console Log</h3>
+            <div class="log" id="console"></div>
+        </div>
+    </div>
+
+    <!-- Load core modules -->
+    <script src="/haos-platform/js/core/audio-module.js"></script>
+    <script src="/haos-platform/js/core/module-registry.js"></script>
+    <script src="/haos-platform/js/modules/effects/waveshaper.js"></script>
+    <script src="/haos-platform/js/modules/effects/phaser.js"></script>
+    <script src="/haos-platform/js/modules/effects/delay.js"></script>
+    <script src="/haos-platform/js/modules/effects/reverb.js"></script>
+
+    <script>
+        let audioContext = null;
+        let registry = null;
+        let waveshaperInstance = null;
+        let phaserInstance = null;
+        let delayInstance = null;
+        let reverbInstance = null;
+
+        function log(message, type = 'info') {
+            const consoleDiv = document.getElementById('console');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            consoleDiv.appendChild(entry);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('console').innerHTML = '';
+            log('Console cleared', 'info');
+        }
+
+        function updateStatus(text, isError = false) {
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = text;
+            statusText.style.color = isError ? '#FF6B35' : '#39FF14';
+        }
+
+        async function initializeAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                log('✓ AudioContext created', 'success');
+            }
+            if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+                log('✓ AudioContext resumed', 'success');
+            }
+        }
+
+        async function testModuleRegistry() {
+            try {
+                await initializeAudio();
+                
+                registry = window.ModuleRegistry;
+                log('✓ ModuleRegistry loaded', 'success');
+
+                // List registered modules
+                const modules = registry.listModules();
+                log(`Found ${modules.length} registered modules`, 'info');
+
+                const moduleListDiv = document.getElementById('moduleList');
+                moduleListDiv.innerHTML = '';
+                
+                modules.forEach(mod => {
+                    const item = document.createElement('div');
+                    item.className = 'module-item loaded';
+                    item.innerHTML = `
+                        <span>${mod.icon} ${mod.name}</span>
+                        <div>
+                            <span class="badge ${mod.tier}">${mod.tier}</span>
+                            <span class="badge ${mod.cpuRating}">${mod.cpuRating}</span>
+                        </div>
+                    `;
+                    moduleListDiv.appendChild(item);
+                });
+
+                updateStatus('Module Registry operational', false);
+            } catch (error) {
+                log(`✗ Registry test failed: ${error.message}`, 'error');
+                updateStatus('Registry test failed', true);
+            }
+        }
+
+        async function testWaveshaper() {
+            try {
+                await initializeAudio();
+                
+                if (!registry) {
+                    registry = window.ModuleRegistry;
+                }
+
+                // Create Waveshaper instance
+                waveshaperInstance = await registry.createInstance('Waveshaper');
+                await waveshaperInstance.init(audioContext);
+                log('✓ Waveshaper module instantiated', 'success');
+
+                // Test parameters
+                waveshaperInstance.setParam('drive', 3.5);
+                waveshaperInstance.setParam('curve', 'soft');
+                waveshaperInstance.setParam('mix', 0.7);
+                log(`✓ Parameters set: drive=3.5, curve=soft, mix=0.7`, 'success');
+
+                // Display instances
+                const instances = registry.listInstances();
+                const instanceListDiv = document.getElementById('instanceList');
+                instanceListDiv.innerHTML = '';
+                
+                instances.forEach(inst => {
+                    const item = document.createElement('div');
+                    item.className = 'module-item loaded';
+                    item.innerHTML = `
+                        <div>
+                            <strong>${inst.name}</strong><br>
+                            <small style="color: #6B6B6B;">ID: ${inst.id.substring(0, 20)}...</small>
+                        </div>
+                        <span class="badge ${inst.tier}">${inst.tier}</span>
+                    `;
+                    instanceListDiv.appendChild(item);
+                });
+
+                updateStatus('Waveshaper module ready', false);
+            } catch (error) {
+                log(`✗ Waveshaper test failed: ${error.message}`, 'error');
+                updateStatus('Waveshaper test failed', true);
+            }
+        }
+
+        async function fetchPresets() {
+            try {
+                log('Fetching presets from API...', 'info');
+                
+                const response = await fetch('/api/presets?limit=10&sort=rating');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                log(`✓ Fetched ${data.presets.length} presets (Total: ${data.pagination.total})`, 'success');
+
+                const presetListDiv = document.getElementById('presetList');
+                presetListDiv.innerHTML = '';
+                
+                data.presets.forEach(preset => {
+                    const card = document.createElement('div');
+                    card.className = 'preset-card';
+                    card.innerHTML = `
+                        <h4>${preset.name}</h4>
+                        <div class="preset-meta">
+                            <span>📂 ${preset.category}</span>
+                            <span>🎹 ${preset.key || 'N/A'}</span>
+                            <span>⚡ ${preset.bpm || 'N/A'} BPM</span>
+                            <span class="badge ${preset.tier}">${preset.tier}</span>
+                        </div>
+                    `;
+                    presetListDiv.appendChild(card);
+                });
+
+                updateStatus(`Loaded ${data.pagination.total} presets from database`, false);
+            } catch (error) {
+                log(`✗ Preset fetch failed: ${error.message}`, 'error');
+                updateStatus('Preset fetch failed', true);
+            }
+        }
+
+        async function testAudioPath() {
+            try {
+                await initializeAudio();
+                
+                if (!waveshaperInstance) {
+                    log('Creating Waveshaper instance first...', 'info');
+                    await testWaveshaper();
+                }
+
+                // Create oscillator to test audio path
+                const osc = audioContext.createOscillator();
+                osc.frequency.value = 220; // A3
+                osc.type = 'sawtooth';
+
+                // Connect: Oscillator → Waveshaper → Destination
+                osc.connect(waveshaperInstance.inputNode);
+                waveshaperInstance.connect(audioContext.destination);
+
+                log('✓ Audio path: Oscillator → Waveshaper → Output', 'success');
+                
+                // Play for 1 second
+                osc.start();
+                setTimeout(() => {
+                    osc.stop();
+                    log('✓ Audio test complete (1 second)', 'success');
+                }, 1000);
+
+                updateStatus('Audio test playing...', false);
+            } catch (error) {
+                log(`✗ Audio test failed: ${error.message}`, 'error');
+                updateStatus('Audio test failed', true);
+            }
+        }
+
+        async function testPhaser() {
+            try {
+                await initializeAudio();
+                
+                if (!registry) {
+                    registry = window.ModuleRegistry;
+                }
+
+                // Create Phaser instance
+                phaserInstance = await registry.createInstance('Phaser');
+                await phaserInstance.init(audioContext);
+                log('✓ Phaser module instantiated', 'success');
+
+                // Load a preset
+                phaserInstance.loadPreset('Classic Phaser');
+                log(`✓ Loaded preset: Classic Phaser`, 'success');
+
+                // Get current params
+                const params = phaserInstance.getParams();
+                log(`✓ Parameters: rate=${params.rate}Hz, depth=${params.depth}, stages=${params.stages}`, 'success');
+
+                updateStatus('Phaser module ready', false);
+                updateInstanceList();
+            } catch (error) {
+                log(`✗ Phaser test failed: ${error.message}`, 'error');
+                updateStatus('Phaser test failed', true);
+            }
+        }
+
+        async function testDelay() {
+            try {
+                await initializeAudio();
+                
+                if (!registry) {
+                    registry = window.ModuleRegistry;
+                }
+
+                // Create Delay instance
+                delayInstance = await registry.createInstance('Delay');
+                await delayInstance.init(audioContext);
+                log('✓ Delay module instantiated', 'success');
+
+                // Load a preset
+                delayInstance.loadPreset('Ping Pong');
+                log(`✓ Loaded preset: Ping Pong`, 'success');
+
+                // Get current params
+                const params = delayInstance.getParams();
+                log(`✓ Parameters: time_left=${params.time_left}s, feedback=${params.feedback}, mode=${params.stereo_mode}`, 'success');
+
+                updateStatus('Delay module ready', false);
+                updateInstanceList();
+            } catch (error) {
+                log(`✗ Delay test failed: ${error.message}`, 'error');
+                updateStatus('Delay test failed', true);
+            }
+        }
+
+        async function testReverb() {
+            try {
+                await initializeAudio();
+                
+                if (!registry) {
+                    registry = window.ModuleRegistry;
+                }
+
+                // Create Reverb instance
+                reverbInstance = await registry.createInstance('Reverb');
+                await reverbInstance.init(audioContext);
+                log('✓ Reverb module instantiated', 'success');
+
+                // Load a preset
+                reverbInstance.loadPreset('Medium Hall');
+                log(`✓ Loaded preset: Medium Hall`, 'success');
+
+                // Get current params
+                const params = reverbInstance.getParams();
+                log(`✓ Parameters: size=${params.size}, decay=${params.decay}s, damping=${params.damping}`, 'success');
+
+                updateStatus('Reverb module ready', false);
+                updateInstanceList();
+            } catch (error) {
+                log(`✗ Reverb test failed: ${error.message}`, 'error');
+                updateStatus('Reverb test failed', true);
+            }
+        }
+
+        function updateInstanceList() {
+            if (!registry) return;
+            
+            const instances = registry.listInstances();
+            const instanceListDiv = document.getElementById('instanceList');
+            instanceListDiv.innerHTML = '';
+            
+            instances.forEach(inst => {
+                const item = document.createElement('div');
+                item.className = 'module-item loaded';
+                item.innerHTML = `
+                    <div>
+                        <strong>${inst.name}</strong><br>
+                        <small style="color: #6B6B6B;">ID: ${inst.id.substring(0, 20)}...</small>
+                    </div>
+                    <span class="badge ${inst.tier}">${inst.tier}</span>
+                `;
+                instanceListDiv.appendChild(item);
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            log('🎛️ HAOS Platform Test Page loaded', 'success');
+            log('Click "Test Module Registry" to begin', 'info');
+            updateStatus('Ready - Click buttons to test', false);
+        });
+    </script>
+</body>
+</html>

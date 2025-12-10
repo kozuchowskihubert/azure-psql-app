@@ -22,12 +22,18 @@ const FEATURE_REQUIREMENTS = {
   notes: 'free',
   'preset-browser': 'free',
   pwa: 'free',
+  'virtual-piano': 'free',
+  'virtual-drums': 'free',
 
   // Basic features
   synth2600: 'basic',
   'midi-generator': 'basic',
   'music-production': 'basic',
   'offline-mode': 'basic',
+  'virtual-guitar': 'basic',
+  'virtual-bass': 'basic',
+  'electric-piano': 'basic',
+  'world-percussion': 'basic',
 
   // Premium features
   collaboration: 'premium',
@@ -35,12 +41,16 @@ const FEATURE_REQUIREMENTS = {
   'advanced-export': 'premium',
   'unlimited-tracks': 'premium',
   'unlimited-presets': 'premium',
+  'virtual-violin': 'premium',
+  'virtual-strings': 'premium',
+  'orchestra': 'premium',
 
   // Pro features
   'api-access': 'pro',
   'custom-branding': 'pro',
   'white-label': 'pro',
   'team-management': 'pro',
+  'modular-synth': 'pro',
 
   // Enterprise features
   'dedicated-support': 'enterprise',
