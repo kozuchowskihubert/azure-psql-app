@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAOS API Management Panel</title>
+    <link rel="icon" href="/images/haos-logo-white.png" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-bottom: 2px solid #00d4ff;
+        }
+
+        .admin-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d4ff, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .admin-header p {
+            opacity: 0.8;
+            font-size: 1.1em;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #00d4ff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section h2 {
+            margin-bottom: 15px;
+            color: #00d4ff;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 15px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.6em;
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        .stat-value.success { color: #2ecc71; }
+        .stat-value.warning { color: #f39c12; }
+        .stat-value.danger { color: #e74c3c; }
+
+        .stat-label {
+            font-size: 0.75em;
+            color: #cccccc;
+            margin-top: 5px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 15px;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: #cccccc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .filter-tab:hover {
+            border-color: #00d4ff;
+            color: #ffffff;
+        }
+
+        .filter-tab.active {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: white;
+            font-size: 0.95em;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 15px;
+        }
+
+        .api-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .api-card:hover {
+            transform: translateY(-2px);
+            border-color: #00d4ff;
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .api-card.disabled {
+            opacity: 0.6;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .api-card.critical {
+            border-left: 3px solid #ff4757;
+        }
+
+        .api-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .api-name {
+            font-weight: 600;
+            font-size: 1.05em;
+            color: #ffffff;
+        }
+
+        .api-category {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .api-category.core { background: rgba(0, 212, 255, 0.2); color: #00d4ff; }
+        .api-category.music { background: rgba(155, 89, 182, 0.2); color: #9b59b6; }
+        .api-category.auth { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+        .api-category.admin { background: rgba(241, 196, 15, 0.2); color: #f1c40f; }
+        .api-category.billing { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .api-category.collaboration { background: rgba(52, 152, 219, 0.2); color: #3498db; }
+
+        .api-description {
+            color: #aaaaaa;
+            font-size: 0.85em;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .api-route {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            color: #00d4ff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .api-methods {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+
+        .method-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.65em;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .method-badge.GET { background: #3498db; color: white; }
+        .method-badge.POST { background: #2ecc71; color: white; }
+        .method-badge.PUT { background: #f39c12; color: white; }
+        .method-badge.DELETE { background: #e74c3c; color: white; }
+
+        .api-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .status-enabled {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
+        .status-disabled {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #333;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.enabled {
+            background: #00d4ff;
+        }
+
+        .toggle-switch.locked {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.enabled::before {
+            transform: translateX(24px);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(45deg, #666, #888);
+        }
+
+        .btn.danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .btn.small {
+            padding: 6px 12px;
+            font-size: 0.8em;
+        }
+
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(46, 204, 113, 0.95);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: rgba(231, 76, 60, 0.95);
+        }
+
+        .notification.warning {
+            background: rgba(241, 196, 15, 0.95);
+            color: #333;
+        }
+
+        /* Login Form Styles */
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-header h2 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .login-header p {
+            color: #cccccc;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .error-message {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .admin-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .rate-limit-info {
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .sidebar .section {
+                flex: 1;
+                min-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/admin-panel.html" class="back-link">← Back to Admin Panel</a>
+
+    <div class="admin-header">
+        <h1>🔌 API Management Panel</h1>
+        <p>Enable, disable, and monitor API endpoints</p>
+        
+        <div id="adminInfo" class="admin-info" style="display: none;">
+            <span id="adminUsername"></span>
+            <button class="btn secondary small" onclick="logoutAdmin()" style="margin-left: 15px;">Logout</button>
+        </div>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="login-container" style="display: none;">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>🔐 Admin Login</h2>
+                <p>Enter your credentials to access API Management</p>
+            </div>
+            
+            <form id="adminLoginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" name="username" value="admin" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="password" value="HAOS2025Admin!" required>
+                </div>
+                
+                <div id="loginError" class="error-message" style="display: none;"></div>
+                
+                <button type="submit" id="loginButton" class="btn" style="width: 100%;">
+                    <span id="loginText">Login</span>
+                    <span id="loginSpinner" class="loading" style="display: none;"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="mainDashboard" class="dashboard-grid" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="section">
+                <h2>📊 API Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalCount">-</div>
+                        <div class="stat-label">Total APIs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value success" id="enabledCount">-</div>
+                        <div class="stat-label">Enabled</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value danger" id="disabledCount">-</div>
+                        <div class="stat-label">Disabled</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value warning" id="criticalCount">-</div>
+                        <div class="stat-label">Critical</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>⚡ Quick Actions</h2>
+                <div class="bulk-actions">
+                    <button class="btn" onclick="enableAllAPIs()">Enable All</button>
+                    <button class="btn secondary" onclick="disableNonCritical()">Disable Non-Critical</button>
+                    <button class="btn danger" onclick="resetToDefaults()">Reset Defaults</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📁 Categories</h2>
+                <div id="categoryStats">
+                    <!-- Category breakdown will be shown here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="section">
+                <!-- Filter Tabs -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all" onclick="filterAPIs('all')">All</button>
+                    <button class="filter-tab" data-filter="core" onclick="filterAPIs('core')">Core</button>
+                    <button class="filter-tab" data-filter="music" onclick="filterAPIs('music')">Music</button>
+                    <button class="filter-tab" data-filter="auth" onclick="filterAPIs('auth')">Auth</button>
+                    <button class="filter-tab" data-filter="admin" onclick="filterAPIs('admin')">Admin</button>
+                    <button class="filter-tab" data-filter="billing" onclick="filterAPIs('billing')">Billing</button>
+                    <button class="filter-tab" data-filter="collaboration" onclick="filterAPIs('collaboration')">Collab</button>
+                    <button class="filter-tab" data-filter="enabled" onclick="filterAPIs('enabled')">✓ Enabled</button>
+                    <button class="filter-tab" data-filter="disabled" onclick="filterAPIs('disabled')">✗ Disabled</button>
+                </div>
+
+                <!-- Search -->
+                <input type="text" class="search-box" placeholder="🔍 Search APIs by name, route, or description..." 
+                       id="searchBox" onkeyup="searchAPIs(this.value)">
+            </div>
+
+            <!-- API Cards Grid -->
+            <div class="section">
+                <h2>🔌 API Endpoints</h2>
+                <div class="api-grid" id="apiGrid">
+                    <!-- API cards will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JWT Authentication System -->
+    <script src="/js/haos-auth.js"></script>
+    
+    <script>
+        let apiEndpoints = [];
+        let currentFilter = 'all';
+        let searchTerm = '';
+        let authToken = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', initAPIPanel);
+
+        async function initAPIPanel() {
+            console.log('[APIPanel] Initializing...');
+            
+            // Check authentication
+            const authResult = await initializeAuth();
+            
+            if (!authResult.authenticated) {
+                showLoginForm();
+                return;
+            }
+
+            authToken = authResult.token;
+            showAdminInfo(authResult.admin);
+            hideLoginForm();
+            
+            // Load API data
+            await loadAPIData();
+        }
+
+        // Auth handlers
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const loginButton = document.getElementById('loginButton');
+            const loginText = document.getElementById('loginText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            const errorDiv = document.getElementById('loginError');
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                loginButton.disabled = true;
+                loginText.style.display = 'none';
+                loginSpinner.style.display = 'inline-block';
+                errorDiv.style.display = 'none';
+                
+                const result = await login(username, password);
+                window.location.reload();
+                
+            } catch (error) {
+                errorDiv.textContent = error.message || 'Login failed';
+                errorDiv.style.display = 'block';
+                loginButton.disabled = false;
+                loginText.style.display = 'inline';
+                loginSpinner.style.display = 'none';
+            }
+        }
+
+        async function logoutAdmin() {
+            await logout();
+        }
+
+        function showLoginForm() {
+            document.getElementById('loginForm').style.display = 'flex';
+            document.getElementById('mainDashboard').style.display = 'none';
+        }
+
+        function hideLoginForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('mainDashboard').style.display = 'grid';
+        }
+
+        function showAdminInfo(admin) {
+            document.getElementById('adminUsername').textContent = `Welcome, ${admin?.username || 'Admin'}`;
+            document.getElementById('adminInfo').style.display = 'flex';
+        }
+
+        // Load API data from backend
+        async function loadAPIData() {
+            try {
+                const token = localStorage.getItem('haos_admin_token');
+                const response = await fetch('/api/admin/api-management', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load API data');
+                }
+
+                const data = await response.json();
+                apiEndpoints = data.endpoints || [];
+                
+                renderAPIs();
+                updateStats(data.summary);
+                updateCategoryStats(data.summary?.byCategory || {});
+                
+                showNotification('API data loaded successfully', 'success');
+            } catch (error) {
+                console.error('[APIPanel] Load error:', error);
+                showNotification('Failed to load API data: ' + error.message, 'error');
+            }
+        }
+
+        // Render API cards
+        function renderAPIs() {
+            const grid = document.getElementById('apiGrid');
+            grid.innerHTML = '';
+
+            const filtered = apiEndpoints.filter(api => {
+                // Filter by category/status
+                if (currentFilter !== 'all') {
+                    if (currentFilter === 'enabled' && !api.enabled) return false;
+                    if (currentFilter === 'disabled' && api.enabled) return false;
+                    if (!['enabled', 'disabled'].includes(currentFilter) && api.category !== currentFilter) return false;
+                }
+
+                // Filter by search
+                if (searchTerm) {
+                    const search = searchTerm.toLowerCase();
+                    const text = `${api.name} ${api.description} ${api.route} ${api.category}`.toLowerCase();
+                    if (!text.includes(search)) return false;
+                }
+
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="color: #888; text-align: center; padding: 40px;">No APIs match your filters</p>';
+                return;
+            }
+
+            filtered.forEach(api => {
+                const card = createAPICard(api);
+                grid.appendChild(card);
+            });
+        }
+
+        // Create API card element
+        function createAPICard(api) {
+            const card = document.createElement('div');
+            card.className = `api-card ${api.enabled ? '' : 'disabled'} ${api.critical ? 'critical' : ''}`;
+            card.dataset.id = api.id;
+
+            const methods = (api.methods || ['GET']).map(m => 
+                `<span class="method-badge ${m}">${m}</span>`
+            ).join('');
+
+            const rateLimit = api.rateLimit ? 
+                `<div class="rate-limit-info">Rate: ${api.rateLimit.requests}/${api.rateLimit.window}</div>` : '';
+
+            card.innerHTML = `
+                <div class="api-header">
+                    <div class="api-name">${api.name} ${api.critical ? '🔒' : ''}</div>
+                    <div class="api-category ${api.category}">${api.category}</div>
+                </div>
+                <div class="api-description">${api.description}</div>
+                <div class="api-route">
+                    <span>📍</span> ${api.route}
+                </div>
+                <div class="api-methods">${methods}</div>
+                ${rateLimit}
+                <div class="api-footer">
+                    <div class="api-status">
+                        <span class="status-badge ${api.enabled ? 'status-enabled' : 'status-disabled'}">
+                            ${api.enabled ? 'ENABLED' : 'DISABLED'}
+                        </span>
+                    </div>
+                    <div class="toggle-switch ${api.enabled ? 'enabled' : ''} ${api.critical ? 'locked' : ''}" 
+                         onclick="toggleAPI('${api.id}', ${!api.enabled})"
+                         title="${api.critical ? 'Critical API - Cannot be disabled' : 'Click to toggle'}">
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Toggle API endpoint
+        async function toggleAPI(id, enabled) {
+            const api = apiEndpoints.find(a => a.id === id);
+            if (!api) return;
+
+            if (api.critical && !enabled) {
+                showNotification('Cannot disable critical API endpoint', 'error');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('haos_admin_token');
+                const response = await fetch(`/api/admin/api-management/${id}/toggle`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ enabled })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Toggle failed');
+                }
+
+                // Update local state
+                const index = apiEndpoints.findIndex(a => a.id === id);
+                if (index !== -1) {
+                    apiEndpoints[index] = data.endpoint;
+                }
+
+                renderAPIs();
+                await loadAPIData(); // Refresh stats
+                
+                showNotification(`${api.name} ${enabled ? 'enabled' : 'disabled'}`, 'success');
+            } catch (error) {
+                console.error('[APIPanel] Toggle error:', error);
+                showNotification('Failed to toggle: ' + error.message, 'error');
+            }
+        }
+
+        // Bulk actions
+        async function enableAllAPIs() {
+            const disabled = apiEndpoints.filter(a => !a.enabled);
+            if (disabled.length === 0) {
+                showNotification('All APIs are already enabled', 'info');
+                return;
+            }
+
+            if (!confirm(`Enable ${disabled.length} disabled APIs?`)) return;
+
+            const operations = disabled.map(a => ({ id: a.id, enabled: true }));
+            await bulkToggle(operations);
+        }
+
+        async function disableNonCritical() {
+            const nonCritical = apiEndpoints.filter(a => a.enabled && !a.critical);
+            if (nonCritical.length === 0) {
+                showNotification('No non-critical APIs to disable', 'info');
+                return;
+            }
+
+            if (!confirm(`Disable ${nonCritical.length} non-critical APIs?`)) return;
+
+            const operations = nonCritical.map(a => ({ id: a.id, enabled: false }));
+            await bulkToggle(operations);
+        }
+
+        async function bulkToggle(operations) {
+            try {
+                const token = localStorage.getItem('haos_admin_token');
+                const response = await fetch('/api/admin/api-management/bulk-toggle', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ operations })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Bulk toggle failed');
+                }
+
+                await loadAPIData();
+                showNotification(data.message, 'success');
+            } catch (error) {
+                console.error('[APIPanel] Bulk toggle error:', error);
+                showNotification('Bulk operation failed: ' + error.message, 'error');
+            }
+        }
+
+        async function resetToDefaults() {
+            if (!confirm('⚠️ Reset all APIs to default settings?\n\nThis will restore original enabled/disabled states.')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('haos_admin_token');
+                const response = await fetch('/api/admin/api-management/reset', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ confirm: 'RESET_ALL_ENDPOINTS' })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Reset failed');
+                }
+
+                await loadAPIData();
+                showNotification('All APIs reset to defaults', 'success');
+            } catch (error) {
+                console.error('[APIPanel] Reset error:', error);
+                showNotification('Reset failed: ' + error.message, 'error');
+            }
+        }
+
+        // Filters
+        function filterAPIs(filter) {
+            currentFilter = filter;
+            
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.filter === filter);
+            });
+            
+            renderAPIs();
+        }
+
+        function searchAPIs(term) {
+            searchTerm = term;
+            renderAPIs();
+        }
+
+        // Update stats
+        function updateStats(summary) {
+            if (!summary) return;
+            
+            document.getElementById('totalCount').textContent = summary.total || 0;
+            document.getElementById('enabledCount').textContent = summary.enabled || 0;
+            document.getElementById('disabledCount').textContent = summary.disabled || 0;
+            document.getElementById('criticalCount').textContent = summary.critical || 0;
+        }
+
+        function updateCategoryStats(byCategory) {
+            const container = document.getElementById('categoryStats');
+            
+            if (!byCategory || Object.keys(byCategory).length === 0) {
+                container.innerHTML = '<p style="color: #888;">No categories</p>';
+                return;
+            }
+
+            container.innerHTML = Object.entries(byCategory).map(([cat, stats]) => `
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <span style="text-transform: capitalize;">${cat}</span>
+                    <span style="color: #00d4ff;">${stats.enabled}/${stats.total}</span>
+                </div>
+            `).join('');
+        }
+
+        // Notifications
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type === 'error' ? 'error' : type === 'warning' ? 'warning' : ''}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            requestAnimationFrame(() => {
+                notification.classList.add('show');
+            });
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

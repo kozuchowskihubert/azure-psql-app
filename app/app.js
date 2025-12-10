@@ -160,6 +160,14 @@ app.get('/admin', (req, res) => {
 });
 
 /**
+ * API Management Panel
+ * Route: /api-management (enable/disable API endpoints)
+ */
+app.get('/api-management', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'api-management.html'));
+});
+
+/**
  * Pricing Page
  * Route: /pricing (subscription plans)
  */
@@ -430,6 +438,38 @@ try {
   console.log('✓ Admin API enabled');
 } catch (error) {
   console.log('⚠ Admin routes not available:', error.message);
+}
+
+/**
+ * API Management Panel
+ * Enable/disable API endpoints, rate limiting, and monitoring
+ */
+try {
+  const apiManagementRoutes = require('./routes/api-management-routes');
+  app.use('/api/admin/api-management', apiManagementRoutes);
+  console.log('✓ API Management Panel enabled');
+} catch (error) {
+  console.log('⚠ API Management routes not available:', error.message);
+}
+
+/**
+ * API Feature Guard Middleware
+ * Checks if API endpoints are enabled before processing requests
+ * Applied to all /api routes (except admin and health)
+ */
+try {
+  const { apiFeatureGuard, apiAccessLogger } = require('./middleware/api-feature-guard');
+  // Apply to all API routes except admin and health
+  app.use('/api', (req, res, next) => {
+    // Skip guard for admin routes and health checks
+    if (req.path.startsWith('/admin') || req.path.startsWith('/health')) {
+      return next();
+    }
+    return apiFeatureGuard(req, res, next);
+  });
+  console.log('✓ API Feature Guard middleware enabled');
+} catch (error) {
+  console.log('⚠ API Feature Guard not available:', error.message);
 }
 
 // ============================================================================
