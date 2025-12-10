@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - HAOS.fm | Professional Music Production Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #e55a2a;
+            --bg-dark: #0a0a0a;
+            --bg-card: #141414;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+        }
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .pricing-card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            border-radius: 16px;
+            transition: all 0.3s;
+        }
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            border-color: #333;
+        }
+        .pricing-card.featured {
+            border: 2px solid var(--primary);
+            transform: scale(1.02);
+        }
+        .pricing-card.featured:hover {
+            transform: scale(1.02) translateY(-8px);
+        }
+        .btn-subscribe {
+            background: var(--primary);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: block;
+            text-align: center;
+        }
+        .btn-subscribe:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #333;
+            color: white;
+        }
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .feature-check {
+            color: #10b981;
+        }
+        .feature-x {
+            color: #4b5563;
+        }
+        .toggle-billing {
+            background: #1a1a1a;
+            border-radius: 9999px;
+            padding: 4px;
+        }
+        .toggle-option {
+            padding: 8px 24px;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .toggle-option.active {
+            background: var(--primary);
+            color: white;
+        }
+        .savings-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary) 0%, #ff9f6b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="border-b border-gray-800">
+        <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3">
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm" class="h-10">
+                <span class="text-2xl font-bold" style="color: var(--primary)">HAOS.fm</span>
+            </a>
+            <div class="flex items-center gap-6">
+                <a href="/haos-platform" class="text-gray-400 hover:text-white transition">Platform</a>
+                <a href="/sounds" class="text-gray-400 hover:text-white transition">Sounds</a>
+                <a href="/pricing" class="text-white">Pricing</a>
+                <a href="/account" class="btn-subscribe text-sm">Get Started</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-16">
+        <!-- Hero -->
+        <div class="text-center mb-16">
+            <h1 class="text-5xl font-bold mb-4">
+                Simple, <span class="gradient-text">Transparent</span> Pricing
+            </h1>
+            <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
+                Choose the perfect plan for your music production journey. 
+                Start free, upgrade when you're ready.
+            </p>
+
+            <!-- Billing Toggle -->
+            <div class="flex items-center justify-center gap-4 mb-8">
+                <div class="toggle-billing flex">
+                    <button id="toggle-monthly" class="toggle-option active" onclick="setBillingCycle('monthly')">
+                        Monthly
+                    </button>
+                    <button id="toggle-yearly" class="toggle-option" onclick="setBillingCycle('yearly')">
+                        Yearly
+                    </button>
+                </div>
+                <span class="savings-badge">Save 17%</span>
+            </div>
+        </div>
+
+        <!-- Pricing Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <!-- Free -->
+            <div class="pricing-card p-6">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold mb-2">Free</h3>
+                    <p class="text-gray-400 text-sm">Perfect for getting started</p>
+                </div>
+                <div class="mb-6">
+                    <span class="text-5xl font-bold">0</span>
+                    <span class="text-gray-400">zł</span>
+                    <span class="text-gray-500 text-sm">/forever</span>
+                </div>
+                <a href="/account?plan=free" class="btn-subscribe btn-secondary mb-6">Start Free</a>
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>3 tracks</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>10 presets</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>MP3 export</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>100 MB storage</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-times feature-x"></i>
+                        <span class="text-gray-500">WAV/FLAC export</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-times feature-x"></i>
+                        <span class="text-gray-500">Collaboration</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Basic -->
+            <div class="pricing-card p-6">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold mb-2">Basic</h3>
+                    <p class="text-gray-400 text-sm">For hobbyist producers</p>
+                </div>
+                <div class="mb-6">
+                    <span class="text-5xl font-bold" data-monthly="19.99" data-yearly="16.66">19.99</span>
+                    <span class="text-gray-400">zł</span>
+                    <span class="text-gray-500 text-sm">/month</span>
+                </div>
+                <a href="/account?plan=basic" class="btn-subscribe btn-secondary mb-6">Get Basic</a>
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>25 tracks</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>100 presets</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>MP3 + WAV export</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>2 GB storage</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>Offline mode</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-times feature-x"></i>
+                        <span class="text-gray-500">Collaboration</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Premium (Featured) -->
+            <div class="pricing-card featured p-6 relative">
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span class="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold px-4 py-1 rounded-full">
+                        MOST POPULAR
+                    </span>
+                </div>
+                <div class="mb-6 pt-2">
+                    <h3 class="text-xl font-bold mb-2">Premium</h3>
+                    <p class="text-gray-400 text-sm">For serious producers</p>
+                </div>
+                <div class="mb-6">
+                    <span class="text-5xl font-bold gradient-text" data-monthly="49.99" data-yearly="41.66">49.99</span>
+                    <span class="text-gray-400">zł</span>
+                    <span class="text-gray-500 text-sm">/month</span>
+                </div>
+                <a href="/account?plan=premium" class="btn-subscribe mb-6">Get Premium</a>
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span><strong>Unlimited</strong> tracks</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span><strong>Unlimited</strong> presets</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>All formats (MP3/WAV/FLAC/OGG)</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>10 GB storage</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span><strong>Real-time collaboration</strong></span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>Priority support</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Pro -->
+            <div class="pricing-card p-6">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold mb-2">Pro Studio</h3>
+                    <p class="text-gray-400 text-sm">For professional studios</p>
+                </div>
+                <div class="mb-6">
+                    <span class="text-5xl font-bold" data-monthly="99.99" data-yearly="83.33">99.99</span>
+                    <span class="text-gray-400">zł</span>
+                    <span class="text-gray-500 text-sm">/month</span>
+                </div>
+                <a href="/account?plan=pro" class="btn-subscribe btn-secondary mb-6">Get Pro</a>
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>Everything in Premium</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span><strong>Stems export</strong></span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span><strong>Unlimited</strong> storage</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span><strong>API access</strong></span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>Custom branding</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-check feature-check"></i>
+                        <span>White-label exports</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Feature Comparison -->
+        <div class="mt-24">
+            <h2 class="text-3xl font-bold text-center mb-12">Compare All Features</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-gray-800">
+                            <th class="p-4 text-gray-400 font-medium">Feature</th>
+                            <th class="p-4 text-center">Free</th>
+                            <th class="p-4 text-center">Basic</th>
+                            <th class="p-4 text-center" style="color: var(--primary)">Premium</th>
+                            <th class="p-4 text-center">Pro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-800/50">
+                            <td class="p-4">Tracks</td>
+                            <td class="p-4 text-center">3</td>
+                            <td class="p-4 text-center">25</td>
+                            <td class="p-4 text-center font-bold">Unlimited</td>
+                            <td class="p-4 text-center font-bold">Unlimited</td>
+                        </tr>
+                        <tr class="border-b border-gray-800/50">
+                            <td class="p-4">Presets</td>
+                            <td class="p-4 text-center">10</td>
+                            <td class="p-4 text-center">100</td>
+                            <td class="p-4 text-center font-bold">Unlimited</td>
+                            <td class="p-4 text-center font-bold">Unlimited</td>
+                        </tr>
+                        <tr class="border-b border-gray-800/50">
+                            <td class="p-4">Cloud Storage</td>
+                            <td class="p-4 text-center">100 MB</td>
+                            <td class="p-4 text-center">2 GB</td>
+                            <td class="p-4 text-center">10 GB</td>
+                            <td class="p-4 text-center font-bold">Unlimited</td>
+                        </tr>
+                        <tr class="border-b border-gray-800/50">
+                            <td class="p-4">Export Formats</td>
+                            <td class="p-4 text-center">MP3</td>
+                            <td class="p-4 text-center">MP3, WAV</td>
+                            <td class="p-4 text-center">All</td>
+                            <td class="p-4 text-center">All + Stems</td>
+                        </tr>
+                        <tr class="border-b border-gray-800/50">
+                            <td class="p-4">Collaboration</td>
+                            <td class="p-4 text-center"><i class="fas fa-times feature-x"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-times feature-x"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-check feature-check"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-check feature-check"></i></td>
+                        </tr>
+                        <tr class="border-b border-gray-800/50">
+                            <td class="p-4">Offline Mode</td>
+                            <td class="p-4 text-center"><i class="fas fa-times feature-x"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-check feature-check"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-check feature-check"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-check feature-check"></i></td>
+                        </tr>
+                        <tr class="border-b border-gray-800/50">
+                            <td class="p-4">Priority Support</td>
+                            <td class="p-4 text-center"><i class="fas fa-times feature-x"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-times feature-x"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-check feature-check"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-check feature-check"></i></td>
+                        </tr>
+                        <tr class="border-b border-gray-800/50">
+                            <td class="p-4">API Access</td>
+                            <td class="p-4 text-center"><i class="fas fa-times feature-x"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-times feature-x"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-times feature-x"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-check feature-check"></i></td>
+                        </tr>
+                        <tr class="border-b border-gray-800/50">
+                            <td class="p-4">Custom Branding</td>
+                            <td class="p-4 text-center"><i class="fas fa-times feature-x"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-times feature-x"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-times feature-x"></i></td>
+                            <td class="p-4 text-center"><i class="fas fa-check feature-check"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="mt-24 text-center">
+            <h2 class="text-2xl font-bold mb-6">Accepted Payment Methods</h2>
+            <div class="flex items-center justify-center gap-8 opacity-60">
+                <div class="flex items-center gap-2">
+                    <i class="fab fa-cc-visa text-4xl"></i>
+                    <span class="text-sm">Visa</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fab fa-cc-mastercard text-4xl"></i>
+                    <span class="text-sm">Mastercard</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fab fa-paypal text-4xl"></i>
+                    <span class="text-sm">PayPal</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-mobile-alt text-4xl"></i>
+                    <span class="text-sm">BLIK</span>
+                </div>
+            </div>
+            <p class="text-gray-500 mt-6 text-sm">
+                Secure payments powered by Stripe, PayPal, and Przelewy24
+            </p>
+        </div>
+
+        <!-- FAQ -->
+        <div class="mt-24 max-w-3xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <details class="group bg-gray-900/50 rounded-lg">
+                    <summary class="flex items-center justify-between p-6 cursor-pointer">
+                        <span class="font-medium">Can I cancel my subscription anytime?</span>
+                        <i class="fas fa-chevron-down transition group-open:rotate-180"></i>
+                    </summary>
+                    <div class="px-6 pb-6 text-gray-400">
+                        Yes! You can cancel your subscription at any time. You'll continue to have access until the end of your billing period.
+                    </div>
+                </details>
+                <details class="group bg-gray-900/50 rounded-lg">
+                    <summary class="flex items-center justify-between p-6 cursor-pointer">
+                        <span class="font-medium">What happens to my tracks if I downgrade?</span>
+                        <i class="fas fa-chevron-down transition group-open:rotate-180"></i>
+                    </summary>
+                    <div class="px-6 pb-6 text-gray-400">
+                        Your tracks will remain in your account, but you won't be able to create new ones beyond your plan's limit. You'll still have access to download all your existing tracks.
+                    </div>
+                </details>
+                <details class="group bg-gray-900/50 rounded-lg">
+                    <summary class="flex items-center justify-between p-6 cursor-pointer">
+                        <span class="font-medium">Do you offer refunds?</span>
+                        <i class="fas fa-chevron-down transition group-open:rotate-180"></i>
+                    </summary>
+                    <div class="px-6 pb-6 text-gray-400">
+                        Yes, we offer a 14-day money-back guarantee. If you're not satisfied, contact us and we'll process your refund.
+                    </div>
+                </details>
+                <details class="group bg-gray-900/50 rounded-lg">
+                    <summary class="flex items-center justify-between p-6 cursor-pointer">
+                        <span class="font-medium">Can I pay with BLIK?</span>
+                        <i class="fas fa-chevron-down transition group-open:rotate-180"></i>
+                    </summary>
+                    <div class="px-6 pb-6 text-gray-400">
+                        Tak! BLIK is fully supported through our Przelewy24 integration. Just select BLIK at checkout and enter your 6-digit code.
+                    </div>
+                </details>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 mt-24 py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center text-gray-500">
+            <p>&copy; 2025 HAOS.fm. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        let billingCycle = 'monthly';
+
+        function setBillingCycle(cycle) {
+            billingCycle = cycle;
+            
+            // Update toggle
+            document.getElementById('toggle-monthly').classList.toggle('active', cycle === 'monthly');
+            document.getElementById('toggle-yearly').classList.toggle('active', cycle === 'yearly');
+            
+            // Update prices
+            document.querySelectorAll('[data-monthly][data-yearly]').forEach(el => {
+                el.textContent = el.dataset[cycle];
+            });
+        }
+
+        // Check for plan in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('yearly') === 'true') {
+            setBillingCycle('yearly');
+        }
+    </script>
+</body>
+</html>

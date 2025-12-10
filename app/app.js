@@ -147,6 +147,30 @@ app.get('/trap-studio', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'trap-studio.html'));
 });
 
+/**
+ * Admin Panel
+ * Route: /admin (user management, subscriptions, analytics)
+ */
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+/**
+ * Pricing Page
+ * Route: /pricing (subscription plans)
+ */
+app.get('/pricing', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pricing.html'));
+});
+
+/**
+ * Account/Subscription Management
+ * Route: /account (user account settings)
+ */
+app.get('/account', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'account.html'));
+});
+
 // ============================================================================
 // Static Files
 // ============================================================================
@@ -261,6 +285,42 @@ if (process.env.ENABLE_MEETING_ROOMS === 'true') {
   } catch (error) {
     console.log('⚠ Meeting routes not available:', error.message);
   }
+}
+
+/**
+ * Subscription Management
+ * Handles subscription plans, user subscriptions, and feature access
+ */
+try {
+  const subscriptionRoutes = require('./routes/subscription-routes');
+  app.use('/api/subscriptions', subscriptionRoutes);
+  console.log('✓ Subscription API enabled');
+} catch (error) {
+  console.log('⚠ Subscription routes not available:', error.message);
+}
+
+/**
+ * Payment Processing
+ * Handles payments via Stripe, PayPal, and BLIK/Przelewy24
+ */
+try {
+  const paymentRoutes = require('./routes/payment-routes');
+  app.use('/api/payments', paymentRoutes);
+  console.log('✓ Payment API enabled');
+} catch (error) {
+  console.log('⚠ Payment routes not available:', error.message);
+}
+
+/**
+ * Admin Panel API
+ * User management, subscriptions, transactions, and feature flags
+ */
+try {
+  const adminRoutes = require('./routes/admin-routes');
+  app.use('/api/admin', adminRoutes);
+  console.log('✓ Admin API enabled');
+} catch (error) {
+  console.log('⚠ Admin routes not available:', error.message);
 }
 
 // ============================================================================

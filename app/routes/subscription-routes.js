@@ -1,0 +1,342 @@
+/**
+ * Subscription Routes
+ * API endpoints for subscription management
+ */
+const express = require('express');
+
+const router = express.Router();
+const Subscription = require('../models/subscription');
+const PaymentService = require('../services/payment-service');
+
+// Middleware to check authentication
+const requireAuth = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  next();
+};
+
+// ============================================================================
+// PUBLIC ENDPOINTS
+// ============================================================================
+
+/**
+ * GET /api/subscriptions/plans
+ * Get all available subscription plans
+ */
+router.get('/plans', async (req, res) => {
+  try {
+    const plans = await Subscription.getPlans();
+
+    // Format prices for display
+    const formattedPlans = plans.map((plan) => ({
+      ...plan,
+      priceMonthlyFormatted: formatPrice(plan.price_monthly, plan.currency),
+      priceYearlyFormatted: formatPrice(plan.price_yearly, plan.currency),
+      priceMonthlyFromYearly: formatPrice(Math.round(plan.price_yearly / 12), plan.currency),
+      savingsPercent: plan.price_monthly > 0
+        ? Math.round((1 - (plan.price_yearly / 12) / plan.price_monthly) * 100)
+        : 0,
+    }));
+
+    res.json({
+      success: true,
+      plans: formattedPlans,
+      providers: PaymentService.getAvailableProviders(),
+    });
+  } catch (error) {
+    console.error('Error fetching plans:', error);
+    res.status(500).json({ error: 'Failed to fetch subscription plans' });
+  }
+});
+
+/**
+ * GET /api/subscriptions/providers
+ * Get available payment providers
+ */
+router.get('/providers', (req, res) => {
+  res.json({
+    success: true,
+    providers: PaymentService.getAvailableProviders(),
+  });
+});
+
+// ============================================================================
+// AUTHENTICATED ENDPOINTS
+// ============================================================================
+
+/**
+ * GET /api/subscriptions/current
+ * Get current user's subscription
+ */
+router.get('/current', requireAuth, async (req, res) => {
+  try {
+    const subscription = await Subscription.getUserSubscription(req.user.id);
+    const features = await Subscription.getUserFeatures(req.user.id);
+
+    res.json({
+      success: true,
+      subscription: subscription || {
+        plan_code: 'free',
+        plan_name: 'Free',
+        status: 'active',
+        features: {},
+      },
+      features,
+    });
+  } catch (error) {
+    console.error('Error fetching subscription:', error);
+    res.status(500).json({ error: 'Failed to fetch subscription' });
+  }
+});
+
+/**
+ * POST /api/subscriptions/subscribe
+ * Subscribe to a plan
+ */
+router.post('/subscribe', requireAuth, async (req, res) => {
+  try {
+    const {
+      planCode, billingCycle, provider, couponCode,
+    } = req.body;
+
+    if (!planCode) {
+      return res.status(400).json({ error: 'Plan code is required' });
+    }
+
+    const plan = await Subscription.getPlanByCode(planCode);
+    if (!plan) {
+      return res.status(404).json({ error: 'Plan not found' });
+    }
+
+    // Free plan - just create subscription
+    if (planCode === 'free') {
+      const subscription = await Subscription.createSubscription(req.user.id, planCode);
+      return res.json({
+        success: true,
+        subscription,
+        message: 'Subscribed to free plan',
+      });
+    }
+
+    // Paid plan - need payment provider
+    const paymentProvider = provider || 'stripe';
+
+    if (!PaymentService.isProviderAvailable(paymentProvider)) {
+      return res.status(400).json({
+        error: `Payment provider ${paymentProvider} is not available`,
+        availableProviders: PaymentService.getAvailableProviders(),
+      });
+    }
+
+    let paymentResult;
+    let price;
+
+    switch (paymentProvider) {
+      case 'stripe':
+        paymentResult = await PaymentService.createStripeCheckoutSession(
+          req.user.id,
+          planCode,
+          {
+            billingCycle: billingCycle || 'monthly',
+            successUrl: `${req.protocol}://${req.get('host')}/subscription/success`,
+            cancelUrl: `${req.protocol}://${req.get('host')}/subscription/cancel`,
+          },
+        );
+        break;
+
+      case 'paypal':
+        paymentResult = await PaymentService.createPayPalSubscription(
+          req.user.id,
+          planCode,
+          { billingCycle: billingCycle || 'monthly' },
+        );
+        break;
+
+      case 'blik':
+        price = billingCycle === 'yearly' ? plan.price_yearly : plan.price_monthly;
+        paymentResult = await PaymentService.createBLIKPayment(
+          req.user.id,
+          price,
+          `${plan.name} - ${billingCycle === 'yearly' ? 'Yearly' : 'Monthly'} Subscription`,
+          { type: 'subscription' },
+        );
+        break;
+
+      default:
+        return res.status(400).json({ error: `Unknown payment provider: ${paymentProvider}` });
+    }
+
+    res.json({
+      success: true,
+      provider: paymentProvider,
+      ...paymentResult,
+    });
+  } catch (error) {
+    console.error('Error subscribing:', error);
+    res.status(500).json({ error: 'Failed to create subscription' });
+  }
+});
+
+/**
+ * POST /api/subscriptions/cancel
+ * Cancel subscription
+ */
+router.post('/cancel', requireAuth, async (req, res) => {
+  try {
+    const { immediate, reason } = req.body;
+
+    const subscription = await Subscription.cancelSubscription(
+      req.user.id,
+      immediate === true,
+      reason,
+    );
+
+    if (!subscription) {
+      return res.status(404).json({ error: 'No active subscription found' });
+    }
+
+    res.json({
+      success: true,
+      subscription,
+      message: immediate
+        ? 'Subscription cancelled immediately'
+        : 'Subscription will be cancelled at the end of the billing period',
+    });
+  } catch (error) {
+    console.error('Error cancelling subscription:', error);
+    res.status(500).json({ error: 'Failed to cancel subscription' });
+  }
+});
+
+/**
+ * POST /api/subscriptions/resume
+ * Resume a cancelled subscription
+ */
+router.post('/resume', requireAuth, async (req, res) => {
+  try {
+    const subscription = await Subscription.resumeSubscription(req.user.id);
+
+    if (!subscription) {
+      return res.status(404).json({ error: 'No subscription to resume' });
+    }
+
+    res.json({
+      success: true,
+      subscription,
+      message: 'Subscription resumed',
+    });
+  } catch (error) {
+    console.error('Error resuming subscription:', error);
+    res.status(500).json({ error: 'Failed to resume subscription' });
+  }
+});
+
+/**
+ * POST /api/subscriptions/change-plan
+ * Change subscription plan
+ */
+router.post('/change-plan', requireAuth, async (req, res) => {
+  try {
+    const { planCode, immediate } = req.body;
+
+    if (!planCode) {
+      return res.status(400).json({ error: 'Plan code is required' });
+    }
+
+    const subscription = await Subscription.changePlan(
+      req.user.id,
+      planCode,
+      immediate !== false,
+    );
+
+    res.json({
+      success: true,
+      subscription,
+      message: `Plan changed to ${planCode}`,
+    });
+  } catch (error) {
+    console.error('Error changing plan:', error);
+    res.status(500).json({ error: 'Failed to change plan' });
+  }
+});
+
+/**
+ * GET /api/subscriptions/features
+ * Get user's available features
+ */
+router.get('/features', requireAuth, async (req, res) => {
+  try {
+    const features = await Subscription.getUserFeatures(req.user.id);
+    res.json({
+      success: true,
+      features,
+    });
+  } catch (error) {
+    console.error('Error fetching features:', error);
+    res.status(500).json({ error: 'Failed to fetch features' });
+  }
+});
+
+/**
+ * GET /api/subscriptions/features/:featureCode
+ * Check if user has access to a specific feature
+ */
+router.get('/features/:featureCode', requireAuth, async (req, res) => {
+  try {
+    const hasAccess = await Subscription.hasFeature(req.user.id, req.params.featureCode);
+    res.json({
+      success: true,
+      featureCode: req.params.featureCode,
+      hasAccess,
+    });
+  } catch (error) {
+    console.error('Error checking feature:', error);
+    res.status(500).json({ error: 'Failed to check feature access' });
+  }
+});
+
+/**
+ * POST /api/subscriptions/apply-coupon
+ * Apply a coupon code
+ */
+router.post('/apply-coupon', requireAuth, async (req, res) => {
+  try {
+    const { couponCode } = req.body;
+
+    if (!couponCode) {
+      return res.status(400).json({ error: 'Coupon code is required' });
+    }
+
+    const Payment = require('../models/payment');
+    const coupon = await Payment.applyCoupon(req.user.id, couponCode);
+
+    res.json({
+      success: true,
+      coupon: {
+        code: coupon.code,
+        name: coupon.name,
+        discountType: coupon.discount_type,
+        discountValue: coupon.discount_value,
+        duration: coupon.duration,
+      },
+    });
+  } catch (error) {
+    console.error('Error applying coupon:', error);
+    res.status(400).json({ error: error.message || 'Invalid coupon code' });
+  }
+});
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+function formatPrice(amountInCents, currency = 'PLN') {
+  const amount = amountInCents / 100;
+  return new Intl.NumberFormat('pl-PL', {
+    style: 'currency',
+    currency,
+  }).format(amount);
+}
+
+module.exports = router;
