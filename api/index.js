@@ -5,8 +5,11 @@
  * Vercel will handle the HTTP server creation automatically.
  */
 
-require('dotenv').config();
-const app = require('./app');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../app/.env') });
+
+// Import the Express app from the app directory
+const app = require('../app/app');
 
 // Export the Express app for Vercel
 module.exports = app;
