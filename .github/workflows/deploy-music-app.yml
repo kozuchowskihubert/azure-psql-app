@@ -240,7 +240,7 @@ jobs:
                   
                   # Try breaking the lease via Azure CLI
                   az storage blob lease break \
-                    --account-name tfstatestorage14363 \
+                    --account-name tfstatenotesapp \
                     --container-name tfstate-music \
                     --blob-name terraform-music.tfstate \
                     2>&1 || echo "⚠️  Lease break also failed"
@@ -249,12 +249,13 @@ jobs:
                 # Wait a moment for unlock to propagate
                 sleep 5
                 
-                # Verify unlock succeeded
-                if terraform plan -input=false -no-color > /dev/null 2>&1; then
-                  echo "✅ State successfully unlocked"
-                else
+                # Verify unlock succeeded - check specifically for lock errors, not other errors
+                PLAN_OUTPUT=$(terraform plan -input=false -no-color 2>&1 || true)
+                if echo "$PLAN_OUTPUT" | grep -q "state blob is already locked"; then
                   echo "❌ State still locked after unlock attempt"
                   exit 1
+                else
+                  echo "✅ State lock cleared (other errors may exist but lock is resolved)"
                 fi
               else
                 echo "❌ Could not extract lock ID"
