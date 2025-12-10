@@ -1,7 +1,7 @@
 /**
  * HAOS.fm Macro System
  * One-knob multi-parameter control system
- * 
+ *
  * Features:
  * - Define macros that control multiple parameters
  * - Custom scaling and curves per parameter
@@ -14,7 +14,7 @@ class MacroSystem {
         this.liveParams = liveParams;
         this.macros = new Map();
         this.macroValues = new Map();
-        
+
         // Initialize default macros
         this.initDefaultMacros();
     }
@@ -30,9 +30,9 @@ class MacroSystem {
             id: macroId,
             label,
             mappings, // [{param, min, max, curve}]
-            value: 0.5
+            value: 0.5,
         });
-        
+
         this.macroValues.set(macroId, 0.5);
     }
 
@@ -52,14 +52,14 @@ class MacroSystem {
 
         // Calculate parameter values based on mappings
         const paramUpdates = {};
-        
+
         macro.mappings.forEach(mapping => {
             let scaledValue;
-            
+
             // Apply curve
             switch (mapping.curve || 'linear') {
                 case 'exponential':
-                    scaledValue = Math.pow(value, 2);
+                    scaledValue = value ** 2;
                     break;
                 case 'logarithmic':
                     scaledValue = Math.sqrt(value);
@@ -143,14 +143,14 @@ class MacroSystem {
             { param: 'tb303-cutoff', min: 0.2, max: 1.0, curve: 'exponential' },
             { param: 'tb303-resonance', min: 0.3, max: 0.9, curve: 'linear' },
             { param: 'tb303-envmod', min: 0.1, max: 0.8, curve: 'linear' },
-            { param: 'tb303-distortion', min: 0.0, max: 0.6, curve: 'exponential' }
+            { param: 'tb303-distortion', min: 0.0, max: 0.6, curve: 'exponential' },
         ]);
 
         // TB-303 Darkness Macro (inverse of brightness)
         this.registerMacro('tb303-darkness', 'TB-303 DARKNESS', [
             { param: 'tb303-cutoff', min: 1.0, max: 0.1, curve: 'exponential' },
             { param: 'tb303-resonance', min: 0.2, max: 0.7, curve: 'linear' },
-            { param: 'tb303-decay', min: 0.2, max: 0.8, curve: 'linear' }
+            { param: 'tb303-decay', min: 0.2, max: 0.8, curve: 'linear' },
         ]);
 
         // TB-303 Aggression Macro
@@ -158,18 +158,18 @@ class MacroSystem {
             { param: 'tb303-resonance', min: 0.4, max: 0.95, curve: 'linear' },
             { param: 'tb303-envmod', min: 0.3, max: 0.9, curve: 'linear' },
             { param: 'tb303-accent', min: 0.2, max: 1.0, curve: 'linear' },
-            { param: 'tb303-distortion', min: 0.0, max: 0.8, curve: 'exponential' }
+            { param: 'tb303-distortion', min: 0.0, max: 0.8, curve: 'exponential' },
         ]);
 
         // TR-909 Punch Macro
         this.registerMacro('tr909-punch', 'TR-909 PUNCH', [
             { param: 'tr909-kick-punch', min: 0.3, max: 1.0, curve: 'linear' },
-            { param: 'tr909-snare-snap', min: 0.4, max: 1.0, curve: 'linear' }
+            { param: 'tr909-snare-snap', min: 0.4, max: 1.0, curve: 'linear' },
         ]);
 
         // TR-909 Tightness Macro
         this.registerMacro('tr909-tightness', 'TR-909 TIGHTNESS', [
-            { param: 'tr909-hat-decay', min: 0.8, max: 0.2, curve: 'exponential' }
+            { param: 'tr909-hat-decay', min: 0.8, max: 0.2, curve: 'exponential' },
         ]);
 
         // Global Energy Macro
@@ -178,14 +178,14 @@ class MacroSystem {
             { param: 'tb303-resonance', min: 0.4, max: 0.8, curve: 'linear' },
             { param: 'tb303-envmod', min: 0.3, max: 0.7, curve: 'linear' },
             { param: 'tr909-kick-punch', min: 0.5, max: 1.0, curve: 'linear' },
-            { param: 'tr909-snare-snap', min: 0.4, max: 0.9, curve: 'linear' }
+            { param: 'tr909-snare-snap', min: 0.4, max: 0.9, curve: 'linear' },
         ]);
 
         // Global Darkness Macro
         this.registerMacro('global-darkness', 'GLOBAL DARKNESS', [
             { param: 'tb303-cutoff', min: 0.8, max: 0.2, curve: 'exponential' },
             { param: 'tb303-decay', min: 0.2, max: 0.7, curve: 'linear' },
-            { param: 'tr909-hat-decay', min: 0.3, max: 0.8, curve: 'linear' }
+            { param: 'tr909-hat-decay', min: 0.3, max: 0.8, curve: 'linear' },
         ]);
     }
 
@@ -269,8 +269,8 @@ class MacroSystem {
             detail: {
                 macroId,
                 value,
-                macro: this.macros.get(macroId)
-            }
+                macro: this.macros.get(macroId),
+            },
         });
         window.dispatchEvent(event);
     }

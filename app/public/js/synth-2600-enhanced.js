@@ -6,25 +6,25 @@
 class Synth2600Enhanced extends Synth2600AudioEngine {
     constructor() {
         super();
-        
+
         // Enhanced features
         this.voicePool = [];
         this.maxVoices = 8; // Polyphony
         this.sequencer = null;
         this.sequencerActive = false;
-        
+
         // Enhanced audio processing
         this.compressor = null;
         this.chorus = null;
         this.delay = null;
-        
+
         // Sequencer integration
         this.lastSequencerNoteId = null;
         this.sequencerGateLength = 0.8; // 80% of step duration
-        
+
         // Enhanced modulation
         this.modulationMatrix = new Map();
-        
+
         this.initEnhancedAudio();
     }
 
@@ -36,18 +36,18 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
         this.compressor.ratio.value = 12;
         this.compressor.attack.value = 0.003;
         this.compressor.release.value = 0.25;
-        
+
         // Create chorus for richer sound
         this.chorus = this.createChorus();
-        
+
         // Create delay for depth
         this.delay = this.createDelay();
-        
+
         // Initialize voice pool
         for (let i = 0; i < this.maxVoices; i++) {
             this.voicePool.push(this.createVoice(i));
         }
-        
+
         console.log('🎛️ Enhanced Behringer 2600 initialized with', this.maxVoices, 'voices');
     }
 
@@ -57,22 +57,22 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
             active: false,
             noteId: null,
             frequency: 0,
-            
+
             // Oscillators
             vco1: null,
             vco2: null,
             vco3: null, // LFO per voice
-            
+
             // Gains
             vco1Gain: null,
             vco2Gain: null,
-            
+
             // Filter per voice for better separation
             filter: null,
-            
+
             // VCA (envelope)
             vca: null,
-            
+
             // Modulation
             lfoGain: null,
         };
@@ -159,19 +159,19 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
     getAvailableVoice() {
         // First try to find inactive voice
         let voice = this.voicePool.find(v => !v.active);
-        
+
         // If all voices active, steal oldest
         if (!voice) {
             voice = this.voicePool.reduce((oldest, v) => {
                 return (!oldest || v.startTime < oldest.startTime) ? v : oldest;
             });
-            
+
             // Stop stolen voice
             if (voice.active) {
                 this.stopVoice(voice, 0.01); // Quick release
             }
         }
-        
+
         return voice;
     }
 
@@ -214,7 +214,7 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
         // Filter for this voice
         voice.filter = this.audioContext.createBiquadFilter();
         voice.filter.type = this.filterType;
-        
+
         // Velocity-sensitive filter
         const velocityFilterMod = velocity * 2000; // More velocity = brighter
         voice.filter.frequency.value = Math.min(this.filterFreq + velocityFilterMod, 20000);
@@ -229,19 +229,19 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
         voice.vco2.connect(voice.vco2Gain);
         voice.vco1Gain.connect(voice.filter);
         voice.vco2Gain.connect(voice.filter);
-        
+
         // LFO modulates filter cutoff
         voice.vco3.connect(voice.lfoGain);
         voice.lfoGain.connect(voice.filter.frequency);
-        
+
         voice.filter.connect(voice.vca);
         voice.vca.connect(this.compressor);
 
         // Apply ADSR envelope
-        const attack = this.envelope.attack;
-        const decay = this.envelope.decay;
+        const { attack } = this.envelope;
+        const { decay } = this.envelope;
         const sustain = this.envelope.sustain * velocity;
-        const release = this.envelope.release;
+        const { release } = this.envelope;
 
         voice.vca.gain.setValueAtTime(0, now);
         voice.vca.gain.linearRampToValueAtTime(velocity, now + attack);
@@ -276,9 +276,9 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
         const note = this.activeNotes.get(noteId);
         if (!note) return;
 
-        const voice = note.voice;
+        const { voice } = note;
         const now = this.audioContext.currentTime;
-        const release = this.envelope.release;
+        const { release } = this.envelope;
 
         // Apply release envelope
         voice.vca.gain.cancelScheduledValues(now);
@@ -312,7 +312,7 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
                 if (voice.vco1) voice.vco1.stop();
                 if (voice.vco2) voice.vco2.stop();
                 if (voice.vco3) voice.vco3.stop();
-                
+
                 voice.active = false;
                 voice.noteId = null;
             }, release * 1000 + 50);
@@ -328,7 +328,7 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
      */
     connectSequencer(sequencer) {
         this.sequencer = sequencer;
-        
+
         // Listen to sequencer events
         sequencer.addEventListener((event, data) => {
             if (event === 'step') {
@@ -345,7 +345,7 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
                 console.log('⏹️ Sequencer stopped');
             }
         });
-        
+
         console.log('🔗 Sequencer connected to synthesizer');
     }
 
@@ -354,25 +354,25 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
      */
     handleSequencerStep(stepData) {
         const { pitch, velocity, gate } = stepData;
-        
+
         // Release previous note if still playing
         if (this.lastSequencerNoteId) {
             this.releaseNoteEnhanced(this.lastSequencerNoteId);
         }
-        
+
         if (gate) {
             // Convert MIDI note to frequency
-            const frequency = 440 * Math.pow(2, (pitch - 69) / 12);
+            const frequency = 440 * 2 ** ((pitch - 69) / 12);
             const velocityNormalized = velocity;
-            
+
             // Calculate step duration based on BPM
             const stepDuration = (60 / this.sequencer.bpm) * this.sequencerGateLength;
-            
+
             // Play note with automatic release
             this.lastSequencerNoteId = this.playNoteEnhanced(
                 frequency,
                 velocityNormalized,
-                stepDuration
+                stepDuration,
             );
         }
     }
@@ -422,7 +422,7 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
                 sequencer: 'arpeggio',
                 fx: { delay: 0.6, chorus: 0.7 },
             },
-            'percussion': {
+            percussion: {
                 synth: {
                     vco1: { freq: 80, waveform: 'square', detune: 0 },
                     vco2: { freq: 160, waveform: 'sawtooth', detune: 0 },
@@ -484,9 +484,9 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
         }
 
         if (!this.isPlaying) this.start();
-        
+
         console.log(`🎛️ Loaded enhanced preset: ${presetName}`);
-        
+
         // Emit event
         const event = new CustomEvent('enhancedPresetLoaded', {
             detail: { preset: presetName, config: preset },
@@ -503,7 +503,7 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
             const delayTime = beatDuration * division;
             this.delay.delay.delayTime.setValueAtTime(
                 delayTime,
-                this.audioContext.currentTime
+                this.audioContext.currentTime,
             );
         }
     }
@@ -557,10 +557,10 @@ class Synth2600Enhanced extends Synth2600AudioEngine {
                 this.stopVoice(voice, 0.01);
             }
         });
-        
+
         this.activeNotes.clear();
         this.lastSequencerNoteId = null;
-        
+
         console.log('🚨 Panic! All voices stopped');
     }
 }

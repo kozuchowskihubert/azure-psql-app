@@ -8,13 +8,13 @@ const STUDIO = {
     instruments: [],
     isPlaying: false,
     visualizerCtx: null,
-    analyser: null
+    analyser: null,
 };
 
 let toastTimeout = null;
 const modalState = {
     onPrimary: null,
-    currentTemplate: null
+    currentTemplate: null,
 };
 
 // --- LIVING SYSTEM (The "Organism" Logic) ---
@@ -23,9 +23,9 @@ window.LIVING_SYSTEM = {
     chaosLevel: 0.2, // 0.0 to 1.0
     evolutionRate: 0.005,
     pulsePhase: 0,
-    
+
     // State for "breathing" modulation
-    breath: 0, 
+    breath: 0,
 
     start() {
         console.log('🧬 Living System Activated');
@@ -58,16 +58,16 @@ window.LIVING_SYSTEM = {
             // Find knobs to modulate
             const knobs = inst.panel.querySelectorAll('.knob-circle');
             knobs.forEach(knob => {
-                const param = knob.dataset.param;
-                let baseValue = parseFloat(knob.dataset.value || 0.5);
-                
+                const { param } = knob.dataset;
+                const baseValue = parseFloat(knob.dataset.value || 0.5);
+
                 // Only modulate certain parameters to avoid chaos
                 if (['cutoff', 'decay', 'release', 'tone'].includes(param)) {
                     // Calculate drift: sine wave based on breath + random jitter
                     // We want the drift to be subtle (e.g., +/- 0.05)
-                    const drift = (this.breath - 0.5) * 0.1; 
+                    const drift = (this.breath - 0.5) * 0.1;
                     const newValue = Math.min(1, Math.max(0, baseValue + drift));
-                    
+
                     // Update Synth (but NOT the knob visual, to keep user's setting as "center")
                     // Actually, updating the synth is enough.
                     updateSynthParam(inst.synth, inst.panel.dataset.type, param, newValue);
@@ -83,11 +83,11 @@ window.LIVING_SYSTEM = {
 
         const target = sequencers[Math.floor(Math.random() * sequencers.length)];
         const step = Math.floor(Math.random() * 16);
-        
+
         // Flip state
         if (target.synth.pattern) {
             target.synth.pattern[step] = !target.synth.pattern[step];
-            
+
             // Update UI Step
             const stepEl = target.panel.querySelector(`.seq-step[data-step="${step}"]`);
             if (stepEl) {
@@ -97,40 +97,40 @@ window.LIVING_SYSTEM = {
                 setTimeout(() => stepEl.style.borderColor = '', 200);
             }
         }
-    }
+    },
 };
 
 // Genre Configurations
 const GENRES = {
     techno: [
         { type: 'tr909', name: 'TECHNO DRUMS', color: '#39FF14' },
-        { type: 'tb303', name: 'ACID BASS', color: '#39FF14' }
+        { type: 'tb303', name: 'ACID BASS', color: '#39FF14' },
     ],
     trap: [
         { type: 'tr808', name: 'TRAP DRUMS', color: '#FF006E' },
-        { type: 'arp2600', name: 'LEAD SYNTH', color: '#FF006E' }
+        { type: 'arp2600', name: 'LEAD SYNTH', color: '#FF006E' },
     ],
     ambient: [
         { type: 'strings', name: 'ETHEREAL PADS', color: '#00D9FF' },
-        { type: 'arp2geo', name: 'TEXTURES', color: '#00D9FF' }
+        { type: 'arp2geo', name: 'TEXTURES', color: '#00D9FF' },
     ],
     hard_techno: [
         { type: 'tr909', name: 'HARD KICK', color: '#ff4500' },
-        { type: 'arp2600', name: 'INDUSTRIAL SYNTH', color: '#ff4500' }
+        { type: 'arp2600', name: 'INDUSTRIAL SYNTH', color: '#ff4500' },
     ],
     acid: [
         { type: 'tr808', name: 'ACID DRUMS', color: '#FFFF00' },
-        { type: 'tb303', name: 'SQUELCH BASS', color: '#FFFF00' }
+        { type: 'tb303', name: 'SQUELCH BASS', color: '#FFFF00' },
     ],
     dub_techno: [
         { type: 'tr909', name: 'DUB DRUMS', color: '#00FFFF' },
-        { type: 'strings', name: 'DUB CHORDS', color: '#00FFFF' }
-    ]
+        { type: 'strings', name: 'DUB CHORDS', color: '#00FFFF' },
+    ],
 };
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🎹 HAOS Interactive Studio Loading...');
-    
+
     // Setup UI
     setupTransport();
     setupVisualizer();
@@ -140,10 +140,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setupModalControls();
     setupSystemPanel();
     setupBeginnerIntro();
-    
+
     // Initialize Audio on first click
     document.addEventListener('click', initAudio, { once: true });
-    
+
     // Load default genre
     switchGenre('techno');
 });
@@ -187,8 +187,8 @@ function setActiveMode(mode) {
 function setupBasicModeShortcuts() {
     document.querySelectorAll('.beat-launch').forEach(button => {
         button.addEventListener('click', async () => {
-            const primary = button.dataset.primary;
-            const secondary = button.dataset.secondary;
+            const { primary } = button.dataset;
+            const { secondary } = button.dataset;
             if (!primary) return;
             setActiveMode('pro');
             await triggerHybridLaunch(primary, secondary);
@@ -265,7 +265,7 @@ function setupSystemPanel() {
             const selectedLabel = event.target.selectedOptions?.[0]?.textContent?.trim() || 'new interface';
             showStudioToast(`Routing HAOS output to ${selectedLabel}`);
             window.dispatchEvent(new CustomEvent('haos-system-interface-change', {
-                detail: { value: event.target.value, label: selectedLabel }
+                detail: { value: event.target.value, label: selectedLabel },
             }));
         });
     }
@@ -276,7 +276,7 @@ function setupSystemPanel() {
         sync: 'Linking HAOS transport to Ableton clock…',
         calibrate: 'Calibrating Link drift compensation…',
         session: 'Pushing hybrid arrangement into Ableton Live…',
-        guide: 'Loading setup checklist…'
+        guide: 'Loading setup checklist…',
     };
 
     panel.querySelectorAll('[data-setup-action]').forEach(button => {
@@ -457,7 +457,7 @@ function launchPatchDesignerModal() {
         description: 'Blend techno drive with trap swagger and randomize neural patch routings.',
         templateId: 'template-patch-designer',
         primaryText: 'Generate Patch',
-        onPrimary: () => generateAIPatch()
+        onPrimary: () => generateAIPatch(),
     });
 }
 
@@ -468,7 +468,7 @@ function launchPresetLibraryModal() {
         templateId: 'template-preset-library',
         pill: 'BASIC → PRO',
         primaryText: 'Focus Pro Rack',
-        onPrimary: () => focusPresetWorkflow()
+        onPrimary: () => focusPresetWorkflow(),
     });
 }
 
@@ -478,7 +478,7 @@ function launchCliModal() {
         description: 'Pipe patterns to Ableton, render stems, or script modulation remotely.',
         templateId: 'template-cli',
         primaryText: 'Open CLI',
-        onPrimary: () => launchCliTerminal()
+        onPrimary: () => launchCliTerminal(),
     });
 }
 
@@ -515,10 +515,10 @@ function launchCliTerminal() {
 // --- GENRE SWITCHING ---
 window.switchGenre = async function(genre) {
     if (STUDIO.currentGenre === genre && STUDIO.instruments.length > 0) return;
-    
+
     console.log(`Switching to ${genre}...`);
     STUDIO.currentGenre = genre;
-    
+
     // Update UI Buttons
     document.querySelectorAll('.genre-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.genre === genre);
@@ -559,9 +559,9 @@ async function createInstrumentPanel(config, container) {
         console.error('Error creating synth:', e);
         return;
     }
-    
+
     if (!synth) return;
-    
+
     // Ensure synth is in our list
     if (!STUDIO.instruments.includes(synth)) {
         STUDIO.instruments.push(synth);
@@ -572,10 +572,10 @@ async function createInstrumentPanel(config, container) {
     panel.className = 'instrument-panel';
     panel.dataset.type = config.type;
     panel.style.setProperty('--accent-color', config.color);
-    
+
     // Generate ID for sequencer
     const synthId = config.type + '-' + Date.now();
-    
+
     panel.innerHTML = `
         <div class="panel-header">
             <div class="instrument-name">${config.name}</div>
@@ -631,13 +631,13 @@ function generatePatchBay(type) {
         { group: 'VCOs', items: ['vco1_saw', 'vco1_square', 'vco2_saw', 'vco2_square', 'vco3_sine'] },
         { group: 'LFO', items: ['lfo_sine', 'lfo_square'] },
         { group: 'Envelopes', items: ['env1', 'env2'] },
-        { group: 'Noise', items: ['noise_white', 'noise_pink'] }
+        { group: 'Noise', items: ['noise_white', 'noise_pink'] },
     ];
 
     const destinations = [
         { group: 'VCOs', items: ['vco1_pitch', 'vco2_pitch', 'vco1_pwm', 'vco2_pwm'] },
         { group: 'VCF', items: ['vcf_cutoff', 'vcf_resonance'] },
-        { group: 'VCA', items: ['vca_gain'] }
+        { group: 'VCA', items: ['vca_gain'] },
     ];
 
     return `
@@ -668,8 +668,8 @@ function generatePatchBay(type) {
 }
 
 function generateMixerControls(type) {
-    const sounds = (type === 'tr808') 
-        ? ['kick', 'snare', 'hat', 'clap'] 
+    const sounds = (type === 'tr808')
+        ? ['kick', 'snare', 'hat', 'clap']
         : ['kick', 'snare', 'hatClosed', 'hatOpen', 'tomLow', 'tomMid'];
 
     return `
@@ -705,7 +705,7 @@ function generateKnobs(type) {
             { param: 'envMod', label: 'ENV MOD' },
             { param: 'decay', label: 'DECAY' },
             { param: 'distortion', label: 'DIST' },
-            { param: 'glide', label: 'GLIDE' }
+            { param: 'glide', label: 'GLIDE' },
         ];
     } else if (type === 'tr808' || type === 'tr909') {
         knobs = [
@@ -713,7 +713,7 @@ function generateKnobs(type) {
             { param: 'tempo', label: 'SWING' }, // Mock param
             { param: 'tone', label: 'TONE' },
             { param: 'decay', label: 'DECAY' },
-            { param: 'distortion', label: 'DRIVE' }
+            { param: 'distortion', label: 'DRIVE' },
         ];
     } else if (type === 'arp2600') {
         knobs = [
@@ -724,7 +724,7 @@ function generateKnobs(type) {
             { param: 'lfo', label: 'LFO' },
             { param: 'unison', label: 'UNISON' },
             { param: 'detune', label: 'DETUNE' },
-            { param: 'reverb', label: 'VERB' }
+            { param: 'reverb', label: 'VERB' },
         ];
     } else {
         knobs = [
@@ -733,7 +733,7 @@ function generateKnobs(type) {
             { param: 'cutoff', label: 'CUTOFF' },
             { param: 'lfo', label: 'LFO' },
             { param: 'reverb', label: 'VERB' },
-            { param: 'delay', label: 'DELAY' }
+            { param: 'delay', label: 'DELAY' },
         ];
     }
 
@@ -756,8 +756,8 @@ function generateSequencerSteps(count) {
 // --- INTERACTION BINDING ---
 function bindKnobs(panel, synth) {
     const knobs = panel.querySelectorAll('.knob-circle');
-    const type = panel.dataset.type;
-    
+    const { type } = panel.dataset;
+
     knobs.forEach(knob => {
         let isDragging = false;
         let startY = 0;
@@ -782,7 +782,7 @@ function bindKnobs(panel, synth) {
             knob.style.setProperty('--rotation', `${rotation}deg`);
 
             // Update Synth
-            const param = knob.dataset.param;
+            const { param } = knob.dataset;
             updateSynthParam(synth, type, param, value);
         });
 
@@ -805,78 +805,59 @@ function updateSynthParam(synth, type, param, value) {
             else if (param === 'decay') synth.setParam('decay', 0.1 + value * 2.0);
             else if (param === 'distortion') {
                 if (synth.setDistortion) synth.setDistortion(value * 100);
-            }
-            else if (param === 'glide') {
+            } else if (param === 'glide') {
                  if (synth.setParam) synth.setParam('glide', value * 0.1);
             }
-        } 
-        else if (type === 'tr808' || type === 'tr909') {
+        } else if (type === 'tr808' || type === 'tr909') {
             // Drum Machine Scaling (Simplified: Affects Kick or Master)
             if (param === 'volume') {
                 if (synth.masterVolume !== undefined) synth.masterVolume = value;
-            }
-            else if (param === 'tone') {
+            } else if (param === 'tone') {
                 // Affect Kick Tone
                 if (synth.setDrumModulation) synth.setDrumModulation('kick', 'toneColor', value * 100);
                 if (synth.params && synth.params.kick) synth.params.kick.attack = value * 0.1;
-            }
-            else if (param === 'decay') {
+            } else if (param === 'decay') {
                 // Affect Kick Decay
                 if (synth.setDrumModulation) synth.setDrumModulation('kick', 'pitchDecay', value * 1.0);
                 if (synth.params && synth.params.kick) synth.params.kick.decay = value;
-            }
-            else if (param === 'distortion') {
+            } else if (param === 'distortion') {
                 if (synth.setDistortion) synth.setDistortion(value * 50);
             }
-        }
-        else if (type === 'arp2600') {
+        } else if (type === 'arp2600') {
             // ARP 2600 Scaling
             if (param === 'cutoff') {
                 if (synth.vcf) synth.vcf.cutoff = 50 + value * 5000;
-            }
-            else if (param === 'attack') {
+            } else if (param === 'attack') {
                 if (synth.adsr) synth.adsr.attack = value * 2.0;
-            }
-            else if (param === 'release') {
+            } else if (param === 'release') {
                 if (synth.adsr) synth.adsr.release = value * 4.0;
-            }
-            else if (param === 'lfo') {
+            } else if (param === 'lfo') {
                 if (synth.lfo) synth.lfo.rate = value * 20;
-            }
-            else if (param === 'reverb') {
+            } else if (param === 'reverb') {
                 if (synth.setReverb) synth.setReverb(value);
-            }
-            else if (param === 'delay') {
+            } else if (param === 'delay') {
                 if (synth.setDelay) synth.setDelay(value, 0.5); // Assuming 0.5 feedback
-            }
-            else if (param === 'waveform') {
+            } else if (param === 'waveform') {
                 if (synth.setOscillatorType) {
                     const waves = ['sine', 'triangle', 'sawtooth', 'square'];
                     synth.setOscillatorType(waves[Math.floor(value * (waves.length - 0.01))]);
                 }
-            }
-            else if (param === 'unison') {
+            } else if (param === 'unison') {
                 if (synth.setUnison) synth.setUnison(1 + Math.floor(value * 6));
-            }
-            else if (param === 'detune') {
+            } else if (param === 'detune') {
                 if (synth.setDetune) synth.setDetune(value * 50);
             }
-        }
-        else if (type === 'strings') {
+        } else if (type === 'strings') {
              // String Machine
              if (param === 'attack') {
                  if (synth.setEnvelope) synth.setEnvelope(value * 2.0, synth.envelope.release);
-             }
-             else if (param === 'release') {
+             } else if (param === 'release') {
                  if (synth.setEnvelope) synth.setEnvelope(synth.envelope.attack, value * 4.0);
-             }
-             else if (param === 'cutoff') {
+             } else if (param === 'cutoff') {
                  if (synth.setFilter) synth.setFilter(value * 5000, synth.filter.resonance);
-             }
-             else if (param === 'reverb') {
+             } else if (param === 'reverb') {
                 if (synth.setReverb) synth.setReverb(value);
-             }
-             else if (param === 'delay') {
+             } else if (param === 'delay') {
                 if (synth.setDelay) synth.setDelay(value, 0.5);
              }
         }
@@ -885,16 +866,15 @@ function updateSynthParam(synth, type, param, value) {
     }
 }
 
-
 function bindSequencer(panel, synth) {
     const steps = panel.querySelectorAll('.seq-step');
-    
+
     steps.forEach(step => {
         step.addEventListener('click', () => {
             step.classList.toggle('active');
             const stepIndex = parseInt(step.dataset.step);
             const isActive = step.classList.contains('active');
-            
+
             // Update Synth Pattern
             if (synth && synth.toggleStep) {
                 synth.toggleStep(stepIndex, isActive);
@@ -918,7 +898,7 @@ function bindPatchControls(panel, synth, instrumentType) {
         }
 
         const patchData = synth.getPatch();
-        
+
         try {
             const response = await fetch('/api/patches', {
                 method: 'POST',
@@ -926,8 +906,8 @@ function bindPatchControls(panel, synth, instrumentType) {
                 body: JSON.stringify({
                     name: patchName,
                     instrument: instrumentType,
-                    data: patchData
-                })
+                    data: patchData,
+                }),
             });
 
             if (!response.ok) {
@@ -949,7 +929,7 @@ function bindPatchControls(panel, synth, instrumentType) {
         try {
             const response = await fetch(`/api/patches/${instrumentType}`);
             if (!response.ok) throw new Error('Failed to fetch patches.');
-            
+
             const patches = await response.json();
             if (patches.length === 0) {
                 alert(`No saved patches found for ${instrumentType}.`);
@@ -1027,7 +1007,7 @@ function updateUIAfterPatchLoad(panel, patchData) {
     if (!patchData.params) return;
 
     const knobs = panel.querySelectorAll('.knob-circle');
-    const type = panel.dataset.type;
+    const { type } = panel.dataset;
 
     Object.keys(patchData.params).forEach(param => {
         const knob = panel.querySelector(`.knob-circle[data-param="${param}"]`);
@@ -1046,7 +1026,7 @@ function updateUIAfterPatchLoad(panel, patchData) {
         } else { // Add other synth types here
             value = 0.5; // Default for un-scaled params
         }
-        
+
         value = Math.min(1, Math.max(0, value)); // Clamp to 0-1 range
         knob.dataset.value = value;
         const rotation = (value * 270) - 135;
@@ -1058,7 +1038,7 @@ function bindMixerControls(panel, synth) {
     const channels = panel.querySelectorAll('.mixer-channel');
 
     channels.forEach(channel => {
-        const sound = channel.dataset.sound;
+        const { sound } = channel.dataset;
         const volumeFader = channel.querySelector('.volume-fader');
         const tuneKnob = channel.querySelector('.tune-knob');
         const decayKnob = channel.querySelector('.decay-knob');
@@ -1092,10 +1072,10 @@ function bindPatchBay(panel, synth) {
             const destination = e.target.dataset.dest;
 
             console.log(`Patching ${source} to ${destination}`);
-            
+
             if (synth.addPatch) {
                 // First, clear any existing patch for this destination
-                if(synth.clearPatchesForDestination) synth.clearPatchesForDestination(destination);
+                if (synth.clearPatchesForDestination) synth.clearPatchesForDestination(destination);
                 if (source !== 'none') {
                     synth.addPatch(source, destination);
                 }
@@ -1140,7 +1120,7 @@ function setupTransport() {
     const playBtn = document.getElementById('play-btn');
     playBtn.addEventListener('click', () => {
         if (!HAOS.initialized) return;
-        
+
         // Toggle Playback State
         if (HAOS.state.playbackState === 'playing') {
             HAOS.stop();
@@ -1155,7 +1135,7 @@ function setupTransport() {
                 if (inst.play) inst.play();
             });
         }
-        
+
         updatePlayButton(HAOS.state.playbackState === 'playing');
     });
 }
@@ -1163,7 +1143,7 @@ function setupTransport() {
 function updatePlayButton(isPlaying) {
     const btn = document.getElementById('play-btn');
     const icon = btn.querySelector('i');
-    
+
     if (isPlaying) {
         btn.classList.add('playing');
         icon.className = 'fas fa-stop';
@@ -1177,7 +1157,7 @@ function updatePlayButton(isPlaying) {
 function setupVisualizer() {
     const canvas = document.getElementById('main-visualizer');
     STUDIO.visualizerCtx = canvas.getContext('2d');
-    
+
     // Resize handler
     const resize = () => {
         canvas.width = canvas.parentElement.offsetWidth;
@@ -1189,7 +1169,7 @@ function setupVisualizer() {
 
 function startVisualizer() {
     if (!HAOS.context) return;
-    
+
     // Create Analyser if not exists
     if (!STUDIO.analyser) {
         STUDIO.analyser = HAOS.context.createAnalyser();
@@ -1200,11 +1180,11 @@ function startVisualizer() {
     const bufferLength = STUDIO.analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     const ctx = STUDIO.visualizerCtx;
-    const canvas = ctx.canvas;
+    const { canvas } = ctx;
 
     function draw() {
         requestAnimationFrame(draw);
-        
+
         STUDIO.analyser.getByteFrequencyData(dataArray);
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';

@@ -1,7 +1,7 @@
 /**
  * ARP 2600 Modular Synthesizer Module
  * Emulates ARP 2600 semi-modular analog synthesizer
- * 
+ *
  * Features:
  * - 3 VCOs (Oscillators)
  * - VCF (Filter) with multiple modes
@@ -16,86 +16,86 @@
 class ARP2600 {
     constructor(audioContext) {
         this.audioContext = audioContext;
-        
+
         // Oscillators
         this.vco1 = {
             waveform: 'sawtooth',
             frequency: 440,
             fine: 0,
             octave: 0,
-            enabled: true
+            enabled: true,
         };
-        
+
         this.vco2 = {
             waveform: 'square',
             frequency: 440,
             fine: 0,
             octave: 0,
-            enabled: false
+            enabled: false,
         };
-        
+
         this.vco3 = {
             waveform: 'sine',
             frequency: 440,
             fine: 0,
             octave: -1,
-            enabled: false
+            enabled: false,
         };
-        
+
         // Filter
         this.vcf = {
             type: 'lowpass',
             cutoff: 2000,
             resonance: 5,
             envAmount: 50,
-            keyTrack: 50
+            keyTrack: 50,
         };
-        
+
         // Amplifier
         this.vca = {
             level: 0.7,
-            mode: 'envelope' // 'envelope' or 'gate'
+            mode: 'envelope', // 'envelope' or 'gate'
         };
-        
+
         // ADSR Envelope
         this.envelope = {
             attack: 0.01,
             decay: 0.3,
             sustain: 0.7,
-            release: 0.5
+            release: 0.5,
         };
-        
+
         // LFO
         this.lfo = {
             waveform: 'sine',
             rate: 5,
-            amount: 0
+            amount: 0,
         };
-        
+
         // Ring Modulator
         this.ringMod = {
             enabled: false,
             carrier: 440,
-            modulator: 220
+            modulator: 220,
         };
-        
+
         // Sample & Hold
         this.sampleHold = {
             enabled: false,
-            rate: 10
+            rate: 10,
         };
-        
+
         // Patch connections (virtual patch bay)
         this.patches = [];
-        
+
         // External modulation sources
         this.externalMod = {
             enabled: false,
             source: null,  // External audio node
             amount: 0.5,
-            destination: 'filter' // 'filter', 'pitch', 'amplitude'
+            destination: 'filter', // 'filter', 'pitch', 'amplitude'
         };
-        
+
         // Enhanced modulation matrix
         this.modMatrix = {
             env1ToFilter: 50,      // Envelope 1 -> Filter Cutoff
@@ -107,17 +107,17 @@ class ARP2600 {
             lfoToPWM: 0,           // LFO -> Pulse Width Modulation
             keyTrackToFilter: 50,  // Keyboard tracking to filter
             velocityToFilter: 30,  // Velocity -> Filter
-            velocityToAmplitude: 50 // Velocity -> Amplitude
+            velocityToAmplitude: 50, // Velocity -> Amplitude
         };
-        
+
         // Second envelope generator
         this.envelope2 = {
             attack: 0.01,
             decay: 0.3,
             sustain: 0.7,
-            release: 0.5
+            release: 0.5,
         };
-        
+
         // Active voices
         this.activeVoices = [];
 
@@ -129,9 +129,19 @@ class ARP2600 {
         this.interval = null;
         this.noteToPlay = 'C3'; // Default note for the sequencer
         this.noteFrequencies = {
-            'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81, 'F3': 174.61,
-            'F#3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'A3': 220.00, 'A#3': 233.08, 'B3': 246.94,
-            'C4': 261.63
+            C3: 130.81,
+'C#3': 138.59,
+D3: 146.83,
+'D#3': 155.56,
+E3: 164.81,
+F3: 174.61,
+            'F#3': 185.00,
+G3: 196.00,
+'G#3': 207.65,
+A3: 220.00,
+'A#3': 233.08,
+B3: 246.94,
+            C4: 261.63,
         };
     }
 
@@ -145,14 +155,14 @@ class ARP2600 {
         }
         return false;
     }
-    
+
     /**
      * Get modulation matrix parameter
      */
     getModMatrix(param) {
         return this.modMatrix[param];
     }
-    
+
     /**
      * Set second envelope parameter
      */
@@ -163,7 +173,7 @@ class ARP2600 {
         }
         return false;
     }
-    
+
     /**
      * Connect external modulation source (for string machine etc)
      */
@@ -173,7 +183,7 @@ class ARP2600 {
         this.externalMod.amount = Math.max(0, Math.min(1, amount));
         this.externalMod.destination = destination;
     }
-    
+
     /**
      * Set VCO parameter
      */
@@ -185,7 +195,7 @@ class ARP2600 {
         }
         return false;
     }
-    
+
     /**
      * Set VCF parameter
      */
@@ -196,7 +206,7 @@ class ARP2600 {
         }
         return false;
     }
-    
+
     /**
      * Set VCA parameter
      */
@@ -207,7 +217,7 @@ class ARP2600 {
         }
         return false;
     }
-    
+
     /**
      * Set envelope parameter
      */
@@ -218,7 +228,7 @@ class ARP2600 {
         }
         return false;
     }
-    
+
     /**
      * Set LFO parameter
      */
@@ -229,7 +239,7 @@ class ARP2600 {
         }
         return false;
     }
-    
+
     /**
      * Add patch cable connection
      */
@@ -237,7 +247,7 @@ class ARP2600 {
         this.patches.push({ source, destination, amount });
         return this.patches.length - 1;
     }
-    
+
     /**
      * Remove patch cable
      */
@@ -248,103 +258,103 @@ class ARP2600 {
         }
         return false;
     }
-    
+
     /**
      * Clear all patches
      */
     clearPatches() {
         this.patches = [];
     }
-    
+
     /**
      * Play note
      */
     playNote(frequency, duration = 1.0, velocity = 1.0, time = null) {
         const startTime = time || this.audioContext.currentTime;
         const endTime = startTime + duration;
-        
+
         // Create oscillator mixer
         const mixer = this.audioContext.createGain();
         mixer.gain.value = 0;
-        
+
         const oscillators = [];
-        
+
         // Apply pitch envelope if enabled
         const pitchEnvAmount = this.modMatrix.env1ToPitch / 100;
-        
+
         // VCO 1
         if (this.vco1.enabled) {
             const osc = this._createOscillator(this.vco1, frequency, startTime);
-            
+
             // Apply pitch envelope modulation
             if (pitchEnvAmount > 0) {
                 const pitchMod = pitchEnvAmount * frequency * 0.5; // Up to 50% pitch change
                 osc.frequency.setValueAtTime(frequency + pitchMod, startTime);
                 osc.frequency.exponentialRampToValueAtTime(frequency, startTime + this.envelope.attack + this.envelope.decay);
             }
-            
+
             osc.connect(mixer);
             oscillators.push(osc);
         }
-        
+
         // VCO 2
         if (this.vco2.enabled) {
             const osc = this._createOscillator(this.vco2, frequency, startTime);
-            
+
             // Apply pitch envelope modulation
             if (pitchEnvAmount > 0) {
                 const pitchMod = pitchEnvAmount * frequency * 0.5;
                 osc.frequency.setValueAtTime(frequency + pitchMod, startTime);
                 osc.frequency.exponentialRampToValueAtTime(frequency, startTime + this.envelope.attack + this.envelope.decay);
             }
-            
+
             osc.connect(mixer);
             oscillators.push(osc);
         }
-        
+
         // VCO 3
         if (this.vco3.enabled) {
             const osc = this._createOscillator(this.vco3, frequency, startTime);
-            
+
             // Apply pitch envelope modulation
             if (pitchEnvAmount > 0) {
                 const pitchMod = pitchEnvAmount * frequency * 0.5;
                 osc.frequency.setValueAtTime(frequency + pitchMod, startTime);
                 osc.frequency.exponentialRampToValueAtTime(frequency, startTime + this.envelope.attack + this.envelope.decay);
             }
-            
+
             osc.connect(mixer);
             oscillators.push(osc);
         }
-        
+
         if (oscillators.length > 0) {
             mixer.gain.value = 1.0 / oscillators.length;
         }
-        
+
         // Create filter with enhanced envelope modulation
         const filter = this._createFilter(startTime);
-        
+
         // Apply filter envelope (Env1 -> Filter)
         const filterEnvAmount = (this.modMatrix.env1ToFilter / 100) * this.vcf.cutoff * 2;
         const velocityFilterMod = (this.modMatrix.velocityToFilter / 100) * this.vcf.cutoff * 0.5 * velocity;
         const keyTrackMod = (this.modMatrix.keyTrackToFilter / 100) * (frequency - 440) * 2;
-        
+
         const peakCutoff = Math.min(
             this.vcf.cutoff + filterEnvAmount + velocityFilterMod + keyTrackMod,
-            20000
+            20000,
         );
-        
+
         filter.frequency.setValueAtTime(peakCutoff, startTime);
         filter.frequency.exponentialRampToValueAtTime(
             Math.max(this.vcf.cutoff, 50),
-            startTime + this.envelope.attack + this.envelope.decay
+            startTime + this.envelope.attack + this.envelope.decay,
         );
-        
+
         // LFO modulation
         let lfo = null;
         if (this.lfo.amount > 0 || this.modMatrix.lfoToFilter > 0 || this.modMatrix.lfoToPitch > 0) {
             lfo = this._createLFO(startTime);
-            
+
             // LFO -> Filter
             if (this.modMatrix.lfoToFilter > 0) {
                 const lfoFilterGain = this.audioContext.createGain();
@@ -352,7 +362,7 @@ class ARP2600 {
                 lfo.connect(lfoFilterGain);
                 lfoFilterGain.connect(filter.frequency);
             }
-            
+
             // LFO -> Pitch
             if (this.modMatrix.lfoToPitch > 0) {
                 const lfoPitchGain = this.audioContext.createGain();
@@ -363,12 +373,12 @@ class ARP2600 {
                 });
             }
         }
-        
+
         // External modulation (e.g., from string machine)
         if (this.externalMod.enabled && this.externalMod.source) {
             const modGain = this.audioContext.createGain();
             modGain.gain.value = this.externalMod.amount;
-            
+
             switch (this.externalMod.destination) {
                 case 'filter':
                     // Modulate filter cutoff
@@ -391,11 +401,11 @@ class ARP2600 {
                     break;
             }
         }
-        
+
         // VCA with envelope and velocity modulation
         const vca = this.audioContext.createGain();
         this._applyEnvelope(vca.gain, startTime, endTime, velocity);
-        
+
         // LFO -> Amplitude (tremolo)
         if (lfo && this.modMatrix.lfoToAmplitude > 0) {
             const lfoAmpGain = this.audioContext.createGain();
@@ -403,35 +413,35 @@ class ARP2600 {
             lfo.connect(lfoAmpGain);
             lfoAmpGain.connect(vca.gain);
         }
-        
+
         // Connect audio graph
         mixer.connect(filter);
         filter.connect(vca);
         vca.connect(this.audioContext.destination);
-        
+
         // Start oscillators
         oscillators.forEach(osc => {
             osc.start(startTime);
             osc.stop(endTime + this.envelope.release);
         });
-        
+
         // Start LFO
         if (lfo) {
             lfo.start(startTime);
             lfo.stop(endTime + this.envelope.release);
         }
-        
+
         // Store voice for cleanup
         const voice = {
             oscillators,
             filter,
             vca,
             lfo,
-            endTime: endTime + this.envelope.release
+            endTime: endTime + this.envelope.release,
         };
-        
+
         this.activeVoices.push(voice);
-        
+
         // Auto-cleanup after note ends
         setTimeout(() => {
             const index = this.activeVoices.indexOf(voice);
@@ -439,16 +449,16 @@ class ARP2600 {
                 this.activeVoices.splice(index, 1);
             }
         }, (duration + this.envelope.release) * 1000);
-        
+
         return voice;
     }
-    
+
     /**
      * Stop all active voices
      */
     stopAll() {
         const now = this.audioContext.currentTime;
-        
+
         this.activeVoices.forEach(voice => {
             // Quick fade out
             if (voice.vca && voice.vca.gain) {
@@ -456,7 +466,7 @@ class ARP2600 {
                 voice.vca.gain.setValueAtTime(voice.vca.gain.value, now);
                 voice.vca.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
             }
-            
+
             // Stop oscillators
             voice.oscillators.forEach(osc => {
                 try {
@@ -465,7 +475,7 @@ class ARP2600 {
                     // Already stopped
                 }
             });
-            
+
             // Stop LFO
             if (voice.lfo) {
                 try {
@@ -475,26 +485,26 @@ class ARP2600 {
                 }
             }
         });
-        
+
         this.activeVoices = [];
     }
-    
+
     /**
      * Create oscillator from VCO settings
      */
     _createOscillator(vco, baseFreq, time) {
         const osc = this.audioContext.createOscillator();
         osc.type = vco.waveform;
-        
-        const octaveMultiplier = Math.pow(2, vco.octave);
-        const fineMultiplier = Math.pow(2, vco.fine / 1200);
+
+        const octaveMultiplier = 2 ** vco.octave;
+        const fineMultiplier = 2 ** (vco.fine / 1200);
         const frequency = baseFreq * octaveMultiplier * fineMultiplier;
-        
+
         osc.frequency.setValueAtTime(frequency, time);
-        
+
         return osc;
     }
-    
+
     /**
      * Create filter from VCF settings
      */
@@ -503,10 +513,10 @@ class ARP2600 {
         filter.type = this.vcf.type;
         filter.frequency.setValueAtTime(this.vcf.cutoff, time);
         filter.Q.setValueAtTime(this.vcf.resonance, time);
-        
+
         return filter;
     }
-    
+
     /**
      * Create LFO
      */
@@ -514,10 +524,10 @@ class ARP2600 {
         const lfo = this.audioContext.createOscillator();
         lfo.type = this.lfo.waveform;
         lfo.frequency.setValueAtTime(this.lfo.rate, time);
-        
+
         return lfo;
     }
-    
+
     /**
      * Apply ADSR envelope to parameter
      */
@@ -526,43 +536,43 @@ class ARP2600 {
         const decayTime = attackTime + this.envelope.decay;
         const releaseStart = endTime;
         const releaseEnd = releaseStart + this.envelope.release;
-        
+
         const peakLevel = this.vca.level * velocity;
         const sustainLevel = peakLevel * this.envelope.sustain;
-        
+
         // Attack
         param.setValueAtTime(0.001, startTime);
         param.exponentialRampToValueAtTime(peakLevel, attackTime);
-        
+
         // Decay
         param.exponentialRampToValueAtTime(sustainLevel, decayTime);
-        
+
         // Sustain (held at sustainLevel)
         param.setValueAtTime(sustainLevel, releaseStart);
-        
+
         // Release
         param.exponentialRampToValueAtTime(0.001, releaseEnd);
     }
-    
+
     /**
      * Load preset patch
      */
     loadPreset(presetName) {
         const presets = {
             // BASS SOUNDS
-            'bass': {
+            bass: {
                 vco1: { waveform: 'sawtooth', octave: -1, enabled: true },
                 vco2: { waveform: 'square', octave: -1, fine: -7, enabled: true },
                 vco3: { enabled: false },
                 vcf: { type: 'lowpass', cutoff: 800, resonance: 8, envAmount: 70 },
-                envelope: { attack: 0.01, decay: 0.2, sustain: 0.5, release: 0.3 }
+                envelope: { attack: 0.01, decay: 0.2, sustain: 0.5, release: 0.3 },
             },
             'sub-bass': {
                 vco1: { waveform: 'sine', octave: -2, enabled: true },
                 vco2: { waveform: 'triangle', octave: -1, fine: -12, enabled: true },
                 vco3: { enabled: false },
                 vcf: { type: 'lowpass', cutoff: 300, resonance: 2, envAmount: 20 },
-                envelope: { attack: 0.001, decay: 0.1, sustain: 0.9, release: 0.2 }
+                envelope: { attack: 0.001, decay: 0.1, sustain: 0.9, release: 0.2 },
             },
             'acid-bass': {
                 vco1: { waveform: 'sawtooth', octave: -1, enabled: true },
@@ -570,24 +580,24 @@ class ARP2600 {
                 vco3: { enabled: false },
                 vcf: { type: 'lowpass', cutoff: 1200, resonance: 25, envAmount: 95 },
                 envelope: { attack: 0.001, decay: 0.15, sustain: 0.3, release: 0.15 },
-                lfo: { rate: 8, amount: 0.4 }
+                lfo: { rate: 8, amount: 0.4 },
             },
             'fat-bass': {
                 vco1: { waveform: 'sawtooth', octave: -1, enabled: true },
                 vco2: { waveform: 'sawtooth', octave: -1, fine: 5, enabled: true },
                 vco3: { waveform: 'square', octave: -2, enabled: true },
                 vcf: { type: 'lowpass', cutoff: 600, resonance: 12, envAmount: 65 },
-                envelope: { attack: 0.01, decay: 0.25, sustain: 0.7, release: 0.3 }
+                envelope: { attack: 0.01, decay: 0.25, sustain: 0.7, release: 0.3 },
             },
-            
+
             // LEAD SOUNDS
-            'lead': {
+            lead: {
                 vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
                 vco2: { waveform: 'sawtooth', octave: 0, fine: 7, enabled: true },
                 vco3: { enabled: false },
                 vcf: { type: 'lowpass', cutoff: 3000, resonance: 15, envAmount: 80 },
                 envelope: { attack: 0.05, decay: 0.3, sustain: 0.7, release: 0.5 },
-                lfo: { rate: 6, amount: 0.3 }
+                lfo: { rate: 6, amount: 0.3 },
             },
             'sync-lead': {
                 vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
@@ -595,7 +605,7 @@ class ARP2600 {
                 vco3: { enabled: false },
                 vcf: { type: 'lowpass', cutoff: 4000, resonance: 18, envAmount: 85 },
                 envelope: { attack: 0.01, decay: 0.2, sustain: 0.6, release: 0.4 },
-                lfo: { rate: 7, amount: 0.5 }
+                lfo: { rate: 7, amount: 0.5 },
             },
             'screaming-lead': {
                 vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
@@ -603,16 +613,16 @@ class ARP2600 {
                 vco3: { waveform: 'sawtooth', octave: 1, enabled: true },
                 vcf: { type: 'lowpass', cutoff: 5000, resonance: 20, envAmount: 90 },
                 envelope: { attack: 0.001, decay: 0.15, sustain: 0.8, release: 0.3 },
-                lfo: { rate: 9, amount: 0.6 }
+                lfo: { rate: 9, amount: 0.6 },
             },
-            
+
             // PAD SOUNDS
-            'pad': {
+            pad: {
                 vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
                 vco2: { waveform: 'square', octave: 0, fine: 5, enabled: true },
                 vco3: { waveform: 'sine', octave: -1, enabled: true },
                 vcf: { type: 'lowpass', cutoff: 2000, resonance: 5, envAmount: 40 },
-                envelope: { attack: 0.5, decay: 0.4, sustain: 0.8, release: 1.0 }
+                envelope: { attack: 0.5, decay: 0.4, sustain: 0.8, release: 1.0 },
             },
             'string-pad': {
                 vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
@@ -620,14 +630,14 @@ class ARP2600 {
                 vco3: { waveform: 'sawtooth', octave: 0, fine: -8, enabled: true },
                 vcf: { type: 'lowpass', cutoff: 2500, resonance: 3, envAmount: 30 },
                 envelope: { attack: 0.8, decay: 0.5, sustain: 0.9, release: 1.5 },
-                lfo: { rate: 0.5, amount: 0.1 }
+                lfo: { rate: 0.5, amount: 0.1 },
             },
             'dark-pad': {
                 vco1: { waveform: 'triangle', octave: 0, enabled: true },
                 vco2: { waveform: 'sine', octave: -1, fine: 7, enabled: true },
                 vco3: { waveform: 'square', octave: -2, enabled: true },
                 vcf: { type: 'lowpass', cutoff: 800, resonance: 2, envAmount: 25 },
-                envelope: { attack: 1.5, decay: 0.8, sustain: 0.85, release: 2.0 }
+                envelope: { attack: 1.5, decay: 0.8, sustain: 0.85, release: 2.0 },
             },
             'evolving-pad': {
                 vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
@@ -635,72 +645,72 @@ class ARP2600 {
                 vco3: { waveform: 'square', octave: -1, enabled: true },
                 vcf: { type: 'lowpass', cutoff: 1500, resonance: 8, envAmount: 50 },
                 envelope: { attack: 2.0, decay: 1.0, sustain: 0.7, release: 2.5 },
-                lfo: { rate: 0.3, amount: 0.4 }
+                lfo: { rate: 0.3, amount: 0.4 },
             },
-            
+
             // PLUCK & PERCUSSIVE
-            'pluck': {
+            pluck: {
                 vco1: { waveform: 'triangle', octave: 0, enabled: true },
                 vco2: { enabled: false },
                 vco3: { enabled: false },
                 vcf: { type: 'lowpass', cutoff: 5000, resonance: 2, envAmount: 90 },
-                envelope: { attack: 0.001, decay: 0.15, sustain: 0.1, release: 0.2 }
+                envelope: { attack: 0.001, decay: 0.15, sustain: 0.1, release: 0.2 },
             },
-            'marimba': {
+            marimba: {
                 vco1: { waveform: 'sine', octave: 0, enabled: true },
                 vco2: { waveform: 'sine', octave: 2, fine: 3, enabled: true },
                 vco3: { enabled: false },
                 vcf: { type: 'lowpass', cutoff: 3000, resonance: 1, envAmount: 70 },
-                envelope: { attack: 0.001, decay: 0.3, sustain: 0.05, release: 0.4 }
+                envelope: { attack: 0.001, decay: 0.3, sustain: 0.05, release: 0.4 },
             },
-            'kalimba': {
+            kalimba: {
                 vco1: { waveform: 'triangle', octave: 1, enabled: true },
                 vco2: { waveform: 'sine', octave: 2, fine: 7, enabled: true },
                 vco3: { enabled: false },
                 vcf: { type: 'bandpass', cutoff: 2500, resonance: 5, envAmount: 80 },
-                envelope: { attack: 0.001, decay: 0.25, sustain: 0.0, release: 0.3 }
+                envelope: { attack: 0.001, decay: 0.25, sustain: 0.0, release: 0.3 },
             },
-            
+
             // BRASS & WIND
-            'brass': {
+            brass: {
                 vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
                 vco2: { waveform: 'sawtooth', octave: 0, fine: -3, enabled: true },
                 vco3: { waveform: 'square', octave: 0, enabled: true },
                 vcf: { type: 'lowpass', cutoff: 1500, resonance: 10, envAmount: 60 },
-                envelope: { attack: 0.08, decay: 0.2, sustain: 0.9, release: 0.3 }
+                envelope: { attack: 0.08, decay: 0.2, sustain: 0.9, release: 0.3 },
             },
             'soft-brass': {
                 vco1: { waveform: 'sawtooth', octave: 0, enabled: true },
                 vco2: { waveform: 'triangle', octave: 0, fine: -5, enabled: true },
                 vco3: { enabled: false },
                 vcf: { type: 'lowpass', cutoff: 1800, resonance: 6, envAmount: 50 },
-                envelope: { attack: 0.15, decay: 0.3, sustain: 0.85, release: 0.4 }
+                envelope: { attack: 0.15, decay: 0.3, sustain: 0.85, release: 0.4 },
             },
-            'flute': {
+            flute: {
                 vco1: { waveform: 'sine', octave: 1, enabled: true },
                 vco2: { waveform: 'triangle', octave: 1, fine: 2, enabled: true },
                 vco3: { enabled: false },
                 vcf: { type: 'lowpass', cutoff: 2000, resonance: 3, envAmount: 40 },
                 envelope: { attack: 0.1, decay: 0.15, sustain: 0.7, release: 0.2 },
-                lfo: { rate: 5, amount: 0.15 }
+                lfo: { rate: 5, amount: 0.15 },
             },
-            
+
             // FX & EXPERIMENTAL
-            'sweep': {
+            sweep: {
                 vco1: { waveform: 'sawtooth', octave: -1, enabled: true },
                 vco2: { waveform: 'square', octave: -1, fine: 7, enabled: true },
                 vco3: { enabled: false },
                 vcf: { type: 'lowpass', cutoff: 200, resonance: 15, envAmount: 95 },
                 envelope: { attack: 0.01, decay: 2.0, sustain: 0.2, release: 0.5 },
-                lfo: { rate: 0.5, amount: 0.7 }
+                lfo: { rate: 0.5, amount: 0.7 },
             },
-            'wobble': {
+            wobble: {
                 vco1: { waveform: 'sawtooth', octave: -1, enabled: true },
                 vco2: { waveform: 'square', octave: -1, fine: -12, enabled: true },
                 vco3: { enabled: false },
                 vcf: { type: 'lowpass', cutoff: 500, resonance: 20, envAmount: 50 },
                 envelope: { attack: 0.01, decay: 0.3, sustain: 0.8, release: 0.3 },
-                lfo: { rate: 4, amount: 0.9 }
+                lfo: { rate: 4, amount: 0.9 },
             },
             'space-sweep': {
                 vco1: { waveform: 'sine', octave: 0, enabled: true },
@@ -708,33 +718,33 @@ class ARP2600 {
                 vco3: { waveform: 'sawtooth', octave: -2, enabled: true },
                 vcf: { type: 'lowpass', cutoff: 1000, resonance: 18, envAmount: 80 },
                 envelope: { attack: 1.0, decay: 1.5, sustain: 0.5, release: 2.0 },
-                lfo: { rate: 0.2, amount: 0.8 }
-            }
+                lfo: { rate: 0.2, amount: 0.8 },
+            },
         };
-        
+
         if (presets[presetName]) {
             const preset = presets[presetName];
-            
+
             // Apply VCO settings
             if (preset.vco1) Object.assign(this.vco1, preset.vco1);
             if (preset.vco2) Object.assign(this.vco2, preset.vco2);
             if (preset.vco3) Object.assign(this.vco3, preset.vco3);
-            
+
             // Apply VCF settings
             if (preset.vcf) Object.assign(this.vcf, preset.vcf);
-            
+
             // Apply envelope settings
             if (preset.envelope) Object.assign(this.envelope, preset.envelope);
-            
+
             // Apply LFO settings
             if (preset.lfo) Object.assign(this.lfo, preset.lfo);
-            
+
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * Get current patch settings
      */
@@ -749,10 +759,10 @@ class ARP2600 {
             lfo: { ...this.lfo },
             ringMod: { ...this.ringMod },
             sampleHold: { ...this.sampleHold },
-            patches: [...this.patches]
+            patches: [...this.patches],
         };
     }
-    
+
     /**
      * Load patch from settings object
      */
@@ -767,7 +777,7 @@ class ARP2600 {
         if (settings.ringMod) this.ringMod = { ...this.ringMod, ...settings.ringMod };
         if (settings.sampleHold) this.sampleHold = { ...this.sampleHold, ...settings.sampleHold };
         if (settings.patches) this.patches = [...settings.patches];
-        
+
         return true;
     }
 }

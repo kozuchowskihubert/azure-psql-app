@@ -1,7 +1,7 @@
 /**
  * UI Components Library for Modular Synthesis System
  * haos.fm v2.7.0
- * 
+ *
  * Provides reusable UI components:
  * - Rotary Knobs (synth-style parameter controls)
  * - Sliders (linear parameter controls)
@@ -10,7 +10,7 @@
  * - Pattern Grids (16-step sequencer grids)
  * - Waveform Displays (oscilloscope visualization)
  * - Patch Points (modular routing jacks)
- * 
+ *
  * Features:
  * - Mobile-responsive touch controls
  * - Accessibility (keyboard navigation, ARIA labels)
@@ -25,12 +25,12 @@ class UIComponents {
             theme: options.theme || 'dark',
             accentColor: options.accentColor || '#00d4ff',
             secondaryColor: options.secondaryColor || '#ff00ff',
-            ...options
+            ...options,
         };
-        
+
         this.components = new Map();
         this.activeInteractions = new Map();
-        
+
         // Inject default styles
         this._injectStyles();
     }
@@ -52,7 +52,7 @@ class UIComponents {
             decimals = 0,
             onChange = null,
             bipolar = false, // Center at 50%
-            logarithmic = false
+            logarithmic = false,
         } = config;
 
         const container = document.createElement('div');
@@ -85,29 +85,36 @@ class UIComponents {
 
         // State
         const state = {
-            min, max, value, step, unit, decimals, bipolar, logarithmic,
+            min,
+max,
+value,
+step,
+unit,
+decimals,
+bipolar,
+logarithmic,
             isDragging: false,
             startY: 0,
-            startValue: value
+            startValue: value,
         };
 
         // Update visual
         const updateVisual = (newValue) => {
             state.value = Math.max(min, Math.min(max, newValue));
-            
+
             // Calculate rotation (-135° to +135°, total 270°)
             const range = max - min;
             const normalized = (state.value - min) / range;
             const rotation = (normalized * 270) - 135;
-            
+
             indicator.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
-            
+
             // Update value display
             const displayValue = state.value.toFixed(decimals);
             valueDisplay.textContent = `${displayValue}${unit}`;
-            
+
             container.setAttribute('aria-valuenow', state.value);
-            
+
             if (onChange) {
                 onChange(state.value);
             }
@@ -124,17 +131,17 @@ class UIComponents {
 
         const drag = (e) => {
             if (!state.isDragging) return;
-            
+
             const clientY = e.clientY || (e.touches && e.touches[0].clientY);
             const deltaY = state.startY - clientY; // Inverted (up = increase)
-            
+
             // Sensitivity: 200px = full range
             const sensitivity = (max - min) / 200;
             let newValue = state.startValue + (deltaY * sensitivity);
-            
+
             // Apply step
             newValue = Math.round(newValue / step) * step;
-            
+
             updateVisual(newValue);
             e.preventDefault();
         };
@@ -159,7 +166,7 @@ class UIComponents {
                 updateVisual(max);
                 return;
             }
-            
+
             if (delta !== 0) {
                 updateVisual(state.value + delta);
                 e.preventDefault();
@@ -170,11 +177,11 @@ class UIComponents {
         visual.addEventListener('mousedown', startDrag);
         document.addEventListener('mousemove', drag);
         document.addEventListener('mouseup', endDrag);
-        
+
         visual.addEventListener('touchstart', startDrag, { passive: false });
         document.addEventListener('touchmove', drag, { passive: false });
         document.addEventListener('touchend', endDrag);
-        
+
         container.addEventListener('keydown', handleKey);
 
         // Double-click to reset
@@ -200,7 +207,7 @@ class UIComponents {
                 document.removeEventListener('touchend', endDrag);
                 container.remove();
                 this.components.delete(id);
-            }
+            },
         });
 
         return container;
@@ -223,7 +230,7 @@ class UIComponents {
             decimals = 0,
             onChange = null,
             orientation = 'horizontal', // or 'vertical'
-            bipolar = false
+            bipolar = false,
         } = config;
 
         const container = document.createElement('div');
@@ -303,7 +310,7 @@ class UIComponents {
             destroy: () => {
                 container.remove();
                 this.components.delete(id);
-            }
+            },
         });
 
         return container;
@@ -322,7 +329,7 @@ class UIComponents {
             icon = null,
             active = false,
             onClick = null,
-            className = ''
+            className = '',
         } = config;
 
         const button = document.createElement('button');
@@ -372,7 +379,7 @@ class UIComponents {
             destroy: () => {
                 button.remove();
                 this.components.delete(id);
-            }
+            },
         });
 
         return button;
@@ -389,7 +396,7 @@ class UIComponents {
             label = '',
             color = 'blue', // 'blue', 'red', 'green', 'yellow', 'purple'
             active = false,
-            blinking = false
+            blinking = false,
         } = config;
 
         const container = document.createElement('div');
@@ -422,7 +429,7 @@ class UIComponents {
             destroy: () => {
                 container.remove();
                 this.components.delete(id);
-            }
+            },
         });
 
         return container;
@@ -441,7 +448,7 @@ class UIComponents {
             labels = ['Kick', 'Snare', 'HiHat', 'Perc'],
             pattern = null, // Initial pattern (2D array)
             onStepChange = null,
-            onStepTrigger = null
+            onStepTrigger = null,
         } = config;
 
         const container = document.createElement('div');
@@ -523,7 +530,7 @@ class UIComponents {
                 if (step >= 0 && step < steps) {
                     for (let row = 0; row < rows; row++) {
                         buttons[row][step].classList.add('current-step');
-                        
+
                         // Trigger callback if step is active
                         if (gridData[row][step] && onStepTrigger) {
                             onStepTrigger(row, step);
@@ -552,7 +559,7 @@ class UIComponents {
             destroy: () => {
                 container.remove();
                 this.components.delete(id);
-            }
+            },
         });
 
         return container;
@@ -570,7 +577,7 @@ class UIComponents {
             height = 150,
             backgroundColor = '#000000',
             waveColor = '#00d4ff',
-            gridColor = '#333333'
+            gridColor = '#333333',
         } = config;
 
         const canvas = document.createElement('canvas');
@@ -670,7 +677,7 @@ class UIComponents {
                 }
                 canvas.remove();
                 this.components.delete(id);
-            }
+            },
         });
 
         return canvas;
@@ -687,7 +694,7 @@ class UIComponents {
             label = 'OUT',
             type = 'output', // 'input' or 'output'
             onConnect = null,
-            onDisconnect = null
+            onDisconnect = null,
         } = config;
 
         const container = document.createElement('div');
@@ -734,7 +741,7 @@ class UIComponents {
             destroy: () => {
                 container.remove();
                 this.components.delete(id);
-            }
+            },
         });
 
         return container;

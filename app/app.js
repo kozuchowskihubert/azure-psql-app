@@ -297,9 +297,9 @@ app.get('/health', async (req, res) => {
   try {
     const client = await Promise.race([
       pool.connect(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000))
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000)),
     ]);
-    
+
     if (client) {
       try {
         await client.query('SELECT 1');
@@ -323,6 +323,7 @@ app.get('/health', async (req, res) => {
  * Real-time code metrics for development dashboard
  */
 const { getCodeStatsHandler } = require('./utils/code-stats');
+
 app.get('/api/code-stats', getCodeStatsHandler);
 
 // ============================================================================

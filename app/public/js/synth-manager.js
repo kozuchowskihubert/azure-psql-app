@@ -1,7 +1,7 @@
 /**
  * HAOS.fm Synth Manager
  * Central management for all modular synthesizers
- * 
+ *
  * Integrates:
  * - TB-303 Acid Bass
  * - TR-808 Drum Machine
@@ -33,19 +33,19 @@ class SynthManager {
         try {
             // Create audio context
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
+
             // Initialize all synths
             this.synths.tb303 = new TB303(this.audioContext);
             this.synths.tr808 = new TR808(this.audioContext);
             this.synths.arp2600 = new ARP2600(this.audioContext);
             this.synths.stringMachine = new StringMachine(this.audioContext);
-            
+
             this.initialized = true;
             console.log('✅ Synth Manager initialized with:', Object.keys(this.synths));
-            
+
             // Add to window for global access
             window.synthManager = this;
-            
+
             return this;
         } catch (error) {
             console.error('❌ Failed to initialize Synth Manager:', error);
@@ -83,14 +83,14 @@ class SynthManager {
     getARP2600() {
         return this.synths.arp2600;
     }
-    
+
     /**
      * Get String Machine instance
      */
     getStringMachine() {
         return this.synths.stringMachine;
     }
-    
+
     /**
      * Play string chord (convenience method)
      */
@@ -98,19 +98,19 @@ class SynthManager {
         const stringMachine = this.getStringMachine();
         return stringMachine.playChord(notes, duration, velocity);
     }
-    
+
     /**
      * Modulate ARP-2600 with String Machine output
      */
     modulateARP2600WithStrings(enabled = true, amount = 0.5) {
         const arp = this.getARP2600();
         const strings = this.getStringMachine();
-        
+
         if (enabled) {
             // Create a gain node from string machine that can modulate the ARP
             const modSource = this.audioContext.createGain();
             modSource.gain.value = amount;
-            
+
             arp.setExternalModulation(true, modSource, amount, 'filter');
             console.log('✅ ARP-2600 modulated by String Machine');
         } else {
@@ -180,9 +180,9 @@ class SynthManager {
                     note: ['C3', 'D#3', 'G3', 'A#3', 'C4'][i % 5],
                     accent: [0, 14].includes(i),
                     slide: [3, 10].includes(i),
-                    gate: false
+                    gate: false,
                 })),
-                params: { cutoff: 800, resonance: 80, envMod: 70, decay: 0.3 }
+                params: { cutoff: 800, resonance: 80, envMod: 70, decay: 0.3 },
             },
             'minimal-303': {
                 name: 'Minimal Techno',
@@ -191,9 +191,9 @@ class SynthManager {
                     note: 'C3',
                     accent: i === 0,
                     slide: false,
-                    gate: true
+                    gate: true,
                 })),
-                params: { cutoff: 600, resonance: 60, envMod: 50, decay: 0.5 }
+                params: { cutoff: 600, resonance: 60, envMod: 50, decay: 0.5 },
             },
             'squelch-303': {
                 name: 'Squelchy Bass',
@@ -202,10 +202,10 @@ class SynthManager {
                     note: ['C3', 'C3', 'D#3', 'D#3', 'F3', 'F3', 'G3', 'G3'][i % 8],
                     accent: i % 4 === 0,
                     slide: i % 4 === 2,
-                    gate: false
+                    gate: false,
                 })),
-                params: { cutoff: 1200, resonance: 90, envMod: 80, decay: 0.2 }
-            }
+                params: { cutoff: 1200, resonance: 90, envMod: 80, decay: 0.2 },
+            },
         };
     }
 
@@ -217,30 +217,30 @@ class SynthManager {
             'four-on-floor': {
                 name: 'Four on the Floor',
                 pattern: {
-                    kick: [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
-                    snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-                    hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-                    openhat: [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0]
-                }
+                    kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+                    snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+                    hihat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+                    openhat: [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+                },
             },
             'hard-techno': {
                 name: 'Hard Techno',
                 pattern: {
-                    kick: [1,0,0,0, 1,0,1,0, 1,0,0,0, 1,0,1,0],
-                    snare: [0,0,0,0, 1,0,0,0, 0,0,0,1, 1,0,0,0],
-                    hihat: [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
-                    clap: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,1]
-                }
+                    kick: [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+                    snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+                    hihat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    clap: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+                },
             },
             'trap-808': {
                 name: 'Trap Pattern',
                 pattern: {
-                    kick: [1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,1,0],
-                    snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-                    hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-                    rim: [0,0,0,1, 0,0,0,1, 0,0,0,1, 0,0,0,1]
-                }
-            }
+                    kick: [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+                    snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+                    hihat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+                    rim: [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+                },
+            },
         };
     }
 
@@ -257,8 +257,8 @@ class SynthManager {
                     vco3: { waveform: 'noise', level: 10 },
                     vcf: { cutoff: 1200, resonance: 70, envAmount: 60 },
                     vca: { level: 80 },
-                    adsr: { attack: 0.01, decay: 0.3, sustain: 0.5, release: 0.5 }
-                }
+                    adsr: { attack: 0.01, decay: 0.3, sustain: 0.5, release: 0.5 },
+                },
             },
             'bass-drone': {
                 name: 'Bass Drone',
@@ -268,8 +268,8 @@ class SynthManager {
                     vco3: { waveform: 'sub', level: 80 },
                     vcf: { cutoff: 400, resonance: 80, envAmount: 40 },
                     vca: { level: 90 },
-                    adsr: { attack: 0.1, decay: 0.5, sustain: 0.8, release: 1.0 }
-                }
+                    adsr: { attack: 0.1, decay: 0.5, sustain: 0.8, release: 1.0 },
+                },
             },
             'space-pad': {
                 name: 'Space Pad',
@@ -279,12 +279,12 @@ class SynthManager {
                     vco3: { waveform: 'triangle', level: 30 },
                     vcf: { cutoff: 2000, resonance: 40, envAmount: 50 },
                     vca: { level: 70 },
-                    adsr: { attack: 0.5, decay: 0.5, sustain: 0.7, release: 2.0 }
-                }
-            }
+                    adsr: { attack: 0.5, decay: 0.5, sustain: 0.7, release: 2.0 },
+                },
+            },
         };
     }
-    
+
     /**
      * Get presets for String Machine
      */
@@ -298,16 +298,16 @@ class SynthManager {
     loadTB303Preset(presetName) {
         const presets = this.getTB303Presets();
         const preset = presets[presetName];
-        
+
         if (!preset) {
             console.error('TB-303 preset not found:', presetName);
             return false;
         }
-        
+
         const synth = this.getTB303();
         synth.setPattern(preset.pattern);
         synth.setParams(preset.params);
-        
+
         console.log('✅ Loaded TB-303 preset:', preset.name);
         return true;
     }
@@ -318,15 +318,15 @@ class SynthManager {
     loadTR808Preset(presetName) {
         const presets = this.getTR808Presets();
         const preset = presets[presetName];
-        
+
         if (!preset) {
             console.error('TR-808 preset not found:', presetName);
             return false;
         }
-        
+
         const synth = this.getTR808();
         synth.setPattern(preset.pattern);
-        
+
         console.log('✅ Loaded TR-808 preset:', preset.name);
         return true;
     }
@@ -337,32 +337,32 @@ class SynthManager {
     loadARP2600Preset(presetName) {
         const presets = this.getARP2600Presets();
         const preset = presets[presetName];
-        
+
         if (!preset) {
             console.error('ARP-2600 preset not found:', presetName);
             return false;
         }
-        
+
         const synth = this.getARP2600();
         synth.loadPatch(preset.patch);
-        
+
         console.log('✅ Loaded ARP-2600 preset:', preset.name);
         return true;
     }
-    
+
     /**
      * Load and apply a String Machine preset
      */
     loadStringMachinePreset(presetName) {
         const synth = this.getStringMachine();
         const success = synth.loadPreset(presetName);
-        
+
         if (success) {
             console.log('✅ Loaded String Machine preset:', presetName);
         } else {
             console.error('String Machine preset not found:', presetName);
         }
-        
+
         return success;
     }
 }

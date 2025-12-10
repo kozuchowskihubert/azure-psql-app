@@ -15,11 +15,11 @@ console.log('✅ Page loaded successfully\n');
 console.log('Test 2: Global Objects Check');
 const requiredGlobals = [
     'playInstantSound',
-    'playDemoSequence', 
+    'playDemoSequence',
     'testAllEngines',
     'generateRandomTrack',
     'loadPreset',
-    'initHAOSSystem'
+    'initHAOSSystem',
 ];
 
 requiredGlobals.forEach(name => {
@@ -76,9 +76,9 @@ function checkEngines() {
         'DAW Engine': window.daw,
         'AI Designer': window.aiDesigner,
         'Track Integrator': window.trackIntegrator,
-        'Audio Context': window.audioContext
+        'Audio Context': window.audioContext,
     };
-    
+
     Object.entries(engines).forEach(([name, engine]) => {
         console.log(`- ${name}: ${engine ? '✅ Available' : '❌ Not available'}`);
     });
@@ -87,26 +87,26 @@ function checkEngines() {
 // Test 7: Sound playback test
 async function testSoundPlayback() {
     console.log('\nTest 7: Sound Playback Test');
-    
+
     if (!window.audioContext) {
         console.log('❌ Audio context not initialized');
         return;
     }
-    
+
     console.log('✅ Audio context active');
     console.log(`- State: ${window.audioContext.state}`);
     console.log(`- Sample rate: ${window.audioContext.sampleRate} Hz`);
-    
+
     // Test each sound type
     const testSounds = [
         { type: 'bass', note: 'C2', label: 'TB-303 Bass' },
         { type: 'kick', note: null, label: 'TR-808 Kick' },
         { type: 'lead', note: 'C4', label: 'ARP-2600 Lead' },
-        { type: 'pad', note: 'Cmaj', label: 'String Pad' }
+        { type: 'pad', note: 'Cmaj', label: 'String Pad' },
     ];
-    
+
     console.log('\n🎵 Testing sound playback (listen for sounds)...');
-    
+
     for (let i = 0; i < testSounds.length; i++) {
         const sound = testSounds[i];
         await new Promise(resolve => {
@@ -132,11 +132,11 @@ async function testSoundPlayback() {
 async function testDemoSequence() {
     console.log('\n\nTest 8: Demo Sequence Test');
     console.log('⏳ Playing demo sequence (3.5 seconds)...');
-    
+
     try {
         window.playDemoSequence();
         console.log('✅ Demo sequence started');
-        
+
         await new Promise(resolve => setTimeout(resolve, 4000));
         console.log('✅ Demo sequence completed');
     } catch (err) {
@@ -148,7 +148,7 @@ async function testDemoSequence() {
 async function testPresets() {
     console.log('\n\nTest 9: Preset Loading Test');
     const presets = ['acid-minimal', 'industrial-hard', 'detroit-classic'];
-    
+
     for (const preset of presets) {
         try {
             console.log(`\n- Loading preset: ${preset}`);
@@ -178,31 +178,31 @@ async function runAllTests() {
     console.log('═══════════════════════════════════════════════');
     console.log('  HAOS INTUITIVE CREATOR - SOUND TEST SUITE');
     console.log('═══════════════════════════════════════════════\n');
-    
+
     // Wait for system initialization
     const initialized = await waitForSystem();
-    
+
     if (initialized) {
         console.log('✅ HAOS system initialized successfully');
-        
+
         // Check engines
         checkEngines();
-        
+
         // Wait a bit for engines to be ready
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         // Test sound playback
         await testSoundPlayback();
-        
+
         // Test demo sequence
         await testDemoSequence();
-        
+
         // Test presets
         await testPresets();
-        
+
         // Show keyboard controls
         testKeyboardControls();
-        
+
         // Final summary
         console.log('\n\n═══════════════════════════════════════════════');
         console.log('  TEST SUITE COMPLETE');
@@ -222,7 +222,7 @@ async function runAllTests() {
         console.log('4. Click "TEST ALL ENGINES" button');
         console.log('5. Click "PLAY DEMO SEQUENCE" button');
         console.log('\n🎵 Happy music making!');
-        
+
     } else {
         console.log('❌ System initialization failed');
         console.log('\n💡 Troubleshooting:');

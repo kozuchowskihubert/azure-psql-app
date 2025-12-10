@@ -14,7 +14,7 @@ if (!databaseUrl) {
       throw new Error('Database not configured');
     },
     end: async () => {},
-    on: () => {}
+    on: () => {},
   };
 } else {
   const pool = new Pool({
@@ -25,7 +25,7 @@ if (!databaseUrl) {
     idleTimeoutMillis: 30000,
     max: 10,
     // Allow graceful degradation
-    allowExitOnIdle: true
+    allowExitOnIdle: true,
   });
 
   // Handle pool errors gracefully

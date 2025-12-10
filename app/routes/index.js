@@ -1,6 +1,8 @@
 const express = require('express');
 
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 const notesRoutes = require('./notes');
 const healthRoutes = require('./health');
 const pwaRoutes = require('./pwa');
@@ -9,8 +11,6 @@ const featuresRoutes = require('./features');
 const patchesRoutes = require('./patches');
 const studioApiRoutes = require('./studio-api');
 const tracksRoutes = require('./tracks');
-const fs = require('fs');
-const path = require('path');
 
 // API Routes
 router.use('/notes', notesRoutes);
@@ -25,7 +25,7 @@ router.use('/tracks', tracksRoutes);
 router.get('/presets', (req, res) => {
   try {
     const factoryPresetsPath = path.join(__dirname, '../data/factory-presets.json');
-    
+
     if (!fs.existsSync(factoryPresetsPath)) {
       return res.json({
         success: true,
@@ -33,24 +33,24 @@ router.get('/presets', (req, res) => {
         tr909: [],
         tr808: [],
         arp2600: [],
-        total: 0
+        total: 0,
       });
     }
-    
+
     const factoryPresets = JSON.parse(fs.readFileSync(factoryPresetsPath, 'utf8'));
-    
+
     // Group by type
     const grouped = {
-      tb303: factoryPresets.filter(p => p.type === 'tb303'),
-      tr909: factoryPresets.filter(p => p.type === 'tr909'),
-      tr808: factoryPresets.filter(p => p.type === 'tr808'),
-      arp2600: factoryPresets.filter(p => p.type === 'arp2600'),
-      total: factoryPresets.length
+      tb303: factoryPresets.filter((p) => p.type === 'tb303'),
+      tr909: factoryPresets.filter((p) => p.type === 'tr909'),
+      tr808: factoryPresets.filter((p) => p.type === 'tr808'),
+      arp2600: factoryPresets.filter((p) => p.type === 'arp2600'),
+      total: factoryPresets.length,
     };
-    
+
     res.json({
       success: true,
-      ...grouped
+      ...grouped,
     });
   } catch (error) {
     console.error('Error loading presets:', error);
@@ -61,7 +61,7 @@ router.get('/presets', (req, res) => {
       tr909: [],
       tr808: [],
       arp2600: [],
-      total: 0
+      total: 0,
     });
   }
 });

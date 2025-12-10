@@ -28,7 +28,7 @@ class PresetMapper {
                 // FX (3)
                 { name: 'Wobble', category: 'FX', cutoff: 400, resonance: 20, envMod: 0.9, decay: 0.8 },
                 { name: 'Metallic', category: 'FX', cutoff: 1800, resonance: 35, envMod: 0.65, decay: 0.12 },
-                { name: 'Industrial', category: 'FX', cutoff: 1600, resonance: 38, envMod: 0.9, decay: 0.1 }
+                { name: 'Industrial', category: 'FX', cutoff: 1600, resonance: 38, envMod: 0.9, decay: 0.1 },
             ],
             // TR-909 Presets (9 total)
             tr909: [
@@ -44,7 +44,7 @@ class PresetMapper {
                 { name: '909 Classic Kit', category: 'Classic', bpm: 120 },
                 // Kick (2)
                 { name: 'Deep Techno Kick', category: 'Kick', bpm: 128 },
-                { name: 'Sub Kick', category: 'Kick', bpm: 128 }
+                { name: 'Sub Kick', category: 'Kick', bpm: 128 },
             ],
             // TR-808 Presets (10 total)
             tr808: [
@@ -61,16 +61,16 @@ class PresetMapper {
                 // Electronic (1)
                 { name: 'Footwork', category: 'Electronic', bpm: 160 },
                 // Bass (1)
-                { name: '808 Sub Bass', category: 'Bass', bpm: 128 }
-            ]
+                { name: '808 Sub Bass', category: 'Bass', bpm: 128 },
+            ],
         };
     }
-    
+
     getPreset(synth, name) {
         if (!this.presets[synth]) return null;
         return this.presets[synth].find(p => p.name === name) || this.presets[synth][0];
     }
-    
+
     getAllPresets(synth) {
         return this.presets[synth] || [];
     }

@@ -46,11 +46,11 @@ class FeatureFlagManager {
 
         } catch (error) {
             console.error('❌ Failed to load feature flags:', error);
-            
+
             // Fallback: all features enabled
             this.config = this.getDefaultConfig();
             this.loaded = true;
-            
+
             console.warn('⚠️ Using default feature configuration (all enabled)');
             return this.config;
         }
@@ -130,7 +130,7 @@ class FeatureFlagManager {
                 enabled.push({
                     key,
                     description: feature.description,
-                    beta: feature.beta || false
+                    beta: feature.beta || false,
                 });
             }
         }
@@ -164,7 +164,7 @@ class FeatureFlagManager {
         try {
             const cacheData = {
                 data: config,
-                timestamp: Date.now()
+                timestamp: Date.now(),
             };
             localStorage.setItem(this.cacheKey, JSON.stringify(cacheData));
         } catch (e) {
@@ -194,15 +194,15 @@ class FeatureFlagManager {
                         midi_export: { enabled: true, description: 'MIDI Export', beta: false },
                         audio_recording: { enabled: true, description: 'Audio Recording', beta: false },
                         pattern_management: { enabled: true, description: 'Pattern Management', beta: false },
-                        tb303_presets: { enabled: true, description: 'TB-303 Presets', beta: false }
-                    }
+                        tb303_presets: { enabled: true, description: 'TB-303 Presets', beta: false },
+                    },
                 },
                 global: {
                     maintenance_mode: false,
                     show_beta_features: false,
-                    debug_mode: false
-                }
-            }
+                    debug_mode: false,
+                },
+            },
         };
     }
 
@@ -220,10 +220,10 @@ class FeatureFlagManager {
         console.log('Last Updated:', this.config.lastUpdated);
         console.log('Show Beta:', this.showBetaFeatures());
         console.log('Maintenance Mode:', this.isMaintenanceMode());
-        
+
         for (const [module, moduleConfig] of Object.entries(this.config.features)) {
             if (module === 'global') continue;
-            
+
             console.group(`📦 ${module}`);
             if (moduleConfig.subFeatures) {
                 for (const [feature, config] of Object.entries(moduleConfig.subFeatures)) {

@@ -4,11 +4,10 @@ async function ensureTable() {
   try {
     const client = await Promise.race([
       pool.connect(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database connection timeout after 5s')), 5000)
-      )
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Database connection timeout after 5s')), 5000),
+      ),
     ]);
-    
+
     try {
       await client.query(`
         CREATE TABLE IF NOT EXISTS notes (

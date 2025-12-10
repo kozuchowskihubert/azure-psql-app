@@ -1,9 +1,9 @@
 /**
  * Drum Synthesis Module
- * 
+ *
  * Professional drum synthesizer supporting both trap and techno styles.
  * Includes kick, snare, hi-hat, clap, and percussion synthesis.
- * 
+ *
  * Features:
  * - Multiple drum voices (kick, snare, hi-hat, clap, perc)
  * - Style presets (trap, techno, 808, 909, acoustic)
@@ -11,7 +11,7 @@
  * - Pattern-based triggering
  * - Velocity sensitivity
  * - Pitch and tone control
- * 
+ *
  * @module Drums
  * @version 2.6.0
  */
@@ -32,47 +32,47 @@ class Drums {
                 decay: options.kickDecay || 0.3,
                 punch: options.kickPunch || 0.8,
                 gain: options.kickGain || 1.0,
-                ...options.kick
+                ...options.kick,
             },
             snare: {
                 pitch: options.snarePitch || 200,
                 decay: options.snareDecay || 0.12,
                 snap: options.snareSnap || 0.7,
                 gain: options.snareGain || 0.6,
-                ...options.snare
+                ...options.snare,
             },
             hihat: {
                 decay: options.hihatDecay || 0.05,
                 tone: options.hihatTone || 7000,
                 gain: options.hihatGain || 0.4,
-                ...options.hihat
+                ...options.hihat,
             },
             clap: {
                 decay: options.clapDecay || 0.1,
                 tone: options.clapTone || 1500,
                 gain: options.clapGain || 0.5,
-                ...options.clap
+                ...options.clap,
             },
             perc: {
                 pitch: options.percPitch || 800,
                 decay: options.percDecay || 0.08,
                 gain: options.percGain || 0.4,
-                ...options.perc
+                ...options.perc,
             },
             ride: {
                 decay: options.rideDecay || 1.5,
                 tone: options.rideTone || 4000,
                 gain: options.rideGain || 0.35,
                 bell: options.rideBell || 0.3,
-                ...options.ride
+                ...options.ride,
             },
             crash: {
                 decay: options.crashDecay || 2.5,
                 tone: options.crashTone || 6000,
                 gain: options.crashGain || 0.45,
                 splash: options.crashSplash || 0.5,
-                ...options.crash
-            }
+                ...options.crash,
+            },
         };
 
         // Audio nodes (created dynamically per trigger)
@@ -86,7 +86,7 @@ class Drums {
             clap: 'classic',
             perc: 'tom',
             ride: 'classic',
-            crash: 'classic'
+            crash: 'classic',
         };
 
         // Variation definitions
@@ -95,40 +95,40 @@ class Drums {
                 classic: { pitch: 150, endPitch: 40, duration: 0.3, clickGain: 0.5, bodyGain: 1.0 },
                 deep: { pitch: 100, endPitch: 30, duration: 0.5, clickGain: 0.3, bodyGain: 1.2 },
                 hard: { pitch: 180, endPitch: 50, duration: 0.25, clickGain: 0.8, bodyGain: 1.0 },
-                industrial: { pitch: 150, endPitch: 40, duration: 0.3, clickGain: 1.0, bodyGain: 0.8, noise: true }
+                industrial: { pitch: 150, endPitch: 40, duration: 0.3, clickGain: 1.0, bodyGain: 0.8, noise: true },
             },
             snare: {
                 classic: { pitch: 200, snap: 0.7, tone: 3000, decay: 0.12 },
                 tight: { pitch: 250, snap: 1.0, tone: 3500, decay: 0.08 },
-                bright: { pitch: 220, snap: 0.8, tone: 4000, decay: 0.1 }
+                bright: { pitch: 220, snap: 0.8, tone: 4000, decay: 0.1 },
             },
             hihat: {
                 classic: { tone: 8000, decay: 0.05, resonance: 1 },
                 bright: { tone: 12000, decay: 0.04, resonance: 1.5 },
                 metallic: { tone: 9000, decay: 0.06, resonance: 2 },
-                open: { tone: 7000, decay: 0.2, resonance: 0.8 }
+                open: { tone: 7000, decay: 0.2, resonance: 0.8 },
             },
             clap: {
                 classic: { tone: 1500, decay: 0.1, layers: 3 },
                 tight: { tone: 2000, decay: 0.05, layers: 2 },
-                reverb: { tone: 1200, decay: 0.25, layers: 4 }
+                reverb: { tone: 1200, decay: 0.25, layers: 4 },
             },
             perc: {
                 tom: { pitch: 800, endPitch: 400, decay: 0.08 },
                 rim: { pitch: 2000, endPitch: 2000, decay: 0.02 },
                 conga: { pitch: 350, endPitch: 300, decay: 0.12 },
-                cowbell: { pitch: 800, endPitch: 800, decay: 0.15 }
+                cowbell: { pitch: 800, endPitch: 800, decay: 0.15 },
             },
             ride: {
                 classic: { tone: 4000, decay: 1.5, bell: 0.3 },
                 bright: { tone: 5000, decay: 1.3, bell: 0.4 },
-                dark: { tone: 3200, decay: 1.8, bell: 0.2 }
+                dark: { tone: 3200, decay: 1.8, bell: 0.2 },
             },
             crash: {
                 classic: { tone: 6000, decay: 2.5, splash: 0.5 },
                 splash: { tone: 7000, decay: 1.8, splash: 0.8 },
-                dark: { tone: 5000, decay: 3.0, splash: 0.3 }
-            }
+                dark: { tone: 5000, decay: 3.0, splash: 0.3 },
+            },
         };
     }
 
@@ -169,7 +169,7 @@ class Drums {
         // === Dual Oscillator Architecture ===
         // Body oscillator (low sine for sub-bass)
         const bodyOsc = this.engine.createOscillator('sine', params.pitch);
-        
+
         // Punch oscillator (higher frequency for attack)
         const punchOsc = this.engine.createOscillator('sine', params.pitch * 2.5);
 
@@ -220,7 +220,7 @@ class Drums {
         // === Start/stop oscillators ===
         bodyOsc.start(now);
         punchOsc.start(now);
-        
+
         const stopTime = now + params.decay + 0.1;
         bodyOsc.stop(stopTime);
         punchOsc.stop(stopTime);
@@ -293,7 +293,7 @@ class Drums {
         // === Start/stop ===
         toneOsc.start(now);
         noise.start(now);
-        
+
         const stopTime = now + params.decay + 0.05;
         toneOsc.stop(stopTime);
         noise.stop(stopTime);
@@ -369,7 +369,7 @@ class Drums {
         // === Start/stop ===
         oscillators.forEach(osc => osc.start(now));
         noise.start(now);
-        
+
         const stopTime = now + decay + 0.02;
         oscillators.forEach(osc => osc.stop(stopTime));
         noise.stop(stopTime);
@@ -473,7 +473,7 @@ class Drums {
             params.tone * 1.0,
             params.tone * 1.25,
             params.tone * 1.5,
-            params.tone * 1.8
+            params.tone * 1.8,
         ];
         const oscillators = frequencies.map(freq => {
             const osc = this.engine.createOscillator('square', freq);
@@ -536,7 +536,7 @@ class Drums {
         oscillators.forEach(osc => osc.start(now));
         bellOsc.start(now);
         noise.start(now);
-        
+
         const stopTime = now + params.decay + 0.05;
         oscillators.forEach(osc => osc.stop(stopTime));
         bellOsc.stop(stopTime);
@@ -573,7 +573,7 @@ class Drums {
             params.tone * 1.0,
             params.tone * 1.4,
             params.tone * 1.7,
-            params.tone * 2.1
+            params.tone * 2.1,
         ];
         const oscillators = frequencies.map(freq => {
             const osc = this.engine.createOscillator('square', freq);
@@ -639,7 +639,7 @@ class Drums {
         oscillators.forEach(osc => osc.start(now));
         noise.start(now);
         splashNoise.start(now);
-        
+
         const stopTime = now + params.decay + 0.1;
         oscillators.forEach(osc => osc.stop(stopTime));
         noise.stop(stopTime);
@@ -783,7 +783,7 @@ class Drums {
                 clap: { decay: 0.1, tone: 1500, gain: 0.6 },
                 perc: { pitch: 800, decay: 0.08, gain: 0.4 },
                 ride: { decay: 1.8, tone: 4200, bell: 0.25, gain: 0.3 },
-                crash: { decay: 2.2, tone: 6500, splash: 0.6, gain: 0.4 }
+                crash: { decay: 2.2, tone: 6500, splash: 0.6, gain: 0.4 },
             },
             // Techno 909 style
             techno: {
@@ -793,27 +793,27 @@ class Drums {
                 clap: { decay: 0.12, tone: 1800, gain: 0.5 },
                 perc: { pitch: 900, decay: 0.06, gain: 0.35 },
                 ride: { decay: 1.5, tone: 4000, bell: 0.3, gain: 0.35 },
-                crash: { decay: 2.5, tone: 6000, splash: 0.5, gain: 0.45 }
+                crash: { decay: 2.5, tone: 6000, splash: 0.5, gain: 0.45 },
             },
             // Classic 808
-            '808': {
+            808: {
                 kick: { pitch: 60, decay: 0.5, punch: 1.0, gain: 1.0 },
                 snare: { pitch: 220, decay: 0.15, snap: 0.9, gain: 0.6 },
                 hihat: { decay: 0.03, tone: 7000, gain: 0.3 },
                 clap: { decay: 0.08, tone: 1200, gain: 0.5 },
                 perc: { pitch: 850, decay: 0.1, gain: 0.4 },
                 ride: { decay: 1.6, tone: 3800, bell: 0.2, gain: 0.3 },
-                crash: { decay: 2.0, tone: 5500, splash: 0.4, gain: 0.4 }
+                crash: { decay: 2.0, tone: 5500, splash: 0.4, gain: 0.4 },
             },
             // 909 style
-            '909': {
+            909: {
                 kick: { pitch: 45, decay: 0.25, punch: 0.6, gain: 1.0 },
                 snare: { pitch: 150, decay: 0.08, snap: 0.5, gain: 0.65 },
                 hihat: { decay: 0.06, tone: 10000, gain: 0.45 },
                 clap: { decay: 0.15, tone: 2000, gain: 0.55 },
                 perc: { pitch: 1000, decay: 0.05, gain: 0.3 },
                 ride: { decay: 1.7, tone: 4500, bell: 0.35, gain: 0.4 },
-                crash: { decay: 2.8, tone: 6800, splash: 0.5, gain: 0.5 }
+                crash: { decay: 2.8, tone: 6800, splash: 0.5, gain: 0.5 },
             },
             // Minimal
             minimal: {
@@ -823,7 +823,7 @@ class Drums {
                 clap: { decay: 0.1, tone: 1600, gain: 0.45 },
                 perc: { pitch: 750, decay: 0.04, gain: 0.3 },
                 ride: { decay: 1.3, tone: 3500, bell: 0.15, gain: 0.25 },
-                crash: { decay: 1.8, tone: 5000, splash: 0.3, gain: 0.35 }
+                crash: { decay: 1.8, tone: 5000, splash: 0.3, gain: 0.35 },
             },
             // Hard
             hard: {
@@ -833,8 +833,8 @@ class Drums {
                 clap: { decay: 0.12, tone: 1400, gain: 0.7 },
                 perc: { pitch: 950, decay: 0.09, gain: 0.5 },
                 ride: { decay: 1.4, tone: 4200, bell: 0.4, gain: 0.35 },
-                crash: { decay: 2.3, tone: 6200, splash: 0.6, gain: 0.45 }
-            }
+                crash: { decay: 2.3, tone: 6200, splash: 0.6, gain: 0.45 },
+            },
         };
 
         const preset = presets[presetName];
@@ -855,25 +855,25 @@ class Drums {
         return {
             // Basic trap beat
             trapBasic: {
-                kick:   [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                snare:  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-                hihat:  [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-                clap:   [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+                kick: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+                snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+                hihat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+                clap: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
             },
             // Four-on-the-floor techno
             technoBasic: {
-                kick:   [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
-                snare:  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-                hihat:  [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-                clap:   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+                snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+                hihat: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+                clap: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             },
             // Rolling hi-hats
             trapRolling: {
-                kick:   [1, 0, 0, 0, 0, 0, 0.7, 0, 1, 0, 0, 0, 0, 0, 0.6, 0],
-                snare:  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-                hihat:  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.8, 0.6],
-                clap:   [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
-            }
+                kick: [1, 0, 0, 0, 0, 0, 0.7, 0, 1, 0, 0, 0, 0, 0, 0.6, 0],
+                snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+                hihat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.8, 0.6],
+                clap: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+            },
         };
     }
 

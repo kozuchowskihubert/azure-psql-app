@@ -343,11 +343,11 @@ class Synth2600Studio {
         try {
             console.log('Loading presets from API...');
             const response = await fetch('/api/music/synth2600/presets');
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const data = await response.json();
             console.log('Preset data received:', data);
 
@@ -431,7 +431,7 @@ class Synth2600Studio {
                 });
             }
         });
-        
+
         // Show message if no presets loaded
         if (Object.keys(this.presets).length === 0) {
             container.innerHTML = '<p style="color: var(--text-secondary); padding: 20px; text-align: center;">No presets available</p>';

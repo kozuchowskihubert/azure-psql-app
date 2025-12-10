@@ -15,94 +15,94 @@ export class AudioRecorder {
         this.startTime = 0;
         this.pauseTime = 0;
         this.totalPauseDuration = 0;
-        
+
         // Beat matching
         this.currentBPM = 120;
         this.beatsPerBar = 4;
         this.quantizeEnabled = true;
         this.metronomeEnabled = false;
-        
+
         // Audio nodes
         this.inputNode = null;
         this.analyserNode = null;
         this.gainNode = null;
         this.metronomeSynth = null;
-        
+
         // Playback
         this.playbackNodes = new Map();
         this.scheduledRecordings = [];
-        
+
         // Storage
         this.storageKey = 'haos_recordings';
         this.loadRecordingsFromStorage();
-        
+
         this.initializeMetronome();
     }
-    
+
     /**
      * Initialize recording with microphone input
      */
     async initializeRecording() {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
+            const stream = await navigator.mediaDevices.getUserMedia({
                 audio: {
                     echoCancellation: true,
                     noiseSuppression: true,
                     autoGainControl: false,
-                    sampleRate: 48000
-                } 
+                    sampleRate: 48000,
+                },
             });
-            
+
             // Create audio nodes
             this.inputNode = this.audioContext.createMediaStreamSource(stream);
             this.analyserNode = this.audioContext.createAnalyser();
             this.gainNode = this.audioContext.createGain();
-            
+
             this.analyserNode.fftSize = 2048;
             this.gainNode.gain.value = 1.0;
-            
+
             // Connect nodes for monitoring
             this.inputNode.connect(this.analyserNode);
             this.analyserNode.connect(this.gainNode);
             // Don't connect to output by default (no monitoring feedback)
-            
+
             // Setup MediaRecorder
             const options = {
                 mimeType: 'audio/webm;codecs=opus',
-                audioBitsPerSecond: 128000
+                audioBitsPerSecond: 128000,
             };
-            
+
             // Fallback for Safari
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                 options.mimeType = 'audio/mp4';
             }
-            
+
             this.mediaRecorder = new MediaRecorder(stream, options);
-            
+
             this.mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
                     this.recordedChunks.push(event.data);
                 }
             };
-            
+
             this.mediaRecorder.onstop = () => {
                 this.finalizeRecording();
             };
-            
+
             return {
                 success: true,
-                message: 'Recording initialized successfully'
+                message: 'Recording initialized successfully',
             };
-            
+
         } catch (error) {
             console.error('Failed to initialize recording:', error);
             return {
                 success: false,
-                message: 'Microphone access denied or not available'
+                message: 'Microphone access denied or not available',
             };
         }
     }
-    
+
     /**
      * Start recording with beat synchronization
      */
@@ -113,36 +113,36 @@ export class AudioRecorder {
                 return result;
             }
         }
-        
+
         this.currentBPM = options.bpm || this.currentBPM;
         this.beatsPerBar = options.beatsPerBar || this.beatsPerBar;
         this.quantizeEnabled = options.quantize !== undefined ? options.quantize : this.quantizeEnabled;
-        
+
         // Wait for next beat if quantize is enabled
         if (this.quantizeEnabled && options.sequencer) {
             await this.waitForNextBeat(options.sequencer);
         }
-        
+
         this.recordedChunks = [];
         this.startTime = this.audioContext.currentTime;
         this.totalPauseDuration = 0;
         this.isRecording = true;
         this.isPaused = false;
-        
+
         // Start metronome if enabled
         if (this.metronomeEnabled) {
             this.startMetronome();
         }
-        
+
         this.mediaRecorder.start(100); // Collect data every 100ms
-        
+
         return {
             success: true,
             message: 'Recording started',
-            startTime: this.startTime
+            startTime: this.startTime,
         };
     }
-    
+
     /**
      * Wait for next beat to start recording in sync
      */
@@ -152,16 +152,16 @@ export class AudioRecorder {
                 resolve();
                 return;
             }
-            
+
             const beatDuration = 60 / this.currentBPM;
-            const currentTime = this.audioContext.currentTime;
+            const { currentTime } = this.audioContext;
             const nextBeatTime = Math.ceil(currentTime / beatDuration) * beatDuration;
             const waitTime = (nextBeatTime - currentTime) * 1000;
-            
+
             setTimeout(resolve, waitTime);
         });
     }
-    
+
     /**
      * Pause recording
      */
@@ -171,18 +171,18 @@ export class AudioRecorder {
             this.pauseTime = this.audioContext.currentTime;
             this.isPaused = true;
             this.stopMetronome();
-            
+
             return {
                 success: true,
-                message: 'Recording paused'
+                message: 'Recording paused',
             };
         }
         return {
             success: false,
-            message: 'Not recording or already paused'
+            message: 'Not recording or already paused',
         };
     }
-    
+
     /**
      * Resume recording
      */
@@ -191,22 +191,22 @@ export class AudioRecorder {
             this.mediaRecorder.resume();
             this.totalPauseDuration += this.audioContext.currentTime - this.pauseTime;
             this.isPaused = false;
-            
+
             if (this.metronomeEnabled) {
                 this.startMetronome();
             }
-            
+
             return {
                 success: true,
-                message: 'Recording resumed'
+                message: 'Recording resumed',
             };
         }
         return {
             success: false,
-            message: 'Not paused'
+            message: 'Not paused',
         };
     }
-    
+
     /**
      * Stop recording and finalize
      */
@@ -216,58 +216,58 @@ export class AudioRecorder {
             this.isPaused = false;
             this.mediaRecorder.stop();
             this.stopMetronome();
-            
+
             return {
                 success: true,
-                message: 'Recording stopped'
+                message: 'Recording stopped',
             };
         }
         return {
             success: false,
-            message: 'Not recording'
+            message: 'Not recording',
         };
     }
-    
+
     /**
      * Finalize recording and create audio blob
      */
     async finalizeRecording() {
         const blob = new Blob(this.recordedChunks, { type: 'audio/webm' });
         const duration = this.audioContext.currentTime - this.startTime - this.totalPauseDuration;
-        
+
         // Calculate bars and beats
         const beatDuration = 60 / this.currentBPM;
         const totalBeats = duration / beatDuration;
         const bars = Math.floor(totalBeats / this.beatsPerBar);
         const beats = Math.floor(totalBeats % this.beatsPerBar);
-        
+
         // Create recording object
         const recording = {
             id: Date.now(),
-            blob: blob,
+            blob,
             url: URL.createObjectURL(blob),
-            duration: duration,
+            duration,
             bpm: this.currentBPM,
             beatsPerBar: this.beatsPerBar,
-            bars: bars,
-            beats: beats,
+            bars,
+            beats,
             timestamp: new Date().toISOString(),
             name: `Recording ${this.recordings.length + 1}`,
             quantized: this.quantizeEnabled,
-            tags: []
+            tags: [],
         };
-        
+
         this.recordings.push(recording);
         await this.saveRecordingToStorage(recording);
-        
+
         // Dispatch event
-        window.dispatchEvent(new CustomEvent('recordingComplete', { 
-            detail: recording 
+        window.dispatchEvent(new CustomEvent('recordingComplete', {
+            detail: recording,
         }));
-        
+
         return recording;
     }
-    
+
     /**
      * Initialize metronome click
      */
@@ -275,44 +275,44 @@ export class AudioRecorder {
         this.metronomeSynth = {
             oscillator: null,
             gain: null,
-            interval: null
+            interval: null,
         };
     }
-    
+
     /**
      * Start metronome
      */
     startMetronome() {
         this.stopMetronome();
-        
+
         const beatDuration = 60 / this.currentBPM;
         let beatCount = 0;
-        
+
         const playClick = () => {
             const isDownbeat = beatCount % this.beatsPerBar === 0;
             const frequency = isDownbeat ? 1000 : 800;
             const gain = isDownbeat ? 0.3 : 0.15;
-            
+
             const osc = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
-            
+
             osc.frequency.value = frequency;
             osc.connect(gainNode);
             gainNode.connect(this.audioContext.destination);
-            
+
             gainNode.gain.setValueAtTime(gain, this.audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.05);
-            
+
             osc.start(this.audioContext.currentTime);
             osc.stop(this.audioContext.currentTime + 0.05);
-            
+
             beatCount++;
         };
-        
+
         playClick(); // First click immediately
         this.metronomeSynth.interval = setInterval(playClick, beatDuration * 1000);
     }
-    
+
     /**
      * Stop metronome
      */
@@ -322,25 +322,25 @@ export class AudioRecorder {
             this.metronomeSynth.interval = null;
         }
     }
-    
+
     /**
      * Get input level for visualization
      */
     getInputLevel() {
         if (!this.analyserNode) return 0;
-        
+
         const dataArray = new Uint8Array(this.analyserNode.frequencyBinCount);
         this.analyserNode.getByteTimeDomainData(dataArray);
-        
+
         let sum = 0;
         for (let i = 0; i < dataArray.length; i++) {
             const normalized = (dataArray[i] - 128) / 128;
             sum += normalized * normalized;
         }
-        
+
         return Math.sqrt(sum / dataArray.length);
     }
-    
+
     /**
      * Play recording with beat synchronization
      */
@@ -349,53 +349,53 @@ export class AudioRecorder {
         if (!recording) {
             return {
                 success: false,
-                message: 'Recording not found'
+                message: 'Recording not found',
             };
         }
-        
+
         // Decode audio data
         const arrayBuffer = await recording.blob.arrayBuffer();
         const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
-        
+
         // Create playback nodes
         const source = this.audioContext.createBufferSource();
         const gainNode = this.audioContext.createGain();
-        
+
         source.buffer = audioBuffer;
         source.connect(gainNode);
         gainNode.connect(this.audioContext.destination);
-        
+
         gainNode.gain.value = options.volume !== undefined ? options.volume : 1.0;
-        
+
         // Calculate start time (quantized to beat if enabled)
         let startTime = this.audioContext.currentTime;
         if (options.quantize && options.sequencer && options.sequencer.isPlaying) {
             const beatDuration = 60 / (options.bpm || this.currentBPM);
             startTime = Math.ceil(startTime / beatDuration) * beatDuration;
         }
-        
+
         source.start(startTime);
-        
+
         // Store reference for stopping
         this.playbackNodes.set(recordingId, {
             source,
             gainNode,
-            startTime
+            startTime,
         });
-        
+
         // Auto-remove after playback
         source.onended = () => {
             this.playbackNodes.delete(recordingId);
         };
-        
+
         return {
             success: true,
             message: 'Playback started',
             startTime,
-            duration: audioBuffer.duration
+            duration: audioBuffer.duration,
         };
     }
-    
+
     /**
      * Stop recording playback
      */
@@ -408,7 +408,7 @@ export class AudioRecorder {
         }
         return { success: false, message: 'Recording not playing' };
     }
-    
+
     /**
      * Schedule recording to play in sync with sequencer
      */
@@ -417,41 +417,41 @@ export class AudioRecorder {
         if (!recording) {
             return { success: false, message: 'Recording not found' };
         }
-        
+
         const scheduled = {
             recordingId,
             startBar: options.startBar || 0,
             loop: options.loop || false,
             volume: options.volume || 1.0,
-            enabled: true
+            enabled: true,
         };
-        
+
         this.scheduledRecordings.push(scheduled);
-        
+
         return {
             success: true,
             message: 'Recording scheduled',
-            scheduled
+            scheduled,
         };
     }
-    
+
     /**
      * Trigger scheduled recordings based on sequencer position
      */
     triggerScheduledRecordings(currentBar, sequencer) {
         this.scheduledRecordings.forEach(scheduled => {
             if (!scheduled.enabled) return;
-            
+
             if (currentBar === scheduled.startBar) {
                 this.playRecording(scheduled.recordingId, {
                     volume: scheduled.volume,
                     quantize: true,
-                    sequencer: sequencer
+                    sequencer,
                 });
             }
         });
     }
-    
+
     /**
      * Delete recording
      */
@@ -465,7 +465,7 @@ export class AudioRecorder {
         }
         return { success: false, message: 'Recording not found' };
     }
-    
+
     /**
      * Rename recording
      */
@@ -478,7 +478,7 @@ export class AudioRecorder {
         }
         return { success: false, message: 'Recording not found' };
     }
-    
+
     /**
      * Add tags to recording
      */
@@ -491,7 +491,7 @@ export class AudioRecorder {
         }
         return { success: false, message: 'Recording not found' };
     }
-    
+
     /**
      * Export recording as WAV
      */
@@ -500,18 +500,18 @@ export class AudioRecorder {
         if (!recording) {
             return { success: false, message: 'Recording not found' };
         }
-        
+
         const link = document.createElement('a');
         link.href = recording.url;
         link.download = `${recording.name}.${format}`;
         link.click();
-        
+
         return {
             success: true,
-            message: 'Recording exported'
+            message: 'Recording exported',
         };
     }
-    
+
     /**
      * Save recording metadata to localStorage
      */
@@ -520,7 +520,7 @@ export class AudioRecorder {
             // Convert blob to base64 for storage
             const reader = new FileReader();
             reader.readAsDataURL(recording.blob);
-            
+
             return new Promise((resolve) => {
                 reader.onloadend = () => {
                     const recordings = this.getStoredRecordings();
@@ -535,9 +535,9 @@ export class AudioRecorder {
                         timestamp: recording.timestamp,
                         quantized: recording.quantized,
                         tags: recording.tags,
-                        data: reader.result
+                        data: reader.result,
                     });
-                    
+
                     localStorage.setItem(this.storageKey, JSON.stringify(recordings));
                     resolve();
                 };
@@ -546,14 +546,14 @@ export class AudioRecorder {
             console.error('Failed to save recording:', error);
         }
     }
-    
+
     /**
      * Load recordings from localStorage
      */
     loadRecordingsFromStorage() {
         try {
             const recordings = this.getStoredRecordings();
-            
+
             recordings.forEach(stored => {
                 // Convert base64 back to blob
                 fetch(stored.data)
@@ -561,7 +561,7 @@ export class AudioRecorder {
                     .then(blob => {
                         const recording = {
                             id: stored.id,
-                            blob: blob,
+                            blob,
                             url: URL.createObjectURL(blob),
                             name: stored.name,
                             duration: stored.duration,
@@ -571,9 +571,9 @@ export class AudioRecorder {
                             beats: stored.beats,
                             timestamp: stored.timestamp,
                             quantized: stored.quantized,
-                            tags: stored.tags
+                            tags: stored.tags,
                         };
-                        
+
                         this.recordings.push(recording);
                     });
             });
@@ -581,7 +581,7 @@ export class AudioRecorder {
             console.error('Failed to load recordings:', error);
         }
     }
-    
+
     /**
      * Get stored recordings from localStorage
      */
@@ -589,7 +589,7 @@ export class AudioRecorder {
         const stored = localStorage.getItem(this.storageKey);
         return stored ? JSON.parse(stored) : [];
     }
-    
+
     /**
      * Save all recordings to storage
      */
@@ -605,29 +605,29 @@ export class AudioRecorder {
                 beats: r.beats,
                 timestamp: r.timestamp,
                 quantized: r.quantized,
-                tags: r.tags
+                tags: r.tags,
             }));
-            
+
             localStorage.setItem(this.storageKey, JSON.stringify(recordings));
         } catch (error) {
             console.error('Failed to save recordings:', error);
         }
     }
-    
+
     /**
      * Get all recordings
      */
     getAllRecordings() {
         return this.recordings;
     }
-    
+
     /**
      * Get recording by ID
      */
     getRecording(recordingId) {
         return this.recordings.find(r => r.id === recordingId);
     }
-    
+
     /**
      * Clear all recordings
      */
@@ -637,20 +637,20 @@ export class AudioRecorder {
         localStorage.removeItem(this.storageKey);
         return { success: true, message: 'All recordings cleared' };
     }
-    
+
     /**
      * Enable/disable monitoring (hearing yourself)
      */
     setMonitoring(enabled) {
         if (!this.gainNode) return;
-        
+
         if (enabled) {
             this.gainNode.connect(this.audioContext.destination);
         } else {
             this.gainNode.disconnect(this.audioContext.destination);
         }
     }
-    
+
     /**
      * Set input gain
      */
@@ -659,22 +659,22 @@ export class AudioRecorder {
             this.gainNode.gain.value = gain;
         }
     }
-    
+
     /**
      * Clean up resources
      */
     destroy() {
         this.stopRecording();
         this.stopMetronome();
-        
+
         if (this.inputNode) {
             this.inputNode.disconnect();
         }
-        
+
         if (this.mediaRecorder && this.mediaRecorder.stream) {
             this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
         }
-        
+
         this.playbackNodes.forEach(playback => {
             playback.source.stop();
         });

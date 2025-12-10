@@ -40,27 +40,27 @@ class StepSequencer {
 
     start() {
         if (this.isPlaying) return;
-        
+
         this.isPlaying = true;
         this.currentStep = 0;
-        
+
         const interval = (60 / this.bpm) * 250; // 16th notes
-        
+
         this.intervalId = setInterval(() => {
             this.tick();
         }, interval);
-        
+
         this.notifyListeners('start');
     }
 
     stop() {
         if (!this.isPlaying) return;
-        
+
         this.isPlaying = false;
         clearInterval(this.intervalId);
         this.intervalId = null;
         this.currentStep = 0;
-        
+
         this.notifyListeners('stop');
     }
 
@@ -71,12 +71,12 @@ class StepSequencer {
 
     tick() {
         const step = this.sequence[this.currentStep];
-        
+
         if (step.active && step.gate) {
             const cvVoltage = (step.pitch - 60) / 12; // 1V/octave
             const gateSignal = step.gate ? 1 : 0;
             const velocitySignal = step.velocity / 127;
-            
+
             this.notifyListeners('step', {
                 index: this.currentStep,
                 cv: cvVoltage,
@@ -85,18 +85,18 @@ class StepSequencer {
                 pitch: step.pitch,
             });
         }
-        
+
         this.currentStep = (this.currentStep + 1) % this.steps;
     }
 
     setBPM(bpm) {
         this.bpm = Math.max(40, Math.min(300, bpm));
-        
+
         if (this.isPlaying) {
             this.stop();
             this.start();
         }
-        
+
         this.notifyListeners('bpmChange', { bpm: this.bpm });
     }
 
@@ -107,14 +107,14 @@ class StepSequencer {
             pentatonic: [0, 2, 4, 7, 9],
             blues: [0, 3, 5, 6, 7, 10],
         };
-        
+
         const scale = scales.pentatonic;
         const rootNote = 48 + Math.floor(Math.random() * 24); // C3 to B4
-        
+
         for (let i = 0; i < this.steps; i++) {
             const scaleNote = scale[Math.floor(Math.random() * scale.length)];
             const octave = Math.floor(Math.random() * 2) * 12;
-            
+
             this.sequence[i] = {
                 pitch: rootNote + scaleNote + octave,
                 gate: Math.random() > 0.3, // 70% chance of gate
@@ -122,7 +122,7 @@ class StepSequencer {
                 active: Math.random() > 0.2, // 80% chance active
             };
         }
-        
+
         this.notifyListeners('randomize');
     }
 
@@ -183,7 +183,7 @@ class StepSequencer {
                 { pitch: 36, gate: false, velocity: 0, active: false },
             ],
         };
-        
+
         if (patterns[pattern]) {
             this.sequence = [...patterns[pattern]];
             this.notifyListeners('patternLoad', { pattern });
@@ -226,22 +226,43 @@ class VirtualKeyboard {
         this.listeners = [];
         this.octave = 4; // Default octave
         this.velocity = 100;
-        
+
         // Computer keyboard to MIDI note mapping
         this.keyMap = {
-            'a': 60, 'w': 61, 's': 62, 'e': 63, 'd': 64, 'f': 65, 
-            't': 66, 'g': 67, 'y': 68, 'h': 69, 'u': 70, 'j': 71, 
-            'k': 72, 'o': 73, 'l': 74, 'p': 75, ';': 76, "'": 77,
-            'z': 48, 'x': 50, 'c': 52, 'v': 53, 'b': 55, 'n': 57, 'm': 59,
+            a: 60,
+w: 61,
+s: 62,
+e: 63,
+d: 64,
+f: 65,
+            t: 66,
+g: 67,
+y: 68,
+h: 69,
+u: 70,
+j: 71,
+            k: 72,
+o: 73,
+l: 74,
+p: 75,
+';': 76,
+"'": 77,
+            z: 48,
+x: 50,
+c: 52,
+v: 53,
+b: 55,
+n: 57,
+m: 59,
         };
     }
 
     noteOn(midiNote, velocity = 100) {
         if (this.activeNotes.has(midiNote)) return;
-        
+
         this.activeNotes.set(midiNote, velocity);
         const cvVoltage = (midiNote - 60) / 12; // 1V/octave from C4
-        
+
         this.notifyListeners('noteOn', {
             note: midiNote,
             cv: cvVoltage,
@@ -253,9 +274,9 @@ class VirtualKeyboard {
 
     noteOff(midiNote) {
         if (!this.activeNotes.has(midiNote)) return;
-        
+
         this.activeNotes.delete(midiNote);
-        
+
         this.notifyListeners('noteOff', {
             note: midiNote,
             cv: 0,
@@ -270,7 +291,7 @@ class VirtualKeyboard {
     }
 
     midiToFrequency(midiNote) {
-        return 440 * Math.pow(2, (midiNote - 69) / 12);
+        return 440 * 2 ** ((midiNote - 69) / 12);
     }
 
     setOctave(octave) {
@@ -280,7 +301,7 @@ class VirtualKeyboard {
 
     handleKeyDown(event) {
         const key = event.key.toLowerCase();
-        
+
         // Octave controls
         if (key === 'z' && event.shiftKey) {
             this.setOctave(this.octave - 1);
@@ -290,7 +311,7 @@ class VirtualKeyboard {
             this.setOctave(this.octave + 1);
             return;
         }
-        
+
         // Note mapping
         if (this.keyMap[key] !== undefined) {
             const baseNote = this.keyMap[key];
@@ -301,7 +322,7 @@ class VirtualKeyboard {
 
     handleKeyUp(event) {
         const key = event.key.toLowerCase();
-        
+
         if (this.keyMap[key] !== undefined) {
             const baseNote = this.keyMap[key];
             const note = baseNote + (this.octave - 4) * 12;

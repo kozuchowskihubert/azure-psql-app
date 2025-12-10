@@ -8,7 +8,7 @@ const urlsToCache = [
   '/synthesis-engine.js',
   '/step-sequencer.js',
   '/virtual-keyboard.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
 ];
 
 // Install event - cache resources
@@ -20,7 +20,7 @@ self.addEventListener('install', event => {
         console.log('📦 Opened cache');
         return cache.addAll(urlsToCache);
       })
-      .then(() => self.skipWaiting())
+      .then(() => self.skipWaiting()),
   );
 });
 
@@ -35,9 +35,9 @@ self.addEventListener('activate', event => {
             console.log('🗑️ Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
-        })
+        }),
       );
-    }).then(() => self.clients.claim())
+    }).then(() => self.clients.claim()),
   );
 });
 
@@ -70,7 +70,7 @@ self.addEventListener('fetch', event => {
 
           return response;
         });
-      })
+      }),
   );
 });
 
@@ -97,12 +97,12 @@ self.addEventListener('push', event => {
     tag: 'synth-update',
     actions: [
       { action: 'open', title: 'Open App' },
-      { action: 'close', title: 'Close' }
-    ]
+      { action: 'close', title: 'Close' },
+    ],
   };
 
   event.waitUntil(
-    self.registration.showNotification('2600 Studio', options)
+    self.registration.showNotification('2600 Studio', options),
   );
 });
 
@@ -112,7 +112,7 @@ self.addEventListener('notificationclick', event => {
 
   if (event.action === 'open') {
     event.waitUntil(
-      clients.openWindow('/synth-2600-studio.html')
+      clients.openWindow('/synth-2600-studio.html'),
     );
   }
 });

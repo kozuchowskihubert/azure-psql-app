@@ -1,14 +1,14 @@
 /**
  * Module Integration System (Patch Bay)
  * haos.fm v2.7.0
- * 
+ *
  * Provides module routing and patch management:
  * - Virtual patch bay for connecting modules
  * - Preset patch configurations
  * - Patch save/load/export
  * - Signal routing visualization
  * - Module lifecycle management
- * 
+ *
  * Features:
  * - Drag-and-drop virtual cables
  * - Preset patches (trap, techno, ambient, etc.)
@@ -27,7 +27,7 @@ class ModuleIntegration {
         this.options = {
             storageKey: options.storageKey || 'haos-patches',
             autoSave: options.autoSave !== false,
-            ...options
+            ...options,
         };
 
         this.modules = new Map(); // Module instances
@@ -37,7 +37,7 @@ class ModuleIntegration {
 
         // Load saved patches
         this._loadFromStorage();
-        
+
         // Initialize preset patches
         this._initializePresets();
     }
@@ -58,13 +58,13 @@ class ModuleIntegration {
             inputs: metadata.inputs || ['input'],
             outputs: metadata.outputs || ['output'],
             parameters: metadata.parameters || {},
-            created: Date.now()
+            created: Date.now(),
         };
 
         this.modules.set(id, moduleData);
-        
+
         console.log(`[ModuleIntegration] Registered module: ${id} (${moduleData.type})`);
-        
+
         return moduleData;
     }
 
@@ -101,7 +101,7 @@ class ModuleIntegration {
         const {
             sourceOutput = 'output',
             targetInput = 'input',
-            gain = 1.0
+            gain = 1.0,
         } = options;
 
         // Get Web Audio nodes
@@ -128,13 +128,13 @@ class ModuleIntegration {
             target: { moduleId: targetModuleId, input: targetInput, node: targetNode },
             gainNode,
             gain,
-            created: Date.now()
+            created: Date.now(),
         };
 
         this.connections.set(connId, connection);
-        
+
         console.log(`[ModuleIntegration] Connected: ${connId} (gain: ${gain})`);
-        
+
         return connId;
     }
 
@@ -158,7 +158,7 @@ class ModuleIntegration {
 
         this.connections.delete(connectionId);
         console.log(`[ModuleIntegration] Disconnected: ${connectionId}`);
-        
+
         return true;
     }
 
@@ -201,7 +201,7 @@ class ModuleIntegration {
         // Common patterns
         if (nodeName === 'output' && moduleInstance.output) return moduleInstance.output;
         if (nodeName === 'input' && moduleInstance.input) return moduleInstance.input;
-        
+
         return null;
     }
 
@@ -250,7 +250,7 @@ class ModuleIntegration {
                 this.connect(connDef.source, connDef.target, {
                     sourceOutput: connDef.sourceOutput || 'output',
                     targetInput: connDef.targetInput || 'input',
-                    gain: connDef.gain || 1.0
+                    gain: connDef.gain || 1.0,
                 });
             } catch (error) {
                 console.error(`Failed to create connection ${connDef.source} -> ${connDef.target}:`, error);
@@ -259,7 +259,7 @@ class ModuleIntegration {
 
         this.currentPatch = patchId;
         console.log(`[ModuleIntegration] Loaded patch: ${patch.name} (${this.connections.size} connections)`);
-        
+
         return patch;
     }
 
@@ -268,14 +268,14 @@ class ModuleIntegration {
      */
     savePatch(name, description = '') {
         const patchId = `patch-${Date.now()}`;
-        
+
         // Capture current module states
         const modules = [];
         this.modules.forEach((module, id) => {
             const moduleDef = {
                 id,
                 type: module.type,
-                name: module.name
+                name: module.name,
             };
 
             // Capture preset if available
@@ -299,7 +299,7 @@ class ModuleIntegration {
                 sourceOutput: conn.source.output,
                 target: conn.target.moduleId,
                 targetInput: conn.target.input,
-                gain: conn.gain
+                gain: conn.gain,
             });
         });
 
@@ -311,17 +311,17 @@ class ModuleIntegration {
             connections,
             preset: false,
             created: Date.now(),
-            modified: Date.now()
+            modified: Date.now(),
         };
 
         this.patches.set(patchId, patch);
-        
+
         if (this.options.autoSave) {
             this._saveToStorage();
         }
 
         console.log(`[ModuleIntegration] Saved patch: ${name} (${modules.length} modules, ${connections.length} connections)`);
-        
+
         return patchId;
     }
 
@@ -339,7 +339,7 @@ class ModuleIntegration {
         }
 
         this.patches.delete(patchId);
-        
+
         if (this.options.autoSave) {
             this._saveToStorage();
         }
@@ -365,7 +365,7 @@ class ModuleIntegration {
     importPatch(jsonString) {
         try {
             const patch = JSON.parse(jsonString);
-            
+
             const patchId = `patch-${Date.now()}`;
             patch.id = patchId;
             patch.preset = false;
@@ -373,7 +373,7 @@ class ModuleIntegration {
             patch.modified = Date.now();
 
             this.patches.set(patchId, patch);
-            
+
             if (this.options.autoSave) {
                 this._saveToStorage();
             }
@@ -411,7 +411,7 @@ class ModuleIntegration {
     getSignalFlow() {
         const graph = {
             nodes: [],
-            edges: []
+            edges: [],
         };
 
         // Add nodes (modules)
@@ -419,7 +419,7 @@ class ModuleIntegration {
             graph.nodes.push({
                 id,
                 type: module.type,
-                name: module.name
+                name: module.name,
             });
         });
 
@@ -428,7 +428,7 @@ class ModuleIntegration {
             graph.edges.push({
                 source: conn.source.moduleId,
                 target: conn.target.moduleId,
-                gain: conn.gain
+                gain: conn.gain,
             });
         });
 
@@ -449,15 +449,15 @@ class ModuleIntegration {
                 { id: 'drums', type: 'Drums', name: 'Trap Drums', preset: 'trap' },
                 { id: 'bass808', type: 'Bass808', name: '808 Bass', preset: 'deep' },
                 { id: 'effects', type: 'Effects', name: 'Effects Rack', preset: 'dub' },
-                { id: 'sequencer', type: 'Sequencer', name: 'Sequencer' }
+                { id: 'sequencer', type: 'Sequencer', name: 'Sequencer' },
             ],
             connections: [
                 { source: 'drums', target: 'effects', gain: 0.8 },
                 { source: 'bass808', target: 'effects', gain: 0.7 },
-                { source: 'effects', target: 'master', gain: 1.0 }
+                { source: 'effects', target: 'master', gain: 1.0 },
             ],
             created: Date.now(),
-            modified: Date.now()
+            modified: Date.now(),
         });
 
         // Techno Creator Patch
@@ -470,15 +470,15 @@ class ModuleIntegration {
                 { id: 'drums', type: 'Drums', name: 'Techno Drums', preset: 'techno' },
                 { id: 'bass303', type: 'Bass303', name: 'TB-303', preset: 'squelchy' },
                 { id: 'effects', type: 'Effects', name: 'Effects Rack', preset: 'space' },
-                { id: 'sequencer', type: 'Sequencer', name: 'Sequencer' }
+                { id: 'sequencer', type: 'Sequencer', name: 'Sequencer' },
             ],
             connections: [
                 { source: 'drums', target: 'effects', gain: 0.8 },
                 { source: 'bass303', target: 'effects', gain: 0.6 },
-                { source: 'effects', target: 'master', gain: 1.0 }
+                { source: 'effects', target: 'master', gain: 1.0 },
             ],
             created: Date.now(),
-            modified: Date.now()
+            modified: Date.now(),
         });
 
         // Full Modular Patch
@@ -492,16 +492,16 @@ class ModuleIntegration {
                 { id: 'bass808', type: 'Bass808', name: '808 Bass', preset: 'subby' },
                 { id: 'bass303', type: 'Bass303', name: 'TB-303', preset: 'classic' },
                 { id: 'effects', type: 'Effects', name: 'Effects', preset: 'lush' },
-                { id: 'sequencer', type: 'Sequencer', name: 'Sequencer' }
+                { id: 'sequencer', type: 'Sequencer', name: 'Sequencer' },
             ],
             connections: [
                 { source: 'drums', target: 'effects', gain: 0.7 },
                 { source: 'bass808', target: 'effects', gain: 0.5 },
                 { source: 'bass303', target: 'effects', gain: 0.4 },
-                { source: 'effects', target: 'master', gain: 1.0 }
+                { source: 'effects', target: 'master', gain: 1.0 },
             ],
             created: Date.now(),
-            modified: Date.now()
+            modified: Date.now(),
         });
 
         // Minimal Techno Patch
@@ -513,15 +513,15 @@ class ModuleIntegration {
             modules: [
                 { id: 'drums', type: 'Drums', name: 'Minimal Drums', preset: 'techno' },
                 { id: 'bass303', type: 'Bass303', name: 'Acid Bass', preset: 'minimal' },
-                { id: 'effects', type: 'Effects', name: 'Reverb/Delay', preset: 'echo' }
+                { id: 'effects', type: 'Effects', name: 'Reverb/Delay', preset: 'echo' },
             ],
             connections: [
                 { source: 'drums', target: 'effects', gain: 0.8 },
                 { source: 'bass303', target: 'effects', gain: 0.6 },
-                { source: 'effects', target: 'master', gain: 1.0 }
+                { source: 'effects', target: 'master', gain: 1.0 },
             ],
             created: Date.now(),
-            modified: Date.now()
+            modified: Date.now(),
         });
 
         // Ambient Patch
@@ -532,14 +532,14 @@ class ModuleIntegration {
             preset: true,
             modules: [
                 { id: 'bass303', type: 'Bass303', name: 'Synth Pad', preset: 'liquid' },
-                { id: 'effects', type: 'Effects', name: 'Reverb + Delay', preset: 'space' }
+                { id: 'effects', type: 'Effects', name: 'Reverb + Delay', preset: 'space' },
             ],
             connections: [
                 { source: 'bass303', target: 'effects', gain: 0.5 },
-                { source: 'effects', target: 'master', gain: 0.8 }
+                { source: 'effects', target: 'master', gain: 0.8 },
             ],
             created: Date.now(),
-            modified: Date.now()
+            modified: Date.now(),
         });
 
         console.log(`[ModuleIntegration] Loaded ${this.patches.size} preset patches`);
@@ -553,7 +553,7 @@ class ModuleIntegration {
             const userPatches = this.getAllPatches().filter(p => !p.preset);
             localStorage.setItem(
                 this.options.storageKey,
-                JSON.stringify(userPatches)
+                JSON.stringify(userPatches),
             );
         } catch (error) {
             console.error('Failed to save patches:', error);
@@ -587,7 +587,7 @@ class ModuleIntegration {
             connections: this.connections.size,
             patches: this.patches.size,
             userPatches: this.getAllPatches().filter(p => !p.preset).length,
-            presetPatches: this.getAllPatches().filter(p => p.preset).length
+            presetPatches: this.getAllPatches().filter(p => p.preset).length,
         };
     }
 
@@ -596,18 +596,18 @@ class ModuleIntegration {
      */
     dispose() {
         console.log('[ModuleIntegration] Disposing all modules and connections...');
-        
+
         this.disconnectAll();
-        
+
         this.modules.forEach((module, id) => {
             if (module.instance && module.instance.dispose) {
                 module.instance.dispose();
             }
         });
-        
+
         this.modules.clear();
         this.connections.clear();
-        
+
         console.log('[ModuleIntegration] Cleanup complete');
     }
 }

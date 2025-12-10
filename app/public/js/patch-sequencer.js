@@ -11,15 +11,15 @@ class PatchAwareSequencer {
         this.currentPatch = null;
         this.activeVoices = new Map();
         this.patchRouting = new Map();
-        
+
         // CV/Gate tracking
         this.cvSignal = null;
         this.gateSignal = null;
-        
+
         // Initialize patch-aware routing
         this.initializePatchRouting();
         this.connectSequencerToPatches();
-        
+
         console.log('🎛️ Patch-Aware Sequencer initialized');
     }
 
@@ -31,25 +31,25 @@ class PatchAwareSequencer {
         this.patchRouting.set('sequencer.CV', {
             type: 'cv',
             destinations: ['vco1.CV', 'vco2.CV', 'vco3.CV'],
-            convert: (value) => this.cvToFrequency(value)
+            convert: (value) => this.cvToFrequency(value),
         });
-        
+
         this.patchRouting.set('sequencer.GATE', {
             type: 'gate',
             destinations: ['env.GATE', 'vca.CV'],
-            convert: (value) => value > 0 ? 1 : 0
+            convert: (value) => value > 0 ? 1 : 0,
         });
-        
+
         this.patchRouting.set('sequencer.VELOCITY', {
             type: 'velocity',
             destinations: ['vca.CV', 'vcf.CUTOFF'],
-            convert: (value) => value
+            convert: (value) => value,
         });
-        
+
         this.patchRouting.set('sequencer.TRIG', {
             type: 'trigger',
             destinations: ['env.TRIG', 'snh.TRIG'],
-            convert: (value) => value > 0 ? 1 : 0
+            convert: (value) => value > 0 ? 1 : 0,
         });
     }
 
@@ -60,7 +60,7 @@ class PatchAwareSequencer {
         // 0V = C4 (261.63 Hz)
         // 1V/octave standard
         const baseFreq = 261.63;
-        return baseFreq * Math.pow(2, cvVoltage);
+        return baseFreq * 2 ** cvVoltage;
     }
 
     /**
@@ -71,10 +71,10 @@ class PatchAwareSequencer {
             console.error('❌ No sequencer provided');
             return;
         }
-        
+
         // Listen to sequencer step events
         this.sequencer.addEventListener((event, data) => {
-            switch(event) {
+            switch (event) {
                 case 'step':
                     this.handleSequencerStep(data);
                     break;
@@ -86,7 +86,7 @@ class PatchAwareSequencer {
                     break;
             }
         });
-        
+
         console.log('🔗 Sequencer connected to patch matrix');
     }
 
@@ -95,16 +95,16 @@ class PatchAwareSequencer {
      */
     handleSequencerStep(stepData) {
         const { index, cv, gate, velocity, pitch } = stepData;
-        
+
         // Get active patches
         const activePatches = this.getCurrentPatches();
-        
+
         // Route CV signal through patches
         this.routeCVSignal(cv, pitch, activePatches);
-        
+
         // Route Gate signal through patches
         this.routeGateSignal(gate, velocity, activePatches);
-        
+
         // Update visual feedback
         this.updatePatchVisualization(index, pitch, gate);
     }
@@ -127,17 +127,17 @@ class PatchAwareSequencer {
      */
     routeCVSignal(cv, pitch, patches) {
         const frequency = this.cvToFrequency(cv);
-        
+
         // Check if sequencer.CV is patched to VCO
-        const cvPatches = patches.filter(p => 
-            p.from && p.from.includes('sequencer.CV')
+        const cvPatches = patches.filter(p =>
+            p.from && p.from.includes('sequencer.CV'),
         );
-        
+
         if (cvPatches.length > 0) {
             // Route through actual patches
             cvPatches.forEach(patch => {
                 const destination = patch.to;
-                
+
                 if (destination.includes('vco1.CV')) {
                     this.setVCOFrequency('vco1', frequency);
                 }
@@ -152,7 +152,7 @@ class PatchAwareSequencer {
             // Default routing if no CV patches
             this.setVCOFrequency('vco1', frequency);
         }
-        
+
         this.cvSignal = cv;
     }
 
@@ -161,18 +161,18 @@ class PatchAwareSequencer {
      */
     routeGateSignal(gate, velocity, patches) {
         const normalizedVelocity = velocity;
-        
+
         // Check if sequencer.GATE is patched to envelope
-        const gatePatches = patches.filter(p => 
-            p.from && p.from.includes('sequencer.GATE')
+        const gatePatches = patches.filter(p =>
+            p.from && p.from.includes('sequencer.GATE'),
         );
-        
+
         if (gate > 0) {
             // Gate ON - trigger envelope and VCA
             if (gatePatches.length > 0) {
                 gatePatches.forEach(patch => {
                     const destination = patch.to;
-                    
+
                     if (destination.includes('env.GATE')) {
                         this.triggerEnvelope(normalizedVelocity);
                     }
@@ -184,15 +184,15 @@ class PatchAwareSequencer {
                 // Default: trigger envelope
                 this.triggerEnvelope(normalizedVelocity);
             }
-            
+
             // Apply velocity to filter if patched
             this.applyVelocityModulation(normalizedVelocity, patches);
-            
+
         } else {
             // Gate OFF - release envelope
             this.releaseEnvelope();
         }
-        
+
         this.gateSignal = gate;
     }
 
@@ -203,31 +203,31 @@ class PatchAwareSequencer {
         if (!this.audio.isPlaying) {
             this.audio.start();
         }
-        
+
         const now = this.audio.audioContext.currentTime;
         const glideTime = 0.01; // 10ms glide for smoothness
-        
+
         if (vcoId === 'vco1' && this.audio.vco1.osc) {
             this.audio.vco1.osc.frequency.cancelScheduledValues(now);
             this.audio.vco1.osc.frequency.setValueAtTime(
-                this.audio.vco1.osc.frequency.value, 
-                now
+                this.audio.vco1.osc.frequency.value,
+                now,
             );
             this.audio.vco1.osc.frequency.linearRampToValueAtTime(
-                frequency, 
-                now + glideTime
+                frequency,
+                now + glideTime,
             );
         }
-        
+
         if (vcoId === 'vco2' && this.audio.vco2.osc) {
             this.audio.vco2.osc.frequency.cancelScheduledValues(now);
             this.audio.vco2.osc.frequency.setValueAtTime(
-                this.audio.vco2.osc.frequency.value, 
-                now
+                this.audio.vco2.osc.frequency.value,
+                now,
             );
             this.audio.vco2.osc.frequency.linearRampToValueAtTime(
                 frequency * 1.005, // Slight detune
-                now + glideTime
+                now + glideTime,
             );
         }
     }
@@ -237,24 +237,24 @@ class PatchAwareSequencer {
      */
     triggerEnvelope(velocity) {
         if (!this.audio.vca) return;
-        
+
         const now = this.audio.audioContext.currentTime;
-        const envelope = this.audio.envelope;
-        
+        const { envelope } = this.audio;
+
         // Cancel any scheduled values
         this.audio.vca.gain.cancelScheduledValues(now);
         this.audio.vca.gain.setValueAtTime(0, now);
-        
+
         // Attack
         this.audio.vca.gain.linearRampToValueAtTime(
             velocity,
-            now + envelope.attack
+            now + envelope.attack,
         );
-        
+
         // Decay to Sustain
         this.audio.vca.gain.linearRampToValueAtTime(
             velocity * envelope.sustain,
-            now + envelope.attack + envelope.decay
+            now + envelope.attack + envelope.decay,
         );
     }
 
@@ -263,16 +263,16 @@ class PatchAwareSequencer {
      */
     releaseEnvelope() {
         if (!this.audio.vca) return;
-        
+
         const now = this.audio.audioContext.currentTime;
-        const envelope = this.audio.envelope;
-        
+        const { envelope } = this.audio;
+
         // Release
         this.audio.vca.gain.cancelScheduledValues(now);
         this.audio.vca.gain.setValueAtTime(this.audio.vca.gain.value, now);
         this.audio.vca.gain.linearRampToValueAtTime(
             0,
-            now + envelope.release
+            now + envelope.release,
         );
     }
 
@@ -281,9 +281,9 @@ class PatchAwareSequencer {
      */
     openVCA(velocity) {
         if (!this.audio.vca) return;
-        
+
         const now = this.audio.audioContext.currentTime;
-        
+
         this.audio.vca.gain.cancelScheduledValues(now);
         this.audio.vca.gain.setValueAtTime(velocity, now);
     }
@@ -293,22 +293,22 @@ class PatchAwareSequencer {
      */
     applyVelocityModulation(velocity, patches) {
         if (!this.audio.vcf) return;
-        
+
         // Check if velocity is patched to filter
-        const velocityPatches = patches.filter(p => 
+        const velocityPatches = patches.filter(p =>
             p.from && p.from.includes('sequencer.VELOCITY') &&
-            p.to && p.to.includes('vcf.CUTOFF')
+            p.to && p.to.includes('vcf.CUTOFF'),
         );
-        
+
         if (velocityPatches.length > 0 || patches.length === 0) {
             const now = this.audio.audioContext.currentTime;
             const baseFreq = this.audio.filterFreq;
             const modAmount = velocity * 2000; // Up to 2kHz modulation
-            
+
             this.audio.vcf.frequency.cancelScheduledValues(now);
             this.audio.vcf.frequency.setValueAtTime(
                 baseFreq + modAmount,
-                now
+                now,
             );
         }
     }
@@ -321,14 +321,14 @@ class PatchAwareSequencer {
         const event = new CustomEvent('patchSequencerStep', {
             detail: {
                 step: stepIndex,
-                pitch: pitch,
-                gate: gate,
+                pitch,
+                gate,
                 cv: this.cvSignal,
-                frequency: this.cvToFrequency(this.cvSignal)
-            }
+                frequency: this.cvToFrequency(this.cvSignal),
+            },
         });
         window.dispatchEvent(event);
-        
+
         // Update cable glow effect
         if (gate > 0) {
             this.highlightActiveCables();
@@ -340,12 +340,12 @@ class PatchAwareSequencer {
      */
     highlightActiveCables() {
         const patches = this.getCurrentPatches();
-        
+
         patches.forEach(patch => {
             if (patch.from && patch.from.includes('sequencer')) {
                 // Find cable element and add active class
                 const cableEl = document.querySelector(
-                    `[data-patch="${patch.from}-${patch.to}"]`
+                    `[data-patch="${patch.from}-${patch.to}"]`,
                 );
                 if (cableEl) {
                     cableEl.classList.add('active');
@@ -373,11 +373,11 @@ class PatchAwareSequencer {
     handleSequencerStop() {
         // Release all active notes
         this.releaseEnvelope();
-        
+
         // Clear CV/Gate signals
         this.cvSignal = null;
         this.gateSignal = null;
-        
+
         console.log('⏹️ Patch-aware sequencer stopped');
     }
 
@@ -399,8 +399,8 @@ class PatchAwareSequencer {
                 synth: {
                     vco1: { freq: 55, waveform: 'sawtooth' },
                     vcf: { cutoff: 400, resonance: 12 },
-                    envelope: { attack: 0.001, decay: 0.05, sustain: 0.3, release: 0.1 }
-                }
+                    envelope: { attack: 0.001, decay: 0.05, sustain: 0.3, release: 0.1 },
+                },
             },
             'techno-lead': {
                 patches: [
@@ -418,8 +418,8 @@ class PatchAwareSequencer {
                     vco1: { freq: 220, waveform: 'sawtooth' },
                     vco2: { freq: 220, waveform: 'square' },
                     vcf: { cutoff: 2000, resonance: 6 },
-                    envelope: { attack: 0.01, decay: 0.2, sustain: 0.6, release: 0.3 }
-                }
+                    envelope: { attack: 0.01, decay: 0.2, sustain: 0.6, release: 0.3 },
+                },
             },
             'random-melody': {
                 patches: [
@@ -435,23 +435,23 @@ class PatchAwareSequencer {
                 synth: {
                     vco1: { freq: 440, waveform: 'square' },
                     vcf: { cutoff: 1200, resonance: 5 },
-                    envelope: { attack: 0.005, decay: 0.1, sustain: 0.4, release: 0.2 }
-                }
-            }
+                    envelope: { attack: 0.005, decay: 0.1, sustain: 0.4, release: 0.2 },
+                },
+            },
         };
-        
+
         const preset = presets[presetName];
         if (!preset) {
             console.error(`Preset "${presetName}" not found`);
             return;
         }
-        
+
         // Apply patches to studio
         if (window.studio) {
             window.studio.patches = preset.patches;
             window.studio.renderPatchCables();
         }
-        
+
         // Apply synth settings
         if (preset.synth) {
             if (preset.synth.vco1) {
@@ -470,17 +470,17 @@ class PatchAwareSequencer {
                 this.audio.envelope = preset.synth.envelope;
             }
         }
-        
+
         // Load sequencer pattern
         if (preset.pattern && this.sequencer) {
             this.sequencer.loadPattern(preset.pattern);
         }
-        
+
         console.log(`🎛️ Loaded preset: ${presetName}`);
-        
+
         // Emit event
         const event = new CustomEvent('patchPresetLoaded', {
-            detail: { preset: presetName }
+            detail: { preset: presetName },
         });
         window.dispatchEvent(event);
     }
@@ -494,7 +494,7 @@ class PatchAwareSequencer {
             gate: this.gateSignal,
             frequency: this.cvSignal ? this.cvToFrequency(this.cvSignal) : 0,
             isPlaying: this.sequencer ? this.sequencer.isPlaying : false,
-            currentStep: this.sequencer ? this.sequencer.currentStep : 0
+            currentStep: this.sequencer ? this.sequencer.currentStep : 0,
         };
     }
 }

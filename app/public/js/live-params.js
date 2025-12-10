@@ -1,7 +1,7 @@
 /**
  * HAOS.fm Live Parameters
  * Real-time parameter morphing and automation system
- * 
+ *
  * Features:
  * - Smooth parameter transitions
  * - Multi-parameter morphing
@@ -32,7 +32,7 @@ class LiveParams {
             onChange: config.onChange || (() => {}),
             label: config.label || id,
             unit: config.unit || '',
-            step: config.step || 0.01
+            step: config.step || 0.01,
         });
     }
 
@@ -79,7 +79,7 @@ class LiveParams {
             target,
             startTime,
             duration,
-            easing
+            easing,
         });
 
         // Start animation loop if not running
@@ -152,7 +152,7 @@ class LiveParams {
             case 'easeInOut':
                 return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
             case 'exponential':
-                return t === 0 ? 0 : Math.pow(2, 10 * (t - 1));
+                return t === 0 ? 0 : 2 ** (10 * (t - 1));
             case 'bounce':
                 if (t < 1 / 2.75) {
                     return 7.5625 * t * t;
@@ -175,7 +175,7 @@ class LiveParams {
         this.automations.set(id, {
             points: [],
             startTime: performance.now(),
-            recording: true
+            recording: true,
         });
     }
 
@@ -195,7 +195,7 @@ class LiveParams {
     recordPoint(id) {
         const auto = this.automations.get(id);
         const param = this.parameters.get(id);
-        
+
         if (auto && auto.recording && param) {
             const time = performance.now() - auto.startTime;
             auto.points.push({ time, value: param.value });

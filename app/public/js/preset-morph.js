@@ -1,7 +1,7 @@
 /**
  * HAOS.fm Preset Morphing
  * A/B preset crossfading and morphing system
- * 
+ *
  * Features:
  * - A/B preset slots
  * - Smooth crossfading between presets
@@ -18,7 +18,7 @@ class PresetMorph {
         this.morphPosition = 0; // 0 = full A, 1 = full B
         this.presetBank = new Map();
         this.currentBank = 'default';
-        
+
         // Initialize with empty presets
         this.initializePresets();
     }
@@ -30,12 +30,12 @@ class PresetMorph {
         this.presetA = {
             name: 'Preset A',
             parameters: {},
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
         this.presetB = {
             name: 'Preset B',
             parameters: {},
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
     }
 
@@ -46,7 +46,7 @@ class PresetMorph {
         this.presetA = {
             name,
             parameters: this.liveParams.snapshot(),
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
         console.log(`Captured Preset A: ${name}`, this.presetA);
     }
@@ -58,7 +58,7 @@ class PresetMorph {
         this.presetB = {
             name,
             parameters: this.liveParams.snapshot(),
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
         console.log(`Captured Preset B: ${name}`, this.presetB);
     }
@@ -104,13 +104,13 @@ class PresetMorph {
         const morphedState = {};
         const allParams = new Set([
             ...Object.keys(this.presetA.parameters),
-            ...Object.keys(this.presetB.parameters)
+            ...Object.keys(this.presetB.parameters),
         ]);
 
         allParams.forEach(paramId => {
             const valueA = this.presetA.parameters[paramId] || 0;
             const valueB = this.presetB.parameters[paramId] || 0;
-            
+
             // Linear interpolation
             morphedState[paramId] = valueA + (valueB - valueA) * this.morphPosition;
         });
@@ -199,7 +199,7 @@ class PresetMorph {
         const presetToSave = preset || {
             name: `Preset ${slot}`,
             parameters: this.liveParams.snapshot(),
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
 
         bank.set(slot, presetToSave);
@@ -275,12 +275,12 @@ class PresetMorph {
         const interpolated = {
             name,
             parameters: {},
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
 
         const allParams = new Set([
             ...Object.keys(this.presetA.parameters),
-            ...Object.keys(this.presetB.parameters)
+            ...Object.keys(this.presetB.parameters),
         ]);
 
         allParams.forEach(paramId => {
@@ -311,8 +311,8 @@ class PresetMorph {
             detail: {
                 position: this.morphPosition,
                 presetA: this.presetA.name,
-                presetB: this.presetB.name
-            }
+                presetB: this.presetB.name,
+            },
         });
         window.dispatchEvent(event);
     }
@@ -323,7 +323,7 @@ class PresetMorph {
     exportBank(bankName = null) {
         const name = bankName || this.currentBank;
         const bank = this.presetBank.get(name);
-        
+
         if (!bank) {
             console.warn(`Bank '${name}' does not exist`);
             return null;
@@ -333,9 +333,9 @@ class PresetMorph {
             name,
             presets: Array.from(bank.entries()).map(([slot, preset]) => ({
                 slot,
-                ...preset
+                ...preset,
             })),
-            exportDate: new Date().toISOString()
+            exportDate: new Date().toISOString(),
         };
 
         return JSON.stringify(exported, null, 2);
@@ -392,7 +392,7 @@ class PresetMorph {
             slot,
             name: preset.name,
             timestamp: preset.timestamp,
-            paramCount: Object.keys(preset.parameters).length
+            paramCount: Object.keys(preset.parameters).length,
         }));
     }
 

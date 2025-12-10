@@ -780,7 +780,7 @@ const SYNTH2600_CLI = path.join(__dirname, '../ableton-cli/synth2600_cli.py');
 router.get('/synth2600/presets', async (req, res) => {
   try {
     const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
-    
+
     // Check if file exists
     try {
       await fs.access(presetLibPath);
@@ -788,7 +788,7 @@ router.get('/synth2600/presets', async (req, res) => {
       return res.status(404).json({
         success: false,
         error: 'Preset library not found. Try initializing presets first.',
-        hint: 'POST /api/music/presets/init'
+        hint: 'POST /api/music/presets/init',
       });
     }
 
@@ -842,21 +842,21 @@ router.get('/synth2600/preset/:name', async (req, res) => {
     const presetLib = JSON.parse(data);
 
     // Find the preset
-    const preset = presetLib.presets.find(p => p.name === presetName);
+    const preset = presetLib.presets.find((p) => p.name === presetName);
 
     if (!preset) {
       return res.status(404).json({
         success: false,
-        error: `Preset '${presetName}' not found`
+        error: `Preset '${presetName}' not found`,
       });
     }
 
     // Convert preset to patch connections format
-    const patchConnections = preset.patch_cables.map(cable => ({
+    const patchConnections = preset.patch_cables.map((cable) => ({
       color: cable.color,
       source: `${cable.source.module}/${cable.source.output}`,
       destination: `${cable.destination.module}/${cable.destination.output}`,
-      level: cable.source.level
+      level: cable.source.level,
     }));
 
     res.json({
@@ -867,7 +867,7 @@ router.get('/synth2600/preset/:name', async (req, res) => {
       modulators: preset.modulators,
       description: preset.description,
       category: preset.category,
-      tags: preset.tags
+      tags: preset.tags,
     });
   } catch (error) {
     console.error('Error loading synth2600 preset:', error);
@@ -1046,7 +1046,7 @@ router.get('/presets', async (req, res) => {
   try {
     const { category, tags, search } = req.query;
     const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
-    
+
     // Check if library exists
     try {
       await fs.access(presetLibPath);
@@ -1055,42 +1055,40 @@ router.get('/presets', async (req, res) => {
         success: true,
         count: 0,
         presets: [],
-        message: 'Preset library not initialized. Initialize with POST /api/music/presets/init'
+        message: 'Preset library not initialized. Initialize with POST /api/music/presets/init',
       });
     }
-    
+
     // Read library
     const libraryData = await fs.readFile(presetLibPath, 'utf8');
     const library = JSON.parse(libraryData);
     let presets = library.presets || [];
-    
+
     // Filter by category
     if (category) {
-      presets = presets.filter(p => p.category === category.toLowerCase());
+      presets = presets.filter((p) => p.category === category.toLowerCase());
     }
-    
+
     // Filter by tags
     if (tags) {
-      const tagList = tags.split(',').map(t => t.trim().toLowerCase());
-      presets = presets.filter(p => 
-        tagList.some(tag => p.tags && p.tags.includes(tag))
+      const tagList = tags.split(',').map((t) => t.trim().toLowerCase());
+      presets = presets.filter((p) => tagList.some((tag) => p.tags && p.tags.includes(tag)),
       );
     }
-    
+
     // Search by text
     if (search) {
       const query = search.toLowerCase();
-      presets = presets.filter(p =>
-        p.name.toLowerCase().includes(query) ||
-        (p.description && p.description.toLowerCase().includes(query)) ||
-        (p.notes && p.notes.toLowerCase().includes(query))
+      presets = presets.filter((p) => p.name.toLowerCase().includes(query)
+        || (p.description && p.description.toLowerCase().includes(query))
+        || (p.notes && p.notes.toLowerCase().includes(query)),
       );
     }
-    
+
     res.json({
       success: true,
       count: presets.length,
-      presets: presets.map(p => ({
+      presets: presets.map((p) => ({
         name: p.name,
         category: p.category,
         description: p.description,
@@ -1099,14 +1097,14 @@ router.get('/presets', async (req, res) => {
         key: p.key,
         author: p.author,
         created_at: p.created_at,
-        modified_at: p.modified_at
-      }))
+        modified_at: p.modified_at,
+      })),
     });
   } catch (error) {
     console.error('Error listing presets:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -1119,27 +1117,27 @@ router.get('/presets/:presetName', async (req, res) => {
   try {
     const presetName = decodeURIComponent(req.params.presetName);
     const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
-    
+
     const libraryData = await fs.readFile(presetLibPath, 'utf8');
     const library = JSON.parse(libraryData);
-    const preset = library.presets.find(p => p.name === presetName);
-    
+    const preset = library.presets.find((p) => p.name === presetName);
+
     if (!preset) {
       return res.status(404).json({
         success: false,
-        error: 'Preset not found'
+        error: 'Preset not found',
       });
     }
-    
+
     res.json({
       success: true,
-      preset
+      preset,
     });
   } catch (error) {
     console.error('Error loading preset:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -1153,21 +1151,21 @@ router.post('/presets/init', async (req, res) => {
     // Use the 100-preset catalog instead of factory_presets
     const { stdout, stderr } = await execPromise(
       `cd ${CLI_PATH} && python3 -m src.presets.preset_catalog_100`,
-      { maxBuffer: 1024 * 1024 * 10 }
+      { maxBuffer: 1024 * 1024 * 10 },
     );
-    
+
     res.json({
       success: true,
       message: '100 factory presets initialized',
       output: stdout,
-      errors: stderr || null
+      errors: stderr || null,
     });
   } catch (error) {
     console.error('Error initializing presets:', error);
     res.status(500).json({
       success: false,
       error: error.message,
-      stderr: error.stderr
+      stderr: error.stderr,
     });
   }
 });
@@ -1179,26 +1177,26 @@ router.post('/presets/init', async (req, res) => {
 router.get('/presets/stats', async (req, res) => {
   try {
     const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
-    
+
     const libraryData = await fs.readFile(presetLibPath, 'utf8');
     const library = JSON.parse(libraryData);
     const presets = library.presets || [];
-    
+
     // Calculate statistics
     const categories = {};
     const allTags = new Set();
-    
-    presets.forEach(preset => {
+
+    presets.forEach((preset) => {
       // Count by category
       const cat = preset.category;
       categories[cat] = (categories[cat] || 0) + 1;
-      
+
       // Collect tags
       if (preset.tags) {
-        preset.tags.forEach(tag => allTags.add(tag));
+        preset.tags.forEach((tag) => allTags.add(tag));
       }
     });
-    
+
     res.json({
       success: true,
       stats: {
@@ -1207,14 +1205,14 @@ router.get('/presets/stats', async (req, res) => {
         categories,
         tags: Array.from(allTags).sort(),
         library_version: library.version,
-        last_updated: library.updated_at
-      }
+        last_updated: library.updated_at,
+      },
     });
   } catch (error) {
     console.error('Error getting preset stats:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -1227,21 +1225,21 @@ router.post('/presets/:presetName/render', async (req, res) => {
   try {
     const presetName = decodeURIComponent(req.params.presetName);
     const { note = 60, duration = 2.0, velocity = 100 } = req.body;
-    
+
     // TODO: Implement preset rendering to MIDI
     // This would involve calling a Python script that loads the preset
     // and generates a MIDI file with the specified note
-    
+
     res.json({
       success: false,
       error: 'Preset rendering not yet implemented',
-      message: 'Will be implemented in next iteration'
+      message: 'Will be implemented in next iteration',
     });
   } catch (error) {
     console.error('Error rendering preset:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -1254,30 +1252,30 @@ router.get('/presets/:presetName/variations', async (req, res) => {
   try {
     const presetName = decodeURIComponent(req.params.presetName);
     const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
-    
+
     const libraryData = await fs.readFile(presetLibPath, 'utf8');
     const library = JSON.parse(libraryData);
-    const preset = library.presets.find(p => p.name === presetName);
-    
+    const preset = library.presets.find((p) => p.name === presetName);
+
     if (!preset) {
       return res.status(404).json({
         success: false,
-        error: 'Preset not found'
+        error: 'Preset not found',
       });
     }
-    
+
     res.json({
       success: true,
       preset_name: preset.name,
       active_variation: preset.active_variation || null,
       variations: preset.variations || [],
-      variation_count: (preset.variations || []).length
+      variation_count: (preset.variations || []).length,
     });
   } catch (error) {
     console.error('Error loading preset variations:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -1291,37 +1289,37 @@ router.get('/presets/:presetName/variations/:variationName', async (req, res) =>
     const presetName = decodeURIComponent(req.params.presetName);
     const variationName = decodeURIComponent(req.params.variationName);
     const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
-    
+
     const libraryData = await fs.readFile(presetLibPath, 'utf8');
     const library = JSON.parse(libraryData);
-    const preset = library.presets.find(p => p.name === presetName);
-    
+    const preset = library.presets.find((p) => p.name === presetName);
+
     if (!preset) {
       return res.status(404).json({
         success: false,
-        error: 'Preset not found'
+        error: 'Preset not found',
       });
     }
-    
-    const variation = (preset.variations || []).find(v => v.name === variationName);
-    
+
+    const variation = (preset.variations || []).find((v) => v.name === variationName);
+
     if (!variation) {
       return res.status(404).json({
         success: false,
-        error: 'Variation not found'
+        error: 'Variation not found',
       });
     }
-    
+
     res.json({
       success: true,
       preset_name: preset.name,
-      variation
+      variation,
     });
   } catch (error) {
     console.error('Error loading variation:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -1337,7 +1335,7 @@ router.get('/presets/:presetName/variations/:variationName', async (req, res) =>
 router.get('/presets/stats', async (req, res) => {
   try {
     const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
-    
+
     // Check if file exists
     try {
       await fs.access(presetLibPath);
@@ -1348,7 +1346,7 @@ router.get('/presets/stats', async (req, res) => {
           total_presets: 0,
           categories: {},
           initialized: false,
-        }
+        },
       });
     }
 
@@ -1370,10 +1368,10 @@ router.get('/presets/stats', async (req, res) => {
       success: true,
       stats: {
         total_presets: presetLib.presets.length,
-        categories: categories,
+        categories,
         initialized: true,
         last_updated: presetLib.updated || new Date().toISOString(),
-      }
+      },
     });
   } catch (error) {
     console.error('Error getting preset stats:', error);
@@ -1398,18 +1396,18 @@ router.get('/presets/:name', async (req, res) => {
     const presetLib = JSON.parse(data);
 
     // Find the preset
-    const preset = presetLib.presets.find(p => p.name === presetName);
+    const preset = presetLib.presets.find((p) => p.name === presetName);
 
     if (!preset) {
       return res.status(404).json({
         success: false,
-        error: `Preset '${presetName}' not found`
+        error: `Preset '${presetName}' not found`,
       });
     }
 
     res.json({
       success: true,
-      preset: preset,
+      preset,
     });
   } catch (error) {
     console.error('Error loading preset:', error);
@@ -1427,14 +1425,14 @@ router.get('/presets/:name', async (req, res) => {
 router.post('/presets/init', async (req, res) => {
   try {
     const presetLibPath = path.join(CLI_PATH, 'output/presets/preset_library.json');
-    
+
     // Check if already exists
     try {
       await fs.access(presetLibPath);
       return res.json({
         success: true,
         message: 'Preset library already exists',
-        action: 'skipped'
+        action: 'skipped',
       });
     } catch (err) {
       // Library doesn't exist, initialize it
@@ -1443,7 +1441,7 @@ router.post('/presets/init', async (req, res) => {
     // Run CLI to generate presets
     const { stdout, stderr } = await execPromise(
       `cd "${CLI_PATH}" && python3 synth2600_cli.py --list`,
-      { timeout: 30000 }
+      { timeout: 30000 },
     );
 
     if (stderr && !stderr.includes('UserWarning')) {
@@ -1454,7 +1452,7 @@ router.post('/presets/init', async (req, res) => {
       success: true,
       message: 'Preset library initialized successfully',
       action: 'created',
-      output: stdout
+      output: stdout,
     });
   } catch (error) {
     console.error('Error initializing presets:', error);
@@ -1466,4 +1464,3 @@ router.post('/presets/init', async (req, res) => {
 });
 
 module.exports = router;
-

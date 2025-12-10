@@ -18,7 +18,7 @@ const FACTORY_PRESETS = {
                     resonance: 25,
                     envMod: 0.8,
                     decay: 0.3,
-                    slideTime: 0.1
+                    slideTime: 0.1,
                 },
                 pattern: [
                     { note: 'C2', active: true, accent: false, slide: false },
@@ -28,9 +28,9 @@ const FACTORY_PRESETS = {
                     { note: 'C3', active: true, accent: true, slide: true },
                     { note: 'G2', active: true, accent: false, slide: false },
                     { note: 'F2', active: false },
-                    { note: 'D#2', active: true, accent: false, slide: false }
-                ]
-            }
+                    { note: 'D#2', active: true, accent: false, slide: false },
+                ],
+            },
         },
         {
             name: '303 Classic',
@@ -43,9 +43,9 @@ const FACTORY_PRESETS = {
                     resonance: 22,
                     envMod: 0.7,
                     decay: 0.35,
-                    slideTime: 0.08
-                }
-            }
+                    slideTime: 0.08,
+                },
+            },
         },
         {
             name: 'Resonant Bass',
@@ -58,11 +58,11 @@ const FACTORY_PRESETS = {
                     resonance: 28,
                     envMod: 0.85,
                     decay: 0.28,
-                    slideTime: 0.12
-                }
-            }
+                    slideTime: 0.12,
+                },
+            },
         },
-        
+
         // BASS PRESETS
         {
             name: 'Deep Bass',
@@ -75,15 +75,15 @@ const FACTORY_PRESETS = {
                     resonance: 15,
                     envMod: 0.5,
                     decay: 0.6,
-                    slideTime: 0.15
+                    slideTime: 0.15,
                 },
                 pattern: [
                     { note: 'C1', active: true, accent: true, slide: false },
                     { note: 'C1', active: false },
                     { note: 'D#1', active: true, accent: false, slide: true },
-                    { note: 'C1', active: true, accent: false, slide: false }
-                ]
-            }
+                    { note: 'C1', active: true, accent: false, slide: false },
+                ],
+            },
         },
         {
             name: 'Sub Bass',
@@ -96,9 +96,9 @@ const FACTORY_PRESETS = {
                     resonance: 10,
                     envMod: 0.3,
                     decay: 0.8,
-                    slideTime: 0.025
-                }
-            }
+                    slideTime: 0.025,
+                },
+            },
         },
         {
             name: 'Minimal Sub',
@@ -111,9 +111,9 @@ const FACTORY_PRESETS = {
                     resonance: 12,
                     envMod: 0.4,
                     decay: 0.5,
-                    slideTime: 0.1
-                }
-            }
+                    slideTime: 0.1,
+                },
+            },
         },
         {
             name: 'Dark Rolling Bass',
@@ -126,9 +126,9 @@ const FACTORY_PRESETS = {
                     resonance: 18,
                     envMod: 0.6,
                     decay: 0.7,
-                    slideTime: 0.18
-                }
-            }
+                    slideTime: 0.18,
+                },
+            },
         },
         {
             name: 'Pluck Bass',
@@ -141,9 +141,9 @@ const FACTORY_PRESETS = {
                     resonance: 14,
                     envMod: 0.6,
                     decay: 0.18,
-                    slideTime: 0.005
-                }
-            }
+                    slideTime: 0.005,
+                },
+            },
         },
         {
             name: 'Stab Bass',
@@ -156,9 +156,9 @@ const FACTORY_PRESETS = {
                     resonance: 16,
                     envMod: 0.65,
                     decay: 0.2,
-                    slideTime: 0.005
-                }
-            }
+                    slideTime: 0.005,
+                },
+            },
         },
         {
             name: 'Rumble Bass',
@@ -171,9 +171,9 @@ const FACTORY_PRESETS = {
                     resonance: 8,
                     envMod: 0.25,
                     decay: 0.9,
-                    slideTime: 0.05
-                }
-            }
+                    slideTime: 0.05,
+                },
+            },
         },
         {
             name: 'Drone Bass',
@@ -186,11 +186,11 @@ const FACTORY_PRESETS = {
                     resonance: 6,
                     envMod: 0.2,
                     decay: 1.2,
-                    slideTime: 0.1
-                }
-            }
+                    slideTime: 0.1,
+                },
+            },
         },
-        
+
         // LEAD PRESETS
         {
             name: 'Screamer',
@@ -203,9 +203,9 @@ const FACTORY_PRESETS = {
                     resonance: 28,
                     envMod: 0.7,
                     decay: 0.2,
-                    slideTime: 0.08
-                }
-            }
+                    slideTime: 0.08,
+                },
+            },
         },
         {
             name: 'Bright Lead',
@@ -218,9 +218,9 @@ const FACTORY_PRESETS = {
                     resonance: 20,
                     envMod: 0.65,
                     decay: 0.25,
-                    slideTime: 0.06
-                }
-            }
+                    slideTime: 0.06,
+                },
+            },
         },
         {
             name: 'Squelchy Lead',
@@ -233,11 +233,11 @@ const FACTORY_PRESETS = {
                     resonance: 26,
                     envMod: 0.75,
                     decay: 0.3,
-                    slideTime: 0.1
-                }
-            }
+                    slideTime: 0.1,
+                },
+            },
         },
-        
+
         // FX & SPECIAL
         {
             name: 'Wobble',
@@ -250,9 +250,9 @@ const FACTORY_PRESETS = {
                     resonance: 20,
                     envMod: 0.9,
                     decay: 0.8,
-                    slideTime: 0.05
-                }
-            }
+                    slideTime: 0.05,
+                },
+            },
         },
         {
             name: 'Metallic',
@@ -265,9 +265,9 @@ const FACTORY_PRESETS = {
                     resonance: 24,
                     envMod: 0.8,
                     decay: 0.15,
-                    slideTime: 0.02
-                }
-            }
+                    slideTime: 0.02,
+                },
+            },
         },
         {
             name: 'Industrial',
@@ -280,12 +280,12 @@ const FACTORY_PRESETS = {
                     resonance: 22,
                     envMod: 0.7,
                     decay: 0.4,
-                    slideTime: 0.03
-                }
-            }
-        }
+                    slideTime: 0.03,
+                },
+            },
+        },
     ],
-    
+
     tr909: [
         // TECHNO PATTERNS
         {
@@ -298,15 +298,15 @@ const FACTORY_PRESETS = {
                     kick: { pitch: 60, decay: 0.5, tone: 0.6, level: 1.0 },
                     snare: { tune: 200, tone: 0.5, snappy: 0.7, decay: 0.2, level: 0.8 },
                     hatClosed: { tune: 0.5, decay: 0.05, level: 0.6 },
-                    hatOpen: { tune: 0.5, decay: 0.25, level: 0.7 }
+                    hatOpen: { tune: 0.5, decay: 0.25, level: 0.7 },
                 },
                 pattern: {
                     kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
                     snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
                     hatClosed: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-                    hatOpen: [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1]
-                }
-            }
+                    hatOpen: [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+                },
+            },
         },
         {
             name: 'Hard Techno',
@@ -317,14 +317,14 @@ const FACTORY_PRESETS = {
                 params: {
                     kick: { pitch: 55, decay: 0.4, tone: 0.4, level: 1.0 },
                     snare: { tune: 220, tone: 0.6, snappy: 0.8, decay: 0.15, level: 0.9 },
-                    hatClosed: { tune: 0.6, decay: 0.04, level: 0.7 }
+                    hatClosed: { tune: 0.6, decay: 0.04, level: 0.7 },
                 },
                 pattern: {
                     kick: [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0],
                     snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-                    hatClosed: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-                }
-            }
+                    hatClosed: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                },
+            },
         },
         {
             name: 'Deep Groove',
@@ -335,9 +335,9 @@ const FACTORY_PRESETS = {
                 params: {
                     kick: { pitch: 58, decay: 0.6, tone: 0.5, level: 0.95 },
                     snare: { tune: 180, tone: 0.4, snappy: 0.6, decay: 0.25, level: 0.75 },
-                    hatClosed: { tune: 0.4, decay: 0.06, level: 0.55 }
-                }
-            }
+                    hatClosed: { tune: 0.4, decay: 0.06, level: 0.55 },
+                },
+            },
         },
         {
             name: 'Minimal Techno',
@@ -348,14 +348,14 @@ const FACTORY_PRESETS = {
                 params: {
                     kick: { pitch: 62, decay: 0.45, tone: 0.5, level: 0.95 },
                     snare: { tune: 190, tone: 0.45, snappy: 0.65, decay: 0.22, level: 0.7 },
-                    hatClosed: { tune: 0.45, decay: 0.05, level: 0.5 }
+                    hatClosed: { tune: 0.45, decay: 0.05, level: 0.5 },
                 },
                 pattern: {
                     kick: [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
                     snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-                    hatClosed: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0]
-                }
-            }
+                    hatClosed: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+                },
+            },
         },
         {
             name: 'Industrial Techno',
@@ -366,9 +366,9 @@ const FACTORY_PRESETS = {
                 params: {
                     kick: { pitch: 52, decay: 0.35, tone: 0.3, level: 1.0 },
                     snare: { tune: 240, tone: 0.7, snappy: 0.9, decay: 0.12, level: 0.95 },
-                    hatClosed: { tune: 0.65, decay: 0.035, level: 0.75 }
-                }
-            }
+                    hatClosed: { tune: 0.65, decay: 0.035, level: 0.75 },
+                },
+            },
         },
         {
             name: 'Melodic Techno',
@@ -379,9 +379,9 @@ const FACTORY_PRESETS = {
                 params: {
                     kick: { pitch: 59, decay: 0.55, tone: 0.55, level: 0.93 },
                     snare: { tune: 185, tone: 0.48, snappy: 0.68, decay: 0.23, level: 0.78 },
-                    hatClosed: { tune: 0.48, decay: 0.055, level: 0.58 }
-                }
-            }
+                    hatClosed: { tune: 0.48, decay: 0.055, level: 0.58 },
+                },
+            },
         },
         {
             name: '909 Classic Kit',
@@ -393,9 +393,9 @@ const FACTORY_PRESETS = {
                     kick: { pitch: 60, decay: 0.5, tone: 0.6, level: 0.9 },
                     snare: { tune: 200, tone: 0.5, snappy: 0.7, decay: 0.2, level: 0.8 },
                     hatClosed: { tune: 0.5, decay: 0.05, level: 0.6 },
-                    hatOpen: { tune: 0.5, decay: 0.3, level: 0.7 }
-                }
-            }
+                    hatOpen: { tune: 0.5, decay: 0.3, level: 0.7 },
+                },
+            },
         },
         {
             name: 'Deep Techno Kick',
@@ -404,9 +404,9 @@ const FACTORY_PRESETS = {
             bpm: 128,
             data: {
                 params: {
-                    kick: { pitch: 54, decay: 0.6, tone: 0.45, level: 1.0 }
-                }
-            }
+                    kick: { pitch: 54, decay: 0.6, tone: 0.45, level: 1.0 },
+                },
+            },
         },
         {
             name: 'Sub Kick',
@@ -415,12 +415,12 @@ const FACTORY_PRESETS = {
             bpm: 128,
             data: {
                 params: {
-                    kick: { pitch: 48, decay: 0.7, tone: 0.35, level: 0.95 }
-                }
-            }
-        }
+                    kick: { pitch: 48, decay: 0.7, tone: 0.35, level: 0.95 },
+                },
+            },
+        },
     ],
-    
+
     tr808: [
         // HIP-HOP PATTERNS
         {
@@ -433,14 +433,14 @@ const FACTORY_PRESETS = {
                     kick: { pitch: 50, decay: 0.5, level: 1.0 },
                     snare: { tune: 200, level: 0.8 },
                     clap: { level: 0.7 },
-                    hat: { decay: 0.05, level: 0.6 }
+                    hat: { decay: 0.05, level: 0.6 },
                 },
                 pattern: {
                     kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0],
                     snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-                    hat: [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1]
-                }
-            }
+                    hat: [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1],
+                },
+            },
         },
         {
             name: 'Boom Bap',
@@ -452,14 +452,14 @@ const FACTORY_PRESETS = {
                     kick: { pitch: 45, decay: 0.6, level: 1.0 },
                     snare: { tune: 180, level: 0.85 },
                     clap: { level: 0.75 },
-                    hat: { decay: 0.04, level: 0.5 }
+                    hat: { decay: 0.04, level: 0.5 },
                 },
                 pattern: {
                     kick: [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                     snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-                    hat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
-                }
-            }
+                    hat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+                },
+            },
         },
         {
             name: 'Lo-Fi Chill',
@@ -470,9 +470,9 @@ const FACTORY_PRESETS = {
                 params: {
                     kick: { pitch: 48, decay: 0.5, level: 0.8 },
                     snare: { tune: 160, level: 0.6 },
-                    hat: { decay: 0.06, level: 0.4 }
-                }
-            }
+                    hat: { decay: 0.06, level: 0.4 },
+                },
+            },
         },
         {
             name: 'Hard Trap',
@@ -484,14 +484,14 @@ const FACTORY_PRESETS = {
                     kick: { pitch: 48, decay: 0.45, level: 1.0 },
                     snare: { tune: 210, level: 0.9 },
                     clap: { level: 0.8 },
-                    hat: { decay: 0.045, level: 0.7 }
+                    hat: { decay: 0.045, level: 0.7 },
                 },
                 pattern: {
                     kick: [1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0],
                     snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
-                    hat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-                }
-            }
+                    hat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                },
+            },
         },
         {
             name: 'Old School',
@@ -503,9 +503,9 @@ const FACTORY_PRESETS = {
                     kick: { pitch: 46, decay: 0.55, level: 0.95 },
                     snare: { tune: 175, level: 0.8 },
                     clap: { level: 0.72 },
-                    hat: { decay: 0.042, level: 0.48 }
-                }
-            }
+                    hat: { decay: 0.042, level: 0.48 },
+                },
+            },
         },
         {
             name: 'Drill',
@@ -516,14 +516,14 @@ const FACTORY_PRESETS = {
                 params: {
                     kick: { pitch: 49, decay: 0.48, level: 0.98 },
                     snare: { tune: 195, level: 0.85 },
-                    hat: { decay: 0.048, level: 0.65 }
+                    hat: { decay: 0.048, level: 0.65 },
                 },
                 pattern: {
                     kick: [1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0],
                     snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-                    hat: [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0]
-                }
-            }
+                    hat: [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
+                },
+            },
         },
         {
             name: 'Lo-Fi Boom Bap',
@@ -534,9 +534,9 @@ const FACTORY_PRESETS = {
                 params: {
                     kick: { pitch: 47, decay: 0.52, level: 0.75 },
                     snare: { tune: 165, level: 0.65 },
-                    hat: { decay: 0.055, level: 0.42 }
-                }
-            }
+                    hat: { decay: 0.055, level: 0.42 },
+                },
+            },
         },
         {
             name: 'Jazz Hop',
@@ -547,14 +547,14 @@ const FACTORY_PRESETS = {
                 params: {
                     kick: { pitch: 46, decay: 0.58, level: 0.78 },
                     snare: { tune: 170, level: 0.68 },
-                    hat: { decay: 0.06, level: 0.45 }
+                    hat: { decay: 0.06, level: 0.45 },
                 },
                 pattern: {
                     kick: [1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
                     snare: [0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
-                    hat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
-                }
-            }
+                    hat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+                },
+            },
         },
         {
             name: 'Footwork',
@@ -565,14 +565,14 @@ const FACTORY_PRESETS = {
                 params: {
                     kick: { pitch: 51, decay: 0.4, level: 0.95 },
                     snare: { tune: 205, level: 0.82 },
-                    hat: { decay: 0.04, level: 0.68 }
+                    hat: { decay: 0.04, level: 0.68 },
                 },
                 pattern: {
                     kick: [1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0],
                     snare: [0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0],
-                    hat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-                }
-            }
+                    hat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                },
+            },
         },
         {
             name: '808 Sub Bass',
@@ -581,11 +581,11 @@ const FACTORY_PRESETS = {
             bpm: 128,
             data: {
                 params: {
-                    kick: { pitch: 44, decay: 0.7, level: 1.0 }
-                }
-            }
-        }
-    ]
+                    kick: { pitch: 44, decay: 0.7, level: 1.0 },
+                },
+            },
+        },
+    ],
 };
 
 // Make available globally (browser only)

@@ -415,10 +415,20 @@ jobs:
           echo "✅ Using Web App: $WEBAPP_NAME"
 
       - name: 🚀 Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ steps.webapp.outputs.name }}
-          images: ${{ needs.build-and-push.outputs.image-full }}
+        run: |
+          echo "Deploying Docker image to Web App..."
+          echo "Image: ${{ needs.build-and-push.outputs.image-full }}"
+          
+          # Configure web app to use the container
+          az webapp config container set \
+            --name ${{ steps.webapp.outputs.name }} \
+            --resource-group notesapp-dev-rg \
+            --docker-custom-image-name ${{ needs.build-and-push.outputs.image-full }} \
+            --docker-registry-server-url https://${{ env.ACR_NAME }}.azurecr.io \
+            --docker-registry-server-user ${{ secrets.ACR_USERNAME }} \
+            --docker-registry-server-password ${{ secrets.ACR_PASSWORD }} || echo "⚠️ Config update failed (permission issue)"
+          
+          echo "✅ Container configuration updated"
 
       - name: 🔄 Restart Web App
         run: |

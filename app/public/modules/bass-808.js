@@ -1,9 +1,9 @@
 /**
  * 808 Bass Synthesis Module
- * 
+ *
  * Professional 808 sub-bass synthesizer with authentic analog modeling.
  * Signal flow: VCO → VCF → Distortion → VCA → Output
- * 
+ *
  * Features:
  * - Dual sine oscillators with detune
  * - 24dB/oct low-pass filter
@@ -11,7 +11,7 @@
  * - Pitch envelope (glide/portamento)
  * - Harmonic distortion/saturation
  * - ADSR amplitude envelope
- * 
+ *
  * @module Bass808
  * @version 2.6.0
  */
@@ -36,7 +36,7 @@ class Bass808 {
             detune: options.detune || 0.99, // Slight detune for thickness
             envelopeAmount: options.envelopeAmount || 0.7, // Filter envelope depth
             gain: options.gain || 0.9,
-            ...options
+            ...options,
         };
 
         // Audio nodes
@@ -61,7 +61,7 @@ class Bass808 {
         // 24dB/oct low-pass filter (cascaded biquads)
         this.nodes.filter1 = this.engine.createFilter('lowpass', this.params.cutoff, 0.7);
         this.nodes.filter2 = this.engine.createFilter('lowpass', this.params.cutoff, 0.7);
-        
+
         // Connect filters in series for 24dB/oct slope
         this.nodes.filter1.connect(this.nodes.filter2);
 
@@ -69,7 +69,7 @@ class Bass808 {
         this.nodes.distortion = this.ctx.createWaveShaper();
         this.nodes.distortion.curve = this._createDistortionCurve(this.params.distortion * 100);
         this.nodes.distortion.oversample = '4x'; // Anti-aliasing
-        
+
         this.nodes.filter2.connect(this.nodes.distortion);
 
         // === VCA (Voltage Controlled Amplifier) ===
@@ -89,7 +89,7 @@ class Bass808 {
     trigger(frequency = null, velocity = 1.0, startTime = null) {
         const now = startTime || this.ctx.currentTime;
         const targetFreq = frequency || this.lastFrequency;
-        
+
         // Store for next time
         if (frequency) {
             this.lastFrequency = frequency;
@@ -112,17 +112,17 @@ class Bass808 {
             this.nodes.osc1.frequency.setValueAtTime(targetFreq, now);
             this.nodes.osc1.frequency.exponentialRampToValueAtTime(
                 glideTarget,
-                now + glideDuration
+                now + glideDuration,
             );
 
             // OSC2 glide (detuned)
             this.nodes.osc2.frequency.setValueAtTime(
                 targetFreq * this.params.detune,
-                now
+                now,
             );
             this.nodes.osc2.frequency.exponentialRampToValueAtTime(
                 glideTarget * this.params.detune,
-                now + glideDuration
+                now + glideDuration,
             );
         }
 
@@ -148,11 +148,11 @@ class Bass808 {
 
         this.nodes.filter1.frequency.exponentialRampToValueAtTime(
             filterEnd,
-            now + this.params.decay * 0.7
+            now + this.params.decay * 0.7,
         );
         this.nodes.filter2.frequency.exponentialRampToValueAtTime(
             filterEnd,
-            now + this.params.decay * 0.7
+            now + this.params.decay * 0.7,
         );
 
         // === Amplitude Envelope (VCA) ===
@@ -191,16 +191,16 @@ class Bass808 {
      */
     stop(when = null) {
         const now = when || this.ctx.currentTime;
-        
+
         if (this.nodes.osc1) {
             this.nodes.vca.gain.cancelScheduledValues(now);
             this.nodes.vca.gain.setValueAtTime(this.nodes.vca.gain.value, now);
             this.nodes.vca.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-            
+
             this.nodes.osc1.stop(now + 0.1);
             this.nodes.osc2.stop(now + 0.1);
         }
-        
+
         this.isPlaying = false;
     }
 
@@ -286,7 +286,7 @@ class Bass808 {
                 resonance: 0.4,
                 distortion: 0.15,
                 glide: 0.08,
-                envelopeAmount: 0.5
+                envelopeAmount: 0.5,
             },
             // Classic 808
             classic: {
@@ -296,7 +296,7 @@ class Bass808 {
                 resonance: 0.5,
                 distortion: 0.2,
                 glide: 0.05,
-                envelopeAmount: 0.7
+                envelopeAmount: 0.7,
             },
             // Punchy kick-style
             punchy: {
@@ -306,7 +306,7 @@ class Bass808 {
                 resonance: 0.3,
                 distortion: 0.1,
                 glide: 0,
-                envelopeAmount: 0.6
+                envelopeAmount: 0.6,
             },
             // Rolling bass
             rolling: {
@@ -316,7 +316,7 @@ class Bass808 {
                 resonance: 0.6,
                 distortion: 0.3,
                 glide: 0.1,
-                envelopeAmount: 0.8
+                envelopeAmount: 0.8,
             },
             // Distorted modern
             distorted: {
@@ -326,7 +326,7 @@ class Bass808 {
                 resonance: 0.7,
                 distortion: 0.5,
                 glide: 0.06,
-                envelopeAmount: 0.9
+                envelopeAmount: 0.9,
             },
             // Melodic bass
             melodic: {
@@ -336,8 +336,8 @@ class Bass808 {
                 resonance: 0.5,
                 distortion: 0.25,
                 glide: 0.12,
-                envelopeAmount: 0.75
-            }
+                envelopeAmount: 0.75,
+            },
         };
 
         const preset = presets[presetName];
@@ -391,7 +391,7 @@ class Bass808 {
             'A#': 58.3,
             Bb: 58.3,
             B: 61.7,
-            C2: 65.4 // Octave up
+            C2: 65.4, // Octave up
         };
     }
 
@@ -408,20 +408,20 @@ class Bass808 {
      */
     dispose() {
         this.stop();
-        
+
         if (this.output) {
             this.output.disconnect();
         }
-        
+
         Object.keys(this.nodes).forEach(key => {
             if (this.nodes[key] && this.nodes[key].disconnect) {
                 this.nodes[key].disconnect();
             }
         });
-        
+
         this.nodes = {};
         this.output = null;
-        
+
         console.log('🔴 808 Bass disposed');
     }
 }

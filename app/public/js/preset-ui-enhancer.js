@@ -12,13 +12,13 @@ export class PresetUIEnhancer {
                 beginner: '#39FF14',
                 intermediate: '#FF6B35',
                 advanced: '#FF1493',
-                expert: '#00FFFF'
+                expert: '#00FFFF',
             },
             soundCharacter: {
                 brightness: '#FFD700',
                 warmth: '#FF6B35',
                 aggression: '#FF1493',
-                complexity: '#00FFFF'
+                complexity: '#00FFFF',
             },
             genre: {
                 techno: '#39FF14',
@@ -27,11 +27,11 @@ export class PresetUIEnhancer {
                 ambient: '#00FFFF',
                 industrial: '#FF1493',
                 minimal: '#FFFFFF',
-                'acid house': '#39FF14'
-            }
+                'acid house': '#39FF14',
+            },
         };
     }
-    
+
     /**
      * Generate enhanced preset card with visual feedback
      * @param {string} synthName - Synth identifier
@@ -43,12 +43,12 @@ export class PresetUIEnhancer {
     generateEnhancedCard(synthName, presetKey, preset, theme = 'techno') {
         const themeColors = theme === 'techno' ? {
             accent: '#39FF14',
-            secondary: '#FF6B35'
+            secondary: '#FF6B35',
         } : {
             accent: '#FF6B35',
-            secondary: '#39FF14'
+            secondary: '#39FF14',
         };
-        
+
         return `
             <div class="enhanced-preset-card" 
                  data-synth="${synthName}"
@@ -146,7 +146,7 @@ export class PresetUIEnhancer {
             </div>
         `;
     }
-    
+
     /**
      * Generate character bars with visual feedback
      */
@@ -156,7 +156,7 @@ export class PresetUIEnhancer {
             const value = soundCharacter[char] || 0;
             const percentage = (value / 10) * 100;
             const color = this.colors.soundCharacter[char];
-            
+
             return `
                 <div style="margin-bottom: 8px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
@@ -186,33 +186,33 @@ export class PresetUIEnhancer {
             `;
         }).join('');
     }
-    
+
     /**
      * Get waveform icon based on type
      */
     getWaveformIcon(waveform) {
         const icons = {
-            'sawtooth': '🌊 Sawtooth Wave',
-            'square': '⬜ Square Wave',
-            'sine': '〰️ Sine Wave',
-            'complex': '🌀 Complex Wave',
-            'noise': '📡 Noise'
+            sawtooth: '🌊 Sawtooth Wave',
+            square: '⬜ Square Wave',
+            sine: '〰️ Sine Wave',
+            complex: '🌀 Complex Wave',
+            noise: '📡 Noise',
         };
         return icons[waveform] || '🎵 Waveform';
     }
-    
+
     /**
      * Create filter panel for preset browsing
      */
     createFilterPanel(containerId, synthName, onFilterChange) {
         const container = document.getElementById(containerId);
         if (!container) return;
-        
+
         const presets = this.presetMapper.getPresetsForSynth(synthName);
         const categories = [...new Set(Object.values(presets).map(p => p.category))];
         const genres = [...new Set(Object.values(presets).flatMap(p => p.genre))];
         const difficulties = [...new Set(Object.values(presets).map(p => p.difficulty))];
-        
+
         container.innerHTML = `
             <div style="
                 background: rgba(0,0,0,0.5);
@@ -311,7 +311,7 @@ export class PresetUIEnhancer {
                 </button>
             </div>
         `;
-        
+
         // Add event listeners
         ['category-filter', 'genre-filter', 'difficulty-filter', 'preset-search'].forEach(id => {
             const element = document.getElementById(id);
@@ -323,54 +323,54 @@ export class PresetUIEnhancer {
             }
         });
     }
-    
+
     /**
      * Filter presets based on criteria
      */
     filterPresets(synthName, filters) {
-        let presets = this.presetMapper.getPresetsForSynth(synthName);
-        
+        const presets = this.presetMapper.getPresetsForSynth(synthName);
+
         // Convert to array
         let presetArray = Object.entries(presets).map(([key, preset]) => ({
             key,
-            ...preset
+            ...preset,
         }));
-        
+
         // Apply category filter
         if (filters.category && filters.category !== 'all') {
             presetArray = presetArray.filter(p => p.category === filters.category);
         }
-        
+
         // Apply genre filter
         if (filters.genre && filters.genre !== 'all') {
             presetArray = presetArray.filter(p => p.genre.includes(filters.genre));
         }
-        
+
         // Apply difficulty filter
         if (filters.difficulty && filters.difficulty !== 'all') {
             presetArray = presetArray.filter(p => p.difficulty === filters.difficulty);
         }
-        
+
         // Apply search
         if (filters.search && filters.search.trim()) {
             const searchTerm = filters.search.toLowerCase();
-            presetArray = presetArray.filter(p => 
+            presetArray = presetArray.filter(p =>
                 p.name.toLowerCase().includes(searchTerm) ||
                 p.description.toLowerCase().includes(searchTerm) ||
-                p.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+                p.tags.some(tag => tag.toLowerCase().includes(searchTerm)),
             );
         }
-        
+
         return presetArray;
     }
-    
+
     /**
      * Render preset grid with enhanced cards
      */
     renderPresetGrid(containerId, synthName, presets, theme, onPresetClick) {
         const container = document.getElementById(containerId);
         if (!container) return;
-        
+
         if (presets.length === 0) {
             container.innerHTML = `
                 <div style="
@@ -385,27 +385,27 @@ export class PresetUIEnhancer {
             `;
             return;
         }
-        
+
         container.innerHTML = presets.map(preset => {
             const card = this.generateEnhancedCard(synthName, preset.key, preset, theme);
             return `<div onclick="loadPreset_${synthName}('${preset.key}')">${card}</div>`;
         }).join('');
     }
-    
+
     /**
      * Create recommendation panel
      */
     createRecommendationPanel(containerId, synthName, context) {
         const container = document.getElementById(containerId);
         if (!container) return;
-        
+
         const recommendations = this.presetMapper.getRecommendations(context);
         const synthRecs = recommendations
             .filter(rec => rec.synthName === synthName)
             .slice(0, 3);
-        
+
         if (synthRecs.length === 0) return;
-        
+
         container.innerHTML = `
             <div style="
                 background: linear-gradient(135deg, rgba(57,255,20,0.1), rgba(255,107,53,0.1));

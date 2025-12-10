@@ -1,9 +1,9 @@
 /**
  * Effects Rack Module
- * 
+ *
  * Professional effects processing chain with multiple effects units.
  * Supports both serial and parallel routing with wet/dry mix controls.
- * 
+ *
  * Effects:
  * - Stereo Delay (ping-pong, sync)
  * - Reverb (algorithmic impulse response)
@@ -11,7 +11,7 @@
  * - Distortion (wave shaping)
  * - Compressor (dynamic range control)
  * - Chorus (modulated delay)
- * 
+ *
  * @module Effects
  * @version 2.6.0
  */
@@ -32,13 +32,13 @@ class Effects {
             filter: null,
             distortion: null,
             compressor: null,
-            chorus: null
+            chorus: null,
         };
 
         // Routing
         this.input = this.engine.createGain(1.0);
         this.output = this.engine.createGain(1.0);
-        
+
         // Wet/dry mix nodes
         this.dryGain = this.engine.createGain(1.0);
         this.wetGain = this.engine.createGain(0.0);
@@ -58,19 +58,19 @@ class Effects {
     _initializeEffects() {
         // Delay
         this.units.delay = this._createDelay();
-        
+
         // Reverb
         this.units.reverb = this._createReverb();
-        
+
         // Filter
         this.units.filter = this._createFilter();
-        
+
         // Distortion
         this.units.distortion = this._createDistortion();
-        
+
         // Compressor
         this.units.compressor = this._createCompressor();
-        
+
         // Chorus
         this.units.chorus = this._createChorus();
     }
@@ -110,7 +110,7 @@ class Effects {
             delayR,
             feedbackL,
             feedbackR,
-            nodes: { delayL, delayR, feedbackL, feedbackR, mix, merger, splitter }
+            nodes: { delayL, delayR, feedbackL, feedbackR, mix, merger, splitter },
         };
     }
 
@@ -124,7 +124,7 @@ class Effects {
 
         // Create impulse response
         const reverbTime = 2.0; // seconds
-        const sampleRate = this.ctx.sampleRate;
+        const { sampleRate } = this.ctx;
         const length = sampleRate * reverbTime;
         const impulse = this.ctx.createBuffer(2, length, sampleRate);
 
@@ -145,7 +145,7 @@ class Effects {
             input: convolver,
             output: mix,
             convolver,
-            nodes: { convolver, mix }
+            nodes: { convolver, mix },
         };
     }
 
@@ -163,7 +163,7 @@ class Effects {
             input: filter,
             output: mix,
             filter,
-            nodes: { filter, mix }
+            nodes: { filter, mix },
         };
     }
 
@@ -185,7 +185,7 @@ class Effects {
             input: shaper,
             output: mix,
             shaper,
-            nodes: { shaper, mix }
+            nodes: { shaper, mix },
         };
     }
 
@@ -210,7 +210,7 @@ class Effects {
             input: compressor,
             output: mix,
             compressor,
-            nodes: { compressor, mix }
+            nodes: { compressor, mix },
         };
     }
 
@@ -240,7 +240,7 @@ class Effects {
             delay,
             lfo,
             depth,
-            nodes: { delay, lfo, depth, mix }
+            nodes: { delay, lfo, depth, mix },
         };
     }
 
@@ -278,7 +278,7 @@ class Effects {
     setReverb(enabled, mix = 0.3, decay = 2.0) {
         if (enabled) {
             // Regenerate impulse response with new decay
-            const sampleRate = this.ctx.sampleRate;
+            const { sampleRate } = this.ctx;
             const length = sampleRate * decay;
             const impulse = this.ctx.createBuffer(2, length, sampleRate);
 
@@ -404,34 +404,34 @@ class Effects {
         const presets = {
             // Spacious reverb
             space: {
-                reverb: { enabled: true, mix: 0.4, decay: 3.0 }
+                reverb: { enabled: true, mix: 0.4, decay: 3.0 },
             },
             // Ping-pong delay
             echo: {
-                delay: { enabled: true, time: 0.375, feedback: 0.4 }
+                delay: { enabled: true, time: 0.375, feedback: 0.4 },
             },
             // Low-pass filter sweep
             filter: {
-                filter: { enabled: true, type: 'lowpass', frequency: 800, resonance: 5 }
+                filter: { enabled: true, type: 'lowpass', frequency: 800, resonance: 5 },
             },
             // Warm distortion
             warm: {
-                distortion: { enabled: true, amount: 30 }
+                distortion: { enabled: true, amount: 30 },
             },
             // Heavy compression
             punchy: {
-                compressor: { enabled: true, threshold: -18, ratio: 8 }
+                compressor: { enabled: true, threshold: -18, ratio: 8 },
             },
             // Chorus + reverb
             lush: {
                 chorus: { enabled: true, rate: 2, depth: 0.6 },
-                reverb: { enabled: true, mix: 0.3, decay: 2.5 }
+                reverb: { enabled: true, mix: 0.3, decay: 2.5 },
             },
             // Dub delay
             dub: {
                 delay: { enabled: true, time: 0.5, feedback: 0.6 },
-                filter: { enabled: true, type: 'lowpass', frequency: 1200, resonance: 2 }
-            }
+                filter: { enabled: true, type: 'lowpass', frequency: 1200, resonance: 2 },
+            },
         };
 
         const preset = presets[presetName];
@@ -503,24 +503,24 @@ class Effects {
         return {
             delay: {
                 time: this.units.delay.delayL.delayTime.value,
-                feedback: this.units.delay.feedbackL.gain.value
+                feedback: this.units.delay.feedbackL.gain.value,
             },
             reverb: {
-                mix: this.units.reverb.nodes.mix.gain.value
+                mix: this.units.reverb.nodes.mix.gain.value,
             },
             filter: {
                 type: this.units.filter.filter.type,
                 frequency: this.units.filter.filter.frequency.value,
-                Q: this.units.filter.filter.Q.value
+                Q: this.units.filter.filter.Q.value,
             },
             compressor: {
                 threshold: this.units.compressor.compressor.threshold.value,
-                ratio: this.units.compressor.compressor.ratio.value
+                ratio: this.units.compressor.compressor.ratio.value,
             },
             chorus: {
                 rate: this.units.chorus.lfo.frequency.value,
-                depth: this.units.chorus.depth.gain.value
-            }
+                depth: this.units.chorus.depth.gain.value,
+            },
         };
     }
 

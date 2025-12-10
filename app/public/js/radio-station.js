@@ -9,7 +9,7 @@ export class RadioStation {
         this.currentChannel = 'techno';
         this.isPlaying = false;
         this.volume = 0.8;
-        
+
         // Channels configuration
         this.channels = {
             techno: {
@@ -18,7 +18,7 @@ export class RadioStation {
                 color: '#39FF14',
                 bpm: [125, 145],
                 playlist: [],
-                currentTrack: 0
+                currentTrack: 0,
             },
             house: {
                 name: '🏠 HOUSE',
@@ -26,7 +26,7 @@ export class RadioStation {
                 color: '#FFD700',
                 bpm: [120, 128],
                 playlist: [],
-                currentTrack: 0
+                currentTrack: 0,
             },
             trance: {
                 name: '🌊 TRANCE',
@@ -34,7 +34,7 @@ export class RadioStation {
                 color: '#00D9FF',
                 bpm: [130, 140],
                 playlist: [],
-                currentTrack: 0
+                currentTrack: 0,
             },
             trap: {
                 name: '🔥 TRAP',
@@ -42,7 +42,7 @@ export class RadioStation {
                 color: '#FF6B35',
                 bpm: [130, 160],
                 playlist: [],
-                currentTrack: 0
+                currentTrack: 0,
             },
             ambient: {
                 name: '🌌 AMBIENT',
@@ -50,7 +50,7 @@ export class RadioStation {
                 color: '#9370DB',
                 bpm: [60, 90],
                 playlist: [],
-                currentTrack: 0
+                currentTrack: 0,
             },
             dnb: {
                 name: '⚡ DnB',
@@ -58,50 +58,50 @@ export class RadioStation {
                 color: '#FF1493',
                 bpm: [160, 180],
                 playlist: [],
-                currentTrack: 0
-            }
+                currentTrack: 0,
+            },
         };
-        
+
         // Audio nodes
         this.gainNode = null;
         this.analyserNode = null;
         this.sourceNode = null;
         this.audioElement = null;
-        
+
         // Playlist management
         this.history = [];
         this.queue = [];
-        
+
         // Chat system
         this.chatMessages = [];
         this.maxChatMessages = 100;
-        
+
         // Statistics
         this.listeners = 0;
         this.stats = {
             totalPlays: 0,
             totalListeners: 0,
-            uptime: 0
+            uptime: 0,
         };
-        
+
         this.initializeAudio();
     }
-    
+
     /**
      * Initialize audio nodes
      */
     initializeAudio() {
         this.gainNode = this.audioContext.createGain();
         this.analyserNode = this.audioContext.createAnalyser();
-        
+
         this.analyserNode.fftSize = 2048;
         this.gainNode.gain.value = this.volume;
-        
+
         // Connect nodes
         this.gainNode.connect(this.analyserNode);
         this.analyserNode.connect(this.audioContext.destination);
     }
-    
+
     /**
      * Switch to a different channel
      */
@@ -109,57 +109,57 @@ export class RadioStation {
         if (!this.channels[channelId]) {
             return { success: false, message: 'Channel not found' };
         }
-        
+
         const wasPlaying = this.isPlaying;
-        
+
         if (wasPlaying) {
             this.stop();
         }
-        
+
         this.currentChannel = channelId;
-        
+
         if (wasPlaying) {
             this.play();
         }
-        
+
         this.broadcastEvent('channelChanged', {
             channel: channelId,
-            info: this.channels[channelId]
+            info: this.channels[channelId],
         });
-        
+
         return {
             success: true,
-            channel: this.channels[channelId]
+            channel: this.channels[channelId],
         };
     }
-    
+
     /**
      * Play current channel
      */
     play() {
         const channel = this.channels[this.currentChannel];
-        
+
         if (channel.playlist.length === 0) {
             return { success: false, message: 'No tracks in playlist' };
         }
-        
+
         const track = channel.playlist[channel.currentTrack];
-        
+
         // Create audio element if doesn't exist
         if (!this.audioElement) {
             this.audioElement = new Audio();
             this.audioElement.crossOrigin = 'anonymous';
-            
+
             // Create MediaElementSource
             this.sourceNode = this.audioContext.createMediaElementSource(this.audioElement);
             this.sourceNode.connect(this.gainNode);
-            
+
             // Add event listeners
             this.audioElement.addEventListener('ended', () => this.playNext());
             this.audioElement.addEventListener('error', (e) => this.handleError(e));
             this.audioElement.addEventListener('timeupdate', () => this.updateProgress());
         }
-        
+
         this.audioElement.src = track.url;
         this.audioElement.play()
             .then(() => {
@@ -171,10 +171,10 @@ export class RadioStation {
                 console.error('Playback error:', error);
                 this.handleError(error);
             });
-        
+
         return { success: true, track };
     }
-    
+
     /**
      * Pause playback
      */
@@ -185,7 +185,7 @@ export class RadioStation {
             this.broadcastEvent('trackPaused', {});
         }
     }
-    
+
     /**
      * Stop playback
      */
@@ -197,13 +197,13 @@ export class RadioStation {
             this.broadcastEvent('trackStopped', {});
         }
     }
-    
+
     /**
      * Play next track
      */
     playNext() {
         const channel = this.channels[this.currentChannel];
-        
+
         // Check queue first
         if (this.queue.length > 0) {
             const nextTrack = this.queue.shift();
@@ -214,28 +214,28 @@ export class RadioStation {
             this.addToHistory(channel.playlist[channel.currentTrack]);
             channel.currentTrack = (channel.currentTrack + 1) % channel.playlist.length;
         }
-        
+
         if (this.isPlaying) {
             this.play();
         }
     }
-    
+
     /**
      * Play previous track
      */
     playPrevious() {
         const channel = this.channels[this.currentChannel];
-        
+
         if (this.history.length > 0) {
             const previousTrack = this.history.pop();
             channel.currentTrack = channel.playlist.findIndex(t => t.id === previousTrack.id);
-            
+
             if (this.isPlaying) {
                 this.play();
             }
         }
     }
-    
+
     /**
      * Add track to queue
      */
@@ -244,7 +244,7 @@ export class RadioStation {
         this.broadcastEvent('queueUpdated', { queue: this.queue });
         return { success: true, queue: this.queue };
     }
-    
+
     /**
      * Remove track from queue
      */
@@ -256,7 +256,7 @@ export class RadioStation {
         }
         return { success: false };
     }
-    
+
     /**
      * Add track to history
      */
@@ -266,7 +266,7 @@ export class RadioStation {
             this.history.shift();
         }
     }
-    
+
     /**
      * Set volume
      */
@@ -277,41 +277,41 @@ export class RadioStation {
         }
         this.broadcastEvent('volumeChanged', { volume: this.volume });
     }
-    
+
     /**
      * Get current track info
      */
     getCurrentTrack() {
         const channel = this.channels[this.currentChannel];
         if (channel.playlist.length === 0) return null;
-        
+
         return {
             ...channel.playlist[channel.currentTrack],
             channel: this.currentChannel,
             channelInfo: channel,
             position: this.audioElement ? this.audioElement.currentTime : 0,
-            duration: this.audioElement ? this.audioElement.duration : 0
+            duration: this.audioElement ? this.audioElement.duration : 0,
         };
     }
-    
+
     /**
      * Get visualizer data
      */
     getVisualizerData() {
         if (!this.analyserNode) return { frequencies: [], waveform: [] };
-        
+
         const frequencyData = new Uint8Array(this.analyserNode.frequencyBinCount);
         const waveformData = new Uint8Array(this.analyserNode.frequencyBinCount);
-        
+
         this.analyserNode.getByteFrequencyData(frequencyData);
         this.analyserNode.getByteTimeDomainData(waveformData);
-        
+
         return {
             frequencies: Array.from(frequencyData),
-            waveform: Array.from(waveformData)
+            waveform: Array.from(waveformData),
         };
     }
-    
+
     /**
      * Add track to channel playlist
      */
@@ -319,7 +319,7 @@ export class RadioStation {
         if (!this.channels[channelId]) {
             return { success: false, message: 'Channel not found' };
         }
-        
+
         const newTrack = {
             id: Date.now(),
             title: track.title,
@@ -329,18 +329,18 @@ export class RadioStation {
             bpm: track.bpm || this.channels[channelId].bpm[0],
             genre: track.genre || channelId,
             artwork: track.artwork || null,
-            uploadedAt: new Date().toISOString()
+            uploadedAt: new Date().toISOString(),
         };
-        
+
         this.channels[channelId].playlist.push(newTrack);
         this.broadcastEvent('playlistUpdated', {
             channel: channelId,
-            playlist: this.channels[channelId].playlist
+            playlist: this.channels[channelId].playlist,
         });
-        
+
         return { success: true, track: newTrack };
     }
-    
+
     /**
      * Remove track from channel
      */
@@ -348,20 +348,20 @@ export class RadioStation {
         if (!this.channels[channelId]) {
             return { success: false, message: 'Channel not found' };
         }
-        
+
         const index = this.channels[channelId].playlist.findIndex(t => t.id === trackId);
         if (index !== -1) {
             this.channels[channelId].playlist.splice(index, 1);
             this.broadcastEvent('playlistUpdated', {
                 channel: channelId,
-                playlist: this.channels[channelId].playlist
+                playlist: this.channels[channelId].playlist,
             });
             return { success: true };
         }
-        
+
         return { success: false, message: 'Track not found' };
     }
-    
+
     /**
      * Chat system - Add message
      */
@@ -371,27 +371,27 @@ export class RadioStation {
             username,
             message,
             timestamp: new Date().toISOString(),
-            channel: this.currentChannel
+            channel: this.currentChannel,
         };
-        
+
         this.chatMessages.push(chatMessage);
-        
+
         // Keep only recent messages
         if (this.chatMessages.length > this.maxChatMessages) {
             this.chatMessages.shift();
         }
-        
+
         this.broadcastEvent('chatMessage', chatMessage);
         return chatMessage;
     }
-    
+
     /**
      * Get chat messages
      */
     getChatMessages(limit = 50) {
         return this.chatMessages.slice(-limit);
     }
-    
+
     /**
      * Update listener count
      */
@@ -400,7 +400,7 @@ export class RadioStation {
         this.stats.totalListeners = Math.max(this.stats.totalListeners, count);
         this.broadcastEvent('listenersUpdated', { listeners: count });
     }
-    
+
     /**
      * Get statistics
      */
@@ -411,43 +411,43 @@ export class RadioStation {
             channels: Object.keys(this.channels).length,
             totalTracks: Object.values(this.channels).reduce((sum, ch) => sum + ch.playlist.length, 0),
             queueLength: this.queue.length,
-            historyLength: this.history.length
+            historyLength: this.history.length,
         };
     }
-    
+
     /**
      * Broadcast event to listeners
      */
     broadcastEvent(eventName, data) {
         window.dispatchEvent(new CustomEvent(`radio:${eventName}`, { detail: data }));
     }
-    
+
     /**
      * Update progress
      */
     updateProgress() {
         if (!this.audioElement) return;
-        
+
         const progress = {
             currentTime: this.audioElement.currentTime,
             duration: this.audioElement.duration,
-            percentage: (this.audioElement.currentTime / this.audioElement.duration) * 100 || 0
+            percentage: (this.audioElement.currentTime / this.audioElement.duration) * 100 || 0,
         };
-        
+
         this.broadcastEvent('progressUpdated', progress);
     }
-    
+
     /**
      * Handle playback errors
      */
     handleError(error) {
         console.error('Radio error:', error);
         this.broadcastEvent('playbackError', { error: error.message });
-        
+
         // Try to skip to next track
         setTimeout(() => this.playNext(), 2000);
     }
-    
+
     /**
      * Seek to position
      */
@@ -456,7 +456,7 @@ export class RadioStation {
             this.audioElement.currentTime = seconds;
         }
     }
-    
+
     /**
      * Get all channels info
      */
@@ -465,7 +465,7 @@ export class RadioStation {
             id,
             ...channel,
             trackCount: channel.playlist.length,
-            isCurrent: id === this.currentChannel
+            isCurrent: id === this.currentChannel,
         }));
     }
 }

@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router = express.Router();
 const { getFeaturesSummary, getEnabledFeatures, isFeatureEnabled } = require('../config/features');
 
@@ -30,7 +31,7 @@ router.get('/:featureKey', (req, res) => {
   try {
     const { featureKey } = req.params;
     const enabled = isFeatureEnabled(featureKey);
-    
+
     res.json({
       success: true,
       feature: featureKey,

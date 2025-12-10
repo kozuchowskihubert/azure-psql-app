@@ -108,7 +108,7 @@ function handleRecordingConnection(ws, req) {
           room.users.delete(userId);
           broadcastToRoom(roomCode, {
             type: 'user_left',
-            userId
+            userId,
           });
         }
       });
@@ -126,35 +126,35 @@ function handleRecordingMessage(ws, message) {
     case 'create_room':
       handleCreateRoom(ws, message);
       break;
-    
+
     case 'join_room':
       handleJoinRoom(ws, message);
       break;
-    
+
     case 'leave_room':
       handleLeaveRoom(ws, message);
       break;
-    
+
     case 'recording_started':
       handleRecordingStarted(ws, message);
       break;
-    
+
     case 'recording_stopped':
       handleRecordingStopped(ws, message);
       break;
-    
+
     case 'track_assigned':
       handleTrackAssigned(ws, message);
       break;
-    
+
     case 'chat_message':
       handleChatMessage(ws, message);
       break;
-    
+
     case 'beat_changed':
       handleBeatChanged(ws, message);
       break;
-    
+
     default:
       console.log('Unknown recording message type:', type);
   }
@@ -169,19 +169,19 @@ function handleCreateRoom(ws, message) {
   if (recordingRooms.has(roomCode)) {
     ws.send(JSON.stringify({
       type: 'error',
-      message: 'Room already exists'
+      message: 'Room already exists',
     }));
     return;
   }
 
   user.ws = ws;
-  
+
   const room = {
     users: new Map([[user.id, user]]),
     tracks: [],
     beat: null,
     messages: [],
-    createdAt: new Date()
+    createdAt: new Date(),
   };
 
   recordingRooms.set(roomCode, room);
@@ -189,11 +189,11 @@ function handleCreateRoom(ws, message) {
   ws.send(JSON.stringify({
     type: 'room_created',
     roomCode,
-    users: Array.from(room.users.values()).map(u => ({
+    users: Array.from(room.users.values()).map((u) => ({
       id: u.id,
       name: u.name,
-      isHost: u.isHost
-    }))
+      isHost: u.isHost,
+    })),
   }));
 
   console.log(`Room created: ${roomCode} by ${user.name}`);
@@ -208,7 +208,7 @@ function handleJoinRoom(ws, message) {
   if (!recordingRooms.has(roomCode)) {
     ws.send(JSON.stringify({
       type: 'error',
-      message: 'Room not found'
+      message: 'Room not found',
     }));
     return;
   }
@@ -221,13 +221,13 @@ function handleJoinRoom(ws, message) {
   ws.send(JSON.stringify({
     type: 'room_joined',
     roomCode,
-    users: Array.from(room.users.values()).map(u => ({
+    users: Array.from(room.users.values()).map((u) => ({
       id: u.id,
       name: u.name,
-      isHost: u.isHost
+      isHost: u.isHost,
     })),
     tracks: room.tracks,
-    beat: room.beat
+    beat: room.beat,
   }));
 
   // Notify others
@@ -236,8 +236,8 @@ function handleJoinRoom(ws, message) {
     user: {
       id: user.id,
       name: user.name,
-      isHost: user.isHost
-    }
+      isHost: user.isHost,
+    },
   }, user.id);
 
   console.log(`User ${user.name} joined room: ${roomCode}`);
@@ -256,7 +256,7 @@ function handleLeaveRoom(ws, message) {
 
   broadcastToRoom(roomCode, {
     type: 'user_left',
-    userId
+    userId,
   });
 
   // Delete room if empty
@@ -273,10 +273,10 @@ function handleLeaveRoom(ws, message) {
  */
 function handleRecordingStarted(ws, message) {
   const { roomCode, userId } = message;
-  
+
   broadcastToRoom(roomCode, {
     type: 'recording_started',
-    userId
+    userId,
   });
 }
 
@@ -285,10 +285,10 @@ function handleRecordingStarted(ws, message) {
  */
 function handleRecordingStopped(ws, message) {
   const { roomCode, userId } = message;
-  
+
   broadcastToRoom(roomCode, {
     type: 'recording_stopped',
-    userId
+    userId,
   });
 }
 
@@ -297,17 +297,17 @@ function handleRecordingStopped(ws, message) {
  */
 function handleTrackAssigned(ws, message) {
   const { roomCode, trackId, userId } = message;
-  
+
   if (!recordingRooms.has(roomCode)) return;
-  
+
   const room = recordingRooms.get(roomCode);
   const track = { trackId, userId, assignedAt: new Date() };
   room.tracks.push(track);
-  
+
   broadcastToRoom(roomCode, {
     type: 'track_assigned',
     trackId,
-    userId
+    userId,
   });
 }
 
@@ -315,25 +315,27 @@ function handleTrackAssigned(ws, message) {
  * Handle chat message
  */
 function handleChatMessage(ws, message) {
-  const { roomCode, userId, username, message: text } = message;
-  
+  const {
+    roomCode, userId, username, message: text,
+  } = message;
+
   if (!recordingRooms.has(roomCode)) return;
-  
+
   const room = recordingRooms.get(roomCode);
   const chatMessage = {
     userId,
     username,
     message: text,
-    timestamp: new Date()
+    timestamp: new Date(),
   };
-  
+
   room.messages.push(chatMessage);
-  
+
   broadcastToRoom(roomCode, {
     type: 'chat_message',
     userId,
     username,
-    message: text
+    message: text,
   });
 }
 
@@ -341,18 +343,25 @@ function handleChatMessage(ws, message) {
  * Handle beat changed
  */
 function handleBeatChanged(ws, message) {
-  const { roomCode, beatName, bpm, key } = message;
-  
+  const {
+    roomCode, beatName, bpm, key,
+  } = message;
+
   if (!recordingRooms.has(roomCode)) return;
-  
+
   const room = recordingRooms.get(roomCode);
-  room.beat = { beatName, bpm, key, changedAt: new Date() };
-  
+  room.beat = {
+    beatName,
+    bpm,
+    key,
+    changedAt: new Date(),
+  };
+
   broadcastToRoom(roomCode, {
     type: 'beat_changed',
     beatName,
     bpm,
-    key
+    key,
   });
 }
 
@@ -397,4 +406,3 @@ module.exports = (server) => {
 
   return wss;
 };
-

@@ -1,14 +1,15 @@
 /**
  * Studio API Routes
- * 
+ *
  * REST API endpoints for HAOS Platform Studio
  * Manages presets, patterns, and settings synchronization
  * between haos-platform.html and studio.html
- * 
+ *
  * @module routes/studio-api
  */
 
 const express = require('express');
+
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
@@ -30,7 +31,7 @@ try {
 const storage = {
   presets: [...factoryPresets], // Initialize with factory presets
   patterns: [],
-  settings: {}
+  settings: {},
 };
 
 // ============================================================================
@@ -47,38 +48,37 @@ const storage = {
  */
 router.get('/presets', (req, res) => {
   let filteredPresets = storage.presets;
-  
+
   // Filter by type
   if (req.query.type) {
-    filteredPresets = filteredPresets.filter(p => p.type === req.query.type);
+    filteredPresets = filteredPresets.filter((p) => p.type === req.query.type);
   }
-  
+
   // Filter by category
   if (req.query.category) {
-    filteredPresets = filteredPresets.filter(p => p.category === req.query.category);
+    filteredPresets = filteredPresets.filter((p) => p.category === req.query.category);
   }
-  
+
   // Search in name/description
   if (req.query.search) {
     const search = req.query.search.toLowerCase();
-    filteredPresets = filteredPresets.filter(p => 
-      p.name.toLowerCase().includes(search) || 
-      (p.description && p.description.toLowerCase().includes(search))
+    filteredPresets = filteredPresets.filter((p) => p.name.toLowerCase().includes(search)
+      || (p.description && p.description.toLowerCase().includes(search)),
     );
   }
-  
+
   res.json({
     success: true,
     count: filteredPresets.length,
     total: storage.presets.length,
-    presets: filteredPresets
+    presets: filteredPresets,
   });
 });
 
 /**
  * POST /api/studio/presets
  * Save a new preset
- * 
+ *
  * Body:
  * {
  *   name: string,
@@ -88,11 +88,11 @@ router.get('/presets', (req, res) => {
  */
 router.post('/presets', (req, res) => {
   const { name, type, parameters } = req.body;
-  
+
   if (!name || !type || !parameters) {
     return res.status(400).json({
       success: false,
-      error: 'Missing required fields: name, type, parameters'
+      error: 'Missing required fields: name, type, parameters',
     });
   }
 
@@ -101,14 +101,14 @@ router.post('/presets', (req, res) => {
     name,
     type,
     parameters,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   };
 
   storage.presets.push(preset);
 
   res.status(201).json({
     success: true,
-    preset
+    preset,
   });
 });
 
@@ -121,12 +121,12 @@ router.post('/presets', (req, res) => {
  * Get all ARP 2600 patches
  */
 router.get('/presets/arp2600', (req, res) => {
-  const arp2600Presets = storage.presets.filter(p => p.type === 'arp2600');
-  
+  const arp2600Presets = storage.presets.filter((p) => p.type === 'arp2600');
+
   res.json({
     success: true,
     count: arp2600Presets.length,
-    presets: arp2600Presets
+    presets: arp2600Presets,
   });
 });
 
@@ -135,13 +135,13 @@ router.get('/presets/arp2600', (req, res) => {
  * Get available ARP 2600 patch categories
  */
 router.get('/presets/arp2600/categories', (req, res) => {
-  const arp2600Presets = storage.presets.filter(p => p.type === 'arp2600');
-  const categories = [...new Set(arp2600Presets.map(p => p.category).filter(Boolean))];
-  
+  const arp2600Presets = storage.presets.filter((p) => p.type === 'arp2600');
+  const categories = [...new Set(arp2600Presets.map((p) => p.category).filter(Boolean))];
+
   res.json({
     success: true,
-    categories: categories,
-    count: categories.length
+    categories,
+    count: categories.length,
   });
 });
 
@@ -150,12 +150,12 @@ router.get('/presets/arp2600/categories', (req, res) => {
  * Apply an ARP 2600 patch to the synth engine
  */
 router.post('/presets/arp2600/apply/:id', (req, res) => {
-  const preset = storage.presets.find(p => p.id === req.params.id && p.type === 'arp2600');
-  
+  const preset = storage.presets.find((p) => p.id === req.params.id && p.type === 'arp2600');
+
   if (!preset) {
     return res.status(404).json({
       success: false,
-      error: 'ARP 2600 preset not found'
+      error: 'ARP 2600 preset not found',
     });
   }
 
@@ -165,8 +165,8 @@ router.post('/presets/arp2600/apply/:id', (req, res) => {
   res.json({
     success: true,
     message: `ARP 2600 preset "${preset.name}" applied`,
-    preset: preset,
-    parameters: preset.parameters
+    preset,
+    parameters: preset.parameters,
   });
 });
 
@@ -179,12 +179,12 @@ router.post('/presets/arp2600/apply/:id', (req, res) => {
  * Get all TB-303 presets
  */
 router.get('/presets/tb303', (req, res) => {
-  const tb303Presets = storage.presets.filter(p => p.type === 'tb303');
-  
+  const tb303Presets = storage.presets.filter((p) => p.type === 'tb303');
+
   res.json({
     success: true,
     count: tb303Presets.length,
-    presets: tb303Presets
+    presets: tb303Presets,
   });
 });
 
@@ -193,13 +193,13 @@ router.get('/presets/tb303', (req, res) => {
  * Get available TB-303 preset categories
  */
 router.get('/presets/tb303/categories', (req, res) => {
-  const tb303Presets = storage.presets.filter(p => p.type === 'tb303');
-  const categories = [...new Set(tb303Presets.map(p => p.category).filter(Boolean))];
-  
+  const tb303Presets = storage.presets.filter((p) => p.type === 'tb303');
+  const categories = [...new Set(tb303Presets.map((p) => p.category).filter(Boolean))];
+
   res.json({
     success: true,
-    categories: categories,
-    count: categories.length
+    categories,
+    count: categories.length,
   });
 });
 
@@ -208,12 +208,12 @@ router.get('/presets/tb303/categories', (req, res) => {
  * Apply a TB-303 preset to the synth engine
  */
 router.post('/presets/tb303/apply/:id', (req, res) => {
-  const preset = storage.presets.find(p => p.id === req.params.id && p.type === 'tb303');
-  
+  const preset = storage.presets.find((p) => p.id === req.params.id && p.type === 'tb303');
+
   if (!preset) {
     return res.status(404).json({
       success: false,
-      error: 'TB-303 preset not found'
+      error: 'TB-303 preset not found',
     });
   }
 
@@ -224,8 +224,8 @@ router.post('/presets/tb303/apply/:id', (req, res) => {
   res.json({
     success: true,
     message: `TB-303 preset "${preset.name}" applied`,
-    preset: preset,
-    parameters: preset.parameters
+    preset,
+    parameters: preset.parameters,
   });
 });
 
@@ -239,21 +239,21 @@ router.get('/presets/stats/summary', (req, res) => {
     byType: {},
     byCategory: {},
     categories: new Set(),
-    types: new Set()
+    types: new Set(),
   };
-  
-  storage.presets.forEach(preset => {
+
+  storage.presets.forEach((preset) => {
     // Count by type
     stats.byType[preset.type] = (stats.byType[preset.type] || 0) + 1;
     stats.types.add(preset.type);
-    
+
     // Count by category
     if (preset.category) {
       stats.byCategory[preset.category] = (stats.byCategory[preset.category] || 0) + 1;
       stats.categories.add(preset.category);
     }
   });
-  
+
   res.json({
     success: true,
     stats: {
@@ -261,8 +261,8 @@ router.get('/presets/stats/summary', (req, res) => {
       byType: stats.byType,
       byCategory: stats.byCategory,
       categories: Array.from(stats.categories),
-      types: Array.from(stats.types)
-    }
+      types: Array.from(stats.types),
+    },
   });
 });
 
@@ -271,18 +271,18 @@ router.get('/presets/stats/summary', (req, res) => {
  * Get a specific preset by ID
  */
 router.get('/presets/:id', (req, res) => {
-  const preset = storage.presets.find(p => p.id === req.params.id);
-  
+  const preset = storage.presets.find((p) => p.id === req.params.id);
+
   if (!preset) {
     return res.status(404).json({
       success: false,
-      error: 'Preset not found'
+      error: 'Preset not found',
     });
   }
 
   res.json({
     success: true,
-    preset
+    preset,
   });
 });
 
@@ -291,12 +291,12 @@ router.get('/presets/:id', (req, res) => {
  * Delete a preset
  */
 router.delete('/presets/:id', (req, res) => {
-  const index = storage.presets.findIndex(p => p.id === req.params.id);
-  
+  const index = storage.presets.findIndex((p) => p.id === req.params.id);
+
   if (index === -1) {
     return res.status(404).json({
       success: false,
-      error: 'Preset not found'
+      error: 'Preset not found',
     });
   }
 
@@ -304,7 +304,7 @@ router.delete('/presets/:id', (req, res) => {
 
   res.json({
     success: true,
-    message: 'Preset deleted'
+    message: 'Preset deleted',
   });
 });
 
@@ -320,14 +320,14 @@ router.get('/patterns', (req, res) => {
   res.json({
     success: true,
     count: storage.patterns.length,
-    patterns: storage.patterns
+    patterns: storage.patterns,
   });
 });
 
 /**
  * POST /api/studio/patterns
  * Save a new sequencer pattern
- * 
+ *
  * Body:
  * {
  *   name: string,
@@ -337,11 +337,11 @@ router.get('/patterns', (req, res) => {
  */
 router.post('/patterns', (req, res) => {
   const { name, steps, bpm } = req.body;
-  
+
   if (!name || !steps) {
     return res.status(400).json({
       success: false,
-      error: 'Missing required fields: name, steps'
+      error: 'Missing required fields: name, steps',
     });
   }
 
@@ -350,14 +350,14 @@ router.post('/patterns', (req, res) => {
     name,
     steps,
     bpm: bpm || 128,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   };
 
   storage.patterns.push(pattern);
 
   res.status(201).json({
     success: true,
-    pattern
+    pattern,
   });
 });
 
@@ -366,18 +366,18 @@ router.post('/patterns', (req, res) => {
  * Get a specific pattern by ID
  */
 router.get('/patterns/:id', (req, res) => {
-  const pattern = storage.patterns.find(p => p.id === req.params.id);
-  
+  const pattern = storage.patterns.find((p) => p.id === req.params.id);
+
   if (!pattern) {
     return res.status(404).json({
       success: false,
-      error: 'Pattern not found'
+      error: 'Pattern not found',
     });
   }
 
   res.json({
     success: true,
-    pattern
+    pattern,
   });
 });
 
@@ -386,12 +386,12 @@ router.get('/patterns/:id', (req, res) => {
  * Delete a pattern
  */
 router.delete('/patterns/:id', (req, res) => {
-  const index = storage.patterns.findIndex(p => p.id === req.params.id);
-  
+  const index = storage.patterns.findIndex((p) => p.id === req.params.id);
+
   if (index === -1) {
     return res.status(404).json({
       success: false,
-      error: 'Pattern not found'
+      error: 'Pattern not found',
     });
   }
 
@@ -399,7 +399,7 @@ router.delete('/patterns/:id', (req, res) => {
 
   res.json({
     success: true,
-    message: 'Pattern deleted'
+    message: 'Pattern deleted',
   });
 });
 
@@ -414,29 +414,29 @@ router.delete('/patterns/:id', (req, res) => {
 router.get('/settings', (req, res) => {
   res.json({
     success: true,
-    settings: storage.settings
+    settings: storage.settings,
   });
 });
 
 /**
  * POST /api/studio/settings
  * Update user settings
- * 
+ *
  * Body: any valid JSON object
  */
 router.post('/settings', (req, res) => {
   const settings = req.body;
-  
+
   // Merge with existing settings
   storage.settings = {
     ...storage.settings,
     ...settings,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
 
   res.json({
     success: true,
-    settings: storage.settings
+    settings: storage.settings,
   });
 });
 
@@ -446,18 +446,18 @@ router.post('/settings', (req, res) => {
  */
 router.get('/settings/:key', (req, res) => {
   const value = storage.settings[req.params.key];
-  
+
   if (value === undefined) {
     return res.status(404).json({
       success: false,
-      error: 'Setting not found'
+      error: 'Setting not found',
     });
   }
 
   res.json({
     success: true,
     key: req.params.key,
-    value
+    value,
   });
 });
 
@@ -477,8 +477,8 @@ router.get('/sync', (req, res) => {
     data: {
       presets: storage.presets,
       patterns: storage.patterns,
-      settings: storage.settings
-    }
+      settings: storage.settings,
+    },
   });
 });
 
@@ -486,7 +486,7 @@ router.get('/sync', (req, res) => {
  * POST /api/studio/sync
  * Update complete state from another page
  * Used for bulk synchronization
- * 
+ *
  * Body:
  * {
  *   presets?: array,
@@ -496,26 +496,26 @@ router.get('/sync', (req, res) => {
  */
 router.post('/sync', (req, res) => {
   const { presets, patterns, settings } = req.body;
-  
+
   if (presets) {
     storage.presets = presets;
   }
-  
+
   if (patterns) {
     storage.patterns = patterns;
   }
-  
+
   if (settings) {
     storage.settings = {
       ...storage.settings,
-      ...settings
+      ...settings,
     };
   }
 
   res.json({
     success: true,
     message: 'State synchronized',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
