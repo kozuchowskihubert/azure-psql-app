@@ -159,6 +159,21 @@ router.post('/apple/callback',
 // ============================================================================
 
 /**
+ * GET /auth/magic
+ * Handle magic link verification (redirect from email)
+ */
+router.get('/magic', async (req, res) => {
+  const { token } = req.query;
+  
+  if (!token) {
+    return res.redirect('/login.html?error=missing_token');
+  }
+  
+  // Redirect to API verification endpoint
+  res.redirect(`/api/auth/magic/verify?token=${token}`);
+});
+
+/**
  * GET /auth/status
  * Check authentication status
  */
