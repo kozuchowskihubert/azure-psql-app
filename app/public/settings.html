@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - HAOS.fm</title>
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0A0A0A;
+            min-height: 100vh;
+            color: #F4E8D8;
+        }
+
+        /* Background effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+            opacity: 0.03;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .bg-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-glow.orange { background: #FF6B35; width: 400px; height: 400px; top: -100px; left: -100px; opacity: 0.15; }
+        .bg-glow.gold { background: #D4AF37; width: 300px; height: 300px; bottom: 20%; right: -50px; opacity: 0.1; }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #F4E8D8;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #FF6B35, #D4AF37);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+            color: #0A0A0A;
+        }
+
+        .logo-text {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 1.75rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #FF6B35, #D4AF37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #6B6B6B;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #FF6B35;
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page header */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 3rem;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, #FF6B35, #D4AF37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #6B6B6B;
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+        }
+
+        /* Settings sections */
+        .settings-section {
+            background: linear-gradient(145deg, #151515 0%, #0d0d0d 100%);
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .settings-section:hover {
+            border-color: rgba(255, 107, 53, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: #F4E8D8;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title i {
+            color: #FF6B35;
+            font-size: 1.25rem;
+        }
+
+        .section-description {
+            color: #6B6B6B;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* Form groups */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: #B8B8B8;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.75rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            color: #F4E8D8;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            color: #F4E8D8;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #FF6B35;
+        }
+
+        /* Toggle switch */
+        .toggle-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .toggle-group:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-label {
+            flex: 1;
+        }
+
+        .toggle-title {
+            color: #F4E8D8;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .toggle-desc {
+            color: #6B6B6B;
+            font-size: 0.85rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            background: #2a2a2a;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: linear-gradient(135deg, #FF6B35, #D4AF37);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: #F4E8D8;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
+            color: #0A0A0A;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #2a2a2a;
+            color: #F4E8D8;
+        }
+
+        .btn-secondary:hover {
+            border-color: #FF6B35;
+            background: rgba(255, 107, 53, 0.1);
+            color: #FF6B35;
+        }
+
+        .btn-danger {
+            background: transparent;
+            border: 1px solid #ff4444;
+            color: #ff4444;
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 68, 68, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Success/Error messages */
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message-success {
+            background: rgba(57, 255, 20, 0.1);
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            color: #39FF14;
+        }
+
+        .message-error {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            color: #ff4444;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .settings-section {
+                padding: 1.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow orange"></div>
+    <div class="bg-glow gold"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <a href="/" class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-broadcast-tower"></i>
+            </div>
+            <span class="logo-text">HAOS.FM</span>
+        </a>
+        <nav class="header-nav">
+            <a href="/account" class="nav-link">
+                <i class="fas fa-user"></i> Account
+            </a>
+            <a href="/settings" class="nav-link active">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="/my-projects" class="nav-link">
+                <i class="fas fa-folder"></i> Projects
+            </a>
+            <a href="/" class="nav-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </nav>
+    </header>
+
+    <!-- Main container -->
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Settings</h1>
+            <p class="page-subtitle">Customize your HAOS.fm experience</p>
+        </div>
+
+        <!-- Success/Error messages -->
+        <div id="successMessage" class="message message-success"></div>
+        <div id="errorMessage" class="message message-error"></div>
+
+        <!-- Profile Settings -->
+        <section class="settings-section">
+            <h2 class="section-title">
+                <i class="fas fa-user-circle"></i>
+                Profile Settings
+            </h2>
+            <p class="section-description">
+                Update your personal information and profile details
+            </p>
+
+            <div class="form-group">
+                <label class="form-label">Display Name</label>
+                <input type="text" class="form-input" id="displayName" placeholder="Your name">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="email" placeholder="your@email.com" disabled>
+                <small style="color: #6B6B6B; font-size: 0.8rem; display: block; margin-top: 0.5rem;">
+                    Email cannot be changed. Contact support if you need to update it.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Bio</label>
+                <textarea class="form-input" id="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="saveProfile()">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </section>
+
+        <!-- Password Settings -->
+        <section class="settings-section">
+            <h2 class="section-title">
+                <i class="fas fa-lock"></i>
+                Password & Security
+            </h2>
+            <p class="section-description">
+                Change your password and manage security settings
+            </p>
+
+            <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <input type="password" class="form-input" id="currentPassword" placeholder="Enter current password">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input type="password" class="form-input" id="newPassword" placeholder="Enter new password">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" class="form-input" id="confirmPassword" placeholder="Confirm new password">
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="changePassword()">
+                    <i class="fas fa-key"></i> Update Password
+                </button>
+            </div>
+        </section>
+
+        <!-- Workspace Preferences -->
+        <section class="settings-section">
+            <h2 class="section-title">
+                <i class="fas fa-sliders-h"></i>
+                Workspace Preferences
+            </h2>
+            <p class="section-description">
+                Configure your default workspace and creative environment
+            </p>
+
+            <div class="form-group">
+                <label class="form-label">Default Workspace</label>
+                <select class="form-select" id="defaultWorkspace">
+                    <option value="haos-platform">HAOS Platform (All-in-One)</option>
+                    <option value="techno-workspace">Techno Workspace (DAW Style)</option>
+                    <option value="modular-workspace">Modular Workspace (ARP 2600)</option>
+                    <option value="builder">Builder (Preset Creator)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Theme</label>
+                <select class="form-select" id="theme">
+                    <option value="dark">Dark (Default)</option>
+                    <option value="darker">Darker</option>
+                    <option value="midnight">Midnight</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Audio Settings -->
+        <section class="settings-section">
+            <h2 class="section-title">
+                <i class="fas fa-volume-up"></i>
+                Audio Settings
+            </h2>
+            <p class="section-description">
+                Configure audio output and quality settings
+            </p>
+
+            <div class="toggle-group">
+                <div class="toggle-label">
+                    <div class="toggle-title">Auto-play on load</div>
+                    <div class="toggle-desc">Automatically start synthesis when workspace loads</div>
+                </div>
+                <div class="toggle-switch" id="autoplayToggle" onclick="toggleSetting('autoplay')">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="toggle-group">
+                <div class="toggle-label">
+                    <div class="toggle-title">High Quality Mode</div>
+                    <div class="toggle-desc">Use higher sample rate and buffer size (may increase latency)</div>
+                </div>
+                <div class="toggle-switch" id="highQualityToggle" onclick="toggleSetting('highQuality')">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="toggle-group">
+                <div class="toggle-label">
+                    <div class="toggle-title">Enable MIDI Output</div>
+                    <div class="toggle-desc">Allow sending MIDI to external devices</div>
+                </div>
+                <div class="toggle-switch" id="midiOutputToggle" onclick="toggleSetting('midiOutput')">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notifications -->
+        <section class="settings-section">
+            <h2 class="section-title">
+                <i class="fas fa-bell"></i>
+                Notifications
+            </h2>
+            <p class="section-description">
+                Manage how you receive updates and notifications
+            </p>
+
+            <div class="toggle-group">
+                <div class="toggle-label">
+                    <div class="toggle-title">Email Notifications</div>
+                    <div class="toggle-desc">Receive updates about new features and releases</div>
+                </div>
+                <div class="toggle-switch active" id="emailNotifToggle" onclick="toggleSetting('emailNotif')">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="toggle-group">
+                <div class="toggle-label">
+                    <div class="toggle-title">Community Updates</div>
+                    <div class="toggle-desc">Get notified about community events and collaborations</div>
+                </div>
+                <div class="toggle-switch active" id="communityToggle" onclick="toggleSetting('community')">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="toggle-group">
+                <div class="toggle-label">
+                    <div class="toggle-title">Marketing Emails</div>
+                    <div class="toggle-desc">Receive promotional content and special offers</div>
+                </div>
+                <div class="toggle-switch" id="marketingToggle" onclick="toggleSetting('marketing')">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Danger Zone -->
+        <section class="settings-section">
+            <h2 class="section-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                Danger Zone
+            </h2>
+            <p class="section-description">
+                Irreversible actions - proceed with caution
+            </p>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="exportData()">
+                    <i class="fas fa-download"></i> Export My Data
+                </button>
+                <button class="btn btn-danger" onclick="deleteAccount()">
+                    <i class="fas fa-trash"></i> Delete Account
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Load user settings on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+        });
+
+        // Load settings from localStorage or API
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('userSettings') || '{}');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+            // Load profile
+            document.getElementById('displayName').value = user.name || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('bio').value = settings.bio || '';
+
+            // Load workspace preferences
+            document.getElementById('defaultWorkspace').value = settings.defaultWorkspace || 'haos-platform';
+            document.getElementById('theme').value = settings.theme || 'dark';
+
+            // Load toggle states
+            const toggles = ['autoplay', 'highQuality', 'midiOutput', 'emailNotif', 'community', 'marketing'];
+            toggles.forEach(toggle => {
+                const element = document.getElementById(`${toggle}Toggle`);
+                if (settings[toggle]) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        // Save profile changes
+        function saveProfile() {
+            const displayName = document.getElementById('displayName').value;
+            const bio = document.getElementById('bio').value;
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            user.name = displayName;
+
+            const settings = JSON.parse(localStorage.getItem('userSettings') || '{}');
+            settings.bio = bio;
+
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('userSettings', JSON.stringify(settings));
+
+            showMessage('success', 'Profile updated successfully!');
+
+            // TODO: Send to API
+            // fetch('/api/user/profile', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ name: displayName, bio })
+            // });
+        }
+
+        // Change password
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showMessage('error', 'Please fill in all password fields');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showMessage('error', 'New passwords do not match');
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                showMessage('error', 'Password must be at least 8 characters');
+                return;
+            }
+
+            // TODO: Send to API
+            // fetch('/api/user/change-password', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ currentPassword, newPassword })
+            // })
+            // .then(res => res.json())
+            // .then(data => {
+            //     if (data.success) {
+            //         showMessage('success', 'Password changed successfully!');
+            //         // Clear fields
+            //         document.getElementById('currentPassword').value = '';
+            //         document.getElementById('newPassword').value = '';
+            //         document.getElementById('confirmPassword').value = '';
+            //     } else {
+            //         showMessage('error', data.error || 'Failed to change password');
+            //     }
+            // });
+
+            showMessage('success', 'Password changed successfully!');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        // Toggle setting
+        function toggleSetting(setting) {
+            const toggle = document.getElementById(`${setting}Toggle`);
+            toggle.classList.toggle('active');
+
+            const settings = JSON.parse(localStorage.getItem('userSettings') || '{}');
+            settings[setting] = toggle.classList.contains('active');
+            localStorage.setItem('userSettings', JSON.stringify(settings));
+
+            showMessage('success', 'Setting updated');
+        }
+
+        // Export user data
+        function exportData() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const settings = JSON.parse(localStorage.getItem('userSettings') || '{}');
+            const data = { user, settings };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `haos-fm-data-${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showMessage('success', 'Data exported successfully!');
+        }
+
+        // Delete account
+        function deleteAccount() {
+            if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                return;
+            }
+
+            if (!confirm('This will permanently delete all your data, presets, and projects. Are you absolutely sure?')) {
+                return;
+            }
+
+            // TODO: Send to API
+            // fetch('/api/user/delete-account', {
+            //     method: 'DELETE',
+            //     credentials: 'include'
+            // })
+            // .then(res => res.json())
+            // .then(data => {
+            //     if (data.success) {
+            //         localStorage.clear();
+            //         window.location.href = '/';
+            //     }
+            // });
+
+            showMessage('error', 'Account deletion feature coming soon. Contact support for assistance.');
+        }
+
+        // Show message
+        function showMessage(type, text) {
+            const messageEl = document.getElementById(type === 'success' ? 'successMessage' : 'errorMessage');
+            messageEl.textContent = text;
+            messageEl.classList.add('show');
+
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+            }, 5000);
+        }
+
+        // Save workspace preference changes
+        document.getElementById('defaultWorkspace').addEventListener('change', (e) => {
+            const settings = JSON.parse(localStorage.getItem('userSettings') || '{}');
+            settings.defaultWorkspace = e.target.value;
+            localStorage.setItem('userSettings', JSON.stringify(settings));
+            showMessage('success', 'Default workspace updated');
+        });
+
+        document.getElementById('theme').addEventListener('change', (e) => {
+            const settings = JSON.parse(localStorage.getItem('userSettings') || '{}');
+            settings.theme = e.target.value;
+            localStorage.setItem('userSettings', JSON.stringify(settings));
+            showMessage('success', 'Theme updated');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects - HAOS.fm</title>
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0A0A0A;
+            min-height: 100vh;
+            color: #F4E8D8;
+        }
+
+        /* Background effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+            opacity: 0.03;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .bg-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-glow.orange { background: #FF6B35; width: 400px; height: 400px; top: -100px; left: -100px; opacity: 0.15; }
+        .bg-glow.gold { background: #D4AF37; width: 300px; height: 300px; bottom: 20%; right: -50px; opacity: 0.1; }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #F4E8D8;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #FF6B35, #D4AF37);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+            color: #0A0A0A;
+        }
+
+        .logo-text {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 1.75rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #FF6B35, #D4AF37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #6B6B6B;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #FF6B35;
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page header */
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 3rem;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, #FF6B35, #D4AF37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #6B6B6B;
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: #6B6B6B;
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab:hover {
+            color: #F4E8D8;
+        }
+
+        .tab.active {
+            color: #FF6B35;
+            border-bottom-color: #FF6B35;
+        }
+
+        /* Project grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            background: linear-gradient(145deg, #151515 0%, #0d0d0d 100%);
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            border-color: rgba(255, 107, 53, 0.5);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .project-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #FF6B35, #D4AF37);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #0A0A0A;
+        }
+
+        .project-menu {
+            position: relative;
+        }
+
+        .menu-btn {
+            background: transparent;
+            border: none;
+            color: #6B6B6B;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .menu-btn:hover {
+            color: #FF6B35;
+        }
+
+        .project-title {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            color: #F4E8D8;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-type {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #6B6B6B;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+        }
+
+        .project-description {
+            color: #B8B8B8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .project-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #6B6B6B;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #2a2a2a;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            color: #F4E8D8;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            border-color: #FF6B35;
+            background: rgba(255, 107, 53, 0.1);
+            color: #FF6B35;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #2a2a2a;
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 2rem;
+            color: #6B6B6B;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-text {
+            color: #6B6B6B;
+            margin-bottom: 2rem;
+        }
+
+        .btn-create {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
+            border: none;
+            border-radius: 8px;
+            color: #0A0A0A;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        /* Tab content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Waveform visualization */
+        .waveform {
+            height: 60px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .waveform-bars {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            gap: 2px;
+            padding: 0 0.5rem;
+        }
+
+        .waveform-bar {
+            flex: 1;
+            background: linear-gradient(to top, #FF6B35, #D4AF37);
+            border-radius: 2px;
+            opacity: 0.3;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .tabs {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow orange"></div>
+    <div class="bg-glow gold"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <a href="/" class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-broadcast-tower"></i>
+            </div>
+            <span class="logo-text">HAOS.FM</span>
+        </a>
+        <nav class="header-nav">
+            <a href="/account" class="nav-link">
+                <i class="fas fa-user"></i> Account
+            </a>
+            <a href="/settings" class="nav-link">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="/my-projects" class="nav-link active">
+                <i class="fas fa-folder"></i> Projects
+            </a>
+            <a href="/" class="nav-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </nav>
+    </header>
+
+    <!-- Main container -->
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">My Projects</h1>
+                <p class="page-subtitle">Your saved presets, tracks, and patterns</p>
+            </div>
+            <a href="/" class="btn-create">
+                <i class="fas fa-plus"></i>
+                Create New
+            </a>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('presets')">
+                <i class="fas fa-sliders-h"></i> Presets
+            </button>
+            <button class="tab" onclick="switchTab('tracks')">
+                <i class="fas fa-music"></i> Tracks
+            </button>
+            <button class="tab" onclick="switchTab('patterns')">
+                <i class="fas fa-stream"></i> Patterns
+            </button>
+        </div>
+
+        <!-- Presets Tab -->
+        <div id="presetsTab" class="tab-content active">
+            <div class="projects-grid" id="presetsGrid">
+                <!-- Presets will be loaded here -->
+            </div>
+            <div id="presetsEmpty" class="empty-state" style="display: none;">
+                <div class="empty-icon"><i class="fas fa-sliders-h"></i></div>
+                <h3 class="empty-title">No Presets Yet</h3>
+                <p class="empty-text">Create your first synth preset in the workspace</p>
+                <a href="/" class="btn-create">
+                    <i class="fas fa-plus"></i> Create Preset
+                </a>
+            </div>
+        </div>
+
+        <!-- Tracks Tab -->
+        <div id="tracksTab" class="tab-content">
+            <div class="projects-grid" id="tracksGrid">
+                <!-- Tracks will be loaded here -->
+            </div>
+            <div id="tracksEmpty" class="empty-state" style="display: none;">
+                <div class="empty-icon"><i class="fas fa-music"></i></div>
+                <h3 class="empty-title">No Tracks Yet</h3>
+                <p class="empty-text">Upload your first audio track</p>
+                <a href="/" class="btn-create">
+                    <i class="fas fa-upload"></i> Upload Track
+                </a>
+            </div>
+        </div>
+
+        <!-- Patterns Tab -->
+        <div id="patternsTab" class="tab-content">
+            <div class="projects-grid" id="patternsGrid">
+                <!-- Patterns will be loaded here -->
+            </div>
+            <div id="patternsEmpty" class="empty-state" style="display: none;">
+                <div class="empty-icon"><i class="fas fa-stream"></i></div>
+                <h3 class="empty-title">No Patterns Yet</h3>
+                <p class="empty-text">Create your first sequence pattern</p>
+                <a href="/techno-workspace" class="btn-create">
+                    <i class="fas fa-plus"></i> Create Pattern
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Switch between tabs
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.closest('.tab').classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+        }
+
+        // Load projects on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPresets();
+            loadTracks();
+            loadPatterns();
+        });
+
+        // Load presets
+        function loadPresets() {
+            const presets = JSON.parse(localStorage.getItem('savedPresets') || '[]');
+            const grid = document.getElementById('presetsGrid');
+            const empty = document.getElementById('presetsEmpty');
+
+            if (presets.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            grid.innerHTML = presets.map(preset => `
+                <div class="project-card" onclick="loadPreset('${preset.id}')">
+                    <div class="project-header">
+                        <div class="project-icon">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <div class="project-menu">
+                            <button class="menu-btn" onclick="event.stopPropagation(); showMenu(event, 'preset', '${preset.id}')">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="project-title">${preset.name || 'Untitled Preset'}</h3>
+                    <p class="project-type">Synth Preset</p>
+                    <p class="project-description">${preset.description || 'Custom synthesizer preset'}</p>
+                    <div class="project-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-clock"></i>
+                            ${formatDate(preset.created || Date.now())}
+                        </div>
+                    </div>
+                    <div class="project-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); loadPreset('${preset.id}')">
+                            <i class="fas fa-play"></i> Load
+                        </button>
+                        <button class="action-btn" onclick="event.stopPropagation(); exportPreset('${preset.id}')">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load tracks
+        async function loadTracks() {
+            const grid = document.getElementById('tracksGrid');
+            const empty = document.getElementById('tracksEmpty');
+
+            try {
+                const response = await fetch('/api/tracks/list');
+                const data = await response.json();
+                const tracks = data.tracks || [];
+
+                if (tracks.length === 0) {
+                    grid.style.display = 'none';
+                    empty.style.display = 'block';
+                    return;
+                }
+
+                grid.innerHTML = tracks.map(track => `
+                    <div class="project-card">
+                        <div class="project-header">
+                            <div class="project-icon">
+                                <i class="fas fa-music"></i>
+                            </div>
+                            <div class="project-menu">
+                                <button class="menu-btn" onclick="showMenu(event, 'track', '${track.id}')">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <h3 class="project-title">${track.title || 'Untitled Track'}</h3>
+                        <p class="project-type">Audio Track • ${track.genre || 'Unknown'}</p>
+                        <p class="project-description">${track.description || 'Uploaded audio track'}</p>
+                        <div class="waveform">
+                            <div class="waveform-bars">
+                                ${generateWaveform()}
+                            </div>
+                        </div>
+                        <div class="project-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                ${formatDate(track.uploadedAt)}
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-play"></i>
+                                ${track.plays || 0} plays
+                            </div>
+                        </div>
+                        <div class="project-actions">
+                            <button class="action-btn" onclick="playTrack('${track.blobUrl}')">
+                                <i class="fas fa-play"></i> Play
+                            </button>
+                            <button class="action-btn" onclick="downloadTrack('${track.blobUrl}', '${track.title}')">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load tracks:', error);
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+            }
+        }
+
+        // Load patterns
+        function loadPatterns() {
+            const patterns = JSON.parse(localStorage.getItem('savedPatterns') || '[]');
+            const grid = document.getElementById('patternsGrid');
+            const empty = document.getElementById('patternsEmpty');
+
+            if (patterns.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            grid.innerHTML = patterns.map(pattern => `
+                <div class="project-card" onclick="loadPattern('${pattern.id}')">
+                    <div class="project-header">
+                        <div class="project-icon">
+                            <i class="fas fa-stream"></i>
+                        </div>
+                        <div class="project-menu">
+                            <button class="menu-btn" onclick="event.stopPropagation(); showMenu(event, 'pattern', '${pattern.id}')">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="project-title">${pattern.name || 'Untitled Pattern'}</h3>
+                    <p class="project-type">Sequence Pattern • ${pattern.steps || 16} steps</p>
+                    <p class="project-description">${pattern.description || 'Custom sequence pattern'}</p>
+                    <div class="project-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-clock"></i>
+                            ${formatDate(pattern.created || Date.now())}
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-drum"></i>
+                            ${pattern.tracks || 4} tracks
+                        </div>
+                    </div>
+                    <div class="project-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); loadPattern('${pattern.id}')">
+                            <i class="fas fa-play"></i> Load
+                        </button>
+                        <button class="action-btn" onclick="event.stopPropagation(); exportPattern('${pattern.id}')">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Generate waveform visualization
+        function generateWaveform() {
+            const bars = 40;
+            let html = '';
+            for (let i = 0; i < bars; i++) {
+                const height = Math.random() * 80 + 20;
+                html += `<div class="waveform-bar" style="height: ${height}%"></div>`;
+            }
+            return html;
+        }
+
+        // Format date
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            if (days === 0) return 'Today';
+            if (days === 1) return 'Yesterday';
+            if (days < 7) return `${days} days ago`;
+            if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
+            if (days < 365) return `${Math.floor(days / 30)} months ago`;
+            return `${Math.floor(days / 365)} years ago`;
+        }
+
+        // Load preset
+        function loadPreset(id) {
+            const presets = JSON.parse(localStorage.getItem('savedPresets') || '[]');
+            const preset = presets.find(p => p.id === id);
+            if (preset) {
+                localStorage.setItem('loadPreset', JSON.stringify(preset));
+                window.location.href = '/';
+            }
+        }
+
+        // Export preset
+        function exportPreset(id) {
+            const presets = JSON.parse(localStorage.getItem('savedPresets') || '[]');
+            const preset = presets.find(p => p.id === id);
+            if (preset) {
+                const blob = new Blob([JSON.stringify(preset, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${preset.name || 'preset'}-${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // Load pattern
+        function loadPattern(id) {
+            const patterns = JSON.parse(localStorage.getItem('savedPatterns') || '[]');
+            const pattern = patterns.find(p => p.id === id);
+            if (pattern) {
+                localStorage.setItem('loadPattern', JSON.stringify(pattern));
+                window.location.href = '/techno-workspace';
+            }
+        }
+
+        // Export pattern
+        function exportPattern(id) {
+            const patterns = JSON.parse(localStorage.getItem('savedPatterns') || '[]');
+            const pattern = patterns.find(p => p.id === id);
+            if (pattern) {
+                const blob = new Blob([JSON.stringify(pattern, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${pattern.name || 'pattern'}-${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // Play track
+        let currentAudio = null;
+        function playTrack(url) {
+            if (currentAudio) {
+                currentAudio.pause();
+            }
+            currentAudio = new Audio(url);
+            currentAudio.play();
+        }
+
+        // Download track
+        function downloadTrack(url, title) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title}.mp3`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Show context menu (placeholder)
+        function showMenu(event, type, id) {
+            // TODO: Implement context menu
+            console.log('Menu for', type, id);
+        }
+    </script>
+</body>
+</html>
