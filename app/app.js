@@ -577,8 +577,11 @@ try {
  */
 try {
   const trackRoutes = require('./routes/tracks');
+  const trackDirectUploadRoutes = require('./routes/tracks-direct-upload');
   app.use('/api/tracks', trackRoutes);
+  app.use('/api/tracks', trackDirectUploadRoutes);
   console.log('✓ Track Upload API enabled (Azure Blob Storage)');
+  console.log('✓ Direct Upload API enabled (bypasses Vercel 4.5MB limit)');
 } catch (error) {
   console.log('⚠ Track routes not available:', error.message);
 }
