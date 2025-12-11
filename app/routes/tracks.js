@@ -47,34 +47,54 @@ async function getTracksMetadata() {
   }
 }
 
+// Lock for preventing race conditions during metadata updates
+let metadataLock = Promise.resolve();
+
 /**
  * Save tracks metadata to blob storage
+ * Uses a lock to prevent race conditions during bulk uploads
  */
 async function saveTrackMetadata(newTrack) {
-  try {
-    // Get existing tracks
-    const tracks = await getTracksMetadata();
-    
-    // Add new track
-    tracks.push(newTrack);
-    
-    if (!blobStorage.enabled) {
-      // Fallback to local storage for development
-      const localPath = path.join(__dirname, '../public/uploads/tracks-metadata.json');
-      const dir = path.dirname(localPath);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
+  // Chain the save operation to prevent race conditions
+  metadataLock = metadataLock.then(async () => {
+    try {
+      // Get existing tracks (fresh read inside the lock)
+      const tracks = await getTracksMetadata();
+      
+      // Check for duplicate by filename to prevent re-uploads
+      const isDuplicate = tracks.some(t => t.filename === newTrack.filename);
+      if (isDuplicate) {
+        console.log(`⚠️ Skipping duplicate track: ${newTrack.filename}`);
+        return;
       }
-      fs.writeFileSync(localPath, JSON.stringify(tracks, null, 2));
-      return;
+      
+      // Add new track
+      tracks.push(newTrack);
+      
+      if (!blobStorage.enabled) {
+        // Fallback to local storage for development
+        const localPath = path.join(__dirname, '../public/uploads/tracks-metadata.json');
+        const dir = path.dirname(localPath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        fs.writeFileSync(localPath, JSON.stringify(tracks, null, 2));
+        console.log(`✅ Saved metadata locally: ${newTrack.title} (total: ${tracks.length})`);
+        return;
+      }
+      
+      // Upload to blob storage
+      await blobStorage.uploadJSON(METADATA_BLOB_NAME, tracks);
+      console.log(`✅ Saved metadata to blob: ${newTrack.title} (total: ${tracks.length})`);
+    } catch (error) {
+      console.error('Failed to save metadata:', error);
+      throw error;
     }
-    
-    // Upload to blob storage
-    await blobStorage.uploadJSON(METADATA_BLOB_NAME, tracks);
-  } catch (error) {
-    console.error('Failed to save metadata:', error);
-    throw error;
-  }
+  }).catch(err => {
+    console.error('Metadata lock chain error:', err);
+  });
+  
+  return metadataLock;
 }
 
 // Use /tmp for serverless environments (Vercel, AWS Lambda)
