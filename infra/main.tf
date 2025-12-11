@@ -26,6 +26,16 @@ provider "azurerm" {
 
 data "azurerm_client_config" "current" {}
 
+# Data sources for existing resources
+data "azurerm_resource_group" "main" {
+  name = var.resource_group_name
+}
+
+data "azurerm_app_service" "main" {
+  name                = var.app_service_name
+  resource_group_name = data.azurerm_resource_group.main.name
+}
+
 # Service Principal for CI/CD - Managed manually due to permission constraints
 # resource "azuread_application" "sp_app" {
 #   display_name = "${var.prefix}-sp-app"

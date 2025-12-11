@@ -10,6 +10,18 @@ variable "prefix" {
   default     = "notesapp"
 }
 
+variable "resource_group_name" {
+  description = "Resource group name"
+  type        = string
+  default     = "haos-fm-rg"
+}
+
+variable "app_service_name" {
+  description = "App Service name"
+  type        = string
+  default     = "haos-platform"
+}
+
 variable "location" {
   description = "Azure region"
   type        = string
@@ -77,4 +89,16 @@ variable "enable_custom_domain" {
   description = "Whether to enable custom domain binding"
   type        = bool
   default     = false # Set to true when DNS is configured
+}
+
+variable "enable_frontdoor" {
+  description = "Enable Azure Front Door with CDN"
+  type        = bool
+  default     = false
+}
+
+variable "ssl_cert_email" {
+  description = "Email for SSL certificate alerts"
+  type        = string
+  default     = "admin@haos.fm"
 }

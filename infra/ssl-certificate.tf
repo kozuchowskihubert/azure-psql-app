@@ -3,65 +3,11 @@
 # Terraform module for HAOS Platform SSL/TLS setup
 #################################################
 
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.0"
-    }
-  }
-}
-
 #################################################
-# Variables
+# SSL Certificate Resources
+# Note: Variables defined in variables.tf
+# Note: Data sources defined in main.tf
 #################################################
-
-variable "resource_group_name" {
-  description = "Resource group name"
-  type        = string
-  default     = "haos-rg"
-}
-
-variable "location" {
-  description = "Azure region"
-  type        = string
-  default     = "eastus"
-}
-
-variable "app_service_name" {
-  description = "App Service name"
-  type        = string
-  default     = "haos-platform"
-}
-
-variable "custom_domain" {
-  description = "Custom domain name (e.g., haos.fm)"
-  type        = string
-}
-
-variable "enable_frontdoor" {
-  description = "Enable Azure Front Door with CDN"
-  type        = bool
-  default     = false
-}
-
-variable "ssl_cert_email" {
-  description = "Email for SSL certificate alerts"
-  type        = string
-}
-
-#################################################
-# Data Sources
-#################################################
-
-data "azurerm_resource_group" "main" {
-  name = var.resource_group_name
-}
-
-data "azurerm_app_service" "main" {
-  name                = var.app_service_name
-  resource_group_name = data.azurerm_resource_group.main.name
-}
 
 #################################################
 # Custom Domain Configuration
@@ -198,8 +144,6 @@ resource "azurerm_key_vault" "main" {
   }
 }
 
-data "azurerm_client_config" "current" {}
-
 resource "random_string" "suffix" {
   length  = 6
   special = false
@@ -330,7 +274,7 @@ output "dns_records_required" {
     }
     a_record = {
       host  = "@"
-      value = data.azurerm_app_service.main.outbound_ip_addresses[0]
+      value = split(",", data.azurerm_app_service.main.outbound_ip_addresses)[0]
     }
   }
 }
