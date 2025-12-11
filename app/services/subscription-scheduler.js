@@ -84,16 +84,16 @@ class SubscriptionScheduler {
           us.current_period_end,
           us.reminder_sent_at,
           u.email,
-          u.username,
+          COALESCE(u.display_name, 'User') as username,
           sp.name as plan_name,
-          sp.code as plan_code
+          sp.plan_code as plan_code
         FROM user_subscriptions us
         JOIN users u ON us.user_id = u.id
         JOIN subscription_plans sp ON us.plan_id = sp.id
         WHERE us.status = 'active'
           AND us.current_period_end BETWEEN NOW() + INTERVAL '2 days' AND NOW() + INTERVAL '4 days'
           AND (us.reminder_sent_at IS NULL OR us.reminder_sent_at < NOW() - INTERVAL '7 days')
-          AND sp.code != 'free'
+          AND sp.plan_code != 'free'
       `);
 
       if (result.rows.length === 0) {
@@ -144,15 +144,15 @@ class SubscriptionScheduler {
           us.user_id,
           us.current_period_end,
           u.email,
-          u.username,
+          COALESCE(u.display_name, 'User') as username,
           sp.name as plan_name,
-          sp.code as plan_code
+          sp.plan_code as plan_code
         FROM user_subscriptions us
         JOIN users u ON us.user_id = u.id
         JOIN subscription_plans sp ON us.plan_id = sp.id
         WHERE us.status = 'active'
           AND us.current_period_end < NOW()
-          AND sp.code != 'free'
+          AND sp.plan_code != 'free'
       `);
 
       if (result.rows.length === 0) {
@@ -164,7 +164,7 @@ class SubscriptionScheduler {
 
       // Get free plan ID
       const freePlanResult = await pool.query(`
-        SELECT id FROM subscription_plans WHERE code = 'free' LIMIT 1
+        SELECT id FROM subscription_plans WHERE plan_code = 'free' LIMIT 1
       `);
       const freePlanId = freePlanResult.rows[0]?.id;
 

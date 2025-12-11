@@ -110,7 +110,7 @@ class HAOSAuthManager {
       const top = window.screen.height / 2 - height / 2;
 
       const popup = window.open(
-        `/api/auth/oauth/${provider}`,
+        `/auth/${provider}`,
         `${provider} Login`,
         `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
       );
