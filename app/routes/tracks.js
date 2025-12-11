@@ -24,6 +24,20 @@ const blobStorage = require('../utils/blob-storage');
 // Metadata blob name
 const METADATA_BLOB_NAME = 'tracks-metadata.json';
 
+// CORS middleware for tracks API
+router.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
+
 /**
  * Get tracks metadata from blob storage
  */
@@ -32,17 +46,41 @@ async function getTracksMetadata() {
     if (!blobStorage.enabled) {
       // Fallback to local storage for development
       const localPath = path.join(__dirname, '../public/uploads/tracks-metadata.json');
+      console.log(`📂 Loading metadata from local: ${localPath}`);
       if (fs.existsSync(localPath)) {
-        return JSON.parse(fs.readFileSync(localPath, 'utf8'));
+        const data = JSON.parse(fs.readFileSync(localPath, 'utf8'));
+        console.log(`✅ Loaded ${data.length} tracks from local storage`);
+        return data;
       }
+      console.log('⚠️  No local metadata file found');
       return [];
     }
 
     // Download metadata from blob storage
+    console.log(`☁️  Loading metadata from Azure Blob: ${METADATA_BLOB_NAME}`);
     const metadata = await blobStorage.downloadFile(METADATA_BLOB_NAME);
-    return metadata ? JSON.parse(metadata) : [];
+    
+    if (metadata) {
+      const tracks = JSON.parse(metadata);
+      console.log(`✅ Loaded ${tracks.length} tracks from blob storage`);
+      
+      // Log first track for debugging
+      if (tracks.length > 0) {
+        console.log('📊 Sample track:', {
+          title: tracks[0].title,
+          url: tracks[0].url,
+          duration: tracks[0].duration
+        });
+      }
+      
+      return tracks;
+    }
+    
+    console.log('⚠️  No metadata found in blob storage');
+    return [];
   } catch (error) {
-    console.warn('Could not load metadata:', error.message);
+    console.error('❌ Failed to load metadata:', error.message);
+    console.error('Stack:', error.stack);
     return [];
   }
 }
@@ -259,16 +297,85 @@ router.post('/upload', upload.single('audioFile'), async (req, res) => {
 });
 
 /**
+ * GET /api/tracks/health
+ * Diagnostic endpoint to check tracks system health
+ */
+router.get('/health', async (req, res) => {
+  try {
+    const health = {
+      timestamp: new Date().toISOString(),
+      blobStorage: {
+        enabled: blobStorage.enabled,
+        containerName: blobStorage.containerName,
+        configured: !!process.env.AZURE_STORAGE_CONNECTION_STRING
+      },
+      environment: process.env.NODE_ENV || 'development',
+      host: req.headers.host,
+      protocol: req.protocol
+    };
+    
+    // Try to load tracks
+    try {
+      const tracks = await getTracksMetadata();
+      health.tracks = {
+        count: tracks.length,
+        sample: tracks.length > 0 ? {
+          title: tracks[0].title,
+          artist: tracks[0].artist,
+          url: tracks[0].url,
+          urlType: tracks[0].url?.startsWith('http') ? 'absolute' : 'relative'
+        } : null
+      };
+    } catch (error) {
+      health.tracks = {
+        error: error.message
+      };
+    }
+    
+    res.json(health);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
  * GET /api/tracks/list
  * Get list of all uploaded tracks from blob storage
  */
 router.get('/list', async (req, res) => {
   try {
     const tracks = await getTracksMetadata();
-    res.json({ tracks });
+    
+    // Ensure all URLs are absolute on production
+    const baseUrl = process.env.NODE_ENV === 'production'
+      ? `https://${req.headers.host}`
+      : `${req.protocol}://${req.headers.host}`;
+    
+    const tracksWithFullUrls = tracks.map(track => {
+      // If URL doesn't start with http/https, make it absolute
+      const fullUrl = track.url && track.url.startsWith('http')
+        ? track.url
+        : `${baseUrl}${track.url}`;
+      
+      return {
+        ...track,
+        url: fullUrl
+      };
+    });
+    
+    // Add CORS headers for production
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    res.json({ 
+      tracks: tracksWithFullUrls,
+      count: tracksWithFullUrls.length,
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
     console.error('Error reading tracks:', error);
-    res.status(500).json({ error: 'Failed to read tracks' });
+    res.status(500).json({ error: 'Failed to read tracks', details: error.message });
   }
 });
 

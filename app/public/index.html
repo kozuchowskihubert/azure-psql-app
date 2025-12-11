@@ -1430,12 +1430,7 @@
                     this.play().catch(() => {
                         console.log('🎵 Auto-play blocked, waiting for user interaction');
                         document.addEventListener('click', startAudio, { once: true });
-                        // Show notification
-                        const notification = document.createElement('div');
-                        notification.style.cssText = 'position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#FF6B35,#F7931E);color:#000;padding:15px 25px;border-radius:8px;font-family:Space Mono,monospace;font-weight:bold;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.3);animation:slideIn 0.5s ease;';
-                        notification.innerHTML = '🎵 Click anywhere to start HAOS Radio 📻';
-                        document.body.appendChild(notification);
-                        setTimeout(() => notification.remove(), 5000);
+                        // Silent wait for user interaction (notification disabled)
                     });
                 }, 500);
             },

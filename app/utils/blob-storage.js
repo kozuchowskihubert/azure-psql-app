@@ -29,8 +29,36 @@ class BlobStorageService {
         access: 'blob', // Public read access for blobs
       });
       console.log(`✅ Azure Blob Storage container '${this.containerName}' ready`);
+      
+      // Configure CORS for audio streaming
+      await this.configureCORS();
     } catch (error) {
       console.error('❌ Failed to initialize blob container:', error.message);
+    }
+  }
+
+  async configureCORS() {
+    try {
+      const serviceClient = this.blobServiceClient;
+      const properties = await serviceClient.getProperties();
+      
+      // Set CORS rules for audio streaming
+      const corsRules = [{
+        allowedOrigins: ['*'],
+        allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
+        allowedHeaders: ['*'],
+        exposedHeaders: ['*'],
+        maxAgeInSeconds: 3600
+      }];
+      
+      await serviceClient.setProperties({
+        ...properties,
+        cors: corsRules
+      });
+      
+      console.log('✅ Azure Blob Storage CORS configured for audio streaming');
+    } catch (error) {
+      console.warn('⚠️  Could not configure CORS (may require storage account permissions):', error.message);
     }
   }
 
