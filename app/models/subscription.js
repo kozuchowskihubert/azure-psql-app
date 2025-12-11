@@ -89,13 +89,12 @@ class Subscription {
       ? new Date(Date.now() + plan.trial_days * 24 * 60 * 60 * 1000)
       : null;
 
-    const result = await pool.query(`
+    await pool.query(`
       INSERT INTO user_subscriptions (
         user_id, plan_id, status, billing_cycle,
         current_period_start, current_period_end, trial_ends_at,
         stripe_subscription_id, paypal_subscription_id
       ) VALUES ($1, $2, $3, $4, NOW(), $5, $6, $7, $8)
-      RETURNING *
     `, [
       userId,
       plan.id,
@@ -107,7 +106,8 @@ class Subscription {
       options.paypalSubscriptionId || null,
     ]);
 
-    return result.rows[0];
+    // Fetch and return the newly created subscription with full plan details
+    return this.getUserSubscription(userId);
   }
 
   /**
@@ -162,13 +162,14 @@ class Subscription {
     }
 
     if (immediate) {
-      const result = await pool.query(`
+      await pool.query(`
         UPDATE user_subscriptions 
         SET plan_id = $2, updated_at = NOW()
         WHERE id = $1
-        RETURNING *
       `, [currentSub.id, newPlan.id]);
-      return result.rows[0];
+      
+      // Fetch and return the updated subscription with full plan details
+      return this.getUserSubscription(userId);
     }
 
     return currentSub;

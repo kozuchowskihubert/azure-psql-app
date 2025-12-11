@@ -120,28 +120,35 @@
       filter: contrast(1.1) saturate(1.1);
     }
 
-    /* Interactive Hotspots on 2D Photo */
+    /* Interactive Hotspots on 2D Photo - Hidden by default, show on hover */
     .hotspot {
       position: absolute;
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: rgba(255, 107, 53, 0.3);
-      border: 2px solid var(--haos-groove-orange);
+      background: transparent;
+      border: 2px solid transparent;
       cursor: pointer;
       transition: var(--haos-transition-normal);
-      animation: pulse 2s ease-in-out infinite;
     }
 
     .hotspot:hover {
-      background: rgba(255, 107, 53, 0.6);
+      background: rgba(255, 107, 53, 0.4);
+      border-color: var(--haos-groove-orange);
       transform: scale(1.2);
       box-shadow: var(--haos-glow-orange);
     }
 
+    /* Show all hotspots when hovering on the synth image container */
+    .photo-container:hover .hotspot {
+      background: rgba(255, 107, 53, 0.15);
+      border-color: rgba(255, 107, 53, 0.4);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
     @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 10px rgba(255, 107, 53, 0.5); }
-      50% { box-shadow: 0 0 25px rgba(255, 107, 53, 1); }
+      0%, 100% { box-shadow: 0 0 5px rgba(255, 107, 53, 0.3); }
+      50% { box-shadow: 0 0 15px rgba(255, 107, 53, 0.6); }
     }
 
     .hotspot-label {
@@ -197,23 +204,31 @@
       font-family: var(--haos-font-mono);
     }
 
-    /* Frequency Mapper Panel */
+    /* Frequency Mapper Panel - Thin & Compact */
     .frequency-panel {
       position: absolute;
-      top: 6rem;
-      right: 2rem;
-      background: rgba(10, 10, 10, 0.85);
+      top: 5rem;
+      right: 1rem;
+      background: rgba(10, 10, 10, 0.95);
       backdrop-filter: blur(10px);
-      padding: var(--haos-space-lg);
-      border-radius: var(--haos-radius-md);
+      padding: 8px 12px;
+      border-radius: 6px;
       border: 1px solid rgba(255, 107, 53, 0.2);
       box-shadow: var(--haos-shadow-md);
-      min-width: 320px;
-      max-height: 70vh;
+      width: 200px;
+      max-height: 80vh;
       overflow-y: auto;
+      overflow-x: hidden;
       pointer-events: all;
       z-index: 10;
       transition: var(--haos-transition-normal);
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    .frequency-panel.visible {
+      transform: translateX(0);
+      opacity: 1;
     }
     
     .frequency-panel:hover {
@@ -223,43 +238,52 @@
 
     .freq-title {
       color: var(--haos-groove-orange);
-      font-size: 1.1rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 1rem;
-      border-bottom: 2px solid var(--haos-groove-orange);
-      padding-bottom: 0.5rem;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 107, 53, 0.4);
+      padding-bottom: 4px;
       font-weight: 700;
       font-family: var(--haos-font-display);
     }
 
     .freq-control {
-      margin: 1.5rem 0;
+      margin: 8px 0;
     }
 
     .freq-label {
       color: var(--haos-dust-gray);
-      font-size: 0.85rem;
+      font-size: 0.65rem;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 0.5rem;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
       display: block;
       font-family: var(--haos-font-mono);
+      line-height: 1.1;
     }
 
     .freq-value {
       color: var(--haos-turntable-gold);
-      font-size: 1.2rem;
+      font-size: 0.75rem;
       font-weight: 700;
       font-family: var(--haos-font-mono);
-      margin-bottom: 0.5rem;
+      margin-bottom: 3px;
       display: block;
+    }
+
+    .freq-control small {
+      color: #666;
+      font-size: 0.55rem;
+      display: block;
+      margin-top: 2px;
+      line-height: 1;
     }
 
     .freq-slider {
       width: 100%;
-      height: 6px;
-      border-radius: var(--haos-radius-sm);
+      height: 4px;
+      border-radius: 2px;
       background: rgba(255, 255, 255, 0.1);
       outline: none;
       -webkit-appearance: none;
@@ -269,34 +293,61 @@
     .freq-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 18px;
-      height: 18px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--haos-groove-orange), #CC5529);
       cursor: pointer;
-      box-shadow: var(--haos-glow-orange);
+      box-shadow: 0 0 8px rgba(255, 107, 53, 0.5);
       transition: var(--haos-transition-fast);
     }
     
     .freq-slider::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
-      box-shadow: 0 0 20px rgba(255, 107, 53, 1);
+      transform: scale(1.15);
+      box-shadow: 0 0 12px rgba(255, 107, 53, 0.8);
     }
 
     .freq-slider::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--haos-groove-orange), #CC5529);
       cursor: pointer;
-      box-shadow: var(--haos-glow-orange);
+      box-shadow: 0 0 8px rgba(255, 107, 53, 0.5);
       border: none;
       transition: var(--haos-transition-fast);
     }
     
     .freq-slider::-moz-range-thumb:hover {
-      transform: scale(1.2);
-      box-shadow: 0 0 20px rgba(255, 107, 53, 1);
+      transform: scale(1.15);
+      box-shadow: 0 0 12px rgba(255, 107, 53, 0.8);
+    }
+    
+    .frequency-panel small {
+      font-size: 0.6rem !important;
+      color: #555 !important;
+      line-height: 1.1;
+      display: block;
+      margin-top: 2px;
+    }
+    
+    /* Thin scrollbar for frequency panel */
+    .frequency-panel::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .frequency-panel::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 2px;
+    }
+    
+    .frequency-panel::-webkit-scrollbar-thumb {
+      background: var(--haos-groove-orange);
+      border-radius: 2px;
+    }
+    
+    .frequency-panel::-webkit-scrollbar-thumb:hover {
+      background: var(--haos-turntable-gold);
     }
 
     /* Controls */
@@ -570,12 +621,12 @@
       box-shadow: 0 0 20px rgba(139, 38, 53, 0.5);
     }
 
-    /* Patch Bay Styles */
+    /* Patch Bay Styles - Hidden by default */
     .patch-bay-panel {
       position: absolute;
       top: 4rem;
       left: 2rem;
-      background: rgba(10, 10, 10, 0.85);
+      background: rgba(10, 10, 10, 0.95);
       backdrop-filter: blur(10px);
       padding: var(--haos-space-lg);
       border-radius: var(--haos-radius-md);
@@ -587,6 +638,13 @@
       pointer-events: all;
       z-index: 10;
       transition: var(--haos-transition-normal);
+      transform: translateX(-110%);
+      opacity: 0;
+    }
+    
+    .patch-bay-panel.visible {
+      transform: translateX(0);
+      opacity: 1;
     }
     
     .patch-bay-panel:hover {
@@ -751,99 +809,114 @@
     <div class="frequency-panel">
       <div class="freq-title">Frequency Mapper</div>
       
-      <div class="freq-control">
-        <label class="freq-label">VCO 1 Frequency</label>
-        <span class="freq-value" id="vco1-freq-display">440.00 Hz</span>
-        <input type="range" class="freq-slider" id="vco1-freq" 
-               min="20" max="10000" value="440" step="0.1"
-               oninput="updateFrequency('vco1', this.value)">
-        <small style="color: #666; font-size: 0.75rem;">Audio: 10Hz - 10kHz</small>
-      </div>
-
-      <div class="freq-control">
-        <label class="freq-label">VCO 2 Frequency</label>
-        <span class="freq-value" id="vco2-freq-display">442.00 Hz</span>
-        <input type="range" class="freq-slider" id="vco2-freq" 
-               min="20" max="10000" value="442" step="0.1"
-               oninput="updateFrequency('vco2', this.value)">
-        <small style="color: #666; font-size: 0.75rem;">Detune: ±50 cents</small>
-      </div>
-
-      <div class="freq-control">
-        <label class="freq-label">VCO 3 Frequency</label>
-        <span class="freq-value" id="vco3-freq-display">220.00 Hz</span>
-        <input type="range" class="freq-slider" id="vco3-freq" 
-               min="20" max="10000" value="220" step="0.1"
-               oninput="updateFrequency('vco3', this.value)">
-        <small style="color: #666; font-size: 0.75rem;">10 octave range</small>
-      </div>
-
-      <div class="freq-control">
-        <label class="freq-label">VCF Cutoff</label>
-        <span class="freq-value" id="vcf-freq-display">1000.00 Hz</span>
-        <input type="range" class="freq-slider" id="vcf-freq" 
-               min="20" max="20000" value="1000" step="1"
-               oninput="updateFrequency('vcf', this.value)">
-        <small style="color: #666; font-size: 0.75rem;">24dB/oct Ladder Filter</small>
-      </div>
-
-      <div class="freq-control">
-        <label class="freq-label">LFO Rate</label>
-        <span class="freq-value" id="lfo-freq-display">2.00 Hz</span>
-        <input type="range" class="freq-slider" id="lfo-freq" 
-               min="0.03" max="30" value="2" step="0.01"
-               oninput="updateFrequency('lfo', this.value)">
-        <small style="color: #666; font-size: 0.75rem;">LF: 0.03Hz - 30Hz</small>
-      </div>
-
-      <div class="freq-control">
-        <label class="freq-label">Resonance</label>
-        <span class="freq-value" id="res-display">50%</span>
-        <input type="range" class="freq-slider" id="resonance" 
-               min="0" max="100" value="50" step="1"
-               oninput="updateResonance(this.value)">
-      </div>
-
-      <!-- ADSR Envelope Controls -->
-      <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid rgba(255, 107, 53, 0.3);">
-        <div style="color: var(--haos-groove-orange); font-family: var(--haos-font-display); font-size: 1.2rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 2px;">
-          ⚡ ADSR Envelope
+      <!-- OSCILLATOR SECTION -->
+      <div style="margin-top: 4px;">
+        <div style="color: var(--haos-turntable-gold); font-family: var(--haos-font-display); font-size: 0.65rem; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+          🎛️ Oscillator
+        </div>
+        
+        <div class="freq-control">
+          <label class="freq-label">Init Frequency</label>
+          <span class="freq-value" id="vco1-freq-display">440.00 Hz</span>
+          <input type="range" class="freq-slider" id="vco1-freq" 
+                 min="20" max="10000" value="440" step="0.1"
+                 oninput="updateFrequency('vco1', this.value)">
+          <small>Base oscillator frequency</small>
         </div>
 
         <div class="freq-control">
-          <label class="freq-label">Attack</label>
-          <span class="freq-value" id="adsr-attack-display">0.01 s</span>
+          <label class="freq-label">Fine Tune</label>
+          <span class="freq-value" id="fine-tune-display">0 cents</span>
+          <input type="range" class="freq-slider" id="fine-tune" 
+                 min="-100" max="100" value="0" step="1"
+                 oninput="updateFineTune(this.value)">
+          <small>Detune: ±100 cents</small>
+        </div>
+
+        <div class="freq-control">
+          <label class="freq-label">Pulse Width</label>
+          <span class="freq-value" id="pulse-width-display">50%</span>
+          <input type="range" class="freq-slider" id="pulse-width" 
+                 min="5" max="95" value="50" step="1"
+                 oninput="updatePulseWidth(this.value)">
+          <small>PWM: 5% - 95%</small>
+        </div>
+      </div>
+
+      <!-- FILTER SECTION -->
+      <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(212, 175, 55, 0.2);">
+        <div style="color: var(--haos-turntable-gold); font-family: var(--haos-font-display); font-size: 0.65rem; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+          🔊 Filter
+        </div>
+        
+        <div class="freq-control">
+          <label class="freq-label">Init Filter Freq</label>
+          <span class="freq-value" id="vcf-freq-display">1000.00 Hz</span>
+          <input type="range" class="freq-slider" id="vcf-freq" 
+                 min="20" max="20000" value="1000" step="1"
+                 oninput="updateFrequency('vcf', this.value)">
+          <small>Cutoff: 20Hz - 20kHz</small>
+        </div>
+
+        <div class="freq-control">
+          <label class="freq-label">Filter Fine Tune</label>
+          <span class="freq-value" id="filter-fine-display">0 Hz</span>
+          <input type="range" class="freq-slider" id="filter-fine" 
+                 min="-100" max="100" value="0" step="1"
+                 oninput="updateFilterFineTune(this.value)">
+          <small>Fine adjust: ±100 Hz</small>
+        </div>
+
+        <div class="freq-control">
+          <label class="freq-label">Resonate</label>
+          <span class="freq-value" id="res-display">50%</span>
+          <input type="range" class="freq-slider" id="resonance" 
+                 min="0" max="100" value="50" step="1"
+                 oninput="updateResonance(this.value)">
+          <small>Q factor: 0% - 100%</small>
+        </div>
+      </div>
+
+      <!-- ENVELOPE SECTION -->
+      <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255, 107, 53, 0.3);">
+        <div style="color: var(--haos-groove-orange); font-family: var(--haos-font-display); font-size: 0.65rem; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+          ⚡ Envelope
+        </div>
+
+        <div class="freq-control">
+          <label class="freq-label">Attack Time</label>
+          <span class="freq-value" id="adsr-attack-display">0.010 s</span>
           <input type="range" class="freq-slider" id="adsr-attack" 
                  min="0.001" max="2" value="0.01" step="0.001"
                  oninput="updateADSR('attack', this.value)">
-          <small style="color: #666; font-size: 0.75rem;">Attack time: 1ms - 2s</small>
+          <small>Attack: 1ms - 2s</small>
         </div>
 
         <div class="freq-control">
-          <label class="freq-label">Decay</label>
-          <span class="freq-value" id="adsr-decay-display">0.1 s</span>
+          <label class="freq-label">Decay Time</label>
+          <span class="freq-value" id="adsr-decay-display">0.100 s</span>
           <input type="range" class="freq-slider" id="adsr-decay" 
                  min="0.001" max="2" value="0.1" step="0.001"
                  oninput="updateADSR('decay', this.value)">
-          <small style="color: #666; font-size: 0.75rem;">Decay time: 1ms - 2s</small>
+          <small>Decay: 1ms - 2s</small>
         </div>
 
         <div class="freq-control">
-          <label class="freq-label">Sustain</label>
+          <label class="freq-label">Sustain Level</label>
           <span class="freq-value" id="adsr-sustain-display">70%</span>
           <input type="range" class="freq-slider" id="adsr-sustain" 
                  min="0" max="100" value="70" step="1"
                  oninput="updateADSR('sustain', this.value)">
-          <small style="color: #666; font-size: 0.75rem;">Sustain level: 0% - 100%</small>
+          <small>Level: 0% - 100%</small>
         </div>
 
         <div class="freq-control">
-          <label class="freq-label">Release</label>
-          <span class="freq-value" id="adsr-release-display">0.3 s</span>
+          <label class="freq-label">Release Time</label>
+          <span class="freq-value" id="adsr-release-display">0.300 s</span>
           <input type="range" class="freq-slider" id="adsr-release" 
                  min="0.001" max="5" value="0.3" step="0.001"
                  oninput="updateADSR('release', this.value)">
-          <small style="color: #666; font-size: 0.75rem;">Release time: 1ms - 5s</small>
+          <small>Release: 1ms - 5s</small>
         </div>
 
         <div style="margin-top: 0.75rem; padding: 0.5rem; background: rgba(255, 107, 53, 0.1); border-radius: 4px; border: 1px solid rgba(255, 107, 53, 0.2);">
@@ -1021,6 +1094,12 @@
     </div>
 
     <div class="controls">
+      <button class="control-btn" id="toggle-freq-btn" onclick="togglePanel('frequency-panel')">
+        🎛️ Frequency
+      </button>
+      <button class="control-btn" id="toggle-patch-btn" onclick="togglePanel('patch-bay-panel')">
+        🔌 Patch Bay
+      </button>
       <button class="control-btn" id="play-btn" onclick="playSound()">
         ▶️ Play Sound
       </button>
@@ -1054,6 +1133,20 @@
   <div class="tooltip" id="tooltip"></div>
 
   <script>
+    // Panel toggle function
+    function togglePanel(panelClass) {
+      const panel = document.querySelector('.' + panelClass);
+      if (panel) {
+        panel.classList.toggle('visible');
+        // Update button state
+        const btnId = panelClass === 'frequency-panel' ? 'toggle-freq-btn' : 'toggle-patch-btn';
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          btn.classList.toggle('active', panel.classList.contains('visible'));
+        }
+      }
+    }
+    
     // Audio Context
     let audioContext;
     let vco1Osc, vco2Osc, vco3Osc;
@@ -1085,6 +1178,11 @@
       vcf: 1000,
       lfo: 2,
       resonance: 50,
+      // New oscillator parameters
+      fineTune: 0,        // ±100 cents
+      pulseWidth: 0.5,    // 0.0 - 1.0 (50%)
+      // New filter parameters
+      filterFineTune: 0,  // ±100 Hz
       // ADSR Envelope parameters
       adsrAttack: 0.01,
       adsrDecay: 0.1,
@@ -1799,6 +1897,61 @@
       if (isPlaying && vcfFilter) {
         vcfFilter.Q.value = (value / 100) * 30;
       }
+    }
+
+    function updateFineTune(value) {
+      frequencyMap.fineTune = parseFloat(value);
+      document.getElementById('fine-tune-display').textContent = `${value > 0 ? '+' : ''}${value} cents`;
+      
+      // Update oscillator detune if playing
+      if (isPlaying && vco1Oscillator) {
+        vco1Oscillator.detune.value = value;
+        if (vco2Oscillator) vco2Oscillator.detune.value = value;
+        if (vco3Oscillator) vco3Oscillator.detune.value = value;
+      }
+      
+      console.log(`Fine Tune: ${value} cents`);
+    }
+
+    function updatePulseWidth(value) {
+      frequencyMap.pulseWidth = parseFloat(value) / 100; // 0.0 - 1.0
+      document.getElementById('pulse-width-display').textContent = `${value}%`;
+      
+      // PWM implementation - modify oscillator waveform
+      if (isPlaying && vco1Oscillator) {
+        const dutyCycle = value / 100;
+        // Create custom waveform for pulse width modulation
+        const real = new Float32Array(2);
+        const imag = new Float32Array(2);
+        real[0] = 0;
+        imag[0] = 0;
+        real[1] = 1 - dutyCycle;
+        imag[1] = dutyCycle;
+        
+        try {
+          const wave = audioContext.createPeriodicWave(real, imag);
+          if (vco1Oscillator && typeof vco1Oscillator.setPeriodicWave === 'function') {
+            vco1Oscillator.setPeriodicWave(wave);
+          }
+        } catch (e) {
+          console.log('PWM simulation:', value + '%');
+        }
+      }
+      
+      console.log(`Pulse Width: ${value}%`);
+    }
+
+    function updateFilterFineTune(value) {
+      frequencyMap.filterFineTune = parseFloat(value);
+      document.getElementById('filter-fine-display').textContent = `${value > 0 ? '+' : ''}${value} Hz`;
+      
+      // Update filter cutoff with fine tune offset
+      if (isPlaying && vcfFilter) {
+        const baseCutoff = frequencyMap.vcf || 1000;
+        vcfFilter.frequency.value = baseCutoff + value;
+      }
+      
+      console.log(`Filter Fine Tune: ${value} Hz`);
     }
 
     function updateADSR(param, value) {

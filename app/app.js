@@ -80,10 +80,14 @@ app.use(express.json({ limit: '350mb' }));
  */
 app.use(express.urlencoded({ extended: true, limit: '350mb' }));
 
-// Registration & Authentication API
+// Modern Authentication API (New unified system)
+const modernAuthRoutes = require('./routes/auth-routes');
+app.use('/api/auth', modernAuthRoutes);
+
+// Legacy Registration & Authentication (Backward compatibility)
 // Note: JWT auth routes take precedence, fallback to session-based registration routes
-app.use('/api/auth', jwtAuthRouter);
-app.use('/api/auth', registrationRoutes);
+app.use('/api/auth/legacy', jwtAuthRouter);
+app.use('/api/auth/legacy', registrationRoutes);
 
 // ============================================================================
 // Custom Routes - Must come BEFORE static files
@@ -244,6 +248,32 @@ app.get('/api-management', (req, res) => {
  */
 app.get('/pricing', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'pricing.html'));
+});
+
+/**
+ * Documentation Hub
+ * Route: /docs (comprehensive platform documentation)
+ */
+app.get('/docs', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'docs.html'));
+});
+
+// Documentation sub-pages (all currently redirect to main docs page)
+// TODO: Create individual documentation pages for each topic
+const docPages = [
+  'quickstart', 'authentication', 'interface-overview',
+  'modular-synth', 'arp-2600', 'tb-303', 'tr-909', 'sound-design', 'patch-library',
+  'audio-engine', 'sequencer', 'effects', 'mixing', 'export',
+  'realtime-collaboration', 'community', 'radio-streaming',
+  'api-reference', 'web-audio-api', 'websocket-protocol', 'extensions',
+  'troubleshooting', 'keyboard-shortcuts', 'faq', 'changelog', 'tutorials', 'best-practices'
+];
+
+docPages.forEach(page => {
+  app.get(`/docs/${page}`, (req, res) => {
+    // For now, redirect to main docs page with hash
+    res.redirect(`/docs#${page}`);
+  });
 });
 
 /**

@@ -1065,22 +1065,107 @@
   <div id="payment-modal" class="modal-overlay">
     <div class="modal">
       <div class="modal-header">
-        <h3 class="modal-title">Complete Purchase</h3>
+        <h3 class="modal-title">Choose Payment Method</h3>
         <button class="modal-close" onclick="closeModal('payment-modal')">&times;</button>
       </div>
       <div id="payment-content">
         <p style="color: #6B6B6B; margin-bottom: 1.5rem;">
-          You will be redirected to our secure payment provider to complete your purchase.
+          Select your preferred payment method:
         </p>
+        
+        <!-- Payment Method Selection -->
+        <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+          <!-- Stripe Payment -->
+          <div class="payment-method-card" onclick="selectPaymentMethod('stripe')" id="payment-stripe">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #635bff 0%, #4f46e5 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-credit-card" style="font-size: 24px; color: white;"></i>
+              </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 1.1rem; color: #1A1A1A; margin-bottom: 0.25rem;">
+                  Stripe
+                </div>
+                <div style="color: #6B6B6B; font-size: 0.9rem;">
+                  Credit/Debit Card, Apple Pay, Google Pay
+                </div>
+              </div>
+              <i class="fas fa-check-circle payment-check" style="font-size: 24px; color: #10B981; display: none;"></i>
+            </div>
+          </div>
+
+          <!-- PayU Payment -->
+          <div class="payment-method-card" onclick="selectPaymentMethod('payu')" id="payment-payu">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #00C853 0%, #00A843 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-money-bill-wave" style="font-size: 24px; color: white;"></i>
+              </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 1.1rem; color: #1A1A1A; margin-bottom: 0.25rem;">
+                  PayU
+                </div>
+                <div style="color: #6B6B6B; font-size: 0.9rem;">
+                  BLIK, Cards, Bank Transfers (Poland)
+                </div>
+              </div>
+              <i class="fas fa-check-circle payment-check" style="font-size: 24px; color: #10B981; display: none;"></i>
+            </div>
+          </div>
+
+          <!-- Buy Me a Coffee -->
+          <div class="payment-method-card" onclick="selectPaymentMethod('buymeacoffee')" id="payment-buymeacoffee">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #FFDD00 0%, #FFA500 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-coffee" style="font-size: 24px; color: #1A1A1A;"></i>
+              </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 1.1rem; color: #1A1A1A; margin-bottom: 0.25rem;">
+                  Buy Me a Coffee
+                  <span style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); color: white; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem;">SUPPORT</span>
+                </div>
+                <div style="color: #6B6B6B; font-size: 0.9rem;">
+                  One-time or recurring support
+                </div>
+              </div>
+              <i class="fas fa-check-circle payment-check" style="font-size: 24px; color: #10B981; display: none;"></i>
+            </div>
+          </div>
+        </div>
+
         <div class="modal-actions">
           <button class="btn btn-secondary" onclick="closeModal('payment-modal')">Cancel</button>
-          <button id="btn-proceed-payment" class="btn btn-primary" onclick="proceedToPayment()">
+          <button id="btn-proceed-payment" class="btn btn-primary" onclick="proceedToPayment()" disabled>
             <i class="fas fa-lock"></i> Proceed to Payment
           </button>
         </div>
       </div>
     </div>
   </div>
+
+  <style>
+    .payment-method-card {
+      padding: 1.25rem;
+      background: white;
+      border: 2px solid #E5E5E5;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .payment-method-card:hover {
+      border-color: #FF6B35;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.15);
+    }
+
+    .payment-method-card.selected {
+      border-color: #FF6B35;
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, rgba(212, 175, 55, 0.05) 100%);
+    }
+
+    .payment-method-card.selected .payment-check {
+      display: block !important;
+    }
+  </style>
 
   <script>
     // Handle JWT tokens from URL hash (Google OAuth callback)
@@ -1115,6 +1200,7 @@
     let plans = [];
     let billingCycle = 'monthly';
     let selectedPlan = null;
+    let selectedPaymentMethod = null;
 
     // Initialize
     document.addEventListener('DOMContentLoaded', async () => {
@@ -1276,56 +1362,56 @@
       const container = document.getElementById('plans-grid');
       const currentPlan = currentSubscription?.plan_code || 'free';
 
-      // Enhanced plan descriptions with detailed features
+      // Enhanced plan descriptions matching pricing.html
       const planDetails = {
         free: {
-          tagline: 'Get started with HAOS.fm',
+          tagline: 'Perfect for getting started',
           highlights: [
-            { icon: 'fa-music', text: '5 preset downloads/day' },
-            { icon: 'fa-volume-up', text: 'Basic sound library access' },
-            { icon: 'fa-save', text: '3 saved patches' },
-            { icon: 'fa-file-audio', text: 'WAV export (44.1kHz)' }
+            { icon: 'fa-music', text: '3 tracks' },
+            { icon: 'fa-sliders-h', text: '10 presets' },
+            { icon: 'fa-file-audio', text: 'MP3 export' },
+            { icon: 'fa-database', text: '100 MB storage' }
           ],
-          limitations: ['Community support only', 'Ads enabled', 'No cloud storage']
+          limitations: ['No WAV/FLAC export', 'No collaboration']
         },
         basic: {
-          tagline: 'Perfect for hobbyist producers',
+          tagline: 'For hobbyist producers',
+          priceNote: '50% OFF Launch Promo',
+          originalPrice: '19.99',
           highlights: [
-            { icon: 'fa-infinity', text: '25 preset downloads/day' },
-            { icon: 'fa-drum', text: 'Sounds + Techno workspace' },
-            { icon: 'fa-save', text: '25 saved patches' },
-            { icon: 'fa-file-audio', text: 'WAV + MP3 export (48kHz)' },
-            { icon: 'fa-cloud', text: '100 MB cloud storage' },
-            { icon: 'fa-users', text: '2 collab sessions/month' }
+            { icon: 'fa-music', text: '25 tracks' },
+            { icon: 'fa-sliders-h', text: '100 presets' },
+            { icon: 'fa-file-audio', text: 'MP3 + WAV export' },
+            { icon: 'fa-database', text: '2 GB storage' },
+            { icon: 'fa-download', text: 'Offline mode' }
           ],
-          limitations: ['Email support']
+          limitations: ['No collaboration']
         },
         premium: {
-          tagline: 'For serious music producers',
+          tagline: 'For serious producers',
+          priceNote: '50% OFF Launch Promo - MOST POPULAR',
+          originalPrice: '49.99',
           highlights: [
-            { icon: 'fa-infinity', text: 'Unlimited preset downloads' },
-            { icon: 'fa-cubes', text: 'All workspaces including Modular' },
-            { icon: 'fa-save', text: 'Unlimited saved patches' },
-            { icon: 'fa-file-audio', text: 'WAV/MP3/FLAC/AIFF (96kHz studio quality)' },
-            { icon: 'fa-cloud', text: '1 GB cloud storage' },
-            { icon: 'fa-users', text: '10 collaboration sessions/month' },
-            { icon: 'fa-code', text: 'Full API access' },
-            { icon: 'fa-star', text: 'Exclusive premium presets' },
-            { icon: 'fa-bolt', text: 'Priority rendering' }
+            { icon: 'fa-infinity', text: '<strong>Unlimited</strong> tracks' },
+            { icon: 'fa-infinity', text: '<strong>Unlimited</strong> presets' },
+            { icon: 'fa-file-audio', text: 'All formats (MP3/WAV/FLAC/OGG)' },
+            { icon: 'fa-database', text: '10 GB storage' },
+            { icon: 'fa-users', text: '<strong>Real-time collaboration</strong>' },
+            { icon: 'fa-headset', text: 'Priority support' }
           ],
           limitations: []
         },
         pro: {
-          tagline: 'Professional studio grade',
+          tagline: 'For professional studios',
+          priceNote: '50% OFF Launch Promo',
+          originalPrice: '99.99',
           highlights: [
-            { icon: 'fa-crown', text: 'Everything in Premium, plus:' },
-            { icon: 'fa-music', text: 'Pro-exclusive sound packs' },
-            { icon: 'fa-file-audio', text: 'Stem export + mastering quality (192kHz)' },
-            { icon: 'fa-cloud', text: '10 GB cloud storage' },
-            { icon: 'fa-users', text: 'Unlimited collaborations' },
-            { icon: 'fa-headset', text: 'Dedicated support line' },
-            { icon: 'fa-certificate', text: 'Commercial license included' },
-            { icon: 'fa-palette', text: 'White-label options' }
+            { icon: 'fa-check', text: 'Everything in Premium' },
+            { icon: 'fa-layer-group', text: '<strong>Stems export</strong>' },
+            { icon: 'fa-infinity', text: '<strong>Unlimited</strong> storage' },
+            { icon: 'fa-users', text: 'Up to 10 team members' },
+            { icon: 'fa-crown', text: 'White-label options' },
+            { icon: 'fa-headset', text: 'Dedicated account manager' }
           ],
           limitations: []
         }
@@ -1350,34 +1436,61 @@
 
         const limitationsList = details.limitations.length > 0 
           ? `<div class="plan-limitations">
-              ${details.limitations.map(l => `<span class="limitation"><i class="fas fa-minus"></i> ${l}</span>`).join('')}
+              ${details.limitations.map(l => `<span class="limitation"><i class="fas fa-times"></i> <span style="text-decoration: line-through;">${l}</span></span>`).join('')}
             </div>`
           : '';
 
+        // Show promo badge if there's a priceNote
+        const promoBadge = details.priceNote ? `
+          <div class="absolute -top-3 right-4">
+            <span style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 9999px;">
+              -50% OFF
+            </span>
+          </div>
+        ` : '';
+
+        // Show featured badge for premium
+        const featuredBadge = plan.plan_code === 'premium' ? `
+          <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%);">
+            <span style="background: linear-gradient(135deg, #FF6B35 0%, #FFA500 100%); color: white; font-size: 11px; font-weight: 700; padding: 4px 16px; border-radius: 9999px; white-space: nowrap;">
+              MOST POPULAR
+            </span>
+          </div>
+        ` : '';
+
+        // Show original price if there's a discount
+        const originalPriceDisplay = details.originalPrice ? `
+          <span style="color: #6B6B6B; text-decoration: line-through; font-size: 1.1rem; margin-right: 0.5rem;">
+            ${details.originalPrice}
+          </span>
+        ` : '';
+
         return `
-          <div class="plan-card ${isCurrent ? 'current' : ''} ${plan.is_featured ? 'featured' : ''}">
-            ${plan.is_featured ? '<span class="featured-badge"><i class="fas fa-fire"></i> Most Popular</span>' : ''}
-            ${plan.plan_code === 'pro' ? '<span class="featured-badge pro-badge"><i class="fas fa-crown"></i> Best Value</span>' : ''}
+          <div class="plan-card ${isCurrent ? 'current' : ''} ${plan.plan_code === 'premium' ? 'featured' : ''}" style="position: relative; padding-top: ${plan.plan_code === 'premium' ? '1.5rem' : '1rem'};">
+            ${featuredBadge}
+            ${promoBadge}
             <div class="plan-card-header">
               <div class="plan-card-name">${plan.name}</div>
               <p class="plan-tagline">${details.tagline}</p>
             </div>
             <div class="plan-card-price">
-              <span class="price-amount">$${billingCycle === 'yearly' ? monthlyFromYearly : price}</span>
-              <span class="price-period">/ month</span>
+              ${originalPriceDisplay}
+              <span class="price-amount" style="${plan.plan_code === 'premium' ? 'background: linear-gradient(135deg, #FF6B35 0%, #ff9f6b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;' : ''}">${billingCycle === 'yearly' ? monthlyFromYearly : price}</span>
+              <span class="price-period" style="color: #888;">zł</span>
+              <span class="price-period" style="color: #6B6B6B; font-size: 0.9rem;">/month</span>
               ${billingCycle === 'yearly' && plan.price_yearly > 0 ? `
-                <div class="price-yearly-info">
-                  <span class="yearly-total">$${yearlyTotal} billed yearly</span>
-                  ${savings > 0 ? `<span class="savings-badge">Save ${savings}%</span>` : ''}
+                <div class="price-yearly-info" style="margin-top: 0.5rem; font-size: 0.85rem; color: #888;">
+                  <span class="yearly-total">${yearlyTotal} zł billed yearly</span>
+                  ${savings > 0 ? `<span class="savings-badge" style="margin-left: 0.5rem; background: #10b981; color: white; padding: 2px 8px; border-radius: 4px;">Save ${savings}%</span>` : ''}
                 </div>
               ` : ''}
             </div>
             <ul class="plan-card-features">${highlightsList}</ul>
             ${limitationsList}
             <button 
-              class="btn ${isCurrent ? 'current' : 'btn-primary'}" 
+              class="btn ${isCurrent ? 'current' : plan.plan_code === 'premium' ? 'btn-primary' : 'btn-secondary'}" 
               ${isCurrent ? 'disabled' : `onclick="selectPlan('${plan.plan_code}')"`}
-              style="width: 100%;"
+              style="width: 100%; ${plan.plan_code === 'premium' && !isCurrent ? 'background: linear-gradient(135deg, #FF6B35 0%, #e55a2a 100%);' : ''}"
             >
               ${isCurrent ? '<i class="fas fa-check-circle"></i> Current Plan' : plan.plan_code === 'free' ? '<i class="fas fa-arrow-down"></i> Downgrade' : '<i class="fas fa-arrow-up"></i> Upgrade Now'}
             </button>
@@ -1395,30 +1508,94 @@
 
     function selectPlan(planCode) {
       selectedPlan = plans.find(p => p.plan_code === planCode);
-      if (!selectedPlan) return;
+      if (!selectedPlan) {
+        console.error('Plan not found:', planCode);
+        return;
+      }
+
+      console.log('Selected plan:', selectedPlan);
 
       if (planCode === 'free') {
         // Downgrade to free - just change plan
+        closeModal('change-plan-modal');
         changePlan(planCode);
       } else {
-        // Show payment modal
-        showModal('payment-modal');
+        // Close change plan modal first
+        closeModal('change-plan-modal');
+        
+        // Reset payment method selection
+        selectedPaymentMethod = null;
+        document.querySelectorAll('.payment-method-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+        const proceedBtn = document.getElementById('btn-proceed-payment');
+        if (proceedBtn) {
+          proceedBtn.disabled = true;
+        }
+        
+        // Show payment modal after a short delay to allow close animation
+        setTimeout(() => {
+          showModal('payment-modal');
+        }, 300);
       }
     }
 
+    function selectPaymentMethod(method) {
+      selectedPaymentMethod = method;
+      
+      // Update UI
+      document.querySelectorAll('.payment-method-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      document.getElementById(`payment-${method}`).classList.add('selected');
+      
+      // Enable proceed button
+      document.getElementById('btn-proceed-payment').disabled = false;
+    }
+
     async function proceedToPayment() {
+      console.log('proceedToPayment called');
+      console.log('Selected plan:', selectedPlan);
+      console.log('Selected payment method:', selectedPaymentMethod);
+      
       if (!selectedPlan) {
+        console.error('No plan selected');
         showAlert('error', 'Please select a plan first');
         return;
       }
 
+      if (!selectedPaymentMethod) {
+        console.error('No payment method selected');
+        showAlert('error', 'Please select a payment method');
+        return;
+      }
+
+      // Handle Buy Me a Coffee separately
+      if (selectedPaymentMethod === 'buymeacoffee') {
+        const bmcUrl = 'https://studio.buymeacoffee.com/dashboard';
+        window.open(bmcUrl, '_blank');
+        showAlert('info', 'After supporting us, contact support to activate your subscription');
+        closeModal('payment-modal');
+        return;
+      }
+
       const paymentBtn = document.getElementById('btn-proceed-payment');
+      if (!paymentBtn) {
+        console.error('Payment button not found');
+        return;
+      }
       const originalText = paymentBtn.innerHTML;
       
       try {
         // Show loading state
         paymentBtn.disabled = true;
         paymentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+        console.log('Sending subscription request:', {
+          planCode: selectedPlan.plan_code,
+          billingCycle: billingCycle,
+          provider: selectedPaymentMethod
+        });
 
         const response = await fetch('/api/subscriptions/subscribe', {
           method: 'POST',
@@ -1427,14 +1604,17 @@
           body: JSON.stringify({
             planCode: selectedPlan.plan_code,
             billingCycle: billingCycle,
-            provider: 'stripe'
+            provider: selectedPaymentMethod // 'stripe' or 'payu'
           })
         });
 
+        console.log('Response status:', response.status);
         const data = await response.json();
+        console.log('Response data:', data);
 
         if (!response.ok) {
           // Handle HTTP errors (401, 403, 400, 500, etc.)
+          console.error('Server error:', response.status, data);
           if (response.status === 401) {
             showAlert('error', 'Please log in to subscribe to a plan');
             setTimeout(() => window.location.href = '/login.html', 2000);
@@ -1445,12 +1625,15 @@
         }
 
         if (data.success && data.url) {
-          // Redirect to Stripe checkout
+          console.log('Redirecting to payment URL:', data.url);
+          // Redirect to payment provider checkout (Stripe or PayU)
           window.location.href = data.url;
         } else if (data.success && data.sessionId) {
+          console.log('Redirecting with session ID:', data.sessionId);
           // Alternative: redirect using session ID
           window.location.href = data.url || `/checkout?session_id=${data.sessionId}`;
         } else {
+          console.error('Unexpected response:', data);
           showAlert('error', data.error || 'Failed to start payment process. Please try again.');
         }
       } catch (error) {
@@ -1699,7 +1882,182 @@
     }
 
     function showChangePlanModal() {
+      // Populate the modal with plans
+      const modalContent = document.getElementById('modal-plans-content');
+      const currentPlan = currentSubscription?.plan_code || 'free';
+      
+      // Billing cycle toggle
+      const billingToggle = `
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <div style="display: inline-flex; background: #1a1a1a; border-radius: 9999px; padding: 4px;">
+            <button id="toggle-monthly-modal" class="toggle-option ${billingCycle === 'monthly' ? 'active' : ''}" onclick="setBillingCycleModal('monthly')" style="padding: 8px 24px; border-radius: 9999px; border: none; cursor: pointer; transition: all 0.2s; ${billingCycle === 'monthly' ? 'background: #FF6B35; color: white;' : 'background: transparent; color: #888;'}">
+              Monthly
+            </button>
+            <button id="toggle-yearly-modal" class="toggle-option ${billingCycle === 'yearly' ? 'active' : ''}" onclick="setBillingCycleModal('yearly')" style="padding: 8px 24px; border-radius: 9999px; border: none; cursor: pointer; transition: all 0.2s; ${billingCycle === 'yearly' ? 'background: #FF6B35; color: white;' : 'background: transparent; color: #888;'}">
+              Yearly
+              <span style="margin-left: 6px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600;">SAVE 20%</span>
+            </button>
+          </div>
+        </div>
+      `;
+      
+      // Plans grid (reuse the existing renderPlans logic)
+      const plansHTML = renderPlansHTML();
+      
+      modalContent.innerHTML = billingToggle + '<div class="plans-grid" style="margin-top: 1.5rem;">' + plansHTML + '</div>';
+      
       showModal('change-plan-modal');
+    }
+    
+    function setBillingCycleModal(cycle) {
+      billingCycle = cycle;
+      // Update toggle buttons
+      document.getElementById('toggle-monthly-modal').style.background = cycle === 'monthly' ? '#FF6B35' : 'transparent';
+      document.getElementById('toggle-monthly-modal').style.color = cycle === 'monthly' ? 'white' : '#888';
+      document.getElementById('toggle-yearly-modal').style.background = cycle === 'yearly' ? '#FF6B35' : 'transparent';
+      document.getElementById('toggle-yearly-modal').style.color = cycle === 'yearly' ? 'white' : '#888';
+      
+      // Re-render plans in modal
+      const modalContent = document.getElementById('modal-plans-content');
+      const plansGrid = modalContent.querySelector('.plans-grid');
+      if (plansGrid) {
+        plansGrid.innerHTML = renderPlansHTML();
+      }
+    }
+    
+    function renderPlansHTML() {
+      const currentPlan = currentSubscription?.plan_code || 'free';
+      const planDetails = {
+        free: {
+          tagline: 'Perfect for getting started',
+          highlights: [
+            { icon: 'fa-music', text: '3 tracks' },
+            { icon: 'fa-sliders-h', text: '10 presets' },
+            { icon: 'fa-file-audio', text: 'MP3 export' },
+            { icon: 'fa-database', text: '100 MB storage' }
+          ],
+          limitations: ['No WAV/FLAC export', 'No collaboration']
+        },
+        basic: {
+          tagline: 'For hobbyist producers',
+          priceNote: '50% OFF Launch Promo',
+          originalPrice: '19.99',
+          highlights: [
+            { icon: 'fa-music', text: '25 tracks' },
+            { icon: 'fa-sliders-h', text: '100 presets' },
+            { icon: 'fa-file-audio', text: 'MP3 + WAV export' },
+            { icon: 'fa-database', text: '2 GB storage' },
+            { icon: 'fa-download', text: 'Offline mode' }
+          ],
+          limitations: ['No collaboration']
+        },
+        premium: {
+          tagline: 'For serious producers',
+          priceNote: '50% OFF Launch Promo - MOST POPULAR',
+          originalPrice: '49.99',
+          highlights: [
+            { icon: 'fa-infinity', text: '<strong>Unlimited</strong> tracks' },
+            { icon: 'fa-infinity', text: '<strong>Unlimited</strong> presets' },
+            { icon: 'fa-file-audio', text: 'All formats (MP3/WAV/FLAC/OGG)' },
+            { icon: 'fa-database', text: '10 GB storage' },
+            { icon: 'fa-users', text: '<strong>Real-time collaboration</strong>' },
+            { icon: 'fa-headset', text: 'Priority support' }
+          ],
+          limitations: []
+        },
+        pro: {
+          tagline: 'For professional studios',
+          priceNote: '50% OFF Launch Promo',
+          originalPrice: '99.99',
+          highlights: [
+            { icon: 'fa-check', text: 'Everything in Premium' },
+            { icon: 'fa-layer-group', text: '<strong>Stems export</strong>' },
+            { icon: 'fa-infinity', text: '<strong>Unlimited</strong> storage' },
+            { icon: 'fa-users', text: 'Up to 10 team members' },
+            { icon: 'fa-crown', text: 'White-label options' },
+            { icon: 'fa-headset', text: 'Dedicated account manager' }
+          ],
+          limitations: []
+        }
+      };
+      
+      return plans.map(plan => {
+        const isCurrent = plan.plan_code === currentPlan;
+        const price = billingCycle === 'yearly' 
+          ? (plan.price_yearly / 100).toFixed(2)
+          : (plan.price_monthly / 100).toFixed(2);
+        const monthlyFromYearly = (plan.price_yearly / 12 / 100).toFixed(2);
+        const yearlyTotal = (plan.price_yearly / 100).toFixed(2);
+        const savings = billingCycle === 'yearly' 
+          ? Math.round((1 - (plan.price_yearly / (plan.price_monthly * 12))) * 100)
+          : 0;
+        
+        const details = planDetails[plan.plan_code] || planDetails.free;
+        
+        const highlightsList = details.highlights.map(h => 
+          `<li><i class="fas ${h.icon}"></i> ${h.text}</li>`
+        ).join('');
+
+        const limitationsList = details.limitations.length > 0 
+          ? `<div class="plan-limitations">
+              ${details.limitations.map(l => `<span class="limitation"><i class="fas fa-times"></i> <span style="text-decoration: line-through;">${l}</span></span>`).join('')}
+            </div>`
+          : '';
+
+        const promoBadge = details.priceNote ? `
+          <div class="absolute -top-3 right-4">
+            <span style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 9999px;">
+              -50% OFF
+            </span>
+          </div>
+        ` : '';
+
+        const featuredBadge = plan.plan_code === 'premium' ? `
+          <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%);">
+            <span style="background: linear-gradient(135deg, #FF6B35 0%, #FFA500 100%); color: white; font-size: 11px; font-weight: 700; padding: 4px 16px; border-radius: 9999px; white-space: nowrap;">
+              MOST POPULAR
+            </span>
+          </div>
+        ` : '';
+
+        const originalPriceDisplay = details.originalPrice ? `
+          <span style="color: #6B6B6B; text-decoration: line-through; font-size: 1.1rem; margin-right: 0.5rem;">
+            ${details.originalPrice}
+          </span>
+        ` : '';
+
+        return `
+          <div class="plan-card ${isCurrent ? 'current' : ''} ${plan.plan_code === 'premium' ? 'featured' : ''}" style="position: relative; padding-top: ${plan.plan_code === 'premium' ? '1.5rem' : '1rem'};">
+            ${featuredBadge}
+            ${promoBadge}
+            <div class="plan-card-header">
+              <div class="plan-card-name">${plan.name}</div>
+              <p class="plan-tagline">${details.tagline}</p>
+            </div>
+            <div class="plan-card-price">
+              ${originalPriceDisplay}
+              <span class="price-amount" style="${plan.plan_code === 'premium' ? 'background: linear-gradient(135deg, #FF6B35 0%, #ff9f6b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;' : ''}">${billingCycle === 'yearly' ? monthlyFromYearly : price}</span>
+              <span class="price-period" style="color: #888;">zł</span>
+              <span class="price-period" style="color: #6B6B6B; font-size: 0.9rem;">/month</span>
+              ${billingCycle === 'yearly' && plan.price_yearly > 0 ? `
+                <div class="price-yearly-info" style="margin-top: 0.5rem; font-size: 0.85rem; color: #888;">
+                  <span class="yearly-total">${yearlyTotal} zł billed yearly</span>
+                  ${savings > 0 ? `<span class="savings-badge" style="margin-left: 0.5rem; background: #10b981; color: white; padding: 2px 8px; border-radius: 4px;">Save ${savings}%</span>` : ''}
+                </div>
+              ` : ''}
+            </div>
+            <ul class="plan-card-features">${highlightsList}</ul>
+            ${limitationsList}
+            <button 
+              class="btn ${isCurrent ? 'current' : plan.plan_code === 'premium' ? 'btn-primary' : 'btn-secondary'}" 
+              ${isCurrent ? 'disabled' : `onclick="selectPlan('${plan.plan_code}')"`}
+              style="width: 100%; ${plan.plan_code === 'premium' && !isCurrent ? 'background: linear-gradient(135deg, #FF6B35 0%, #e55a2a 100%);' : ''}"
+            >
+              ${isCurrent ? '<i class="fas fa-check-circle"></i> Current Plan' : plan.plan_code === 'free' ? '<i class="fas fa-arrow-down"></i> Downgrade' : '<i class="fas fa-arrow-up"></i> Upgrade Now'}
+            </button>
+          </div>
+        `;
+      }).join('');
     }
 
     function showCancelModal() {

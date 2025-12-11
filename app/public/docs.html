@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - HAOS.fm | Comprehensive Platform Guide</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --haos-orange: #FF6B35;
+            --haos-cyan: #00D9FF;
+            --haos-purple: #6A0DAD;
+            --haos-green: #39FF14;
+            --haos-gold: #D4AF37;
+            --bg-dark: #0A0A0A;
+            --bg-secondary: #151515;
+            --bg-tertiary: #1a1a1a;
+            --border: rgba(255, 255, 255, 0.1);
+            --text-primary: #F4E8D8;
+            --text-muted: #6B6B6B;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--haos-orange) 0%, var(--haos-gold) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .logo-text {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 24px;
+            letter-spacing: 2px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: var(--haos-orange);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-secondary) 100%);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero-title {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: clamp(48px, 8vw, 72px);
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--haos-orange) 0%, var(--haos-gold) 50%, var(--haos-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+        
+        .search-box {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 16px 48px 16px 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .search-input:focus {
+            border-color: var(--haos-orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+        
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+        
+        .section {
+            margin-bottom: 5rem;
+        }
+        
+        .section-header {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 36px;
+            letter-spacing: 2px;
+            color: var(--haos-orange);
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-description {
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+        
+        /* Documentation Grid */
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        
+        .doc-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .doc-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--haos-orange);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        
+        .doc-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .doc-icon.orange { background: linear-gradient(135deg, var(--haos-orange) 0%, #d4552e 100%); }
+        .doc-icon.cyan { background: linear-gradient(135deg, var(--haos-cyan) 0%, #00a8cc 100%); }
+        .doc-icon.purple { background: linear-gradient(135deg, var(--haos-purple) 0%, #4a0880 100%); }
+        .doc-icon.green { background: linear-gradient(135deg, var(--haos-green) 0%, #2dcc10 100%); }
+        .doc-icon.gold { background: linear-gradient(135deg, var(--haos-gold) 0%, #b8942e 100%); }
+        
+        .doc-title {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 24px;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .doc-description {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .doc-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .doc-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Quick Links */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .quick-link {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .quick-link:hover {
+            border-color: var(--haos-cyan);
+            background: var(--bg-secondary);
+        }
+        
+        .quick-link i {
+            display: block;
+            font-size: 24px;
+            margin-bottom: 0.5rem;
+            color: var(--haos-cyan);
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-section h3 {
+            font-family: 'Bebas Neue', Arial, sans-serif;
+            font-size: 18px;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            color: var(--haos-orange);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+        
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 3rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero { padding: 2rem 1rem; }
+            .container { padding: 2rem 1rem; }
+            .docs-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <div class="logo-icon"><i class="fas fa-broadcast-tower"></i></div>
+                <span class="logo-text">HAOS.FM</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/dashboard.html" class="nav-link">Dashboard</a>
+                <a href="/techno-workspace.html" class="nav-link">Workspace</a>
+                <a href="/sounds.html" class="nav-link">Sounds</a>
+                <a href="/docs.html" class="nav-link active">Documentation</a>
+                <a href="/community.html" class="nav-link">Community</a>
+            </nav>
+            <a href="/account.html" class="nav-link">Account</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">DOCUMENTATION</h1>
+            <p class="hero-subtitle">Everything you need to master the HAOS.FM platform</p>
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Search documentation..." id="searchInput">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Getting Started Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Getting Started</h2>
+                <p class="section-description">New to HAOS.FM? Start here to learn the basics and get up and running quickly.</p>
+            </div>
+            <div class="docs-grid">
+                <a href="/docs/quickstart" class="doc-card">
+                    <div class="doc-icon orange">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="doc-title">Quick Start Guide</h3>
+                    <p class="doc-description">Get up and running with HAOS.FM in under 5 minutes. Learn the basics of navigation, creating your first project, and exploring the platform.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 5 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Beginner</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/authentication" class="doc-card">
+                    <div class="doc-icon cyan">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3 class="doc-title">Authentication & Accounts</h3>
+                    <p class="doc-description">Learn about the three-tier access system: anonymous sessions, basic OAuth login, and premium subscriptions with full features.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 8 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Beginner</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/interface-overview" class="doc-card">
+                    <div class="doc-icon purple">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                    <h3 class="doc-title">Interface Overview</h3>
+                    <p class="doc-description">Complete walkthrough of the HAOS.FM interface including the dashboard, workspace, radio player, and navigation structure.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 10 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Beginner</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Synthesizers Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Synthesizers & Sound Design</h2>
+                <p class="section-description">Master the art of synthesis with our comprehensive guides to modular systems, classic recreations, and sound design techniques.</p>
+            </div>
+            <div class="docs-grid">
+                <a href="/docs/modular-synth" class="doc-card">
+                    <div class="doc-icon green">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3 class="doc-title">Modular Synthesizer</h3>
+                    <p class="doc-description">Deep dive into the modular synthesis environment. Learn about oscillators, filters, envelopes, LFOs, patch cables, and creating complex sounds from scratch.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 25 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Intermediate</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/arp-2600" class="doc-card">
+                    <div class="doc-icon gold">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h3 class="doc-title">ARP 2600 Emulation</h3>
+                    <p class="doc-description">Comprehensive guide to the legendary ARP 2600 semi-modular synthesizer. Learn signal flow, patching techniques, and classic sounds.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 20 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Intermediate</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/tb-303" class="doc-card">
+                    <div class="doc-icon cyan">
+                        <i class="fas fa-wave-square"></i>
+                    </div>
+                    <h3 class="doc-title">TB-303 Bass Line</h3>
+                    <p class="doc-description">Master the iconic acid sound. Learn pattern programming, resonance sweeps, accent patterns, and creating classic 303 basslines.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 15 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Intermediate</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/tr-909" class="doc-card">
+                    <div class="doc-icon orange">
+                        <i class="fas fa-drum"></i>
+                    </div>
+                    <h3 class="doc-title">TR-909 Drum Machine</h3>
+                    <p class="doc-description">Complete guide to the legendary Roland TR-909. Pattern creation, parameter tweaking, and programming classic techno drum patterns.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 18 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Intermediate</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/sound-design" class="doc-card">
+                    <div class="doc-icon purple">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h3 class="doc-title">Sound Design Fundamentals</h3>
+                    <p class="doc-description">Core concepts of synthesis: waveforms, filters, envelopes, modulation. Learn to create any sound you can imagine from basic principles.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 30 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Beginner</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/patch-library" class="doc-card">
+                    <div class="doc-icon green">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <h3 class="doc-title">Patch Library</h3>
+                    <p class="doc-description">Browse hundreds of preset patches for all synthesizers. Save, share, and explore community-created sounds. Export and import patches.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 12 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> All Levels</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Audio Engine Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Audio Engine & Production</h2>
+                <p class="section-description">Technical documentation on the audio engine, sequencer, effects, mixing, and production workflow.</p>
+            </div>
+            <div class="docs-grid">
+                <a href="/docs/audio-engine" class="doc-card">
+                    <div class="doc-icon orange">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3 class="doc-title">Audio Engine Architecture</h3>
+                    <p class="doc-description">Technical deep dive into the Web Audio API-based engine. Sample rates, buffer sizes, latency compensation, and audio routing.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 22 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Advanced</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/sequencer" class="doc-card">
+                    <div class="doc-icon cyan">
+                        <i class="fas fa-th"></i>
+                    </div>
+                    <h3 class="doc-title">Pattern Sequencer</h3>
+                    <p class="doc-description">Master the step sequencer. Pattern creation, automation, swing, shuffle, probability, and advanced sequencing techniques.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 18 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Intermediate</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/effects" class="doc-card">
+                    <div class="doc-icon purple">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h3 class="doc-title">Effects & Processing</h3>
+                    <p class="doc-description">Complete guide to all effects: reverb, delay, chorus, distortion, compression, EQ, and creative effects chains.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 20 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Intermediate</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/mixing" class="doc-card">
+                    <div class="doc-icon green">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h3 class="doc-title">Mixing & Mastering</h3>
+                    <p class="doc-description">Professional mixing techniques. Level balancing, panning, EQ strategies, compression, and preparing tracks for export.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 25 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Advanced</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/export" class="doc-card">
+                    <div class="doc-icon gold">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <h3 class="doc-title">Export & Rendering</h3>
+                    <p class="doc-description">Export your projects to WAV, MP3, and other formats. Real-time vs offline rendering, file management, and sharing options.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 10 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Beginner</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Collaboration Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Collaboration & Community</h2>
+                <p class="section-description">Learn how to collaborate with other producers, share your work, and engage with the HAOS.FM community.</p>
+            </div>
+            <div class="docs-grid">
+                <a href="/docs/realtime-collaboration" class="doc-card">
+                    <div class="doc-icon cyan">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="doc-title">Real-Time Collaboration</h3>
+                    <p class="doc-description">Work together in real-time. WebSocket-based collaboration, session management, role permissions, and collaborative workflow.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 15 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Intermediate</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/community" class="doc-card">
+                    <div class="doc-icon purple">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="doc-title">Community Features</h3>
+                    <p class="doc-description">Explore the community hub. Discord-style channels, sharing tracks, feedback, discussions, and connecting with 2,800+ producers.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 12 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Beginner</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/radio-streaming" class="doc-card">
+                    <div class="doc-icon orange">
+                        <i class="fas fa-broadcast-tower"></i>
+                    </div>
+                    <h3 class="doc-title">24/7 Radio Stream</h3>
+                    <p class="doc-description">The HAOS.FM radio experience. Track submissions, playlist curation, live streaming, and getting your music on air.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 10 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Beginner</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- API & Development Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">API & Development</h2>
+                <p class="section-description">Technical documentation for developers building with or extending the HAOS.FM platform.</p>
+            </div>
+            <div class="docs-grid">
+                <a href="/docs/api-reference" class="doc-card">
+                    <div class="doc-icon green">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="doc-title">API Reference</h3>
+                    <p class="doc-description">Complete REST API documentation. Authentication, endpoints, request/response formats, rate limiting, and error handling.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 35 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Advanced</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/web-audio-api" class="doc-card">
+                    <div class="doc-icon gold">
+                        <i class="fas fa-wave-square"></i>
+                    </div>
+                    <h3 class="doc-title">Web Audio API Integration</h3>
+                    <p class="doc-description">How HAOS.FM leverages Web Audio API. AudioContext, nodes, routing, custom processors, and advanced audio programming.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 28 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Advanced</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/websocket-protocol" class="doc-card">
+                    <div class="doc-icon cyan">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3 class="doc-title">WebSocket Protocol</h3>
+                    <p class="doc-description">Real-time communication protocol. Message formats, events, collaboration sync, presence, and building real-time features.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 20 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Advanced</span>
+                    </div>
+                </a>
+                
+                <a href="/docs/extensions" class="doc-card">
+                    <div class="doc-icon purple">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </div>
+                    <h3 class="doc-title">Building Extensions</h3>
+                    <p class="doc-description">Create custom synthesizers, effects, and tools. Plugin architecture, API hooks, and extending the HAOS.FM platform.</p>
+                    <div class="doc-meta">
+                        <span class="doc-meta-item"><i class="fas fa-clock"></i> 40 min read</span>
+                        <span class="doc-meta-item"><i class="fas fa-signal"></i> Expert</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Quick Links Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Quick Links</h2>
+                <p class="section-description">Jump to commonly accessed resources and tools.</p>
+            </div>
+            <div class="quick-links">
+                <a href="/docs/troubleshooting" class="quick-link">
+                    <i class="fas fa-life-ring"></i>
+                    Troubleshooting
+                </a>
+                <a href="/docs/keyboard-shortcuts" class="quick-link">
+                    <i class="fas fa-keyboard"></i>
+                    Keyboard Shortcuts
+                </a>
+                <a href="/docs/faq" class="quick-link">
+                    <i class="fas fa-question-circle"></i>
+                    FAQ
+                </a>
+                <a href="/docs/changelog" class="quick-link">
+                    <i class="fas fa-list-alt"></i>
+                    Changelog
+                </a>
+                <a href="/docs/tutorials" class="quick-link">
+                    <i class="fas fa-graduation-cap"></i>
+                    Video Tutorials
+                </a>
+                <a href="/docs/best-practices" class="quick-link">
+                    <i class="fas fa-lightbulb"></i>
+                    Best Practices
+                </a>
+                <a href="/community.html" class="quick-link">
+                    <i class="fas fa-users"></i>
+                    Join Community
+                </a>
+                <a href="mailto:support@haos.fm" class="quick-link">
+                    <i class="fas fa-envelope"></i>
+                    Contact Support
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Platform</h3>
+                <ul class="footer-links">
+                    <li><a href="/dashboard.html">Dashboard</a></li>
+                    <li><a href="/techno-workspace.html">Workspace</a></li>
+                    <li><a href="/sounds.html">Sound Library</a></li>
+                    <li><a href="/community.html">Community</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Documentation</h3>
+                <ul class="footer-links">
+                    <li><a href="/docs/quickstart">Quick Start</a></li>
+                    <li><a href="/docs/synthesizers">Synthesizers</a></li>
+                    <li><a href="/docs/api-reference">API Reference</a></li>
+                    <li><a href="/docs/tutorials">Tutorials</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="/docs/changelog">Changelog</a></li>
+                    <li><a href="/docs/faq">FAQ</a></li>
+                    <li><a href="/docs/troubleshooting">Troubleshooting</a></li>
+                    <li><a href="https://github.com/haos-fm">GitHub</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul class="footer-links">
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms of Service</a></li>
+                    <li><a href="/licenses">Open Source Licenses</a></li>
+                    <li><a href="mailto:legal@haos.fm">Contact Legal</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 HAOS.FM - Hardware Analog Oscillator Synthesis. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const docCards = document.querySelectorAll('.doc-card');
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            
+            docCards.forEach(card => {
+                const title = card.querySelector('.doc-title').textContent.toLowerCase();
+                const description = card.querySelector('.doc-description').textContent.toLowerCase();
+                
+                if (title.includes(query) || description.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Focus search with Ctrl/Cmd + K
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+            
+            // Clear search with Escape
+            if (e.key === 'Escape' && document.activeElement === searchInput) {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+                searchInput.blur();
+            }
+        });
+    </script>
+</body>
+</html>

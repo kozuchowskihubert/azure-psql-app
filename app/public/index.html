@@ -76,6 +76,16 @@
             box-shadow: 0 0 30px rgba(255, 107, 53, 0.4), 0 0 60px rgba(255, 107, 53, 0.2);
         }
         
+        /* Hide icons in hero cards */
+        #studios a > div[style*="font-size: 3rem"],
+        #studios a > div[style*="font-size: 4rem"] {
+            display: none !important;
+        }
+        
+        #studios h3 {
+            margin-top: 15px !important;
+        }
+        
         .orange-border {
             border: 2px solid rgba(255, 107, 53, 0.5);
         }
@@ -417,48 +427,48 @@
     <!-- ============================================================================
          BACKGROUND MUSIC PLAYER - Hidden by default
          ============================================================================ -->
-    <div id="haos-bg-music-player" class="haos-radio-player" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 400px; max-width: 90vw; display: none; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+    <div id="haos-bg-music-player" class="haos-radio-player" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 280px; max-width: 90vw; display: none; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
         
         <!-- Minimized State -->
-        <div id="haos-radio-minimized" class="haos-radio-minimized" style="display: none; background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,20,0.98)); border: 2px solid var(--haos-orange-primary); border-radius: 50px; padding: 12px 20px; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(255,107,53,0.4); cursor: pointer; transition: all 0.3s;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 10px; height: 10px; background: #39FF14; border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 10px #39FF14;"></div>
+        <div id="haos-radio-minimized" class="haos-radio-minimized" style="display: none; background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,20,0.98)); border: 2px solid var(--haos-orange-primary); border-radius: 50px; padding: 8px 14px; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(255,107,53,0.4); cursor: pointer; transition: all 0.3s;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 8px; height: 8px; background: #39FF14; border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 8px #39FF14;"></div>
                 <div style="flex: 1; min-width: 0;">
-                    <div id="haos-mini-title" style="font-family: var(--font-display); color: #fff; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold;">
+                    <div id="haos-mini-title" style="font-family: var(--font-display); color: #fff; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold;">
                         Loading...
                     </div>
-                    <div id="haos-mini-artist" style="font-family: var(--font-mono); color: rgba(255,255,255,0.6); font-size: 0.7rem;">
+                    <div id="haos-mini-artist" style="font-family: var(--font-mono); color: rgba(255,255,255,0.6); font-size: 0.6rem;">
                         HAOS Radio
                     </div>
                 </div>
-                <button id="haos-mini-playpause" style="background: rgba(255, 107, 53, 0.3); border: 2px solid var(--haos-orange-primary); border-radius: 50%; color: var(--haos-orange-primary); cursor: pointer; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; font-size: 0.9rem;">
+                <button id="haos-mini-playpause" style="background: rgba(255, 107, 53, 0.3); border: 2px solid var(--haos-orange-primary); border-radius: 50%; color: var(--haos-orange-primary); cursor: pointer; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; font-size: 0.75rem;">
                     <i class="fas fa-pause"></i>
                 </button>
             </div>
         </div>
         
         <!-- Expanded State (Full Control Panel) -->
-        <div id="haos-music-controls" class="haos-radio-expanded" style="background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,20,0.98)); border: 2px solid var(--haos-orange-primary); border-radius: 12px; padding: 15px; backdrop-filter: blur(10px); box-shadow: 0 10px 40px rgba(255,107,53,0.3); transition: all 0.3s;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 8px; height: 8px; background: #39FF14; border-radius: 50%; animation: pulse 2s infinite;"></div>
-                    <span style="font-family: 'Space Mono', monospace; color: var(--haos-orange-primary); font-size: 0.75rem; letter-spacing: 2px; font-weight: bold;">📻 HAOS RADIO</span>
+        <div id="haos-music-controls" class="haos-radio-expanded" style="background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,20,0.98)); border: 2px solid var(--haos-orange-primary); border-radius: 10px; padding: 10px; backdrop-filter: blur(10px); box-shadow: 0 10px 40px rgba(255,107,53,0.3); transition: all 0.3s;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <div style="width: 6px; height: 6px; background: #39FF14; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                    <span style="font-family: 'Space Mono', monospace; color: var(--haos-orange-primary); font-size: 0.65rem; letter-spacing: 1.5px; font-weight: bold;">📻 HAOS RADIO</span>
                 </div>
-                <button id="haos-music-close" style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 1.2rem; padding: 0; width: 24px; height: 24px;" title="Close player">
+                <button id="haos-music-close" style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 1rem; padding: 0; width: 20px; height: 20px;" title="Close player">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
-            <div id="haos-track-info" style="margin-bottom: 12px;">
-                <div id="haos-track-title" style="font-family: var(--font-display); color: #fff; font-size: 1rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <div id="haos-track-info" style="margin-bottom: 8px;">
+                <div id="haos-track-title" style="font-family: var(--font-display); color: #fff; font-size: 0.85rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                     Loading...
                 </div>
-                <div id="haos-track-artist" style="font-family: var(--font-mono); color: rgba(255,255,255,0.6); font-size: 0.85rem;">
+                <div id="haos-track-artist" style="font-family: var(--font-mono); color: rgba(255,255,255,0.6); font-size: 0.7rem;">
                     HAOS Radio
                 </div>
             </div>
             
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
                 <button id="haos-music-prev" class="haos-music-btn" title="Previous">
                     <i class="fas fa-step-backward"></i>
                 </button>
@@ -471,39 +481,39 @@
                 <button id="haos-music-shuffle" class="haos-music-btn" title="Shuffle: ON" style="color: #FFD700;">
                     <i class="fas fa-random"></i>
                 </button>
-                <div style="flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; position: relative; margin: 0 10px;">
+                <div style="flex: 1; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; position: relative; margin: 0 6px;">
                     <div id="haos-music-progress" style="height: 100%; background: linear-gradient(90deg, var(--haos-orange-primary), #FFD700); border-radius: 2px; width: 0%; transition: width 0.3s;"></div>
                 </div>
-                <input id="haos-music-volume" type="range" min="0" max="100" value="70" style="width: 80px; cursor: pointer;" title="Volume">
+                <input id="haos-music-volume" type="range" min="0" max="100" value="70" style="width: 50px; cursor: pointer;" title="Volume">
             </div>
             
-            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 8px; flex-wrap: wrap;">
                 <a href="https://www.youtube.com/@haos_" target="_blank" rel="noopener noreferrer" 
-                   style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.7rem; color: #FF0000; text-decoration: none; background: rgba(255,0,0,0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,0,0,0.3); transition: all 0.3s;"
+                   style="display: flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 0.6rem; color: #FF0000; text-decoration: none; background: rgba(255,0,0,0.1); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,0,0,0.3); transition: all 0.3s;"
                    onmouseover="this.style.background='rgba(255,0,0,0.2)'; this.style.borderColor='#FF0000';"
                    onmouseout="this.style.background='rgba(255,0,0,0.1)'; this.style.borderColor='rgba(255,0,0,0.3)';">
                     <i class="fab fa-youtube"></i>
                     <span>@haos_</span>
                 </a>
                 <button id="my-uploads-btn" 
-                   style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.7rem; color: #FFD700; text-decoration: none; background: rgba(255,215,0,0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,215,0,0.3); transition: all 0.3s; cursor: pointer;"
+                   style="display: flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 0.6rem; color: #FFD700; text-decoration: none; background: rgba(255,215,0,0.1); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,215,0,0.3); transition: all 0.3s; cursor: pointer;"
                    onmouseover="this.style.background='rgba(255,215,0,0.2)'; this.style.borderColor='#FFD700';"
                    onmouseout="this.style.background='rgba(255,215,0,0.1)'; this.style.borderColor='rgba(255,215,0,0.3)';"
                    title="Switch to your uploaded tracks">
                     <span>📁</span>
-                    <span>MY UPLOADS</span>
+                    <span>UPLOADS</span>
                 </button>
                 <button id="open-upload-btn" 
-                   style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.7rem; color: #FF5500; text-decoration: none; background: rgba(255,85,0,0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,85,0,0.3); transition: all 0.3s; cursor: pointer;"
+                   style="display: flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 0.6rem; color: #FF5500; text-decoration: none; background: rgba(255,85,0,0.1); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,85,0,0.3); transition: all 0.3s; cursor: pointer;"
                    onmouseover="this.style.background='rgba(255,85,0,0.2)'; this.style.borderColor='#FF5500';"
                    onmouseout="this.style.background='rgba(255,85,0,0.1)'; this.style.borderColor='rgba(255,85,0,0.3)';">
                     <span>⬆️</span>
-                    <span>UPLOAD TRACK</span>
+                    <span>UPLOAD</span>
                 </button>
             </div>
             
-            <div style="font-family: var(--font-mono); font-size: 0.7rem; color: rgba(255,255,255,0.4); text-align: center; margin-top: 8px;">
-                🎵 Streaming Quality Audio
+            <div style="font-family: var(--font-mono); font-size: 0.6rem; color: rgba(255,255,255,0.4); text-align: center; margin-top: 6px;">
+                🎵 Streaming Quality
             </div>
         </div>
     </div>
@@ -512,11 +522,11 @@
         .haos-music-btn {
             background: rgba(255, 107, 53, 0.2);
             border: 2px solid var(--haos-orange-primary);
-            border-radius: 8px;
+            border-radius: 6px;
             color: var(--haos-orange-primary);
             cursor: pointer;
-            padding: 8px 12px;
-            font-size: 0.9rem;
+            padding: 6px 8px;
+            font-size: 0.75rem;
             transition: all 0.3s;
         }
         .haos-music-btn:hover {
@@ -525,8 +535,8 @@
             transform: translateY(-2px);
         }
         .haos-music-btn-large {
-            padding: 12px 20px;
-            font-size: 1.1rem;
+            padding: 8px 14px;
+            font-size: 0.9rem;
         }
         #haos-music-volume {
             -webkit-appearance: none;
@@ -604,6 +614,9 @@
                                 <a href="/synth-2600.html" class="block px-4 py-3 hover:bg-orange-500/20 transition-colors" style="color: #D4AF37; font-family: 'Space Mono', monospace; font-size: 0.85rem;">
                                     <i class="fas fa-sliders-h mr-2"></i>ARP 2600 <span style="color: rgba(255,255,255,0.5); font-size: 0.7rem; margin-left: 8px;">Legendary Synth</span>
                                 </a>
+                                <a href="/behringer-2600-ultra-realistic.html" class="block px-4 py-3 hover:bg-orange-500/20 transition-colors" style="color: #FF6B35; font-family: 'Space Mono', monospace; font-size: 0.85rem;">
+                                    <i class="fas fa-wave-square mr-2"></i>2600 ULTRA <span style="color: rgba(255,255,255,0.5); font-size: 0.7rem; margin-left: 8px;">⚡ Photorealistic</span>
+                                </a>
                                 <a href="/synth-2600-studio.html" class="block px-4 py-3 hover:bg-orange-500/20 transition-colors" style="color: #D4AF37; font-family: 'Space Mono', monospace; font-size: 0.85rem;">
                                     <i class="fas fa-music mr-2"></i>2600 STUDIO <span style="color: rgba(255,255,255,0.5); font-size: 0.7rem; margin-left: 8px;">Full Workstation</span>
                                 </a>
@@ -614,10 +627,6 @@
                                 <a href="/midi-generator.html" class="block px-4 py-3 hover:bg-orange-500/20 transition-colors" style="color: #00D9FF; font-family: 'Space Mono', monospace; font-size: 0.85rem;">
                                     <i class="fas fa-random mr-2"></i>MIDI GEN <span style="color: rgba(255,255,255,0.5); font-size: 0.7rem; margin-left: 8px;">Pattern Creator</span>
                                 </a>
-                                <div style="border-top: 1px solid rgba(255,107,53,0.2); margin: 8px 0;"></div>
-                                <a href="/instruments.html" class="block px-4 py-3 hover:bg-orange-500/20 transition-colors" style="color: rgba(255,255,255,0.7); font-family: 'Space Mono', monospace; font-size: 0.85rem;">
-                                    <i class="fas fa-th-large mr-2"></i>ALL INSTRUMENTS →
-                                </a>
                             </div>
                         </div>
                     </div>
@@ -627,9 +636,63 @@
                     <a href="/community.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
                         <i class="fas fa-users mr-2"></i>COMMUNITY
                     </a>
-                    <a href="/dashboard.html" class="haos-btn-primary px-4 py-2 rounded-full text-sm font-bold">
-                        <i class="fas fa-th-large mr-2"></i>DASHBOARD
-                    </a>
+                    
+                    <!-- Account Dropdown -->
+                    <div class="relative group">
+                        <button class="haos-btn-primary px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
+                            <i class="fas fa-user-circle"></i>ACCOUNT <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div class="absolute top-full right-0 mt-2 w-72 bg-black/95 backdrop-blur-xl border border-orange-500/30 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50" style="box-shadow: 0 10px 40px rgba(255, 107, 53, 0.3);">
+                            <div style="padding: 12px 0;">
+                                <a href="/dashboard.html" class="block px-4 py-3 hover:bg-orange-500/20 transition-colors" style="color: #FF6B35; font-family: 'Space Mono', monospace; font-size: 0.85rem;">
+                                    <i class="fas fa-th-large mr-2"></i>DASHBOARD
+                                </a>
+                                <div style="border-top: 1px solid rgba(255,107,53,0.2); margin: 8px 0;"></div>
+                                <div style="padding: 0 16px 8px; color: rgba(255,255,255,0.5); font-size: 0.7rem; font-family: 'Space Mono', monospace; letter-spacing: 1px;">SUBSCRIPTION PLANS</div>
+                                
+                                <!-- FREE Plan -->
+                                <a href="/subscription.html?plan=free" class="block px-4 py-3 hover:bg-orange-500/10 transition-colors" style="font-family: 'Space Mono', monospace; font-size: 0.8rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="color: #888;">◯ FREE</span>
+                                        <span style="color: #666; font-size: 0.7rem;">$0/mo</span>
+                                    </div>
+                                    <div style="color: rgba(255,255,255,0.4); font-size: 0.65rem; margin-top: 4px;">Basic synths · 10 presets</div>
+                                </a>
+                                
+                                <!-- PRODUCER Plan -->
+                                <a href="/subscription.html?plan=producer" class="block px-4 py-3 hover:bg-orange-500/20 transition-colors" style="font-family: 'Space Mono', monospace; font-size: 0.8rem; background: rgba(212, 175, 55, 0.05);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="color: #D4AF37;">◉ PRODUCER</span>
+                                        <span style="color: #D4AF37; font-size: 0.7rem;">$9/mo</span>
+                                    </div>
+                                    <div style="color: rgba(255,255,255,0.5); font-size: 0.65rem; margin-top: 4px;">All synths · 500 presets · MIDI export</div>
+                                </a>
+                                
+                                <!-- PRO Plan -->
+                                <a href="/subscription.html?plan=pro" class="block px-4 py-3 hover:bg-orange-500/20 transition-colors" style="font-family: 'Space Mono', monospace; font-size: 0.8rem; background: rgba(255, 107, 53, 0.1); border-left: 3px solid #FF6B35;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="color: #FF6B35; font-weight: bold;">★ PRO</span>
+                                        <span style="color: #FF6B35; font-size: 0.7rem;">$19/mo</span>
+                                    </div>
+                                    <div style="color: rgba(255,255,255,0.6); font-size: 0.65rem; margin-top: 4px;">Unlimited · Collaboration · Priority support</div>
+                                </a>
+                                
+                                <!-- STUDIO Plan -->
+                                <a href="/subscription.html?plan=studio" class="block px-4 py-3 hover:bg-purple-500/20 transition-colors" style="font-family: 'Space Mono', monospace; font-size: 0.8rem; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(106, 13, 173, 0.1));">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="color: #8B5CF6; font-weight: bold;">◆ STUDIO</span>
+                                        <span style="color: #8B5CF6; font-size: 0.7rem;">$49/mo</span>
+                                    </div>
+                                    <div style="color: rgba(255,255,255,0.6); font-size: 0.65rem; margin-top: 4px;">Teams · API access · Custom branding</div>
+                                </a>
+                                
+                                <div style="border-top: 1px solid rgba(255,107,53,0.2); margin: 8px 0;"></div>
+                                <a href="/subscription.html" class="block px-4 py-2 hover:bg-orange-500/20 transition-colors text-center" style="color: rgba(255,255,255,0.7); font-family: 'Space Mono', monospace; font-size: 0.75rem;">
+                                    <i class="fas fa-credit-card mr-2"></i>MANAGE SUBSCRIPTION →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </nav>
                 
                 <!-- Mobile Menu -->
@@ -662,6 +725,9 @@
                             <a href="/synth-2600.html" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded block" style="font-size: 0.9em; color: #D4AF37;">
                                 <i class="fas fa-sliders-h mr-2"></i>ARP 2600
                             </a>
+                            <a href="/behringer-2600-ultra-realistic.html" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded block" style="font-size: 0.9em; color: #FF6B35;">
+                                <i class="fas fa-wave-square mr-2"></i>2600 ULTRA ⚡
+                            </a>
                             <a href="/synth-2600-studio.html" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded block" style="font-size: 0.9em; color: #D4AF37;">
                                 <i class="fas fa-music mr-2"></i>2600 STUDIO
                             </a>
@@ -679,6 +745,32 @@
                     <a href="/community.html" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded" style="font-weight: bold;">
                         <i class="fas fa-users mr-2"></i>COMMUNITY
                     </a>
+                    
+                    <!-- Mobile Subscription Plans -->
+                    <div style="background: rgba(255,107,53,0.1); border-radius: 8px; padding: 12px; margin-top: 8px;">
+                        <span class="haos-label py-2 px-4" style="font-weight: bold; color: #D4AF37;">
+                            <i class="fas fa-crown mr-2"></i>SUBSCRIPTION PLANS
+                        </span>
+                        <div style="margin-left: 12px; margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <a href="/subscription.html?plan=free" style="padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; text-decoration: none; text-align: center;">
+                                <div style="color: #888; font-size: 0.8rem; font-family: 'Space Mono', monospace;">FREE</div>
+                                <div style="color: #666; font-size: 0.65rem;">$0/mo</div>
+                            </a>
+                            <a href="/subscription.html?plan=producer" style="padding: 10px; background: rgba(212,175,55,0.1); border-radius: 8px; text-decoration: none; text-align: center; border: 1px solid rgba(212,175,55,0.3);">
+                                <div style="color: #D4AF37; font-size: 0.8rem; font-family: 'Space Mono', monospace;">PRODUCER</div>
+                                <div style="color: #D4AF37; font-size: 0.65rem;">$9/mo</div>
+                            </a>
+                            <a href="/subscription.html?plan=pro" style="padding: 10px; background: rgba(255,107,53,0.15); border-radius: 8px; text-decoration: none; text-align: center; border: 2px solid #FF6B35;">
+                                <div style="color: #FF6B35; font-size: 0.8rem; font-family: 'Space Mono', monospace; font-weight: bold;">★ PRO</div>
+                                <div style="color: #FF6B35; font-size: 0.65rem;">$19/mo</div>
+                            </a>
+                            <a href="/subscription.html?plan=studio" style="padding: 10px; background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(106,13,173,0.1)); border-radius: 8px; text-decoration: none; text-align: center; border: 1px solid rgba(139,92,246,0.3);">
+                                <div style="color: #8B5CF6; font-size: 0.8rem; font-family: 'Space Mono', monospace;">STUDIO</div>
+                                <div style="color: #8B5CF6; font-size: 0.65rem;">$49/mo</div>
+                            </a>
+                        </div>
+                    </div>
+                    
                     <a href="/dashboard.html" class="haos-btn-primary py-3 px-4 rounded-lg text-center font-bold mt-4">
                         <i class="fas fa-th-large mr-2"></i>DASHBOARD
                     </a>
@@ -722,37 +814,29 @@
             
             <p class="haos-body-lg mb-8 max-w-3xl mx-auto" style="color: rgba(244, 232, 216, 0.9); font-size: 1.25rem; line-height: 1.8; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);">
                 Create electronic music with authentic hardware-inspired synthesis engines. 
-                <br><strong style="color: #FF6B35;">TB-303</strong> acid bass, <strong style="color: #00D9FF;">TR-909</strong> drums, <strong style="color: #8B5CF6;">16-step sequencer</strong>, and full <strong style="color: #FFD700;">HAOS Studio</strong>.
+                <br><strong style="color: #FF6B35;">TB-303</strong> acid bass, <strong style="color: #39FF14;">TR-909</strong> drums, <strong style="color: #FF1493;">16-step sequencer</strong>, and full <strong style="color: #FFD700;">HAOS Studio</strong>.
             </p>
             
-            <!-- New HAOS.fm Studio Buttons -->
+            <!-- New HAOS.fm Studio Buttons - Ordered by User Preference -->
             <div style="max-width: 1200px; margin: 0 auto 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                <!-- HAOS STUDIO - CENTER/MAIN BLOCK -->
+                
+                <!-- 1. HAOS STUDIO - MAIN -->
                 <a href="/techno-workspace.html" style="position: relative; display: block; padding: 40px; background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 140, 66, 0.15)); border: 3px solid #FF6B35; border-radius: 20px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(15px); overflow: hidden; box-shadow: 0 10px 50px rgba(255, 107, 53, 0.5);" onmouseover="this.style.transform='translateY(-12px) scale(1.03)'; this.style.borderColor='#FFD700'; this.style.boxShadow='0 20px 60px rgba(255, 107, 53, 0.7)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.borderColor='#FF6B35'; this.style.boxShadow='0 10px 50px rgba(255, 107, 53, 0.5)';">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, #FF6B35, #FFD700, #FF6B35); animation: shimmer 3s infinite;"></div>
                     <div style="position: absolute; top: 15px; right: 15px; background: linear-gradient(135deg, #FF0000, #FF6B35); color: #FFF; padding: 8px 16px; border-radius: 20px; font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: bold; animation: pulse 2s infinite;">⭐ MAIN</div>
-                    <div style="font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.8));">🎚️</div>
-                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: #FFD700; margin-bottom: 12px; letter-spacing: 0.1em; text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);">HAOS STUDIO</h3>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: #FFD700; margin-bottom: 12px; margin-top: 20px; letter-spacing: 0.1em; text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);">HAOS STUDIO</h3>
                     <p style="font-family: 'Space Mono', monospace; font-size: 0.9rem; color: rgba(255, 255, 255, 0.9); line-height: 1.8; margin: 0; font-weight: 500;">Complete production environment: 16-step sequencer, TB-303, TR-909, modular synthesis & real-time collaboration</p>
                 </a>
                 
-                <!-- MODULAR -->
-                <a href="/modular-workspace.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(212, 175, 55, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(212, 175, 55, 0.8)'; this.style.boxShadow='0 15px 40px rgba(212, 175, 55, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(212, 175, 55, 0.4)'; this.style.boxShadow='none';">
+                <!-- 2. SOUNDS -->
+                <a href="/sounds.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(212, 175, 55, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(212, 175, 55, 0.8)'; this.style.boxShadow='0 15px 40px rgba(212, 175, 55, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(212, 175, 55, 0.4)'; this.style.boxShadow='none';">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #D4AF37, #FFD700);"></div>
-                    <div style="font-size: 3rem; margin-bottom: 15px;">🎛️</div>
-                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #D4AF37; margin-bottom: 10px; letter-spacing: 0.05em;">MODULAR</h3>
-                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Eurorack-inspired with patch cables & CV routing</p>
+                    <div style="font-size: 3rem; margin-bottom: 15px;">�</div>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #D4AF37; margin-bottom: 10px; letter-spacing: 0.05em;">SOUNDS</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">1500+ hardware presets from Moog, Roland, Korg</p>
                 </a>
                 
-                <!-- BUILDER -->
-                <a href="/builder.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(57, 255, 20, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(57, 255, 20, 0.8)'; this.style.boxShadow='0 15px 40px rgba(57, 255, 20, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(57, 255, 20, 0.4)'; this.style.boxShadow='none';">
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #39FF14, #00FF00);"></div>
-                    <div style="font-size: 3rem; margin-bottom: 15px;">🔨</div>
-                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #39FF14; margin-bottom: 10px; letter-spacing: 0.05em;">BUILDER</h3>
-                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Create your own custom synthesizer from scratch</p>
-                </a>
-                
-                <!-- ARP 2600 -->
+                <!-- 3. ARP 2600 -->
                 <a href="/synth-2600.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(255, 107, 53, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(255, 107, 53, 0.8)'; this.style.boxShadow='0 15px 40px rgba(255, 107, 53, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255, 107, 53, 0.4)'; this.style.boxShadow='none';">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #FF6B35, #FF8C42);"></div>
                     <div style="font-size: 3rem; margin-bottom: 15px;">🎹</div>
@@ -760,20 +844,52 @@
                     <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Legendary semi-modular synthesizer emulation</p>
                 </a>
                 
-                <!-- Sounds Library -->
-                <a href="/sounds.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(212, 175, 55, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(212, 175, 55, 0.8)'; this.style.boxShadow='0 15px 40px rgba(212, 175, 55, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(212, 175, 55, 0.4)'; this.style.boxShadow='none';">
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #D4AF37, #FFD700);"></div>
-                    <div style="font-size: 3rem; margin-bottom: 15px;">🎵</div>
-                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #D4AF37; margin-bottom: 10px; letter-spacing: 0.05em;">SOUNDS</h3>
-                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">200+ hardware presets from Moog, Roland, Korg</p>
+                <!-- 4. LEGENDARY 2600 -->
+                <a href="/behringer-2600-ultra-realistic.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(212, 175, 55, 0.1)); border: 3px solid rgba(255, 107, 53, 0.8); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden; box-shadow: 0 0 30px rgba(255, 107, 53, 0.3);" onmouseover="this.style.transform='translateY(-8px) scale(1.02)'; this.style.borderColor='#FF6B35'; this.style.boxShadow='0 20px 60px rgba(255, 107, 53, 0.6), 0 0 40px rgba(255, 107, 53, 0.4)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.borderColor='rgba(255, 107, 53, 0.8)'; this.style.boxShadow='0 0 30px rgba(255, 107, 53, 0.3)';">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, #FF6B35, #D4AF37, #FF6B35); animation: shimmer 2s ease-in-out infinite;"></div>
+                    <div style="position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #FF6B35, #D4AF37); color: #0A0A0A; font-size: 0.65rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; font-family: 'Space Mono', monospace; letter-spacing: 1px;">⚡ NEW</div>
+                    <div style="font-size: 3rem; margin-bottom: 15px;">�️</div>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; background: linear-gradient(135deg, #FF6B35, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; letter-spacing: 0.05em;">LEGENDARY 2600</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.9); line-height: 1.6; margin: 0;">⚡ Ultra-realistic Behringer 2600 with patch cables</p>
                 </a>
                 
-                <!-- HAOS Platform -->
+                <!-- 5. HAOS PLATFORM -->
                 <a href="/haos-platform.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(255, 107, 53, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(255, 107, 53, 0.8)'; this.style.boxShadow='0 15px 40px rgba(255, 107, 53, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255, 107, 53, 0.4)'; this.style.boxShadow='none';">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #FF6B35, #D4AF37);"></div>
                     <div style="font-size: 3rem; margin-bottom: 15px;">🎛️</div>
                     <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #FF6B35; margin-bottom: 10px; letter-spacing: 0.05em;">HAOS PLATFORM</h3>
                     <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Complete DAW with all synths & collaboration</p>
+                </a>
+                
+                <!-- 6. MODULAR -->
+                <a href="/modular-workspace.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(212, 175, 55, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(212, 175, 55, 0.8)'; this.style.boxShadow='0 15px 40px rgba(212, 175, 55, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(212, 175, 55, 0.4)'; this.style.boxShadow='none';">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #D4AF37, #FFD700);"></div>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #D4AF37; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 15px;">MODULAR</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Eurorack-inspired with patch cables & CV routing</p>
+                </a>
+                
+                <!-- 7. BUILDER -->
+                <a href="/builder.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(57, 255, 20, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(57, 255, 20, 0.8)'; this.style.boxShadow='0 15px 40px rgba(57, 255, 20, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(57, 255, 20, 0.4)'; this.style.boxShadow='none';">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #39FF14, #00FF00);"></div>
+                    <div style="font-size: 3rem; margin-bottom: 15px;">🔨</div>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #39FF14; margin-bottom: 10px; letter-spacing: 0.05em;">BUILDER</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Create your own custom synthesizer from scratch</p>
+                </a>
+                
+                <!-- 7. MODULAR -->
+                <a href="/modular-workspace.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(212, 175, 55, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(212, 175, 55, 0.8)'; this.style.boxShadow='0 15px 40px rgba(212, 175, 55, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(212, 175, 55, 0.4)'; this.style.boxShadow='none';">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #D4AF37, #FFD700);"></div>
+                    <div style="font-size: 3rem; margin-bottom: 15px;">�️</div>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #D4AF37; margin-bottom: 10px; letter-spacing: 0.05em;">MODULAR</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Eurorack-inspired with patch cables & CV routing</p>
+                </a>
+                
+                <!-- 8. EPIC PIANO -->
+                <a href="/piano.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(139, 92, 246, 0.8)'; this.style.boxShadow='0 15px 40px rgba(139, 92, 246, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(139, 92, 246, 0.4)'; this.style.boxShadow='none';">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #8B5CF6, #A78BFA);"></div>
+                    <div style="font-size: 3rem; margin-bottom: 15px;">�</div>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #8B5CF6; margin-bottom: 10px; letter-spacing: 0.05em;">EPIC PIANO</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Virtual piano with chords, scales & MIDI export</p>
                 </a>
             </div>
             
@@ -827,194 +943,6 @@
             </div>
         </div>
     </section>
-
-    <!-- ============================================================================
-         SYNTHESIS STUDIOS
-         ============================================================================ -->
-    <main class="haos-container py-12">
-
-        <!-- ========================================================================
-             MUSIC CREATION
-             ======================================================================== -->
-        <section id="studios" class="haos-section">
-            <div class="text-center mb-12">
-                <h2 class="haos-display-lg mb-4" style="background: linear-gradient(135deg, #39FF14, #00D9FF, #8B5CF6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: clamp(2.5rem, 6vw, 4rem); text-shadow: 0 0 60px rgba(57, 255, 20, 0.3); letter-spacing: 0.05em;">
-                    SYNTHESIS STUDIOS
-                </h2>
-                <p class="haos-body-lg" style="color: rgba(244, 232, 216, 0.9); font-size: 1.2rem; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);">
-                    Hardware-inspired music creation with complete track integration
-                </p>
-            </div>
-
-            <!-- FEATURED: HAOS STUDIO - Main Theme -->
-            <div class="mb-12">
-                <a href="/techno-workspace.html" class="haos-studio-card block" style="border: 3px solid #FF6B35; box-shadow: 0 15px 60px rgba(255, 107, 53, 0.5), 0 0 100px rgba(255, 107, 53, 0.2); background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 140, 66, 0.1)); border-radius: 20px; transition: all 0.4s ease; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-10px) scale(1.02)'; this.style.boxShadow='0 20px 80px rgba(255, 107, 53, 0.7), 0 0 120px rgba(255, 107, 53, 0.3)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 15px 60px rgba(255, 107, 53, 0.5), 0 0 100px rgba(255, 107, 53, 0.2)';">
-                    <div class="flex items-start justify-between mb-6">
-                        <div class="text-6xl">🎛️</div>
-                        <span class="haos-badge haos-badge-new" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-size: 1.2rem; padding: 0.5rem 1rem;">FEATURED</span>
-                    </div>
-                    <h3 class="text-4xl md:text-5xl font-bold mb-4" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                        HAOS STUDIO
-                    </h3>
-                    <p class="text-xl haos-body mb-6" style="color: var(--haos-sepia-cream);">
-                        Complete production environment with <strong>TB-303 Acid Bass</strong>, <strong>TR-909 Drums</strong>, <strong>16-Step Sequencer</strong>, and <strong>Modular Synthesis</strong>. Professional hardware-inspired workflow in your browser.
-                    </p>
-                    <div class="flex flex-wrap gap-3 mb-4">
-                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🎹 TB-303</span>
-                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🥁 TR-909</span>
-                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🎛️ SEQUENCER</span>
-                        <span class="haos-tag text-lg" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42; padding: 0.5rem 1rem;">🔊 MODULAR</span>
-                    </div>
-                    <div class="text-2xl font-bold" style="color: #FF6B35;">
-                        ▶ LAUNCH STUDIO
-                    </div>
-                </a>
-            </div>
-
-            <!-- SECONDARY: Radio - Hidden from main page -->
-            <div class="haos-grid haos-grid-2 mb-12" style="display: none;">
-                <a href="/radio.html" class="haos-studio-card">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="text-5xl"><i class="fas fa-broadcast-tower" style="color: #39FF14;"></i></div>
-                        <span class="haos-badge" style="background: linear-gradient(135deg, #39FF14, #00FF00); color: #000; font-weight: 700;">LIVE</span>
-                    </div>
-                    <h3 class="text-3xl font-bold mb-3" style="color: #39FF14;">
-                        HAOS.FM RADIO 24/7
-                    </h3>
-                    <p class="haos-body" style="color: var(--haos-sepia-cream); margin-bottom: var(--haos-space-md);">
-                        Non-stop streaming with live visualization. Listen to community tracks and share your creations.
-                    </p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="haos-tag" style="background: rgba(57, 255, 20, 0.2); color: #39FF14;">LIVE STREAM</span>
-                        <span class="haos-tag" style="background: rgba(57, 255, 20, 0.2); color: #39FF14;">VISUALIZER</span>
-                        <span class="haos-tag" style="background: rgba(57, 255, 20, 0.2); color: #39FF14;">24/7</span>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Complete Production Suite - EXPANDED -->
-            <div class="mt-12">
-                <div class="text-center mb-8">
-                    <h3 class="text-3xl font-bold mb-3" style="background: linear-gradient(135deg, #FF6B35, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                        Legendary Instruments
-                    </h3>
-                    <p class="text-lg" style="color: var(--haos-sepia-cream);">
-                        Classic synthesizers faithfully recreated for the modern producer
-                    </p>
-                </div>
-
-                <!-- Instruments Grid -->
-                <div class="haos-grid haos-grid-3 gap-6">
-                    <!-- HAOS Platform - HOT FEATURE -->
-                    <a href="/haos-platform.html" class="haos-studio-card hover:scale-105 transition-all" style="border: 2px solid #FF6B35; box-shadow: 0 0 25px rgba(255, 107, 53, 0.4); background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 140, 66, 0.05));">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="text-5xl">🎛️</div>
-                            <span class="haos-badge" style="background: linear-gradient(135deg, #FF0000, #FF6B35); color: #FFF; font-weight: 700; animation: pulse 2s infinite;">🔥 HOT</span>
-                        </div>
-                        <h5 class="text-2xl font-bold mb-2" style="color: #FF6B35;">HAOS Platform</h5>
-                        <p class="haos-body text-sm mb-3" style="color: var(--haos-sepia-cream);">
-                            Complete DAW with <strong>TB-303</strong>, <strong>TR-909</strong>, <strong>Sequencer</strong> & all modules
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-3">
-                            <span class="haos-tag text-xs" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42;">TB-303</span>
-                            <span class="haos-tag text-xs" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42;">TR-909</span>
-                            <span class="haos-tag text-xs" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42;">MODULAR</span>
-                        </div>
-                        <div class="text-sm font-bold" style="color: #FF6B35;">
-                            ▶ LAUNCH STUDIO
-                        </div>
-                    </a>
-
-                    <!-- Legendary ARP 2600 -->
-                    <a href="/synth-2600.html" class="haos-studio-card hover:scale-105 transition-all" style="border: 2px solid #D4AF37; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(255, 215, 0, 0.05));">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="text-5xl">🎹</div>
-                            <span class="haos-badge" style="background: linear-gradient(135deg, #D4AF37, #FFD700); color: #000; font-weight: 700;">LEGENDARY</span>
-                        </div>
-                        <h5 class="text-2xl font-bold mb-2" style="color: #D4AF37;">ARP 2600</h5>
-                        <p class="haos-body text-sm mb-3">The iconic semi-modular synth - 3 VCOs, filter, ring mod & more</p>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="haos-tag text-xs" style="background: rgba(212, 175, 55, 0.2); color: #D4AF37;">3 VCO</span>
-                            <span class="haos-tag text-xs" style="background: rgba(212, 175, 55, 0.2); color: #D4AF37;">FILTER</span>
-                            <span class="haos-tag text-xs" style="background: rgba(212, 175, 55, 0.2); color: #D4AF37;">CLASSIC</span>
-                        </div>
-                    </a>
-
-                    <!-- ARP 2600 Studio -->
-                    <a href="/synth-2600-studio.html" class="haos-studio-card hover:scale-105 transition-all" style="border: 2px solid #D4AF37;">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="text-5xl"><i class="fas fa-sliders-h" style="color: #D4AF37;"></i></div>
-                            <span class="haos-badge" style="background: linear-gradient(135deg, #D4AF37, #FFD700); color: #000; font-weight: 700;">STUDIO</span>
-                        </div>
-                        <h5 class="text-2xl font-bold mb-2" style="color: #D4AF37;">2600 Studio</h5>
-                        <p class="haos-body text-sm mb-3">Full 2600 workstation with sequencer, effects & patch matrix</p>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="haos-tag text-xs" style="background: rgba(212, 175, 55, 0.2); color: #D4AF37;">WORKSTATION</span>
-                            <span class="haos-tag text-xs" style="background: rgba(212, 175, 55, 0.2); color: #D4AF37;">EFFECTS</span>
-                        </div>
-                    </a>
-
-                    <!-- MODULAR Workspace -->
-                    <a href="/modular-workspace.html" class="haos-studio-card hover:scale-105 transition-all" style="border: 2px solid #FF6B35;">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="text-5xl"><i class="fas fa-project-diagram" style="color: #FF6B35;"></i></div>
-                            <span class="haos-badge" style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #000; font-weight: 700;">EURORACK</span>
-                        </div>
-                        <h5 class="text-2xl font-bold mb-2" style="color: #FF6B35;">MODULAR</h5>
-                        <p class="haos-body text-sm mb-3">Eurorack-style modular with visual patch cables & CV routing</p>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="haos-tag text-xs" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42;">PATCH CABLES</span>
-                            <span class="haos-tag text-xs" style="background: rgba(255, 107, 53, 0.2); color: #FF8C42;">CV</span>
-                        </div>
-                    </a>
-
-                    <!-- BUILDER -->
-                    <a href="/builder.html" class="haos-studio-card hover:scale-105 transition-all" style="border: 2px solid #39FF14;">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="text-5xl"><i class="fas fa-tools" style="color: #39FF14;"></i></div>
-                            <span class="haos-badge" style="background: linear-gradient(135deg, #39FF14, #00FF00); color: #000; font-weight: 700;">CREATE</span>
-                        </div>
-                        <h5 class="text-2xl font-bold mb-2" style="color: #39FF14;">BUILDER</h5>
-                        <p class="haos-body text-sm mb-3">Design & build your own custom synthesizer from scratch</p>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="haos-tag text-xs" style="background: rgba(57, 255, 20, 0.2); color: #39FF14;">CUSTOM</span>
-                            <span class="haos-tag text-xs" style="background: rgba(57, 255, 20, 0.2); color: #39FF14;">DESIGN</span>
-                        </div>
-                    </a>
-
-                    <!-- PIANO - NEW -->
-                    <a href="/piano.html" class="haos-studio-card hover:scale-105 transition-all" style="border: 2px solid #39FF14;">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="text-5xl">🎹</div>
-                            <span class="haos-badge" style="background: linear-gradient(135deg, #39FF14, #2ECC71); color: #000; font-weight: 700;">NEW</span>
-                        </div>
-                        <h5 class="text-2xl font-bold mb-2" style="color: #39FF14;">PIANO</h5>
-                        <p class="haos-body text-sm mb-3">Virtual keyboard with chords, scales & progression builder</p>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="haos-tag text-xs" style="background: rgba(57, 255, 20, 0.2); color: #39FF14;">CHORDS</span>
-                            <span class="haos-tag text-xs" style="background: rgba(57, 255, 20, 0.2); color: #39FF14;">SCALES</span>
-                        </div>
-                    </a>
-
-                    <!-- MIDI Generator - NEW -->
-                    <a href="/midi-generator.html" class="haos-studio-card hover:scale-105 transition-all" style="border: 2px solid #00D9FF;">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="text-5xl"><i class="fas fa-random" style="color: #00D9FF;"></i></div>
-                            <span class="haos-badge" style="background: linear-gradient(135deg, #00D9FF, #0099CC); color: #000; font-weight: 700;">NEW</span>
-                        </div>
-                        <h5 class="text-2xl font-bold mb-2" style="color: #00D9FF;">MIDI GEN</h5>
-                        <p class="haos-body text-sm mb-3">Step sequencer & pattern generator with MIDI export</p>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="haos-tag text-xs" style="background: rgba(0, 217, 255, 0.2); color: #00D9FF;">SEQUENCER</span>
-                            <span class="haos-tag text-xs" style="background: rgba(0, 217, 255, 0.2); color: #00D9FF;">EXPORT</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-        </section>
-
-    </main>
 
     <!-- Scripts -->
     <script>
@@ -2442,6 +2370,19 @@
             </p>
         </div>
     </footer>
+
+    <!-- Buy Me a Coffee Widget -->
+    <script data-name="BMC-Widget" 
+            data-cfasync="false" 
+            src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" 
+            data-id="haos_" 
+            data-description="Support me on Buy me a coffee!" 
+            data-message="" 
+            data-color="#40DCA5" 
+            data-position="Right" 
+            data-x_margin="18" 
+            data-y_margin="18">
+    </script>
 </body>
 </html>
 <!-- Deployment refresh -->

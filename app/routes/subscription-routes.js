@@ -71,17 +71,48 @@ router.get('/providers', (req, res) => {
  */
 router.get('/current', requireAuth, async (req, res) => {
   try {
-    const subscription = await Subscription.getUserSubscription(req.user.id);
+    let subscription = await Subscription.getUserSubscription(req.user.id);
+    
+    // If no subscription exists, create a free one or return default free plan details
+    if (!subscription) {
+      const freePlan = await Subscription.getPlanByCode('free');
+      
+      if (freePlan) {
+        // Try to create a free subscription record for the user
+        try {
+          subscription = await Subscription.createSubscription(req.user.id, 'free');
+        } catch (err) {
+          console.error('Error creating free subscription:', err);
+          // Fallback to free plan details without DB record
+          subscription = {
+            plan_code: 'free',
+            plan_name: freePlan.name || 'Free',
+            status: 'active',
+            features: freePlan.features || {},
+            price_monthly: freePlan.price_monthly || 0,
+            price_yearly: freePlan.price_yearly || 0,
+            billing_cycle: 'monthly',
+          };
+        }
+      } else {
+        // No free plan in DB, use hardcoded defaults
+        subscription = {
+          plan_code: 'free',
+          plan_name: 'Free',
+          status: 'active',
+          features: {},
+          price_monthly: 0,
+          price_yearly: 0,
+          billing_cycle: 'monthly',
+        };
+      }
+    }
+
     const features = await Subscription.getUserFeatures(req.user.id);
 
     res.json({
       success: true,
-      subscription: subscription || {
-        plan_code: 'free',
-        plan_name: 'Free',
-        status: 'active',
-        features: {},
-      },
+      subscription,
       features,
     });
   } catch (error) {
