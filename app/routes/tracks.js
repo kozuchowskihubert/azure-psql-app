@@ -39,47 +39,50 @@ router.use((req, res, next) => {
 });
 
 /**
- * Get tracks metadata from blob storage
+ * Get tracks metadata from PostgreSQL database
  */
 async function getTracksMetadata() {
   try {
-    if (!blobStorage.enabled) {
-      // Fallback to local storage for development
-      const localPath = path.join(__dirname, '../public/uploads/tracks-metadata.json');
-      console.log(`📂 Loading metadata from local: ${localPath}`);
-      if (fs.existsSync(localPath)) {
-        const data = JSON.parse(fs.readFileSync(localPath, 'utf8'));
-        console.log(`✅ Loaded ${data.length} tracks from local storage`);
-        return data;
-      }
-      console.log('⚠️  No local metadata file found');
-      return [];
-    }
-
-    // Download metadata from blob storage
-    console.log(`☁️  Loading metadata from Azure Blob: ${METADATA_BLOB_NAME}`);
-    const metadata = await blobStorage.downloadFile(METADATA_BLOB_NAME);
+    const pool = require('../config/database');
     
-    if (metadata) {
-      const tracks = JSON.parse(metadata);
-      console.log(`✅ Loaded ${tracks.length} tracks from blob storage`);
-      
-      // Log first track for debugging
-      if (tracks.length > 0) {
-        console.log('📊 Sample track:', {
-          title: tracks[0].title,
-          url: tracks[0].url,
-          duration: tracks[0].duration
-        });
-      }
-      
-      return tracks;
+    const result = await pool.query(`
+      SELECT 
+        id,
+        title,
+        artist,
+        file_path as filename,
+        azure_blob_url as url,
+        file_size,
+        duration,
+        genre,
+        bpm,
+        key,
+        cover_art_url as artwork,
+        plays_count as plays,
+        likes_count as likes,
+        downloads_count as downloads,
+        is_public,
+        is_featured,
+        storage_type,
+        created_at as uploadedAt
+      FROM tracks
+      WHERE is_public = true
+      ORDER BY created_at DESC
+    `);
+    
+    console.log(`✅ Loaded ${result.rows.length} tracks from database`);
+    
+    if (result.rows.length > 0) {
+      console.log('📊 Sample track:', {
+        title: result.rows[0].title,
+        url: result.rows[0].url,
+        duration: result.rows[0].duration
+      });
     }
     
-    console.log('⚠️  No metadata found in blob storage');
-    return [];
+    return result.rows;
   } catch (error) {
-    console.error('❌ Failed to load metadata:', error.message);
+    console.error('❌ Failed to load tracks from database:', error.message);
     console.error('Stack:', error.stack);
     return [];
   }
