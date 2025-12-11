@@ -25,6 +25,7 @@ const rateLimit = require('express-rate-limit');
 const pool = require('./config/database');
 const { apiRouter, pwaRouter } = require('./routes');
 const registrationRoutes = require('./routes/registration-routes');
+const { router: jwtAuthRouter } = require('./auth/jwt-auth');
 
 const app = express();
 
@@ -80,6 +81,8 @@ app.use(express.json({ limit: '350mb' }));
 app.use(express.urlencoded({ extended: true, limit: '350mb' }));
 
 // Registration & Authentication API
+// Note: JWT auth routes take precedence, fallback to session-based registration routes
+app.use('/api/auth', jwtAuthRouter);
 app.use('/api/auth', registrationRoutes);
 
 // ============================================================================
