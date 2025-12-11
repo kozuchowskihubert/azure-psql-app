@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HAOS.fm | PIANO - Virtual Keyboard & Chord Progressions</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- HAOS Professional Theme -->
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    
+    <style>
+        :root {
+            --bg-dark: #050508;
+            --bg-card: rgba(15, 15, 20, 0.8);
+            --accent-orange: #FF6B35;
+            --accent-gold: #D4AF37;
+            --accent-cyan: #00D9FF;
+            --accent-green: #39FF14;
+            --text-primary: #F4E8D8;
+            --text-secondary: rgba(244, 232, 216, 0.6);
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background */
+        .bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(0, 217, 255, 0.05) 0%, transparent 50%),
+                var(--bg-dark);
+        }
+
+        /* Navigation */
+        .nav-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(5, 5, 8, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+        }
+
+        .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+        }
+
+        .nav-logo img {
+            height: 40px;
+        }
+
+        .nav-logo span {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: var(--accent-orange);
+            letter-spacing: 0.1em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-orange);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 2rem 2rem;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 8vw, 5rem);
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+        }
+
+        .page-subtitle {
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Piano Container */
+        .piano-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: var(--accent-orange);
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.1em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Piano Keyboard */
+        .piano-wrapper {
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+
+        .piano {
+            display: flex;
+            position: relative;
+            height: 200px;
+            min-width: 700px;
+            margin: 0 auto;
+            justify-content: center;
+        }
+
+        .white-key {
+            width: 50px;
+            height: 200px;
+            background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%);
+            border: 1px solid #ccc;
+            border-radius: 0 0 6px 6px;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            transition: all 0.1s ease;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+        }
+
+        .white-key:hover {
+            background: linear-gradient(180deg, #fff 0%, #f0f0f0 100%);
+        }
+
+        .white-key.active, .white-key:active {
+            background: linear-gradient(180deg, #ddd 0%, #ccc 100%);
+            transform: translateY(2px);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .white-key.highlighted {
+            background: linear-gradient(180deg, rgba(255, 107, 53, 0.3) 0%, rgba(255, 107, 53, 0.5) 100%);
+        }
+
+        .black-key {
+            width: 30px;
+            height: 120px;
+            background: linear-gradient(180deg, #333 0%, #111 100%);
+            border-radius: 0 0 4px 4px;
+            cursor: pointer;
+            position: absolute;
+            z-index: 2;
+            transition: all 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .black-key:hover {
+            background: linear-gradient(180deg, #444 0%, #222 100%);
+        }
+
+        .black-key.active, .black-key:active {
+            background: linear-gradient(180deg, #222 0%, #000 100%);
+            height: 115px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .black-key.highlighted {
+            background: linear-gradient(180deg, rgba(255, 107, 53, 0.8) 0%, rgba(200, 80, 30, 1) 100%);
+        }
+
+        .key-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: #666;
+            user-select: none;
+        }
+
+        .black-key .key-label {
+            color: #888;
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Controls */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .control-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 107, 53, 0.1);
+        }
+
+        .control-title {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-label {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            min-width: 80px;
+        }
+
+        select, input[type="range"] {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 6px;
+            color: var(--text-primary);
+            padding: 0.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            flex: 1;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--accent-orange);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 8px;
+            background: rgba(255, 107, 53, 0.2);
+            border-radius: 4px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-orange);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Chord Buttons */
+        .chord-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .chord-btn {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 8px;
+            padding: 0.75rem 0.5rem;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .chord-btn:hover {
+            background: rgba(255, 107, 53, 0.2);
+            border-color: var(--accent-orange);
+            transform: translateY(-2px);
+        }
+
+        .chord-btn.active {
+            background: var(--accent-orange);
+            color: #000;
+        }
+
+        /* Scale Display */
+        .scale-notes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .scale-note {
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+        }
+
+        /* Progression Builder */
+        .progression-container {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            min-height: 60px;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 2px dashed rgba(255, 107, 53, 0.3);
+            margin-bottom: 1rem;
+        }
+
+        .progression-chord {
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-gold));
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .progression-chord:hover {
+            transform: scale(1.05);
+        }
+
+        .progression-chord.playing {
+            box-shadow: 0 0 20px var(--accent-orange);
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Action Buttons */
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-orange), #FF8C42);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), #2ECC71);
+            color: #000;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .info-box h4 {
+            color: var(--accent-cyan);
+            font-family: var(--font-display);
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Keyboard Shortcuts */
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .shortcut {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+        }
+
+        .shortcut kbd {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .piano {
+                min-width: 500px;
+                height: 150px;
+            }
+
+            .white-key {
+                width: 35px;
+                height: 150px;
+            }
+
+            .black-key {
+                width: 22px;
+                height: 90px;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-canvas"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-wrapper">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm">
+                <span>PIANO</span>
+            </a>
+            <div class="nav-links">
+                <a href="/">HOME</a>
+                <a href="/sounds.html">SOUNDS</a>
+                <a href="/techno-workspace.html">STUDIO</a>
+                <a href="/modular-workspace.html">MODULAR</a>
+                <a href="/builder.html">BUILDER</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">🎹 VIRTUAL PIANO</h1>
+            <p class="page-subtitle">Play, learn chords, build progressions, and explore scales</p>
+        </div>
+
+        <!-- Piano Section -->
+        <div class="piano-section">
+            <h2 class="section-title"><i class="fas fa-keyboard"></i> KEYBOARD</h2>
+            
+            <div class="piano-wrapper">
+                <div class="piano" id="piano">
+                    <!-- Keys will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="controls-grid">
+                <!-- Sound Controls -->
+                <div class="control-panel">
+                    <h3 class="control-title">🎛️ SOUND</h3>
+                    <div class="control-row">
+                        <span class="control-label">Waveform</span>
+                        <select id="waveform">
+                            <option value="sine">Sine</option>
+                            <option value="triangle">Triangle</option>
+                            <option value="sawtooth" selected>Sawtooth</option>
+                            <option value="square">Square</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <span class="control-label">Attack</span>
+                        <input type="range" id="attack" min="0.01" max="1" step="0.01" value="0.05">
+                    </div>
+                    <div class="control-row">
+                        <span class="control-label">Release</span>
+                        <input type="range" id="release" min="0.1" max="2" step="0.1" value="0.5">
+                    </div>
+                    <div class="control-row">
+                        <span class="control-label">Volume</span>
+                        <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
+                    </div>
+                </div>
+
+                <!-- Scale Selection -->
+                <div class="control-panel">
+                    <h3 class="control-title">🎼 SCALE</h3>
+                    <div class="control-row">
+                        <span class="control-label">Root</span>
+                        <select id="scaleRoot">
+                            <option value="C">C</option>
+                            <option value="C#">C#</option>
+                            <option value="D">D</option>
+                            <option value="D#">D#</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="F#">F#</option>
+                            <option value="G">G</option>
+                            <option value="G#">G#</option>
+                            <option value="A">A</option>
+                            <option value="A#">A#</option>
+                            <option value="B">B</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <span class="control-label">Type</span>
+                        <select id="scaleType">
+                            <option value="major">Major</option>
+                            <option value="minor">Natural Minor</option>
+                            <option value="harmonicMinor">Harmonic Minor</option>
+                            <option value="melodicMinor">Melodic Minor</option>
+                            <option value="dorian">Dorian</option>
+                            <option value="phrygian">Phrygian</option>
+                            <option value="lydian">Lydian</option>
+                            <option value="mixolydian">Mixolydian</option>
+                            <option value="pentatonicMajor">Pentatonic Major</option>
+                            <option value="pentatonicMinor">Pentatonic Minor</option>
+                            <option value="blues">Blues</option>
+                        </select>
+                    </div>
+                    <div class="scale-notes" id="scaleNotes">
+                        <!-- Scale notes displayed here -->
+                    </div>
+                </div>
+
+                <!-- Keyboard Shortcuts -->
+                <div class="control-panel">
+                    <h3 class="control-title">⌨️ SHORTCUTS</h3>
+                    <div class="shortcuts-grid">
+                        <div class="shortcut"><kbd>A</kbd> C</div>
+                        <div class="shortcut"><kbd>W</kbd> C#</div>
+                        <div class="shortcut"><kbd>S</kbd> D</div>
+                        <div class="shortcut"><kbd>E</kbd> D#</div>
+                        <div class="shortcut"><kbd>D</kbd> E</div>
+                        <div class="shortcut"><kbd>F</kbd> F</div>
+                        <div class="shortcut"><kbd>T</kbd> F#</div>
+                        <div class="shortcut"><kbd>G</kbd> G</div>
+                        <div class="shortcut"><kbd>Y</kbd> G#</div>
+                        <div class="shortcut"><kbd>H</kbd> A</div>
+                        <div class="shortcut"><kbd>U</kbd> A#</div>
+                        <div class="shortcut"><kbd>J</kbd> B</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chords Section -->
+        <div class="piano-section">
+            <h2 class="section-title"><i class="fas fa-layer-group"></i> CHORDS</h2>
+            
+            <div class="controls-grid">
+                <div class="control-panel">
+                    <h3 class="control-title">MAJOR CHORDS</h3>
+                    <div class="chord-grid">
+                        <button class="chord-btn" data-chord="C-major">C</button>
+                        <button class="chord-btn" data-chord="D-major">D</button>
+                        <button class="chord-btn" data-chord="E-major">E</button>
+                        <button class="chord-btn" data-chord="F-major">F</button>
+                        <button class="chord-btn" data-chord="G-major">G</button>
+                        <button class="chord-btn" data-chord="A-major">A</button>
+                        <button class="chord-btn" data-chord="B-major">B</button>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <h3 class="control-title">MINOR CHORDS</h3>
+                    <div class="chord-grid">
+                        <button class="chord-btn" data-chord="C-minor">Cm</button>
+                        <button class="chord-btn" data-chord="D-minor">Dm</button>
+                        <button class="chord-btn" data-chord="E-minor">Em</button>
+                        <button class="chord-btn" data-chord="F-minor">Fm</button>
+                        <button class="chord-btn" data-chord="G-minor">Gm</button>
+                        <button class="chord-btn" data-chord="A-minor">Am</button>
+                        <button class="chord-btn" data-chord="B-minor">Bm</button>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <h3 class="control-title">7TH CHORDS</h3>
+                    <div class="chord-grid">
+                        <button class="chord-btn" data-chord="C-7">C7</button>
+                        <button class="chord-btn" data-chord="D-7">D7</button>
+                        <button class="chord-btn" data-chord="E-7">E7</button>
+                        <button class="chord-btn" data-chord="F-7">F7</button>
+                        <button class="chord-btn" data-chord="G-7">G7</button>
+                        <button class="chord-btn" data-chord="A-7">A7</button>
+                        <button class="chord-btn" data-chord="B-7">B7</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progression Builder -->
+        <div class="piano-section">
+            <h2 class="section-title"><i class="fas fa-stream"></i> CHORD PROGRESSION</h2>
+            
+            <div class="progression-container" id="progressionContainer">
+                <span style="color: var(--text-secondary); font-style: italic;">Click chords above to build your progression...</span>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="playProgression">
+                    <i class="fas fa-play"></i> Play Progression
+                </button>
+                <button class="btn btn-secondary" id="clearProgression">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+                <button class="btn btn-success" id="exportProgression">
+                    <i class="fas fa-download"></i> Export MIDI
+                </button>
+            </div>
+
+            <div class="info-box">
+                <h4>💡 Common Progressions</h4>
+                <p>
+                    <strong>Pop/Rock:</strong> I - V - vi - IV (C - G - Am - F)<br>
+                    <strong>Jazz:</strong> ii - V - I (Dm7 - G7 - Cmaj7)<br>
+                    <strong>Blues:</strong> I - I - IV - I - V - IV - I (12-bar)<br>
+                    <strong>Sad:</strong> vi - IV - I - V (Am - F - C - G)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // HAOS PIANO ENGINE
+        // ============================================
+        
+        class HAOSPiano {
+            constructor() {
+                this.audioCtx = null;
+                this.masterGain = null;
+                this.activeNotes = new Map();
+                this.progression = [];
+                this.isPlaying = false;
+                
+                // Note frequencies (A4 = 440Hz)
+                this.noteFrequencies = {
+                    'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81,
+                    'F3': 174.61, 'F#3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'A3': 220.00,
+                    'A#3': 233.08, 'B3': 246.94,
+                    'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'E4': 329.63,
+                    'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'A4': 440.00,
+                    'A#4': 466.16, 'B4': 493.88,
+                    'C5': 523.25, 'C#5': 554.37, 'D5': 587.33, 'D#5': 622.25, 'E5': 659.26,
+                    'F5': 698.46, 'F#5': 739.99, 'G5': 783.99, 'G#5': 830.61, 'A5': 880.00,
+                    'A#5': 932.33, 'B5': 987.77, 'C6': 1046.50
+                };
+
+                // Chord definitions (semitone intervals from root)
+                this.chordIntervals = {
+                    'major': [0, 4, 7],
+                    'minor': [0, 3, 7],
+                    '7': [0, 4, 7, 10],
+                    'maj7': [0, 4, 7, 11],
+                    'min7': [0, 3, 7, 10],
+                    'dim': [0, 3, 6],
+                    'aug': [0, 4, 8],
+                    'sus2': [0, 2, 7],
+                    'sus4': [0, 5, 7]
+                };
+
+                // Scale intervals
+                this.scaleIntervals = {
+                    'major': [0, 2, 4, 5, 7, 9, 11],
+                    'minor': [0, 2, 3, 5, 7, 8, 10],
+                    'harmonicMinor': [0, 2, 3, 5, 7, 8, 11],
+                    'melodicMinor': [0, 2, 3, 5, 7, 9, 11],
+                    'dorian': [0, 2, 3, 5, 7, 9, 10],
+                    'phrygian': [0, 1, 3, 5, 7, 8, 10],
+                    'lydian': [0, 2, 4, 6, 7, 9, 11],
+                    'mixolydian': [0, 2, 4, 5, 7, 9, 10],
+                    'pentatonicMajor': [0, 2, 4, 7, 9],
+                    'pentatonicMinor': [0, 3, 5, 7, 10],
+                    'blues': [0, 3, 5, 6, 7, 10]
+                };
+
+                // Keyboard mapping
+                this.keyboardMap = {
+                    'a': 'C4', 'w': 'C#4', 's': 'D4', 'e': 'D#4', 'd': 'E4',
+                    'f': 'F4', 't': 'F#4', 'g': 'G4', 'y': 'G#4', 'h': 'A4',
+                    'u': 'A#4', 'j': 'B4', 'k': 'C5', 'o': 'C#5', 'l': 'D5'
+                };
+
+                this.init();
+            }
+
+            async init() {
+                // Initialize audio on first interaction
+                document.addEventListener('click', () => this.initAudio(), { once: true });
+                document.addEventListener('keydown', () => this.initAudio(), { once: true });
+                
+                this.buildPiano();
+                this.setupEventListeners();
+                this.updateScale();
+            }
+
+            initAudio() {
+                if (this.audioCtx) return;
+                
+                this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                this.masterGain = this.audioCtx.createGain();
+                this.masterGain.connect(this.audioCtx.destination);
+                this.masterGain.gain.value = 0.5;
+                
+                console.log('🎹 HAOS Piano Audio initialized');
+            }
+
+            buildPiano() {
+                const piano = document.getElementById('piano');
+                const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+                const sharps = ['C#', 'D#', null, 'F#', 'G#', 'A#', null];
+                const octaves = [4, 5];
+                
+                let html = '';
+                let whiteKeyIndex = 0;
+                
+                octaves.forEach(octave => {
+                    notes.forEach((note, i) => {
+                        const noteName = `${note}${octave}`;
+                        const keyLabel = this.getKeyLabel(noteName);
+                        
+                        html += `<div class="white-key" data-note="${noteName}">
+                            <span class="key-label">${keyLabel || note}</span>
+                        </div>`;
+                        
+                        if (sharps[i]) {
+                            const sharpNote = `${sharps[i]}${octave}`;
+                            const sharpLabel = this.getKeyLabel(sharpNote);
+                            const offset = (whiteKeyIndex * 50) + 35;
+                            html += `<div class="black-key" data-note="${sharpNote}" style="left: ${offset}px;">
+                                <span class="key-label">${sharpLabel || ''}</span>
+                            </div>`;
+                        }
+                        whiteKeyIndex++;
+                    });
+                });
+                
+                // Add final C
+                html += `<div class="white-key" data-note="C6">
+                    <span class="key-label">C</span>
+                </div>`;
+                
+                piano.innerHTML = html;
+            }
+
+            getKeyLabel(note) {
+                for (const [key, n] of Object.entries(this.keyboardMap)) {
+                    if (n === note) return key.toUpperCase();
+                }
+                return null;
+            }
+
+            setupEventListeners() {
+                const piano = document.getElementById('piano');
+                
+                // Mouse events
+                piano.addEventListener('mousedown', (e) => {
+                    const key = e.target.closest('[data-note]');
+                    if (key) this.playNote(key.dataset.note);
+                });
+                
+                piano.addEventListener('mouseup', (e) => {
+                    const key = e.target.closest('[data-note]');
+                    if (key) this.stopNote(key.dataset.note);
+                });
+                
+                piano.addEventListener('mouseleave', () => {
+                    this.stopAllNotes();
+                });
+
+                // Touch events
+                piano.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const key = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('[data-note]');
+                    if (key) this.playNote(key.dataset.note);
+                });
+
+                piano.addEventListener('touchend', (e) => {
+                    this.stopAllNotes();
+                });
+
+                // Keyboard events
+                document.addEventListener('keydown', (e) => {
+                    if (e.repeat) return;
+                    const note = this.keyboardMap[e.key.toLowerCase()];
+                    if (note) {
+                        e.preventDefault();
+                        this.playNote(note);
+                    }
+                });
+
+                document.addEventListener('keyup', (e) => {
+                    const note = this.keyboardMap[e.key.toLowerCase()];
+                    if (note) this.stopNote(note);
+                });
+
+                // Chord buttons
+                document.querySelectorAll('.chord-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const [root, type] = btn.dataset.chord.split('-');
+                        this.playChord(root, type);
+                        this.addToProgression(btn.dataset.chord, btn.textContent);
+                    });
+                });
+
+                // Controls
+                document.getElementById('volume').addEventListener('input', (e) => {
+                    if (this.masterGain) this.masterGain.gain.value = e.target.value;
+                });
+
+                document.getElementById('scaleRoot').addEventListener('change', () => this.updateScale());
+                document.getElementById('scaleType').addEventListener('change', () => this.updateScale());
+
+                // Progression controls
+                document.getElementById('playProgression').addEventListener('click', () => this.playProgressionSequence());
+                document.getElementById('clearProgression').addEventListener('click', () => this.clearProgression());
+                document.getElementById('exportProgression').addEventListener('click', () => this.exportMIDI());
+            }
+
+            playNote(note) {
+                this.initAudio();
+                if (!this.audioCtx || this.activeNotes.has(note)) return;
+                
+                const freq = this.noteFrequencies[note];
+                if (!freq) return;
+
+                const waveform = document.getElementById('waveform').value;
+                const attack = parseFloat(document.getElementById('attack').value);
+                const release = parseFloat(document.getElementById('release').value);
+
+                const osc = this.audioCtx.createOscillator();
+                const gain = this.audioCtx.createGain();
+                
+                osc.type = waveform;
+                osc.frequency.value = freq;
+                
+                gain.gain.setValueAtTime(0, this.audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.3, this.audioCtx.currentTime + attack);
+                
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+                osc.start();
+                
+                this.activeNotes.set(note, { osc, gain, release });
+                
+                // Visual feedback
+                const key = document.querySelector(`[data-note="${note}"]`);
+                if (key) key.classList.add('active');
+            }
+
+            stopNote(note) {
+                const noteData = this.activeNotes.get(note);
+                if (!noteData) return;
+                
+                const { osc, gain, release } = noteData;
+                
+                gain.gain.cancelScheduledValues(this.audioCtx.currentTime);
+                gain.gain.setValueAtTime(gain.gain.value, this.audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, this.audioCtx.currentTime + release);
+                
+                setTimeout(() => osc.stop(), release * 1000);
+                this.activeNotes.delete(note);
+                
+                // Visual feedback
+                const key = document.querySelector(`[data-note="${note}"]`);
+                if (key) key.classList.remove('active');
+            }
+
+            stopAllNotes() {
+                this.activeNotes.forEach((_, note) => this.stopNote(note));
+            }
+
+            playChord(root, type) {
+                const intervals = this.chordIntervals[type];
+                if (!intervals) return;
+
+                const rootIndex = this.getNoteIndex(root);
+                const notes = intervals.map(interval => {
+                    return this.getNoteName((rootIndex + interval) % 12) + '4';
+                });
+
+                notes.forEach(note => {
+                    this.playNote(note);
+                    setTimeout(() => this.stopNote(note), 1000);
+                });
+
+                // Highlight chord keys
+                this.highlightNotes(notes);
+            }
+
+            getNoteIndex(note) {
+                const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                return noteNames.indexOf(note);
+            }
+
+            getNoteName(index) {
+                const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                return noteNames[index];
+            }
+
+            highlightNotes(notes) {
+                document.querySelectorAll('.highlighted').forEach(el => el.classList.remove('highlighted'));
+                notes.forEach(note => {
+                    const key = document.querySelector(`[data-note="${note}"]`);
+                    if (key) key.classList.add('highlighted');
+                });
+                setTimeout(() => {
+                    document.querySelectorAll('.highlighted').forEach(el => el.classList.remove('highlighted'));
+                }, 1000);
+            }
+
+            updateScale() {
+                const root = document.getElementById('scaleRoot').value;
+                const type = document.getElementById('scaleType').value;
+                const intervals = this.scaleIntervals[type];
+                
+                const rootIndex = this.getNoteIndex(root);
+                const scaleNotes = intervals.map(interval => {
+                    return this.getNoteName((rootIndex + interval) % 12);
+                });
+                
+                const container = document.getElementById('scaleNotes');
+                container.innerHTML = scaleNotes.map(note => 
+                    `<span class="scale-note">${note}</span>`
+                ).join('');
+
+                // Highlight scale on piano
+                const fullNotes = scaleNotes.flatMap(note => [`${note}4`, `${note}5`]);
+                document.querySelectorAll('.highlighted').forEach(el => el.classList.remove('highlighted'));
+                fullNotes.forEach(note => {
+                    const key = document.querySelector(`[data-note="${note}"]`);
+                    if (key) key.classList.add('highlighted');
+                });
+            }
+
+            addToProgression(chordId, label) {
+                this.progression.push({ chordId, label });
+                this.renderProgression();
+            }
+
+            renderProgression() {
+                const container = document.getElementById('progressionContainer');
+                if (this.progression.length === 0) {
+                    container.innerHTML = '<span style="color: var(--text-secondary); font-style: italic;">Click chords above to build your progression...</span>';
+                    return;
+                }
+                
+                container.innerHTML = this.progression.map((chord, i) => 
+                    `<div class="progression-chord" data-index="${i}">${chord.label}</div>`
+                ).join('');
+
+                // Click to remove
+                container.querySelectorAll('.progression-chord').forEach(el => {
+                    el.addEventListener('click', () => {
+                        this.progression.splice(el.dataset.index, 1);
+                        this.renderProgression();
+                    });
+                });
+            }
+
+            clearProgression() {
+                this.progression = [];
+                this.renderProgression();
+            }
+
+            async playProgressionSequence() {
+                if (this.isPlaying || this.progression.length === 0) return;
+                this.isPlaying = true;
+
+                const chordElements = document.querySelectorAll('.progression-chord');
+                
+                for (let i = 0; i < this.progression.length; i++) {
+                    const chord = this.progression[i];
+                    const [root, type] = chord.chordId.split('-');
+                    
+                    chordElements[i]?.classList.add('playing');
+                    this.playChord(root, type);
+                    
+                    await new Promise(r => setTimeout(r, 1200));
+                    chordElements[i]?.classList.remove('playing');
+                }
+
+                this.isPlaying = false;
+            }
+
+            exportMIDI() {
+                // Simple MIDI export (basic implementation)
+                const midiData = {
+                    format: 1,
+                    ticksPerBeat: 480,
+                    tracks: [{
+                        name: 'HAOS Piano Progression',
+                        events: this.progression.map((chord, i) => ({
+                            time: i * 480 * 4,
+                            chord: chord.chordId,
+                            duration: 480 * 4
+                        }))
+                    }]
+                };
+
+                const blob = new Blob([JSON.stringify(midiData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'haos-progression.json';
+                a.click();
+                URL.revokeObjectURL(url);
+
+                alert('📥 Progression exported! (JSON format - full MIDI export coming soon)');
+            }
+        }
+
+        // Initialize Piano
+        const piano = new HAOSPiano();
+        console.log('🎹 HAOS Virtual Piano loaded');
+    </script>
+</body>
+</html>

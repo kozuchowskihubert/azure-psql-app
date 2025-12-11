@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HAOS.fm | MIDI GENERATOR - Pattern Creator & Sequencer</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- HAOS Professional Theme -->
+    <link rel="stylesheet" href="/css/haos-brand.css">
+    
+    <style>
+        :root {
+            --bg-dark: #050508;
+            --bg-card: rgba(15, 15, 20, 0.8);
+            --accent-orange: #FF6B35;
+            --accent-gold: #D4AF37;
+            --accent-cyan: #00D9FF;
+            --accent-green: #39FF14;
+            --accent-purple: #8B5CF6;
+            --text-primary: #F4E8D8;
+            --text-secondary: rgba(244, 232, 216, 0.6);
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background */
+        .bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(0, 217, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+                var(--bg-dark);
+        }
+
+        /* Navigation */
+        .nav-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(5, 5, 8, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+        }
+
+        .nav-logo img {
+            height: 40px;
+        }
+
+        .nav-logo span {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+            letter-spacing: 0.1em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-cyan);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 2rem 2rem;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 8vw, 5rem);
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+        }
+
+        .page-subtitle {
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Section */
+        .midi-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.1em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Grid Sequencer */
+        .sequencer-container {
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+
+        .sequencer-grid {
+            display: grid;
+            gap: 4px;
+            min-width: 800px;
+        }
+
+        .sequencer-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .note-label {
+            width: 50px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        .step-cell {
+            width: 40px;
+            height: 30px;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .step-cell:hover {
+            background: rgba(0, 217, 255, 0.3);
+            border-color: var(--accent-cyan);
+        }
+
+        .step-cell.active {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.5);
+        }
+
+        .step-cell.playing {
+            background: var(--accent-green) !important;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.6);
+        }
+
+        .step-cell.beat-marker {
+            border-color: rgba(255, 107, 53, 0.4);
+        }
+
+        /* Controls */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .control-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 217, 255, 0.1);
+        }
+
+        .control-title {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            color: var(--accent-purple);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-label {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            min-width: 80px;
+        }
+
+        select, input[type="number"] {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 6px;
+            color: var(--text-primary);
+            padding: 0.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            flex: 1;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+
+        /* Pattern Presets */
+        .pattern-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .pattern-btn {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .pattern-btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--accent-purple);
+            transform: translateY(-2px);
+        }
+
+        .pattern-btn.active {
+            background: var(--accent-purple);
+            color: #000;
+        }
+
+        /* Action Buttons */
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), #00A3CC);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), #2ECC71);
+            color: #000;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #FF4444, #CC0000);
+            color: #fff;
+        }
+
+        /* Transport */
+        .transport-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .transport-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .transport-btn.play {
+            background: linear-gradient(135deg, var(--accent-green), #2ECC71);
+            color: #000;
+        }
+
+        .transport-btn.stop {
+            background: linear-gradient(135deg, #FF4444, #CC0000);
+            color: #fff;
+        }
+
+        .transport-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .tempo-display {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .tempo-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tempo-control input[type="range"] {
+            width: 150px;
+            -webkit-appearance: none;
+            height: 8px;
+            background: rgba(0, 217, 255, 0.2);
+            border-radius: 4px;
+            border: none;
+        }
+
+        .tempo-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Generated Output */
+        .output-display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .info-box h4 {
+            color: var(--accent-purple);
+            font-family: var(--font-display);
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .transport-bar {
+                flex-wrap: wrap;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-canvas"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-wrapper">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">
+                <img src="/images/haos-logo-white.png" alt="HAOS.fm">
+                <span>MIDI GEN</span>
+            </a>
+            <div class="nav-links">
+                <a href="/">HOME</a>
+                <a href="/piano.html">PIANO</a>
+                <a href="/sounds.html">SOUNDS</a>
+                <a href="/techno-workspace.html">STUDIO</a>
+                <a href="/modular-workspace.html">MODULAR</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">🎼 MIDI GENERATOR</h1>
+            <p class="page-subtitle">Create patterns, sequences, and export MIDI files</p>
+        </div>
+
+        <!-- Sequencer Section -->
+        <div class="midi-section">
+            <h2 class="section-title"><i class="fas fa-th"></i> STEP SEQUENCER</h2>
+            
+            <!-- Transport -->
+            <div class="transport-bar">
+                <button class="transport-btn play" id="playBtn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="transport-btn stop" id="stopBtn">
+                    <i class="fas fa-stop"></i>
+                </button>
+                <div class="tempo-control">
+                    <span class="control-label">BPM</span>
+                    <input type="range" id="tempoSlider" min="60" max="200" value="120">
+                    <span class="tempo-display" id="tempoDisplay">120</span>
+                </div>
+                <div class="control-row" style="margin: 0;">
+                    <span class="control-label">Steps</span>
+                    <select id="stepsSelect">
+                        <option value="8">8</option>
+                        <option value="16" selected>16</option>
+                        <option value="32">32</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="sequencer-container">
+                <div class="sequencer-grid" id="sequencerGrid">
+                    <!-- Grid will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" id="clearBtn">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+                <button class="btn btn-secondary" id="randomizeBtn">
+                    <i class="fas fa-random"></i> Randomize
+                </button>
+                <button class="btn btn-success" id="exportBtn">
+                    <i class="fas fa-download"></i> Export MIDI
+                </button>
+            </div>
+        </div>
+
+        <!-- Pattern Generator -->
+        <div class="midi-section">
+            <h2 class="section-title"><i class="fas fa-magic"></i> PATTERN GENERATOR</h2>
+            
+            <div class="controls-grid">
+                <div class="control-panel">
+                    <h3 class="control-title">🎵 GENRE</h3>
+                    <div class="pattern-grid">
+                        <button class="pattern-btn" data-genre="techno">Techno</button>
+                        <button class="pattern-btn" data-genre="house">House</button>
+                        <button class="pattern-btn" data-genre="dnb">DnB</button>
+                        <button class="pattern-btn" data-genre="trance">Trance</button>
+                        <button class="pattern-btn" data-genre="ambient">Ambient</button>
+                        <button class="pattern-btn" data-genre="acid">Acid</button>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <h3 class="control-title">🎹 INSTRUMENT</h3>
+                    <div class="pattern-grid">
+                        <button class="pattern-btn" data-instrument="kick">Kick</button>
+                        <button class="pattern-btn" data-instrument="snare">Snare</button>
+                        <button class="pattern-btn" data-instrument="hihat">Hi-Hat</button>
+                        <button class="pattern-btn" data-instrument="bass">Bass</button>
+                        <button class="pattern-btn" data-instrument="lead">Lead</button>
+                        <button class="pattern-btn" data-instrument="arp">Arp</button>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <h3 class="control-title">⚙️ SETTINGS</h3>
+                    <div class="control-row">
+                        <span class="control-label">Scale</span>
+                        <select id="scaleSelect">
+                            <option value="chromatic">Chromatic</option>
+                            <option value="major">Major</option>
+                            <option value="minor">Minor</option>
+                            <option value="pentatonic">Pentatonic</option>
+                            <option value="blues">Blues</option>
+                            <option value="dorian">Dorian</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <span class="control-label">Root</span>
+                        <select id="rootSelect">
+                            <option value="C">C</option>
+                            <option value="C#">C#</option>
+                            <option value="D">D</option>
+                            <option value="D#">D#</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="F#">F#</option>
+                            <option value="G">G</option>
+                            <option value="G#">G#</option>
+                            <option value="A">A</option>
+                            <option value="A#">A#</option>
+                            <option value="B">B</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <span class="control-label">Density</span>
+                        <input type="range" id="densitySlider" min="1" max="10" value="5" style="flex: 1;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="generateBtn">
+                    <i class="fas fa-bolt"></i> Generate Pattern
+                </button>
+            </div>
+        </div>
+
+        <!-- Output -->
+        <div class="midi-section">
+            <h2 class="section-title"><i class="fas fa-file-code"></i> OUTPUT</h2>
+            
+            <div class="output-display" id="outputDisplay">
+MIDI Pattern Generator ready...
+Click "Generate Pattern" or draw on the sequencer grid.
+
+Export formats:
+• MIDI (.mid) - Standard MIDI file
+• JSON - Pattern data for HAOS workspaces
+• Text - Human-readable notation
+            </div>
+
+            <div class="info-box">
+                <h4>💡 Tips</h4>
+                <p>
+                    <strong>Click cells</strong> to toggle notes on/off<br>
+                    <strong>Shift+Click</strong> to draw multiple notes<br>
+                    <strong>Genre buttons</strong> apply preset rhythmic patterns<br>
+                    <strong>Instrument</strong> affects note range and velocity
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // HAOS MIDI GENERATOR
+        // ============================================
+        
+        class HAOSMidiGenerator {
+            constructor() {
+                this.audioCtx = null;
+                this.isPlaying = false;
+                this.currentStep = 0;
+                this.tempo = 120;
+                this.steps = 16;
+                this.intervalId = null;
+                
+                // Grid state: notes[row][step]
+                this.grid = [];
+                this.notes = ['C5', 'B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4'];
+                
+                // Note frequencies
+                this.frequencies = {
+                    'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23,
+                    'G4': 392.00, 'A4': 440.00, 'B4': 493.88, 'C5': 523.25
+                };
+
+                // Genre patterns (step indices that should be active)
+                this.genrePatterns = {
+                    techno: {
+                        kick: [0, 4, 8, 12],
+                        hihat: [2, 6, 10, 14],
+                        snare: [4, 12]
+                    },
+                    house: {
+                        kick: [0, 4, 8, 12],
+                        hihat: [0, 2, 4, 6, 8, 10, 12, 14],
+                        snare: [4, 12]
+                    },
+                    dnb: {
+                        kick: [0, 6, 10],
+                        snare: [4, 12],
+                        hihat: [0, 2, 4, 6, 8, 10, 12, 14]
+                    },
+                    trance: {
+                        kick: [0, 4, 8, 12],
+                        bass: [0, 8],
+                        lead: [0, 3, 6, 9, 12]
+                    },
+                    ambient: {
+                        lead: [0, 8],
+                        bass: [4, 12]
+                    },
+                    acid: {
+                        bass: [0, 3, 6, 8, 11, 14],
+                        lead: [2, 5, 10, 13]
+                    }
+                };
+
+                this.init();
+            }
+
+            init() {
+                this.initGrid();
+                this.buildSequencer();
+                this.setupEventListeners();
+            }
+
+            initAudio() {
+                if (this.audioCtx) return;
+                this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            initGrid() {
+                this.grid = [];
+                for (let row = 0; row < this.notes.length; row++) {
+                    this.grid[row] = new Array(this.steps).fill(false);
+                }
+            }
+
+            buildSequencer() {
+                const container = document.getElementById('sequencerGrid');
+                container.innerHTML = '';
+
+                this.notes.forEach((note, rowIndex) => {
+                    const row = document.createElement('div');
+                    row.className = 'sequencer-row';
+                    
+                    const label = document.createElement('div');
+                    label.className = 'note-label';
+                    label.textContent = note;
+                    row.appendChild(label);
+
+                    for (let step = 0; step < this.steps; step++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'step-cell';
+                        if (step % 4 === 0) cell.classList.add('beat-marker');
+                        cell.dataset.row = rowIndex;
+                        cell.dataset.step = step;
+                        
+                        if (this.grid[rowIndex]?.[step]) {
+                            cell.classList.add('active');
+                        }
+                        
+                        row.appendChild(cell);
+                    }
+
+                    container.appendChild(row);
+                });
+            }
+
+            setupEventListeners() {
+                // Grid clicks
+                document.getElementById('sequencerGrid').addEventListener('click', (e) => {
+                    const cell = e.target.closest('.step-cell');
+                    if (!cell) return;
+
+                    const row = parseInt(cell.dataset.row);
+                    const step = parseInt(cell.dataset.step);
+                    
+                    this.grid[row][step] = !this.grid[row][step];
+                    cell.classList.toggle('active');
+                    
+                    if (this.grid[row][step]) {
+                        this.playNote(this.notes[row], 0.1);
+                    }
+                    
+                    this.updateOutput();
+                });
+
+                // Transport
+                document.getElementById('playBtn').addEventListener('click', () => this.play());
+                document.getElementById('stopBtn').addEventListener('click', () => this.stop());
+                
+                // Tempo
+                document.getElementById('tempoSlider').addEventListener('input', (e) => {
+                    this.tempo = parseInt(e.target.value);
+                    document.getElementById('tempoDisplay').textContent = this.tempo;
+                    if (this.isPlaying) {
+                        this.stop();
+                        this.play();
+                    }
+                });
+
+                // Steps
+                document.getElementById('stepsSelect').addEventListener('change', (e) => {
+                    this.steps = parseInt(e.target.value);
+                    this.initGrid();
+                    this.buildSequencer();
+                });
+
+                // Clear
+                document.getElementById('clearBtn').addEventListener('click', () => {
+                    this.initGrid();
+                    this.buildSequencer();
+                    this.updateOutput();
+                });
+
+                // Randomize
+                document.getElementById('randomizeBtn').addEventListener('click', () => {
+                    this.randomize();
+                });
+
+                // Generate
+                document.getElementById('generateBtn').addEventListener('click', () => {
+                    this.generatePattern();
+                });
+
+                // Export
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.exportMIDI();
+                });
+
+                // Genre buttons
+                document.querySelectorAll('.pattern-btn[data-genre]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.pattern-btn[data-genre]').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    });
+                });
+
+                // Instrument buttons
+                document.querySelectorAll('.pattern-btn[data-instrument]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.pattern-btn[data-instrument]').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    });
+                });
+            }
+
+            play() {
+                if (this.isPlaying) return;
+                this.initAudio();
+                this.isPlaying = true;
+                this.currentStep = 0;
+                
+                document.getElementById('playBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                
+                const stepTime = (60 / this.tempo / 4) * 1000; // 16th notes
+                
+                this.intervalId = setInterval(() => {
+                    this.playStep();
+                    this.currentStep = (this.currentStep + 1) % this.steps;
+                }, stepTime);
+            }
+
+            stop() {
+                this.isPlaying = false;
+                if (this.intervalId) {
+                    clearInterval(this.intervalId);
+                    this.intervalId = null;
+                }
+                
+                document.getElementById('playBtn').innerHTML = '<i class="fas fa-play"></i>';
+                
+                // Clear playing indicators
+                document.querySelectorAll('.step-cell.playing').forEach(cell => {
+                    cell.classList.remove('playing');
+                });
+            }
+
+            playStep() {
+                // Clear previous step highlight
+                document.querySelectorAll('.step-cell.playing').forEach(cell => {
+                    cell.classList.remove('playing');
+                });
+
+                // Highlight current step
+                document.querySelectorAll(`.step-cell[data-step="${this.currentStep}"]`).forEach(cell => {
+                    cell.classList.add('playing');
+                });
+
+                // Play active notes
+                this.notes.forEach((note, row) => {
+                    if (this.grid[row][this.currentStep]) {
+                        this.playNote(note, 0.15);
+                    }
+                });
+            }
+
+            playNote(note, duration) {
+                if (!this.audioCtx) return;
+                
+                const freq = this.frequencies[note];
+                if (!freq) return;
+
+                const osc = this.audioCtx.createOscillator();
+                const gain = this.audioCtx.createGain();
+                
+                osc.type = 'sawtooth';
+                osc.frequency.value = freq;
+                
+                gain.gain.setValueAtTime(0.3, this.audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(this.audioCtx.destination);
+                
+                osc.start();
+                osc.stop(this.audioCtx.currentTime + duration);
+            }
+
+            randomize() {
+                const density = parseInt(document.getElementById('densitySlider').value) / 10;
+                
+                for (let row = 0; row < this.notes.length; row++) {
+                    for (let step = 0; step < this.steps; step++) {
+                        this.grid[row][step] = Math.random() < density * 0.3;
+                    }
+                }
+                
+                this.buildSequencer();
+                this.updateOutput();
+            }
+
+            generatePattern() {
+                const genreBtn = document.querySelector('.pattern-btn[data-genre].active');
+                const instrumentBtn = document.querySelector('.pattern-btn[data-instrument].active');
+                
+                const genre = genreBtn?.dataset.genre || 'techno';
+                const instrument = instrumentBtn?.dataset.instrument || 'kick';
+                const density = parseInt(document.getElementById('densitySlider').value) / 10;
+                
+                // Clear grid
+                this.initGrid();
+                
+                // Apply genre pattern
+                const pattern = this.genrePatterns[genre];
+                if (pattern) {
+                    // Map instruments to rows
+                    const instrumentRowMap = {
+                        kick: 7,  // C4
+                        snare: 5, // E4
+                        hihat: 0, // C5
+                        bass: 6,  // D4
+                        lead: 2,  // A4
+                        arp: 3    // G4
+                    };
+
+                    Object.entries(pattern).forEach(([inst, steps]) => {
+                        const row = instrumentRowMap[inst];
+                        if (row !== undefined) {
+                            steps.forEach(step => {
+                                if (step < this.steps) {
+                                    this.grid[row][step] = true;
+                                }
+                            });
+                        }
+                    });
+
+                    // Add some random variation based on density
+                    for (let row = 0; row < this.notes.length; row++) {
+                        for (let step = 0; step < this.steps; step++) {
+                            if (!this.grid[row][step] && Math.random() < density * 0.1) {
+                                this.grid[row][step] = true;
+                            }
+                        }
+                    }
+                }
+                
+                this.buildSequencer();
+                this.updateOutput();
+                
+                document.getElementById('outputDisplay').textContent = 
+                    `✨ Generated ${genre.toUpperCase()} pattern!\n\n` +
+                    `Genre: ${genre}\n` +
+                    `Steps: ${this.steps}\n` +
+                    `Tempo: ${this.tempo} BPM\n` +
+                    `Active notes: ${this.countActiveNotes()}\n\n` +
+                    `Press Play to preview!`;
+            }
+
+            countActiveNotes() {
+                let count = 0;
+                for (let row = 0; row < this.notes.length; row++) {
+                    for (let step = 0; step < this.steps; step++) {
+                        if (this.grid[row][step]) count++;
+                    }
+                }
+                return count;
+            }
+
+            updateOutput() {
+                const activeNotes = this.countActiveNotes();
+                document.getElementById('outputDisplay').textContent = 
+                    `Pattern: ${this.steps} steps @ ${this.tempo} BPM\n` +
+                    `Active notes: ${activeNotes}\n\n` +
+                    this.getPatternString();
+            }
+
+            getPatternString() {
+                let output = '';
+                this.notes.forEach((note, row) => {
+                    output += `${note}: `;
+                    for (let step = 0; step < this.steps; step++) {
+                        output += this.grid[row][step] ? '█' : '·';
+                    }
+                    output += '\n';
+                });
+                return output;
+            }
+
+            exportMIDI() {
+                const midiData = {
+                    format: 0,
+                    ticksPerBeat: 480,
+                    tempo: this.tempo,
+                    tracks: [{
+                        name: 'HAOS MIDI Pattern',
+                        notes: []
+                    }]
+                };
+
+                // Convert grid to MIDI events
+                const ticksPerStep = 480 / 4; // 16th notes
+                
+                this.notes.forEach((note, row) => {
+                    for (let step = 0; step < this.steps; step++) {
+                        if (this.grid[row][step]) {
+                            midiData.tracks[0].notes.push({
+                                note: note,
+                                midiNote: this.noteToMidi(note),
+                                time: step * ticksPerStep,
+                                duration: ticksPerStep,
+                                velocity: 100
+                            });
+                        }
+                    }
+                });
+
+                // Download as JSON (placeholder for real MIDI export)
+                const blob = new Blob([JSON.stringify(midiData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'haos-midi-pattern.json';
+                a.click();
+                URL.revokeObjectURL(url);
+
+                document.getElementById('outputDisplay').textContent = 
+                    `📥 MIDI Pattern Exported!\n\n` +
+                    `File: haos-midi-pattern.json\n` +
+                    `Format: JSON (MIDI data structure)\n` +
+                    `Notes: ${midiData.tracks[0].notes.length}\n` +
+                    `Tempo: ${this.tempo} BPM\n\n` +
+                    `Import into HAOS workspaces or convert to .mid`;
+            }
+
+            noteToMidi(note) {
+                const noteMap = {
+                    'C4': 60, 'D4': 62, 'E4': 64, 'F4': 65,
+                    'G4': 67, 'A4': 69, 'B4': 71, 'C5': 72
+                };
+                return noteMap[note] || 60;
+            }
+        }
+
+        // Initialize
+        const midiGen = new HAOSMidiGenerator();
+        console.log('🎼 HAOS MIDI Generator loaded');
+    </script>
+</body>
+</html>
