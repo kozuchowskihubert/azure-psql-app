@@ -343,7 +343,7 @@ router.get(
     try {
       const user = req.user;
       const tokens = generateTokens(user);
-      res.redirect(\`/account.html#access_token=\${tokens.accessToken}&refresh_token=\${tokens.refreshToken}&login=success\`);
+      res.redirect(`/account.html#access_token=${tokens.accessToken}&refresh_token=${tokens.refreshToken}&login=success`);
     } catch (error) {
       console.error('Google callback error:', error);
       res.redirect('/login.html?error=auth_callback_failed');
@@ -384,7 +384,7 @@ router.post('/forgot-password', async (req, res) => {
       [resetToken, tokenExpiry, userId]
     );
 
-    console.log(\`Password reset token for \${email}: \${resetToken}\`);
+    console.log(`Password reset token for ${email}: ${resetToken}`);
 
     res.json({ success: true, message: 'If that email exists, a password reset link has been sent.' });
   } catch (error) {
