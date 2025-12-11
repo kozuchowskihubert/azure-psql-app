@@ -576,7 +576,7 @@
             <h3 class="plan-name">Free</h3>
             <p class="plan-description">Get started with HAOS.fm</p>
             <div class="plan-price">
-                <span class="price-amount"><span class="price-currency">$</span>0</span>
+                <span class="price-amount">0<span class="price-currency"> PLN</span></span>
                 <span class="price-period">/month</span>
             </div>
             <ul class="plan-features">
@@ -597,9 +597,9 @@
             <h3 class="plan-name">Basic</h3>
             <p class="plan-description">For hobbyist producers</p>
             <div class="plan-price">
-                <span class="price-amount"><span class="price-currency">$</span><span class="price-value">4.99</span></span>
+                <span class="price-amount"><span class="price-value">29</span><span class="price-currency"> PLN</span></span>
                 <span class="price-period">/month</span>
-                <span class="original-price yearly-price" style="display: none;">$59.88</span>
+                <span class="original-price yearly-price" style="display: none;">290 PLN</span>
             </div>
             <ul class="plan-features">
                 <li><span class="feature-icon limited">25</span> Preset downloads/day</li>
@@ -620,9 +620,9 @@
             <h3 class="plan-name">Premium</h3>
             <p class="plan-description">For serious producers</p>
             <div class="plan-price">
-                <span class="price-amount"><span class="price-currency">$</span><span class="price-value">9.99</span></span>
+                <span class="price-amount"><span class="price-value">49</span><span class="price-currency"> PLN</span></span>
                 <span class="price-period">/month</span>
-                <span class="original-price yearly-price" style="display: none;">$119.88</span>
+                <span class="original-price yearly-price" style="display: none;">490 PLN</span>
             </div>
             <ul class="plan-features">
                 <li><span class="feature-icon yes">∞</span> Unlimited downloads</li>
@@ -642,9 +642,9 @@
             <h3 class="plan-name">Pro</h3>
             <p class="plan-description">For professional studios</p>
             <div class="plan-price">
-                <span class="price-amount"><span class="price-currency">$</span><span class="price-value">24.99</span></span>
+                <span class="price-amount"><span class="price-value">99</span><span class="price-currency"> PLN</span></span>
                 <span class="price-period">/month</span>
-                <span class="original-price yearly-price" style="display: none;">$299.88</span>
+                <span class="original-price yearly-price" style="display: none;">990 PLN</span>
             </div>
             <ul class="plan-features">
                 <li><span class="feature-icon yes">∞</span> Everything in Premium</li>
@@ -873,9 +873,9 @@
 
         const prices = {
             free: { monthly: 0, yearly: 0 },
-            basic: { monthly: 4.99, yearly: 49.90 },
-            premium: { monthly: 9.99, yearly: 99.90 },
-            pro: { monthly: 24.99, yearly: 249.90 },
+            basic: { monthly: 29, yearly: 290 },
+            premium: { monthly: 49, yearly: 490 },
+            pro: { monthly: 99, yearly: 990 },
         };
 
         billingToggle.addEventListener('click', () => {
@@ -898,12 +898,12 @@
                 const original = card.querySelector('.original-price');
                 
                 if (isYearly) {
-                    priceValue.textContent = prices[plan].yearly.toFixed(2);
+                    priceValue.textContent = prices[plan].yearly;
                     period.textContent = '/year';
                     original.style.display = 'inline';
-                    original.textContent = '$' + (prices[plan].monthly * 12).toFixed(2);
+                    original.textContent = (prices[plan].monthly * 12) + ' PLN';
                 } else {
-                    priceValue.textContent = prices[plan].monthly.toFixed(2);
+                    priceValue.textContent = prices[plan].monthly;
                     period.textContent = '/month';
                     original.style.display = 'none';
                 }
@@ -937,9 +937,9 @@
                 console.log(`Selected ${plan} plan with ${billing} billing`);
                 
                 // For demo, show confirmation
-                if (confirm(`Subscribe to ${plan.toUpperCase()} plan for $${prices[plan][billing === 'yearly' ? 'yearly' : 'monthly'].toFixed(2)}/${billing === 'yearly' ? 'year' : 'month'}?`)) {
-                    // Redirect to payment flow
-                    window.location.href = `/api/payments/checkout?plan=${plan}&billing=${billing}`;
+                if (confirm(`Subscribe to ${plan.toUpperCase()} plan for ${prices[plan][billing === 'yearly' ? 'yearly' : 'monthly']} PLN/${billing === 'yearly' ? 'year' : 'month'}?`)) {
+                    // Redirect to subscription page
+                    window.location.href = `/subscription.html`;
                 }
             });
         });

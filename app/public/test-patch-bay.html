@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patch Bay Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #0a0a0a;
+      color: white;
+      font-family: monospace;
+    }
+
+    .test-container {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .patch-section {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 8px;
+    }
+
+    .patch-jacks {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .patch-jack {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .patch-jack:hover {
+      transform: scale(1.3);
+      box-shadow: 0 0 15px currentColor;
+    }
+
+    .jack-output {
+      border: 3px solid #0f0;
+      background: rgba(0, 255, 0, 0.1);
+    }
+
+    .jack-input {
+      border: 3px solid #f00;
+      background: rgba(255, 0, 0, 0.1);
+    }
+
+    .jack-connected {
+      background: #00d4ff !important;
+      box-shadow: 0 0 10px #00d4ff;
+    }
+
+    .patch-jack.selected {
+      background: #ffff00 !important;
+      box-shadow: 0 0 20px #ffff00;
+      transform: scale(1.5);
+    }
+
+    .patch-cable {
+      pointer-events: stroke;
+      transition: all 0.3s;
+    }
+
+    .patch-cable:hover {
+      stroke-width: 6 !important;
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    #console {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.9);
+      color: #0f0;
+      padding: 1rem;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 12px;
+      border-top: 2px solid #0f0;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎛️ Patch Bay Test</h1>
+  <p>Click an output (green), then click an input (red) to create a patch cable.</p>
+  
+  <button class="btn" onclick="clearAllPatches()">Clear All Patches</button>
+
+  <div class="test-container">
+    <div class="patch-section">
+      <h3>Outputs</h3>
+      <div class="patch-jacks">
+        <div class="patch-jack jack-output" data-jack="OUT1" title="Output 1"></div>
+        <div class="patch-jack jack-output" data-jack="OUT2" title="Output 2"></div>
+        <div class="patch-jack jack-output" data-jack="OUT3" title="Output 3"></div>
+      </div>
+    </div>
+
+    <div class="patch-section">
+      <h3>Inputs</h3>
+      <div class="patch-jacks">
+        <div class="patch-jack jack-input" data-jack="IN1" title="Input 1"></div>
+        <div class="patch-jack jack-input" data-jack="IN2" title="Input 2"></div>
+        <div class="patch-jack jack-input" data-jack="IN3" title="Input 3"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="console"></div>
+
+  <script>
+    // Global state
+    let selectedPatchPoint = null;
+    let patches = [];
+    let cableId = 0;
+
+    // Console logging
+    function log(msg) {
+      const console = document.getElementById('console');
+      const line = document.createElement('div');
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      console.appendChild(line);
+      console.scrollTop = console.scrollHeight;
+    }
+
+    // Override console.log
+    const originalLog = console.log;
+    console.log = function(...args) {
+      log(args.join(' '));
+      originalLog.apply(console, args);
+    };
+
+    // Initialize
+    function init() {
+      log('Initializing patch bay test...');
+      
+      const jacks = document.querySelectorAll('.patch-jack');
+      log(`Found ${jacks.length} patch jacks`);
+      
+      jacks.forEach((jack, index) => {
+        log(`Setting up jack ${index}: ${jack.dataset.jack}`);
+        jack.addEventListener('click', (e) => {
+          e.stopPropagation();
+          log(`Jack clicked: ${jack.dataset.jack}`);
+          handleJackClick(jack);
+        });
+      });
+
+      document.addEventListener('click', () => {
+        if (selectedPatchPoint) {
+          log('Deselecting jack');
+          selectedPatchPoint.classList.remove('selected');
+          selectedPatchPoint = null;
+        }
+      });
+
+      log('Patch bay test initialized');
+    }
+
+    function handleJackClick(jack) {
+      const jackId = jack.dataset.jack;
+      const jackType = jack.classList.contains('jack-output') ? 'output' : 'input';
+      
+      log(`handleJackClick: ${jackId} (${jackType})`);
+
+      if (!selectedPatchPoint) {
+        selectedPatchPoint = jack;
+        jack.classList.add('selected');
+        log(`Selected jack: ${jackId}`);
+      } else {
+        const firstJackId = selectedPatchPoint.dataset.jack;
+        const firstJackType = selectedPatchPoint.classList.contains('jack-output') ? 'output' : 'input';
+
+        log(`Attempting to patch: ${firstJackId} (${firstJackType}) → ${jackId} (${jackType})`);
+
+        if (firstJackType === 'output' && jackType === 'input') {
+          log('Valid output → input connection');
+          createPatch(firstJackId, jackId);
+        } else if (firstJackType === 'input' && jackType === 'output') {
+          log('Valid input → output connection (reversing)');
+          createPatch(jackId, firstJackId);
+        } else {
+          log(`Invalid patch: ${firstJackType} → ${jackType}`);
+        }
+
+        selectedPatchPoint.classList.remove('selected');
+        selectedPatchPoint = null;
+      }
+    }
+
+    function createPatch(fromId, toId) {
+      log(`createPatch called: ${fromId} → ${toId}`);
+      
+      const existing = patches.find(p => p.from === fromId && p.to === toId);
+      if (existing) {
+        log('Patch already exists, removing it');
+        removePatch(existing.id);
+        return;
+      }
+
+      const fromJack = document.querySelector(`[data-jack="${fromId}"]`);
+      const toJack = document.querySelector(`[data-jack="${toId}"]`);
+      
+      log(`fromJack found: ${fromJack ? 'YES' : 'NO'}`);
+      log(`toJack found: ${toJack ? 'YES' : 'NO'}`);
+      
+      if (!fromJack || !toJack) {
+        log('ERROR: Could not find one or both jacks!');
+        return;
+      }
+
+      log('Drawing cable...');
+      const cable = drawCable(fromJack, toJack);
+      const patchId = cableId++;
+
+      patches.push({
+        id: patchId,
+        from: fromId,
+        to: toId,
+        cable: cable
+      });
+
+      log(`Patch stored. Total patches: ${patches.length}`);
+
+      fromJack.classList.add('jack-connected');
+      toJack.classList.add('jack-connected');
+
+      log(`✓ Patched: ${fromId} → ${toId}`);
+    }
+
+    function drawCable(fromEl, toEl) {
+      log('drawCable called');
+      let svg = document.getElementById('cables-svg');
+      if (!svg) {
+        log('Creating new SVG container');
+        svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.id = 'cables-svg';
+        svg.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999;';
+        document.body.appendChild(svg);
+        log('SVG container created');
+      }
+
+      const fromRect = fromEl.getBoundingClientRect();
+      const toRect = toEl.getBoundingClientRect();
+
+      const x1 = fromRect.left + fromRect.width / 2;
+      const y1 = fromRect.top + fromRect.height / 2;
+      const x2 = toRect.left + toRect.width / 2;
+      const y2 = toRect.top + toRect.height / 2;
+      
+      log(`Cable coordinates: (${Math.round(x1)}, ${Math.round(y1)}) → (${Math.round(x2)}, ${Math.round(y2)})`);
+
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const cx1 = x1 + dx * 0.3;
+      const cy1 = y1 + dy * 0.8;
+      const cx2 = x1 + dx * 0.7;
+      const cy2 = y1 + dy * 0.2;
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const d = `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
+      path.setAttribute('d', d);
+      path.setAttribute('class', 'patch-cable');
+      path.setAttribute('stroke', getRandomCableColor());
+      path.setAttribute('stroke-width', '3');
+      path.setAttribute('fill', 'none');
+      path.style.cursor = 'pointer';
+      path.style.pointerEvents = 'stroke';
+      
+      path.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const patch = patches.find(p => p.cable === path);
+        if (patch) {
+          log(`Removing cable: ${patch.from} → ${patch.to}`);
+          removePatch(patch.id);
+        }
+      });
+
+      svg.appendChild(path);
+      log('Cable added to SVG');
+      return path;
+    }
+
+    function getRandomCableColor() {
+      const colors = ['#00d4ff', '#ff00ff', '#00ff00', '#ffff00', '#ff6600', '#ff0066'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function removePatch(patchId) {
+      log(`removePatch called: ${patchId}`);
+      const patchIndex = patches.findIndex(p => p.id === patchId);
+      if (patchIndex === -1) {
+        log('Patch not found');
+        return;
+      }
+
+      const patch = patches[patchIndex];
+      
+      if (patch.cable && patch.cable.parentNode) {
+        patch.cable.parentNode.removeChild(patch.cable);
+      }
+
+      const fromJack = document.querySelector(`[data-jack="${patch.from}"]`);
+      const toJack = document.querySelector(`[data-jack="${patch.to}"]`);
+      
+      const fromHasOthers = patches.some((p, i) => i !== patchIndex && (p.from === patch.from || p.to === patch.from));
+      const toHasOthers = patches.some((p, i) => i !== patchIndex && (p.from === patch.to || p.to === patch.to));
+      
+      if (!fromHasOthers && fromJack) fromJack.classList.remove('jack-connected');
+      if (!toHasOthers && toJack) toJack.classList.remove('jack-connected');
+
+      patches.splice(patchIndex, 1);
+      log(`Patch removed. Total patches: ${patches.length}`);
+    }
+
+    function clearAllPatches() {
+      log('Clearing all patches...');
+      while (patches.length > 0) {
+        removePatch(patches[0].id);
+      }
+      log('All patches cleared');
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscription Plans - HAOS.fm</title>
+  <link rel="stylesheet" href="/css/haos-brand.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #0A0A0A;
+      min-height: 100vh;
+      color: #F4E8D8;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+      opacity: 0.03;
+      mix-blend-mode: overlay;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.1;
+      animation: float 8s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .bg-glow.orange { background: #FF6B35; top: -100px; left: -100px; }
+    .bg-glow.purple { background: #6A0DAD; bottom: -100px; right: -100px; animation-delay: -4s; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(30px, -30px); }
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.5);
+      border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #F4E8D8;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+      color: #0A0A0A;
+    }
+
+    .logo-text {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.75rem;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .page-title {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-title h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-title p {
+      color: #888;
+      font-size: 1.1rem;
+    }
+
+    /* Current Plan Banner */
+    .current-plan-banner {
+      background: linear-gradient(135deg, rgba(57, 255, 20, 0.1), rgba(0, 217, 255, 0.1));
+      border: 1px solid rgba(57, 255, 20, 0.3);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .current-plan-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .current-plan-badge {
+      background: linear-gradient(135deg, #39FF14, #00D9FF);
+      color: #0A0A0A;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .current-plan-details span {
+      color: #F4E8D8;
+      font-weight: 600;
+    }
+
+    .current-plan-details small {
+      color: #888;
+      display: block;
+      font-size: 0.85rem;
+    }
+
+    /* Billing Toggle */
+    .billing-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.5rem;
+      border-radius: 12px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .billing-toggle button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: transparent;
+      color: #888;
+      cursor: pointer;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .billing-toggle button.active {
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      color: #0A0A0A;
+    }
+
+    .billing-toggle button:hover:not(.active) {
+      color: #F4E8D8;
+    }
+
+    .savings-badge {
+      background: #39FF14;
+      color: #0A0A0A;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+
+    /* Plans Grid */
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .plan-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan-card:hover {
+      border-color: rgba(255, 107, 53, 0.5);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 40px rgba(255, 107, 53, 0.1);
+    }
+
+    .plan-card.featured {
+      border-color: #FF6B35;
+      background: linear-gradient(145deg, rgba(255, 107, 53, 0.1), rgba(0, 0, 0, 0.3));
+    }
+
+    .plan-card.featured::before {
+      content: 'MOST POPULAR';
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      color: #0A0A0A;
+      padding: 0.3rem 1rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 0 16px 0 12px;
+    }
+
+    .plan-card.current {
+      border-color: #39FF14;
+    }
+
+    .plan-card.current::before {
+      content: 'CURRENT PLAN';
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: linear-gradient(135deg, #39FF14, #00D9FF);
+      color: #0A0A0A;
+      padding: 0.3rem 1rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 0 16px 0 12px;
+    }
+
+    .plan-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.75rem;
+      color: #F4E8D8;
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-tagline {
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .plan-price {
+      margin-bottom: 1.5rem;
+    }
+
+    .plan-price .amount {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #FF6B35;
+    }
+
+    .plan-price .currency {
+      font-size: 1.2rem;
+      color: #888;
+    }
+
+    .plan-price .period {
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    .plan-price .yearly-note {
+      color: #39FF14;
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .plan-features li {
+      padding: 0.5rem 0;
+      color: #F4E8D8;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .plan-features li i {
+      color: #39FF14;
+      width: 16px;
+    }
+
+    .plan-features li.disabled {
+      color: #555;
+    }
+
+    .plan-features li.disabled i {
+      color: #555;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      color: #0A0A0A;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #F4E8D8;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-current {
+      background: rgba(57, 255, 20, 0.2);
+      color: #39FF14;
+      border: 1px solid #39FF14;
+      cursor: default;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Payment Methods */
+    .payment-section {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+
+    .payment-section h3 {
+      color: #F4E8D8;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .payment-methods {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .payment-method {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1rem 2rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      min-width: 120px;
+    }
+
+    .payment-method:hover {
+      border-color: #FF6B35;
+      transform: translateY(-2px);
+    }
+
+    .payment-method.selected {
+      border-color: #39FF14;
+      background: rgba(57, 255, 20, 0.1);
+    }
+
+    .payment-method img {
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .payment-method span {
+      color: #888;
+      font-size: 0.85rem;
+    }
+
+    /* Alert */
+    .alert {
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .alert.success {
+      background: rgba(57, 255, 20, 0.1);
+      border: 1px solid #39FF14;
+      color: #39FF14;
+    }
+
+    .alert.error {
+      background: rgba(255, 107, 53, 0.1);
+      border: 1px solid #FF6B35;
+      color: #FF6B35;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 107, 53, 0.2);
+      border-top-color: #FF6B35;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Login prompt */
+    .login-prompt {
+      text-align: center;
+      padding: 3rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .login-prompt h2 {
+      color: #F4E8D8;
+      margin-bottom: 1rem;
+    }
+
+    .login-prompt p {
+      color: #888;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Footer info */
+    .footer-info {
+      text-align: center;
+      color: #888;
+      font-size: 0.85rem;
+      margin-top: 2rem;
+      padding: 1rem;
+    }
+
+    .footer-info a {
+      color: #FF6B35;
+      text-decoration: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .plans-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .current-plan-banner {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow orange"></div>
+  <div class="bg-glow purple"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <a href="/" class="logo">
+      <div class="logo-icon"><i class="fas fa-waveform-lines"></i></div>
+      <span class="logo-text">HAOS.FM</span>
+    </a>
+    <nav>
+      <a href="/dashboard" class="btn btn-secondary" style="padding: 0.5rem 1rem;">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Alert -->
+    <div id="alert" class="alert"></div>
+
+    <!-- Page Title -->
+    <div class="page-title">
+      <h1><i class="fas fa-crown"></i> Choose Your Plan</h1>
+      <p>Unlock premium features and take your music production to the next level</p>
+    </div>
+
+    <!-- Login Prompt (shown when not logged in) -->
+    <div id="login-prompt" class="login-prompt" style="display: none;">
+      <h2><i class="fas fa-lock"></i> Sign In Required</h2>
+      <p>Please sign in to view and manage your subscription</p>
+      <a href="/login" class="btn btn-primary" style="width: auto; padding: 0.85rem 2rem;">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </a>
+    </div>
+
+    <!-- Subscription Content (shown when logged in) -->
+    <div id="subscription-content" style="display: none;">
+      <!-- Current Plan Banner -->
+      <div id="current-plan-banner" class="current-plan-banner" style="display: none;">
+        <div class="current-plan-info">
+          <div id="current-badge" class="current-plan-badge">FREE</div>
+          <div class="current-plan-details">
+            <span id="current-plan-name">Free Plan</span>
+            <small id="current-plan-status">Active</small>
+          </div>
+        </div>
+        <a href="/account" class="btn btn-secondary" style="width: auto; padding: 0.5rem 1rem;">
+          <i class="fas fa-cog"></i> Manage Subscription
+        </a>
+      </div>
+
+      <!-- Billing Toggle -->
+      <div class="billing-toggle">
+        <button id="toggle-monthly" class="active" onclick="setBillingCycle('monthly')">Monthly</button>
+        <button id="toggle-yearly" onclick="setBillingCycle('yearly')">Yearly <span class="savings-badge">Save 33%</span></button>
+      </div>
+
+      <!-- Plans Grid -->
+      <div id="plans-grid" class="plans-grid">
+        <div class="loading">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- Payment Methods Section -->
+      <div id="payment-section" class="payment-section" style="display: none;">
+        <h3><i class="fas fa-credit-card"></i> Select Payment Method</h3>
+        <div class="payment-methods">
+          <div class="payment-method" data-method="payu" onclick="selectPaymentMethod('payu')">
+            <img src="https://static.payu.com/sites/all/files/payu-pl/payu_logo.svg" alt="PayU" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 30%22><text y=%2222%22 font-size=%2220%22 fill=%22%2339FF14%22>PayU</text></svg>'">
+            <span>BLIK, Cards, Transfers</span>
+          </div>
+          <div class="payment-method" data-method="stripe" onclick="selectPaymentMethod('stripe')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 30%22><text y=%2222%22 font-size=%2220%22 fill=%22%236772E5%22>Stripe</text></svg>'">
+            <span>Cards</span>
+          </div>
+          <div class="payment-method" data-method="paypal" onclick="selectPaymentMethod('paypal')">
+            <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg" alt="PayPal" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 30%22><text y=%2222%22 font-size=%2220%22 fill=%22%23003087%22>PayPal</text></svg>'">
+            <span>PayPal</span>
+          </div>
+        </div>
+        <div style="text-align: center; margin-top: 1.5rem;">
+          <button id="btn-checkout" class="btn btn-primary" style="width: auto; padding: 1rem 3rem; font-size: 1.1rem;" onclick="proceedToCheckout()" disabled>
+            <i class="fas fa-lock"></i> Zamawiam i płacę
+          </button>
+          <p style="font-size: 0.85rem; color: #999; margin-top: 0.5rem;">
+            Bezpieczna płatność przez PayU
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Info -->
+    <div class="footer-info">
+      <p>🔒 Secure payment processing. Cancel anytime.</p>
+      <p>Questions? <a href="mailto:admin@haos.fm">Contact us</a></p>
+    </div>
+  </main>
+
+  <script>
+    // State
+    let currentUser = null;
+    let currentSubscription = null;
+    let plans = [];
+    let billingCycle = 'monthly';
+    let selectedPlan = null;
+    let selectedPaymentMethod = null;
+
+    // Check authentication and load data
+    document.addEventListener('DOMContentLoaded', async () => {
+      await checkAuth();
+    });
+
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/auth/me', { credentials: 'include' });
+        const data = await response.json();
+
+        if (data.success && data.user) {
+          currentUser = data.user;
+          document.getElementById('login-prompt').style.display = 'none';
+          document.getElementById('subscription-content').style.display = 'block';
+          await loadData();
+        } else {
+          document.getElementById('login-prompt').style.display = 'block';
+          document.getElementById('subscription-content').style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        document.getElementById('login-prompt').style.display = 'block';
+      }
+    }
+
+    async function loadData() {
+      await Promise.all([loadSubscription(), loadPlans()]);
+    }
+
+    async function loadSubscription() {
+      try {
+        const response = await fetch('/api/subscriptions/current', { credentials: 'include' });
+        const data = await response.json();
+
+        if (data.success) {
+          currentSubscription = data.subscription;
+          updateCurrentPlanBanner();
+        }
+      } catch (error) {
+        console.error('Failed to load subscription:', error);
+      }
+    }
+
+    function updateCurrentPlanBanner() {
+      const banner = document.getElementById('current-plan-banner');
+      const sub = currentSubscription;
+      
+      if (!sub || sub.plan_code === 'free') {
+        banner.style.display = 'none';
+        return;
+      }
+
+      banner.style.display = 'flex';
+      document.getElementById('current-badge').textContent = (sub.plan_name || 'Premium').toUpperCase();
+      document.getElementById('current-plan-name').textContent = sub.plan_name || 'Premium Plan';
+      
+      const status = sub.cancel_at_period_end ? 'Cancels at period end' : (sub.status || 'Active');
+      document.getElementById('current-plan-status').textContent = status;
+    }
+
+    async function loadPlans() {
+      try {
+        const response = await fetch('/api/subscriptions/plans');
+        const data = await response.json();
+
+        if (data.success) {
+          plans = data.plans;
+          renderPlans();
+        }
+      } catch (error) {
+        console.error('Failed to load plans:', error);
+        document.getElementById('plans-grid').innerHTML = '<p style="color: #FF6B35; text-align: center;">Failed to load plans. Please refresh the page.</p>';
+      }
+    }
+
+    function renderPlans() {
+      const container = document.getElementById('plans-grid');
+      const currentPlanCode = currentSubscription?.plan_code || 'free';
+
+      const planFeatures = {
+        free: [
+          { text: '5 preset downloads/day', included: true },
+          { text: 'Basic sound library', included: true },
+          { text: '3 saved patches', included: true },
+          { text: 'WAV export (44.1kHz)', included: true },
+          { text: 'Cloud storage', included: false },
+          { text: 'Priority support', included: false }
+        ],
+        basic: [
+          { text: '25 preset downloads/day', included: true },
+          { text: 'Sounds + Techno workspace', included: true },
+          { text: '25 saved patches', included: true },
+          { text: 'WAV + MP3 export (48kHz)', included: true },
+          { text: '100 MB cloud storage', included: true },
+          { text: 'Email support', included: true }
+        ],
+        premium: [
+          { text: 'Unlimited downloads', included: true },
+          { text: 'All workspaces', included: true },
+          { text: 'Unlimited patches', included: true },
+          { text: 'All formats (96kHz)', included: true },
+          { text: '1 GB cloud storage', included: true },
+          { text: 'Priority support', included: true },
+          { text: 'API access', included: true }
+        ],
+        pro: [
+          { text: 'Everything in Premium', included: true },
+          { text: 'Pro sound packs', included: true },
+          { text: 'Stem export (192kHz)', included: true },
+          { text: '10 GB cloud storage', included: true },
+          { text: 'Unlimited collabs', included: true },
+          { text: 'Dedicated support', included: true },
+          { text: 'Commercial license', included: true }
+        ]
+      };
+
+      container.innerHTML = plans.map(plan => {
+        const isCurrent = plan.plan_code === currentPlanCode;
+        const isFeatured = plan.plan_code === 'premium';
+        const price = billingCycle === 'yearly' 
+          ? (plan.price_yearly / 100).toFixed(0)
+          : (plan.price_monthly / 100).toFixed(0);
+        const monthlyFromYearly = (plan.price_yearly / 12 / 100).toFixed(0);
+        
+        const features = planFeatures[plan.plan_code] || planFeatures.free;
+        const featuresList = features.map(f => `
+          <li class="${f.included ? '' : 'disabled'}">
+            <i class="fas ${f.included ? 'fa-check' : 'fa-times'}"></i>
+            ${f.text}
+          </li>
+        `).join('');
+
+        let buttonHtml;
+        if (isCurrent) {
+          buttonHtml = '<button class="btn btn-current"><i class="fas fa-check"></i> Current Plan</button>';
+        } else if (plan.plan_code === 'free') {
+          buttonHtml = '<button class="btn btn-secondary" onclick="selectPlan(\'free\')">Downgrade to Free</button>';
+        } else {
+          buttonHtml = `<button class="btn btn-primary" onclick="selectPlan('${plan.plan_code}')"><i class="fas fa-rocket"></i> ${currentPlanCode === 'free' ? 'Upgrade' : 'Switch'} to ${plan.name}</button>`;
+        }
+
+        return `
+          <div class="plan-card ${isFeatured ? 'featured' : ''} ${isCurrent ? 'current' : ''}">
+            <div class="plan-name">${plan.name}</div>
+            <div class="plan-tagline">${plan.description || 'Great for music production'}</div>
+            <div class="plan-price">
+              <span class="currency">PLN </span>
+              <span class="amount">${price}</span>
+              <span class="period">/ ${billingCycle === 'yearly' ? 'year' : 'month'}</span>
+              ${billingCycle === 'yearly' && plan.plan_code !== 'free' ? `<div class="yearly-note">~${monthlyFromYearly} PLN/month</div>` : ''}
+            </div>
+            <ul class="plan-features">${featuresList}</ul>
+            ${buttonHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function setBillingCycle(cycle) {
+      billingCycle = cycle;
+      document.getElementById('toggle-monthly').classList.toggle('active', cycle === 'monthly');
+      document.getElementById('toggle-yearly').classList.toggle('active', cycle === 'yearly');
+      renderPlans();
+    }
+
+    function selectPlan(planCode) {
+      selectedPlan = planCode;
+      
+      if (planCode === 'free') {
+        // Downgrade to free - confirm and process
+        if (confirm('Are you sure you want to downgrade to the Free plan? Your premium features will be removed at the end of your billing period.')) {
+          downgradeToPlan('free');
+        }
+        return;
+      }
+
+      // Show payment methods
+      document.getElementById('payment-section').style.display = 'block';
+      document.getElementById('payment-section').scrollIntoView({ behavior: 'smooth' });
+      
+      // Pre-select PayU
+      selectPaymentMethod('payu');
+    }
+
+    function selectPaymentMethod(method) {
+      selectedPaymentMethod = method;
+      
+      // Update UI
+      document.querySelectorAll('.payment-method').forEach(el => {
+        el.classList.toggle('selected', el.dataset.method === method);
+      });
+      
+      // Enable checkout button
+      document.getElementById('btn-checkout').disabled = false;
+    }
+
+    async function proceedToCheckout() {
+      if (!selectedPlan || !selectedPaymentMethod) {
+        showAlert('error', 'Please select a plan and payment method');
+        return;
+      }
+
+      const btn = document.getElementById('btn-checkout');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+      try {
+        if (selectedPaymentMethod === 'payu') {
+          await checkoutWithPayU();
+        } else {
+          await checkoutWithProvider(selectedPaymentMethod);
+        }
+      } catch (error) {
+        showAlert('error', error.message || 'Checkout failed. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-lock"></i> Proceed to Checkout';
+      }
+    }
+
+    async function checkoutWithPayU() {
+      const plan = plans.find(p => p.plan_code === selectedPlan);
+      if (!plan) throw new Error('Plan not found');
+
+      const price = billingCycle === 'yearly' ? plan.price_yearly : plan.price_monthly;
+
+      const response = await fetch('/api/payments/payu/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          planCode: selectedPlan,
+          billingCycle: billingCycle,
+          amount: price / 100, // Convert from cents to PLN
+          description: `HAOS.fm ${plan.name} - ${billingCycle === 'yearly' ? 'Yearly' : 'Monthly'} Subscription`
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.redirectUri) {
+        // Redirect to PayU payment page
+        window.location.href = data.redirectUri;
+      } else {
+        throw new Error(data.error || 'Failed to create payment');
+      }
+    }
+
+    async function checkoutWithProvider(provider) {
+      const response = await fetch('/api/subscriptions/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          planCode: selectedPlan,
+          billingCycle: billingCycle,
+          provider: provider
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        if (data.url) {
+          window.location.href = data.url;
+        } else if (data.approvalUrl) {
+          window.location.href = data.approvalUrl;
+        } else {
+          showAlert('success', 'Subscription created!');
+          setTimeout(() => window.location.reload(), 1500);
+        }
+      } else {
+        throw new Error(data.error || 'Subscription failed');
+      }
+    }
+
+    async function downgradeToPlan(planCode) {
+      try {
+        const response = await fetch('/api/subscriptions/cancel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ immediate: false })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('success', 'Your subscription will be cancelled at the end of the billing period.');
+          setTimeout(() => window.location.reload(), 2000);
+        } else {
+          showAlert('error', data.error || 'Failed to cancel subscription');
+        }
+      } catch (error) {
+        showAlert('error', 'Failed to process request');
+      }
+    }
+
+    function showAlert(type, message) {
+      const alert = document.getElementById('alert');
+      alert.className = `alert ${type} show`;
+      alert.textContent = message;
+      
+      setTimeout(() => {
+        alert.classList.remove('show');
+      }, 5000);
+    }
+
+    // Check URL params for success/error messages
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      showAlert('success', 'Payment successful! Your subscription has been activated.');
+    }
+    if (urlParams.get('cancelled') === 'true') {
+      showAlert('error', 'Payment was cancelled.');
+    }
+  </script>
+
+  <!-- Footer with legal links -->
+  <footer style="background: rgba(0,0,0,0.5); border-top: 1px solid rgba(255,107,53,0.2); padding: 2rem; margin-top: 4rem;">
+    <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
+      <div style="margin-bottom: 1rem;">
+        <strong style="color: #F4E8D8;">HubIT Essentials</strong> | Hubert Kozuchowski | NIP: 5272999629 | REGON: 521842431<br>
+        ul. Młynarska 25 lok. 22, 01-175 Warszawa | +48 508 180 507
+      </div>
+      <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; font-size: 0.9rem;">
+        <a href="/terms.html" style="color: #D4AF37; text-decoration: none;">Regulamin</a>
+        <a href="/privacy.html" style="color: #D4AF37; text-decoration: none;">Polityka Prywatności</a>
+        <a href="mailto:support@haos.fm" style="color: #D4AF37; text-decoration: none;">Kontakt: support@haos.fm</a>
+        <a href="tel:+48123456789" style="color: #D4AF37; text-decoration: none;">Tel: +48 123 456 789</a>
+      </div>
+      <div style="margin-top: 1rem; font-size: 0.85rem; color: #999;">
+        © 2025 HAOS.fm - All rights reserved
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

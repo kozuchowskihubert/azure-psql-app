@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Behringer 2600 - 3D Interactive - HAOS.fm</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+      overflow: hidden;
+      color: #fff;
+    }
+
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* HUD Overlay */
+    .hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 2rem;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .hud-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .logo-section {
+      pointer-events: all;
+    }
+
+    .synth-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, #00d4ff, #0096ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+      margin-bottom: 0.5rem;
+    }
+
+    .synth-model {
+      font-size: 1.2rem;
+      color: #aaa;
+      letter-spacing: 2px;
+    }
+
+    .info-panel {
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 2px solid rgba(0, 212, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+      min-width: 300px;
+      pointer-events: all;
+    }
+
+    .info-title {
+      font-size: 1rem;
+      color: #00d4ff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #00d4ff;
+      padding-bottom: 0.5rem;
+    }
+
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.75rem 0;
+      font-size: 0.9rem;
+    }
+
+    .info-label {
+      color: #888;
+    }
+
+    .info-value {
+      color: #00d4ff;
+      font-weight: 700;
+    }
+
+    /* Control Panel */
+    .control-panel {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 10, 10, 0.9);
+      backdrop-filter: blur(20px);
+      padding: 2rem 3rem;
+      border-radius: 20px;
+      border: 2px solid rgba(0, 212, 255, 0.4);
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.9);
+      pointer-events: all;
+      z-index: 10;
+    }
+
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .control-label {
+      font-size: 0.75rem;
+      color: #00d4ff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .knob {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #3a3a3a, #1a1a1a);
+      border: 3px solid #333;
+      box-shadow: 
+        0 6px 12px rgba(0,0,0,0.8),
+        inset 0 2px 4px rgba(255,255,255,0.1),
+        inset 0 -2px 4px rgba(0,0,0,0.5);
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.05s;
+      margin-bottom: 0.5rem;
+    }
+
+    .knob::before {
+      content: '';
+      position: absolute;
+      width: 5px;
+      height: 25px;
+      background: linear-gradient(to bottom, #00d4ff, #0096ff);
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 3px;
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+    }
+
+    .knob:hover {
+      transform: scale(1.05);
+      border-color: #00d4ff;
+    }
+
+    .knob:active {
+      transform: scale(0.98);
+    }
+
+    .knob-value {
+      font-size: 0.8rem;
+      color: #fff;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      position: absolute;
+      top: 50%;
+      right: 2rem;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      pointer-events: all;
+      z-index: 10;
+    }
+
+    .action-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid rgba(0, 212, 255, 0.4);
+      background: rgba(10, 10, 10, 0.8);
+      backdrop-filter: blur(10px);
+      color: #00d4ff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    .action-btn:hover {
+      background: rgba(0, 212, 255, 0.2);
+      border-color: #00d4ff;
+      transform: scale(1.1);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+    }
+
+    .action-btn:active {
+      transform: scale(0.95);
+    }
+
+    .action-btn.active {
+      background: linear-gradient(135deg, #00d4ff, #0096ff);
+      color: #000;
+      border-color: #00d4ff;
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
+    }
+
+    /* Instructions */
+    .instructions {
+      position: absolute;
+      bottom: 2rem;
+      right: 2rem;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 2px solid rgba(0, 212, 255, 0.3);
+      max-width: 300px;
+      pointer-events: all;
+      z-index: 10;
+    }
+
+    .instructions h3 {
+      color: #00d4ff;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .instructions ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .instructions li {
+      color: #aaa;
+      font-size: 0.85rem;
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .instructions li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: #00d4ff;
+    }
+
+    /* Loading Screen */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.5s;
+    }
+
+    .loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader {
+      width: 80px;
+      height: 80px;
+      border: 4px solid rgba(0, 212, 255, 0.1);
+      border-top: 4px solid #00d4ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 2rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: #00d4ff;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .control-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+      
+      .control-panel {
+        padding: 1.5rem;
+        bottom: 1rem;
+      }
+      
+      .instructions {
+        display: none;
+      }
+      
+      .info-panel {
+        min-width: auto;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loading-screen">
+    <div class="loader"></div>
+    <div class="loading-text">Initializing Behringer 2600</div>
+  </div>
+
+  <!-- 3D Canvas -->
+  <div id="canvas-container"></div>
+
+  <!-- HUD -->
+  <div class="hud">
+    <div class="hud-top">
+      <div class="logo-section">
+        <div class="synth-logo">BEHRINGER</div>
+        <div class="synth-model">2600 GRAY MEANIE</div>
+      </div>
+
+      <div class="info-panel">
+        <div class="info-title">System Status</div>
+        <div class="info-item">
+          <span class="info-label">Status:</span>
+          <span class="info-value" id="status">Ready</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Oscillators:</span>
+          <span class="info-value" id="osc-count">3 Active</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Filter Type:</span>
+          <span class="info-value">24dB Ladder</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Polyphony:</span>
+          <span class="info-value">Monophonic</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Camera:</span>
+          <span class="info-value" id="camera-mode">Orbit</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons">
+    <button class="action-btn active" id="power-btn" title="Power On/Off">⚡</button>
+    <button class="action-btn" id="rotate-btn" title="Auto Rotate">🔄</button>
+    <button class="action-btn" id="lights-btn" title="Toggle Lights">💡</button>
+    <button class="action-btn" id="reset-btn" title="Reset Camera">🎯</button>
+  </div>
+
+  <!-- Control Panel -->
+  <div class="control-panel">
+    <div class="control-grid">
+      <div class="control-group">
+        <div class="control-label">VCO 1 Freq</div>
+        <div class="knob" id="vco1-freq" data-value="440"></div>
+        <div class="knob-value" id="vco1-freq-val">440Hz</div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">VCF Cutoff</div>
+        <div class="knob" id="vcf-cutoff" data-value="2000"></div>
+        <div class="knob-value" id="vcf-cutoff-val">2.0kHz</div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">Resonance</div>
+        <div class="knob" id="resonance" data-value="30"></div>
+        <div class="knob-value" id="resonance-val">30%</div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">Master Vol</div>
+        <div class="knob" id="master-vol" data-value="70"></div>
+        <div class="knob-value" id="master-vol-val">70%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="instructions">
+    <h3>Controls</h3>
+    <ul>
+      <li>Left Click + Drag: Rotate</li>
+      <li>Right Click + Drag: Pan</li>
+      <li>Scroll: Zoom In/Out</li>
+      <li>Double Click: Reset View</li>
+      <li>Knobs: Click + Drag Up/Down</li>
+    </ul>
+  </div>
+
+  <script src="/js/synthesis-engine.js"></script>
+  <script>
+    // Three.js 3D Scene Setup
+    let scene, camera, renderer, controls;
+    let synthModel, knobMeshes = [];
+    let isAutoRotating = false;
+    let synthEngine;
+
+    function init() {
+      // Scene
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a0a0a);
+      scene.fog = new THREE.Fog(0x0a0a0a, 10, 50);
+
+      // Camera
+      camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      camera.position.set(0, 3, 8);
+      camera.lookAt(0, 0, 0);
+
+      // Renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.2;
+      document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+      // Orbit Controls
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 3;
+      controls.maxDistance = 15;
+      controls.maxPolarAngle = Math.PI / 2;
+      controls.target.set(0, 0, 0);
+
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+      scene.add(ambientLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      keyLight.position.set(5, 10, 5);
+      keyLight.castShadow = true;
+      keyLight.shadow.mapSize.width = 2048;
+      keyLight.shadow.mapSize.height = 2048;
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0x00d4ff, 0.3);
+      fillLight.position.set(-5, 5, -5);
+      scene.add(fillLight);
+
+      const rimLight = new THREE.DirectionalLight(0x0096ff, 0.5);
+      rimLight.position.set(0, 5, -10);
+      scene.add(rimLight);
+
+      // Point lights for dramatic effect
+      const pointLight1 = new THREE.PointLight(0x00d4ff, 1, 10);
+      pointLight1.position.set(-3, 2, 3);
+      scene.add(pointLight1);
+
+      const pointLight2 = new THREE.PointLight(0x0096ff, 1, 10);
+      pointLight2.position.set(3, 2, 3);
+      scene.add(pointLight2);
+
+      // Create Behringer 2600 Model
+      createSynthModel();
+
+      // Create ground plane
+      const groundGeometry = new THREE.PlaneGeometry(30, 30);
+      const groundMaterial = new THREE.MeshStandardMaterial({
+        color: 0x0a0a0a,
+        roughness: 0.8,
+        metalness: 0.2
+      });
+      const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -0.5;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      // Grid helper
+      const gridHelper = new THREE.GridHelper(20, 40, 0x00d4ff, 0x1a1a2e);
+      gridHelper.position.y = -0.49;
+      gridHelper.material.opacity = 0.3;
+      gridHelper.material.transparent = true;
+      scene.add(gridHelper);
+
+      // Audio Engine
+      if (typeof SynthesisEngine !== 'undefined') {
+        synthEngine = new SynthesisEngine();
+        console.log('✅ Audio engine loaded');
+      }
+
+      // UI Setup
+      setupUI();
+      setupKnobControls();
+
+      // Start animation
+      animate();
+
+      // Hide loading screen
+      setTimeout(() => {
+        document.getElementById('loading-screen').classList.add('hidden');
+      }, 1500);
+
+      // Window resize
+      window.addEventListener('resize', onWindowResize);
+    }
+
+    function createSynthModel() {
+      synthModel = new THREE.Group();
+
+      // Main wooden chassis (realistic wood color)
+      const chassisGeometry = new THREE.BoxGeometry(8, 0.4, 4.5);
+      const chassisMaterial = new THREE.MeshStandardMaterial({
+        color: 0x3d2817,
+        roughness: 0.8,
+        metalness: 0.1
+      });
+      const chassis = new THREE.Mesh(chassisGeometry, chassisMaterial);
+      chassis.castShadow = true;
+      chassis.receiveShadow = true;
+      synthModel.add(chassis);
+
+      // Control panel (angled gray/silver like the real 2600)
+      const panelGeometry = new THREE.BoxGeometry(7.8, 0.08, 4.2);
+      const panelMaterial = new THREE.MeshStandardMaterial({
+        color: 0xa8a8a8, // Gray/silver color
+        roughness: 0.3,
+        metalness: 0.6
+      });
+      const panel = new THREE.Mesh(panelGeometry, panelMaterial);
+      panel.position.set(0, 0.24, -0.15);
+      panel.rotation.x = -0.15;
+      panel.castShadow = true;
+      synthModel.add(panel);
+
+      // Side panels (wood)
+      const sideMaterial = new THREE.MeshStandardMaterial({
+        color: 0x3d2817,
+        roughness: 0.7,
+        metalness: 0.1
+      });
+
+      const sideLeft = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.6, 4.5), sideMaterial);
+      sideLeft.position.set(-4, 0.1, 0);
+      sideLeft.castShadow = true;
+      synthModel.add(sideLeft);
+
+      const sideRight = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.6, 4.5), sideMaterial);
+      sideRight.position.set(4, 0.1, 0);
+      sideRight.castShadow = true;
+      synthModel.add(sideRight);
+
+      // Front panel (wood)
+      const frontPanel = new THREE.Mesh(new THREE.BoxGeometry(7.8, 0.6, 0.3), sideMaterial);
+      frontPanel.position.set(0, 0.1, 2.25);
+      frontPanel.castShadow = true;
+      synthModel.add(frontPanel);
+
+      // Create realistic knob layout (matching real 2600)
+      const knobRows = [
+        // Top row (VCO section)
+        { row: -1.5, positions: [-3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5] },
+        // Middle row (VCF section)
+        { row: -0.5, positions: [-3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5] },
+        // Bottom row (VCA/Envelope section)
+        { row: 0.5, positions: [-3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5] }
+      ];
+
+      knobRows.forEach(rowData => {
+        rowData.positions.forEach(xPos => {
+          const knob = createKnob3D();
+          knob.position.set(xPos, 0.45, rowData.row);
+          synthModel.add(knob);
+          knobMeshes.push(knob);
+        });
+      });
+
+      // Create patch bay (matrix of patch points)
+      const patchBayGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.1, 8);
+      const patchMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        roughness: 0.3,
+        metalness: 0.9
+      });
+
+      // Create patch point grid
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 20; col++) {
+          const patchPoint = new THREE.Mesh(patchBayGeometry, patchMaterial);
+          patchPoint.position.set(-3.5 + col * 0.35, 0.28, 1.2 + row * 0.15);
+          patchPoint.rotation.x = Math.PI / 2 + 0.15;
+          synthModel.add(patchPoint);
+        }
+      }
+
+      // Logo plate (Behringer branding)
+      const logoGeometry = new THREE.PlaneGeometry(3, 0.5);
+      const logoMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0x4a90e2,
+        emissiveIntensity: 0.2,
+        roughness: 0.2,
+        metalness: 0.8
+      });
+      const logo = new THREE.Mesh(logoGeometry, logoMaterial);
+      logo.position.set(0, 0.241, -1.8);
+      logo.rotation.x = -Math.PI / 2 - 0.15;
+      synthModel.add(logo);
+
+      // Add realistic patch cables with curves
+      const cableColors = [
+        0xff0000, // Red
+        0x0000ff, // Blue
+        0xffff00, // Yellow
+        0x000000, // Black
+        0xffffff, // White
+        0xff6600, // Orange
+        0x00ff00, // Green
+        0xff00ff, // Magenta
+        0x00ffff, // Cyan
+        0x8b4513  // Brown
+      ];
+
+      for (let i = 0; i < 10; i++) {
+        // Create curved cable using CatmullRomCurve3
+        const startX = -3 + Math.random() * 6;
+        const startZ = 1.2 + Math.random() * 0.8;
+        const endX = -3 + Math.random() * 6;
+        const endZ = 1.2 + Math.random() * 0.8;
+        const midY = 0.5 + Math.random() * 0.3;
+
+        const curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(startX, 0.3, startZ),
+          new THREE.Vector3((startX + endX) / 2, midY, (startZ + endZ) / 2),
+          new THREE.Vector3(endX, 0.3, endZ)
+        ]);
+
+        const cableGeometry = new THREE.TubeGeometry(curve, 20, 0.02, 8, false);
+        const cableMaterial = new THREE.MeshStandardMaterial({
+          color: cableColors[i],
+          roughness: 0.4,
+          metalness: 0.3
+        });
+        const cable = new THREE.Mesh(cableGeometry, cableMaterial);
+        cable.castShadow = true;
+        synthModel.add(cable);
+
+        // Add cable jack ends
+        const jackGeometry = new THREE.CylinderGeometry(0.03, 0.04, 0.1, 8);
+        const jackMaterial = new THREE.MeshStandardMaterial({
+          color: 0x333333,
+          roughness: 0.3,
+          metalness: 0.9
+        });
+        
+        const jack1 = new THREE.Mesh(jackGeometry, jackMaterial);
+        jack1.position.set(startX, 0.35, startZ);
+        jack1.rotation.x = Math.PI / 2;
+        synthModel.add(jack1);
+
+        const jack2 = new THREE.Mesh(jackGeometry, jackMaterial);
+        jack2.position.set(endX, 0.35, endZ);
+        jack2.rotation.x = Math.PI / 2;
+        synthModel.add(jack2);
+      }
+
+      // Add section dividers (black lines)
+      const dividerMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        roughness: 0.5,
+        metalness: 0.7
+      });
+
+      for (let i = -2; i <= 2; i += 2) {
+        const divider = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 4), dividerMaterial);
+        divider.position.set(i, 0.245, -0.15);
+        divider.rotation.x = -0.15;
+        synthModel.add(divider);
+      }
+
+      scene.add(synthModel);
+    }
+
+    function createKnob3D() {
+      const knobGroup = new THREE.Group();
+
+      // Knob base (black like real 2600 knobs)
+      const baseGeometry = new THREE.CylinderGeometry(0.12, 0.1, 0.12, 32);
+      const baseMaterial = new THREE.MeshStandardMaterial({
+        color: 0x0a0a0a,
+        roughness: 0.4,
+        metalness: 0.6
+      });
+      const base = new THREE.Mesh(baseGeometry, baseMaterial);
+      base.castShadow = true;
+      knobGroup.add(base);
+
+      // Knob top (slightly lighter)
+      const topGeometry = new THREE.CylinderGeometry(0.11, 0.11, 0.02, 32);
+      const topMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        roughness: 0.3,
+        metalness: 0.7
+      });
+      const top = new THREE.Mesh(topGeometry, topMaterial);
+      top.position.y = 0.07;
+      knobGroup.add(top);
+
+      // Knob indicator (white line like real 2600)
+      const indicatorGeometry = new THREE.BoxGeometry(0.02, 0.08, 0.02);
+      const indicatorMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0xffffff,
+        emissiveIntensity: 0.3
+      });
+      const indicator = new THREE.Mesh(indicatorGeometry, indicatorMaterial);
+      indicator.position.y = 0.04;
+      indicator.position.z = 0.09;
+      knobGroup.add(indicator);
+
+      return knobGroup;
+    }
+
+    function setupUI() {
+      // Power button
+      document.getElementById('power-btn').addEventListener('click', function() {
+        this.classList.toggle('active');
+        const isOn = this.classList.contains('active');
+        document.getElementById('status').textContent = isOn ? 'Active' : 'Standby';
+        
+        if (isOn && synthEngine) {
+          synthEngine.initialize();
+        }
+      });
+
+      // Auto rotate
+      document.getElementById('rotate-btn').addEventListener('click', function() {
+        isAutoRotating = !isAutoRotating;
+        this.classList.toggle('active');
+        controls.autoRotate = isAutoRotating;
+        controls.autoRotateSpeed = 2.0;
+      });
+
+      // Lights toggle
+      document.getElementById('lights-btn').addEventListener('click', function() {
+        this.classList.toggle('active');
+        const isLit = this.classList.contains('active');
+        
+        scene.children.forEach(child => {
+          if (child instanceof THREE.PointLight) {
+            child.intensity = isLit ? 2 : 1;
+          }
+        });
+      });
+
+      // Reset camera
+      document.getElementById('reset-btn').addEventListener('click', function() {
+        camera.position.set(0, 3, 8);
+        controls.target.set(0, 0, 0);
+        controls.update();
+      });
+
+      // Double click to reset
+      renderer.domElement.addEventListener('dblclick', function() {
+        camera.position.set(0, 3, 8);
+        controls.target.set(0, 0, 0);
+        controls.update();
+      });
+    }
+
+    function setupKnobControls() {
+      const knobs = document.querySelectorAll('.knob');
+      
+      knobs.forEach((knob, index) => {
+        let isDragging = false;
+        let startY = 0;
+        let startValue = parseFloat(knob.dataset.value);
+        
+        knob.addEventListener('mousedown', (e) => {
+          isDragging = true;
+          startY = e.clientY;
+          startValue = parseFloat(knob.dataset.value);
+          knob.style.cursor = 'grabbing';
+          
+          // Animate 3D knob
+          if (knobMeshes[index]) {
+            knobMeshes[index].scale.set(1.1, 1.1, 1.1);
+          }
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+          if (!isDragging) return;
+          
+          const delta = startY - e.clientY;
+          let newValue;
+          
+          if (knob.id === 'vco1-freq') {
+            newValue = Math.max(20, Math.min(2000, startValue + delta * 2));
+            knob.dataset.value = newValue;
+            document.getElementById('vco1-freq-val').textContent = newValue >= 1000 ? 
+              (newValue/1000).toFixed(1) + 'kHz' : Math.round(newValue) + 'Hz';
+          } else if (knob.id === 'vcf-cutoff') {
+            newValue = Math.max(20, Math.min(20000, startValue + delta * 20));
+            knob.dataset.value = newValue;
+            document.getElementById('vcf-cutoff-val').textContent = newValue >= 1000 ? 
+              (newValue/1000).toFixed(1) + 'kHz' : Math.round(newValue) + 'Hz';
+          } else {
+            newValue = Math.max(0, Math.min(100, startValue + delta * 0.5));
+            knob.dataset.value = newValue;
+            const valId = knob.id + '-val';
+            if (document.getElementById(valId)) {
+              document.getElementById(valId).textContent = Math.round(newValue) + '%';
+            }
+          }
+          
+          // Rotate 3D knob
+          const rotation = (newValue / 100) * Math.PI * 2;
+          knob.style.transform = `rotate(${rotation}rad)`;
+          
+          if (knobMeshes[index]) {
+            knobMeshes[index].rotation.y = rotation;
+          }
+        });
+        
+        document.addEventListener('mouseup', () => {
+          if (isDragging) {
+            isDragging = false;
+            knob.style.cursor = 'pointer';
+            
+            if (knobMeshes[index]) {
+              knobMeshes[index].scale.set(1, 1, 1);
+            }
+          }
+        });
+      });
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Update controls
+      controls.update();
+
+      // Animate knobs slightly
+      knobMeshes.forEach((knob, i) => {
+        knob.rotation.y += Math.sin(Date.now() * 0.001 + i) * 0.0005;
+      });
+
+      // Render
+      renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // Initialize when page loads
+    window.addEventListener('load', init);
+  </script>
+
+</body>
+</html>

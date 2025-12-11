@@ -2,11 +2,13 @@
  * Email Service
  * SMTP email service for HAOS.fm platform
  * Handles verification emails, password resets, and notifications
+ * Now supports customizable JSON templates via email-template-service
  */
 
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
+const emailTemplateService = require('./email-template-service');
 
 class EmailService {
   constructor() {
@@ -16,6 +18,7 @@ class EmailService {
     this.fromName = process.env.SMTP_FROM_NAME || 'HAOS.fm';
     this.replyTo = process.env.EMAIL_REPLY_TO || 'admin@haos.fm';
     this.logoBase64 = null; // Cache for base64 logo
+    this.templateService = emailTemplateService;
   }
 
   /**
@@ -106,6 +109,44 @@ class EmailService {
       console.error('Email send error:', error);
       return { success: false, error: error.message };
     }
+  }
+
+  /**
+   * Send email using customizable template
+   * @param {string} templateName - Name of template from email-templates.json
+   * @param {string} to - Recipient email address
+   * @param {Object} variables - Template variables to replace
+   * @param {string} language - Language code (default: 'en')
+   */
+  async sendTemplatedEmail(templateName, to, variables = {}, language = 'en') {
+    try {
+      const { subject, html, text } = this.templateService.buildEmail(templateName, variables, language);
+      return await this.sendEmail({ to, subject, html, text });
+    } catch (error) {
+      console.error(`Failed to send templated email '${templateName}':`, error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Get available templates
+   */
+  getAvailableTemplates() {
+    return this.templateService.listTemplates();
+  }
+
+  /**
+   * Get supported languages
+   */
+  getSupportedLanguages() {
+    return this.templateService.listLanguages();
+  }
+
+  /**
+   * Reload templates from JSON (hot-reload)
+   */
+  reloadTemplates() {
+    return this.templateService.reloadTemplates();
   }
 
   /**
@@ -418,6 +459,141 @@ class EmailService {
     return this.sendEmail({
       to: email,
       subject: `⚡ Your ${planName} subscription is active!`,
+      html,
+    });
+  }
+
+  /**
+   * Send subscription expiry reminder email (3 days before)
+   */
+  async sendSubscriptionExpiryReminder(email, name, planName, expiryDate, renewUrl) {
+    const accountUrl = `${process.env.APP_URL || 'http://localhost:3000'}/account`;
+    const formattedDate = new Date(expiryDate).toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+    const daysLeft = Math.ceil((new Date(expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+    
+    const html = this.createEmailTemplate({
+      title: '⏰ Subscription Expiring Soon',
+      heading: `⏰ Your ${planName} expires in ${daysLeft} days`,
+      content: `
+        <p style="margin: 0 0 20px;">Hey <strong>${name || 'Creator'}</strong>,</p>
+        
+        <p style="margin: 0 0 24px;">Your <strong style="color: #FF6B35;">${planName}</strong> subscription will expire on <strong>${formattedDate}</strong>.</p>
+        
+        <div style="background: rgba(255, 107, 53, 0.1); border: 1px solid #FF6B35; border-radius: 12px; padding: 20px; margin: 24px 0;">
+          <p style="color: #F4E8D8; margin: 0; font-size: 14px;">
+            <strong>🎵 Don't lose access to:</strong>
+          </p>
+          <ul style="color: #F4E8D8; margin: 12px 0 0; padding-left: 20px; font-size: 14px;">
+            <li style="margin: 8px 0;">Unlimited cloud storage for your tracks</li>
+            <li style="margin: 8px 0;">Advanced effects & synthesis tools</li>
+            <li style="margin: 8px 0;">Priority support</li>
+            <li style="margin: 8px 0;">Early access to new features</li>
+          </ul>
+        </div>
+        
+        <p style="margin: 24px 0 0; font-size: 14px; color: #888;">
+          Renew now to continue enjoying premium features without interruption.
+        </p>
+      `,
+      ctaText: '🔄 Renew Subscription',
+      ctaUrl: renewUrl || accountUrl,
+      footerNote: 'Manage your subscription in your <a href="' + accountUrl + '" style="color: #FF6B35;">account dashboard</a>.'
+    });
+
+    return this.sendEmail({
+      to: email,
+      subject: `⏰ Your ${planName} subscription expires in ${daysLeft} days`,
+      html,
+    });
+  }
+
+  /**
+   * Send subscription expired notification
+   */
+  async sendSubscriptionExpired(email, name, planName, renewUrl) {
+    const accountUrl = `${process.env.APP_URL || 'http://localhost:3000'}/account`;
+    
+    const html = this.createEmailTemplate({
+      title: '📭 Subscription Expired',
+      heading: `📭 Your ${planName} has expired`,
+      content: `
+        <p style="margin: 0 0 20px;">Hey <strong>${name || 'Creator'}</strong>,</p>
+        
+        <p style="margin: 0 0 24px;">Your <strong style="color: #888;">${planName}</strong> subscription has expired. You've been switched back to the free plan.</p>
+        
+        <div style="background: rgba(136, 136, 136, 0.1); border: 1px solid #444; border-radius: 12px; padding: 20px; margin: 24px 0;">
+          <p style="color: #F4E8D8; margin: 0; font-size: 14px;">
+            <strong>📉 You've lost access to:</strong>
+          </p>
+          <ul style="color: #888; margin: 12px 0 0; padding-left: 20px; font-size: 14px;">
+            <li style="margin: 8px 0;">Unlimited cloud storage (now limited to 100MB)</li>
+            <li style="margin: 8px 0;">Advanced effects & synthesis tools</li>
+            <li style="margin: 8px 0;">Priority support</li>
+            <li style="margin: 8px 0;">Early access to new features</li>
+          </ul>
+        </div>
+        
+        <div style="background: rgba(57, 255, 20, 0.05); border-left: 3px solid #39FF14; padding: 16px; border-radius: 8px; margin: 24px 0;">
+          <p style="color: #F4E8D8; margin: 0; font-size: 14px;">
+            <strong>✨ Your projects are safe!</strong><br/>
+            All your tracks and projects are still saved. Resubscribe anytime to regain full access.
+          </p>
+        </div>
+        
+        <p style="margin: 24px 0 0; font-size: 14px; color: #888;">
+          Miss the premium features? Renew now and pick up where you left off.
+        </p>
+      `,
+      ctaText: '🚀 Reactivate Premium',
+      ctaUrl: renewUrl || accountUrl,
+      footerNote: 'Questions? Email <a href="mailto:admin@haos.fm" style="color: #FF6B35;">admin@haos.fm</a>.'
+    });
+
+    return this.sendEmail({
+      to: email,
+      subject: `📭 Your ${planName} subscription has expired`,
+      html,
+    });
+  }
+
+  /**
+   * Send payment failed notification
+   */
+  async sendPaymentFailed(email, name, planName, reason, retryUrl) {
+    const accountUrl = `${process.env.APP_URL || 'http://localhost:3000'}/account`;
+    
+    const html = this.createEmailTemplate({
+      title: '❌ Payment Failed',
+      heading: `❌ Payment failed for ${planName}`,
+      content: `
+        <p style="margin: 0 0 20px;">Hey <strong>${name || 'Creator'}</strong>,</p>
+        
+        <p style="margin: 0 0 24px;">We couldn't process your payment for <strong style="color: #FF6B35;">${planName}</strong>.</p>
+        
+        ${reason ? `
+        <div style="background: rgba(255, 107, 53, 0.1); border: 1px solid #FF6B35; border-radius: 12px; padding: 20px; margin: 24px 0;">
+          <p style="color: #F4E8D8; margin: 0; font-size: 14px;">
+            <strong>Reason:</strong> ${reason}
+          </p>
+        </div>
+        ` : ''}
+        
+        <p style="margin: 0 0 24px; font-size: 14px; color: #888;">
+          Please update your payment method or try again to keep your subscription active.
+        </p>
+      `,
+      ctaText: '💳 Update Payment Method',
+      ctaUrl: retryUrl || accountUrl,
+      footerNote: 'Need help? Email <a href="mailto:admin@haos.fm" style="color: #FF6B35;">admin@haos.fm</a>.'
+    });
+
+    return this.sendEmail({
+      to: email,
+      subject: `❌ Payment failed for your ${planName} subscription`,
       html,
     });
   }

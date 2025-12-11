@@ -712,14 +712,102 @@ router.get('/providers', (req, res) => {
     providers: {
       stripe: PaymentService.isProviderAvailable('stripe'),
       paypal: PaymentService.isProviderAvailable('paypal'),
-      blik: PaymentService.isProviderAvailable('blik')
+      blik: PaymentService.isProviderAvailable('blik'),
+      payu: PaymentService.isProviderAvailable('payu')
     },
     sandbox: {
       stripe: !PaymentService.isProviderAvailable('stripe'),
       paypal: !PaymentService.isProviderAvailable('paypal'),
-      blik: !PaymentService.isProviderAvailable('blik')
+      blik: !PaymentService.isProviderAvailable('blik'),
+      payu: !PaymentService.isProviderAvailable('payu')
     }
   });
+});
+
+// ============================================================================
+// PAYU PAYMENT ROUTES
+// ============================================================================
+
+/**
+ * POST /api/payments/payu/create-order
+ * Create PayU payment order
+ */
+router.post('/payu/create-order', requireAuth, async (req, res) => {
+  try {
+    const { planCode, billingCycle, amount, description, payMethod, blikCode } = req.body;
+
+    if (!planCode || !amount) {
+      return res.status(400).json({ error: 'Missing required fields: planCode, amount' });
+    }
+
+    const orderData = {
+      userId: req.user.id,
+      planCode,
+      amount: parseFloat(amount),
+      email: req.user.email,
+      firstName: req.user.firstName || req.user.username || 'HAOS',
+      lastName: req.user.lastName || 'User',
+      customerIp: req.ip || req.connection.remoteAddress || '127.0.0.1',
+      description: description || `HAOS.fm ${planCode} Subscription`,
+      payMethod
+    };
+
+    let order;
+    if (payMethod === 'blik' && blikCode) {
+      // Create BLIK payment with code
+      order = await PaymentService.createPayUBlikPayment(orderData, blikCode);
+    } else {
+      // Create regular payment order
+      order = await PaymentService.createPayUOrder(orderData);
+    }
+
+    res.json({
+      success: true,
+      orderId: order.orderId,
+      extOrderId: order.extOrderId,
+      redirectUri: order.redirectUri,
+      status: order.status,
+      amount: order.amount,
+      currency: order.currency
+    });
+  } catch (error) {
+    console.error('Error creating PayU order:', error);
+    res.status(500).json({ error: error.message || 'Failed to create PayU order' });
+  }
+});
+
+/**
+ * GET /api/payments/payu/methods
+ * Get available PayU payment methods
+ */
+router.get('/payu/methods', (req, res) => {
+  try {
+    const methods = PaymentService.getPayUMethods();
+    res.json({
+      success: true,
+      methods
+    });
+  } catch (error) {
+    console.error('Error getting PayU methods:', error);
+    res.status(500).json({ error: 'Failed to get payment methods' });
+  }
+});
+
+/**
+ * GET /api/payments/payu/order/:orderId
+ * Get PayU order status
+ */
+router.get('/payu/order/:orderId', requireAuth, async (req, res) => {
+  try {
+    const orderStatus = await PaymentService.getPayUOrderStatus(req.params.orderId);
+    res.json({
+      success: true,
+      order: orderStatus
+    });
+  } catch (error) {
+    console.error('Error getting PayU order status:', error);
+    res.status(500).json({ error: error.message || 'Failed to get order status' });
+  }
 });
 
 // ============================================================================
@@ -765,6 +853,28 @@ router.post('/webhooks/przelewy24', async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error('Przelewy24 webhook error:', error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/payments/webhooks/payu
+ * PayU webhook handler
+ */
+router.post('/webhooks/payu', express.json(), async (req, res) => {
+  try {
+    const signature = req.headers['openpayu-signature'];
+    
+    if (!signature) {
+      return res.status(400).json({ error: 'Missing signature header' });
+    }
+
+    const result = await PaymentService.processPayUWebhook(req.body, signature);
+    
+    // PayU expects 200 OK response
+    res.status(200).send('OK');
+  } catch (error) {
+    console.error('PayU webhook error:', error);
     res.status(400).json({ error: error.message });
   }
 });

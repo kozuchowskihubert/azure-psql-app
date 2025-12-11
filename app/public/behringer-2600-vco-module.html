@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Behringer 2600-VCO Eurorack Module - HAOS.fm</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+      overflow: hidden;
+      color: #fff;
+    }
+
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .hud {
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, #00d4ff, #0096ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #aaa;
+      letter-spacing: 2px;
+    }
+
+    .specs-panel {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 2px solid rgba(0, 212, 255, 0.3);
+      min-width: 320px;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+      pointer-events: all;
+      z-index: 10;
+    }
+
+    .spec-title {
+      color: #00d4ff;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #00d4ff;
+      padding-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .spec-section {
+      margin: 1.5rem 0;
+    }
+
+    .spec-section-title {
+      color: #0096ff;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .spec-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.5rem 0;
+      font-size: 0.85rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .spec-label {
+      color: #888;
+      flex: 1;
+    }
+
+    .spec-value {
+      color: #00d4ff;
+      font-weight: 600;
+      text-align: right;
+      flex: 1;
+    }
+
+    .controls {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 1rem;
+      pointer-events: all;
+      z-index: 10;
+    }
+
+    .control-btn {
+      padding: 1rem 2rem;
+      background: rgba(10, 10, 10, 0.9);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(0, 212, 255, 0.4);
+      border-radius: 12px;
+      color: #00d4ff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .control-btn:hover {
+      background: rgba(0, 212, 255, 0.2);
+      border-color: #00d4ff;
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+    }
+
+    .control-btn.active {
+      background: linear-gradient(135deg, #00d4ff, #0096ff);
+      color: #000;
+      border-color: #00d4ff;
+    }
+
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.5s;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader {
+      width: 80px;
+      height: 80px;
+      border: 4px solid rgba(0, 212, 255, 0.1);
+      border-top: 4px solid #00d4ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 2rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: #00d4ff;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="loading" id="loading">
+    <div class="loader"></div>
+    <div class="loading-text">Loading 2600-VCO Module</div>
+  </div>
+
+  <div id="canvas-container"></div>
+
+  <div class="hud">
+    <div class="logo">BEHRINGER 2600-VCO</div>
+    <div class="subtitle">16 HP Eurorack Module</div>
+  </div>
+
+  <div class="specs-panel">
+    <div class="spec-title">Technical Specifications</div>
+    
+    <div class="spec-section">
+      <div class="spec-section-title">Physical</div>
+      <div class="spec-item">
+        <span class="spec-label">Dimensions:</span>
+        <span class="spec-value">129×81×42 mm</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-label">Rack Units:</span>
+        <span class="spec-value">16 HP</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-label">Weight:</span>
+        <span class="spec-value">0.15 kg (0.33 lbs)</span>
+      </div>
+    </div>
+
+    <div class="spec-section">
+      <div class="spec-section-title">Inputs (3.5mm TS)</div>
+      <div class="spec-item">
+        <span class="spec-label">Keyboard CV:</span>
+        <span class="spec-value">1 jack, 100kΩ</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-label">FM1/2/3 CV:</span>
+        <span class="spec-value">3 jacks, 50kΩ</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-label">PWM CV:</span>
+        <span class="spec-value">1 jack, 75kΩ</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-label">CV Range:</span>
+        <span class="spec-value">10V, 1V/oct</span>
+      </div>
+    </div>
+
+    <div class="spec-section">
+      <div class="spec-section-title">Outputs (3.5mm TS)</div>
+      <div class="spec-item">
+        <span class="spec-label">TRI:</span>
+        <span class="spec-value">±5V, 1kΩ</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-label">SINE:</span>
+        <span class="spec-value">±5V, 1kΩ</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-label">SAW:</span>
+        <span class="spec-value">0V/+10V, 1kΩ</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-label">PULSE:</span>
+        <span class="spec-value">0V/+10V, 1kΩ</span>
+      </div>
+    </div>
+
+    <div class="spec-section">
+      <div class="spec-section-title">Controls</div>
+      <div class="spec-item">
+        <span class="spec-label">Frequency:</span>
+        <span class="spec-value">10 oct. range</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-label">Fine Tune:</span>
+        <span class="spec-value">±0.4 oct.</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-label">Audio/LF:</span>
+        <span class="spec-value">10Hz-10kHz / 0.03Hz-30Hz</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-label">Pulse Width:</span>
+        <span class="spec-value">10% to 90%</span>
+      </div>
+    </div>
+
+    <div class="spec-section">
+      <div class="spec-section-title">Power</div>
+      <div class="spec-item">
+        <span class="spec-label">+12V:</span>
+        <span class="spec-value">140 mA</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-label">-12V:</span>
+        <span class="spec-value">5 mA</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="control-btn active" id="power-btn">⚡ Power</button>
+    <button class="control-btn" id="rotate-btn">🔄 Auto Rotate</button>
+    <button class="control-btn" id="reset-btn">🎯 Reset View</button>
+  </div>
+
+  <script>
+    // Three.js Scene
+    let scene, camera, renderer, controls;
+    let moduleModel;
+    let isAutoRotating = false;
+
+    // EXACT BEHRINGER 2600-VCO SPECIFICATIONS
+    // Physical: 129mm H x 81mm W x 42mm D (5.08" x 3.19" x 1.65")
+    // 16 HP Eurorack module
+    const MODULE_HEIGHT = 129; // mm (Eurorack 3U = 128.5mm)
+    const MODULE_WIDTH = 81;   // mm (16 HP = 81.28mm, 1 HP = 5.08mm)
+    const MODULE_DEPTH = 42;   // mm
+    const SCALE = 0.03; // Scale for viewport (actual mm * 0.03)
+
+    function init() {
+      // Scene
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a0a0a);
+      scene.fog = new THREE.Fog(0x0a0a0a, 10, 40);
+
+      // Camera
+      camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      camera.position.set(0, 3, 6);
+      camera.lookAt(0, 0, 0);
+
+      // Renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.4;
+      document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+      // Orbit Controls
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 2;
+      controls.maxDistance = 12;
+      controls.maxPolarAngle = Math.PI / 2;
+      controls.target.set(0, 0, 0);
+
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+      keyLight.position.set(5, 8, 5);
+      keyLight.castShadow = true;
+      keyLight.shadow.mapSize.width = 2048;
+      keyLight.shadow.mapSize.height = 2048;
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0x00d4ff, 0.5);
+      fillLight.position.set(-5, 5, -5);
+      scene.add(fillLight);
+
+      const rimLight = new THREE.DirectionalLight(0x0096ff, 0.7);
+      rimLight.position.set(0, 5, -8);
+      scene.add(rimLight);
+
+      // Point lights
+      const pointLight1 = new THREE.PointLight(0x00d4ff, 2, 10);
+      pointLight1.position.set(-2, 2, 3);
+      scene.add(pointLight1);
+
+      const pointLight2 = new THREE.PointLight(0x0096ff, 2, 10);
+      pointLight2.position.set(2, 2, 3);
+      scene.add(pointLight2);
+
+      // Create module
+      create2600VCOModule();
+
+      // Ground
+      const groundGeometry = new THREE.PlaneGeometry(20, 20);
+      const groundMaterial = new THREE.MeshStandardMaterial({
+        color: 0x0a0a0a,
+        roughness: 0.9,
+        metalness: 0.1
+      });
+      const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -2;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      // Grid
+      const gridHelper = new THREE.GridHelper(15, 30, 0x00d4ff, 0x1a1a2e);
+      gridHelper.position.y = -1.99;
+      gridHelper.material.opacity = 0.3;
+      gridHelper.material.transparent = true;
+      scene.add(gridHelper);
+
+      // UI
+      setupUI();
+      animate();
+
+      // Hide loading
+      setTimeout(() => {
+        document.getElementById('loading').classList.add('hidden');
+      }, 1200);
+
+      window.addEventListener('resize', onWindowResize);
+    }
+
+    function create2600VCOModule() {
+      moduleModel = new THREE.Group();
+
+      const width = MODULE_WIDTH * SCALE;   // ~2.43 units
+      const height = MODULE_HEIGHT * SCALE; // ~3.87 units
+      const depth = MODULE_DEPTH * SCALE;   // ~1.26 units
+
+      // Main front panel (brushed aluminum, gray)
+      const panelGeometry = new THREE.BoxGeometry(width, height, 0.08);
+      const panelMaterial = new THREE.MeshStandardMaterial({
+        color: 0x505050, // Dark gray (Behringer Gray Meanie color)
+        roughness: 0.3,
+        metalness: 0.7,
+        envMapIntensity: 1.2
+      });
+      const panel = new THREE.Mesh(panelGeometry, panelMaterial);
+      panel.castShadow = true;
+      panel.receiveShadow = true;
+      moduleModel.add(panel);
+
+      // PCB inside (green circuit board)
+      const pcbGeometry = new THREE.BoxGeometry(width - 0.2, height - 0.3, depth - 0.15);
+      const pcbMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a5a1a,
+        roughness: 0.8,
+        metalness: 0.2
+      });
+      const pcb = new THREE.Mesh(pcbGeometry, pcbMaterial);
+      pcb.position.z = -depth / 2;
+      moduleModel.add(pcb);
+
+      // Mounting holes (4 corners)
+      const holeGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.1, 16);
+      const holeMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        roughness: 0.5,
+        metalness: 0.8
+      });
+
+      const holePositions = [
+        [-width / 2 + 0.15, height / 2 - 0.15],
+        [width / 2 - 0.15, height / 2 - 0.15],
+        [-width / 2 + 0.15, -height / 2 + 0.15],
+        [width / 2 - 0.15, -height / 2 + 0.15]
+      ];
+
+      holePositions.forEach(([x, y]) => {
+        const hole = new THREE.Mesh(holeGeometry, holeMaterial);
+        hole.position.set(x, y, 0);
+        hole.rotation.x = Math.PI / 2;
+        moduleModel.add(hole);
+      });
+
+      // Behringer logo at top
+      createLogo();
+
+      // Create accurate control layout
+      createControls();
+
+      // Create input/output jacks (3.5mm TS)
+      createJacks();
+
+      // LED indicators
+      createLEDs();
+
+      scene.add(moduleModel);
+    }
+
+    function createLogo() {
+      // Behringer logo bar (blue)
+      const logoGeometry = new THREE.PlaneGeometry(2, 0.2);
+      const logoMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1e5fa8,
+        emissive: 0x1e5fa8,
+        emissiveIntensity: 0.5,
+        roughness: 0.2,
+        metalness: 0.6
+      });
+      const logo = new THREE.Mesh(logoGeometry, logoMaterial);
+      logo.position.set(0, 1.7, 0.041);
+      moduleModel.add(logo);
+
+      // "2600-VCO" text
+      const textGeometry = new THREE.PlaneGeometry(1.5, 0.15);
+      const textMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0xcccccc,
+        emissiveIntensity: 0.4
+      });
+      const text = new THREE.Mesh(textGeometry, textMaterial);
+      text.position.set(0, 1.45, 0.041);
+      moduleModel.add(text);
+    }
+
+    function createControls() {
+      // Main frequency fader (vertical slider)
+      createFader(-0.6, 0.5, 0.9, 'FREQUENCY');
+
+      // Fine tune knob
+      createKnob(0.6, 1.1, 0.15, 'FINE');
+
+      // Audio/LF slide switch
+      createSwitch(0, 0.8, 'AUDIO/LF');
+
+      // FM 1/2/3 faders
+      createFader(-0.7, -0.3, 0.5, 'FM1');
+      createFader(-0.2, -0.3, 0.5, 'FM2');
+      createFader(0.3, -0.3, 0.5, 'FM3');
+
+      // Pulse width fader
+      createFader(0.8, -0.3, 0.5, 'PW');
+
+      // PWM fader
+      createFader(0.8, -1, 0.4, 'PWM');
+    }
+
+    function createFader(x, y, length, label) {
+      // Fader track (slot)
+      const trackGeometry = new THREE.BoxGeometry(0.08, length, 0.03);
+      const trackMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        roughness: 0.7,
+        metalness: 0.5
+      });
+      const track = new THREE.Mesh(trackGeometry, trackMaterial);
+      track.position.set(x, y, 0.041);
+      moduleModel.add(track);
+
+      // Fader cap (slider)
+      const capGeometry = new THREE.BoxGeometry(0.15, 0.12, 0.06);
+      const capMaterial = new THREE.MeshStandardMaterial({
+        color: 0x2a2a2a,
+        roughness: 0.4,
+        metalness: 0.7
+      });
+      const cap = new THREE.Mesh(capGeometry, capMaterial);
+      cap.position.set(x, y + (Math.random() - 0.5) * length * 0.7, 0.07);
+      cap.castShadow = true;
+      cap.userData = { type: 'fader', label };
+      moduleModel.add(cap);
+    }
+
+    function createKnob(x, y, size, label) {
+      const knobGroup = new THREE.Group();
+
+      // Knob base
+      const baseGeometry = new THREE.CylinderGeometry(size, size * 0.9, size * 1.3, 32);
+      const baseMaterial = new THREE.MeshStandardMaterial({
+        color: 0x0f0f0f,
+        roughness: 0.5,
+        metalness: 0.6
+      });
+      const base = new THREE.Mesh(baseGeometry, baseMaterial);
+      base.rotation.x = Math.PI / 2;
+      base.castShadow = true;
+      knobGroup.add(base);
+
+      // White indicator
+      const indicatorGeometry = new THREE.BoxGeometry(size * 0.1, size * 0.5, size * 0.1);
+      const indicatorMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0xcccccc,
+        emissiveIntensity: 0.3
+      });
+      const indicator = new THREE.Mesh(indicatorGeometry, indicatorMaterial);
+      indicator.position.z = size * 0.85;
+      knobGroup.add(indicator);
+
+      knobGroup.position.set(x, y, 0.08);
+      knobGroup.userData = { type: 'knob', label };
+      moduleModel.add(knobGroup);
+    }
+
+    function createSwitch(x, y, label) {
+      // Switch body
+      const bodyGeometry = new THREE.BoxGeometry(0.15, 0.25, 0.06);
+      const bodyMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        roughness: 0.6,
+        metalness: 0.4
+      });
+      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+      body.position.set(x, y, 0.07);
+      moduleModel.add(body);
+
+      // Switch lever
+      const leverGeometry = new THREE.BoxGeometry(0.08, 0.15, 0.04);
+      const leverMaterial = new THREE.MeshStandardMaterial({
+        color: 0x333333,
+        roughness: 0.4,
+        metalness: 0.6
+      });
+      const lever = new THREE.Mesh(leverGeometry, leverMaterial);
+      lever.position.set(x, y + 0.05, 0.1);
+      lever.castShadow = true;
+      lever.userData = { type: 'switch', label };
+      moduleModel.add(lever);
+    }
+
+    function createJacks() {
+      // Input jacks (top section)
+      const inputY = 1.2;
+      createJack(-0.6, inputY, 'KYBD CV', 0xff0000);
+      createJack(-0.2, inputY, 'FM1', 0x00ff00);
+      createJack(0.2, inputY, 'FM2', 0x00ff00);
+      createJack(0.6, inputY, 'FM3', 0x00ff00);
+      
+      // PWM CV
+      createJack(0.8, 0.3, 'PWM', 0xffff00);
+
+      // Output jacks (bottom section)
+      const outputY = -1.5;
+      createJack(-0.6, outputY, 'TRI', 0x0000ff);
+      createJack(-0.2, outputY, 'SINE', 0x00ffff);
+      createJack(0.2, outputY, 'SAW', 0xff6600);
+      createJack(0.6, outputY, 'PULSE', 0xff00ff);
+    }
+
+    function createJack(x, y, label, color) {
+      const jackGroup = new THREE.Group();
+
+      // Jack socket (3.5mm TS - Eurorack standard)
+      const socketGeometry = new THREE.CylinderGeometry(0.055, 0.055, 0.08, 16);
+      const socketMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        roughness: 0.2,
+        metalness: 0.95,
+        envMapIntensity: 2.0
+      });
+      const socket = new THREE.Mesh(socketGeometry, socketMaterial);
+      socket.rotation.x = Math.PI / 2;
+      socket.castShadow = true;
+      jackGroup.add(socket);
+
+      // Inner contact (visible hole)
+      const contactGeometry = new THREE.CylinderGeometry(0.035, 0.035, 0.04, 12);
+      const contactMaterial = new THREE.MeshStandardMaterial({
+        color: 0x888888,
+        roughness: 0.15,
+        metalness: 0.98
+      });
+      const contact = new THREE.Mesh(contactGeometry, contactMaterial);
+      contact.rotation.x = Math.PI / 2;
+      contact.position.z = 0.02;
+      jackGroup.add(contact);
+
+      // Color ring indicator
+      const ringGeometry = new THREE.TorusGeometry(0.065, 0.008, 8, 16);
+      const ringMaterial = new THREE.MeshStandardMaterial({
+        color: color,
+        emissive: color,
+        emissiveIntensity: 0.3,
+        roughness: 0.3,
+        metalness: 0.7
+      });
+      const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+      ring.rotation.y = Math.PI / 2;
+      ring.position.z = 0.045;
+      jackGroup.add(ring);
+
+      jackGroup.position.set(x, y, 0.08);
+      jackGroup.userData = { type: 'jack', label };
+      moduleModel.add(jackGroup);
+    }
+
+    function createLEDs() {
+      // Power LED (red)
+      createLED(-0.9, 1.7, 0xff0000, 'POWER');
+      
+      // Audio/LF indicator LED (green)
+      createLED(0.3, 0.8, 0x00ff00, 'STATUS');
+    }
+
+    function createLED(x, y, color, label) {
+      const ledGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.04, 12);
+      const ledMaterial = new THREE.MeshStandardMaterial({
+        color: color,
+        emissive: color,
+        emissiveIntensity: 0.8,
+        roughness: 0.2,
+        metalness: 0.1,
+        transparent: true,
+        opacity: 0.9
+      });
+      const led = new THREE.Mesh(ledGeometry, ledMaterial);
+      led.rotation.x = Math.PI / 2;
+      led.position.set(x, y, 0.08);
+      
+      // Add point light for glow
+      const light = new THREE.PointLight(color, 0.5, 0.5);
+      light.position.set(x, y, 0.15);
+      moduleModel.add(light);
+      
+      moduleModel.add(led);
+    }
+
+    function setupUI() {
+      document.getElementById('power-btn').addEventListener('click', function() {
+        this.classList.toggle('active');
+        // Toggle LED glow
+        moduleModel.children.forEach(child => {
+          if (child instanceof THREE.PointLight) {
+            child.intensity = this.classList.contains('active') ? 0.5 : 0;
+          }
+        });
+      });
+
+      document.getElementById('rotate-btn').addEventListener('click', function() {
+        isAutoRotating = !isAutoRotating;
+        this.classList.toggle('active');
+        controls.autoRotate = isAutoRotating;
+        controls.autoRotateSpeed = 2;
+      });
+
+      document.getElementById('reset-btn').addEventListener('click', function() {
+        camera.position.set(0, 3, 6);
+        controls.target.set(0, 0, 0);
+        controls.update();
+      });
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.addEventListener('load', init);
+  </script>
+
+</body>
+</html>

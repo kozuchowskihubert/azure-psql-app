@@ -163,6 +163,20 @@ router.post('/subscribe', requireAuth, async (req, res) => {
         );
         break;
 
+      case 'payu':
+        price = billingCycle === 'yearly' ? plan.price_yearly : plan.price_monthly;
+        paymentResult = await PaymentService.createPayUOrder({
+          userId: req.user.id,
+          planCode: planCode,
+          amount: price / 100, // Convert from cents to PLN
+          email: req.user.email,
+          firstName: req.user.name?.split(' ')[0] || 'User',
+          lastName: req.user.name?.split(' ').slice(1).join(' ') || '',
+          customerIp: req.ip || '127.0.0.1',
+          description: `HAOS.fm ${plan.name} - ${billingCycle === 'yearly' ? 'Yearly' : 'Monthly'} Subscription`,
+        });
+        break;
+
       default:
         return res.status(400).json({ error: `Unknown payment provider: ${paymentProvider}` });
     }

@@ -439,6 +439,57 @@ class Payment {
     `, [userId, instrumentId]);
     return result.rows;
   }
+
+  /**
+   * Find transaction by payment provider and provider transaction ID
+   */
+  static async findTransactionByProvider(provider, providerTransactionId) {
+    const result = await pool.query(`
+      SELECT * FROM transactions
+      WHERE provider = $1 AND provider_transaction_id = $2
+      LIMIT 1
+    `, [provider, providerTransactionId]);
+    return result.rows[0];
+  }
+
+  /**
+   * Update transaction status
+   */
+  static async updateTransactionStatus(transactionId, status) {
+    const result = await pool.query(`
+      UPDATE transactions 
+      SET status = $1, 
+          updated_at = CURRENT_TIMESTAMP,
+          completed_at = CASE WHEN $1 = 'completed' THEN CURRENT_TIMESTAMP ELSE completed_at END
+      WHERE id = $2
+      RETURNING *
+    `, [status, transactionId]);
+    return result.rows[0];
+  }
+
+  /**
+   * Create a new transaction
+   */
+  static async createTransaction(data) {
+    const result = await pool.query(`
+      INSERT INTO transactions (
+        user_id, type, status, amount, currency,
+        provider, provider_transaction_id, description, metadata
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING *
+    `, [
+      data.userId,
+      data.type || 'subscription',
+      data.status || 'pending',
+      data.amount,
+      data.currency || 'PLN',
+      data.provider,
+      data.providerTransactionId,
+      data.description,
+      JSON.stringify(data.metadata || {})
+    ]);
+    return result.rows[0];
+  }
 }
 
 module.exports = Payment;

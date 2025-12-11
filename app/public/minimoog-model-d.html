@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimoog Model D - HAOS.fm</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      background: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      color: #fff;
+    }
+
+    /* Minimoog Chassis */
+    .minimoog-container {
+      width: 95%;
+      max-width: 1400px;
+      background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+      border-radius: 20px 20px 0 0;
+      box-shadow: 
+        0 -5px 20px rgba(0,0,0,0.8),
+        0 20px 60px rgba(0,0,0,0.9),
+        inset 0 2px 0 rgba(255,255,255,0.1);
+      position: relative;
+      padding: 2rem;
+    }
+
+    /* Top Panel */
+    .moog-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 3px solid #444;
+    }
+
+    .moog-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: 8px;
+      background: linear-gradient(135deg, #ff6b35, #ffa500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(255,107,53,0.5);
+      margin-bottom: 0.5rem;
+    }
+
+    .moog-model {
+      font-size: 1.2rem;
+      color: #aaa;
+      letter-spacing: 4px;
+      font-weight: 300;
+    }
+
+    /* Control Panel Layout */
+    .control-panel {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2rem;
+      background: linear-gradient(135deg, #2c2c2c, #1f1f1f);
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: inset 0 4px 12px rgba(0,0,0,0.6);
+      margin-bottom: 2rem;
+    }
+
+    /* Module Sections */
+    .module-section {
+      background: rgba(40, 40, 40, 0.8);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid #444;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .module-title {
+      font-size: 0.75rem;
+      color: #ff6b35;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+      text-align: center;
+      font-weight: 700;
+      border-bottom: 2px solid #ff6b35;
+      padding-bottom: 0.5rem;
+    }
+
+    /* Rotary Knobs */
+    .knob-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 1rem 0;
+    }
+
+    .knob-wrapper {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      margin-bottom: 0.5rem;
+    }
+
+    .knob {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #4a4a4a, #1a1a1a);
+      box-shadow: 
+        0 4px 8px rgba(0,0,0,0.8),
+        inset 0 2px 4px rgba(255,255,255,0.1),
+        inset 0 -2px 4px rgba(0,0,0,0.5);
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.05s;
+    }
+
+    .knob:active {
+      transform: scale(0.98);
+    }
+
+    .knob::before {
+      content: '';
+      position: absolute;
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(to bottom, #ff6b35, #ff8c5a);
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 2px;
+      box-shadow: 0 0 10px rgba(255,107,53,0.8);
+    }
+
+    .knob-label {
+      font-size: 0.65rem;
+      color: #bbb;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 0.25rem;
+    }
+
+    .knob-value {
+      font-size: 0.7rem;
+      color: #ff6b35;
+      text-align: center;
+      margin-top: 0.25rem;
+      font-weight: 700;
+    }
+
+    /* Switches */
+    .switch-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 1rem 0;
+    }
+
+    .switch {
+      width: 40px;
+      height: 70px;
+      background: #1a1a1a;
+      border-radius: 8px;
+      position: relative;
+      cursor: pointer;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+      border: 2px solid #333;
+    }
+
+    .switch-toggle {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #666, #444);
+      border-radius: 4px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 4px;
+      transition: top 0.2s, background 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    }
+
+    .switch.active .switch-toggle {
+      top: calc(100% - 36px);
+      background: linear-gradient(135deg, #ff6b35, #ff8c5a);
+    }
+
+    .switch-label {
+      font-size: 0.65rem;
+      color: #bbb;
+      text-align: center;
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Keyboard */
+    .keyboard-section {
+      background: #1a1a1a;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: inset 0 4px 12px rgba(0,0,0,0.8);
+      margin-bottom: 2rem;
+    }
+
+    .keyboard {
+      display: flex;
+      justify-content: center;
+      height: 200px;
+      position: relative;
+      margin: 0 auto;
+      max-width: 1200px;
+    }
+
+    .key {
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .white-key {
+      width: 50px;
+      height: 200px;
+      background: linear-gradient(180deg, #fafafa 0%, #e0e0e0 100%);
+      border: 2px solid #1a1a1a;
+      border-radius: 0 0 4px 4px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      transition: all 0.05s;
+    }
+
+    .white-key:hover {
+      background: linear-gradient(180deg, #f0f0f0 0%, #d0d0d0 100%);
+    }
+
+    .white-key:active, .white-key.active {
+      background: linear-gradient(180deg, #d0d0d0 0%, #c0c0c0 100%);
+      transform: translateY(2px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    .black-key {
+      width: 32px;
+      height: 130px;
+      background: linear-gradient(180deg, #2a2a2a 0%, #0a0a0a 100%);
+      border: 2px solid #000;
+      border-radius: 0 0 3px 3px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.8);
+      position: absolute;
+      z-index: 2;
+      transition: all 0.05s;
+    }
+
+    .black-key:hover {
+      background: linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%);
+    }
+
+    .black-key:active, .black-key.active {
+      background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
+      transform: translateY(2px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.9);
+    }
+
+    /* Spectrum Analyzer */
+    .analyzer-section {
+      background: #0a0a0a;
+      padding: 2rem;
+      border-radius: 15px;
+      margin-bottom: 2rem;
+      border: 2px solid #333;
+    }
+
+    .analyzer-title {
+      text-align: center;
+      color: #ff6b35;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 1rem;
+    }
+
+    #spectrum-canvas {
+      width: 100%;
+      height: 200px;
+      border-radius: 8px;
+      background: #000;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    /* Control Buttons */
+    .control-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .control-btn {
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .btn-power {
+      background: linear-gradient(135deg, #ff6b35, #ff8c5a);
+      color: #1a1a1a;
+    }
+
+    .btn-power:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255,107,53,0.6);
+    }
+
+    .btn-power:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #444, #2a2a2a);
+      color: #fff;
+      border: 1px solid #666;
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #555, #3a3a3a);
+      transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .control-panel {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .control-panel {
+        grid-template-columns: 1fr;
+      }
+      
+      .keyboard {
+        height: 150px;
+        overflow-x: auto;
+      }
+      
+      .white-key {
+        width: 40px;
+        height: 150px;
+      }
+      
+      .black-key {
+        width: 26px;
+        height: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="minimoog-container">
+    <!-- Header -->
+    <div class="moog-header">
+      <div class="moog-logo">MOOG</div>
+      <div class="moog-model">MINIMOOG MODEL D</div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+      
+      <!-- Oscillator 1 -->
+      <div class="module-section">
+        <div class="module-title">Oscillator 1</div>
+        
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="osc1-freq" data-min="0" data-max="100" data-value="50"></div>
+          </div>
+          <div class="knob-label">Range</div>
+          <div class="knob-value" id="osc1-freq-val">32'</div>
+        </div>
+
+        <div class="switch-container">
+          <div class="switch" id="osc1-wave" data-value="sawtooth">
+            <div class="switch-toggle"></div>
+          </div>
+          <div class="switch-label">Waveform</div>
+        </div>
+      </div>
+
+      <!-- Oscillator 2 -->
+      <div class="module-section">
+        <div class="module-title">Oscillator 2</div>
+        
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="osc2-freq" data-min="0" data-max="100" data-value="50"></div>
+          </div>
+          <div class="knob-label">Range</div>
+          <div class="knob-value" id="osc2-freq-val">16'</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="osc2-detune" data-min="-50" data-max="50" data-value="0"></div>
+          </div>
+          <div class="knob-label">Detune</div>
+          <div class="knob-value" id="osc2-detune-val">0¢</div>
+        </div>
+
+        <div class="switch-container">
+          <div class="switch" id="osc2-wave" data-value="sawtooth">
+            <div class="switch-toggle"></div>
+          </div>
+          <div class="switch-label">Waveform</div>
+        </div>
+      </div>
+
+      <!-- Oscillator 3 -->
+      <div class="module-section">
+        <div class="module-title">Oscillator 3</div>
+        
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="osc3-freq" data-min="0" data-max="100" data-value="50"></div>
+          </div>
+          <div class="knob-label">Range</div>
+          <div class="knob-value" id="osc3-freq-val">8'</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="osc3-detune" data-min="-50" data-max="50" data-value="5"></div>
+          </div>
+          <div class="knob-label">Detune</div>
+          <div class="knob-value" id="osc3-detune-val">+5¢</div>
+        </div>
+
+        <div class="switch-container">
+          <div class="switch active" id="osc3-wave" data-value="sawtooth">
+            <div class="switch-toggle"></div>
+          </div>
+          <div class="switch-label">Waveform</div>
+        </div>
+      </div>
+
+      <!-- Mixer -->
+      <div class="module-section">
+        <div class="module-title">Mixer</div>
+        
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="mix-osc1" data-min="0" data-max="100" data-value="70"></div>
+          </div>
+          <div class="knob-label">Osc 1</div>
+          <div class="knob-value" id="mix-osc1-val">70%</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="mix-osc2" data-min="0" data-max="100" data-value="50"></div>
+          </div>
+          <div class="knob-label">Osc 2</div>
+          <div class="knob-value" id="mix-osc2-val">50%</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="mix-osc3" data-min="0" data-max="100" data-value="60"></div>
+          </div>
+          <div class="knob-label">Osc 3</div>
+          <div class="knob-value" id="mix-osc3-val">60%</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="mix-noise" data-min="0" data-max="100" data-value="0"></div>
+          </div>
+          <div class="knob-label">Noise</div>
+          <div class="knob-value" id="mix-noise-val">0%</div>
+        </div>
+      </div>
+
+      <!-- Filter (Ladder Filter) -->
+      <div class="module-section">
+        <div class="module-title">Ladder Filter</div>
+        
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="filter-cutoff" data-min="20" data-max="20000" data-value="2000"></div>
+          </div>
+          <div class="knob-label">Cutoff</div>
+          <div class="knob-value" id="filter-cutoff-val">2.0kHz</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="filter-emphasis" data-min="0" data-max="100" data-value="30"></div>
+          </div>
+          <div class="knob-label">Emphasis</div>
+          <div class="knob-value" id="filter-emphasis-val">30%</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="filter-contour" data-min="0" data-max="100" data-value="40"></div>
+          </div>
+          <div class="knob-label">Contour</div>
+          <div class="knob-value" id="filter-contour-val">40%</div>
+        </div>
+      </div>
+
+      <!-- Contour (Filter Envelope) -->
+      <div class="module-section">
+        <div class="module-title">Filter Contour</div>
+        
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="fenv-attack" data-min="0" data-max="2000" data-value="10"></div>
+          </div>
+          <div class="knob-label">Attack</div>
+          <div class="knob-value" id="fenv-attack-val">10ms</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="fenv-decay" data-min="0" data-max="5000" data-value="200"></div>
+          </div>
+          <div class="knob-label">Decay</div>
+          <div class="knob-value" id="fenv-decay-val">200ms</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="fenv-sustain" data-min="0" data-max="100" data-value="60"></div>
+          </div>
+          <div class="knob-label">Sustain</div>
+          <div class="knob-value" id="fenv-sustain-val">60%</div>
+        </div>
+      </div>
+
+      <!-- Loudness Contour (Amp Envelope) -->
+      <div class="module-section">
+        <div class="module-title">Loudness Contour</div>
+        
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="aenv-attack" data-min="0" data-max="2000" data-value="5"></div>
+          </div>
+          <div class="knob-label">Attack</div>
+          <div class="knob-value" id="aenv-attack-val">5ms</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="aenv-decay" data-min="0" data-max="5000" data-value="300"></div>
+          </div>
+          <div class="knob-label">Decay</div>
+          <div class="knob-value" id="aenv-decay-val">300ms</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="aenv-sustain" data-min="0" data-max="100" data-value="80"></div>
+          </div>
+          <div class="knob-label">Sustain</div>
+          <div class="knob-value" id="aenv-sustain-val">80%</div>
+        </div>
+      </div>
+
+      <!-- Master Output -->
+      <div class="module-section">
+        <div class="module-title">Master</div>
+        
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="master-volume" data-min="0" data-max="100" data-value="50"></div>
+          </div>
+          <div class="knob-label">Volume</div>
+          <div class="knob-value" id="master-volume-val">50%</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="master-tune" data-min="-100" data-max="100" data-value="0"></div>
+          </div>
+          <div class="knob-label">Tune</div>
+          <div class="knob-value" id="master-tune-val">A=440Hz</div>
+        </div>
+
+        <div class="knob-container">
+          <div class="knob-wrapper">
+            <div class="knob" id="glide" data-min="0" data-max="2000" data-value="0"></div>
+          </div>
+          <div class="knob-label">Glide</div>
+          <div class="knob-value" id="glide-val">0ms</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Spectrum Analyzer -->
+    <div class="analyzer-section">
+      <div class="analyzer-title">Real-Time Spectrum Analyzer</div>
+      <canvas id="spectrum-canvas"></canvas>
+    </div>
+
+    <!-- Keyboard -->
+    <div class="keyboard-section">
+      <div class="keyboard" id="keyboard"></div>
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="control-buttons">
+      <button class="control-btn btn-power" id="power-btn">Power On</button>
+      <button class="control-btn btn-secondary" id="save-preset">Save Preset</button>
+      <button class="control-btn btn-secondary" id="load-preset">Load Preset</button>
+    </div>
+  </div>
+
+  <script src="/js/synthesis-engine.js"></script>
+  <script>
+    // Minimoog Model D Synthesis Engine
+    class MinimoogModelD {
+      constructor() {
+        this.audioContext = null;
+        this.isPlaying = false;
+        this.isPowerOn = false;
+        this.masterGain = null;
+        this.voices = [];
+        this.maxVoices = 1; // Monophonic
+        this.currentNote = null;
+        
+        // Oscillators
+        this.osc1 = null;
+        this.osc2 = null;
+        this.osc3 = null;
+        this.noise = null;
+        
+        // Filter (Moog Ladder)
+        this.filter = null;
+        
+        // Analyzers
+        this.analyser = null;
+        this.spectrumAnalyser = null;
+        
+        // Parameters
+        this.params = {
+          osc1: { range: 32, waveform: 'sawtooth' },
+          osc2: { range: 16, waveform: 'sawtooth', detune: 0 },
+          osc3: { range: 8, waveform: 'sawtooth', detune: 5 },
+          mixer: { osc1: 0.7, osc2: 0.5, osc3: 0.6, noise: 0 },
+          filter: { cutoff: 2000, emphasis: 0.3, contour: 0.4 },
+          filterEnv: { attack: 0.01, decay: 0.2, sustain: 0.6 },
+          ampEnv: { attack: 0.005, decay: 0.3, sustain: 0.8 },
+          master: { volume: 0.5, tune: 440, glide: 0 }
+        };
+
+        this.setupUI();
+      }
+
+      initialize() {
+        if (this.audioContext) return;
+        
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Master gain
+        this.masterGain = this.audioContext.createGain();
+        this.masterGain.gain.value = this.params.master.volume;
+        
+        // Analysers for visualization
+        this.analyser = this.audioContext.createAnalyser();
+        this.analyser.fftSize = 2048;
+        this.analyser.smoothingTimeConstant = 0.8;
+        
+        this.spectrumAnalyser = this.audioContext.createAnalyser();
+        this.spectrumAnalyser.fftSize = 8192;
+        this.spectrumAnalyser.smoothingTimeConstant = 0.85;
+        
+        // Connect chain
+        this.masterGain.connect(this.analyser);
+        this.analyser.connect(this.spectrumAnalyser);
+        this.spectrumAnalyser.connect(this.audioContext.destination);
+        
+        console.log('✅ Minimoog Model D initialized');
+      }
+
+      createVoice(frequency) {
+        const now = this.audioContext.currentTime;
+        const glideTime = this.params.master.glide / 1000;
+        
+        // Create three oscillators
+        this.osc1 = this.audioContext.createOscillator();
+        this.osc1.type = this.params.osc1.waveform;
+        this.osc1.frequency.setValueAtTime(frequency * this.params.osc1.range / 16, now);
+        
+        this.osc2 = this.audioContext.createOscillator();
+        this.osc2.type = this.params.osc2.waveform;
+        this.osc2.frequency.setValueAtTime(frequency * this.params.osc2.range / 16, now);
+        this.osc2.detune.value = this.params.osc2.detune;
+        
+        this.osc3 = this.audioContext.createOscillator();
+        this.osc3.type = this.params.osc3.waveform;
+        this.osc3.frequency.setValueAtTime(frequency * this.params.osc3.range / 16, now);
+        this.osc3.detune.value = this.params.osc3.detune;
+        
+        // Noise generator
+        const bufferSize = this.audioContext.sampleRate * 2;
+        const noiseBuffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+        this.noise = this.audioContext.createBufferSource();
+        this.noise.buffer = noiseBuffer;
+        this.noise.loop = true;
+        
+        // Mixer gains
+        const osc1Gain = this.audioContext.createGain();
+        osc1Gain.gain.value = this.params.mixer.osc1;
+        
+        const osc2Gain = this.audioContext.createGain();
+        osc2Gain.gain.value = this.params.mixer.osc2;
+        
+        const osc3Gain = this.audioContext.createGain();
+        osc3Gain.gain.value = this.params.mixer.osc3;
+        
+        const noiseGain = this.audioContext.createGain();
+        noiseGain.gain.value = this.params.mixer.noise;
+        
+        // Moog Ladder Filter (24dB/oct lowpass)
+        this.filter = this.audioContext.createBiquadFilter();
+        this.filter.type = 'lowpass';
+        this.filter.frequency.value = this.params.filter.cutoff;
+        this.filter.Q.value = this.params.filter.emphasis * 30;
+        
+        // Filter envelope
+        const filterEnvAmount = this.params.filter.contour * 5000;
+        const fAttack = this.params.filterEnv.attack;
+        const fDecay = this.params.filterEnv.decay;
+        const fSustain = this.params.filterEnv.sustain;
+        
+        this.filter.frequency.setValueAtTime(this.params.filter.cutoff, now);
+        this.filter.frequency.linearRampToValueAtTime(
+          this.params.filter.cutoff + filterEnvAmount,
+          now + fAttack
+        );
+        this.filter.frequency.linearRampToValueAtTime(
+          this.params.filter.cutoff + (filterEnvAmount * fSustain),
+          now + fAttack + fDecay
+        );
+        
+        // VCA (Amp envelope)
+        const vca = this.audioContext.createGain();
+        vca.gain.value = 0;
+        
+        const aAttack = this.params.ampEnv.attack;
+        const aDecay = this.params.ampEnv.decay;
+        const aSustain = this.params.ampEnv.sustain;
+        
+        vca.gain.setValueAtTime(0, now);
+        vca.gain.linearRampToValueAtTime(1.0, now + aAttack);
+        vca.gain.linearRampToValueAtTime(aSustain, now + aAttack + aDecay);
+        
+        // Connect signal chain
+        this.osc1.connect(osc1Gain);
+        this.osc2.connect(osc2Gain);
+        this.osc3.connect(osc3Gain);
+        this.noise.connect(noiseGain);
+        
+        osc1Gain.connect(this.filter);
+        osc2Gain.connect(this.filter);
+        osc3Gain.connect(this.filter);
+        noiseGain.connect(this.filter);
+        
+        this.filter.connect(vca);
+        vca.connect(this.masterGain);
+        
+        // Start oscillators
+        this.osc1.start(now);
+        this.osc2.start(now);
+        this.osc3.start(now);
+        this.noise.start(now);
+        
+        return { osc1: this.osc1, osc2: this.osc2, osc3: this.osc3, noise: this.noise, vca, filter: this.filter };
+      }
+
+      playNote(frequency) {
+        if (!this.isPowerOn) return;
+        if (!this.audioContext) this.initialize();
+        
+        if (this.audioContext.state === 'suspended') {
+          this.audioContext.resume();
+        }
+        
+        // Stop previous note for monophonic behavior
+        this.stopNote();
+        
+        const voice = this.createVoice(frequency);
+        this.currentNote = { frequency, voice };
+        this.isPlaying = true;
+      }
+
+      stopNote() {
+        if (!this.currentNote) return;
+        
+        const now = this.audioContext.currentTime;
+        const releaseTime = 0.3; // Fixed release time
+        
+        const { voice } = this.currentNote;
+        
+        // Release envelope
+        voice.vca.gain.cancelScheduledValues(now);
+        voice.vca.gain.setValueAtTime(voice.vca.gain.value, now);
+        voice.vca.gain.linearRampToValueAtTime(0, now + releaseTime);
+        
+        // Stop oscillators after release
+        setTimeout(() => {
+          if (voice.osc1) voice.osc1.stop();
+          if (voice.osc2) voice.osc2.stop();
+          if (voice.osc3) voice.osc3.stop();
+          if (voice.noise) voice.noise.stop();
+        }, releaseTime * 1000);
+        
+        this.currentNote = null;
+        this.isPlaying = false;
+      }
+
+      setupUI() {
+        // Keyboard setup
+        this.setupKeyboard();
+        
+        // Knob controls
+        this.setupKnobControls();
+        
+        // Switch controls
+        this.setupSwitchControls();
+        
+        // Power button
+        document.getElementById('power-btn').addEventListener('click', () => this.togglePower());
+        
+        // Spectrum analyzer
+        this.startSpectrumAnalyzer();
+      }
+
+      setupKeyboard() {
+        const keyboard = document.getElementById('keyboard');
+        const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const baseFreq = 130.81; // C3
+        
+        for (let octave = 0; octave < 3; octave++) {
+          for (let i = 0; i < 12; i++) {
+            const note = notes[i];
+            const freq = baseFreq * Math.pow(2, octave + i / 12);
+            const isBlack = note.includes('#');
+            
+            const key = document.createElement('div');
+            key.className = isBlack ? 'key black-key' : 'key white-key';
+            key.dataset.freq = freq;
+            key.dataset.note = note + (octave + 3);
+            
+            if (isBlack) {
+              key.style.left = `${(octave * 7 + Math.floor(i / 2)) * 50 - 16}px`;
+            }
+            
+            key.addEventListener('mousedown', (e) => {
+              e.preventDefault();
+              this.playNote(parseFloat(key.dataset.freq));
+              key.classList.add('active');
+            });
+            
+            key.addEventListener('mouseup', () => {
+              this.stopNote();
+              key.classList.remove('active');
+            });
+            
+            key.addEventListener('mouseleave', () => {
+              key.classList.remove('active');
+            });
+            
+            keyboard.appendChild(key);
+          }
+        }
+
+        // Computer keyboard support
+        const keyMap = {
+          'a': 'C3', 'w': 'C#3', 's': 'D3', 'e': 'D#3', 'd': 'E3',
+          'f': 'F3', 't': 'F#3', 'g': 'G3', 'y': 'G#3', 'h': 'A3', 'u': 'A#3', 'j': 'B3',
+          'k': 'C4', 'o': 'C#4', 'l': 'D4', 'p': 'D#4', ';': 'E4'
+        };
+
+        document.addEventListener('keydown', (e) => {
+          const note = keyMap[e.key.toLowerCase()];
+          if (note && !e.repeat) {
+            const key = Array.from(keyboard.children).find(k => k.dataset.note === note);
+            if (key) {
+              this.playNote(parseFloat(key.dataset.freq));
+              key.classList.add('active');
+            }
+          }
+        });
+
+        document.addEventListener('keyup', (e) => {
+          const note = keyMap[e.key.toLowerCase()];
+          if (note) {
+            this.stopNote();
+            const key = Array.from(keyboard.children).find(k => k.dataset.note === note);
+            if (key) key.classList.remove('active');
+          }
+        });
+      }
+
+      setupKnobControls() {
+        const knobs = document.querySelectorAll('.knob');
+        
+        knobs.forEach(knob => {
+          let isDragging = false;
+          let startY = 0;
+          let startValue = 0;
+          
+          const min = parseFloat(knob.dataset.min);
+          const max = parseFloat(knob.dataset.max);
+          let value = parseFloat(knob.dataset.value);
+          
+          knob.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startY = e.clientY;
+            startValue = value;
+            knob.style.cursor = 'grabbing';
+          });
+          
+          document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            const delta = startY - e.clientY;
+            const range = max - min;
+            const sensitivity = range / 200;
+            
+            value = Math.max(min, Math.min(max, startValue + (delta * sensitivity)));
+            knob.dataset.value = value;
+            
+            // Update visual rotation
+            const rotation = ((value - min) / (max - min)) * 270 - 135;
+            knob.style.transform = `rotate(${rotation}deg)`;
+            
+            // Update parameter
+            this.updateParameter(knob.id, value);
+          });
+          
+          document.addEventListener('mouseup', () => {
+            if (isDragging) {
+              isDragging = false;
+              knob.style.cursor = 'pointer';
+            }
+          });
+        });
+      }
+
+      setupSwitchControls() {
+        const switches = document.querySelectorAll('.switch');
+        
+        switches.forEach(sw => {
+          sw.addEventListener('click', () => {
+            sw.classList.toggle('active');
+            const isActive = sw.classList.contains('active');
+            
+            if (sw.id.includes('wave')) {
+              const waveforms = ['sawtooth', 'square', 'triangle'];
+              const currentIndex = waveforms.indexOf(sw.dataset.value);
+              const nextIndex = (currentIndex + 1) % waveforms.length;
+              sw.dataset.value = waveforms[nextIndex];
+              
+              if (sw.id === 'osc1-wave') this.params.osc1.waveform = waveforms[nextIndex];
+              if (sw.id === 'osc2-wave') this.params.osc2.waveform = waveforms[nextIndex];
+              if (sw.id === 'osc3-wave') this.params.osc3.waveform = waveforms[nextIndex];
+            }
+          });
+        });
+      }
+
+      updateParameter(knobId, value) {
+        const valueDisplay = document.getElementById(knobId + '-val');
+        
+        switch(knobId) {
+          case 'osc1-freq':
+            const ranges1 = [32, 16, 8, 4, 2];
+            const range1 = ranges1[Math.floor(value / 25)];
+            this.params.osc1.range = range1;
+            if (valueDisplay) valueDisplay.textContent = range1 + "'";
+            break;
+            
+          case 'osc2-freq':
+            const ranges2 = [32, 16, 8, 4, 2];
+            const range2 = ranges2[Math.floor(value / 25)];
+            this.params.osc2.range = range2;
+            if (valueDisplay) valueDisplay.textContent = range2 + "'";
+            break;
+            
+          case 'osc3-freq':
+            const ranges3 = [32, 16, 8, 4, 2];
+            const range3 = ranges3[Math.floor(value / 25)];
+            this.params.osc3.range = range3;
+            if (valueDisplay) valueDisplay.textContent = range3 + "'";
+            break;
+            
+          case 'osc2-detune':
+            this.params.osc2.detune = value;
+            if (valueDisplay) valueDisplay.textContent = (value > 0 ? '+' : '') + Math.round(value) + '¢';
+            break;
+            
+          case 'osc3-detune':
+            this.params.osc3.detune = value;
+            if (valueDisplay) valueDisplay.textContent = (value > 0 ? '+' : '') + Math.round(value) + '¢';
+            break;
+            
+          case 'mix-osc1':
+            this.params.mixer.osc1 = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'mix-osc2':
+            this.params.mixer.osc2 = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'mix-osc3':
+            this.params.mixer.osc3 = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'mix-noise':
+            this.params.mixer.noise = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'filter-cutoff':
+            this.params.filter.cutoff = value;
+            if (this.filter) this.filter.frequency.setValueAtTime(value, this.audioContext.currentTime);
+            if (valueDisplay) {
+              const display = value >= 1000 ? (value/1000).toFixed(1) + 'kHz' : Math.round(value) + 'Hz';
+              valueDisplay.textContent = display;
+            }
+            break;
+            
+          case 'filter-emphasis':
+            this.params.filter.emphasis = value / 100;
+            if (this.filter) this.filter.Q.value = (value / 100) * 30;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'filter-contour':
+            this.params.filter.contour = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'fenv-attack':
+            this.params.filterEnv.attack = value / 1000;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + 'ms';
+            break;
+            
+          case 'fenv-decay':
+            this.params.filterEnv.decay = value / 1000;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + 'ms';
+            break;
+            
+          case 'fenv-sustain':
+            this.params.filterEnv.sustain = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'aenv-attack':
+            this.params.ampEnv.attack = value / 1000;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + 'ms';
+            break;
+            
+          case 'aenv-decay':
+            this.params.ampEnv.decay = value / 1000;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + 'ms';
+            break;
+            
+          case 'aenv-sustain':
+            this.params.ampEnv.sustain = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'master-volume':
+            this.params.master.volume = value / 100;
+            if (this.masterGain) this.masterGain.gain.setValueAtTime(value / 100, this.audioContext.currentTime);
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'master-tune':
+            this.params.master.tune = 440 + value;
+            if (valueDisplay) valueDisplay.textContent = 'A=' + Math.round(440 + value) + 'Hz';
+            break;
+            
+          case 'glide':
+            this.params.master.glide = value;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + 'ms';
+            break;
+        }
+      }
+
+      togglePower() {
+        this.isPowerOn = !this.isPowerOn;
+        const btn = document.getElementById('power-btn');
+        
+        if (this.isPowerOn) {
+          this.initialize();
+          btn.textContent = 'Power Off';
+          btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+          console.log('🟢 Minimoog Model D powered on');
+        } else {
+          btn.textContent = 'Power On';
+          btn.style.background = 'linear-gradient(135deg, #ff6b35, #ff8c5a)';
+          this.stopNote();
+          console.log('🔴 Minimoog Model D powered off');
+        }
+      }
+
+      startSpectrumAnalyzer() {
+        const canvas = document.getElementById('spectrum-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        const resize = () => {
+          canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+          canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+          ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        };
+        resize();
+        window.addEventListener('resize', resize);
+        
+        const draw = () => {
+          requestAnimationFrame(draw);
+          
+          if (!this.spectrumAnalyser) return;
+          
+          const bufferLength = this.spectrumAnalyser.frequencyBinCount;
+          const dataArray = new Uint8Array(bufferLength);
+          this.spectrumAnalyser.getByteFrequencyData(dataArray);
+          
+          const width = canvas.offsetWidth;
+          const height = canvas.offsetHeight;
+          
+          // Clear canvas
+          ctx.fillStyle = '#000';
+          ctx.fillRect(0, 0, width, height);
+          
+          // Draw spectrum
+          const barCount = 120;
+          const barWidth = width / barCount;
+          
+          for (let i = 0; i < barCount; i++) {
+            const index = Math.floor(i * bufferLength / barCount);
+            const value = dataArray[index];
+            const barHeight = (value / 255) * height * 0.9;
+            
+            // Color gradient
+            const hue = 180 - (i / barCount) * 60; // Cyan to orange
+            const saturation = 80 + (value / 255) * 20;
+            const lightness = 40 + (value / 255) * 20;
+            
+            ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+            ctx.fillRect(i * barWidth, height - barHeight, barWidth - 1, barHeight);
+            
+            // Glow effect
+            if (value > 100) {
+              ctx.shadowBlur = 10;
+              ctx.shadowColor = `hsl(${hue}, 100%, 60%)`;
+            } else {
+              ctx.shadowBlur = 0;
+            }
+          }
+          
+          // Draw grid lines
+          ctx.strokeStyle = 'rgba(255, 107, 53, 0.2)';
+          ctx.lineWidth = 1;
+          ctx.shadowBlur = 0;
+          
+          for (let i = 0; i < 5; i++) {
+            const y = (height / 4) * i;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+          }
+        };
+        
+        draw();
+      }
+    }
+
+    // Initialize Minimoog
+    let minimoog;
+    document.addEventListener('DOMContentLoaded', () => {
+      minimoog = new MinimoogModelD();
+      console.log('✅ Minimoog Model D ready');
+    });
+  </script>
+
+</body>
+</html>

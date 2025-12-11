@@ -17,6 +17,7 @@ const http = require('http');
 const app = require('./app');
 const ensureTable = require('./utils/db-init');
 const collaborationServer = require('./collaboration');
+const subscriptionScheduler = require('./services/subscription-scheduler');
 
 const port = process.env.PORT || 3000;
 
@@ -46,6 +47,8 @@ const startServer = () => {
 ensureTable()
   .then(() => {
     console.log('✅ Database ready');
+    // Start subscription scheduler after database is ready
+    subscriptionScheduler.start();
     startServer();
   })
   .catch((err) => {
@@ -57,6 +60,7 @@ ensureTable()
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM signal received: closing HTTP server');
+  subscriptionScheduler.stop();
   server.close(() => {
     console.log('HTTP server closed');
     process.exit(0);

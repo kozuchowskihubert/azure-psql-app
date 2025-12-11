@@ -1,0 +1,2322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Behringer 2600 Interactive Patching - HAOS.fm</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <!-- HAOS Professional Theme Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;600;700&family=Inter:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* HAOS.fm Professional Theme - Vinyl Studio Aesthetic */
+    :root {
+      /* Primary Colors */
+      --haos-vinyl-black: #0A0A0A;
+      --haos-groove-orange: #FF6B35;
+      --haos-turntable-gold: #D4AF37;
+      --haos-sepia-cream: #F4E8D8;
+      
+      /* Secondary Colors */
+      --haos-tape-brown: #4A3C2E;
+      --haos-dust-gray: #6B6B6B;
+      --haos-oxide-red: #8B2635;
+      --haos-vu-green: #3D5A3D;
+      
+      /* Accent Colors */
+      --haos-acid-green: #39FF14;
+      --haos-909-cyan: #00D9FF;
+      --haos-warehouse-purple: #6A0DAD;
+      
+      /* Typography */
+      --haos-font-display: 'Bebas Neue', Arial, sans-serif;
+      --haos-font-mono: 'Space Mono', 'Courier New', monospace;
+      --haos-font-body: 'Inter', Arial, sans-serif;
+      --haos-font-terminal: 'VT323', monospace;
+      
+      /* Spacing */
+      --haos-space-sm: 8px;
+      --haos-space-md: 16px;
+      --haos-space-lg: 24px;
+      --haos-space-xl: 32px;
+      
+      /* Radius */
+      --haos-radius-sm: 4px;
+      --haos-radius-md: 8px;
+      --haos-radius-lg: 16px;
+      
+      /* Shadows */
+      --haos-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
+      --haos-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+      --haos-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.8);
+      
+      /* Glows */
+      --haos-glow-orange: 0 0 20px rgba(255, 107, 53, 0.5);
+      --haos-glow-gold: 0 0 20px rgba(212, 175, 55, 0.4);
+      --haos-glow-green: 0 0 20px rgba(57, 255, 20, 0.5);
+      
+      /* Transitions */
+      --haos-transition-fast: 0.15s ease;
+      --haos-transition-normal: 0.3s ease;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: var(--haos-font-body);
+      background: var(--haos-vinyl-black);
+      overflow: hidden;
+      color: var(--haos-sepia-cream);
+      position: relative;
+    }
+    
+    /* Film Grain Overlay - Authentic Vintage Feel */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iLjA1Ii8+PC9zdmc+');
+      opacity: 0.03;
+      mix-blend-mode: overlay;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* 2D Photo View - Always Active */
+    #photo-view {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+      background: var(--haos-vinyl-black);
+    }
+
+    .photo-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .synth-photo {
+      max-width: 95%;
+      max-height: 95%;
+      object-fit: contain;
+      border-radius: var(--haos-radius-lg);
+      box-shadow: var(--haos-shadow-lg);
+      filter: contrast(1.1) saturate(1.1);
+    }
+
+    /* Interactive Hotspots on 2D Photo */
+    .hotspot {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 107, 53, 0.3);
+      border: 2px solid var(--haos-groove-orange);
+      cursor: pointer;
+      transition: var(--haos-transition-normal);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .hotspot:hover {
+      background: rgba(255, 107, 53, 0.6);
+      transform: scale(1.2);
+      box-shadow: var(--haos-glow-orange);
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(255, 107, 53, 0.5); }
+      50% { box-shadow: 0 0 25px rgba(255, 107, 53, 1); }
+    }
+
+    .hotspot-label {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--haos-groove-orange);
+      color: var(--haos-vinyl-black);
+      padding: 0.3rem 0.8rem;
+      border-radius: var(--haos-radius-sm);
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: var(--haos-transition-fast);
+      font-family: var(--haos-font-mono);
+    }
+
+    .hotspot:hover .hotspot-label {
+      opacity: 1;
+    }
+
+
+
+    /* HUD */
+    .hud {
+      position: absolute;
+      bottom: 2rem;
+      left: 2rem;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .logo {
+      font-family: var(--haos-font-display);
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, var(--haos-groove-orange), var(--haos-turntable-gold));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: var(--haos-glow-orange);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: var(--haos-dust-gray);
+      letter-spacing: 2px;
+      font-family: var(--haos-font-mono);
+    }
+
+    /* Frequency Mapper Panel */
+    .frequency-panel {
+      position: absolute;
+      top: 6rem;
+      right: 2rem;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(10px);
+      padding: var(--haos-space-lg);
+      border-radius: var(--haos-radius-md);
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      box-shadow: var(--haos-shadow-md);
+      min-width: 320px;
+      max-height: 70vh;
+      overflow-y: auto;
+      pointer-events: all;
+      z-index: 10;
+      transition: var(--haos-transition-normal);
+    }
+    
+    .frequency-panel:hover {
+      border-color: var(--haos-groove-orange);
+      box-shadow: var(--haos-shadow-lg), var(--haos-glow-orange);
+    }
+
+    .freq-title {
+      color: var(--haos-groove-orange);
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--haos-groove-orange);
+      padding-bottom: 0.5rem;
+      font-weight: 700;
+      font-family: var(--haos-font-display);
+    }
+
+    .freq-control {
+      margin: 1.5rem 0;
+    }
+
+    .freq-label {
+      color: var(--haos-dust-gray);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+      display: block;
+      font-family: var(--haos-font-mono);
+    }
+
+    .freq-value {
+      color: var(--haos-turntable-gold);
+      font-size: 1.2rem;
+      font-weight: 700;
+      font-family: var(--haos-font-mono);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .freq-slider {
+      width: 100%;
+      height: 6px;
+      border-radius: var(--haos-radius-sm);
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .freq-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--haos-groove-orange), #CC5529);
+      cursor: pointer;
+      box-shadow: var(--haos-glow-orange);
+      transition: var(--haos-transition-fast);
+    }
+    
+    .freq-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 20px rgba(255, 107, 53, 1);
+    }
+
+    .freq-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--haos-groove-orange), #CC5529);
+      cursor: pointer;
+      box-shadow: var(--haos-glow-orange);
+      border: none;
+      transition: var(--haos-transition-fast);
+    }
+    
+    .freq-slider::-moz-range-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 20px rgba(255, 107, 53, 1);
+    }
+
+    /* Controls */
+    .controls {
+      position: absolute;
+      bottom: 2rem;
+      right: 2rem;
+      display: flex;
+      gap: 1rem;
+      pointer-events: all;
+      z-index: 10;
+    }
+
+    .control-btn {
+      padding: 1rem 2rem;
+      background: transparent;
+      backdrop-filter: blur(10px);
+      border: 2px solid var(--haos-groove-orange);
+      border-radius: var(--haos-radius-md);
+      color: var(--haos-groove-orange);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--haos-transition-normal);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-family: var(--haos-font-mono);
+      box-shadow: var(--haos-shadow-sm);
+    }
+
+    .control-btn:hover {
+      background: rgba(255, 107, 53, 0.1);
+      border-color: var(--haos-groove-orange);
+      transform: translateY(-2px);
+      box-shadow: var(--haos-shadow-md), var(--haos-glow-orange);
+    }
+
+    .control-btn.active {
+      background: linear-gradient(135deg, var(--haos-groove-orange), #CC5529);
+      color: white;
+      border-color: var(--haos-groove-orange);
+      box-shadow: var(--haos-shadow-md), var(--haos-glow-orange);
+    }
+
+    /* Loading */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--haos-vinyl-black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.5s;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader {
+      width: 80px;
+      height: 80px;
+      border: 4px solid rgba(255, 107, 53, 0.1);
+      border-top: 4px solid var(--haos-groove-orange);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 2rem;
+      box-shadow: var(--haos-glow-orange);
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-family: var(--haos-font-display);
+      font-size: 1.5rem;
+      color: var(--haos-groove-orange);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-shadow: var(--haos-glow-orange);
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: absolute;
+      background: var(--haos-groove-orange);
+      color: var(--haos-vinyl-black);
+      padding: 0.8rem 1.2rem;
+      border-radius: var(--haos-radius-md);
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: var(--haos-font-mono);
+      pointer-events: none;
+      z-index: 1000;
+      display: none;
+      box-shadow: var(--haos-shadow-lg), var(--haos-glow-orange);
+    }
+
+    /* Patch Bay System */
+    .patch-bay-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .patch-point {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 3px solid var(--haos-909-cyan);
+      background: rgba(26, 26, 26, 0.9);
+      cursor: pointer;
+      transition: var(--haos-transition-normal);
+      pointer-events: all;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--haos-909-cyan);
+      font-weight: 700;
+      font-family: var(--haos-font-mono);
+    }
+
+    .patch-point:hover {
+      transform: scale(1.3);
+      box-shadow: 0 0 30px rgba(0, 217, 255, 0.9);
+      background: rgba(0, 217, 255, 0.2);
+      z-index: 100;
+    }
+
+    .patch-point.output {
+      border-color: var(--haos-acid-green);
+      color: var(--haos-acid-green);
+    }
+
+    .patch-point.input {
+      border-color: var(--haos-oxide-red);
+      color: var(--haos-oxide-red);
+    }
+
+    .patch-point.selected {
+      background: rgba(255, 107, 53, 0.8);
+      animation: pulsePatch 1s ease-in-out infinite;
+      border-color: var(--haos-turntable-gold);
+      color: var(--haos-turntable-gold);
+    }
+
+    .patch-point.connected {
+      background: rgba(0, 217, 255, 0.6);
+      box-shadow: 0 0 20px rgba(0, 217, 255, 1);
+    }
+
+    @keyframes pulsePatch {
+      0%, 100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.5); }
+      50% { box-shadow: var(--haos-glow-gold); }
+    }
+
+    /* Patch Cables SVG */
+    .cables-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 40;
+    }
+
+    .patch-cable {
+      stroke-width: 4;
+      fill: none;
+      filter: drop-shadow(0 0 8px currentColor);
+      pointer-events: all;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .patch-cable:hover {
+      stroke-width: 6;
+      filter: drop-shadow(0 0 15px currentColor);
+    }
+
+    /* Patch Panel */
+    .patch-panel {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 1rem 2rem;
+      border-radius: var(--haos-radius-md);
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      box-shadow: var(--haos-shadow-md);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      pointer-events: all;
+      z-index: 10;
+      transition: var(--haos-transition-normal);
+    }
+    
+    .patch-panel:hover {
+      border-color: var(--haos-groove-orange);
+      box-shadow: var(--haos-shadow-lg), var(--haos-glow-orange);
+    }
+
+    .patch-mode-btn {
+      padding: 0.8rem 1.5rem;
+      background: transparent;
+      border: 2px solid var(--haos-turntable-gold);
+      border-radius: var(--haos-radius-md);
+      color: var(--haos-turntable-gold);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--haos-transition-normal);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: var(--haos-font-mono);
+    }
+
+    .patch-mode-btn:hover {
+      background: rgba(212, 175, 55, 0.1);
+      border-color: var(--haos-turntable-gold);
+      box-shadow: var(--haos-glow-gold);
+    }
+
+    .patch-mode-btn.active {
+      background: linear-gradient(135deg, var(--haos-turntable-gold), #B8860B);
+      color: var(--haos-vinyl-black);
+      border-color: var(--haos-turntable-gold);
+      box-shadow: var(--haos-glow-gold);
+    }
+
+    .patch-info {
+      color: var(--haos-sepia-cream);
+      font-size: 0.85rem;
+      font-family: var(--haos-font-mono);
+    }
+
+    .clear-patches-btn {
+      padding: 0.8rem 1.5rem;
+      background: transparent;
+      border: 2px solid var(--haos-oxide-red);
+      border-radius: var(--haos-radius-md);
+      color: var(--haos-oxide-red);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--haos-transition-normal);
+      font-family: var(--haos-font-mono);
+    }
+
+    .clear-patches-btn:hover {
+      background: rgba(139, 38, 53, 0.3);
+      border-color: var(--haos-oxide-red);
+      box-shadow: 0 0 20px rgba(139, 38, 53, 0.5);
+    }
+
+    /* Patch Bay Styles */
+    .patch-bay-panel {
+      position: absolute;
+      top: 4rem;
+      left: 2rem;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(10px);
+      padding: var(--haos-space-lg);
+      border-radius: var(--haos-radius-md);
+      border: 1px solid rgba(106, 13, 173, 0.3);
+      box-shadow: var(--haos-shadow-md);
+      max-width: 300px;
+      max-height: 70vh;
+      overflow-y: auto;
+      pointer-events: all;
+      z-index: 10;
+      transition: var(--haos-transition-normal);
+    }
+    
+    .patch-bay-panel:hover {
+      border-color: var(--haos-warehouse-purple);
+      box-shadow: var(--haos-shadow-lg), 0 0 20px rgba(106, 13, 173, 0.5);
+    }
+
+    .patch-title {
+      color: var(--haos-warehouse-purple);
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--haos-warehouse-purple);
+      padding-bottom: 0.5rem;
+      font-weight: 700;
+      font-family: var(--haos-font-display);
+    }
+
+    .patch-section {
+      margin: var(--haos-space-lg) 0;
+    }
+
+    .patch-section-title {
+      color: var(--haos-dust-gray);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.8rem;
+      display: block;
+      font-family: var(--haos-font-mono);
+    }
+
+    .patch-jacks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .patch-jack {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      display: inline-block;
+    }
+
+    .patch-jack:hover {
+      transform: scale(1.3);
+      box-shadow: 0 0 15px currentColor;
+    }
+
+    .jack-output {
+      border: 2px solid var(--haos-acid-green);
+      background: rgba(57, 255, 20, 0.1);
+    }
+
+    .jack-input {
+      border: 2px solid var(--haos-oxide-red);
+      background: rgba(139, 38, 53, 0.1);
+    }
+
+    .jack-connected {
+      background: var(--haos-909-cyan) !important;
+      box-shadow: 0 0 10px var(--haos-909-cyan);
+    }
+
+    .patch-jack.selected {
+      background: var(--haos-turntable-gold) !important;
+      box-shadow: var(--haos-glow-gold);
+      transform: scale(1.5);
+    }
+
+    .patch-jack::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--haos-groove-orange);
+      color: var(--haos-vinyl-black);
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--haos-radius-sm);
+      font-size: 0.7rem;
+      font-family: var(--haos-font-mono);
+      font-weight: 600;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--haos-transition-fast);
+      z-index: 1000;
+      box-shadow: var(--haos-shadow-md);
+    }
+
+    .patch-jack:hover::after {
+      opacity: 1;
+    }
+
+    .patch-cable {
+      pointer-events: stroke;
+      transition: all 0.3s;
+    }
+
+    .patch-cable:hover {
+      stroke-width: 4 !important;
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="loading" id="loading">
+    <div class="loader"></div>
+    <div class="loading-text">Loading Behringer 2600</div>
+  </div>
+
+  <div id="canvas-container">
+    <!-- 2D Photo View -->
+    <div id="photo-view">
+      <div class="photo-container">
+        <img src="https://cdn.mediavalet.com/aunsw/musictribe/wfoNRam5p0mlbEitdRb0Uw/2EdsXwWKZkWL-bsNVvXtyQ/Original/Image_BE_0718-AAI_2600_Top_XL.png" 
+             alt="Behringer 2600" 
+             class="synth-photo" 
+             id="synth-photo">
+        
+        <!-- Interactive Hotspots (mapped to actual positions) -->
+        <div class="hotspot" style="left: 15%; top: 25%;" data-module="vco1" data-freq="440">
+          <div class="hotspot-label">VCO 1 (440 Hz)</div>
+        </div>
+        <div class="hotspot" style="left: 30%; top: 25%;" data-module="vco2" data-freq="442">
+          <div class="hotspot-label">VCO 2 (442 Hz)</div>
+        </div>
+        <div class="hotspot" style="left: 45%; top: 25%;" data-module="vco3" data-freq="220">
+          <div class="hotspot-label">VCO 3 (220 Hz)</div>
+        </div>
+        <div class="hotspot" style="left: 60%; top: 30%;" data-module="vcf" data-freq="1000">
+          <div class="hotspot-label">VCF (1kHz Cutoff)</div>
+        </div>
+        <div class="hotspot" style="left: 75%; top: 35%;" data-module="adsr" data-freq="envelope">
+          <div class="hotspot-label">ADSR Envelope</div>
+        </div>
+        <div class="hotspot" style="left: 85%; top: 25%;" data-module="vca" data-freq="amp">
+          <div class="hotspot-label">VCA Amplifier</div>
+        </div>
+        <div class="hotspot" style="left: 20%; top: 50%;" data-module="lfo" data-freq="2">
+          <div class="hotspot-label">LFO (2 Hz)</div>
+        </div>
+        <div class="hotspot" style="left: 50%; top: 55%;" data-module="ringmod" data-freq="modulator">
+          <div class="hotspot-label">Ring Modulator</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud">
+      <div class="logo">BEHRINGER 2600</div>
+      <div class="subtitle">Interactive 2D - Real Photo Mapping</div>
+    </div>
+
+    <!-- Frequency Mapper Panel -->
+    <div class="frequency-panel">
+      <div class="freq-title">Frequency Mapper</div>
+      
+      <div class="freq-control">
+        <label class="freq-label">VCO 1 Frequency</label>
+        <span class="freq-value" id="vco1-freq-display">440.00 Hz</span>
+        <input type="range" class="freq-slider" id="vco1-freq" 
+               min="20" max="10000" value="440" step="0.1"
+               oninput="updateFrequency('vco1', this.value)">
+        <small style="color: #666; font-size: 0.75rem;">Audio: 10Hz - 10kHz</small>
+      </div>
+
+      <div class="freq-control">
+        <label class="freq-label">VCO 2 Frequency</label>
+        <span class="freq-value" id="vco2-freq-display">442.00 Hz</span>
+        <input type="range" class="freq-slider" id="vco2-freq" 
+               min="20" max="10000" value="442" step="0.1"
+               oninput="updateFrequency('vco2', this.value)">
+        <small style="color: #666; font-size: 0.75rem;">Detune: ±50 cents</small>
+      </div>
+
+      <div class="freq-control">
+        <label class="freq-label">VCO 3 Frequency</label>
+        <span class="freq-value" id="vco3-freq-display">220.00 Hz</span>
+        <input type="range" class="freq-slider" id="vco3-freq" 
+               min="20" max="10000" value="220" step="0.1"
+               oninput="updateFrequency('vco3', this.value)">
+        <small style="color: #666; font-size: 0.75rem;">10 octave range</small>
+      </div>
+
+      <div class="freq-control">
+        <label class="freq-label">VCF Cutoff</label>
+        <span class="freq-value" id="vcf-freq-display">1000.00 Hz</span>
+        <input type="range" class="freq-slider" id="vcf-freq" 
+               min="20" max="20000" value="1000" step="1"
+               oninput="updateFrequency('vcf', this.value)">
+        <small style="color: #666; font-size: 0.75rem;">24dB/oct Ladder Filter</small>
+      </div>
+
+      <div class="freq-control">
+        <label class="freq-label">LFO Rate</label>
+        <span class="freq-value" id="lfo-freq-display">2.00 Hz</span>
+        <input type="range" class="freq-slider" id="lfo-freq" 
+               min="0.03" max="30" value="2" step="0.01"
+               oninput="updateFrequency('lfo', this.value)">
+        <small style="color: #666; font-size: 0.75rem;">LF: 0.03Hz - 30Hz</small>
+      </div>
+
+      <div class="freq-control">
+        <label class="freq-label">Resonance</label>
+        <span class="freq-value" id="res-display">50%</span>
+        <input type="range" class="freq-slider" id="resonance" 
+               min="0" max="100" value="50" step="1"
+               oninput="updateResonance(this.value)">
+      </div>
+
+      <!-- ADSR Envelope Controls -->
+      <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid rgba(255, 107, 53, 0.3);">
+        <div style="color: var(--haos-groove-orange); font-family: var(--haos-font-display); font-size: 1.2rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 2px;">
+          ⚡ ADSR Envelope
+        </div>
+
+        <div class="freq-control">
+          <label class="freq-label">Attack</label>
+          <span class="freq-value" id="adsr-attack-display">0.01 s</span>
+          <input type="range" class="freq-slider" id="adsr-attack" 
+                 min="0.001" max="2" value="0.01" step="0.001"
+                 oninput="updateADSR('attack', this.value)">
+          <small style="color: #666; font-size: 0.75rem;">Attack time: 1ms - 2s</small>
+        </div>
+
+        <div class="freq-control">
+          <label class="freq-label">Decay</label>
+          <span class="freq-value" id="adsr-decay-display">0.1 s</span>
+          <input type="range" class="freq-slider" id="adsr-decay" 
+                 min="0.001" max="2" value="0.1" step="0.001"
+                 oninput="updateADSR('decay', this.value)">
+          <small style="color: #666; font-size: 0.75rem;">Decay time: 1ms - 2s</small>
+        </div>
+
+        <div class="freq-control">
+          <label class="freq-label">Sustain</label>
+          <span class="freq-value" id="adsr-sustain-display">70%</span>
+          <input type="range" class="freq-slider" id="adsr-sustain" 
+                 min="0" max="100" value="70" step="1"
+                 oninput="updateADSR('sustain', this.value)">
+          <small style="color: #666; font-size: 0.75rem;">Sustain level: 0% - 100%</small>
+        </div>
+
+        <div class="freq-control">
+          <label class="freq-label">Release</label>
+          <span class="freq-value" id="adsr-release-display">0.3 s</span>
+          <input type="range" class="freq-slider" id="adsr-release" 
+                 min="0.001" max="5" value="0.3" step="0.001"
+                 oninput="updateADSR('release', this.value)">
+          <small style="color: #666; font-size: 0.75rem;">Release time: 1ms - 5s</small>
+        </div>
+
+        <div style="margin-top: 0.75rem; padding: 0.5rem; background: rgba(255, 107, 53, 0.1); border-radius: 4px; border: 1px solid rgba(255, 107, 53, 0.2);">
+          <small style="color: #888; font-size: 0.75rem; line-height: 1.4;">
+            <strong style="color: var(--haos-groove-orange);">Gate Routing:</strong> Patch KBD_GATE → ADSR_GATE, then ADSR_OUT → VCA_CV for keyboard control
+          </small>
+        </div>
+
+        <!-- ADSR Visual Display -->
+        <div style="margin-top: 1rem; padding: 1rem; background: rgba(10, 10, 10, 0.8); border-radius: 8px; border: 2px solid rgba(255, 107, 53, 0.2);">
+          <div style="color: var(--haos-turntable-gold); font-size: 0.8rem; margin-bottom: 0.5rem; font-family: var(--haos-font-mono); text-transform: uppercase;">
+            Envelope Shape
+          </div>
+          <canvas id="adsr-canvas" width="300" height="100" style="width: 100%; height: auto; border-radius: 4px; background: rgba(0, 0, 0, 0.5);"></canvas>
+          <div style="margin-top: 0.5rem; display: flex; justify-content: space-between; font-size: 0.7rem; color: #666; font-family: var(--haos-font-mono);">
+            <span>A</span>
+            <span>D</span>
+            <span>S</span>
+            <span>R</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patch Bay Panel -->
+    <div class="patch-bay-panel">
+      <div class="patch-title">Patch Bay</div>
+      
+      <!-- VCO Outputs (matching real Behringer 2600) -->
+      <div class="patch-section">
+        <span class="patch-section-title">VCO 1 (Oscillator 1)</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-output" data-jack="VCO1_SAW" data-label="SAW"></div>
+          <div class="patch-jack jack-output" data-jack="VCO1_PULSE" data-label="PULSE"></div>
+        </div>
+      </div>
+
+      <div class="patch-section">
+        <span class="patch-section-title">VCO 2 (Oscillator 2)</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-output" data-jack="VCO2_TRI" data-label="TRI"></div>
+          <div class="patch-jack jack-output" data-jack="VCO2_SAW" data-label="SAW"></div>
+          <div class="patch-jack jack-output" data-jack="VCO2_SINE" data-label="SINE"></div>
+          <div class="patch-jack jack-output" data-jack="VCO2_PULSE" data-label="PULSE"></div>
+        </div>
+      </div>
+
+      <div class="patch-section">
+        <span class="patch-section-title">VCO 3 (Oscillator 3)</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-output" data-jack="VCO3_TRI" data-label="TRI"></div>
+          <div class="patch-jack jack-output" data-jack="VCO3_SAW" data-label="SAW"></div>
+          <div class="patch-jack jack-output" data-jack="VCO3_SINE" data-label="SINE"></div>
+          <div class="patch-jack jack-output" data-jack="VCO3_PULSE" data-label="PULSE"></div>
+        </div>
+      </div>
+
+      <!-- Keyboard CV -->
+      <div class="patch-section">
+        <span class="patch-section-title">Keyboard CV (1V/octave)</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-output" data-jack="KBD_CV" data-label="KBD CV"></div>
+          <div class="patch-jack jack-output" data-jack="KBD_GATE" data-label="KBD GATE"></div>
+          <div class="patch-jack jack-output" data-jack="KBD_TRIG" data-label="KBD TRIG"></div>
+        </div>
+      </div>
+
+      <!-- CV Inputs for VCOs -->
+      <div class="patch-section">
+        <span class="patch-section-title">VCO CV Inputs</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-input" data-jack="VCO1_CV" data-label="VCO1 CV"></div>
+          <div class="patch-jack jack-input" data-jack="VCO2_CV" data-label="VCO2 CV"></div>
+          <div class="patch-jack jack-input" data-jack="VCO3_CV" data-label="VCO3 CV"></div>
+        </div>
+      </div>
+
+      <!-- FM Inputs for each VCO -->
+      <div class="patch-section">
+        <span class="patch-section-title">FM Inputs (Frequency Modulation)</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-input" data-jack="VCO1_FM" data-label="VCO1 FM"></div>
+          <div class="patch-jack jack-input" data-jack="VCO2_FM" data-label="VCO2 FM"></div>
+          <div class="patch-jack jack-input" data-jack="VCO3_FM" data-label="VCO3 FM"></div>
+        </div>
+      </div>
+
+      <!-- Mixer Inputs -->
+      <div class="patch-section">
+        <span class="patch-section-title">Mixer Inputs</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-input" data-jack="MIXER_1" data-label="MIX 1"></div>
+          <div class="patch-jack jack-input" data-jack="MIXER_2" data-label="MIX 2"></div>
+          <div class="patch-jack jack-input" data-jack="MIXER_3" data-label="MIX 3"></div>
+          <div class="patch-jack jack-input" data-jack="MIXER_4" data-label="MIX 4"></div>
+          <div class="patch-jack jack-input" data-jack="MIXER_EXT" data-label="EXT IN"></div>
+        </div>
+      </div>
+
+      <!-- VCF Section (Filter) -->
+      <div class="patch-section">
+        <span class="patch-section-title">VCF (24dB Ladder Filter)</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-input" data-jack="VCF_INPUT" data-label="VCF IN"></div>
+          <div class="patch-jack jack-output" data-jack="VCF_OUTPUT" data-label="VCF OUT"></div>
+        </div>
+        <div class="patch-jacks" style="margin-top: 0.5rem;">
+          <div class="patch-jack jack-input" data-jack="VCF_CUTOFF_CV" data-label="CUTOFF CV"></div>
+          <div class="patch-jack jack-input" data-jack="VCF_RES_CV" data-label="RES CV"></div>
+        </div>
+      </div>
+
+      <!-- ADSR Envelope -->
+      <div class="patch-section">
+        <span class="patch-section-title">ADSR Envelope</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-output" data-jack="ADSR_OUT" data-label="ADSR OUT"></div>
+          <div class="patch-jack jack-input" data-jack="ADSR_GATE" data-label="GATE IN"></div>
+        </div>
+      </div>
+
+      <!-- VCA Section (Amplifier) -->
+      <div class="patch-section">
+        <span class="patch-section-title">VCA (Amplifier)</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-input" data-jack="VCA_IN" data-label="VCA IN"></div>
+          <div class="patch-jack jack-output" data-jack="VCA_OUT" data-label="VCA OUT"></div>
+          <div class="patch-jack jack-input" data-jack="VCA_CV" data-label="VCA CV"></div>
+        </div>
+      </div>
+
+      <!-- Modulation Sources -->
+      <div class="patch-section">
+        <span class="patch-section-title">Modulation</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-output" data-jack="LFO_TRI" data-label="LFO TRI"></div>
+          <div class="patch-jack jack-output" data-jack="LFO_SQR" data-label="LFO SQR"></div>
+          <div class="patch-jack jack-output" data-jack="NOISE_WHITE" data-label="NOISE"></div>
+          <div class="patch-jack jack-output" data-jack="SAMPLE_HOLD" data-label="S&H"></div>
+        </div>
+      </div>
+
+      <!-- Reverb / Effects -->
+      <div class="patch-section">
+        <span class="patch-section-title">Reverb / Effects</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-input" data-jack="REVERB_IN" data-label="REVERB IN"></div>
+          <div class="patch-jack jack-output" data-jack="REVERB_OUT" data-label="REVERB OUT"></div>
+        </div>
+      </div>
+
+      <!-- Ring Modulator -->
+      <div class="patch-section">
+        <span class="patch-section-title">Ring Modulator</span>
+        <div class="patch-jacks">
+          <div class="patch-jack jack-input" data-jack="RINGMOD_IN1" data-label="RM IN1"></div>
+          <div class="patch-jack jack-input" data-jack="RINGMOD_IN2" data-label="RM IN2"></div>
+          <div class="patch-jack jack-output" data-jack="RINGMOD_OUT" data-label="RM OUT"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard Indicator -->
+    <div style="position: absolute; bottom: 2rem; left: 2rem; background: rgba(10, 10, 10, 0.9); padding: 1rem; border-radius: 8px; border: 2px solid rgba(0, 212, 255, 0.3); max-width: 400px;">
+      <div style="color: #00d4ff; font-size: 0.9rem; font-weight: bold; margin-bottom: 0.5rem;">🎹 Keyboard Control</div>
+      <div style="color: #888; font-size: 0.8rem; line-height: 1.5;">
+        <div><strong>Computer Keys:</strong> A-L row (white keys)</div>
+        <div><strong>Black Keys:</strong> W, E, T, Y, U, O, P</div>
+        <div><strong>MIDI:</strong> <span id="midi-status" style="color: #ff6600;">Checking...</span></div>
+        <div><strong>Current Note:</strong> <span id="current-note" style="color: #0f0;">---</span></div>
+        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #666;">
+          Patch <strong>KBD_CV → VCO_CV</strong> to play notes!
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="control-btn" id="play-btn" onclick="playSound()">
+        ▶️ Play Sound
+      </button>
+      <button class="control-btn" onclick="exportFrequencyMap()">
+        📊 Export Map
+      </button>
+    </div>
+
+    <!-- Patch Bay Overlay with Interactive Points -->
+    <div class="patch-bay-overlay" id="patch-bay-overlay">
+      <!-- SVG for cable visualization -->
+      <svg class="cables-svg" id="cables-svg"></svg>
+      
+      <!-- Patch points will be dynamically created here -->
+    </div>
+
+    <!-- Patch Control Panel -->
+    <div class="patch-panel">
+      <button class="patch-mode-btn" id="patch-mode-btn" onclick="togglePatchMode()">
+        <i class="fas fa-plug"></i> Patch Mode: OFF
+      </button>
+      <div class="patch-info" id="patch-info">
+        Click two points to create a patch
+      </div>
+      <button class="clear-patches-btn" onclick="clearAllPatches()">
+        <i class="fas fa-times"></i> Clear All
+      </button>
+    </div>
+  </div>
+
+  <div class="tooltip" id="tooltip"></div>
+
+  <script>
+    // Audio Context
+    let audioContext;
+    let vco1Osc, vco2Osc, vco3Osc;
+    let vcfFilter, vca, lfo;
+    let isPlaying = false;
+    
+    // Gain nodes for mixing
+    let vco1Gain, vco2Gain, vco3Gain;
+    let mixerGain, lfoGain;
+    
+    // Audio nodes registry
+    let audioNodes = {};
+    
+    // Keyboard CV system
+    let keyboardCV = null;
+    let keyboardGate = null;
+    let currentNote = 0; // MIDI note number
+    let baseFrequency = 440; // A4
+    
+    // MIDI support
+    let midiAccess = null;
+    let activeNotes = new Set();
+
+    // Frequency mapping (exact Behringer 2600 specs)
+    const frequencyMap = {
+      vco1: 440,
+      vco2: 442,
+      vco3: 220,
+      vcf: 1000,
+      lfo: 2,
+      resonance: 50,
+      // ADSR Envelope parameters
+      adsrAttack: 0.01,
+      adsrDecay: 0.1,
+      adsrSustain: 0.7,
+      adsrRelease: 0.3
+    };
+
+    // ADSR Envelope state
+    let adsrGainNode = null;
+    let adsrGateActive = false;
+
+    // Noise Generator
+    let whiteNoise = null;
+    let noiseGain = null;
+
+    // Ring Modulator
+    let ringModIn1Gain = null;
+    let ringModIn2Gain = null;
+    let ringModMultiplier = null;
+    let ringModOutput = null;
+
+    // Patch Bay System
+    let patchMode = false;
+    let selectedPatchPoint = null;
+    let patches = []; // Array of {from, to, cable} objects
+    let cableId = 0;
+
+    // Define patch points based on real Behringer 2600 layout
+    const patchPoints = {
+      // OUTPUTS (Green)
+      outputs: [
+        { id: 'vco1-tri', label: 'VCO1 TRI', type: 'output', x: 15, y: 75, signal: 'audio' },
+        { id: 'vco1-saw', label: 'VCO1 SAW', type: 'output', x: 17, y: 75, signal: 'audio' },
+        { id: 'vco1-pulse', label: 'VCO1 PLS', type: 'output', x: 19, y: 75, signal: 'audio' },
+        { id: 'vco2-tri', label: 'VCO2 TRI', type: 'output', x: 30, y: 75, signal: 'audio' },
+        { id: 'vco2-saw', label: 'VCO2 SAW', type: 'output', x: 32, y: 75, signal: 'audio' },
+        { id: 'vco2-pulse', label: 'VCO2 PLS', type: 'output', x: 34, y: 75, signal: 'audio' },
+        { id: 'vco3-tri', label: 'VCO3 TRI', type: 'output', x: 45, y: 75, signal: 'audio' },
+        { id: 'vco3-saw', label: 'VCO3 SAW', type: 'output', x: 47, y: 75, signal: 'audio' },
+        { id: 'vcf-out', label: 'VCF OUT', type: 'output', x: 60, y: 75, signal: 'audio' },
+        { id: 'adsr-out', label: 'ADSR', type: 'output', x: 75, y: 75, signal: 'cv' },
+        { id: 'lfo-out', label: 'LFO', type: 'output', x: 20, y: 85, signal: 'cv' },
+        { id: 'noise-out', label: 'NOISE', type: 'output', x: 80, y: 85, signal: 'audio' },
+        { id: 'ringmod-out', label: 'RING', type: 'output', x: 50, y: 85, signal: 'audio' },
+      ],
+      // INPUTS (Red)
+      inputs: [
+        { id: 'mixer-1', label: 'MIX 1', type: 'input', x: 58, y: 78, signal: 'audio' },
+        { id: 'mixer-2', label: 'MIX 2', type: 'input', x: 60, y: 78, signal: 'audio' },
+        { id: 'mixer-3', label: 'MIX 3', type: 'input', x: 62, y: 78, signal: 'audio' },
+        { id: 'vcf-in', label: 'VCF IN', type: 'input', x: 60, y: 80, signal: 'audio' },
+        { id: 'vcf-cv', label: 'VCF CV', type: 'input', x: 62, y: 80, signal: 'cv' },
+        { id: 'vca-in', label: 'VCA IN', type: 'input', x: 85, y: 78, signal: 'audio' },
+        { id: 'vca-cv', label: 'VCA CV', type: 'input', x: 87, y: 78, signal: 'cv' },
+        { id: 'vco1-fm', label: 'VCO1 FM', type: 'input', x: 17, y: 78, signal: 'cv' },
+        { id: 'vco2-fm', label: 'VCO2 FM', type: 'input', x: 32, y: 78, signal: 'cv' },
+        { id: 'vco3-fm', label: 'VCO3 FM', type: 'input', x: 47, y: 78, signal: 'cv' },
+      ]
+    };
+
+    function init() {
+      initAudio();
+      setupHotspots();
+      setupPatchBay();
+      setupKeyboard();
+      initMIDI();
+      
+      setTimeout(() => {
+        document.getElementById('loading').classList.add('hidden');
+      }, 800);
+    }
+    
+    function setupKeyboard() {
+      // Computer keyboard mapping (musical keyboard layout)
+      const keyMap = {
+        'a': 60,  // C4
+        'w': 61,  // C#4
+        's': 62,  // D4
+        'e': 63,  // D#4
+        'd': 64,  // E4
+        'f': 65,  // F4
+        't': 66,  // F#4
+        'g': 67,  // G4
+        'y': 68,  // G#4
+        'h': 69,  // A4
+        'u': 70,  // A#4
+        'j': 71,  // B4
+        'k': 72,  // C5
+        'o': 73,  // C#5
+        'l': 74,  // D5
+        'p': 75,  // D#5
+        ';': 76,  // E5
+      };
+      
+      document.addEventListener('keydown', (e) => {
+        const note = keyMap[e.key.toLowerCase()];
+        if (note && !activeNotes.has(note)) {
+          activeNotes.add(note);
+          playNote(note);
+          console.log(`Keyboard: Note ON - ${note} (${noteToName(note)})`);
+        }
+      });
+      
+      document.addEventListener('keyup', (e) => {
+        const note = keyMap[e.key.toLowerCase()];
+        if (note && activeNotes.has(note)) {
+          activeNotes.delete(note);
+          stopNote(note);
+          console.log(`Keyboard: Note OFF - ${note}`);
+        }
+      });
+      
+      console.log('Computer keyboard ready (ASDF... row for white keys, WE... for black keys)');
+    }
+    
+    function initMIDI() {
+      const statusEl = document.getElementById('midi-status');
+      
+      if (navigator.requestMIDIAccess) {
+        navigator.requestMIDIAccess()
+          .then((access) => {
+            midiAccess = access;
+            console.log('MIDI access granted');
+            
+            // List available MIDI devices
+            const inputs = Array.from(midiAccess.inputs.values());
+            if (inputs.length > 0) {
+              console.log('MIDI devices:', inputs.map(i => i.name));
+              statusEl.textContent = `Connected (${inputs.length} device${inputs.length > 1 ? 's' : ''})`;
+              statusEl.style.color = '#0f0';
+              inputs.forEach(input => {
+                input.onmidimessage = handleMIDIMessage;
+              });
+            } else {
+              console.log('No MIDI devices found. Use computer keyboard.');
+              statusEl.textContent = 'No devices (use computer keyboard)';
+              statusEl.style.color = '#ff6600';
+            }
+          })
+          .catch((err) => {
+            console.log('MIDI not available:', err.message);
+            statusEl.textContent = 'Not available';
+            statusEl.style.color = '#f00';
+          });
+      } else {
+        console.log('WebMIDI not supported. Use computer keyboard.');
+        statusEl.textContent = 'Not supported (use computer keyboard)';
+        statusEl.style.color = '#ff6600';
+      }
+    }
+    
+    function handleMIDIMessage(message) {
+      const [status, note, velocity] = message.data;
+      const command = status >> 4;
+      
+      // Note On (0x9) or Note Off (0x8)
+      if (command === 9 && velocity > 0) {
+        playNote(note, velocity / 127);
+        console.log(`MIDI: Note ON - ${note} (${noteToName(note)}) velocity ${velocity}`);
+      } else if (command === 8 || (command === 9 && velocity === 0)) {
+        stopNote(note);
+        console.log(`MIDI: Note OFF - ${note}`);
+      }
+    }
+    
+    function noteToName(note) {
+      const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      const octave = Math.floor(note / 12) - 1;
+      return names[note % 12] + octave;
+    }
+    
+    function noteToFrequency(note) {
+      // MIDI note to frequency: f = 440 * 2^((note - 69) / 12)
+      return 440 * Math.pow(2, (note - 69) / 12);
+    }
+    
+    function playNote(note, velocity = 1.0) {
+      currentNote = note;
+      const frequency = noteToFrequency(note);
+      
+      // Update UI
+      const noteEl = document.getElementById('current-note');
+      if (noteEl) {
+        noteEl.textContent = `${noteToName(note)} (${frequency.toFixed(2)} Hz)`;
+      }
+      
+      console.log(`Playing note ${note} (${noteToName(note)}) at ${frequency.toFixed(2)} Hz`);
+      
+      // Update keyboard CV
+      if (keyboardCV && isPlaying) {
+        // Check if KBD_CV is patched to any VCO
+        const kbdPatches = patches.filter(p => p.from === 'KBD_CV');
+        
+        if (kbdPatches.length > 0) {
+          // Apply CV to patched VCOs
+          kbdPatches.forEach(patch => {
+            if (patch.to === 'VCO1_CV' && vco1Osc) {
+              vco1Osc.frequency.setValueAtTime(frequency, audioContext.currentTime);
+              console.log(`KBD_CV → VCO1: ${frequency.toFixed(2)} Hz`);
+            } else if (patch.to === 'VCO2_CV' && vco2Osc) {
+              vco2Osc.frequency.setValueAtTime(frequency, audioContext.currentTime);
+              console.log(`KBD_CV → VCO2: ${frequency.toFixed(2)} Hz`);
+            } else if (patch.to === 'VCO3_CV' && vco3Osc) {
+              vco3Osc.frequency.setValueAtTime(frequency, audioContext.currentTime);
+              console.log(`KBD_CV → VCO3: ${frequency.toFixed(2)} Hz`);
+            }
+          });
+        } else {
+          // Default: control all VCOs
+          if (vco1Osc) vco1Osc.frequency.setValueAtTime(frequency, audioContext.currentTime);
+          if (vco2Osc) vco2Osc.frequency.setValueAtTime(frequency, audioContext.currentTime);
+          if (vco3Osc) vco3Osc.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        }
+        
+        // Check if KBD_GATE is patched to ADSR
+        const adsrGatePatched = patches.some(p => 
+          (p.from === 'KBD_GATE' && p.to === 'ADSR_GATE') ||
+          (p.from === 'KBD_TRIG' && p.to === 'ADSR_GATE')
+        );
+        
+        if (adsrGatePatched) {
+          // Trigger ADSR envelope
+          triggerADSRGate(velocity);
+          console.log('🎹 → ADSR Gate Triggered');
+        } else {
+          // Default: direct VCA control
+          if (keyboardGate && vca) {
+            vca.gain.setValueAtTime(0.7 * velocity, audioContext.currentTime);
+          }
+        }
+      } else if (!isPlaying) {
+        // Auto-start sound on first note
+        playSound();
+        // Try again after audio starts
+        setTimeout(() => playNote(note, velocity), 100);
+      }
+    }
+    
+    function stopNote(note) {
+      // Check if ADSR is being used
+      const adsrGatePatched = patches.some(p => 
+        (p.from === 'KBD_GATE' && p.to === 'ADSR_GATE') ||
+        (p.from === 'KBD_TRIG' && p.to === 'ADSR_GATE')
+      );
+      
+      if (adsrGatePatched) {
+        // Release ADSR envelope
+        releaseADSRGate();
+        console.log('🎹 Release → ADSR Gate Released');
+      } else {
+        // Gate off - reduce volume (default)
+        if (keyboardGate && vca && isPlaying) {
+          vca.gain.setValueAtTime(0.3, audioContext.currentTime);
+        }
+      }
+    }
+
+    function initAudio() {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function setupPatchBay() {
+      // Add click handlers to patch jacks
+      const jacks = document.querySelectorAll('.patch-jack');
+      console.log(`Found ${jacks.length} patch jacks`);
+      
+      jacks.forEach((jack, index) => {
+        console.log(`Setting up jack ${index}: ${jack.dataset.jack}`);
+        jack.addEventListener('click', (e) => {
+          e.stopPropagation();
+          console.log(`Jack clicked: ${jack.dataset.jack}`);
+          handleJackClick(jack);
+        });
+      });
+
+      // Click anywhere to deselect
+      document.addEventListener('click', (e) => {
+        if (selectedPatchPoint) {
+          console.log('Deselecting jack');
+          selectedPatchPoint.classList.remove('selected');
+          selectedPatchPoint = null;
+        }
+      });
+
+      // Add clear patches button
+      const clearBtn = document.createElement('button');
+      clearBtn.textContent = 'Clear All Patches';
+      clearBtn.style.cssText = 'position: absolute; top: 1rem; right: 22rem; padding: 0.5rem 1rem; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer; z-index: 1001; font-family: monospace;';
+      clearBtn.onclick = clearAllPatches;
+      document.body.appendChild(clearBtn);
+      
+      console.log('Patch bay setup complete');
+    }
+
+    function handleJackClick(jack) {
+      const jackId = jack.dataset.jack;
+      const jackType = jack.classList.contains('jack-output') ? 'output' : 'input';
+      
+      console.log(`handleJackClick: ${jackId} (${jackType})`);
+      console.log(`Current selectedPatchPoint:`, selectedPatchPoint?.dataset?.jack || 'none');
+
+      if (!selectedPatchPoint) {
+        // First click - select source
+        selectedPatchPoint = jack;
+        jack.classList.add('selected');
+        console.log(`Selected jack: ${jackId}`);
+      } else {
+        // Second click - create patch
+        const firstJackId = selectedPatchPoint.dataset.jack;
+        const firstJackType = selectedPatchPoint.classList.contains('jack-output') ? 'output' : 'input';
+
+        console.log(`Attempting to patch: ${firstJackId} (${firstJackType}) → ${jackId} (${jackType})`);
+
+        // Validate connection (output → input)
+        if (firstJackType === 'output' && jackType === 'input') {
+          console.log('Valid output → input connection');
+          createPatch(firstJackId, jackId);
+        } else if (firstJackType === 'input' && jackType === 'output') {
+          console.log('Valid input → output connection (reversing)');
+          createPatch(jackId, firstJackId);
+        } else {
+          console.log('Invalid patch: must connect output to input');
+          console.log(`Reason: ${firstJackType} → ${jackType} is not valid`);
+        }
+
+        // Deselect
+        selectedPatchPoint.classList.remove('selected');
+        selectedPatchPoint = null;
+      }
+    }
+
+    function createPatch(fromId, toId) {
+      console.log(`createPatch called: ${fromId} → ${toId}`);
+      
+      // Check if patch already exists
+      const existing = patches.find(p => p.from === fromId && p.to === toId);
+      if (existing) {
+        console.log('Patch already exists, removing it');
+        // Remove existing patch
+        removePatch(existing.id);
+        return;
+      }
+
+      // Create visual cable
+      const fromJack = document.querySelector(`[data-jack="${fromId}"]`);
+      const toJack = document.querySelector(`[data-jack="${toId}"]`);
+      
+      console.log(`fromJack found:`, fromJack ? 'YES' : 'NO');
+      console.log(`toJack found:`, toJack ? 'YES' : 'NO');
+      
+      if (!fromJack || !toJack) {
+        console.error('Could not find one or both jacks!');
+        return;
+      }
+
+      console.log('Drawing cable...');
+      const cable = drawCable(fromJack, toJack);
+      const patchId = cableId++;
+
+      // Store patch
+      patches.push({
+        id: patchId,
+        from: fromId,
+        to: toId,
+        cable: cable
+      });
+
+      console.log(`Patch stored. Total patches: ${patches.length}`);
+
+      // Mark jacks as connected
+      fromJack.classList.add('jack-connected');
+      toJack.classList.add('jack-connected');
+
+      // Update audio routing
+      updateAudioRouting();
+
+      console.log(`✓ Patched: ${fromId} → ${toId}`);
+    }
+
+    function drawCable(fromEl, toEl) {
+      console.log('drawCable called');
+      let svg = document.getElementById('cables-svg');
+      if (!svg) {
+        console.log('Creating new SVG container for cables');
+        // Create SVG container for cables
+        svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.id = 'cables-svg';
+        svg.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999;';
+        document.body.appendChild(svg);
+        console.log('SVG container created and added to body');
+      }
+
+      // Get jack positions
+      const fromRect = fromEl.getBoundingClientRect();
+      const toRect = toEl.getBoundingClientRect();
+
+      const x1 = fromRect.left + fromRect.width / 2;
+      const y1 = fromRect.top + fromRect.height / 2;
+      const x2 = toRect.left + toRect.width / 2;
+      const y2 = toRect.top + toRect.height / 2;
+      
+      console.log(`Cable coordinates: (${x1}, ${y1}) → (${x2}, ${y2})`);
+
+      // Create cubic bezier curve
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const cx1 = x1 + dx * 0.3;
+      const cy1 = y1 + dy * 0.8;
+      const cx2 = x1 + dx * 0.7;
+      const cy2 = y1 + dy * 0.2;
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const d = `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
+      path.setAttribute('d', d);
+      path.setAttribute('class', 'patch-cable');
+      path.setAttribute('stroke', getRandomCableColor());
+      path.setAttribute('stroke-width', '2.5');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('filter', 'drop-shadow(0 0 4px currentColor)');
+      path.style.cursor = 'pointer';
+      path.style.pointerEvents = 'stroke';
+      
+      // Click to remove
+      path.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const patch = patches.find(p => p.cable === path);
+        if (patch) removePatch(patch.id);
+      });
+
+      svg.appendChild(path);
+      return path;
+    }
+
+    function getRandomCableColor() {
+      const colors = ['#00d4ff', '#ff00ff', '#00ff00', '#ffff00', '#ff6600', '#ff0066'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function removePatch(patchId) {
+      const patchIndex = patches.findIndex(p => p.id === patchId);
+      if (patchIndex === -1) return;
+
+      const patch = patches[patchIndex];
+      
+      // Remove cable
+      if (patch.cable && patch.cable.parentNode) {
+        patch.cable.parentNode.removeChild(patch.cable);
+      }
+
+      // Update jack states
+      const fromJack = document.querySelector(`[data-jack="${patch.from}"]`);
+      const toJack = document.querySelector(`[data-jack="${patch.to}"]`);
+      
+      // Check if jacks have other connections
+      const fromHasOthers = patches.some((p, i) => i !== patchIndex && (p.from === patch.from || p.to === patch.from));
+      const toHasOthers = patches.some((p, i) => i !== patchIndex && (p.from === patch.to || p.to === patch.to));
+      
+      if (!fromHasOthers && fromJack) fromJack.classList.remove('jack-connected');
+      if (!toHasOthers && toJack) toJack.classList.remove('jack-connected');
+
+      // Remove from array
+      patches.splice(patchIndex, 1);
+
+      // Update audio routing
+      updateAudioRouting();
+
+      console.log(`Removed patch: ${patch.from} → ${patch.to}`);
+    }
+
+    function clearAllPatches() {
+      while (patches.length > 0) {
+        removePatch(patches[0].id);
+      }
+    }
+
+    function updateAudioRouting() {
+      // Rebuild the Web Audio graph based on active patches
+      console.log('=== Updating Audio Routing ===');
+      console.log('Active patches:', patches.map(p => `${p.from} → ${p.to}`));
+      
+      // If sound is playing, restart with new routing
+      if (isPlaying) {
+        console.log('Restarting audio with new patch configuration...');
+        const wasPlaying = isPlaying;
+        stopSound();
+        if (wasPlaying) {
+          setTimeout(() => playSound(), 100);
+        }
+      }
+    }
+
+    function init3D_REMOVED() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a0a0a);
+      scene.fog = new THREE.Fog(0x0a0a0a, 10, 50);
+
+      camera = new THREE.PerspectiveCamera(
+        50,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      camera.position.set(0, 5, 10);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.3;
+      document.getElementById('three-view').appendChild(renderer.domElement);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 4;
+      controls.maxDistance = 20;
+
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 0.9);
+      keyLight.position.set(8, 12, 8);
+      keyLight.castShadow = true;
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0x00d4ff, 0.4);
+      fillLight.position.set(-8, 8, -8);
+      scene.add(fillLight);
+
+      const pointLight1 = new THREE.PointLight(0x00d4ff, 1.5, 15);
+      pointLight1.position.set(-5, 3, 5);
+      scene.add(pointLight1);
+
+      const pointLight2 = new THREE.PointLight(0x0096ff, 1.5, 15);
+      pointLight2.position.set(5, 3, 5);
+      scene.add(pointLight2);
+
+      create3DSynth();
+
+      // Ground
+      const groundGeometry = new THREE.PlaneGeometry(40, 40);
+      const groundMaterial = new THREE.MeshStandardMaterial({
+        color: 0x0a0a0a,
+        roughness: 0.9
+      });
+      const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -0.6;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      animate3D();
+    }
+
+    function create3DSynth() {
+      synthModel = new THREE.Group();
+
+      // Main chassis (realistic dimensions)
+      const baseGeometry = new THREE.BoxGeometry(15, 0.5, 6);
+      const baseMaterial = new THREE.MeshStandardMaterial({
+        color: 0x4a3422,
+        roughness: 0.8,
+        metalness: 0.1
+      });
+      const base = new THREE.Mesh(baseGeometry, baseMaterial);
+      base.castShadow = true;
+      synthModel.add(base);
+
+      // Control panel
+      const panelGeometry = new THREE.BoxGeometry(14.5, 0.1, 5.5);
+      const panelMaterial = new THREE.MeshStandardMaterial({
+        color: 0xc8c8c8,
+        roughness: 0.3,
+        metalness: 0.6
+      });
+      const panel = new THREE.Mesh(panelGeometry, panelMaterial);
+      panel.position.set(0, 0.35, -0.25);
+      panel.rotation.x = -0.15;
+      panel.castShadow = true;
+      synthModel.add(panel);
+
+      // Create modules with mapped positions
+      createModule(-6, 0.4, -1, 0x505050, 'VCO1');
+      createModule(-4, 0.4, -1, 0x505050, 'VCO2');
+      createModule(-2, 0.4, -1, 0x505050, 'VCO3');
+      createModule(0, 0.4, -1, 0x606060, 'MIXER');
+      createModule(2, 0.4, -1, 0x5a5a5a, 'VCF');
+      createModule(4, 0.4, -1, 0x505050, 'ADSR');
+      createModule(6, 0.4, -1, 0x5a5a5a, 'VCA');
+
+      // Patch bay
+      createPatchBay();
+
+      scene.add(synthModel);
+    }
+
+    function createModule(x, y, z, color, label) {
+      const group = new THREE.Group();
+      
+      const moduleGeometry = new THREE.BoxGeometry(1.5, 0.08, 1.2);
+      const moduleMaterial = new THREE.MeshStandardMaterial({
+        color: color,
+        roughness: 0.3,
+        metalness: 0.6
+      });
+      const module = new THREE.Mesh(moduleGeometry, moduleMaterial);
+      group.add(module);
+
+      // Add knobs
+      for (let i = 0; i < 3; i++) {
+        const knob = createKnob(0.1);
+        knob.position.set(x - 0.5 + i * 0.5, y + 0.15, z);
+        synthModel.add(knob);
+      }
+
+      group.position.set(x, y, z);
+      synthModel.add(group);
+    }
+
+    function createKnob(size) {
+      const knobGroup = new THREE.Group();
+      
+      const baseGeometry = new THREE.CylinderGeometry(size, size * 0.9, size * 1.2, 32);
+      const baseMaterial = new THREE.MeshStandardMaterial({
+        color: 0x0f0f0f,
+        roughness: 0.5,
+        metalness: 0.6
+      });
+      const base = new THREE.Mesh(baseGeometry, baseMaterial);
+      base.castShadow = true;
+      knobGroup.add(base);
+
+      const indicatorGeometry = new THREE.BoxGeometry(size * 0.12, size * 0.5, size * 0.12);
+      const indicatorMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0xcccccc,
+        emissiveIntensity: 0.3
+      });
+      const indicator = new THREE.Mesh(indicatorGeometry, indicatorMaterial);
+      indicator.position.y = size * 0.4;
+      indicator.position.z = size * 0.85;
+      knobGroup.add(indicator);
+
+      return knobGroup;
+    }
+
+    function createPatchBay() {
+      const patchGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.08, 16);
+      const patchMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        roughness: 0.2,
+        metalness: 0.95
+      });
+
+      for (let row = 0; row < 6; row++) {
+        for (let col = 0; col < 24; col++) {
+          const patchPoint = new THREE.Mesh(patchGeometry, patchMaterial);
+          patchPoint.position.set(
+            -6 + col * 0.5,
+            0.42,
+            1.2 + row * 0.2
+          );
+          patchPoint.rotation.x = Math.PI / 2 + 0.15;
+          patchPoint.castShadow = true;
+          synthModel.add(patchPoint);
+        }
+      }
+    }
+
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    function setupHotspots() {
+      const hotspots = document.querySelectorAll('.hotspot');
+      hotspots.forEach(hotspot => {
+        hotspot.addEventListener('click', function() {
+          const module = this.dataset.module;
+          const freq = this.dataset.freq;
+          console.log(`Clicked: ${module} - ${freq}`);
+          
+          // Update frequency if numeric
+          if (!isNaN(freq)) {
+            updateFrequency(module, freq);
+          }
+        });
+      });
+    }
+
+    function updateFrequency(module, value) {
+      frequencyMap[module] = parseFloat(value);
+      const display = document.getElementById(`${module}-freq-display`);
+      if (display) {
+        display.textContent = `${parseFloat(value).toFixed(2)} Hz`;
+      }
+      
+      // Update audio if playing
+      if (isPlaying) {
+        updateAudioFrequencies();
+      }
+    }
+
+    function updateResonance(value) {
+      frequencyMap.resonance = parseFloat(value);
+      document.getElementById('res-display').textContent = `${value}%`;
+      
+      if (isPlaying && vcfFilter) {
+        vcfFilter.Q.value = (value / 100) * 30;
+      }
+    }
+
+    function updateADSR(param, value) {
+      const floatValue = parseFloat(value);
+      
+      switch(param) {
+        case 'attack':
+          frequencyMap.adsrAttack = floatValue;
+          document.getElementById('adsr-attack-display').textContent = `${floatValue.toFixed(3)} s`;
+          break;
+        case 'decay':
+          frequencyMap.adsrDecay = floatValue;
+          document.getElementById('adsr-decay-display').textContent = `${floatValue.toFixed(3)} s`;
+          break;
+        case 'sustain':
+          frequencyMap.adsrSustain = floatValue / 100;
+          document.getElementById('adsr-sustain-display').textContent = `${value}%`;
+          break;
+        case 'release':
+          frequencyMap.adsrRelease = floatValue;
+          document.getElementById('adsr-release-display').textContent = `${floatValue.toFixed(3)} s`;
+          break;
+      }
+      
+      console.log(`ADSR ${param}: ${floatValue}`);
+      
+      // Update visual display
+      drawADSREnvelope();
+    }
+
+    function drawADSREnvelope() {
+      const canvas = document.getElementById('adsr-canvas');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, width, height);
+      
+      // Get ADSR values
+      const attack = frequencyMap.adsrAttack;
+      const decay = frequencyMap.adsrDecay;
+      const sustain = frequencyMap.adsrSustain;
+      const release = frequencyMap.adsrRelease;
+      
+      // Calculate time scale
+      const totalTime = attack + decay + 0.5 + release; // 0.5s sustain display
+      const timeScale = width / totalTime;
+      
+      // Calculate points
+      const points = [
+        { x: 0, y: height },                                    // Start
+        { x: attack * timeScale, y: 10 },                       // Attack peak
+        { x: (attack + decay) * timeScale, y: height - (sustain * (height - 10)) }, // Decay to sustain
+        { x: (attack + decay + 0.5) * timeScale, y: height - (sustain * (height - 10)) }, // Sustain hold
+        { x: width, y: height }                                 // Release to 0
+      ];
+      
+      // Draw envelope
+      ctx.strokeStyle = '#FF6B35'; // HAOS orange
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.stroke();
+      
+      // Draw fill
+      ctx.fillStyle = 'rgba(255, 107, 53, 0.2)';
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.lineTo(width, height);
+      ctx.lineTo(0, height);
+      ctx.closePath();
+      ctx.fill();
+      
+      // Draw phase markers
+      ctx.fillStyle = '#D4AF37'; // Gold
+      ctx.font = '10px Space Mono';
+      
+      // Attack marker
+      ctx.fillText('A', attack * timeScale - 5, height - 5);
+      
+      // Decay marker
+      ctx.fillText('D', (attack + decay) * timeScale - 5, height - 5);
+      
+      // Sustain marker
+      ctx.fillText('S', (attack + decay + 0.25) * timeScale - 5, height - (sustain * (height - 10)) - 5);
+      
+      // Release marker
+      ctx.fillText('R', (attack + decay + 0.5 + release/2) * timeScale - 5, height - 5);
+      
+      // Gate active indicator
+      if (adsrGateActive) {
+        ctx.fillStyle = '#39FF14'; // Acid green
+        ctx.fillRect(5, 5, 10, 10);
+        ctx.fillText('GATE', 20, 13);
+      }
+    }
+
+    function triggerADSRGate(velocity = 1.0) {
+      if (!audioContext || !adsrGainNode) return;
+      
+      const now = audioContext.currentTime;
+      const attack = frequencyMap.adsrAttack;
+      const decay = frequencyMap.adsrDecay;
+      const sustain = frequencyMap.adsrSustain;
+      
+      // Cancel any ongoing envelope
+      adsrGainNode.gain.cancelScheduledValues(now);
+      
+      // ADSR Envelope: Attack → Decay → Sustain
+      adsrGainNode.gain.setValueAtTime(0, now);
+      adsrGainNode.gain.linearRampToValueAtTime(velocity, now + attack);
+      adsrGainNode.gain.linearRampToValueAtTime(velocity * sustain, now + attack + decay);
+      
+      adsrGateActive = true;
+      
+      console.log(`ADSR Gate ON: A=${attack.toFixed(3)}s D=${decay.toFixed(3)}s S=${(sustain*100).toFixed(0)}%`);
+    }
+
+    function releaseADSRGate() {
+      if (!audioContext || !adsrGainNode || !adsrGateActive) return;
+      
+      const now = audioContext.currentTime;
+      const release = frequencyMap.adsrRelease;
+      const currentValue = adsrGainNode.gain.value;
+      
+      // Cancel any ongoing ramps
+      adsrGainNode.gain.cancelScheduledValues(now);
+      
+      // Release phase
+      adsrGainNode.gain.setValueAtTime(currentValue, now);
+      adsrGainNode.gain.linearRampToValueAtTime(0, now + release);
+      
+      adsrGateActive = false;
+      
+      console.log(`ADSR Gate OFF: R=${release.toFixed(3)}s`);
+    }
+
+    function playSound() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      if (isPlaying) {
+        stopSound();
+        return;
+      }
+
+      isPlaying = true;
+      document.getElementById('play-btn').classList.add('active');
+      document.getElementById('play-btn').innerHTML = '⏹️ Stop';
+
+      // Create oscillators with gain nodes
+      vco1Osc = audioContext.createOscillator();
+      vco2Osc = audioContext.createOscillator();
+      vco3Osc = audioContext.createOscillator();
+
+      vco1Osc.type = 'sawtooth';
+      vco2Osc.type = 'sawtooth';
+      vco3Osc.type = 'triangle';
+
+      vco1Osc.frequency.value = frequencyMap.vco1;
+      vco2Osc.frequency.value = frequencyMap.vco2;
+      vco3Osc.frequency.value = frequencyMap.vco3;
+
+      // Create gain nodes for each VCO
+      vco1Gain = audioContext.createGain();
+      vco2Gain = audioContext.createGain();
+      vco3Gain = audioContext.createGain();
+      
+      vco1Gain.gain.value = 0.3;
+      vco2Gain.gain.value = 0.3;
+      vco3Gain.gain.value = 0.3;
+
+      // Connect oscillators to their gain nodes
+      vco1Osc.connect(vco1Gain);
+      vco2Osc.connect(vco2Gain);
+      vco3Osc.connect(vco3Gain);
+
+      // Create mixer
+      mixerGain = audioContext.createGain();
+      mixerGain.gain.value = 1.0;
+
+      // Create filter (24dB Ladder)
+      vcfFilter = audioContext.createBiquadFilter();
+      vcfFilter.type = 'lowpass';
+      vcfFilter.frequency.value = frequencyMap.vcf;
+      vcfFilter.Q.value = (frequencyMap.resonance / 100) * 30;
+
+      // Create VCA
+      vca = audioContext.createGain();
+      vca.gain.value = 0.5;
+
+      // Create LFO
+      lfo = audioContext.createOscillator();
+      lfo.frequency.value = frequencyMap.lfo;
+      lfo.type = 'sine';
+
+      lfoGain = audioContext.createGain();
+      lfoGain.gain.value = 200;
+      
+      // Create keyboard CV node (constant source)
+      keyboardCV = audioContext.createConstantSource();
+      keyboardCV.offset.value = 440; // Default to A4
+      keyboardCV.start();
+      
+      // Create keyboard gate node
+      keyboardGate = audioContext.createConstantSource();
+      keyboardGate.offset.value = 0; // Off by default
+      keyboardGate.start();
+
+      // Create ADSR envelope generator (gain node)
+      adsrGainNode = audioContext.createGain();
+      adsrGainNode.gain.value = 0; // Start at 0
+      adsrGateActive = false;
+
+      // Create White Noise Generator
+      const bufferSize = 2 * audioContext.sampleRate;
+      const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1; // White noise: -1 to 1
+      }
+      
+      const whiteNoise = audioContext.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+      whiteNoise.loop = true;
+      
+      const noiseGain = audioContext.createGain();
+      noiseGain.gain.value = 0.3; // Moderate noise level
+      
+      whiteNoise.connect(noiseGain);
+      whiteNoise.start();
+
+      // Create Ring Modulator using WaveShaperNode
+      const ringModIn1Gain = audioContext.createGain();
+      const ringModIn2Gain = audioContext.createGain();
+      const ringModMultiplier = audioContext.createGain();
+      ringModMultiplier.gain.value = 0;
+      
+      // Ring modulation: output = input1 * input2
+      // We use gain.value modulation technique
+      ringModIn1Gain.connect(ringModMultiplier);
+      ringModIn2Gain.connect(ringModMultiplier.gain); // Input 2 modulates the gain
+      
+      const ringModOutput = audioContext.createGain();
+      ringModOutput.gain.value = 2.0; // Compensate for multiplication attenuation
+      ringModMultiplier.connect(ringModOutput);
+
+      // Store audio nodes for patching
+      audioNodes = {
+        'VCO1_SAW': vco1Gain,
+        'VCO1_PULSE': vco1Gain,
+        'VCO2_TRI': vco2Gain,
+        'VCO2_SAW': vco2Gain,
+        'VCO2_SINE': vco2Gain,
+        'VCO2_PULSE': vco2Gain,
+        'VCO3_TRI': vco3Gain,
+        'VCO3_SAW': vco3Gain,
+        'VCO3_SINE': vco3Gain,
+        'VCO3_PULSE': vco3Gain,
+        'MIXER_1': mixerGain,
+        'MIXER_2': mixerGain,
+        'MIXER_3': mixerGain,
+        'MIXER_4': mixerGain,
+        'VCF_INPUT': vcfFilter,
+        'VCF_OUTPUT': vcfFilter,
+        'VCF_CUTOFF_CV': vcfFilter.frequency,
+        'VCA_IN': vca,
+        'VCA_OUT': vca,
+        'VCA_CV': vca.gain,
+        'LFO_TRI': lfoGain,
+        'LFO_SQR': lfoGain,
+        'KBD_CV': keyboardCV,
+        'KBD_GATE': keyboardGate,
+        'ADSR_OUT': adsrGainNode,
+        'ADSR_GATE': keyboardGate, // ADSR gate input (receives keyboard gate)
+        'NOISE_WHITE': noiseGain,
+        'RINGMOD_IN1': ringModIn1Gain,
+        'RINGMOD_IN2': ringModIn2Gain,
+        'RINGMOD_OUT': ringModOutput,
+      };
+
+      // Default routing (if no patches)
+      if (patches.length === 0) {
+        // VCOs → Mixer
+        vco1Gain.connect(mixerGain);
+        vco2Gain.connect(mixerGain);
+        vco3Gain.connect(mixerGain);
+        
+        // Mixer → VCF → VCA → Output
+        mixerGain.connect(vcfFilter);
+        vcfFilter.connect(vca);
+        vca.connect(audioContext.destination);
+
+        // LFO → VCF modulation
+        lfo.connect(lfoGain);
+        lfoGain.connect(vcfFilter.frequency);
+      } else {
+        // Apply custom routing based on patches
+        applyPatchRouting();
+      }
+
+      // Start oscillators
+      vco1Osc.start();
+      vco2Osc.start();
+      vco3Osc.start();
+      lfo.start();
+      
+      console.log('Sound started with', patches.length, 'patches');
+    }
+
+    function stopSound() {
+      if (isPlaying && vco1Osc) {
+        vco1Osc.stop();
+        vco2Osc.stop();
+        vco3Osc.stop();
+        lfo.stop();
+        
+        // Stop noise generator
+        if (whiteNoise) {
+          whiteNoise.stop();
+        }
+        
+        // Disconnect all nodes
+        try {
+          vco1Gain.disconnect();
+          vco2Gain.disconnect();
+          vco3Gain.disconnect();
+          mixerGain.disconnect();
+          vcfFilter.disconnect();
+          vca.disconnect();
+          lfoGain.disconnect();
+          if (noiseGain) noiseGain.disconnect();
+          if (ringModOutput) ringModOutput.disconnect();
+          if (ringModMultiplier) ringModMultiplier.disconnect();
+          if (ringModIn1Gain) ringModIn1Gain.disconnect();
+          if (ringModIn2Gain) ringModIn2Gain.disconnect();
+        } catch (e) {
+          console.log('Disconnect cleanup:', e.message);
+        }
+        
+        isPlaying = false;
+        document.getElementById('play-btn').classList.remove('active');
+        document.getElementById('play-btn').innerHTML = '▶️ Play';
+      }
+    }
+
+    function applyPatchRouting() {
+      console.log('Applying patch routing...');
+      
+      // Disconnect all default connections
+      try {
+        vco1Gain.disconnect();
+        vco2Gain.disconnect();
+        vco3Gain.disconnect();
+        mixerGain.disconnect();
+        vcfFilter.disconnect();
+        vca.disconnect();
+        lfoGain.disconnect();
+      } catch (e) {
+        // Some nodes might not be connected yet
+      }
+
+      // Track what's been connected
+      let hasOutput = false;
+
+      // Apply each patch
+      patches.forEach(patch => {
+        const fromNode = getAudioNode(patch.from);
+        const toNode = getAudioNode(patch.to);
+        
+        if (fromNode && toNode) {
+          try {
+            // Special handling for CV inputs
+            if (patch.to === 'VCF_CUTOFF_CV') {
+              fromNode.connect(vcfFilter.frequency);
+              console.log(`✓ Patched ${patch.from} → VCF CUTOFF (modulation)`);
+            } else if (patch.to === 'VCA_CV') {
+              fromNode.connect(vca.gain);
+              console.log(`✓ Patched ${patch.from} → VCA CV (modulation)`);
+            } else if (patch.to.includes('FM')) {
+              // FM connections - modulate frequency
+              const vcoNum = patch.to.charAt(3); // VCO1_FM -> '1'
+              if (vcoNum === '1' && vco1Osc) fromNode.connect(vco1Osc.frequency);
+              if (vcoNum === '2' && vco2Osc) fromNode.connect(vco2Osc.frequency);
+              if (vcoNum === '3' && vco3Osc) fromNode.connect(vco3Osc.frequency);
+              console.log(`✓ Patched ${patch.from} → VCO${vcoNum} FM (frequency modulation)`);
+            } else if (patch.to.includes('VCO') && patch.to.includes('CV')) {
+              // Keyboard CV or other CV to VCO pitch
+              const vcoNum = patch.to.charAt(3); // VCO1_CV -> '1'
+              if (vcoNum === '1' && vco1Osc) fromNode.connect(vco1Osc.frequency);
+              if (vcoNum === '2' && vco2Osc) fromNode.connect(vco2Osc.frequency);
+              if (vcoNum === '3' && vco3Osc) fromNode.connect(vco3Osc.frequency);
+              console.log(`✓ Patched ${patch.from} → VCO${vcoNum} CV (1V/octave control)`);
+            } else {
+              // Regular audio connection
+              fromNode.connect(toNode);
+              console.log(`✓ Patched ${patch.from} → ${patch.to}`);
+            }
+            
+            // Check if output is connected
+            if (patch.to === 'VCA_IN' || toNode === audioContext.destination) {
+              hasOutput = true;
+            }
+          } catch (e) {
+            console.error(`Failed to patch ${patch.from} → ${patch.to}:`, e.message);
+          }
+        } else {
+          console.warn(`Missing audio node for patch: ${patch.from} → ${patch.to}`);
+        }
+      });
+
+      // Ensure VCA is connected to output
+      if (!hasOutput) {
+        vca.connect(audioContext.destination);
+        console.log('Auto-connected VCA → Output');
+      }
+      
+      // If no mixer patches, apply defaults
+      const hasMixerInput = patches.some(p => p.to.includes('MIXER'));
+      if (!hasMixerInput) {
+        vco1Gain.connect(mixerGain);
+        vco2Gain.connect(mixerGain);
+        vco3Gain.connect(mixerGain);
+        console.log('Applied default VCO → Mixer routing');
+      }
+      
+      const hasFilterInput = patches.some(p => p.to === 'VCF_INPUT');
+      if (!hasFilterInput) {
+        mixerGain.connect(vcfFilter);
+        console.log('Applied default Mixer → VCF routing');
+      }
+      
+      const hasVCAInput = patches.some(p => p.to === 'VCA_IN');
+      if (!hasVCAInput) {
+        vcfFilter.connect(vca);
+        console.log('Applied default VCF → VCA routing');
+      }
+      
+      // Default LFO modulation if no LFO patches
+      const hasLFOPatch = patches.some(p => p.from.includes('LFO'));
+      if (!hasLFOPatch) {
+        lfo.connect(lfoGain);
+        lfoGain.connect(vcfFilter.frequency);
+        console.log('Applied default LFO → VCF modulation');
+      }
+    }
+
+    function getAudioNode(jackId) {
+      // Return the appropriate audio node for the jack
+      if (jackId.startsWith('VCO1')) return vco1Gain;
+      if (jackId.startsWith('VCO2')) return vco2Gain;
+      if (jackId.startsWith('VCO3')) return vco3Gain;
+      if (jackId.startsWith('MIXER')) return mixerGain;
+      if (jackId === 'VCF_INPUT') return vcfFilter;
+      if (jackId === 'VCF_OUTPUT') return vcfFilter;
+      if (jackId === 'VCA_IN') return vca;
+      if (jackId === 'VCA_OUT') return vca;
+      if (jackId.startsWith('LFO')) return lfoGain;
+      if (jackId === 'KBD_CV') return keyboardCV;
+      if (jackId === 'KBD_GATE') return keyboardGate;
+      
+      return null;
+    }
+
+    function updateAudioFrequencies() {
+      if (vco1Osc) vco1Osc.frequency.value = frequencyMap.vco1;
+      if (vco2Osc) vco2Osc.frequency.value = frequencyMap.vco2;
+      if (vco3Osc) vco3Osc.frequency.value = frequencyMap.vco3;
+      if (vcfFilter) vcfFilter.frequency.value = frequencyMap.vcf;
+      if (lfo) lfo.frequency.value = frequencyMap.lfo;
+      
+      console.log('Frequencies updated:', frequencyMap);
+    }
+
+    function exportFrequencyMap() {
+      const mapData = {
+        timestamp: new Date().toISOString(),
+        synth: 'Behringer 2600 Gray Meanie',
+        frequencies: frequencyMap,
+        specs: {
+          vco_range: '20Hz - 10kHz (Audio band) / 0.03Hz - 30Hz (LF)',
+          vcf_range: '20Hz - 20kHz',
+          lfo_range: '0.03Hz - 30Hz',
+          filter_type: '24dB/oct Moog Ladder',
+          patch_points: 86,
+          dimensions: '17.85" W × 24.75" H × 7.85" D',
+          power: '140mA (+12V), 5mA (-12V)'
+        }
+      };
+      
+      const dataStr = JSON.stringify(mapData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'behringer_2600_frequency_map_' + Date.now() + '.json';
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      console.log('📊 Frequency map exported!', mapData);
+      alert('✅ Frequency map exported successfully!');
+    }
+
+    window.addEventListener('load', init);
+  </script>
+
+</body>
+</html>

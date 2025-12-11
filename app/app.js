@@ -413,6 +413,15 @@ try {
   console.log('⚠ Admin JWT auth not configured:', error.message);
 }
 
+// Email Template Management Routes
+try {
+  const emailTemplateRoutes = require('./routes/email-template-routes');
+  app.use('/api/admin/email-templates', emailTemplateRoutes);
+  console.log('✓ Email template management routes enabled');
+} catch (error) {
+  console.log('⚠ Email template routes not available:', error.message);
+}
+
 // ============================================================================
 // Optional Feature Routes
 // ============================================================================

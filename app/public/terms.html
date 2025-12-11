@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regulamin - HAOS.fm</title>
+  <link rel="stylesheet" href="/styles/main.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+      color: #e0e0e0;
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .terms-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 255, 157, 0.1);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .lang-switcher {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 1000;
+    }
+
+    .lang-btn {
+      padding: 8px 16px;
+      background: rgba(0, 255, 157, 0.1);
+      border: 1px solid rgba(0, 255, 157, 0.2);
+      border-radius: 8px;
+      color: #e0e0e0;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .lang-btn:hover {
+      background: rgba(0, 255, 157, 0.2);
+      border-color: #00ff9d;
+      color: #00ff9d;
+      transform: translateY(-1px);
+    }
+
+    .lang-btn.active {
+      background: rgba(0, 255, 157, 0.2);
+      border-color: #00ff9d;
+      color: #00ff9d;
+      font-weight: 600;
+    }
+
+    .terms-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid rgba(0, 255, 157, 0.3);
+    }
+
+    .logo {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+
+    .terms-header h1 {
+      font-size: 36px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+
+    .terms-header p {
+      color: #808080;
+      font-size: 14px;
+    }
+
+    .terms-section {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 24px;
+      border-left: 4px solid #00ff9d;
+    }
+
+    .terms-section h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #00ff9d;
+      margin: 0 0 20px 0;
+    }
+
+    .terms-section h3 {
+      color: #00b8ff;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 24px 0 12px 0;
+    }
+
+    .terms-section p {
+      color: #c0c0c0;
+      margin-bottom: 15px;
+      line-height: 1.7;
+    }
+
+    .terms-section ul, .terms-section ol {
+      margin-left: 30px;
+      margin-bottom: 15px;
+      color: #c0c0c0;
+    }
+
+    .terms-section li {
+      margin-bottom: 8px;
+    }
+
+    .company-info {
+      background: rgba(0, 184, 255, 0.1);
+      padding: 20px;
+      border-left: 4px solid #00b8ff;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .company-info p {
+      margin-bottom: 8px;
+    }
+
+    .company-info strong {
+      color: #00b8ff;
+    }
+
+    .highlight-box {
+      background: rgba(0, 255, 157, 0.1);
+      padding: 20px;
+      border-left: 4px solid #00ff9d;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .highlight-box strong {
+      color: #00ff9d;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%);
+      color: #0a0a0a;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 255, 157, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      .terms-header h1 {
+        font-size: 28px;
+      }
+
+      .terms-section {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="lang-switcher">
+    <a href="/terms.html" class="lang-btn active">🇵🇱 PL</a>
+    <a href="/terms-en.html" class="lang-btn">🇬🇧 EN</a>
+  </div>
+  
+  <div class="terms-container">
+    <div class="terms-header">
+      <div class="logo">HAOS.fm</div>
+      <h1>Regulamin świadczenia usług</h1>
+      <p>Ostatnia aktualizacja: 11 grudnia 2025</p>
+    </div>
+
+    <!-- Dane rejestrowe -->
+    <div class="terms-section">
+      <h2>1. Informacje rejestrowe</h2>
+      <div class="company-info">
+        <p><strong>Nazwa firmy:</strong> HubIT Essentials</p>
+        <p><strong>Właściciel:</strong> Hubert Kozuchowski</p>
+        <p><strong>NIP:</strong> 5272999629</p>
+        <p><strong>REGON:</strong> 521842431</p>
+        <p><strong>Adres:</strong> ul. Młynarska 25 lok. 22, 01-175 Warszawa, Poland</p>
+        <p><strong>Email kontaktowy:</strong> hubertkozuchowski@gmail.com</p>
+        <p><strong>Telefon:</strong> +48 508 180 507</p>
+      </div>
+      <p>
+        Niniejszy regulamin określa zasady świadczenia usług drogą elektroniczną przez platformę HAOS.fm, 
+        a także zasady korzystania z serwisu oraz zawierania umów o świadczenie usług drogą elektroniczną.
+      </p>
+    </div>
+
+    <!-- Oferta -->
+    <div class="terms-section">
+      <h2>2. Oferta produktów i usług</h2>
+      
+      <h3>2.1. Plany subskrypcyjne</h3>
+      <p>HAOS.fm oferuje następujące plany subskrypcyjne:</p>
+      <ul>
+        <li><strong>Free Plan</strong> - 0 PLN/miesiąc - podstawowy dostęp do syntetyzatorów</li>
+        <li><strong>Basic Plan</strong> - 29 PLN/miesiąc - rozszerzony dostęp do instrumentów</li>
+        <li><strong>Premium Plan</strong> - 49 PLN/miesiąc - pełny dostęp, kolaboracja, eksport WAV</li>
+        <li><strong>Pro Plan</strong> - 99 PLN/miesiąc - wszystkie funkcje + API access</li>
+      </ul>
+
+      <h3>2.2. Zakup pojedynczych instrumentów</h3>
+      <p>
+        Użytkownicy mogą również kupować dostęp do pojedynczych instrumentów wirtualnych 
+        (syntetyzatory, drummachiney, efekty) w cenie od 19 PLN do 99 PLN za instrument.
+      </p>
+
+      <div class="highlight-box">
+        <p><strong>Wszystkie ceny zawierają podatek VAT.</strong></p>
+        <p>Akceptowane metody płatności: BLIK, karty płatnicze, przelewy bankowe (PayU).</p>
+      </div>
+    </div>
+
+    <!-- Realizacja zamówienia -->
+    <div class="terms-section">
+      <h2>3. Sposób i czas realizacji zamówienia</h2>
+      
+      <h3>3.1. Usługi cyfrowe</h3>
+      <p>
+        HAOS.fm świadczy usługi wyłącznie w formie cyfrowej. Realizacja zamówienia następuje 
+        <strong>natychmiast</strong> po zaksięgowaniu płatności przez operatora płatności (PayU).
+      </p>
+
+      <div class="highlight-box">
+        <p><strong>Czas aktywacji:</strong></p>
+        <ul>
+          <li>Subskrypcje: aktywacja w ciągu <strong>5 minut</strong> od potwierdzenia płatności</li>
+          <li>Pojedyncze instrumenty: dostęp w ciągu <strong>5 minut</strong> od potwierdzenia płatności</li>
+        </ul>
+      </div>
+
+      <h3>3.2. Powiadomienia</h3>
+      <p>
+        Po aktywacji subskrypcji lub zakupie instrumentu, użytkownik otrzymuje:
+      </p>
+      <ul>
+        <li>Email potwierdzający zakup</li>
+        <li>Informacje o dostępie do zakupionych funkcji</li>
+        <li>Fakturę VAT (jeśli wymagana)</li>
+      </ul>
+    </div>
+
+    <!-- Zwroty -->
+    <div class="terms-section">
+      <h2>4. Procedura zwrotów - Prawo odstąpienia od umowy</h2>
+      
+      <h3>4.1. Okres na odstąpienie</h3>
+      <p>
+        Zgodnie z art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta, 
+        Konsument ma prawo odstąpić od umowy zawartej na odległość bez podania przyczyny w terminie 
+        <strong>14 dni</strong> od dnia zawarcia umowy.
+      </p>
+
+      <h3>4.2. Wyłączenie prawa odstąpienia</h3>
+      <div class="highlight-box">
+        <p><strong>UWAGA - Usługi cyfrowe:</strong></p>
+        <p>
+          Zgodnie z art. 38 pkt 13 ustawy o prawach konsumenta, prawo odstąpienia od umowy 
+          <strong>nie przysługuje</strong> w przypadku umów o dostarczanie treści cyfrowych, 
+          które nie są zapisane na nośniku materialnym, jeżeli spełnianie świadczenia rozpoczęło się 
+          za wyraźną zgodą konsumenta przed upływem terminu do odstąpienia od umowy i po poinformowaniu 
+          go przez przedsiębiorcę o utracie prawa odstąpienia od umowy.
+        </p>
+      </div>
+
+      <h3>4.3. Zwrot środków</h3>
+      <p>
+        W przypadku odstąpienia od umowy przed rozpoczęciem świadczenia usługi:
+      </p>
+      <ul>
+        <li>Zwrot środków następuje w ciągu <strong>14 dni</strong> od otrzymania oświadczenia o odstąpieniu</li>
+        <li>Zwrot na rachunek bankowy lub kartę użytą do płatności</li>
+        <li>Bez żadnych dodatkowych kosztów</li>
+      </ul>
+
+      <h3>4.4. Adres do zwrotów i odstąpień</h3>
+      <div class="company-info">
+        <p><strong>Email:</strong> hubertkozuchowski@gmail.com</p>
+        <p><strong>Adres korespondencyjny:</strong> HubIT Essentials, ul. Młynarska 25 lok. 22, 01-175 Warszawa</p>
+      </div>
+    </div>
+
+    <!-- Reklamacje -->
+    <div class="terms-section">
+      <h2>5. Reklamacje</h2>
+      
+      <h3>5.1. Podstawa reklamacji</h3>
+      <p>
+        Użytkownik ma prawo do złożenia reklamacji w przypadku:
+      </p>
+      <ul>
+        <li>Niezgodności usługi z umową</li>
+        <li>Problemów technicznych uniemożliwiających korzystanie z usługi</li>
+        <li>Błędnego obciążenia płatności</li>
+      </ul>
+
+      <h3>5.2. Jak złożyć reklamację</h3>
+      <div class="highlight-box">
+        <p><strong>Kontakt w sprawie reklamacji:</strong></p>
+        <p><strong>Email:</strong> complaints@haos.fm</p>
+        <p><strong>Telefon:</strong> +48 123 456 789 (Pn-Pt, 9:00-17:00)</p>
+        <p><strong>Formularz online:</strong> <a href="/complaints.html" style="color: #00d4ff;">haos.fm/complaints</a></p>
+      </div>
+
+      <h3>5.3. Rozpatrywanie reklamacji</h3>
+      <p>
+        Reklamacje są rozpatrywane w terminie <strong>14 dni roboczych</strong> od daty otrzymania zgłoszenia. 
+        W przypadku reklamacji wymagających dodatkowych wyjaśnień, użytkownik zostanie poinformowany 
+        o wydłużeniu terminu.
+      </p>
+
+      <h3>5.4. Odpowiedź na reklamację</h3>
+      <p>
+        Odpowiedź na reklamację zostanie przesłana na adres email podany w zgłoszeniu. 
+        W przypadku uznania reklamacji, użytkownik otrzyma:
+      </p>
+      <ul>
+        <li>Zwrot środków</li>
+        <li>Przedłużenie subskrypcji o odpowiedni okres</li>
+        <li>Inne rozwiązanie uzgodnione z użytkownikiem</li>
+      </ul>
+    </div>
+
+    <!-- Odpowiedzialność -->
+    <div class="terms-section">
+      <h2>6. Odpowiedzialność</h2>
+      <p>
+        HAOS.fm dokłada wszelkich starań, aby usługi były świadczone bez przerw. 
+        Jednakże nie ponosimy odpowiedzialności za:
+      </p>
+      <ul>
+        <li>Przerwy techniczne wynikające z konserwacji systemu</li>
+        <li>Problemy z połączeniem internetowym użytkownika</li>
+        <li>Działania osób trzecich (ataki DDoS, włamania)</li>
+      </ul>
+    </div>
+
+    <!-- Kontakt -->
+    <div class="terms-section">
+      <h2>7. Dane kontaktowe</h2>
+      <div class="company-info">
+        <p><strong>HubIT Essentials</strong></p>
+        <p>Właściciel: Hubert Kozuchowski</p>
+        <p>NIP: 5272999629</p>
+        <p>REGON: 521842431</p>
+        <p>Adres: ul. Młynarska 25 lok. 22, 01-175 Warszawa, Poland</p>
+        <p>Email: hubertkozuchowski@gmail.com</p>
+        <p>Telefon: +48 508 180 507</p>
+        <p>Godziny kontaktu: Pn-Pt, 9:00-17:00 (CET)</p>
+      </div>
+    </div>
+
+    <!-- Footer Navigation -->
+    <footer style="margin-top: 4rem; padding: 2rem 0; border-top: 2px solid rgba(0, 212, 255, 0.2);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+        <a href="/" class="back-link">← Powrót do strony głównej</a>
+        
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+          <a href="/subscription.html" style="color: #00d4ff; text-decoration: none; transition: color 0.3s;">Cennik</a>
+          <a href="/privacy.html" style="color: #00d4ff; text-decoration: none; transition: color 0.3s;">Polityka Prywatności</a>
+          <a href="mailto:hubertkozuchowski@gmail.com" style="color: #00d4ff; text-decoration: none; transition: color 0.3s;">Kontakt</a>
+        </div>
+      </div>
+      
+      <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(0, 212, 255, 0.1); text-align: center; color: #808080; font-size: 0.85rem;">
+        <p style="margin-bottom: 0.5rem;"><strong style="color: #00d4ff;">HubIT Essentials</strong> | Hubert Kozuchowski</p>
+        <p style="margin-bottom: 0.5rem;">NIP: 5272999629 | REGON: 521842431</p>
+        <p>ul. Młynarska 25 lok. 22, 01-175 Warszawa | +48 508 180 507</p>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

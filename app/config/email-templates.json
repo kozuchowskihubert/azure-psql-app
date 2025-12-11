@@ -1,0 +1,292 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-12-11",
+    "description": "Customizable email templates for HAOS.fm messaging system"
+  },
+  
+  "branding": {
+    "companyName": "HAOS.fm",
+    "logoUrl": "cid:haos-logo",
+    "primaryColor": "#FF6B35",
+    "secondaryColor": "#39FF14",
+    "accentColor": "#00D9FF",
+    "backgroundColor": "#0A0A0A",
+    "textColor": "#F4E8D8",
+    "mutedColor": "#888888",
+    "supportEmail": "admin@haos.fm",
+    "websiteUrl": "https://haos.fm"
+  },
+
+  "templates": {
+    "verification": {
+      "subject": "🔐 Verify your {{companyName}} account",
+      "title": "🔐 Verify Your Email",
+      "heading": "Almost there, {{name}}!",
+      "content": [
+        "Welcome to {{companyName}}! To complete your registration and start creating amazing music, please verify your email address.",
+        "Click the button below to verify your account:"
+      ],
+      "ctaText": "✓ Verify My Email",
+      "ctaUrl": "{{verificationUrl}}",
+      "footer": "This verification link expires in 24 hours. If you didn't create an account, you can safely ignore this email.",
+      "variables": ["name", "verificationUrl", "companyName"]
+    },
+
+    "welcome": {
+      "subject": "🎵 Welcome to {{companyName}} - Let's make some noise!",
+      "title": "🎵 Welcome to {{companyName}}",
+      "heading": "Welcome aboard, {{name}}!",
+      "content": [
+        "Your account is verified and you're ready to start your musical journey!",
+        "Here's what you can do now:",
+        "• 🎹 Create tracks with our virtual synthesizers",
+        "• 🎚️ Mix and master with professional effects", 
+        "• ☁️ Save your projects to the cloud",
+        "• 🤝 Collaborate with other artists"
+      ],
+      "ctaText": "🚀 Start Creating",
+      "ctaUrl": "{{dashboardUrl}}",
+      "footer": "Need help getting started? Check out our tutorials or contact support.",
+      "variables": ["name", "dashboardUrl", "companyName"]
+    },
+
+    "passwordReset": {
+      "subject": "🔑 Reset your {{companyName}} password",
+      "title": "🔑 Password Reset",
+      "heading": "Password reset requested",
+      "content": [
+        "Hey {{name}}, we received a request to reset your password.",
+        "Click the button below to create a new password:",
+        "⚠️ This link expires in 1 hour for security reasons."
+      ],
+      "ctaText": "🔑 Reset Password",
+      "ctaUrl": "{{resetUrl}}",
+      "footer": "If you didn't request this, you can safely ignore this email. Your password won't change.",
+      "variables": ["name", "resetUrl", "companyName"]
+    },
+
+    "subscriptionConfirmation": {
+      "subject": "⚡ Your {{planName}} subscription is active!",
+      "title": "⚡ Subscription Active",
+      "heading": "⚡ Upgrade Complete!",
+      "content": [
+        "Hey {{name}},",
+        "Your subscription to **{{planName}}** has been activated and you now have access to premium features!"
+      ],
+      "details": {
+        "plan": "{{planName}}",
+        "amount": "{{amount}} {{currency}}",
+        "activated": "{{activationDate}}"
+      },
+      "benefits": [
+        "Unlimited cloud storage for your tracks",
+        "Advanced effects & synthesis tools",
+        "Priority support",
+        "Early access to new features"
+      ],
+      "ctaText": "📊 View Account Dashboard",
+      "ctaUrl": "{{accountUrl}}",
+      "footer": "Receipts are available in your account dashboard. Need help? Email {{supportEmail}}.",
+      "variables": ["name", "planName", "amount", "currency", "activationDate", "accountUrl", "supportEmail", "companyName"]
+    },
+
+    "subscriptionExpiryReminder": {
+      "subject": "⏰ Your {{planName}} subscription expires in {{daysLeft}} days",
+      "title": "⏰ Subscription Expiring Soon",
+      "heading": "⏰ Your {{planName}} expires in {{daysLeft}} days",
+      "content": [
+        "Hey {{name}},",
+        "Your **{{planName}}** subscription will expire on **{{expiryDate}}**."
+      ],
+      "warningTitle": "🎵 Don't lose access to:",
+      "warningItems": [
+        "Unlimited cloud storage for your tracks",
+        "Advanced effects & synthesis tools",
+        "Priority support",
+        "Early access to new features"
+      ],
+      "ctaText": "🔄 Renew Subscription",
+      "ctaUrl": "{{renewUrl}}",
+      "footer": "Manage your subscription in your account dashboard.",
+      "variables": ["name", "planName", "daysLeft", "expiryDate", "renewUrl", "companyName"]
+    },
+
+    "subscriptionExpired": {
+      "subject": "📭 Your {{planName}} subscription has expired",
+      "title": "📭 Subscription Expired",
+      "heading": "📭 Your {{planName}} has expired",
+      "content": [
+        "Hey {{name}},",
+        "Your **{{planName}}** subscription has expired. You've been switched back to the free plan."
+      ],
+      "lostAccessTitle": "📉 You've lost access to:",
+      "lostAccessItems": [
+        "Unlimited cloud storage (now limited to 100MB)",
+        "Advanced effects & synthesis tools",
+        "Priority support",
+        "Early access to new features"
+      ],
+      "reassurance": "✨ **Your projects are safe!** All your tracks and projects are still saved. Resubscribe anytime to regain full access.",
+      "ctaText": "🚀 Reactivate Premium",
+      "ctaUrl": "{{renewUrl}}",
+      "footer": "Questions? Email {{supportEmail}}.",
+      "variables": ["name", "planName", "renewUrl", "supportEmail", "companyName"]
+    },
+
+    "paymentFailed": {
+      "subject": "❌ Payment failed for your {{planName}} subscription",
+      "title": "❌ Payment Failed",
+      "heading": "❌ Payment failed for {{planName}}",
+      "content": [
+        "Hey {{name}},",
+        "We couldn't process your payment for **{{planName}}**."
+      ],
+      "reasonTitle": "Reason:",
+      "reason": "{{failureReason}}",
+      "ctaText": "💳 Update Payment Method",
+      "ctaUrl": "{{retryUrl}}",
+      "footer": "Need help? Email {{supportEmail}}.",
+      "variables": ["name", "planName", "failureReason", "retryUrl", "supportEmail", "companyName"]
+    },
+
+    "collaborationInvite": {
+      "subject": "🤝 {{inviterName}} invited you to collaborate on {{projectName}}",
+      "title": "🤝 Collaboration Invite",
+      "heading": "You're invited to collaborate!",
+      "content": [
+        "Hey {{name}},",
+        "**{{inviterName}}** has invited you to collaborate on the project **\"{{projectName}}\"**.",
+        "Join the session and create something amazing together!"
+      ],
+      "ctaText": "🎵 Join Project",
+      "ctaUrl": "{{projectUrl}}",
+      "footer": "This invite was sent via {{companyName}}. If you don't know {{inviterName}}, you can safely ignore this.",
+      "variables": ["name", "inviterName", "projectName", "projectUrl", "companyName"]
+    },
+
+    "projectShared": {
+      "subject": "🎧 {{sharerName}} shared a track with you",
+      "title": "🎧 Track Shared",
+      "heading": "Someone shared music with you!",
+      "content": [
+        "Hey {{name}},",
+        "**{{sharerName}}** shared the track **\"{{trackName}}\"** with you.",
+        "Click below to listen:"
+      ],
+      "ctaText": "▶️ Listen Now",
+      "ctaUrl": "{{trackUrl}}",
+      "footer": "Shared via {{companyName}}.",
+      "variables": ["name", "sharerName", "trackName", "trackUrl", "companyName"]
+    },
+
+    "newFeatureAnnouncement": {
+      "subject": "🚀 New on {{companyName}}: {{featureName}}",
+      "title": "🚀 New Feature",
+      "heading": "Introducing: {{featureName}}",
+      "content": [
+        "Hey {{name}},",
+        "We're excited to announce a new feature: **{{featureName}}**!",
+        "{{featureDescription}}"
+      ],
+      "ctaText": "✨ Try It Now",
+      "ctaUrl": "{{featureUrl}}",
+      "footer": "You're receiving this because you're subscribed to product updates. Unsubscribe in your account settings.",
+      "variables": ["name", "featureName", "featureDescription", "featureUrl", "companyName"]
+    },
+
+    "weeklyDigest": {
+      "subject": "📊 Your weekly {{companyName}} summary",
+      "title": "📊 Weekly Summary",
+      "heading": "Your week in music",
+      "content": [
+        "Hey {{name}},",
+        "Here's what happened this week:"
+      ],
+      "stats": {
+        "tracksCreated": "{{tracksCreated}} tracks created",
+        "totalPlaytime": "{{totalPlaytime}} of music made",
+        "collaborations": "{{collaborations}} collaborations"
+      },
+      "ctaText": "🎹 Keep Creating",
+      "ctaUrl": "{{dashboardUrl}}",
+      "footer": "Unsubscribe from weekly digests in your account settings.",
+      "variables": ["name", "tracksCreated", "totalPlaytime", "collaborations", "dashboardUrl", "companyName"]
+    }
+  },
+
+  "languages": {
+    "en": {
+      "common": {
+        "greeting": "Hey",
+        "thanks": "Thanks for using {{companyName}}!",
+        "questions": "Questions?",
+        "contactUs": "Contact us at",
+        "unsubscribe": "Unsubscribe",
+        "viewInBrowser": "View in browser",
+        "copyright": "© {{year}} {{companyName}}. All rights reserved."
+      }
+    },
+    "pl": {
+      "common": {
+        "greeting": "Cześć",
+        "thanks": "Dziękujemy za korzystanie z {{companyName}}!",
+        "questions": "Pytania?",
+        "contactUs": "Napisz do nas:",
+        "unsubscribe": "Wypisz się",
+        "viewInBrowser": "Zobacz w przeglądarce",
+        "copyright": "© {{year}} {{companyName}}. Wszelkie prawa zastrzeżone."
+      },
+      "templates": {
+        "verification": {
+          "subject": "🔐 Zweryfikuj swoje konto {{companyName}}",
+          "title": "🔐 Weryfikacja Email",
+          "heading": "Prawie gotowe, {{name}}!",
+          "content": [
+            "Witaj w {{companyName}}! Aby dokończyć rejestrację i zacząć tworzyć muzykę, zweryfikuj swój adres email.",
+            "Kliknij poniższy przycisk:"
+          ],
+          "ctaText": "✓ Zweryfikuj Email",
+          "footer": "Link wygasa za 24 godziny. Jeśli nie zakładałeś konta, zignoruj tę wiadomość."
+        },
+        "subscriptionConfirmation": {
+          "subject": "⚡ Twoja subskrypcja {{planName}} jest aktywna!",
+          "title": "⚡ Subskrypcja Aktywna",
+          "heading": "⚡ Upgrade zakończony!",
+          "content": [
+            "Hej {{name}},",
+            "Twoja subskrypcja **{{planName}}** została aktywowana i masz teraz dostęp do funkcji premium!"
+          ],
+          "benefits": [
+            "Nieograniczona przestrzeń w chmurze",
+            "Zaawansowane efekty i syntezatory",
+            "Priorytetowe wsparcie",
+            "Wczesny dostęp do nowych funkcji"
+          ],
+          "ctaText": "📊 Panel Konta",
+          "footer": "Rachunki dostępne w panelu konta. Potrzebujesz pomocy? Napisz na {{supportEmail}}."
+        },
+        "subscriptionExpiryReminder": {
+          "subject": "⏰ Twoja subskrypcja {{planName}} wygasa za {{daysLeft}} dni",
+          "heading": "⏰ Twoja subskrypcja {{planName}} wygasa za {{daysLeft}} dni",
+          "content": [
+            "Hej {{name}},",
+            "Twoja subskrypcja **{{planName}}** wygaśnie **{{expiryDate}}**."
+          ],
+          "warningTitle": "🎵 Nie trać dostępu do:",
+          "ctaText": "🔄 Odnów Subskrypcję"
+        },
+        "subscriptionExpired": {
+          "subject": "📭 Twoja subskrypcja {{planName}} wygasła",
+          "heading": "📭 Twoja subskrypcja {{planName}} wygasła",
+          "content": [
+            "Hej {{name}},",
+            "Twoja subskrypcja **{{planName}}** wygasła. Zostałeś przeniesiony na darmowy plan."
+          ],
+          "reassurance": "✨ **Twoje projekty są bezpieczne!** Wszystkie utwory są nadal zapisane. Odnów subskrypcję w dowolnym momencie.",
+          "ctaText": "🚀 Reaktywuj Premium"
+        }
+      }
+    }
+  }
+}

@@ -1,14 +1,16 @@
 /**
  * Payment Service
- * Handles payment processing with Stripe, PayPal, and BLIK (Przelewy24)
+ * Handles payment processing with Stripe, PayPal, PayU, and BLIK (Przelewy24)
  */
 const Payment = require('../models/payment');
 const Subscription = require('../models/subscription');
 const crypto = require('crypto');
+const emailService = require('./email-service');
 
 // Initialize payment providers (these need to be configured with actual API keys)
 let stripe = null;
 let paypal = null;
+let payuService = null;
 
 // Initialize Stripe if configured
 if (process.env.STRIPE_SECRET_KEY) {
@@ -25,6 +27,11 @@ if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET) {
       ? 'https://api-m.paypal.com'
       : 'https://api-m.sandbox.paypal.com'
   };
+}
+
+// Initialize PayU if configured
+if (process.env.PAYU_POS_ID && process.env.PAYU_CLIENT_SECRET) {
+  payuService = require('./payu-service');
 }
 
 // BLIK/Przelewy24 configuration
@@ -49,6 +56,8 @@ class PaymentService {
         return !!stripe;
       case 'paypal':
         return !!paypal;
+      case 'payu':
+        return !!payuService && payuService.isAvailable();
       case 'blik':
       case 'przelewy24':
         return !!przelewy24Config.merchantId;
@@ -64,6 +73,7 @@ class PaymentService {
     const providers = [];
     if (this.isProviderAvailable('stripe')) providers.push('stripe');
     if (this.isProviderAvailable('paypal')) providers.push('paypal');
+    if (this.isProviderAvailable('payu')) providers.push('payu');
     if (this.isProviderAvailable('blik')) providers.push('blik');
     return providers;
   }
@@ -921,6 +931,243 @@ class PaymentService {
     await Payment.updateTransactionStatus(transactionId, 'refunded');
 
     return refundTransaction;
+  }
+
+  // ============================================================================
+  // PAYU
+  // ============================================================================
+
+  /**
+   * Create PayU payment order
+   */
+  static async createPayUOrder(orderData) {
+    if (!payuService) {
+      throw new Error('PayU is not configured');
+    }
+
+    try {
+      const order = await payuService.createOrder(orderData);
+
+      // Store transaction in database
+      await Payment.createTransaction({
+        userId: orderData.userId,
+        type: 'subscription',
+        status: 'pending',
+        amount: order.amount,
+        currency: order.currency,
+        provider: 'payu',
+        providerTransactionId: order.orderId,
+        providerResponse: order,
+        description: orderData.description,
+        metadata: {
+          planCode: orderData.planCode,
+          extOrderId: order.extOrderId
+        }
+      });
+
+      return order;
+    } catch (error) {
+      console.error('PayU order creation error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create PayU BLIK payment with code
+   */
+  static async createPayUBlikPayment(orderData, blikCode) {
+    if (!payuService) {
+      throw new Error('PayU is not configured');
+    }
+
+    try {
+      const order = await payuService.createBlikPayment(orderData, blikCode);
+
+      // Store transaction in database
+      await Payment.createTransaction({
+        userId: orderData.userId,
+        type: 'subscription',
+        status: 'pending',
+        amount: order.amount,
+        currency: order.currency,
+        provider: 'payu',
+        providerTransactionId: order.orderId,
+        providerResponse: order,
+        description: orderData.description,
+        metadata: {
+          planCode: orderData.planCode,
+          extOrderId: order.extOrderId,
+          payMethod: 'blik',
+          blikAuthorized: order.blikAuthorized
+        }
+      });
+
+      return order;
+    } catch (error) {
+      console.error('PayU BLIK payment error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get PayU order status
+   */
+  static async getPayUOrderStatus(orderId) {
+    if (!payuService) {
+      throw new Error('PayU is not configured');
+    }
+
+    return await payuService.getOrderStatus(orderId);
+  }
+
+  /**
+   * Get PayU payment methods
+   */
+  static getPayUMethods() {
+    if (!payuService) {
+      throw new Error('PayU is not configured');
+    }
+
+    return payuService.getPaymentMethods();
+  }
+
+  /**
+   * Process PayU webhook notification
+   */
+  static async processPayUWebhook(notification, signature) {
+    if (!payuService) {
+      throw new Error('PayU is not configured');
+    }
+
+    // Verify signature
+    const isValid = payuService.verifyNotification(notification, signature);
+    if (!isValid) {
+      throw new Error('Invalid PayU webhook signature');
+    }
+
+    // Handle notification
+    const orderData = await payuService.handleNotification(notification);
+
+    console.log(`📩 PayU webhook: Order ${orderData.orderId} - Status: ${orderData.status}`);
+    console.log(`   ExtOrderId: ${orderData.extOrderId}`);
+
+    // Extract userId from extOrderId (format: HAOS_{userId}_{timestamp})
+    let userId = null;
+    let planCode = null;
+    
+    if (orderData.extOrderId) {
+      // Support both formats: HAOS_{userId}_{timestamp} (new) and HAOS-{userId}-{timestamp} (old)
+      const separator = orderData.extOrderId.includes('_') ? '_' : '-';
+      const parts = orderData.extOrderId.split(separator);
+      
+      if (parts[0] === 'HAOS' && parts.length >= 3) {
+        // Format: HAOS_{userId}_{timestamp} - userId is in the middle
+        // Join all parts except first (HAOS) and last (timestamp)
+        userId = parts.slice(1, -1).join(separator);
+        console.log(`   Extracted userId: ${userId}`);
+      }
+    }
+
+    // Try to find transaction in database first
+    const transaction = await Payment.findTransactionByProvider('payu', orderData.orderId);
+    
+    if (transaction) {
+      // We have a transaction record
+      userId = userId || transaction.user_id;
+      const metadata = transaction.metadata || {};
+      planCode = metadata.planCode;
+      
+      let newStatus = 'pending';
+      
+      switch (orderData.status) {
+        case 'COMPLETED':
+          newStatus = 'completed';
+          break;
+        case 'CANCELED':
+          newStatus = 'failed';
+          break;
+        case 'PENDING':
+        case 'WAITING_FOR_CONFIRMATION':
+          newStatus = 'pending';
+          break;
+      }
+
+      await Payment.updateTransactionStatus(transaction.id, newStatus);
+    }
+
+    // Activate subscription if payment completed
+    if (orderData.status === 'COMPLETED' && userId) {
+      console.log(`✅ PayU payment COMPLETED for user: ${userId}`);
+      
+      // Determine plan code (from transaction metadata, description, or default)
+      if (!planCode) {
+        // Try to extract from description (e.g., "HAOS.fm monthly Plan" or "HAOS.fm premium Subscription")
+        const description = notification.order?.description || '';
+        const descLower = description.toLowerCase();
+        
+        if (descLower.includes('premium') || descLower.includes('pro')) {
+          planCode = 'premium';
+        } else if (descLower.includes('basic') || descLower.includes('starter')) {
+          planCode = 'basic';
+        } else {
+          planCode = 'premium'; // Default to premium for paid subscriptions
+        }
+      }
+      
+      try {
+        // Create subscription for user
+        await Subscription.createSubscription(userId, planCode, 'monthly');
+        console.log(`🎉 Subscription '${planCode}' activated for user: ${userId}`);
+        
+        // Send confirmation email
+        try {
+          // Get user details for email
+          const { Pool } = require('pg');
+          const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+          const userResult = await pool.query('SELECT email, username FROM users WHERE id = $1', [userId]);
+          pool.end();
+          
+          if (userResult.rows[0]) {
+            const user = userResult.rows[0];
+            const amount = (notification.order?.totalAmount || 0) / 100; // Convert from grosze
+            const currency = notification.order?.currencyCode || 'PLN';
+            
+            await emailService.sendSubscriptionConfirmation(
+              user.email,
+              user.username,
+              planCode.charAt(0).toUpperCase() + planCode.slice(1), // Capitalize
+              amount,
+              currency
+            );
+            console.log(`📧 Subscription confirmation email sent to: ${user.email}`);
+          }
+        } catch (emailError) {
+          console.error(`⚠️ Failed to send confirmation email:`, emailError.message);
+          // Don't fail the webhook - subscription was created successfully
+        }
+      } catch (subError) {
+        console.error(`❌ Failed to create subscription for user ${userId}:`, subError.message);
+        // Don't throw - webhook was received successfully
+      }
+    }
+
+    return {
+      success: true,
+      orderId: orderData.orderId,
+      status: orderData.status,
+      userId: userId
+    };
+  }
+
+  /**
+   * Refund PayU order
+   */
+  static async refundPayUOrder(orderId, amount = null, reason = '') {
+    if (!payuService) {
+      throw new Error('PayU is not configured');
+    }
+
+    return await payuService.refundOrder(orderId, amount, reason);
   }
 }
 

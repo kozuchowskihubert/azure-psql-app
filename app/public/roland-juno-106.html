@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roland Juno-106 - HAOS.fm</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      color: #fff;
+    }
+
+    /* Juno-106 Chassis */
+    .juno-container {
+      width: 95%;
+      max-width: 1600px;
+      background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+      border-radius: 20px 20px 0 0;
+      box-shadow: 
+        0 -5px 20px rgba(0,0,0,0.8),
+        0 20px 60px rgba(0,0,0,0.9),
+        inset 0 3px 0 rgba(255,255,255,0.15);
+      position: relative;
+      padding: 2rem;
+      border: 3px solid #555;
+    }
+
+    /* Top Panel */
+    .juno-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 3px solid #555;
+    }
+
+    .juno-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: 6px;
+      background: linear-gradient(135deg, #e63946, #ff6b6b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(230,57,70,0.5);
+    }
+
+    .juno-model {
+      font-size: 1.5rem;
+      color: #ccc;
+      letter-spacing: 3px;
+      font-weight: 300;
+    }
+
+    /* LED Display */
+    .led-display {
+      background: #0a0a0a;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      border: 2px solid #555;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+      min-width: 200px;
+    }
+
+    .led-text {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.2rem;
+      color: #00ff00;
+      text-shadow: 0 0 10px #00ff00;
+      letter-spacing: 2px;
+    }
+
+    /* Control Panel Layout */
+    .control-panel {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1.5rem;
+      background: linear-gradient(135deg, #3c3c3c, #2f2f2f);
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: inset 0 4px 12px rgba(0,0,0,0.6);
+      margin-bottom: 2rem;
+      border: 2px solid #555;
+    }
+
+    /* Module Sections */
+    .module-section {
+      background: rgba(50, 50, 50, 0.9);
+      padding: 1.5rem 1rem;
+      border-radius: 12px;
+      border: 2px solid #666;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .module-title {
+      font-size: 0.7rem;
+      color: #e63946;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+      text-align: center;
+      font-weight: 700;
+      border-bottom: 2px solid #e63946;
+      padding-bottom: 0.5rem;
+    }
+
+    /* Slider Controls (Juno-style) */
+    .slider-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0.8rem 0;
+    }
+
+    .slider-wrapper {
+      position: relative;
+      width: 40px;
+      height: 120px;
+      background: linear-gradient(to right, #1a1a1a, #2a2a2a);
+      border-radius: 20px;
+      box-shadow: 
+        inset 0 2px 8px rgba(0,0,0,0.8),
+        0 2px 4px rgba(0,0,0,0.6);
+      border: 2px solid #555;
+      margin-bottom: 0.5rem;
+    }
+
+    .slider {
+      width: 100%;
+      height: 100%;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+      writing-mode: bt-lr;
+      -webkit-appearance: slider-vertical;
+      padding: 10px 0;
+    }
+
+    .slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 32px;
+      height: 20px;
+      background: linear-gradient(135deg, #e63946, #ff6b6b);
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(230,57,70,0.6);
+      border: 2px solid #fff;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+      background: linear-gradient(135deg, #ff6b6b, #ff8787);
+    }
+
+    .slider-label {
+      font-size: 0.6rem;
+      color: #ccc;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 0.25rem;
+    }
+
+    .slider-value {
+      font-size: 0.65rem;
+      color: #e63946;
+      text-align: center;
+      margin-top: 0.25rem;
+      font-weight: 700;
+    }
+
+    /* Button Switches */
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0.8rem 0;
+    }
+
+    .juno-button {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #555, #333);
+      border: 3px solid #777;
+      cursor: pointer;
+      transition: all 0.1s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+      position: relative;
+      margin-bottom: 0.5rem;
+    }
+
+    .juno-button::before {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #666;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+    }
+
+    .juno-button.active {
+      background: linear-gradient(135deg, #e63946, #ff6b6b);
+      border-color: #ff8787;
+      box-shadow: 0 0 20px rgba(230,57,70,0.8);
+    }
+
+    .juno-button.active::before {
+      background: #ff0000;
+      box-shadow: 0 0 10px #ff0000, inset 0 1px 3px rgba(255,255,255,0.3);
+    }
+
+    .juno-button:active {
+      transform: scale(0.95);
+    }
+
+    .button-label {
+      font-size: 0.6rem;
+      color: #ccc;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Keyboard */
+    .keyboard-section {
+      background: #1a1a1a;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: inset 0 4px 12px rgba(0,0,0,0.8);
+      margin-bottom: 2rem;
+      border: 3px solid #555;
+    }
+
+    .keyboard {
+      display: flex;
+      justify-content: center;
+      height: 200px;
+      position: relative;
+      margin: 0 auto;
+      max-width: 1400px;
+    }
+
+    .key {
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .white-key {
+      width: 45px;
+      height: 200px;
+      background: linear-gradient(180deg, #fafafa 0%, #e0e0e0 100%);
+      border: 2px solid #1a1a1a;
+      border-radius: 0 0 4px 4px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      transition: all 0.05s;
+    }
+
+    .white-key:hover {
+      background: linear-gradient(180deg, #f0f0f0 0%, #d0d0d0 100%);
+    }
+
+    .white-key:active, .white-key.active {
+      background: linear-gradient(180deg, #d0d0d0 0%, #c0c0c0 100%);
+      transform: translateY(2px);
+    }
+
+    .black-key {
+      width: 28px;
+      height: 130px;
+      background: linear-gradient(180deg, #2a2a2a 0%, #0a0a0a 100%);
+      border: 2px solid #000;
+      border-radius: 0 0 3px 3px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.8);
+      position: absolute;
+      z-index: 2;
+      transition: all 0.05s;
+    }
+
+    .black-key:hover {
+      background: linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%);
+    }
+
+    .black-key:active, .black-key.active {
+      background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
+      transform: translateY(2px);
+    }
+
+    /* Spectrum Analyzer */
+    .analyzer-section {
+      background: #0a0a0a;
+      padding: 2rem;
+      border-radius: 15px;
+      margin-bottom: 2rem;
+      border: 3px solid #555;
+    }
+
+    .analyzer-title {
+      text-align: center;
+      color: #e63946;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 1rem;
+    }
+
+    #spectrum-canvas {
+      width: 100%;
+      height: 200px;
+      border-radius: 8px;
+      background: #000;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    /* Control Buttons */
+    .control-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .control-btn {
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .btn-power {
+      background: linear-gradient(135deg, #e63946, #ff6b6b);
+      color: #fff;
+    }
+
+    .btn-power:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(230,57,70,0.6);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #555, #3a3a3a);
+      color: #fff;
+      border: 1px solid #777;
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #666, #4a4a4a);
+      transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 1400px) {
+      .control-panel {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 1000px) {
+      .control-panel {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .control-panel {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .keyboard {
+        height: 150px;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="juno-container">
+    <!-- Header -->
+    <div class="juno-header">
+      <div>
+        <div class="juno-logo">ROLAND</div>
+        <div class="juno-model">JUNO-106</div>
+      </div>
+      <div class="led-display">
+        <div class="led-text" id="led-display">READY</div>
+      </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+      
+      <!-- DCO Section -->
+      <div class="module-section">
+        <div class="module-title">DCO</div>
+        
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="dco-lfo" min="0" max="100" value="0" orient="vertical">
+          </div>
+          <div class="slider-label">LFO</div>
+          <div class="slider-value" id="dco-lfo-val">0%</div>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="dco-pwm" min="0" max="100" value="50" orient="vertical">
+          </div>
+          <div class="slider-label">PWM</div>
+          <div class="slider-value" id="dco-pwm-val">50%</div>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="dco-range" min="0" max="3" value="1" step="1" orient="vertical">
+          </div>
+          <div class="slider-label">Range</div>
+          <div class="slider-value" id="dco-range-val">16'</div>
+        </div>
+
+        <div class="button-container">
+          <div class="juno-button" id="dco-sub" data-active="false"></div>
+          <div class="button-label">Sub Osc</div>
+        </div>
+      </div>
+
+      <!-- VCF Section -->
+      <div class="module-section">
+        <div class="module-title">VCF</div>
+        
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="vcf-freq" min="20" max="20000" value="2000" orient="vertical">
+          </div>
+          <div class="slider-label">Freq</div>
+          <div class="slider-value" id="vcf-freq-val">2.0kHz</div>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="vcf-res" min="0" max="100" value="20" orient="vertical">
+          </div>
+          <div class="slider-label">Res</div>
+          <div class="slider-value" id="vcf-res-val">20%</div>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="vcf-env" min="0" max="100" value="50" orient="vertical">
+          </div>
+          <div class="slider-label">Env</div>
+          <div class="slider-value" id="vcf-env-val">50%</div>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="vcf-lfo" min="0" max="100" value="0" orient="vertical">
+          </div>
+          <div class="slider-label">LFO</div>
+          <div class="slider-value" id="vcf-lfo-val">0%</div>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="vcf-kybd" min="0" max="100" value="50" orient="vertical">
+          </div>
+          <div class="slider-label">Kybd</div>
+          <div class="slider-value" id="vcf-kybd-val">50%</div>
+        </div>
+      </div>
+
+      <!-- VCA Section -->
+      <div class="module-section">
+        <div class="module-title">VCA</div>
+        
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="vca-level" min="0" max="100" value="80" orient="vertical">
+          </div>
+          <div class="slider-label">Level</div>
+          <div class="slider-value" id="vca-level-val">80%</div>
+        </div>
+
+        <div class="button-container">
+          <div class="juno-button active" id="vca-env" data-active="true"></div>
+          <div class="button-label">Env Mode</div>
+        </div>
+      </div>
+
+      <!-- Envelope Section -->
+      <div class="module-section">
+        <div class="module-title">Envelope</div>
+        
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="env-attack" min="0" max="2000" value="10" orient="vertical">
+          </div>
+          <div class="slider-label">Attack</div>
+          <div class="slider-value" id="env-attack-val">10ms</div>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="env-decay" min="0" max="5000" value="500" orient="vertical">
+          </div>
+          <div class="slider-label">Decay</div>
+          <div class="slider-value" id="env-decay-val">500ms</div>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="env-sustain" min="0" max="100" value="70" orient="vertical">
+          </div>
+          <div class="slider-label">Sustain</div>
+          <div class="slider-value" id="env-sustain-val">70%</div>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="env-release" min="0" max="5000" value="300" orient="vertical">
+          </div>
+          <div class="slider-label">Release</div>
+          <div class="slider-value" id="env-release-val">300ms</div>
+        </div>
+      </div>
+
+      <!-- LFO Section -->
+      <div class="module-section">
+        <div class="module-title">LFO</div>
+        
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="lfo-rate" min="0.1" max="20" value="2" step="0.1" orient="vertical">
+          </div>
+          <div class="slider-label">Rate</div>
+          <div class="slider-value" id="lfo-rate-val">2.0Hz</div>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <input type="range" class="slider" id="lfo-delay" min="0" max="2000" value="0" orient="vertical">
+          </div>
+          <div class="slider-label">Delay</div>
+          <div class="slider-value" id="lfo-delay-val">0ms</div>
+        </div>
+      </div>
+
+      <!-- Chorus Section -->
+      <div class="module-section">
+        <div class="module-title">Chorus</div>
+        
+        <div class="button-container">
+          <div class="juno-button" id="chorus-off" data-mode="off"></div>
+          <div class="button-label">Off</div>
+        </div>
+
+        <div class="button-container">
+          <div class="juno-button active" id="chorus-i" data-mode="i"></div>
+          <div class="button-label">I</div>
+        </div>
+
+        <div class="button-container">
+          <div class="juno-button" id="chorus-ii" data-mode="ii"></div>
+          <div class="button-label">II</div>
+        </div>
+
+        <div class="button-container">
+          <div class="juno-button" id="chorus-i-ii" data-mode="both"></div>
+          <div class="button-label">I+II</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Spectrum Analyzer -->
+    <div class="analyzer-section">
+      <div class="analyzer-title">Real-Time Spectrum Analyzer</div>
+      <canvas id="spectrum-canvas"></canvas>
+    </div>
+
+    <!-- Keyboard -->
+    <div class="keyboard-section">
+      <div class="keyboard" id="keyboard"></div>
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="control-buttons">
+      <button class="control-btn btn-power" id="power-btn">Power On</button>
+      <button class="control-btn btn-secondary" id="save-preset">Save Patch</button>
+      <button class="control-btn btn-secondary" id="load-preset">Load Patch</button>
+    </div>
+  </div>
+
+  <script>
+    // Roland Juno-106 Synthesis Engine
+    class RolandJuno106 {
+      constructor() {
+        this.audioContext = null;
+        this.isPlaying = false;
+        this.isPowerOn = false;
+        this.masterGain = null;
+        this.voices = [];
+        this.maxVoices = 6; // Polyphonic (6 voices)
+        
+        // Chorus effect
+        this.chorusDelay1 = null;
+        this.chorusDelay2 = null;
+        this.chorusLFO1 = null;
+        this.chorusLFO2 = null;
+        
+        // Analyzers
+        this.analyser = null;
+        this.spectrumAnalyser = null;
+        
+        // Parameters
+        this.params = {
+          dco: { lfo: 0, pwm: 0.5, range: 1, sub: false },
+          vcf: { freq: 2000, res: 0.2, env: 0.5, lfo: 0, kybd: 0.5 },
+          vca: { level: 0.8, envMode: true },
+          env: { attack: 0.01, decay: 0.5, sustain: 0.7, release: 0.3 },
+          lfo: { rate: 2, delay: 0 },
+          chorus: { mode: 'i' } // off, i, ii, both
+        };
+
+        this.setupUI();
+      }
+
+      initialize() {
+        if (this.audioContext) return;
+        
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Master gain
+        this.masterGain = this.audioContext.createGain();
+        this.masterGain.gain.value = this.params.vca.level;
+        
+        // Setup chorus effect
+        this.setupChorus();
+        
+        // Analysers
+        this.analyser = this.audioContext.createAnalyser();
+        this.analyser.fftSize = 2048;
+        this.analyser.smoothingTimeConstant = 0.8;
+        
+        this.spectrumAnalyser = this.audioContext.createAnalyser();
+        this.spectrumAnalyser.fftSize = 8192;
+        this.spectrumAnalyser.smoothingTimeConstant = 0.85;
+        
+        // Connect chain
+        this.masterGain.connect(this.analyser);
+        this.analyser.connect(this.spectrumAnalyser);
+        this.spectrumAnalyser.connect(this.audioContext.destination);
+        
+        this.updateLEDDisplay('JUNO-106');
+        console.log('✅ Juno-106 initialized');
+      }
+
+      setupChorus() {
+        // Chorus I (slower, subtle)
+        this.chorusDelay1 = this.audioContext.createDelay();
+        this.chorusDelay1.delayTime.value = 0.025;
+        
+        this.chorusLFO1 = this.audioContext.createOscillator();
+        this.chorusLFO1.frequency.value = 0.5;
+        
+        const chorusDepth1 = this.audioContext.createGain();
+        chorusDepth1.gain.value = 0.002;
+        
+        this.chorusLFO1.connect(chorusDepth1);
+        chorusDepth1.connect(this.chorusDelay1.delayTime);
+        this.chorusLFO1.start();
+        
+        // Chorus II (faster, more pronounced)
+        this.chorusDelay2 = this.audioContext.createDelay();
+        this.chorusDelay2.delayTime.value = 0.030;
+        
+        this.chorusLFO2 = this.audioContext.createOscillator();
+        this.chorusLFO2.frequency.value = 0.7;
+        
+        const chorusDepth2 = this.audioContext.createGain();
+        chorusDepth2.gain.value = 0.003;
+        
+        this.chorusLFO2.connect(chorusDepth2);
+        chorusDepth2.connect(this.chorusDelay2.delayTime);
+        this.chorusLFO2.start();
+      }
+
+      createVoice(frequency, velocity = 0.8) {
+        const now = this.audioContext.currentTime;
+        
+        // DCO (Digitally Controlled Oscillator)
+        const dco = this.audioContext.createOscillator();
+        dco.type = 'sawtooth'; // Juno uses sawtooth primarily
+        
+        // Apply range (32', 16', 8', 4')
+        const ranges = [2, 1, 0.5, 0.25];
+        dco.frequency.value = frequency * ranges[this.params.dco.range];
+        
+        // PWM
+        const pwm = this.params.dco.pwm;
+        
+        // Sub oscillator
+        let subOsc = null;
+        let subGain = null;
+        if (this.params.dco.sub) {
+          subOsc = this.audioContext.createOscillator();
+          subOsc.type = 'square';
+          subOsc.frequency.value = frequency * ranges[this.params.dco.range] * 0.5;
+          subGain = this.audioContext.createGain();
+          subGain.gain.value = 0.3;
+        }
+        
+        // VCF (24dB Lowpass)
+        const vcf = this.audioContext.createBiquadFilter();
+        vcf.type = 'lowpass';
+        vcf.frequency.value = this.params.vcf.freq;
+        vcf.Q.value = this.params.vcf.res * 20;
+        
+        // Keyboard tracking
+        const keyboardTracking = this.params.vcf.kybd;
+        vcf.frequency.value = this.params.vcf.freq + (frequency - 440) * keyboardTracking;
+        
+        // Filter envelope
+        const filterEnvAmount = this.params.vcf.env * 5000;
+        const fAttack = this.params.env.attack;
+        const fDecay = this.params.env.decay;
+        const fSustain = this.params.env.sustain;
+        
+        vcf.frequency.setValueAtTime(vcf.frequency.value, now);
+        vcf.frequency.linearRampToValueAtTime(
+          vcf.frequency.value + filterEnvAmount,
+          now + fAttack
+        );
+        vcf.frequency.linearRampToValueAtTime(
+          vcf.frequency.value + (filterEnvAmount * fSustain),
+          now + fAttack + fDecay
+        );
+        
+        // VCA
+        const vca = this.audioContext.createGain();
+        vca.gain.value = 0;
+        
+        if (this.params.vca.envMode) {
+          // ADSR envelope
+          const aAttack = this.params.env.attack;
+          const aDecay = this.params.env.decay;
+          const aSustain = this.params.env.sustain;
+          
+          vca.gain.setValueAtTime(0, now);
+          vca.gain.linearRampToValueAtTime(velocity * 0.3, now + aAttack); // Reduced for polyphony
+          vca.gain.linearRampToValueAtTime(velocity * 0.3 * aSustain, now + aAttack + aDecay);
+        } else {
+          vca.gain.value = velocity * 0.3;
+        }
+        
+        // Connect chain
+        dco.connect(vcf);
+        if (subOsc && subGain) {
+          subOsc.connect(subGain);
+          subGain.connect(vcf);
+        }
+        vcf.connect(vca);
+        
+        // Apply chorus
+        const dry = this.audioContext.createGain();
+        const wet1 = this.audioContext.createGain();
+        const wet2 = this.audioContext.createGain();
+        
+        dry.gain.value = 0.7;
+        
+        switch(this.params.chorus.mode) {
+          case 'off':
+            wet1.gain.value = 0;
+            wet2.gain.value = 0;
+            break;
+          case 'i':
+            wet1.gain.value = 0.3;
+            wet2.gain.value = 0;
+            break;
+          case 'ii':
+            wet1.gain.value = 0;
+            wet2.gain.value = 0.3;
+            break;
+          case 'both':
+            wet1.gain.value = 0.25;
+            wet2.gain.value = 0.25;
+            break;
+        }
+        
+        vca.connect(dry);
+        vca.connect(this.chorusDelay1);
+        vca.connect(this.chorusDelay2);
+        
+        this.chorusDelay1.connect(wet1);
+        this.chorusDelay2.connect(wet2);
+        
+        dry.connect(this.masterGain);
+        wet1.connect(this.masterGain);
+        wet2.connect(this.masterGain);
+        
+        // Start oscillators
+        dco.start(now);
+        if (subOsc) subOsc.start(now);
+        
+        return {
+          frequency,
+          dco,
+          subOsc,
+          vcf,
+          vca,
+          startTime: now,
+          released: false
+        };
+      }
+
+      playNote(frequency, velocity = 0.8) {
+        if (!this.isPowerOn) return;
+        if (!this.audioContext) this.initialize();
+        
+        if (this.audioContext.state === 'suspended') {
+          this.audioContext.resume();
+        }
+        
+        // Remove old voices
+        const now = this.audioContext.currentTime;
+        this.voices = this.voices.filter(v => now - v.startTime < 10);
+        
+        // Find existing voice
+        let voice = this.voices.find(v => Math.abs(v.frequency - frequency) < 0.1);
+        
+        if (voice) {
+          // Retrigger
+          voice.vca.gain.cancelScheduledValues(now);
+          voice.vca.gain.setValueAtTime(0, now);
+          voice.vca.gain.linearRampToValueAtTime(velocity * 0.3, now + this.params.env.attack);
+          voice.vca.gain.linearRampToValueAtTime(velocity * 0.3 * this.params.env.sustain, now + this.params.env.attack + this.params.env.decay);
+          voice.released = false;
+        } else {
+          // Create new voice
+          if (this.voices.length >= this.maxVoices) {
+            const oldest = this.voices.shift();
+            this.releaseVoice(oldest, true);
+          }
+          
+          voice = this.createVoice(frequency, velocity);
+          this.voices.push(voice);
+        }
+        
+        this.updateLEDDisplay(`NOTE: ${this.frequencyToNote(frequency)}`);
+        this.isPlaying = true;
+      }
+
+      releaseVoice(voice, immediate = false) {
+        if (!voice || voice.released) return;
+        
+        voice.released = true;
+        const now = this.audioContext.currentTime;
+        const releaseTime = immediate ? 0.01 : this.params.env.release;
+        
+        voice.vca.gain.cancelScheduledValues(now);
+        voice.vca.gain.setValueAtTime(voice.vca.gain.value, now);
+        voice.vca.gain.linearRampToValueAtTime(0, now + releaseTime);
+        
+        setTimeout(() => {
+          if (voice.dco) voice.dco.stop();
+          if (voice.subOsc) voice.subOsc.stop();
+          
+          const index = this.voices.indexOf(voice);
+          if (index > -1) {
+            this.voices.splice(index, 1);
+          }
+        }, releaseTime * 1000 + 100);
+      }
+
+      stopNote(frequency) {
+        const voice = this.voices.find(v => Math.abs(v.frequency - frequency) < 0.1);
+        if (voice) {
+          this.releaseVoice(voice);
+        }
+        
+        if (this.voices.filter(v => !v.released).length === 0) {
+          this.updateLEDDisplay('JUNO-106');
+          this.isPlaying = false;
+        }
+      }
+
+      frequencyToNote(freq) {
+        const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const midiNum = 12 * Math.log2(freq / 440) + 69;
+        const noteNum = Math.round(midiNum);
+        const octave = Math.floor(noteNum / 12) - 1;
+        const note = notes[noteNum % 12];
+        return note + octave;
+      }
+
+      updateLEDDisplay(text) {
+        const led = document.getElementById('led-display');
+        if (led) led.textContent = text;
+      }
+
+      setupUI() {
+        // Keyboard
+        this.setupKeyboard();
+        
+        // Sliders
+        this.setupSliders();
+        
+        // Buttons
+        this.setupButtons();
+        
+        // Power button
+        document.getElementById('power-btn').addEventListener('click', () => this.togglePower());
+        
+        // Spectrum analyzer
+        this.startSpectrumAnalyzer();
+      }
+
+      setupKeyboard() {
+        const keyboard = document.getElementById('keyboard');
+        const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const baseFreq = 130.81; // C3
+        
+        for (let octave = 0; octave < 4; octave++) {
+          for (let i = 0; i < 12; i++) {
+            const note = notes[i];
+            const freq = baseFreq * Math.pow(2, octave + i / 12);
+            const isBlack = note.includes('#');
+            
+            const key = document.createElement('div');
+            key.className = isBlack ? 'key black-key' : 'key white-key';
+            key.dataset.freq = freq;
+            key.dataset.note = note + (octave + 3);
+            
+            if (isBlack) {
+              key.style.left = `${(octave * 7 + Math.floor(i / 2)) * 45 - 14}px`;
+            }
+            
+            key.addEventListener('mousedown', (e) => {
+              e.preventDefault();
+              this.playNote(parseFloat(key.dataset.freq));
+              key.classList.add('active');
+            });
+            
+            key.addEventListener('mouseup', () => {
+              this.stopNote(parseFloat(key.dataset.freq));
+              key.classList.remove('active');
+            });
+            
+            key.addEventListener('mouseleave', () => {
+              key.classList.remove('active');
+            });
+            
+            keyboard.appendChild(key);
+          }
+        }
+
+        // Computer keyboard support
+        const keyMap = {
+          'a': 'C3', 'w': 'C#3', 's': 'D3', 'e': 'D#3', 'd': 'E3',
+          'f': 'F3', 't': 'F#3', 'g': 'G3', 'y': 'G#3', 'h': 'A3', 'u': 'A#3', 'j': 'B3',
+          'k': 'C4', 'o': 'C#4', 'l': 'D4', 'p': 'D#4', ';': 'E4'
+        };
+
+        const activeKeys = new Set();
+
+        document.addEventListener('keydown', (e) => {
+          const note = keyMap[e.key.toLowerCase()];
+          if (note && !activeKeys.has(note)) {
+            activeKeys.add(note);
+            const key = Array.from(keyboard.children).find(k => k.dataset.note === note);
+            if (key) {
+              this.playNote(parseFloat(key.dataset.freq));
+              key.classList.add('active');
+            }
+          }
+        });
+
+        document.addEventListener('keyup', (e) => {
+          const note = keyMap[e.key.toLowerCase()];
+          if (note) {
+            activeKeys.delete(note);
+            const key = Array.from(keyboard.children).find(k => k.dataset.note === note);
+            if (key) {
+              this.stopNote(parseFloat(key.dataset.freq));
+              key.classList.remove('active');
+            }
+          }
+        });
+      }
+
+      setupSliders() {
+        const sliders = document.querySelectorAll('.slider');
+        
+        sliders.forEach(slider => {
+          slider.addEventListener('input', (e) => {
+            this.updateParameter(slider.id, parseFloat(e.target.value));
+          });
+          
+          // Initialize display
+          this.updateParameter(slider.id, parseFloat(slider.value));
+        });
+      }
+
+      setupButtons() {
+        // DCO Sub button
+        document.getElementById('dco-sub').addEventListener('click', (e) => {
+          e.target.classList.toggle('active');
+          this.params.dco.sub = e.target.classList.contains('active');
+        });
+        
+        // VCA Env button
+        document.getElementById('vca-env').addEventListener('click', (e) => {
+          e.target.classList.toggle('active');
+          this.params.vca.envMode = e.target.classList.contains('active');
+        });
+        
+        // Chorus buttons
+        const chorusButtons = ['chorus-off', 'chorus-i', 'chorus-ii', 'chorus-i-ii'];
+        chorusButtons.forEach(btnId => {
+          document.getElementById(btnId).addEventListener('click', (e) => {
+            chorusButtons.forEach(id => {
+              document.getElementById(id).classList.remove('active');
+            });
+            e.target.classList.add('active');
+            
+            const modes = { 'chorus-off': 'off', 'chorus-i': 'i', 'chorus-ii': 'ii', 'chorus-i-ii': 'both' };
+            this.params.chorus.mode = modes[btnId];
+          });
+        });
+      }
+
+      updateParameter(paramId, value) {
+        const valueDisplay = document.getElementById(paramId + '-val');
+        
+        switch(paramId) {
+          case 'dco-lfo':
+            this.params.dco.lfo = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'dco-pwm':
+            this.params.dco.pwm = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'dco-range':
+            this.params.dco.range = Math.floor(value);
+            const ranges = ["32'", "16'", "8'", "4'"];
+            if (valueDisplay) valueDisplay.textContent = ranges[Math.floor(value)];
+            break;
+            
+          case 'vcf-freq':
+            this.params.vcf.freq = value;
+            if (valueDisplay) {
+              const display = value >= 1000 ? (value/1000).toFixed(1) + 'kHz' : Math.round(value) + 'Hz';
+              valueDisplay.textContent = display;
+            }
+            break;
+            
+          case 'vcf-res':
+            this.params.vcf.res = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'vcf-env':
+            this.params.vcf.env = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'vcf-lfo':
+            this.params.vcf.lfo = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'vcf-kybd':
+            this.params.vcf.kybd = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'vca-level':
+            this.params.vca.level = value / 100;
+            if (this.masterGain) this.masterGain.gain.setValueAtTime(value / 100, this.audioContext.currentTime);
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'env-attack':
+            this.params.env.attack = value / 1000;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + 'ms';
+            break;
+            
+          case 'env-decay':
+            this.params.env.decay = value / 1000;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + 'ms';
+            break;
+            
+          case 'env-sustain':
+            this.params.env.sustain = value / 100;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + '%';
+            break;
+            
+          case 'env-release':
+            this.params.env.release = value / 1000;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + 'ms';
+            break;
+            
+          case 'lfo-rate':
+            this.params.lfo.rate = value;
+            if (valueDisplay) valueDisplay.textContent = value.toFixed(1) + 'Hz';
+            break;
+            
+          case 'lfo-delay':
+            this.params.lfo.delay = value;
+            if (valueDisplay) valueDisplay.textContent = Math.round(value) + 'ms';
+            break;
+        }
+      }
+
+      togglePower() {
+        this.isPowerOn = !this.isPowerOn;
+        const btn = document.getElementById('power-btn');
+        
+        if (this.isPowerOn) {
+          this.initialize();
+          btn.textContent = 'Power Off';
+          btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+          console.log('🟢 Juno-106 powered on');
+        } else {
+          btn.textContent = 'Power On';
+          btn.style.background = 'linear-gradient(135deg, #e63946, #ff6b6b)';
+          this.voices.forEach(v => this.releaseVoice(v, true));
+          this.updateLEDDisplay('OFF');
+          console.log('🔴 Juno-106 powered off');
+        }
+      }
+
+      startSpectrumAnalyzer() {
+        const canvas = document.getElementById('spectrum-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        const resize = () => {
+          canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+          canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+          ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        };
+        resize();
+        window.addEventListener('resize', resize);
+        
+        const draw = () => {
+          requestAnimationFrame(draw);
+          
+          if (!this.spectrumAnalyser) return;
+          
+          const bufferLength = this.spectrumAnalyser.frequencyBinCount;
+          const dataArray = new Uint8Array(bufferLength);
+          this.spectrumAnalyser.getByteFrequencyData(dataArray);
+          
+          const width = canvas.offsetWidth;
+          const height = canvas.offsetHeight;
+          
+          ctx.fillStyle = '#000';
+          ctx.fillRect(0, 0, width, height);
+          
+          const barCount = 120;
+          const barWidth = width / barCount;
+          
+          for (let i = 0; i < barCount; i++) {
+            const index = Math.floor(i * bufferLength / barCount);
+            const value = dataArray[index];
+            const barHeight = (value / 255) * height * 0.9;
+            
+            const hue = 0 + (value / 255) * 30; // Red gradient
+            const saturation = 80 + (value / 255) * 20;
+            const lightness = 40 + (value / 255) * 20;
+            
+            ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+            ctx.fillRect(i * barWidth, height - barHeight, barWidth - 1, barHeight);
+            
+            if (value > 100) {
+              ctx.shadowBlur = 10;
+              ctx.shadowColor = `hsl(${hue}, 100%, 60%)`;
+            } else {
+              ctx.shadowBlur = 0;
+            }
+          }
+          
+          ctx.strokeStyle = 'rgba(230, 57, 70, 0.2)';
+          ctx.lineWidth = 1;
+          ctx.shadowBlur = 0;
+          
+          for (let i = 0; i < 5; i++) {
+            const y = (height / 4) * i;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+          }
+        };
+        
+        draw();
+      }
+    }
+
+    // Initialize Juno-106
+    let juno;
+    document.addEventListener('DOMContentLoaded', () => {
+      juno = new RolandJuno106();
+      console.log('✅ Roland Juno-106 ready');
+    });
+  </script>
+
+</body>
+</html>
