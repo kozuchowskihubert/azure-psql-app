@@ -31,13 +31,24 @@
 
     .bg-glow {
       position: fixed;
+      width: 400px;
+      height: 400px;
       border-radius: 50%;
       filter: blur(120px);
+      opacity: 0.1;
+      animation: float 8s ease-in-out infinite;
       pointer-events: none;
-      z-index: 0;
+      z-index: -1;
     }
-    .bg-glow.orange { background: #FF6B35; width: 400px; height: 400px; top: -100px; left: -100px; opacity: 0.15; }
-    .bg-glow.gold { background: #D4AF37; width: 300px; height: 300px; bottom: 20%; right: -50px; opacity: 0.1; }
+
+    .bg-glow.orange { background: #FF6B35; top: -100px; left: -100px; }
+    .bg-glow.purple { background: #6A0DAD; bottom: -100px; right: -100px; animation-delay: -4s; }
+    .bg-glow.cyan { background: #00D9FF; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -2s; opacity: 0.05; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(30px, -30px); }
+    }
 
     /* Header */
     .header {
@@ -736,9 +747,10 @@
   </style>
 </head>
 <body>
-  <!-- Background Glows -->
+  <!-- Animated Background Glows -->
   <div class="bg-glow orange"></div>
-  <div class="bg-glow gold"></div>
+  <div class="bg-glow purple"></div>
+  <div class="bg-glow cyan"></div>
 
   <!-- Header -->
   <header class="header">
