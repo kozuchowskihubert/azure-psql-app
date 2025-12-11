@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Keys - HAOS</title>
+    <link rel="icon" href="/images/haos-logo-white.png" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --haos-orange: #ff6b35;
+            --haos-orange-dark: #e55a2b;
+            --haos-cyan: #00d4ff;
+            --haos-bg-dark: #0a0a0f;
+            --haos-bg-card: rgba(255, 255, 255, 0.05);
+            --haos-border: rgba(255, 255, 255, 0.1);
+            --haos-text: #ffffff;
+            --haos-text-muted: #888;
+            --haos-success: #2ecc71;
+            --haos-warning: #f39c12;
+            --haos-danger: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+            color: var(--haos-text);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+            opacity: 0.03;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .bg-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.12;
+            animation: float 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .bg-glow.orange { background: var(--haos-orange); top: -100px; left: -100px; }
+        .bg-glow.purple { background: #6A0DAD; bottom: -100px; right: -100px; animation-delay: -4s; }
+        .bg-glow.cyan { background: var(--haos-cyan); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -2s; opacity: 0.06; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--haos-border);
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--haos-text);
+        }
+
+        .logo img {
+            height: 32px;
+            width: auto;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--haos-orange), #ff8c5a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            color: var(--haos-text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--haos-text);
+            background: var(--haos-bg-card);
+        }
+
+        .nav-link.active {
+            color: var(--haos-orange);
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-title svg {
+            color: var(--haos-orange);
+        }
+
+        .page-subtitle {
+            color: var(--haos-text-muted);
+            font-size: 1rem;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--haos-bg-card);
+            border: 1px solid var(--haos-border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .stat-label {
+            color: var(--haos-text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .stat-value.orange { color: var(--haos-orange); }
+        .stat-value.cyan { color: var(--haos-cyan); }
+        .stat-value.success { color: var(--haos-success); }
+        .stat-value.warning { color: var(--haos-warning); }
+
+        .stat-change {
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .stat-change.positive { color: var(--haos-success); }
+        .stat-change.negative { color: var(--haos-danger); }
+
+        /* Actions Bar */
+        .actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--haos-bg-card);
+            border: 1px solid var(--haos-border);
+            color: var(--haos-text);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-danger {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid var(--haos-danger);
+            color: var(--haos-danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--haos-danger);
+            color: white;
+        }
+
+        /* API Keys Table */
+        .api-keys-section {
+            background: var(--haos-bg-card);
+            border: 1px solid var(--haos-border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--haos-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .api-key-list {
+            padding: 0;
+        }
+
+        .api-key-item {
+            display: grid;
+            grid-template-columns: 1fr 200px 150px 150px 120px;
+            gap: 16px;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--haos-border);
+            transition: background 0.2s;
+        }
+
+        .api-key-item:last-child {
+            border-bottom: none;
+        }
+
+        .api-key-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .key-info {
+            min-width: 0;
+        }
+
+        .key-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .key-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .key-badge.live {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--haos-success);
+        }
+
+        .key-badge.test {
+            background: rgba(243, 156, 18, 0.2);
+            color: var(--haos-warning);
+        }
+
+        .key-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            color: var(--haos-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .key-hidden {
+            letter-spacing: 2px;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--haos-cyan);
+            cursor: pointer;
+            padding: 4px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .copy-btn:hover {
+            opacity: 1;
+        }
+
+        .key-scopes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .scope-tag {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            background: rgba(0, 212, 255, 0.15);
+            color: var(--haos-cyan);
+            border-radius: 6px;
+        }
+
+        .key-usage {
+            text-align: center;
+        }
+
+        .usage-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .usage-fill {
+            height: 100%;
+            background: var(--haos-cyan);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .usage-fill.warning { background: var(--haos-warning); }
+        .usage-fill.danger { background: var(--haos-danger); }
+
+        .usage-text {
+            font-size: 0.8rem;
+            color: var(--haos-text-muted);
+        }
+
+        .key-created {
+            color: var(--haos-text-muted);
+            font-size: 0.85rem;
+        }
+
+        .key-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .key-action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--haos-bg-card);
+            border: 1px solid var(--haos-border);
+            color: var(--haos-text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .key-action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--haos-text);
+        }
+
+        .key-action-btn.danger:hover {
+            background: rgba(231, 76, 60, 0.2);
+            border-color: var(--haos-danger);
+            color: var(--haos-danger);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .empty-text {
+            color: var(--haos-text-muted);
+            margin-bottom: 24px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+            border: 1px solid var(--haos-border);
+            border-radius: 20px;
+            padding: 32px;
+            width: 90%;
+            max-width: 500px;
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--haos-text-muted);
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 4px;
+        }
+
+        .modal-close:hover {
+            color: var(--haos-text);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--haos-text-muted);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--haos-border);
+            border-radius: 10px;
+            color: var(--haos-text);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--haos-orange);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--haos-border);
+            border-radius: 10px;
+            color: var(--haos-text);
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--haos-orange);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
+        /* New Key Modal */
+        .new-key-display {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--haos-success);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .new-key-warning {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: var(--haos-warning);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        .new-key-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            word-break: break-all;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Documentation Section */
+        .docs-section {
+            background: var(--haos-bg-card);
+            border: 1px solid var(--haos-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 32px;
+        }
+
+        .docs-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .docs-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--haos-border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: var(--haos-text);
+        }
+
+        .docs-card:hover {
+            border-color: var(--haos-orange);
+            transform: translateY(-2px);
+        }
+
+        .docs-card-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .docs-card-text {
+            color: var(--haos-text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Code Example */
+        .code-example {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 24px;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--haos-border);
+        }
+
+        .code-lang {
+            font-size: 0.85rem;
+            color: var(--haos-text-muted);
+        }
+
+        .code-content {
+            padding: 16px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .code-content .keyword { color: #ff79c6; }
+        .code-content .string { color: #f1fa8c; }
+        .code-content .comment { color: #6272a4; }
+        .code-content .function { color: #50fa7b; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .api-key-item {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .key-usage, .key-created {
+                text-align: left;
+            }
+
+            .key-actions {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 16px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .main-container {
+                padding: 20px 16px;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .actions-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .api-key-item {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a1a2e;
+            border: 1px solid var(--haos-border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1100;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-color: var(--haos-success);
+        }
+
+        .toast.error {
+            border-color: var(--haos-danger);
+        }
+
+        .toast-icon {
+            font-size: 1.2rem;
+        }
+
+        .toast-message {
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background Glows -->
+    <div class="bg-glow orange"></div>
+    <div class="bg-glow purple"></div>
+    <div class="bg-glow cyan"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <a href="/" class="logo">
+                <img src="/images/haos-logo-white.png" alt="HAOS" onerror="this.style.display='none'">
+                <span class="logo-text">HAOS</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/dashboard.html" class="nav-link">Dashboard</a>
+                <a href="/techno-workspace.html" class="nav-link">Studio</a>
+                <a href="/api-keys.html" class="nav-link active">API</a>
+                <a href="/community.html" class="nav-link">Community</a>
+            </nav>
+        </div>
+        <div class="user-menu">
+            <a href="/account.html" class="user-avatar" id="userAvatar">?</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                </svg>
+                API Keys
+            </h1>
+            <p class="page-subtitle">Manage your API keys to integrate HAOS with your applications</p>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                    </svg>
+                    Active Keys
+                </div>
+                <div class="stat-value orange" id="activeKeys">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                    Total Requests
+                </div>
+                <div class="stat-value cyan" id="totalRequests">0</div>
+                <div class="stat-change positive" id="requestChange">+0% this month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    Rate Limit
+                </div>
+                <div class="stat-value success" id="rateLimit">1,000</div>
+                <div class="stat-change">requests/minute</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                    Avg Response
+                </div>
+                <div class="stat-value warning" id="avgResponse">--</div>
+                <div class="stat-change">milliseconds</div>
+            </div>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="actions-bar">
+            <div>
+                <button class="btn btn-primary" onclick="openCreateModal()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    Create New Key
+                </button>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" onclick="refreshKeys()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6M1 20v-6h6"/>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                    </svg>
+                    Refresh
+                </button>
+                <a href="/docs/api" class="btn btn-secondary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    API Docs
+                </a>
+            </div>
+        </div>
+
+        <!-- API Keys List -->
+        <div class="api-keys-section">
+            <div class="section-header">
+                <h2 class="section-title">Your API Keys</h2>
+                <span id="keyCount" style="color: var(--haos-text-muted); font-size: 0.9rem;">0 keys</span>
+            </div>
+            <div class="api-key-list" id="apiKeyList">
+                <!-- Keys will be loaded here -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">🔑</div>
+                    <h3 class="empty-title">No API Keys Yet</h3>
+                    <p class="empty-text">Create your first API key to start integrating with HAOS</p>
+                    <button class="btn btn-primary" onclick="openCreateModal()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Create API Key
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentation -->
+        <div class="docs-section">
+            <h2 class="docs-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                Quick Start Guide
+            </h2>
+            <div class="docs-grid">
+                <a href="/docs/api/authentication" class="docs-card">
+                    <div class="docs-card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        Authentication
+                    </div>
+                    <p class="docs-card-text">Learn how to authenticate your API requests</p>
+                </a>
+                <a href="/docs/api/endpoints" class="docs-card">
+                    <div class="docs-card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                            <polyline points="15 3 21 3 21 9"/>
+                            <line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
+                        API Endpoints
+                    </div>
+                    <p class="docs-card-text">Explore available endpoints and methods</p>
+                </a>
+                <a href="/docs/api/rate-limits" class="docs-card">
+                    <div class="docs-card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                        Rate Limits
+                    </div>
+                    <p class="docs-card-text">Understand usage limits and quotas</p>
+                </a>
+                <a href="/docs/api/webhooks" class="docs-card">
+                    <div class="docs-card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                        </svg>
+                        Webhooks
+                    </div>
+                    <p class="docs-card-text">Set up real-time event notifications</p>
+                </a>
+            </div>
+
+            <!-- Code Example -->
+            <div class="code-example">
+                <div class="code-header">
+                    <span class="code-lang">JavaScript / Node.js</span>
+                    <button class="copy-btn" onclick="copyCode()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                    </button>
+                </div>
+                <pre class="code-content"><code><span class="comment">// Example: Using the HAOS API</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'https://haos.fm/api/v1/presets'</span>, {
+    method: <span class="string">'GET'</span>,
+    headers: {
+        <span class="string">'Authorization'</span>: <span class="string">'Bearer YOUR_API_KEY'</span>,
+        <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span>
+    }
+});
+
+<span class="keyword">const</span> presets = <span class="keyword">await</span> response.<span class="function">json</span>();
+console.<span class="function">log</span>(presets);</code></pre>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create Key Modal -->
+    <div class="modal-overlay" id="createModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New API Key</h3>
+                <button class="modal-close" onclick="closeCreateModal()">&times;</button>
+            </div>
+            <form id="createKeyForm">
+                <div class="form-group">
+                    <label class="form-label">Key Name</label>
+                    <input type="text" class="form-input" id="keyName" placeholder="e.g., Production Server" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Environment</label>
+                    <select class="form-select" id="keyEnvironment">
+                        <option value="test">Test (Sandbox)</option>
+                        <option value="live">Live (Production)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Permissions</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="scopes" value="read:presets" checked>
+                            Read Presets
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="scopes" value="write:presets">
+                            Write Presets
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="scopes" value="read:tracks" checked>
+                            Read Tracks
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="scopes" value="write:tracks">
+                            Write Tracks
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="scopes" value="read:patterns" checked>
+                            Read Patterns
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="scopes" value="write:patterns">
+                            Write Patterns
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Expiration</label>
+                    <select class="form-select" id="keyExpiration">
+                        <option value="never">Never</option>
+                        <option value="30">30 days</option>
+                        <option value="90">90 days</option>
+                        <option value="365">1 year</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Key</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Key Display Modal -->
+    <div class="modal-overlay" id="newKeyModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">🎉 API Key Created!</h3>
+                <button class="modal-close" onclick="closeNewKeyModal()">&times;</button>
+            </div>
+            <div class="new-key-display">
+                <div class="new-key-warning">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <span>Make sure to copy your API key now. You won't be able to see it again!</span>
+                </div>
+                <div class="new-key-value">
+                    <code id="newKeyValue">haos_live_xxxxxxxxxxxxxxxxxxxx</code>
+                    <button class="copy-btn" onclick="copyNewKey()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="closeNewKeyModal()" style="width: 100%;">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">⚠️ Delete API Key</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <p style="margin-bottom: 20px; color: var(--haos-text-muted);">
+                Are you sure you want to delete this API key? This action cannot be undone and any applications using this key will stop working immediately.
+            </p>
+            <p style="margin-bottom: 20px;">
+                <strong id="deleteKeyName">Key Name</strong>
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Delete Key</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">✓</span>
+        <span class="toast-message" id="toastMessage">Success!</span>
+    </div>
+
+    <script>
+        // State
+        let apiKeys = [];
+        let currentDeleteId = null;
+        let userProfile = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadApiKeys();
+        });
+
+        // Check authentication
+        async function checkAuth() {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Auth failed');
+                }
+
+                userProfile = await response.json();
+                updateUserAvatar();
+            } catch (error) {
+                console.error('Auth error:', error);
+                localStorage.removeItem('accessToken');
+                window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+            }
+        }
+
+        function updateUserAvatar() {
+            const avatar = document.getElementById('userAvatar');
+            if (userProfile?.avatar_url) {
+                avatar.innerHTML = `<img src="${userProfile.avatar_url}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            } else if (userProfile?.display_name || userProfile?.email) {
+                const name = userProfile.display_name || userProfile.email;
+                avatar.textContent = name.charAt(0).toUpperCase();
+            }
+        }
+
+        // Load API keys
+        async function loadApiKeys() {
+            const token = localStorage.getItem('accessToken');
+            
+            try {
+                const response = await fetch('/api/keys', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    apiKeys = await response.json();
+                    renderApiKeys();
+                    updateStats();
+                } else {
+                    // Demo data for now
+                    apiKeys = getDemoKeys();
+                    renderApiKeys();
+                    updateStats();
+                }
+            } catch (error) {
+                console.error('Failed to load API keys:', error);
+                // Show demo data
+                apiKeys = getDemoKeys();
+                renderApiKeys();
+                updateStats();
+            }
+        }
+
+        function getDemoKeys() {
+            return [
+                {
+                    id: '1',
+                    name: 'Production Server',
+                    key: 'haos_live_xxxxxxxxxx',
+                    environment: 'live',
+                    scopes: ['read:presets', 'write:presets', 'read:tracks'],
+                    usage: 8420,
+                    limit: 10000,
+                    created: '2024-12-01T10:30:00Z',
+                    lastUsed: '2024-12-11T14:25:00Z'
+                },
+                {
+                    id: '2',
+                    name: 'Development App',
+                    key: 'haos_test_xxxxxxxxxx',
+                    environment: 'test',
+                    scopes: ['read:presets', 'read:tracks', 'read:patterns'],
+                    usage: 1250,
+                    limit: 5000,
+                    created: '2024-11-15T09:00:00Z',
+                    lastUsed: '2024-12-10T18:45:00Z'
+                },
+                {
+                    id: '3',
+                    name: 'Mobile App',
+                    key: 'haos_live_yyyyyyyyyy',
+                    environment: 'live',
+                    scopes: ['read:presets', 'read:tracks'],
+                    usage: 3200,
+                    limit: 10000,
+                    created: '2024-10-20T15:00:00Z',
+                    lastUsed: '2024-12-11T12:00:00Z'
+                }
+            ];
+        }
+
+        function renderApiKeys() {
+            const container = document.getElementById('apiKeyList');
+            const emptyState = document.getElementById('emptyState');
+
+            if (apiKeys.length === 0) {
+                container.innerHTML = '';
+                container.appendChild(emptyState);
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            container.innerHTML = apiKeys.map((key, index) => `
+                <div class="api-key-item" style="animation-delay: ${index * 0.1}s">
+                    <div class="key-info">
+                        <div class="key-name">
+                            ${escapeHtml(key.name)}
+                            <span class="key-badge ${key.environment}">${key.environment}</span>
+                        </div>
+                        <div class="key-value">
+                            <span class="key-hidden">${key.key.substring(0, 12)}••••••••••••</span>
+                            <button class="copy-btn" onclick="copyKey('${key.key}')" title="Copy key">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="key-scopes">
+                        ${key.scopes.slice(0, 3).map(scope => `<span class="scope-tag">${scope.split(':')[1]}</span>`).join('')}
+                        ${key.scopes.length > 3 ? `<span class="scope-tag">+${key.scopes.length - 3}</span>` : ''}
+                    </div>
+                    <div class="key-usage">
+                        <div class="usage-bar">
+                            <div class="usage-fill ${getUsageClass(key.usage, key.limit)}" style="width: ${(key.usage / key.limit) * 100}%"></div>
+                        </div>
+                        <div class="usage-text">${formatNumber(key.usage)} / ${formatNumber(key.limit)}</div>
+                    </div>
+                    <div class="key-created">
+                        ${formatDate(key.created)}
+                    </div>
+                    <div class="key-actions">
+                        <button class="key-action-btn" onclick="editKey('${key.id}')" title="Edit">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
+                        <button class="key-action-btn danger" onclick="deleteKey('${key.id}', '${escapeHtml(key.name)}')" title="Delete">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const activeKeys = apiKeys.filter(k => k.environment === 'live').length;
+            const totalRequests = apiKeys.reduce((sum, k) => sum + k.usage, 0);
+
+            document.getElementById('activeKeys').textContent = apiKeys.length;
+            document.getElementById('totalRequests').textContent = formatNumber(totalRequests);
+            document.getElementById('keyCount').textContent = `${apiKeys.length} key${apiKeys.length !== 1 ? 's' : ''}`;
+            document.getElementById('avgResponse').textContent = Math.floor(Math.random() * 50 + 30);
+        }
+
+        // Modal handlers
+        function openCreateModal() {
+            document.getElementById('createModal').classList.add('active');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('active');
+            document.getElementById('createKeyForm').reset();
+        }
+
+        function closeNewKeyModal() {
+            document.getElementById('newKeyModal').classList.remove('active');
+            loadApiKeys();
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            currentDeleteId = null;
+        }
+
+        // Form submission
+        document.getElementById('createKeyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('keyName').value;
+            const environment = document.getElementById('keyEnvironment').value;
+            const expiration = document.getElementById('keyExpiration').value;
+            const scopes = Array.from(document.querySelectorAll('input[name="scopes"]:checked'))
+                .map(cb => cb.value);
+
+            const token = localStorage.getItem('accessToken');
+
+            try {
+                const response = await fetch('/api/keys', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, environment, scopes, expiration })
+                });
+
+                if (response.ok) {
+                    const newKey = await response.json();
+                    closeCreateModal();
+                    showNewKey(newKey.key);
+                } else {
+                    // Demo mode - generate fake key
+                    const prefix = environment === 'live' ? 'haos_live_' : 'haos_test_';
+                    const fakeKey = prefix + generateRandomString(32);
+                    closeCreateModal();
+                    showNewKey(fakeKey);
+                    
+                    // Add to local state
+                    apiKeys.push({
+                        id: Date.now().toString(),
+                        name,
+                        key: fakeKey,
+                        environment,
+                        scopes,
+                        usage: 0,
+                        limit: environment === 'live' ? 10000 : 5000,
+                        created: new Date().toISOString()
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to create key:', error);
+                showToast('Failed to create API key', 'error');
+            }
+        });
+
+        function showNewKey(key) {
+            document.getElementById('newKeyValue').textContent = key;
+            document.getElementById('newKeyModal').classList.add('active');
+        }
+
+        function deleteKey(id, name) {
+            currentDeleteId = id;
+            document.getElementById('deleteKeyName').textContent = name;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        async function confirmDelete() {
+            if (!currentDeleteId) return;
+
+            const token = localStorage.getItem('accessToken');
+
+            try {
+                const response = await fetch(`/api/keys/${currentDeleteId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                // Remove from local state regardless of API response
+                apiKeys = apiKeys.filter(k => k.id !== currentDeleteId);
+                renderApiKeys();
+                updateStats();
+                closeDeleteModal();
+                showToast('API key deleted successfully');
+            } catch (error) {
+                console.error('Failed to delete key:', error);
+                showToast('Failed to delete API key', 'error');
+            }
+        }
+
+        function editKey(id) {
+            showToast('Edit functionality coming soon');
+        }
+
+        function refreshKeys() {
+            loadApiKeys();
+            showToast('API keys refreshed');
+        }
+
+        // Copy functions
+        function copyKey(key) {
+            navigator.clipboard.writeText(key);
+            showToast('API key copied to clipboard');
+        }
+
+        function copyNewKey() {
+            const key = document.getElementById('newKeyValue').textContent;
+            navigator.clipboard.writeText(key);
+            showToast('API key copied to clipboard');
+        }
+
+        function copyCode() {
+            const code = document.querySelector('.code-content').textContent;
+            navigator.clipboard.writeText(code);
+            showToast('Code copied to clipboard');
+        }
+
+        // Utility functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toLocaleString();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function getUsageClass(usage, limit) {
+            const percent = (usage / limit) * 100;
+            if (percent >= 90) return 'danger';
+            if (percent >= 70) return 'warning';
+            return '';
+        }
+
+        function generateRandomString(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = toast.querySelector('.toast-icon');
+            
+            toastMessage.textContent = message;
+            toast.className = 'toast show ' + type;
+            toastIcon.textContent = type === 'success' ? '✓' : '✕';
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

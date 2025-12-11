@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - HAOS.fm</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0A0A0A;
+      --bg-secondary: #151515;
+      --bg-tertiary: #1a1a1a;
+      --text-primary: #F4E8D8;
+      --text-secondary: #6B6B6B;
+      --accent-orange: #FF6B35;
+      --accent-gold: #D4AF37;
+      --accent-cyan: #00D9FF;
+      --accent-green: #39FF14;
+      --accent-purple: #6A0DAD;
+      --border-color: #2a2a2a;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-primary);
+      min-height: 100vh;
+      color: var(--text-primary);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+      opacity: 0.03;
+      mix-blend-mode: overlay;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.1;
+      animation: float 8s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .bg-glow.orange { background: var(--accent-orange); top: -100px; left: -100px; }
+    .bg-glow.purple { background: var(--accent-purple); bottom: -100px; right: -100px; animation-delay: -4s; }
+    .bg-glow.cyan { background: var(--accent-cyan); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -2s; opacity: 0.05; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(30px, -30px); }
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 260px;
+      height: 100vh;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent-orange), var(--accent-gold));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      color: var(--bg-primary);
+    }
+
+    .logo-text {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--accent-orange), var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 1rem 0;
+      overflow-y: auto;
+    }
+
+    .nav-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .nav-section-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      padding: 0 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 107, 53, 0.1);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: rgba(255, 107, 53, 0.15);
+      color: var(--accent-orange);
+      border-left: 3px solid var(--accent-orange);
+    }
+
+    .nav-item i { width: 20px; text-align: center; }
+
+    .nav-item.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .nav-item.disabled:hover {
+      background: transparent;
+      color: var(--text-secondary);
+    }
+
+    .badge.premium {
+      margin-left: auto;
+      background: linear-gradient(135deg, #D4AF37, #FFD700);
+      color: var(--bg-primary);
+      font-size: 0.65rem;
+      padding: 3px 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent-orange);
+      color: var(--bg-primary);
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: var(--bg-tertiary);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .user-card:hover {
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1rem;
+      overflow: hidden;
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .user-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .user-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-plan {
+      font-size: 0.75rem;
+      color: var(--accent-gold);
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 260px;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--accent-orange);
+      transform: translateY(-2px);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .stat-icon.orange { background: rgba(255, 107, 53, 0.15); color: var(--accent-orange); }
+    .stat-icon.cyan { background: rgba(0, 217, 255, 0.15); color: var(--accent-cyan); }
+    .stat-icon.green { background: rgba(57, 255, 20, 0.15); color: var(--accent-green); }
+    .stat-icon.gold { background: rgba(212, 175, 55, 0.15); color: var(--accent-gold); }
+
+    .stat-trend {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 20px;
+    }
+
+    .stat-trend.up { background: rgba(57, 255, 20, 0.15); color: var(--accent-green); }
+    .stat-trend.down { background: rgba(255, 68, 68, 0.15); color: #ff4444; }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    /* Activity Chart */
+    .chart-container {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .chart-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .chart-tab {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chart-tab:hover { border-color: var(--accent-orange); color: var(--text-primary); }
+    .chart-tab.active { background: var(--accent-orange); color: var(--bg-primary); border-color: var(--accent-orange); }
+
+    .chart-area {
+      height: 200px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 1rem 0;
+    }
+
+    .chart-bar {
+      flex: 1;
+      background: linear-gradient(to top, var(--accent-orange), var(--accent-gold));
+      border-radius: 4px 4px 0 0;
+      min-height: 20px;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .chart-bar:hover {
+      opacity: 0.8;
+    }
+
+    .chart-bar::after {
+      content: attr(data-value);
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .chart-bar:hover::after { opacity: 1; }
+
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+    }
+
+    .chart-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-align: center;
+      flex: 1;
+    }
+
+    /* Recent Activity */
+    .activity-section {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .activity-list {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .activity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .activity-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .view-all {
+      color: var(--accent-orange);
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .activity-icon.synth { background: rgba(106, 13, 173, 0.2); color: var(--accent-purple); }
+    .activity-icon.track { background: rgba(0, 217, 255, 0.2); color: var(--accent-cyan); }
+    .activity-icon.collab { background: rgba(57, 255, 20, 0.2); color: var(--accent-green); }
+    .activity-icon.preset { background: rgba(255, 107, 53, 0.2); color: var(--accent-orange); }
+
+    .activity-content { flex: 1; }
+
+    .activity-text {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .quick-actions-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .quick-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 1rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-primary);
+      text-decoration: none;
+      margin-bottom: 0.75rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .quick-action-btn:hover {
+      border-color: var(--accent-orange);
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .quick-action-btn:last-child { margin-bottom: 0; }
+
+    .quick-action-btn i {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 107, 53, 0.15);
+      color: var(--accent-orange);
+    }
+
+    .quick-action-text {
+      flex: 1;
+    }
+
+    .quick-action-text span {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .quick-action-text small {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+    }
+
+    /* Mobile */
+    @media (max-width: 1024px) {
+      .activity-section { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .mobile-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .menu-toggle {
+        display: flex;
+        width: 44px;
+        height: 44px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-primary);
+        cursor: pointer;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .mobile-header { display: none; }
+      .menu-toggle { display: none; }
+    }
+
+    /* Loading State */
+    .loading-skeleton {
+      background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated Background Glows -->
+  <div class="bg-glow orange"></div>
+  <div class="bg-glow purple"></div>
+  <div class="bg-glow cyan"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="/" class="logo">
+        <div class="logo-icon"><i class="fas fa-broadcast-tower"></i></div>
+        <span class="logo-text">HAOS.FM</span>
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Main</div>
+        <a href="/dashboard.html" class="nav-item active">
+          <i class="fas fa-th-large"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/techno-workspace.html" class="nav-item">
+          <i class="fas fa-sliders-h"></i>
+          <span>Studio</span>
+        </a>
+        <a href="/sounds.html" class="nav-item">
+          <i class="fas fa-music"></i>
+          <span>Sounds</span>
+        </a>
+        <a href="/community.html" class="nav-item">
+          <i class="fas fa-users"></i>
+          <span>Community</span>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Premium</div>
+        <a href="/modular-workspace.html" class="nav-item disabled" onclick="showPremiumModal(event)">
+          <i class="fas fa-project-diagram"></i>
+          <span>Modular</span>
+          <span class="badge premium"><i class="fas fa-crown"></i></span>
+        </a>
+        <a href="/builder.html" class="nav-item disabled" onclick="showPremiumModal(event)">
+          <i class="fas fa-wrench"></i>
+          <span>Builder</span>
+          <span class="badge premium"><i class="fas fa-crown"></i></span>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Account</div>
+        <a href="/api-keys.html" class="nav-item">
+          <i class="fas fa-key"></i>
+          <span>API Keys</span>
+        </a>
+        <a href="/account.html" class="nav-item">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-profile" id="userProfile">
+        <div class="user-avatar" id="sidebarAvatar">?</div>
+        <div class="user-info">
+          <span class="user-name" id="sidebarUserName">Loading...</span>
+          <span class="user-email" id="sidebarUserEmail"></span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="mobile-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <a href="/" class="logo">
+        <div class="logo-icon"><i class="fas fa-broadcast-tower"></i></div>
+        <span class="logo-text">HAOS.FM</span>
+      </a>
+    </div>
+
+    <div class="page-header">
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-subtitle">Welcome back! Here's what's happening with your account.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon orange"><i class="fas fa-headphones"></i></div>
+          <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 12%</div>
+        </div>
+        <div class="stat-value" id="stat-listening">0h</div>
+        <div class="stat-label">Listening Time This Week</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon cyan"><i class="fas fa-music"></i></div>
+          <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 3</div>
+        </div>
+        <div class="stat-value" id="stat-tracks">0</div>
+        <div class="stat-label">Tracks Created</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon green"><i class="fas fa-wave-square"></i></div>
+          <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 8</div>
+        </div>
+        <div class="stat-value" id="stat-presets">0</div>
+        <div class="stat-label">Synth Presets</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon gold"><i class="fas fa-users"></i></div>
+          <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 5</div>
+        </div>
+        <div class="stat-value" id="stat-collabs">0</div>
+        <div class="stat-label">Collaborations</div>
+      </div>
+    </div>
+
+    <!-- Activity Chart -->
+    <div class="chart-container">
+      <div class="chart-header">
+        <h3 class="chart-title">Activity Overview</h3>
+        <div class="chart-tabs">
+          <button class="chart-tab active" data-period="week">Week</button>
+          <button class="chart-tab" data-period="month">Month</button>
+          <button class="chart-tab" data-period="year">Year</button>
+        </div>
+      </div>
+      <div class="chart-area" id="activity-chart">
+        <!-- Bars will be generated by JS -->
+      </div>
+      <div class="chart-labels" id="chart-labels">
+        <!-- Labels will be generated by JS -->
+      </div>
+    </div>
+
+    <!-- Activity & Quick Actions -->
+    <div class="activity-section">
+      <div class="activity-list">
+        <div class="activity-header">
+          <h3 class="activity-title">Recent Activity</h3>
+          <a href="/my-projects.html" class="view-all">View All</a>
+        </div>
+        <div id="activity-feed">
+          <div class="activity-item">
+            <div class="activity-icon synth"><i class="fas fa-wave-square"></i></div>
+            <div class="activity-content">
+              <div class="activity-text">Created new preset <strong>"Dark Techno Lead"</strong></div>
+              <div class="activity-time">2 hours ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon track"><i class="fas fa-music"></i></div>
+            <div class="activity-content">
+              <div class="activity-text">Uploaded track <strong>"Midnight Groove"</strong></div>
+              <div class="activity-time">5 hours ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon collab"><i class="fas fa-users"></i></div>
+            <div class="activity-content">
+              <div class="activity-text">Joined collaboration with <strong>@producer_x</strong></div>
+              <div class="activity-time">Yesterday</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon preset"><i class="fas fa-download"></i></div>
+            <div class="activity-content">
+              <div class="activity-text">Downloaded preset pack <strong>"Ambient Textures"</strong></div>
+              <div class="activity-time">2 days ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <h3 class="quick-actions-title">Quick Actions</h3>
+        
+        <a href="/techno-workspace.html" class="quick-action-btn">
+          <i class="fas fa-plus"></i>
+          <div class="quick-action-text">
+            <span>New Project</span>
+            <small>Start creating in the studio</small>
+          </div>
+        </a>
+
+        <a href="/community.html" class="quick-action-btn">
+          <i class="fas fa-users"></i>
+          <div class="quick-action-text">
+            <span>Join Community</span>
+            <small>Connect with other producers</small>
+          </div>
+        </a>
+
+        <a href="/api-management.html" class="quick-action-btn">
+          <i class="fas fa-key"></i>
+          <div class="quick-action-text">
+            <span>API Access</span>
+            <small>Manage your API keys</small>
+          </div>
+        </a>
+
+        <a href="/settings.html" class="quick-action-btn">
+          <i class="fas fa-user-edit"></i>
+          <div class="quick-action-text">
+            <span>Edit Profile</span>
+            <small>Update your account details</small>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Premium Modal -->
+  <div class="modal-overlay" id="premiumModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: linear-gradient(135deg, #151515, #0d0d0d); border: 2px solid #D4AF37; border-radius: 20px; padding: 40px; max-width: 450px; text-align: center; animation: fadeIn 0.3s ease-out;">
+      <div style="font-size: 4rem; margin-bottom: 20px;">👑</div>
+      <h2 style="font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: #D4AF37; margin-bottom: 16px;">Premium Feature</h2>
+      <p style="color: #6B6B6B; margin-bottom: 24px; line-height: 1.6;">This feature requires a Premium subscription. Upgrade now to unlock Modular Workspace, Builder, and more advanced tools.</p>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button onclick="closePremiumModal()" style="padding: 12px 24px; background: transparent; border: 1px solid #2a2a2a; color: #F4E8D8; border-radius: 10px; cursor: pointer; font-weight: 600;">Maybe Later</button>
+        <a href="/pricing.html" style="padding: 12px 24px; background: linear-gradient(135deg, #D4AF37, #FFD700); color: #0A0A0A; border-radius: 10px; text-decoration: none; font-weight: 600;">View Plans</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Premium Modal
+    function showPremiumModal(event) {
+      event.preventDefault();
+      document.getElementById('premiumModal').style.display = 'flex';
+    }
+
+    function closePremiumModal() {
+      document.getElementById('premiumModal').style.display = 'none';
+    }
+
+    document.getElementById('premiumModal').addEventListener('click', function(e) {
+      if (e.target === this) closePremiumModal();
+    });
+
+    // Auth check and user data
+    async function initDashboard() {
+      const accessToken = localStorage.getItem('accessToken');
+      
+      if (!accessToken) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (!response.ok) {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const data = await response.json();
+        if (data.success && data.user) {
+          updateUserUI(data.user);
+          loadDashboardData();
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        window.location.href = '/login.html';
+      }
+    }
+
+    function updateUserUI(user) {
+      const userName = document.getElementById('sidebarUserName');
+      const userEmail = document.getElementById('sidebarUserEmail');
+      const userAvatar = document.getElementById('sidebarAvatar');
+      
+      if (userName) userName.textContent = user.display_name || user.name || user.email?.split('@')[0] || 'User';
+      if (userEmail) userEmail.textContent = user.email || '';
+      
+      if (userAvatar) {
+        if (user.avatar_url || user.avatar) {
+          userAvatar.innerHTML = `<img src="${user.avatar_url || user.avatar}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        } else {
+          const initials = (user.display_name || user.name || user.email || '??').substring(0, 1).toUpperCase();
+          userAvatar.textContent = initials;
+        }
+      }
+    }
+
+    function loadDashboardData() {
+      // Load stats from localStorage or API
+      const stats = JSON.parse(localStorage.getItem('userStats') || '{}');
+      
+      document.getElementById('stat-listening').textContent = stats.listeningHours || '12h';
+      document.getElementById('stat-tracks').textContent = stats.tracks || '5';
+      document.getElementById('stat-presets').textContent = stats.presets || '23';
+      document.getElementById('stat-collabs').textContent = stats.collabs || '3';
+
+      // Generate activity chart
+      generateActivityChart('week');
+    }
+
+    function generateActivityChart(period) {
+      const chartArea = document.getElementById('activity-chart');
+      const chartLabels = document.getElementById('chart-labels');
+      
+      let data, labels;
+      
+      if (period === 'week') {
+        data = [45, 72, 38, 85, 62, 90, 55];
+        labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      } else if (period === 'month') {
+        data = [30, 45, 60, 75, 50, 65, 80, 55, 70, 85, 60, 75];
+        labels = ['W1', 'W2', 'W3', 'W4', '', '', '', '', '', '', '', ''];
+      } else {
+        data = [40, 55, 70, 45, 80, 60, 75, 90, 65, 85, 70, 95];
+        labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      }
+
+      const maxVal = Math.max(...data);
+      
+      chartArea.innerHTML = data.map((val, i) => {
+        const height = (val / maxVal) * 100;
+        return `<div class="chart-bar" style="height: ${height}%" data-value="${val}min"></div>`;
+      }).join('');
+
+      chartLabels.innerHTML = labels.map(label => 
+        `<span class="chart-label">${label}</span>`
+      ).join('');
+    }
+
+    // Chart tab switching
+    document.querySelectorAll('.chart-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        generateActivityChart(tab.dataset.period);
+      });
+    });
+
+    // Mobile sidebar toggle
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', initDashboard);
+  </script>
+</body>
+</html>
