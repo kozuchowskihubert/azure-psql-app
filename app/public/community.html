@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community - HAOS.fm</title>
+    <link rel="icon" href="/images/haos-logo-white.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --haos-orange: #ff6b35;
+            --haos-orange-dark: #e55a2b;
+            --haos-cyan: #00d4ff;
+            --haos-purple: #6A0DAD;
+            --haos-green: #39FF14;
+            --haos-gold: #D4AF37;
+            --bg-dark: #0a0a0f;
+            --bg-secondary: #151515;
+            --bg-tertiary: #1a1a1a;
+            --border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-muted: #888;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+            opacity: 0.03;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .bg-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.12;
+            animation: float 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .bg-glow.orange { background: var(--haos-orange); top: -100px; left: -100px; }
+        .bg-glow.purple { background: var(--haos-purple); bottom: -100px; right: -100px; animation-delay: -4s; }
+        .bg-glow.cyan { background: var(--haos-cyan); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -2s; opacity: 0.06; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+        }
+
+        /* Layout */
+        .community-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            margin-right: 2rem;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .logo-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            color: var(--haos-orange);
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--haos-purple), var(--haos-cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Server Sidebar */
+        .server-sidebar {
+            width: 72px;
+            background: var(--bg-dark);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 80px 0.75rem 1rem;
+            gap: 0.75rem;
+            overflow-y: auto;
+        }
+
+        .server-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .server-icon:hover {
+            border-radius: 16px;
+            background: var(--haos-orange);
+        }
+
+        .server-icon.active {
+            border-radius: 16px;
+            background: var(--haos-orange);
+        }
+
+        .server-icon.active::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            width: 4px;
+            height: 40px;
+            background: var(--text-primary);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .add-server {
+            background: var(--bg-tertiary);
+            color: var(--haos-green);
+        }
+
+        .add-server:hover {
+            background: var(--haos-green);
+            color: var(--bg-dark);
+        }
+
+        /* Channels Sidebar */
+        .channels-sidebar {
+            width: 240px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding-top: 60px;
+        }
+
+        .server-header {
+            padding: 1rem 1rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .server-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--haos-green);
+        }
+
+        .channels-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .channel-category {
+            margin-bottom: 0.5rem;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            cursor: pointer;
+            letter-spacing: 0.5px;
+        }
+
+        .category-header:hover {
+            color: var(--text-primary);
+        }
+
+        .category-icon {
+            transition: transform 0.2s;
+        }
+
+        .category-header.collapsed .category-icon {
+            transform: rotate(-90deg);
+        }
+
+        .channel-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .channel-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem 0.5rem 2rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .channel-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .channel-item.active {
+            background: rgba(255, 107, 53, 0.15);
+            color: var(--haos-orange);
+        }
+
+        .channel-icon {
+            width: 20px;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        .unread-badge {
+            margin-left: auto;
+            background: var(--haos-orange);
+            color: var(--bg-dark);
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-top: 60px;
+        }
+
+        .channel-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 10, 15, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .channel-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .channel-description {
+            margin-top: 0.25rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .message {
+            display: flex;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: background 0.2s;
+            margin-bottom: 0.5rem;
+        }
+
+        .message:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--haos-cyan), var(--haos-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .message-author {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .message-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .message-text a {
+            color: var(--haos-cyan);
+            text-decoration: none;
+        }
+
+        .message-text a:hover {
+            text-decoration: underline;
+        }
+
+        .message-input-container {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            background: rgba(10, 10, 15, 0.5);
+        }
+
+        .message-input {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--haos-orange);
+        }
+
+        .message-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Members Sidebar */
+        .members-sidebar {
+            width: 240px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            padding-top: 60px;
+            overflow-y: auto;
+        }
+
+        .members-section {
+            padding: 1rem;
+        }
+
+        .members-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.25rem;
+        }
+
+        .member-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .member-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .status-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-secondary);
+        }
+
+        .status-indicator.online { background: var(--haos-green); }
+        .status-indicator.idle { background: #faa61a; }
+        .status-indicator.offline { background: #747f8d; }
+
+        .member-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(212, 175, 55, 0.1));
+            border: 1px solid var(--haos-orange);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .welcome-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-text {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .welcome-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--haos-orange), var(--haos-orange-dark));
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .members-sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .server-sidebar {
+                width: 60px;
+            }
+            
+            .channels-sidebar {
+                width: 200px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .welcome-section {
+                padding: 1.5rem;
+            }
+
+            .welcome-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .server-sidebar {
+                position: fixed;
+                left: -72px;
+                transition: left 0.3s;
+                z-index: 999;
+            }
+
+            .server-sidebar.open {
+                left: 0;
+            }
+
+            .channels-sidebar {
+                position: fixed;
+                left: -240px;
+                transition: left 0.3s;
+                z-index: 998;
+            }
+
+            .channels-sidebar.open {
+                left: 72px;
+            }
+
+            .mobile-toggle {
+                position: fixed;
+                bottom: 1rem;
+                right: 1rem;
+                width: 56px;
+                height: 56px;
+                background: var(--haos-orange);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                z-index: 1001;
+                box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+            }
+        }
+
+        @media (min-width: 641px) {
+            .mobile-toggle {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background Glows -->
+    <div class="bg-glow orange"></div>
+    <div class="bg-glow purple"></div>
+    <div class="bg-glow cyan"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <a href="/" class="logo">
+            <div class="logo-icon"><i class="fas fa-broadcast-tower"></i></div>
+            <span class="logo-text">HAOS.FM</span>
+        </a>
+        <nav class="nav-links">
+            <a href="/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/techno-workspace.html" class="nav-link">Studio</a>
+            <a href="/sounds.html" class="nav-link">Sounds</a>
+            <a href="/community.html" class="nav-link active">Community</a>
+        </nav>
+        <a href="/account.html" class="user-avatar" id="userAvatar">?</a>
+    </header>
+
+    <div class="community-container">
+        <!-- Server Sidebar -->
+        <aside class="server-sidebar" id="serverSidebar">
+            <div class="server-icon active" title="HAOS.FM Community">
+                <i class="fas fa-broadcast-tower"></i>
+            </div>
+            <div class="server-icon" title="Techno Producers">
+                <i class="fas fa-music"></i>
+            </div>
+            <div class="server-icon" title="Sound Design">
+                <i class="fas fa-wave-square"></i>
+            </div>
+            <div class="server-icon" title="Collaborations">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="server-icon add-server" title="Add Server">
+                <i class="fas fa-plus"></i>
+            </div>
+        </aside>
+
+        <!-- Channels Sidebar -->
+        <aside class="channels-sidebar" id="channelsSidebar">
+            <div class="server-header">
+                <div class="server-name">HAOS.FM Community</div>
+                <div class="server-status">
+                    <span class="status-dot"></span>
+                    <span>1,247 members online</span>
+                </div>
+            </div>
+
+            <div class="channels-list">
+                <!-- Welcome Category -->
+                <div class="channel-category">
+                    <div class="category-header">
+                        <span><i class="fas fa-chevron-down category-icon"></i> Welcome</span>
+                    </div>
+                    <div class="channel-list">
+                        <div class="channel-item active">
+                            <i class="fas fa-hashtag channel-icon"></i>
+                            <span>announcements</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-hashtag channel-icon"></i>
+                            <span>rules</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-hashtag channel-icon"></i>
+                            <span>introductions</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Music Production Category -->
+                <div class="channel-category">
+                    <div class="category-header">
+                        <span><i class="fas fa-chevron-down category-icon"></i> Music Production</span>
+                    </div>
+                    <div class="channel-list">
+                        <div class="channel-item">
+                            <i class="fas fa-hashtag channel-icon"></i>
+                            <span>techno</span>
+                            <span class="unread-badge">3</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-hashtag channel-icon"></i>
+                            <span>acid</span>
+                            <span class="unread-badge">7</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-hashtag channel-icon"></i>
+                            <span>industrial</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-hashtag channel-icon"></i>
+                            <span>ambient</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-hashtag channel-icon"></i>
+                            <span>experimental</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guides & Learning Category -->
+                <div class="channel-category">
+                    <div class="category-header">
+                        <span><i class="fas fa-chevron-down category-icon"></i> Guides & Learning</span>
+                    </div>
+                    <div class="channel-list">
+                        <div class="channel-item">
+                            <i class="fas fa-book channel-icon"></i>
+                            <span>tutorials</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-question-circle channel-icon"></i>
+                            <span>help-desk</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-graduation-cap channel-icon"></i>
+                            <span>sound-design</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-code channel-icon"></i>
+                            <span>api-development</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Showcase Category -->
+                <div class="channel-category">
+                    <div class="category-header">
+                        <span><i class="fas fa-chevron-down category-icon"></i> Showcase</span>
+                    </div>
+                    <div class="channel-list">
+                        <div class="channel-item">
+                            <i class="fas fa-star channel-icon"></i>
+                            <span>your-tracks</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-microphone channel-icon"></i>
+                            <span>live-sessions</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-comments channel-icon"></i>
+                            <span>feedback</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-trophy channel-icon"></i>
+                            <span>competitions</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- General Category -->
+                <div class="channel-category">
+                    <div class="category-header">
+                        <span><i class="fas fa-chevron-down category-icon"></i> General</span>
+                    </div>
+                    <div class="channel-list">
+                        <div class="channel-item">
+                            <i class="fas fa-hashtag channel-icon"></i>
+                            <span>general-chat</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-images channel-icon"></i>
+                            <span>memes</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-headphones channel-icon"></i>
+                            <span>music-share</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-wrench channel-icon"></i>
+                            <span>gear-talk</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voice Channels Category -->
+                <div class="channel-category">
+                    <div class="category-header">
+                        <span><i class="fas fa-chevron-down category-icon"></i> Voice Channels</span>
+                    </div>
+                    <div class="channel-list">
+                        <div class="channel-item">
+                            <i class="fas fa-volume-up channel-icon"></i>
+                            <span>Studio Lounge</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-volume-up channel-icon"></i>
+                            <span>Jam Session</span>
+                        </div>
+                        <div class="channel-item">
+                            <i class="fas fa-volume-up channel-icon"></i>
+                            <span>Feedback Room</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="channel-header">
+                <div class="channel-title">
+                    <i class="fas fa-hashtag"></i>
+                    <span>announcements</span>
+                </div>
+                <div class="channel-description">Latest news and updates from the HAOS.FM team</div>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <!-- Welcome Message -->
+                <div class="welcome-section">
+                    <div class="welcome-icon">👋</div>
+                    <h2 class="welcome-title">Welcome to HAOS.FM Community!</h2>
+                    <p class="welcome-text">
+                        Connect with producers, share your tracks, learn from tutorials, and collaborate on projects.
+                        This is your space to grow as an electronic music producer.
+                    </p>
+                    <div class="welcome-buttons">
+                        <a href="/techno-workspace.html" class="btn btn-primary">
+                            <i class="fas fa-play"></i>
+                            Start Creating
+                        </a>
+                        <a href="#" class="btn btn-secondary">
+                            <i class="fas fa-book"></i>
+                            Read Guidelines
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Sample Messages -->
+                <div class="message">
+                    <div class="message-avatar">H</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">HAOS Team</span>
+                            <span class="message-time">Today at 10:30 AM</span>
+                        </div>
+                        <div class="message-text">
+                            <strong>🎉 New Features Released!</strong><br>
+                            We've just launched our new Dashboard and API Management system. Check out your 
+                            <a href="/dashboard.html">Dashboard</a> to see your stats and manage your API keys!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="message">
+                    <div class="message-avatar">H</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">HAOS Team</span>
+                            <span class="message-time">Yesterday at 4:15 PM</span>
+                        </div>
+                        <div class="message-text">
+                            <strong>📚 New Tutorial Series</strong><br>
+                            Check out our comprehensive guide on creating acid techno basslines with the TB-303 emulation.
+                            Head to the #tutorials channel to get started!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="message">
+                    <div class="message-avatar">H</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">HAOS Team</span>
+                            <span class="message-time">Dec 9 at 2:00 PM</span>
+                        </div>
+                        <div class="message-text">
+                            <strong>🎵 Community Playlist</strong><br>
+                            We're featuring the best tracks from our community! Submit your productions in 
+                            #your-tracks for a chance to be featured on HAOS Radio.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="message">
+                    <div class="message-avatar">H</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">HAOS Team</span>
+                            <span class="message-time">Dec 8 at 11:45 AM</span>
+                        </div>
+                        <div class="message-text">
+                            <strong>🔧 Modular Workspace Update</strong><br>
+                            Premium members: The Modular Workspace now includes 20+ new modules and improved 
+                            patch management. Upgrade to access advanced synthesis tools!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="message">
+                    <div class="message-avatar">H</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">HAOS Team</span>
+                            <span class="message-time">Dec 7 at 9:30 AM</span>
+                        </div>
+                        <div class="message-text">
+                            <strong>🤝 Collaboration Corner</strong><br>
+                            Looking for a producer to collaborate with? Visit the #collaborations channel 
+                            to connect with like-minded artists!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-input-container">
+                <textarea 
+                    class="message-input" 
+                    placeholder="You don't have permission to send messages in this channel"
+                    disabled
+                ></textarea>
+            </div>
+        </main>
+
+        <!-- Members Sidebar -->
+        <aside class="members-sidebar">
+            <div class="members-section">
+                <div class="members-title">Admins — 3</div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        H
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <span class="member-name">HAOS Team</span>
+                </div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        K
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <span class="member-name">kozuchowskihubert</span>
+                </div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        M
+                        <span class="status-indicator idle"></span>
+                    </div>
+                    <span class="member-name">Moderator</span>
+                </div>
+            </div>
+
+            <div class="members-section">
+                <div class="members-title">Online — 1,244</div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        T
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <span class="member-name">TechnoProducer</span>
+                </div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        A
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <span class="member-name">AcidKing</span>
+                </div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        B
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <span class="member-name">BasslineGuru</span>
+                </div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        S
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <span class="member-name">SynthWizard</span>
+                </div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        D
+                        <span class="status-indicator idle"></span>
+                    </div>
+                    <span class="member-name">DrumMachine</span>
+                </div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        M
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <span class="member-name">ModularHead</span>
+                </div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        E
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <span class="member-name">ElectroNinja</span>
+                </div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        P
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <span class="member-name">Producer_X</span>
+                </div>
+            </div>
+
+            <div class="members-section">
+                <div class="members-title">Offline — 8,453</div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        R
+                        <span class="status-indicator offline"></span>
+                    </div>
+                    <span class="member-name">ReverbMaster</span>
+                </div>
+                <div class="member-item">
+                    <div class="member-avatar">
+                        V
+                        <span class="status-indicator offline"></span>
+                    </div>
+                    <span class="member-name">VinylCollector</span>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Mobile Toggle -->
+    <div class="mobile-toggle" onclick="toggleSidebars()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <script>
+        // Check authentication
+        async function checkAuth() {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                // Allow viewing community without login
+                document.getElementById('userAvatar').textContent = '?';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const user = data.user;
+                    const avatar = document.getElementById('userAvatar');
+                    
+                    if (user.avatar_url) {
+                        avatar.innerHTML = `<img src="${user.avatar_url}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                    } else {
+                        const initial = (user.display_name || user.email || '?').charAt(0).toUpperCase();
+                        avatar.textContent = initial;
+                    }
+                }
+            } catch (error) {
+                console.log('Not authenticated');
+            }
+        }
+
+        // Category collapse
+        document.querySelectorAll('.category-header').forEach(header => {
+            header.addEventListener('click', () => {
+                header.classList.toggle('collapsed');
+                const channelList = header.nextElementSibling;
+                if (channelList) {
+                    channelList.style.display = header.classList.contains('collapsed') ? 'none' : 'flex';
+                }
+            });
+        });
+
+        // Channel switching
+        document.querySelectorAll('.channel-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                // Update channel header
+                const channelName = item.querySelector('span:not(.unread-badge)').textContent;
+                document.querySelector('.channel-title span').textContent = channelName;
+                
+                // Remove unread badge
+                const badge = item.querySelector('.unread-badge');
+                if (badge) badge.remove();
+            });
+        });
+
+        // Mobile sidebar toggle
+        function toggleSidebars() {
+            document.getElementById('serverSidebar').classList.toggle('open');
+            document.getElementById('channelsSidebar').classList.toggle('open');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', checkAuth);
+
+        // Auto-scroll to bottom of messages
+        const messagesContainer = document.getElementById('messagesContainer');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    </script>
+</body>
+</html>
