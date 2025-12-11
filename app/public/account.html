@@ -1003,6 +1003,32 @@
   </div>
 
   <script>
+    // Handle JWT tokens from URL hash (Google OAuth callback)
+    function handleOAuthCallback() {
+      const hash = window.location.hash.substring(1);
+      if (!hash) return false;
+      
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+      const loginSuccess = params.get('login');
+      
+      if (accessToken && refreshToken && loginSuccess === 'success') {
+        // Store JWT tokens
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('userMode', 'authenticated');
+        
+        // Clear hash from URL
+        history.replaceState(null, null, window.location.pathname);
+        return true;
+      }
+      return false;
+    }
+    
+    // Check for OAuth callback immediately
+    handleOAuthCallback();
+    
     // State
     let currentUser = null;
     let currentSubscription = null;
@@ -1028,14 +1054,40 @@
     });
 
     async function checkAuth() {
+      const accessToken = localStorage.getItem('accessToken');
+      
       try {
-        const response = await fetch('/auth/status', { credentials: 'include' });
-        const data = await response.json();
+        let data = null;
+        
+        // First try JWT authentication
+        if (accessToken) {
+          const jwtResponse = await fetch('/api/auth/me', {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+          });
+          
+          if (jwtResponse.ok) {
+            const jwtData = await jwtResponse.json();
+            if (jwtData.success && jwtData.user) {
+              data = { authenticated: true, user: jwtData.user };
+            }
+          } else {
+            // Token expired, clear it
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+          }
+        }
+        
+        // Fallback to session auth if JWT didn't work
+        if (!data) {
+          const response = await fetch('/auth/status', { credentials: 'include' });
+          data = await response.json();
+        }
 
         document.getElementById('loading').style.display = 'none';
 
         if (data.authenticated && data.user) {
           currentUser = data.user;
+          localStorage.setItem('userProfile', JSON.stringify(data.user));
           document.getElementById('account-content').style.display = 'block';
           await loadAccountData();
         } else {
