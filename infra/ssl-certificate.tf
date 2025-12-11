@@ -93,7 +93,7 @@ resource "azurerm_app_service_custom_hostname_binding" "www" {
 
 resource "azurerm_app_service_managed_certificate" "main" {
   custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.main.id
-  
+
   tags = {
     Environment = "Production"
     ManagedBy   = "Terraform"
@@ -103,7 +103,7 @@ resource "azurerm_app_service_managed_certificate" "main" {
 
 resource "azurerm_app_service_managed_certificate" "www" {
   custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.www.id
-  
+
   tags = {
     Environment = "Production"
     ManagedBy   = "Terraform"
@@ -266,11 +266,11 @@ resource "azurerm_app_service_slot" "staging" {
   https_only          = true
 
   site_config {
-    always_on        = true
-    min_tls_version  = "1.2"
-    ftps_state       = "FtpsOnly"
-    http2_enabled    = true
-    
+    always_on       = true
+    min_tls_version = "1.2"
+    ftps_state      = "FtpsOnly"
+    http2_enabled   = true
+
     # Security headers
     cors {
       allowed_origins = ["https://${var.custom_domain}"]
