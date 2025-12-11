@@ -3,10 +3,31 @@
  * API endpoints for payment processing
  */
 const express = require('express');
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 const Payment = require('../models/payment');
 const PaymentService = require('../services/payment-service');
+
+// JWT verification middleware
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SESSION_SECRET || 'haos-fm-secret-change-in-production';
+
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      req.user = decoded;
+    } catch (err) {
+      // Token invalid, continue without user
+    }
+  }
+  next();
+};
+
+// Apply JWT verification to all payment routes
+router.use(verifyJWT);
 
 // Middleware to check authentication
 const requireAuth = (req, res, next) => {
@@ -319,6 +340,386 @@ router.post('/blik/:transactionId/confirm', requireAuth, async (req, res) => {
     console.error('Error confirming BLIK payment:', error);
     res.status(500).json({ error: 'Failed to confirm BLIK payment' });
   }
+});
+
+// ============================================================================
+// INSTRUMENT & PRODUCT PURCHASES
+// ============================================================================
+
+/**
+ * GET /api/payments/instruments
+ * Get available instruments for purchase
+ */
+router.get('/instruments', async (req, res) => {
+  const instruments = [
+    {
+      id: 'synth-studio',
+      name: 'Synth Studio Pro',
+      category: 'synthesizer',
+      price: 29900,
+      currency: 'EUR',
+      description: 'Professional analog synthesizer emulation with 128 presets',
+      features: ['Analog Warmth Engine', '128 Factory Presets', 'MPE Support', 'Real-time Modulation'],
+      image: '/images/instruments/synth.jpg'
+    },
+    {
+      id: 'string-collection',
+      name: 'String Collection',
+      category: 'strings',
+      price: 19900,
+      currency: 'EUR',
+      description: 'Orchestral strings including violin, viola, cello, and bass',
+      features: ['Solo & Ensemble Modes', 'Expressive Articulations', 'Legato System', 'Room Ambience'],
+      image: '/images/instruments/strings.jpg'
+    },
+    {
+      id: 'guitar-essentials',
+      name: 'Guitar Essentials',
+      category: 'guitar',
+      price: 14900,
+      currency: 'EUR',
+      description: 'Electric and acoustic guitar simulations with amp modeling',
+      features: ['12 Guitar Models', '8 Amp Simulations', 'Effects Chain', 'Direct Recording'],
+      image: '/images/instruments/guitar.jpg'
+    },
+    {
+      id: 'complete-bundle',
+      name: 'Complete Instrument Bundle',
+      category: 'bundle',
+      price: 49900,
+      currency: 'EUR',
+      description: 'All instruments with lifetime updates and premium support',
+      features: ['All Instruments Included', 'Lifetime Updates', 'Priority Support', 'Exclusive Presets'],
+      image: '/images/instruments/bundle.jpg'
+    }
+  ];
+
+  res.json({
+    success: true,
+    instruments: instruments.map(i => ({
+      ...i,
+      priceFormatted: new Intl.NumberFormat('en-EU', { style: 'currency', currency: i.currency }).format(i.price / 100)
+    }))
+  });
+});
+
+/**
+ * POST /api/payments/instruments/purchase
+ * Create checkout session for instrument purchase
+ */
+router.post('/instruments/purchase', requireAuth, async (req, res) => {
+  try {
+    const { instrumentId, paymentMethod } = req.body;
+
+    const instrumentPrices = {
+      'synth-studio': { price: 29900, name: 'Synth Studio Pro', currency: 'EUR' },
+      'string-collection': { price: 19900, name: 'String Collection', currency: 'EUR' },
+      'guitar-essentials': { price: 14900, name: 'Guitar Essentials', currency: 'EUR' },
+      'complete-bundle': { price: 49900, name: 'Complete Instrument Bundle', currency: 'EUR' }
+    };
+
+    const instrument = instrumentPrices[instrumentId];
+    if (!instrument) {
+      return res.status(400).json({ error: 'Invalid instrument' });
+    }
+
+    // Check if user already owns this instrument
+    const existingPurchase = await Payment.getUserPurchases(req.user.id, instrumentId);
+    if (existingPurchase && existingPurchase.length > 0) {
+      return res.status(400).json({ error: 'You already own this instrument' });
+    }
+
+    // Create payment intent based on selected method
+    const result = await PaymentService.createPaymentIntent(
+      req.user.id,
+      instrument.price,
+      instrument.currency,
+      {
+        description: `Purchase: ${instrument.name}`,
+        metadata: {
+          type: 'instrument_purchase',
+          instrumentId,
+          instrumentName: instrument.name
+        }
+      }
+    );
+
+    res.json({
+      success: true,
+      ...result,
+      instrument: {
+        id: instrumentId,
+        name: instrument.name,
+        price: instrument.price / 100,
+        currency: instrument.currency
+      }
+    });
+  } catch (error) {
+    console.error('Error creating instrument purchase:', error);
+    res.status(500).json({ error: 'Failed to create purchase' });
+  }
+});
+
+/**
+ * GET /api/payments/instruments/owned
+ * Get user's owned instruments
+ */
+router.get('/instruments/owned', requireAuth, async (req, res) => {
+  try {
+    const purchases = await Payment.getUserInstrumentPurchases(req.user.id);
+    res.json({
+      success: true,
+      instruments: purchases || []
+    });
+  } catch (error) {
+    console.error('Error fetching owned instruments:', error);
+    res.status(500).json({ error: 'Failed to fetch owned instruments' });
+  }
+});
+
+/**
+ * POST /api/payments/create-checkout-session
+ * Create Stripe Checkout session for instruments
+ */
+router.post('/create-checkout-session', requireAuth, async (req, res) => {
+  try {
+    const { instrumentId, successUrl, cancelUrl } = req.body;
+
+    const instrumentPrices = {
+      'synth-studio': { priceId: process.env.STRIPE_PRICE_SYNTH || 'price_synth', name: 'Synth Studio Pro', amount: 29900 },
+      'string-collection': { priceId: process.env.STRIPE_PRICE_STRINGS || 'price_strings', name: 'String Collection', amount: 19900 },
+      'guitar-essentials': { priceId: process.env.STRIPE_PRICE_GUITAR || 'price_guitar', name: 'Guitar Essentials', amount: 14900 },
+      'complete-bundle': { priceId: process.env.STRIPE_PRICE_BUNDLE || 'price_bundle', name: 'Complete Instrument Bundle', amount: 49900 }
+    };
+
+    const instrument = instrumentPrices[instrumentId];
+    if (!instrument) {
+      return res.status(400).json({ error: 'Invalid instrument' });
+    }
+
+    // Use Stripe if configured
+    if (PaymentService.isProviderAvailable('stripe')) {
+      const session = await PaymentService.createInstrumentCheckoutSession(
+        req.user.id,
+        instrumentId,
+        instrument,
+        { successUrl, cancelUrl }
+      );
+      return res.json({ success: true, url: session.url, sessionId: session.sessionId });
+    }
+
+    // Fallback for testing without Stripe
+    res.json({
+      success: true,
+      mode: 'sandbox',
+      message: 'Stripe not configured - sandbox mode',
+      redirectUrl: successUrl || '/instruments.html?purchase=success',
+      instrument: instrumentId
+    });
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
+
+// ============================================================================
+// PAYPAL INSTRUMENT PURCHASES
+// ============================================================================
+
+/**
+ * POST /api/payments/paypal/create-order
+ * Create PayPal order for instrument purchase
+ */
+router.post('/paypal/create-order', requireAuth, async (req, res) => {
+  try {
+    const { instrumentId } = req.body;
+
+    const instrumentPrices = {
+      'synth-studio': { name: 'Synth Studio Pro', amount: 29900, currency: 'EUR' },
+      'string-collection': { name: 'String Collection', amount: 19900, currency: 'EUR' },
+      'guitar-essentials': { name: 'Guitar Essentials', amount: 14900, currency: 'EUR' },
+      'complete-bundle': { name: 'Complete Instrument Bundle', amount: 49900, currency: 'EUR' }
+    };
+
+    const instrument = instrumentPrices[instrumentId];
+    if (!instrument) {
+      return res.status(400).json({ error: 'Invalid instrument' });
+    }
+
+    // Check if user already owns this instrument
+    const existingPurchase = await Payment.getUserPurchases(req.user.id, instrumentId);
+    if (existingPurchase && existingPurchase.length > 0) {
+      return res.status(400).json({ error: 'You already own this instrument' });
+    }
+
+    // Check if PayPal is configured
+    if (!PaymentService.isProviderAvailable('paypal')) {
+      // Sandbox mode
+      return res.json({
+        success: true,
+        mode: 'sandbox',
+        message: 'PayPal not configured - use sandbox mode',
+        orderId: `SANDBOX-${Date.now()}`,
+        approvalUrl: `/instruments.html?paypal=sandbox&instrument=${instrumentId}`
+      });
+    }
+
+    const order = await PaymentService.createPayPalOrder(
+      req.user.id,
+      instrument.amount,
+      instrument.currency,
+      {
+        description: `Purchase: ${instrument.name}`,
+        instrumentId,
+        type: 'instrument_purchase'
+      }
+    );
+
+    res.json({
+      success: true,
+      orderId: order.orderId,
+      approvalUrl: order.approvalUrl,
+      status: order.status
+    });
+  } catch (error) {
+    console.error('Error creating PayPal order:', error);
+    res.status(500).json({ error: error.message || 'Failed to create PayPal order' });
+  }
+});
+
+/**
+ * POST /api/payments/paypal/capture-order
+ * Capture PayPal order after user approval
+ */
+router.post('/paypal/capture-order', requireAuth, async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    if (!orderId) {
+      return res.status(400).json({ error: 'Order ID is required' });
+    }
+
+    // Sandbox mode
+    if (!PaymentService.isProviderAvailable('paypal')) {
+      return res.json({
+        success: true,
+        mode: 'sandbox',
+        message: 'PayPal capture simulated',
+        status: 'COMPLETED'
+      });
+    }
+
+    const result = await PaymentService.capturePayPalOrder(orderId, req.user.id);
+
+    res.json({
+      success: true,
+      orderId: result.orderId,
+      status: result.status,
+      captureId: result.captureId
+    });
+  } catch (error) {
+    console.error('Error capturing PayPal order:', error);
+    res.status(500).json({ error: error.message || 'Failed to capture PayPal payment' });
+  }
+});
+
+// ============================================================================
+// BLIK INSTRUMENT PURCHASES
+// ============================================================================
+
+/**
+ * POST /api/payments/blik/create-payment
+ * Create BLIK payment for instrument purchase
+ */
+router.post('/blik/create-payment', requireAuth, async (req, res) => {
+  try {
+    const { instrumentId, email } = req.body;
+
+    const instrumentPrices = {
+      'synth-studio': { name: 'Synth Studio Pro', amount: 29900 }, // In PLN groszy (299 PLN)
+      'string-collection': { name: 'String Collection', amount: 19900 },
+      'guitar-essentials': { name: 'Guitar Essentials', amount: 14900 },
+      'complete-bundle': { name: 'Complete Instrument Bundle', amount: 49900 }
+    };
+
+    const instrument = instrumentPrices[instrumentId];
+    if (!instrument) {
+      return res.status(400).json({ error: 'Invalid instrument' });
+    }
+
+    // Check if user already owns this instrument
+    const existingPurchase = await Payment.getUserPurchases(req.user.id, instrumentId);
+    if (existingPurchase && existingPurchase.length > 0) {
+      return res.status(400).json({ error: 'You already own this instrument' });
+    }
+
+    const result = await PaymentService.createBLIKPayment(
+      req.user.id,
+      instrument.amount,
+      `Purchase: ${instrument.name}`,
+      {
+        instrumentId,
+        email: email || req.user.email,
+        type: 'instrument_purchase'
+      }
+    );
+
+    res.json({
+      success: true,
+      ...result
+    });
+  } catch (error) {
+    console.error('Error creating BLIK payment:', error);
+    res.status(500).json({ error: error.message || 'Failed to create BLIK payment' });
+  }
+});
+
+/**
+ * POST /api/payments/blik/confirm
+ * Confirm BLIK payment with 6-digit code
+ */
+router.post('/blik/confirm', requireAuth, async (req, res) => {
+  try {
+    const { transactionId, blikCode } = req.body;
+
+    if (!transactionId) {
+      return res.status(400).json({ error: 'Transaction ID is required' });
+    }
+
+    if (!blikCode || !/^\d{6}$/.test(blikCode)) {
+      return res.status(400).json({ error: 'Valid 6-digit BLIK code is required' });
+    }
+
+    const result = await PaymentService.processBLIKWithCode(transactionId, blikCode);
+
+    res.json({
+      success: true,
+      ...result
+    });
+  } catch (error) {
+    console.error('Error confirming BLIK payment:', error);
+    res.status(500).json({ error: error.message || 'Failed to confirm BLIK payment' });
+  }
+});
+
+/**
+ * GET /api/payments/providers
+ * Get available payment providers
+ */
+router.get('/providers', (req, res) => {
+  res.json({
+    success: true,
+    providers: {
+      stripe: PaymentService.isProviderAvailable('stripe'),
+      paypal: PaymentService.isProviderAvailable('paypal'),
+      blik: PaymentService.isProviderAvailable('blik')
+    },
+    sandbox: {
+      stripe: !PaymentService.isProviderAvailable('stripe'),
+      paypal: !PaymentService.isProviderAvailable('paypal'),
+      blik: !PaymentService.isProviderAvailable('blik')
+    }
+  });
 });
 
 // ============================================================================

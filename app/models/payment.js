@@ -389,6 +389,56 @@ class Payment {
 
     return result.rows[0];
   }
+
+  // ============================================================================
+  // INSTRUMENT PURCHASES
+  // ============================================================================
+
+  /**
+   * Record an instrument purchase
+   */
+  static async recordInstrumentPurchase(userId, instrumentId, paymentDetails) {
+    const result = await pool.query(`
+      INSERT INTO user_instrument_purchases (
+        user_id, instrument_id, 
+        stripe_session_id, payment_intent_id,
+        amount, currency, status
+      ) VALUES ($1, $2, $3, $4, $5, $6, 'completed')
+      ON CONFLICT (user_id, instrument_id) DO NOTHING
+      RETURNING *
+    `, [
+      userId,
+      instrumentId,
+      paymentDetails.stripeSessionId,
+      paymentDetails.paymentIntentId,
+      paymentDetails.amount,
+      paymentDetails.currency
+    ]);
+    return result.rows[0];
+  }
+
+  /**
+   * Get user's purchased instruments
+   */
+  static async getUserInstrumentPurchases(userId) {
+    const result = await pool.query(`
+      SELECT * FROM user_instrument_purchases
+      WHERE user_id = $1 AND status = 'completed'
+      ORDER BY purchased_at DESC
+    `, [userId]);
+    return result.rows;
+  }
+
+  /**
+   * Check if user owns a specific instrument
+   */
+  static async getUserPurchases(userId, instrumentId) {
+    const result = await pool.query(`
+      SELECT * FROM user_instrument_purchases
+      WHERE user_id = $1 AND instrument_id = $2 AND status = 'completed'
+    `, [userId, instrumentId]);
+    return result.rows;
+  }
 }
 
 module.exports = Payment;

@@ -1106,36 +1106,253 @@
     </div>
 
     <script>
+        // State
+        let currentUser = null;
+        let currentChannel = 'general-chat';
+        let messages = [];
+        let onlineMembers = [];
+        let ws = null;
+
         // Check authentication
         async function checkAuth() {
-            const token = localStorage.getItem('accessToken');
-            if (!token) {
-                // Allow viewing community without login
-                document.getElementById('userAvatar').textContent = '?';
-                return;
-            }
-
             try {
-                const response = await fetch('/api/auth/me', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const response = await fetch('/api/auth/me', { credentials: 'include' });
 
                 if (response.ok) {
                     const data = await response.json();
-                    const user = data.user;
+                    currentUser = data.user;
                     const avatar = document.getElementById('userAvatar');
                     
-                    if (user.avatar_url) {
-                        avatar.innerHTML = `<img src="${user.avatar_url}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                    if (currentUser.avatar_url) {
+                        avatar.innerHTML = `<img src="${currentUser.avatar_url}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
                     } else {
-                        const initial = (user.display_name || user.email || '?').charAt(0).toUpperCase();
+                        const initial = (currentUser.display_name || currentUser.email || '?').charAt(0).toUpperCase();
                         avatar.textContent = initial;
                     }
+
+                    // Enable message input
+                    const messageInput = document.querySelector('.message-input');
+                    if (messageInput) {
+                        messageInput.disabled = false;
+                        messageInput.placeholder = `Message #${currentChannel}`;
+                    }
+
+                    // Initialize WebSocket connection
+                    initWebSocket();
+                    
+                    // Load online members
+                    loadOnlineMembers();
+                } else {
+                    document.getElementById('userAvatar').textContent = '?';
+                    showLoginPrompt();
                 }
             } catch (error) {
                 console.log('Not authenticated');
+                showLoginPrompt();
             }
         }
+
+        function showLoginPrompt() {
+            const messageInput = document.querySelector('.message-input');
+            if (messageInput) {
+                messageInput.disabled = true;
+                messageInput.placeholder = 'Login to send messages...';
+                messageInput.addEventListener('click', () => {
+                    window.location.href = '/login.html?redirect=/community.html';
+                });
+            }
+        }
+
+        // WebSocket connection for real-time features
+        function initWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${window.location.host}`);
+
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                // Join community room
+                ws.send(JSON.stringify({
+                    type: 'join',
+                    room: 'community',
+                    channel: currentChannel,
+                    user: {
+                        id: currentUser?.id,
+                        name: currentUser?.display_name || currentUser?.email,
+                        avatar: currentUser?.avatar_url
+                    }
+                }));
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleWebSocketMessage(data);
+                } catch (e) {
+                    console.log('WebSocket message:', event.data);
+                }
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket disconnected, reconnecting...');
+                setTimeout(initWebSocket, 3000);
+            };
+        }
+
+        function handleWebSocketMessage(data) {
+            switch (data.type) {
+                case 'message':
+                    addMessage(data.message);
+                    break;
+                case 'user_joined':
+                    updateOnlineCount(data.onlineCount);
+                    addSystemMessage(`${data.user.name} joined the channel`);
+                    break;
+                case 'user_left':
+                    updateOnlineCount(data.onlineCount);
+                    break;
+                case 'presence_update':
+                    updateMemberPresence(data.members);
+                    break;
+            }
+        }
+
+        // Load online members from API
+        async function loadOnlineMembers() {
+            try {
+                const response = await fetch('/api/user/online', { credentials: 'include' });
+                if (response.ok) {
+                    const data = await response.json();
+                    onlineMembers = data.users || [];
+                    renderOnlineMembers();
+                }
+            } catch (error) {
+                console.log('Could not load online members');
+                // Show demo members
+                renderDemoMembers();
+            }
+        }
+
+        function renderOnlineMembers() {
+            const onlineSection = document.querySelector('.members-section:first-child');
+            if (!onlineSection || onlineMembers.length === 0) return;
+
+            const membersHtml = onlineMembers.slice(0, 20).map(member => `
+                <div class="member-item" data-user-id="${member.id}">
+                    <div class="member-avatar" style="background: linear-gradient(135deg, ${getRandomGradient()})">
+                        ${member.avatar_url ? 
+                            `<img src="${member.avatar_url}" style="width: 100%; height: 100%; border-radius: 50%;">` : 
+                            member.display_name?.charAt(0).toUpperCase() || '?'
+                        }
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <span class="member-name">${member.display_name || 'Anonymous'}</span>
+                </div>
+            `).join('');
+
+            onlineSection.innerHTML = `
+                <div class="members-title">Online — ${onlineMembers.length}</div>
+                ${membersHtml}
+            `;
+        }
+
+        function renderDemoMembers() {
+            // Keep existing demo members but make them interactive
+            document.querySelectorAll('.member-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const name = item.querySelector('.member-name').textContent;
+                    showMemberProfile(name);
+                });
+            });
+        }
+
+        function showMemberProfile(name) {
+            // Simple toast for now
+            showToast(`Viewing ${name}'s profile...`, 'info');
+        }
+
+        function updateOnlineCount(count) {
+            const title = document.querySelector('.members-section:first-child .members-title');
+            if (title) {
+                title.textContent = `Online — ${count}`;
+            }
+        }
+
+        function updateMemberPresence(members) {
+            onlineMembers = members;
+            renderOnlineMembers();
+        }
+
+        // Message handling
+        function addMessage(message) {
+            const container = document.getElementById('messagesContainer');
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message';
+            messageEl.innerHTML = `
+                <div class="message-avatar" style="background: linear-gradient(135deg, ${getRandomGradient()})">
+                    ${message.avatar ? 
+                        `<img src="${message.avatar}" style="width: 100%; height: 100%; border-radius: 50%;">` : 
+                        message.author?.charAt(0).toUpperCase() || '?'
+                    }
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-author" style="color: ${getRandomColor()}">${message.author}</span>
+                        <span class="message-time">${formatTime(message.timestamp || new Date())}</span>
+                    </div>
+                    <div class="message-text">${escapeHtml(message.text)}</div>
+                </div>
+            `;
+            container.appendChild(messageEl);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function addSystemMessage(text) {
+            const container = document.getElementById('messagesContainer');
+            const msgEl = document.createElement('div');
+            msgEl.className = 'message';
+            msgEl.innerHTML = `
+                <div style="text-align: center; width: 100%; color: var(--text-muted); font-size: 0.85rem; padding: 0.5rem;">
+                    ${text}
+                </div>
+            `;
+            container.appendChild(msgEl);
+        }
+
+        // Send message
+        function sendMessage() {
+            const input = document.querySelector('.message-input');
+            const text = input.value.trim();
+            
+            if (!text || !currentUser) return;
+
+            const message = {
+                type: 'message',
+                channel: currentChannel,
+                author: currentUser.display_name || currentUser.email,
+                avatar: currentUser.avatar_url,
+                text: text,
+                timestamp: new Date().toISOString()
+            };
+
+            // Send via WebSocket
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(message));
+            }
+
+            // Add to local view immediately
+            addMessage(message);
+            
+            // Clear input
+            input.value = '';
+        }
+
+        // Message input handling
+        document.querySelector('.message-input')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
 
         // Category collapse
         document.querySelectorAll('.category-header').forEach(header => {
@@ -1156,13 +1373,40 @@
                 
                 // Update channel header
                 const channelName = item.querySelector('span:not(.unread-badge)').textContent;
+                currentChannel = channelName.toLowerCase().replace(/\s+/g, '-');
                 document.querySelector('.channel-title span').textContent = channelName;
+                
+                // Update input placeholder
+                const messageInput = document.querySelector('.message-input');
+                if (messageInput && !messageInput.disabled) {
+                    messageInput.placeholder = `Message #${channelName.toLowerCase().replace(/\s+/g, '-')}`;
+                }
                 
                 // Remove unread badge
                 const badge = item.querySelector('.unread-badge');
                 if (badge) badge.remove();
+
+                // Notify WebSocket of channel change
+                if (ws && ws.readyState === WebSocket.OPEN && currentUser) {
+                    ws.send(JSON.stringify({
+                        type: 'switch_channel',
+                        channel: currentChannel
+                    }));
+                }
+
+                // Load channel messages (placeholder)
+                loadChannelMessages(currentChannel);
             });
         });
+
+        async function loadChannelMessages(channel) {
+            // Clear existing messages
+            const container = document.getElementById('messagesContainer');
+            
+            // For now, just show a loading state and keep demo messages
+            // In production, this would fetch from /api/community/messages/:channel
+            console.log(`Loading messages for #${channel}`);
+        }
 
         // Mobile sidebar toggle
         function toggleSidebars() {
@@ -1170,12 +1414,67 @@
             document.getElementById('channelsSidebar').classList.toggle('open');
         }
 
+        // Utility functions
+        function formatTime(date) {
+            const d = new Date(date);
+            const now = new Date();
+            const diff = now - d;
+            
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            if (diff < 86400000) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            return d.toLocaleDateString();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getRandomGradient() {
+            const gradients = [
+                'var(--haos-orange), var(--haos-gold)',
+                'var(--haos-cyan), var(--haos-purple)',
+                'var(--haos-green), var(--haos-cyan)',
+                'var(--haos-purple), var(--haos-orange)',
+                '#ff6b6b, #feca57',
+                '#54a0ff, #5f27cd'
+            ];
+            return gradients[Math.floor(Math.random() * gradients.length)];
+        }
+
+        function getRandomColor() {
+            const colors = ['var(--haos-orange)', 'var(--haos-cyan)', 'var(--haos-green)', 'var(--haos-purple)', 'var(--haos-gold)'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 2rem;
+                right: 2rem;
+                padding: 1rem 1.5rem;
+                background: ${type === 'success' ? 'var(--haos-green)' : type === 'error' ? '#ff4757' : 'var(--haos-cyan)'};
+                color: ${type === 'success' || type === 'error' ? 'white' : 'var(--bg-dark)'};
+                border-radius: 8px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', checkAuth);
 
         // Auto-scroll to bottom of messages
         const messagesContainer = document.getElementById('messagesContainer');
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
     </script>
 </body>
 </html>

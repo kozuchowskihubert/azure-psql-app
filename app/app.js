@@ -518,6 +518,18 @@ try {
 }
 
 /**
+ * Track Upload API
+ * User track uploads with Azure Blob Storage integration
+ */
+try {
+  const trackRoutes = require('./routes/tracks');
+  app.use('/api/tracks', trackRoutes);
+  console.log('✓ Track Upload API enabled (Azure Blob Storage)');
+} catch (error) {
+  console.log('⚠ Track routes not available:', error.message);
+}
+
+/**
  * Admin Panel API
  * User management, subscriptions, transactions, and feature flags
  */

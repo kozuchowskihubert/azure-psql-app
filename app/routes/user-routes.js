@@ -10,6 +10,51 @@ const { requireAuth } = require('../middleware/access-control');
 
 const router = express.Router();
 
+// Try to import collaboration module for online users
+let getOnlineUsersList;
+try {
+  const collaboration = require('../collaboration');
+  getOnlineUsersList = collaboration.getOnlineUsersList;
+} catch (e) {
+  getOnlineUsersList = null;
+}
+
+// ============================================================================
+// Online Users (Community)
+// ============================================================================
+
+/**
+ * GET /api/users/online
+ * Get list of currently online users (from WebSocket connections)
+ */
+router.get('/online', async (req, res) => {
+  try {
+    let onlineUsers = [];
+    
+    if (getOnlineUsersList) {
+      onlineUsers = getOnlineUsersList();
+    }
+    
+    // If no WebSocket users, return some demo data for UI testing
+    if (onlineUsers.length === 0) {
+      onlineUsers = [
+        { id: 'demo-1', display_name: 'HAOS Admin', avatar_url: null, channel: 'general-chat' },
+        { id: 'demo-2', display_name: 'SynthMaster', avatar_url: null, channel: 'techno-production' },
+        { id: 'demo-3', display_name: 'BeatMaker', avatar_url: null, channel: 'general-chat' },
+      ];
+    }
+
+    res.json({
+      success: true,
+      users: onlineUsers,
+      count: onlineUsers.length,
+    });
+  } catch (error) {
+    console.error('Error getting online users:', error);
+    res.status(500).json({ error: 'Failed to get online users' });
+  }
+});
+
 // ============================================================================
 // Profile Management
 // ============================================================================
@@ -448,6 +493,176 @@ router.get('/stats', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Error getting stats:', error);
     return res.status(500).json({ error: 'Failed to get stats' });
+  }
+});
+
+// ============================================================================
+// User Projects
+// ============================================================================
+
+// In-memory store for projects (would be database in production)
+const userProjectsStore = new Map();
+
+/**
+ * GET /api/user/projects
+ * Get user's projects
+ */
+router.get('/projects', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    let projects = userProjectsStore.get(userId) || [];
+    
+    // Sort by updated_at descending
+    projects.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+    
+    return res.json({
+      success: true,
+      projects,
+      count: projects.length,
+    });
+  } catch (error) {
+    console.error('Error getting projects:', error);
+    return res.status(500).json({ error: 'Failed to get projects' });
+  }
+});
+
+/**
+ * POST /api/user/projects
+ * Create a new project
+ */
+router.post('/projects', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { name, description, type } = req.body;
+    
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'Project name is required' });
+    }
+    
+    const validTypes = ['track', 'synth', 'collab', 'preset'];
+    const projectType = validTypes.includes(type) ? type : 'track';
+    
+    const project = {
+      id: `proj_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      user_id: userId,
+      name: name.trim(),
+      description: description?.trim() || '',
+      type: projectType,
+      status: 'active',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      collaborators: projectType === 'collab' ? 1 : 0,
+      duration: 0,
+      data: {},
+    };
+    
+    const projects = userProjectsStore.get(userId) || [];
+    projects.unshift(project);
+    userProjectsStore.set(userId, projects);
+    
+    return res.status(201).json({
+      success: true,
+      message: 'Project created successfully',
+      project,
+    });
+  } catch (error) {
+    console.error('Error creating project:', error);
+    return res.status(500).json({ error: 'Failed to create project' });
+  }
+});
+
+/**
+ * GET /api/user/projects/:projectId
+ * Get a specific project
+ */
+router.get('/projects/:projectId', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { projectId } = req.params;
+    
+    const projects = userProjectsStore.get(userId) || [];
+    const project = projects.find(p => p.id === projectId);
+    
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    
+    return res.json({
+      success: true,
+      project,
+    });
+  } catch (error) {
+    console.error('Error getting project:', error);
+    return res.status(500).json({ error: 'Failed to get project' });
+  }
+});
+
+/**
+ * PUT /api/user/projects/:projectId
+ * Update a project
+ */
+router.put('/projects/:projectId', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { projectId } = req.params;
+    const { name, description, status, data } = req.body;
+    
+    const projects = userProjectsStore.get(userId) || [];
+    const projectIndex = projects.findIndex(p => p.id === projectId);
+    
+    if (projectIndex === -1) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    
+    const project = projects[projectIndex];
+    
+    if (name !== undefined) project.name = name.trim();
+    if (description !== undefined) project.description = description.trim();
+    if (status !== undefined) project.status = status;
+    if (data !== undefined) project.data = { ...project.data, ...data };
+    project.updated_at = new Date().toISOString();
+    
+    projects[projectIndex] = project;
+    userProjectsStore.set(userId, projects);
+    
+    return res.json({
+      success: true,
+      message: 'Project updated successfully',
+      project,
+    });
+  } catch (error) {
+    console.error('Error updating project:', error);
+    return res.status(500).json({ error: 'Failed to update project' });
+  }
+});
+
+/**
+ * DELETE /api/user/projects/:projectId
+ * Delete a project
+ */
+router.delete('/projects/:projectId', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { projectId } = req.params;
+    
+    const projects = userProjectsStore.get(userId) || [];
+    const projectIndex = projects.findIndex(p => p.id === projectId);
+    
+    if (projectIndex === -1) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    
+    const deletedProject = projects.splice(projectIndex, 1)[0];
+    userProjectsStore.set(userId, projects);
+    
+    return res.json({
+      success: true,
+      message: 'Project deleted successfully',
+      projectId: deletedProject.id,
+    });
+  } catch (error) {
+    console.error('Error deleting project:', error);
+    return res.status(500).json({ error: 'Failed to delete project' });
   }
 });
 

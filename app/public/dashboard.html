@@ -11,17 +11,29 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     :root {
-      --bg-primary: #0A0A0A;
-      --bg-secondary: #151515;
-      --bg-tertiary: #1a1a1a;
-      --text-primary: #F4E8D8;
-      --text-secondary: #6B6B6B;
+      --bg-primary: #09090B;
+      --bg-secondary: #0F0F12;
+      --bg-tertiary: #18181B;
+      --bg-card: #131316;
+      --text-primary: #FAFAFA;
+      --text-secondary: #A1A1AA;
+      --text-muted: #52525B;
       --accent-orange: #FF6B35;
-      --accent-gold: #D4AF37;
-      --accent-cyan: #00D9FF;
-      --accent-green: #39FF14;
-      --accent-purple: #6A0DAD;
-      --border-color: #2a2a2a;
+      --accent-gold: #F59E0B;
+      --accent-cyan: #06B6D4;
+      --accent-green: #22C55E;
+      --accent-purple: #8B5CF6;
+      --accent-pink: #EC4899;
+      --accent-red: #EF4444;
+      --border-color: #27272A;
+      --border-light: #3F3F46;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
     }
 
     body {
@@ -31,18 +43,6 @@
       color: var(--text-primary);
       position: relative;
       overflow-x: hidden;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
-      opacity: 0.03;
-      mix-blend-mode: overlay;
-      pointer-events: none;
-      z-index: 9999;
     }
 
     .bg-glow {
@@ -57,13 +57,13 @@
       z-index: -1;
     }
 
-    .bg-glow.orange { background: var(--accent-orange); top: -100px; left: -100px; }
-    .bg-glow.purple { background: var(--accent-purple); bottom: -100px; right: -100px; animation-delay: -4s; }
-    .bg-glow.cyan { background: var(--accent-cyan); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -2s; opacity: 0.05; }
+    .bg-glow.orange { background: var(--accent-orange); top: -100px; left: -100px; opacity: 0.06; }
+    .bg-glow.purple { background: var(--accent-purple); bottom: -100px; right: -100px; animation-delay: -4s; opacity: 0.04; }
+    .bg-glow.cyan { background: var(--accent-cyan); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -2s; opacity: 0.03; }
 
     @keyframes float {
       0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(30px, -30px); }
+      50% { transform: translate(20px, -20px); }
     }
 
     /* Sidebar */
@@ -81,7 +81,7 @@
     }
 
     .sidebar-header {
-      padding: 1.5rem;
+      padding: 1.25rem 1.5rem;
       border-bottom: 1px solid var(--border-color);
     }
 
@@ -94,10 +94,10 @@
     }
 
     .logo-icon {
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       background: linear-gradient(135deg, var(--accent-orange), var(--accent-gold));
-      border-radius: 50%;
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -251,109 +251,186 @@
     .main-content {
       margin-left: 260px;
       min-height: 100vh;
-      padding: 2rem;
+      padding: 2.5rem;
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 300px);
     }
 
     .page-header {
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .page-header-content {
+      flex: 1;
     }
 
     .page-title {
       font-family: 'Bebas Neue', Arial, sans-serif;
-      font-size: 2.5rem;
+      font-size: 2.75rem;
       letter-spacing: 2px;
       margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .page-subtitle {
       color: var(--text-secondary);
-      font-size: 0.95rem;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .page-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-page-action {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-page-action:hover {
+      border-color: var(--accent-orange);
+      color: var(--text-primary);
+      background: rgba(255, 107, 53, 0.08);
+    }
+
+    .btn-page-action.primary {
+      background: linear-gradient(135deg, var(--accent-orange), #ff8c5a);
+      border: none;
+      color: var(--bg-primary);
+    }
+
+    .btn-page-action.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
     }
 
     /* Stats Grid */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
     }
 
     .stat-card {
-      background: var(--bg-secondary);
+      background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 16px;
+      border-radius: var(--radius-lg);
       padding: 1.5rem;
-      transition: all 0.3s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-orange), var(--accent-gold));
+      opacity: 0;
+      transition: opacity 0.3s;
     }
 
     .stat-card:hover {
-      border-color: var(--accent-orange);
-      transform: translateY(-2px);
+      border-color: var(--border-light);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card:hover::before {
+      opacity: 1;
     }
 
     .stat-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
     }
 
     .stat-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
     }
 
-    .stat-icon.orange { background: rgba(255, 107, 53, 0.15); color: var(--accent-orange); }
-    .stat-icon.cyan { background: rgba(0, 217, 255, 0.15); color: var(--accent-cyan); }
-    .stat-icon.green { background: rgba(57, 255, 20, 0.15); color: var(--accent-green); }
-    .stat-icon.gold { background: rgba(212, 175, 55, 0.15); color: var(--accent-gold); }
+    .stat-icon.orange { background: rgba(255, 107, 53, 0.12); color: var(--accent-orange); }
+    .stat-icon.cyan { background: rgba(6, 182, 212, 0.12); color: var(--accent-cyan); }
+    .stat-icon.green { background: rgba(34, 197, 94, 0.12); color: var(--accent-green); }
+    .stat-icon.gold { background: rgba(245, 158, 11, 0.12); color: var(--accent-gold); }
 
     .stat-trend {
       display: flex;
       align-items: center;
       gap: 4px;
-      font-size: 0.8rem;
-      padding: 4px 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
       border-radius: 20px;
     }
 
-    .stat-trend.up { background: rgba(57, 255, 20, 0.15); color: var(--accent-green); }
-    .stat-trend.down { background: rgba(255, 68, 68, 0.15); color: #ff4444; }
+    .stat-trend.up { background: rgba(34, 197, 94, 0.12); color: var(--accent-green); }
+    .stat-trend.down { background: rgba(239, 68, 68, 0.12); color: var(--accent-red); }
 
     .stat-value {
-      font-size: 2rem;
+      font-size: 2.25rem;
       font-weight: 700;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .stat-label {
       color: var(--text-secondary);
-      font-size: 0.85rem;
+      font-size: 0.875rem;
+      font-weight: 500;
     }
 
     /* Activity Chart */
     .chart-container {
-      background: var(--bg-secondary);
+      background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      margin-bottom: 2.5rem;
     }
 
     .chart-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.75rem;
     }
 
     .chart-title {
-      font-size: 1.1rem;
+      font-size: 1.125rem;
       font-weight: 600;
     }
 
@@ -606,6 +683,768 @@
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
+
+    /* Projects Section */
+    .projects-section {
+      margin-bottom: 2rem;
+    }
+
+    .projects-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .projects-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .projects-title i {
+      color: var(--accent-orange);
+    }
+
+    .projects-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-new-project {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      background: linear-gradient(135deg, var(--accent-orange), #ff8c5a);
+      border: none;
+      border-radius: 10px;
+      color: var(--bg-primary);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-new-project:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+    }
+
+    .btn-view-all-projects {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-view-all-projects:hover {
+      border-color: var(--accent-orange);
+      color: var(--text-primary);
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .project-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.25rem;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card:hover {
+      border-color: var(--accent-orange);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .project-card.new-project {
+      border-style: dashed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      color: var(--text-secondary);
+    }
+
+    .project-card.new-project:hover {
+      color: var(--accent-orange);
+      border-color: var(--accent-orange);
+      background: rgba(255, 107, 53, 0.05);
+    }
+
+    .project-card.new-project i {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .project-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .project-type-badge.track {
+      background: rgba(0, 217, 255, 0.15);
+      color: var(--accent-cyan);
+    }
+
+    .project-type-badge.synth {
+      background: rgba(106, 13, 173, 0.2);
+      color: #a855f7;
+    }
+
+    .project-type-badge.collab {
+      background: rgba(57, 255, 20, 0.15);
+      color: var(--accent-green);
+    }
+
+    .project-type-badge.preset {
+      background: rgba(255, 107, 53, 0.15);
+      color: var(--accent-orange);
+    }
+
+    .project-menu {
+      position: relative;
+    }
+
+    .project-menu-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .project-menu-btn:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .project-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.5rem;
+      min-width: 150px;
+      z-index: 100;
+      display: none;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .project-dropdown.show {
+      display: block;
+    }
+
+    .project-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .project-dropdown-item:hover {
+      background: rgba(255, 107, 53, 0.1);
+      color: var(--text-primary);
+    }
+
+    .project-dropdown-item.danger:hover {
+      background: rgba(255, 68, 68, 0.1);
+      color: #ff4444;
+    }
+
+    .project-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .project-description {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .project-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .project-date {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .project-stats {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .project-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .project-waveform {
+      height: 40px;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 107, 53, 0.3) 20%, 
+        rgba(255, 107, 53, 0.6) 50%, 
+        rgba(255, 107, 53, 0.3) 80%, 
+        transparent 100%
+      );
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-waveform::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        var(--bg-secondary) 2px,
+        var(--bg-secondary) 4px
+      );
+    }
+
+    .projects-empty {
+      text-align: center;
+      padding: 3rem;
+      background: var(--bg-secondary);
+      border: 1px dashed var(--border-color);
+      border-radius: 16px;
+    }
+
+    .projects-empty i {
+      font-size: 3rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .projects-empty h4 {
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .projects-empty p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* New Project Modal */
+    .new-project-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 10001;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .new-project-modal.show {
+      display: flex;
+    }
+
+    .new-project-content {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .new-project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .new-project-header h3 {
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .new-project-header h3 i {
+      color: var(--accent-orange);
+    }
+
+    .close-modal-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .close-modal-btn:hover {
+      background: rgba(255, 68, 68, 0.1);
+      border-color: #ff4444;
+      color: #ff4444;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .project-type-selector {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .project-type-option {
+      padding: 1rem;
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .project-type-option:hover {
+      border-color: var(--accent-orange);
+    }
+
+    .project-type-option.selected {
+      border-color: var(--accent-orange);
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .project-type-option i {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .project-type-option.track i { color: var(--accent-cyan); }
+    .project-type-option.synth i { color: #a855f7; }
+    .project-type-option.collab i { color: var(--accent-green); }
+    .project-type-option.preset i { color: var(--accent-orange); }
+
+    .project-type-option span {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-cancel {
+      flex: 1;
+      padding: 0.85rem;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+      border-color: var(--text-secondary);
+      color: var(--text-primary);
+    }
+
+    .btn-create-project {
+      flex: 2;
+      padding: 0.85rem;
+      background: linear-gradient(135deg, var(--accent-orange), #ff8c5a);
+      border: none;
+      border-radius: 10px;
+      color: var(--bg-primary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-create-project:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+    }
+
+    /* Track Upload Styles */
+    .upload-track-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 10002;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .upload-track-modal.show {
+      display: flex;
+    }
+
+    .upload-track-content {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 550px;
+      width: 95%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .upload-dropzone {
+      border: 2px dashed var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-dropzone:hover,
+    .upload-dropzone.dragover {
+      border-color: var(--accent-orange);
+      background: rgba(255, 107, 53, 0.05);
+    }
+
+    .upload-dropzone i {
+      font-size: 3rem;
+      color: var(--accent-orange);
+      margin-bottom: 1rem;
+    }
+
+    .upload-dropzone h4 {
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .upload-dropzone p {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .upload-dropzone .file-info {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: var(--bg-tertiary);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .upload-dropzone .file-info i {
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    .upload-dropzone .file-info span {
+      flex: 1;
+      text-align: left;
+    }
+
+    .upload-progress {
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .upload-progress.active {
+      display: block;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-orange), var(--accent-cyan));
+      border-radius: 4px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .copyright-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: rgba(255, 107, 53, 0.1);
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .copyright-checkbox input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--accent-orange);
+      margin-top: 2px;
+    }
+
+    .copyright-checkbox label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .copyright-checkbox label strong {
+      color: var(--text-primary);
+    }
+
+    .tracks-list {
+      margin-top: 1.5rem;
+    }
+
+    .tracks-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .tracks-list-title {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tracks-list-title i {
+      color: var(--accent-cyan);
+    }
+
+    .track-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem;
+      background: var(--bg-tertiary);
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .track-item:hover {
+      background: rgba(0, 217, 255, 0.1);
+    }
+
+    .track-item-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 217, 255, 0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-cyan);
+    }
+
+    .track-item-info {
+      flex: 1;
+    }
+
+    .track-item-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .track-item-meta {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .track-item-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .track-item-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .track-item-btn:hover {
+      background: var(--accent-orange);
+      color: var(--bg-primary);
+    }
+
+    .track-item-btn.danger:hover {
+      background: #ff4444;
+    }
+
+    .btn-upload-track {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, var(--accent-cyan), #00b8d9);
+      border: none;
+      border-radius: 8px;
+      color: var(--bg-primary);
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-upload-track:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 217, 255, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -646,6 +1485,11 @@
 
       <div class="nav-section">
         <div class="nav-section-title">Premium</div>
+        <a href="/instruments.html" class="nav-item">
+          <i class="fas fa-guitar"></i>
+          <span>Instruments</span>
+          <span class="badge" style="background: var(--accent-gold); color: var(--bg-primary); font-size: 0.6rem; padding: 2px 6px;">NEW</span>
+        </a>
         <a href="/modular-workspace.html" class="nav-item disabled" onclick="showPremiumModal(event)">
           <i class="fas fa-project-diagram"></i>
           <span>Modular</span>
@@ -660,6 +1504,10 @@
 
       <div class="nav-section">
         <div class="nav-section-title">Account</div>
+        <a href="/api-explorer.html" class="nav-item">
+          <i class="fas fa-plug"></i>
+          <span>API Explorer</span>
+        </a>
         <a href="/api-keys.html" class="nav-item">
           <i class="fas fa-key"></i>
           <span>API Keys</span>
@@ -667,6 +1515,11 @@
         <a href="/account.html" class="nav-item">
           <i class="fas fa-cog"></i>
           <span>Settings</span>
+        </a>
+        <a href="/admin.html" class="nav-item admin-only" id="adminNavItem" style="display: none;">
+          <i class="fas fa-shield-alt"></i>
+          <span>Admin Panel</span>
+          <span class="badge" style="background: #ff4757; color: white; font-size: 0.6rem; padding: 2px 6px;">ADMIN</span>
         </a>
       </div>
     </nav>
@@ -695,8 +1548,18 @@
     </div>
 
     <div class="page-header">
-      <h1 class="page-title">Dashboard</h1>
-      <p class="page-subtitle">Welcome back! Here's what's happening with your account.</p>
+      <div class="page-header-content">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Welcome back! Here's your studio overview and recent activity.</p>
+      </div>
+      <div class="page-actions">
+        <a href="/api-explorer.html" class="btn-page-action">
+          <i class="fas fa-code"></i> API Explorer
+        </a>
+        <a href="/techno-workspace.html" class="btn-page-action primary">
+          <i class="fas fa-plus"></i> New Session
+        </a>
+      </div>
     </div>
 
     <!-- Stats Grid -->
@@ -735,6 +1598,183 @@
         </div>
         <div class="stat-value" id="stat-collabs">0</div>
         <div class="stat-label">Collaborations</div>
+      </div>
+    </div>
+
+    <!-- My Projects Section -->
+    <section class="projects-section">
+      <div class="projects-header">
+        <h3 class="projects-title">
+          <i class="fas fa-folder-open"></i>
+          My Projects
+        </h3>
+        <div class="projects-actions">
+          <button class="btn-upload-track" onclick="openUploadModal()">
+            <i class="fas fa-cloud-upload-alt"></i>
+            Upload Track
+          </button>
+          <button class="btn-new-project" onclick="openNewProjectModal()">
+            <i class="fas fa-plus"></i>
+            New Project
+          </button>
+          <a href="/my-projects.html" class="btn-view-all-projects">
+            View All
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="projects-grid" id="projects-grid">
+        <!-- Projects will be loaded dynamically -->
+        <div class="project-card new-project" onclick="openNewProjectModal()">
+          <i class="fas fa-plus-circle"></i>
+          <span>Create New Project</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- New Project Modal -->
+    <div class="new-project-modal" id="newProjectModal">
+      <div class="new-project-content">
+        <div class="new-project-header">
+          <h3><i class="fas fa-plus-circle"></i> Create New Project</h3>
+          <button class="close-modal-btn" onclick="closeNewProjectModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <form id="newProjectForm" onsubmit="createProject(event)">
+          <div class="form-group">
+            <label>Project Name</label>
+            <input type="text" id="projectName" placeholder="My Awesome Track" required>
+          </div>
+
+          <div class="form-group">
+            <label>Description (optional)</label>
+            <textarea id="projectDescription" placeholder="What's this project about?"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Project Type</label>
+            <div class="project-type-selector">
+              <div class="project-type-option track selected" data-type="track" onclick="selectProjectType('track')">
+                <i class="fas fa-music"></i>
+                <span>Track</span>
+              </div>
+              <div class="project-type-option synth" data-type="synth" onclick="selectProjectType('synth')">
+                <i class="fas fa-wave-square"></i>
+                <span>Synth Patch</span>
+              </div>
+              <div class="project-type-option collab" data-type="collab" onclick="selectProjectType('collab')">
+                <i class="fas fa-users"></i>
+                <span>Collaboration</span>
+              </div>
+              <div class="project-type-option preset" data-type="preset" onclick="selectProjectType('preset')">
+                <i class="fas fa-sliders-h"></i>
+                <span>Preset Pack</span>
+              </div>
+            </div>
+          </div>
+
+          <input type="hidden" id="projectType" value="track">
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" onclick="closeNewProjectModal()">Cancel</button>
+            <button type="submit" class="btn-create-project">
+              <i class="fas fa-rocket"></i> Create Project
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Upload Track Modal -->
+    <div class="upload-track-modal" id="uploadTrackModal">
+      <div class="upload-track-content">
+        <div class="new-project-header">
+          <h3><i class="fas fa-cloud-upload-alt"></i> Upload Track to Cloud</h3>
+          <button class="close-modal-btn" onclick="closeUploadModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <form id="uploadTrackForm" onsubmit="uploadTrack(event)">
+          <div class="upload-dropzone" id="uploadDropzone" onclick="document.getElementById('audioFileInput').click()">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <h4>Drop your track here</h4>
+            <p>or click to browse (MP3, WAV, OGG - max 300MB)</p>
+            <div class="file-info" id="fileInfo" style="display: none;">
+              <i class="fas fa-music"></i>
+              <span id="selectedFileName">No file selected</span>
+              <button type="button" onclick="event.stopPropagation(); clearSelectedFile();" style="background: none; border: none; color: #ff4444; cursor: pointer;">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+          <input type="file" id="audioFileInput" accept=".mp3,.wav,.ogg,.webm,audio/*" style="display: none;" onchange="handleFileSelect(this)">
+
+          <div class="upload-progress" id="uploadProgress">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+              <span id="progressStatus">Uploading...</span>
+              <span id="progressPercent">0%</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Track Title</label>
+            <input type="text" id="trackTitle" placeholder="My Awesome Track">
+          </div>
+
+          <div class="form-group">
+            <label>Artist</label>
+            <input type="text" id="trackArtist" placeholder="Your artist name">
+          </div>
+
+          <div class="form-group">
+            <label>Genre</label>
+            <select id="trackGenre">
+              <option value="Techno">Techno</option>
+              <option value="House">House</option>
+              <option value="Ambient">Ambient</option>
+              <option value="Drum & Bass">Drum & Bass</option>
+              <option value="Trance">Trance</option>
+              <option value="Electronic" selected>Electronic</option>
+              <option value="Experimental">Experimental</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="copyright-checkbox">
+            <input type="checkbox" id="copyrightConfirm" required>
+            <label for="copyrightConfirm">
+              <strong>I confirm</strong> that I own the copyright to this track or have permission to upload it. 
+              I understand that uploading copyrighted material without permission is a violation of terms.
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" onclick="closeUploadModal()">Cancel</button>
+            <button type="submit" class="btn-create-project" id="uploadBtn">
+              <i class="fas fa-cloud-upload-alt"></i> Upload to Cloud
+            </button>
+          </div>
+        </form>
+
+        <!-- Uploaded Tracks List -->
+        <div class="tracks-list" id="tracksList">
+          <div class="tracks-list-header">
+            <h4 class="tracks-list-title"><i class="fas fa-database"></i> Your Cloud Tracks</h4>
+            <button class="btn-upload-track" onclick="loadCloudTracks()">
+              <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+          </div>
+          <div id="tracksContainer">
+            <!-- Tracks loaded dynamically -->
+          </div>
+        </div>
       </div>
     </div>
 
@@ -909,6 +1949,14 @@
           userAvatar.textContent = initials;
         }
       }
+
+      // Show admin link if user is admin
+      if (user.roles && user.roles.includes('admin')) {
+        const adminNavItem = document.getElementById('adminNavItem');
+        if (adminNavItem) {
+          adminNavItem.style.display = 'flex';
+        }
+      }
     }
 
     function loadDashboardData() {
@@ -969,6 +2017,677 @@
 
     // Initialize
     document.addEventListener('DOMContentLoaded', initDashboard);
+
+    // ==================== PROJECTS SECTION ====================
+    let selectedProjectType = 'track';
+    let userProjects = [];
+
+    function selectProjectType(type) {
+      selectedProjectType = type;
+      document.getElementById('projectType').value = type;
+      
+      document.querySelectorAll('.project-type-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      document.querySelector(`.project-type-option[data-type="${type}"]`).classList.add('selected');
+    }
+
+    function openNewProjectModal() {
+      document.getElementById('newProjectModal').classList.add('show');
+      document.getElementById('projectName').focus();
+    }
+
+    function closeNewProjectModal() {
+      document.getElementById('newProjectModal').classList.remove('show');
+      document.getElementById('newProjectForm').reset();
+      selectProjectType('track');
+    }
+
+    // Close modal on backdrop click
+    document.getElementById('newProjectModal')?.addEventListener('click', function(e) {
+      if (e.target === this) closeNewProjectModal();
+    });
+
+    async function loadUserProjects() {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) return;
+
+      try {
+        const response = await fetch('/api/user/projects', {
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          userProjects = data.projects || [];
+          renderProjects();
+        } else {
+          // If API not available, use localStorage fallback
+          userProjects = JSON.parse(localStorage.getItem('userProjects') || '[]');
+          renderProjects();
+        }
+      } catch (error) {
+        console.log('Using local projects:', error);
+        userProjects = JSON.parse(localStorage.getItem('userProjects') || '[]');
+        renderProjects();
+      }
+    }
+
+    function renderProjects() {
+      const grid = document.getElementById('projects-grid');
+      if (!grid) return;
+
+      // Show max 5 projects + new project card
+      const displayProjects = userProjects.slice(0, 5);
+
+      let html = '';
+
+      displayProjects.forEach(project => {
+        const typeIcons = {
+          track: 'fa-music',
+          synth: 'fa-wave-square',
+          collab: 'fa-users',
+          preset: 'fa-sliders-h'
+        };
+
+        const timeAgo = getTimeAgo(new Date(project.updated_at || project.created_at));
+
+        html += `
+          <div class="project-card" onclick="openProject('${project.id}')">
+            <div class="project-header">
+              <span class="project-type-badge ${project.type}">
+                <i class="fas ${typeIcons[project.type] || 'fa-folder'}"></i>
+                ${project.type}
+              </span>
+              <div class="project-menu">
+                <button class="project-menu-btn" onclick="event.stopPropagation(); toggleProjectMenu('${project.id}')">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="project-dropdown" id="project-menu-${project.id}">
+                  <div class="project-dropdown-item" onclick="event.stopPropagation(); renameProject('${project.id}')">
+                    <i class="fas fa-edit"></i> Rename
+                  </div>
+                  <div class="project-dropdown-item" onclick="event.stopPropagation(); duplicateProject('${project.id}')">
+                    <i class="fas fa-copy"></i> Duplicate
+                  </div>
+                  <div class="project-dropdown-item" onclick="event.stopPropagation(); exportProject('${project.id}')">
+                    <i class="fas fa-download"></i> Export
+                  </div>
+                  <div class="project-dropdown-item danger" onclick="event.stopPropagation(); deleteProject('${project.id}')">
+                    <i class="fas fa-trash"></i> Delete
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            ${project.type === 'track' ? '<div class="project-waveform"></div>' : ''}
+            
+            <div class="project-title">${escapeHtml(project.name)}</div>
+            <div class="project-description">${escapeHtml(project.description || 'No description')}</div>
+            
+            <div class="project-meta">
+              <span class="project-date">
+                <i class="fas fa-clock"></i>
+                ${timeAgo}
+              </span>
+              <div class="project-stats">
+                ${project.type === 'collab' ? `<span class="project-stat"><i class="fas fa-users"></i> ${project.collaborators || 1}</span>` : ''}
+                ${project.duration ? `<span class="project-stat"><i class="fas fa-stopwatch"></i> ${formatDuration(project.duration)}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      // Add "Create New" card at the end
+      html += `
+        <div class="project-card new-project" onclick="openNewProjectModal()">
+          <i class="fas fa-plus-circle"></i>
+          <span>Create New Project</span>
+        </div>
+      `;
+
+      grid.innerHTML = html;
+    }
+
+    async function createProject(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('projectName').value.trim();
+      const description = document.getElementById('projectDescription').value.trim();
+      const type = selectedProjectType;
+
+      if (!name) {
+        alert('Please enter a project name');
+        return;
+      }
+
+      const accessToken = localStorage.getItem('accessToken');
+      const newProject = {
+        id: 'proj_' + Date.now(),
+        name,
+        description,
+        type,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      try {
+        const response = await fetch('/api/user/projects', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, description, type })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          userProjects.unshift(data.project || newProject);
+        } else {
+          // Fallback to localStorage
+          userProjects.unshift(newProject);
+          localStorage.setItem('userProjects', JSON.stringify(userProjects));
+        }
+      } catch (error) {
+        console.log('Saving project locally:', error);
+        userProjects.unshift(newProject);
+        localStorage.setItem('userProjects', JSON.stringify(userProjects));
+      }
+
+      renderProjects();
+      closeNewProjectModal();
+
+      // Update stats
+      const statTracks = document.getElementById('stat-tracks');
+      if (statTracks) {
+        statTracks.textContent = userProjects.filter(p => p.type === 'track').length;
+      }
+
+      // Show success toast
+      showToast('Project created successfully!', 'success');
+    }
+
+    function toggleProjectMenu(projectId) {
+      // Close all other menus
+      document.querySelectorAll('.project-dropdown').forEach(menu => {
+        if (menu.id !== `project-menu-${projectId}`) {
+          menu.classList.remove('show');
+        }
+      });
+
+      const menu = document.getElementById(`project-menu-${projectId}`);
+      menu.classList.toggle('show');
+    }
+
+    // Close menus on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.project-menu')) {
+        document.querySelectorAll('.project-dropdown').forEach(menu => {
+          menu.classList.remove('show');
+        });
+      }
+    });
+
+    function openProject(projectId) {
+      const project = userProjects.find(p => p.id === projectId);
+      if (!project) return;
+
+      // Navigate based on project type
+      const routes = {
+        track: '/techno-workspace.html',
+        synth: '/modular-workspace.html',
+        collab: '/collaboration.html',
+        preset: '/presets.html'
+      };
+
+      const route = routes[project.type] || '/techno-workspace.html';
+      window.location.href = `${route}?project=${projectId}`;
+    }
+
+    async function deleteProject(projectId) {
+      if (!confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+        return;
+      }
+
+      const accessToken = localStorage.getItem('accessToken');
+
+      try {
+        await fetch(`/api/user/projects/${projectId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+      } catch (error) {
+        console.log('Deleting locally:', error);
+      }
+
+      // Remove from local array
+      userProjects = userProjects.filter(p => p.id !== projectId);
+      localStorage.setItem('userProjects', JSON.stringify(userProjects));
+      renderProjects();
+      showToast('Project deleted', 'info');
+    }
+
+    async function renameProject(projectId) {
+      const project = userProjects.find(p => p.id === projectId);
+      if (!project) return;
+
+      const newName = prompt('Enter new project name:', project.name);
+      if (!newName || newName === project.name) return;
+
+      const accessToken = localStorage.getItem('accessToken');
+
+      try {
+        await fetch(`/api/user/projects/${projectId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name: newName })
+        });
+      } catch (error) {
+        console.log('Renaming locally:', error);
+      }
+
+      project.name = newName;
+      project.updated_at = new Date().toISOString();
+      localStorage.setItem('userProjects', JSON.stringify(userProjects));
+      renderProjects();
+      showToast('Project renamed', 'success');
+    }
+
+    function duplicateProject(projectId) {
+      const project = userProjects.find(p => p.id === projectId);
+      if (!project) return;
+
+      const duplicate = {
+        ...project,
+        id: 'proj_' + Date.now(),
+        name: project.name + ' (Copy)',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      userProjects.unshift(duplicate);
+      localStorage.setItem('userProjects', JSON.stringify(userProjects));
+      renderProjects();
+      showToast('Project duplicated', 'success');
+    }
+
+    function exportProject(projectId) {
+      const project = userProjects.find(p => p.id === projectId);
+      if (!project) return;
+
+      const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${project.name.replace(/[^a-z0-9]/gi, '_')}.haos.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Project exported', 'success');
+    }
+
+    // Helper functions
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function getTimeAgo(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      const intervals = {
+        year: 31536000,
+        month: 2592000,
+        week: 604800,
+        day: 86400,
+        hour: 3600,
+        minute: 60
+      };
+
+      for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+        const interval = Math.floor(seconds / secondsInUnit);
+        if (interval >= 1) {
+          return `${interval} ${unit}${interval === 1 ? '' : 's'} ago`;
+        }
+      }
+      return 'Just now';
+    }
+
+    function formatDuration(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: ${type === 'success' ? '#39FF14' : type === 'error' ? '#ff4444' : '#00D9FF'};
+        color: #0A0A0A;
+        border-radius: 10px;
+        font-weight: 600;
+        z-index: 10002;
+        animation: slideUp 0.3s ease-out;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Load projects on dashboard init
+    const originalInitDashboard = initDashboard;
+    initDashboard = async function() {
+      await originalInitDashboard();
+      loadUserProjects();
+      loadCloudTracks();
+    };
+
+    // ==================== TRACK UPLOAD SECTION ====================
+    let selectedFile = null;
+
+    function openUploadModal() {
+      document.getElementById('uploadTrackModal').classList.add('show');
+      loadCloudTracks();
+    }
+
+    function closeUploadModal() {
+      document.getElementById('uploadTrackModal').classList.remove('show');
+      document.getElementById('uploadTrackForm').reset();
+      clearSelectedFile();
+      document.getElementById('uploadProgress').classList.remove('active');
+    }
+
+    // Close modal on backdrop click
+    document.getElementById('uploadTrackModal')?.addEventListener('click', function(e) {
+      if (e.target === this) closeUploadModal();
+    });
+
+    // Drag and drop handling
+    const dropzone = document.getElementById('uploadDropzone');
+    if (dropzone) {
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, preventDefaults, false);
+      });
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, () => dropzone.classList.add('dragover'), false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, () => dropzone.classList.remove('dragover'), false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          handleFileSelect({ files: [files[0]] });
+        }
+      });
+    }
+
+    function handleFileSelect(input) {
+      const file = input.files ? input.files[0] : null;
+      if (!file) return;
+
+      // Validate file type
+      const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/webm'];
+      const validExts = ['.mp3', '.wav', '.ogg', '.webm'];
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+
+      if (!validTypes.includes(file.type) && !validExts.includes(ext)) {
+        showToast('Invalid file type. Use MP3, WAV, or OGG.', 'error');
+        return;
+      }
+
+      // Validate file size (300MB max)
+      if (file.size > 300 * 1024 * 1024) {
+        showToast('File too large. Maximum 300MB.', 'error');
+        return;
+      }
+
+      selectedFile = file;
+      document.getElementById('fileInfo').style.display = 'flex';
+      document.getElementById('selectedFileName').textContent = `${file.name} (${formatFileSize(file.size)})`;
+
+      // Auto-fill title from filename
+      const titleInput = document.getElementById('trackTitle');
+      if (!titleInput.value) {
+        titleInput.value = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+      }
+    }
+
+    function clearSelectedFile() {
+      selectedFile = null;
+      document.getElementById('fileInfo').style.display = 'none';
+      document.getElementById('selectedFileName').textContent = 'No file selected';
+      document.getElementById('audioFileInput').value = '';
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    async function uploadTrack(event) {
+      event.preventDefault();
+
+      if (!selectedFile) {
+        showToast('Please select an audio file', 'error');
+        return;
+      }
+
+      const copyrightConfirm = document.getElementById('copyrightConfirm').checked;
+      if (!copyrightConfirm) {
+        showToast('You must confirm copyright ownership', 'error');
+        return;
+      }
+
+      const title = document.getElementById('trackTitle').value.trim();
+      const artist = document.getElementById('trackArtist').value.trim();
+      const genre = document.getElementById('trackGenre').value;
+
+      const formData = new FormData();
+      formData.append('audioFile', selectedFile);
+      formData.append('title', title || selectedFile.name.replace(/\.[^/.]+$/, ''));
+      formData.append('artist', artist || 'Unknown Artist');
+      formData.append('genre', genre);
+      formData.append('copyright', 'true');
+
+      const progressEl = document.getElementById('uploadProgress');
+      const progressFill = document.getElementById('progressFill');
+      const progressStatus = document.getElementById('progressStatus');
+      const progressPercent = document.getElementById('progressPercent');
+      const uploadBtn = document.getElementById('uploadBtn');
+
+      progressEl.classList.add('active');
+      uploadBtn.disabled = true;
+      uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+      try {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressFill.style.width = percent + '%';
+            progressPercent.textContent = percent + '%';
+            
+            if (percent < 100) {
+              progressStatus.textContent = 'Uploading...';
+            } else {
+              progressStatus.textContent = 'Processing...';
+            }
+          }
+        });
+
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const response = JSON.parse(xhr.responseText);
+            if (response.success) {
+              showToast('Track uploaded to Azure Blob Storage!', 'success');
+              closeUploadModal();
+              loadCloudTracks();
+              
+              // Update dashboard stats
+              const statTracks = document.getElementById('stat-tracks');
+              if (statTracks) {
+                statTracks.textContent = parseInt(statTracks.textContent || '0') + 1;
+              }
+            } else {
+              showToast(response.error || 'Upload failed', 'error');
+            }
+          } else {
+            const response = JSON.parse(xhr.responseText);
+            showToast(response.error || 'Upload failed', 'error');
+          }
+          
+          uploadBtn.disabled = false;
+          uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload to Cloud';
+          progressEl.classList.remove('active');
+        });
+
+        xhr.addEventListener('error', () => {
+          showToast('Upload failed. Check your connection.', 'error');
+          uploadBtn.disabled = false;
+          uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload to Cloud';
+          progressEl.classList.remove('active');
+        });
+
+        const accessToken = localStorage.getItem('accessToken');
+        xhr.open('POST', '/api/tracks/upload');
+        if (accessToken) {
+          xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+        }
+        xhr.send(formData);
+
+      } catch (error) {
+        console.error('Upload error:', error);
+        showToast('Upload failed: ' + error.message, 'error');
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload to Cloud';
+        progressEl.classList.remove('active');
+      }
+    }
+
+    async function loadCloudTracks() {
+      const container = document.getElementById('tracksContainer');
+      if (!container) return;
+
+      container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);"><i class="fas fa-spinner fa-spin"></i> Loading tracks...</div>';
+
+      try {
+        const response = await fetch('/api/tracks/list');
+        const data = await response.json();
+        
+        if (!data.tracks || data.tracks.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+              <i class="fas fa-cloud" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+              <p>No tracks uploaded yet</p>
+              <small>Upload your first track to Azure Blob Storage</small>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = data.tracks.map(track => `
+          <div class="track-item">
+            <div class="track-item-icon">
+              <i class="fas fa-music"></i>
+            </div>
+            <div class="track-item-info">
+              <div class="track-item-title">${escapeHtml(track.title)}</div>
+              <div class="track-item-meta">
+                ${escapeHtml(track.artist)} • ${track.genre} • ${formatDuration(track.duration)} • ${formatFileSize(track.fileSize)}
+              </div>
+            </div>
+            <div class="track-item-actions">
+              <button class="track-item-btn" onclick="playTrack('${track.url}')" title="Play">
+                <i class="fas fa-play"></i>
+              </button>
+              <button class="track-item-btn" onclick="copyTrackUrl('${track.url}')" title="Copy URL">
+                <i class="fas fa-link"></i>
+              </button>
+              <button class="track-item-btn danger" onclick="deleteTrack(${track.id}, '${escapeHtml(track.title)}')" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (error) {
+        console.error('Error loading tracks:', error);
+        container.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+            <i class="fas fa-exclamation-triangle" style="color: #ff4444;"></i>
+            <p>Failed to load tracks</p>
+          </div>
+        `;
+      }
+    }
+
+    function playTrack(url) {
+      // Create or reuse audio player
+      let player = document.getElementById('trackPlayer');
+      if (!player) {
+        player = document.createElement('audio');
+        player.id = 'trackPlayer';
+        player.controls = true;
+        player.style.cssText = 'position: fixed; bottom: 20px; left: 280px; right: 20px; z-index: 1000; background: #151515; border-radius: 10px;';
+        document.body.appendChild(player);
+      }
+      player.src = url;
+      player.play();
+      showToast('Playing track...', 'success');
+    }
+
+    function copyTrackUrl(url) {
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('Track URL copied to clipboard!', 'success');
+      }).catch(() => {
+        showToast('Failed to copy URL', 'error');
+      });
+    }
+
+    async function deleteTrack(trackId, trackTitle) {
+      if (!confirm(`Delete "${trackTitle}"? This will remove it from Azure Blob Storage.`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/tracks/${trackId}`, { method: 'DELETE' });
+        const data = await response.json();
+        
+        if (data.success) {
+          showToast('Track deleted from cloud storage', 'success');
+          loadCloudTracks();
+        } else {
+          showToast(data.error || 'Failed to delete track', 'error');
+        }
+      } catch (error) {
+        console.error('Delete error:', error);
+        showToast('Failed to delete track', 'error');
+      }
+    }
   </script>
 </body>
 </html>

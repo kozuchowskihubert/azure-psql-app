@@ -4,6 +4,7 @@
  */
 const Payment = require('../models/payment');
 const Subscription = require('../models/subscription');
+const crypto = require('crypto');
 
 // Initialize payment providers (these need to be configured with actual API keys)
 let stripe = null;
@@ -16,21 +17,26 @@ if (process.env.STRIPE_SECRET_KEY) {
 
 // Initialize PayPal if configured
 if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET) {
-  // PayPal SDK would be initialized here
   paypal = {
     clientId: process.env.PAYPAL_CLIENT_ID,
     clientSecret: process.env.PAYPAL_CLIENT_SECRET,
     mode: process.env.PAYPAL_MODE || 'sandbox',
+    baseUrl: process.env.PAYPAL_MODE === 'live' 
+      ? 'https://api-m.paypal.com'
+      : 'https://api-m.sandbox.paypal.com'
   };
 }
 
 // BLIK/Przelewy24 configuration
 const przelewy24Config = {
   merchantId: process.env.P24_MERCHANT_ID,
-  posId: process.env.P24_POS_ID,
+  posId: process.env.P24_POS_ID || process.env.P24_MERCHANT_ID,
   crc: process.env.P24_CRC,
   apiKey: process.env.P24_API_KEY,
-  sandbox: process.env.P24_SANDBOX === 'true',
+  sandbox: process.env.P24_SANDBOX !== 'false',
+  baseUrl: process.env.P24_SANDBOX !== 'false'
+    ? 'https://sandbox.przelewy24.pl'
+    : 'https://secure.przelewy24.pl'
 };
 
 class PaymentService {
@@ -122,6 +128,44 @@ class PaymentService {
   }
 
   /**
+   * Create Stripe checkout session for instrument purchase
+   */
+  static async createInstrumentCheckoutSession(userId, instrumentId, instrument, options = {}) {
+    if (!stripe) {
+      throw new Error('Stripe is not configured');
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: instrument.name,
+            description: `Virtual instrument for HAOS.fm Studio`,
+          },
+          unit_amount: instrument.amount,
+        },
+        quantity: 1,
+      }],
+      success_url: `${options.successUrl || process.env.APP_URL}/instruments.html?purchase=success&instrument=${instrumentId}`,
+      cancel_url: `${options.cancelUrl || process.env.APP_URL}/instruments.html?purchase=cancelled`,
+      client_reference_id: String(userId),
+      metadata: {
+        userId: String(userId),
+        instrumentId,
+        type: 'instrument_purchase'
+      },
+    });
+
+    return {
+      sessionId: session.id,
+      url: session.url,
+    };
+  }
+
+  /**
    * Create Stripe customer portal session
    */
   static async createStripePortalSession(userId, stripeCustomerId) {
@@ -191,8 +235,19 @@ class PaymentService {
         const userId = data.metadata?.userId || data.client_reference_id;
         const planCode = data.metadata?.planCode;
         const billingCycle = data.metadata?.billingCycle || 'monthly';
+        const instrumentId = data.metadata?.instrumentId;
 
-        if (userId && planCode) {
+        // Handle instrument purchase
+        if (instrumentId && userId) {
+          await Payment.recordInstrumentPurchase(userId, instrumentId, {
+            stripeSessionId: data.id,
+            paymentIntentId: data.payment_intent,
+            amount: data.amount_total,
+            currency: data.currency
+          });
+        }
+        // Handle subscription
+        else if (userId && planCode) {
           await Subscription.createSubscription(userId, planCode, billingCycle, {
             stripeSubscriptionId: data.subscription,
           });
@@ -250,6 +305,164 @@ class PaymentService {
   // ============================================================================
   // PAYPAL
   // ============================================================================
+
+  /**
+   * Get PayPal access token
+   */
+  static async getPayPalAccessToken() {
+    if (!paypal) {
+      throw new Error('PayPal is not configured');
+    }
+
+    const auth = Buffer.from(`${paypal.clientId}:${paypal.clientSecret}`).toString('base64');
+    
+    const response = await fetch(`${paypal.baseUrl}/v1/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: 'grant_type=client_credentials'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to get PayPal access token');
+    }
+
+    const data = await response.json();
+    return data.access_token;
+  }
+
+  /**
+   * Create PayPal order for one-time purchase
+   */
+  static async createPayPalOrder(userId, amount, currency, options = {}) {
+    if (!paypal) {
+      throw new Error('PayPal is not configured');
+    }
+
+    const accessToken = await this.getPayPalAccessToken();
+
+    const orderPayload = {
+      intent: 'CAPTURE',
+      purchase_units: [{
+        reference_id: `HAOS-${userId}-${Date.now()}`,
+        description: options.description || 'HAOS.fm Purchase',
+        custom_id: JSON.stringify({
+          userId,
+          instrumentId: options.instrumentId,
+          type: options.type || 'instrument_purchase'
+        }),
+        amount: {
+          currency_code: currency.toUpperCase(),
+          value: (amount / 100).toFixed(2) // Convert cents to dollars
+        }
+      }],
+      application_context: {
+        brand_name: 'HAOS.fm',
+        landing_page: 'NO_PREFERENCE',
+        user_action: 'PAY_NOW',
+        return_url: options.returnUrl || `${process.env.APP_URL || 'http://localhost:3000'}/instruments.html?paypal=success`,
+        cancel_url: options.cancelUrl || `${process.env.APP_URL || 'http://localhost:3000'}/instruments.html?paypal=cancelled`
+      }
+    };
+
+    const response = await fetch(`${paypal.baseUrl}/v2/checkout/orders`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'PayPal-Request-Id': `HAOS-${Date.now()}`
+      },
+      body: JSON.stringify(orderPayload)
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to create PayPal order');
+    }
+
+    const order = await response.json();
+
+    // Create pending transaction
+    await Payment.createTransaction({
+      userId,
+      type: options.type || 'one_time',
+      status: 'pending',
+      amount,
+      currency: currency.toUpperCase(),
+      provider: 'paypal',
+      providerTransactionId: order.id,
+      description: options.description,
+      metadata: {
+        instrumentId: options.instrumentId,
+        orderId: order.id
+      }
+    });
+
+    // Find approval URL
+    const approvalUrl = order.links.find(link => link.rel === 'approve')?.href;
+
+    return {
+      orderId: order.id,
+      approvalUrl,
+      status: order.status
+    };
+  }
+
+  /**
+   * Capture PayPal order after approval
+   */
+  static async capturePayPalOrder(orderId, userId) {
+    if (!paypal) {
+      throw new Error('PayPal is not configured');
+    }
+
+    const accessToken = await this.getPayPalAccessToken();
+
+    const response = await fetch(`${paypal.baseUrl}/v2/checkout/orders/${orderId}/capture`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to capture PayPal payment');
+    }
+
+    const capture = await response.json();
+
+    // Update transaction status
+    const transaction = await Payment.getTransactionByProviderId('paypal', orderId);
+    if (transaction) {
+      await Payment.updateTransactionStatus(
+        transaction.id,
+        capture.status === 'COMPLETED' ? 'completed' : 'failed',
+        capture
+      );
+
+      // If instrument purchase, record it
+      if (transaction.metadata?.instrumentId && capture.status === 'COMPLETED') {
+        const customData = JSON.parse(capture.purchase_units?.[0]?.custom_id || '{}');
+        if (customData.instrumentId) {
+          await Payment.recordInstrumentPurchase(userId, customData.instrumentId, {
+            paypalOrderId: orderId,
+            amount: transaction.amount,
+            currency: transaction.currency
+          });
+        }
+      }
+    }
+
+    return {
+      orderId,
+      status: capture.status,
+      captureId: capture.purchase_units?.[0]?.payments?.captures?.[0]?.id
+    };
+  }
 
   /**
    * Create PayPal subscription
@@ -365,11 +578,45 @@ class PaymentService {
   // ============================================================================
 
   /**
+   * Generate P24 signature
+   */
+  static generateP24Signature(data) {
+    const signString = Object.values(data).join('|') + '|' + przelewy24Config.crc;
+    return crypto.createHash('sha384').update(signString).digest('hex');
+  }
+
+  /**
    * Create BLIK payment (via Przelewy24)
    */
   static async createBLIKPayment(userId, amount, description, options = {}) {
     if (!przelewy24Config.merchantId) {
-      throw new Error('Przelewy24/BLIK is not configured');
+      // Sandbox mode without real credentials
+      const sessionId = `HAOS-BLIK-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      const transaction = await Payment.createTransaction({
+        userId,
+        type: options.type || 'one_time',
+        status: 'pending',
+        amount,
+        currency: 'PLN',
+        provider: 'blik',
+        providerTransactionId: sessionId,
+        description,
+        metadata: {
+          instrumentId: options.instrumentId,
+          sandbox: true
+        }
+      });
+
+      return {
+        transactionId: transaction.id,
+        sessionId,
+        mode: 'sandbox',
+        message: 'BLIK sandbox mode - P24 not configured',
+        requiresBlikCode: true,
+        amount: amount / 100,
+        currency: 'PLN'
+      };
     }
 
     const sessionId = `HAOS-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -385,39 +632,75 @@ class PaymentService {
       providerTransactionId: sessionId,
       description,
       metadata: {
-        blikCode: options.blikCode,
-        returnUrl: options.returnUrl,
-      },
+        instrumentId: options.instrumentId,
+        returnUrl: options.returnUrl
+      }
     });
 
-    // In production, this would call Przelewy24 API
-    // For BLIK specifically, the flow is:
-    // 1. Create transaction with P24
-    // 2. User enters BLIK code on their banking app
-    // 3. User confirms in banking app
-    // 4. Webhook confirms payment
-
-    const baseUrl = przelewy24Config.sandbox
-      ? 'https://sandbox.przelewy24.pl'
-      : 'https://secure.przelewy24.pl';
-
-    return {
-      transactionId: transaction.id,
+    // Register transaction with Przelewy24
+    const registerData = {
+      merchantId: parseInt(przelewy24Config.merchantId),
+      posId: parseInt(przelewy24Config.posId),
       sessionId,
-      paymentUrl: `${baseUrl}/trnRequest/${sessionId}`,
-      amount: amount / 100,
+      amount,
       currency: 'PLN',
-      // For BLIK direct payment (when blikCode is provided)
-      requiresBlikCode: !options.blikCode,
+      description: description || 'HAOS.fm Purchase',
+      email: options.email || 'customer@haos.fm',
+      country: 'PL',
+      language: 'pl',
+      method: 181, // BLIK method code for P24
+      urlReturn: options.returnUrl || `${process.env.APP_URL || 'http://localhost:3000'}/instruments.html?blik=success`,
+      urlStatus: `${process.env.APP_URL || 'http://localhost:3000'}/api/payments/webhooks/przelewy24`
     };
+
+    // Generate signature
+    const signData = {
+      sessionId,
+      merchantId: przelewy24Config.merchantId,
+      amount,
+      currency: 'PLN',
+    };
+    registerData.sign = this.generateP24Signature(signData);
+
+    try {
+      const response = await fetch(`${przelewy24Config.baseUrl}/api/v1/transaction/register`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${Buffer.from(`${przelewy24Config.posId}:${przelewy24Config.apiKey}`).toString('base64')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(registerData)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to register P24 transaction');
+      }
+
+      const result = await response.json();
+
+      return {
+        transactionId: transaction.id,
+        sessionId,
+        token: result.data?.token,
+        paymentUrl: `${przelewy24Config.baseUrl}/trnRequest/${result.data?.token}`,
+        amount: amount / 100,
+        currency: 'PLN',
+        requiresBlikCode: true
+      };
+    } catch (error) {
+      console.error('P24 registration error:', error);
+      throw error;
+    }
   }
 
   /**
-   * Process BLIK payment with code
+   * Process BLIK payment with 6-digit code
    */
   static async processBLIKWithCode(transactionId, blikCode) {
-    if (!przelewy24Config.merchantId) {
-      throw new Error('Przelewy24/BLIK is not configured');
+    // Validate BLIK code format
+    if (!blikCode || !/^\d{6}$/.test(blikCode)) {
+      throw new Error('Invalid BLIK code - must be 6 digits');
     }
 
     const transaction = await Payment.getTransactionById(transactionId);
@@ -425,19 +708,62 @@ class PaymentService {
       throw new Error('Transaction not found');
     }
 
-    // In production, this would:
-    // 1. Send BLIK code to Przelewy24
-    // 2. Wait for confirmation
-    // 3. Return result
+    if (!przelewy24Config.merchantId) {
+      // Sandbox mode - simulate successful payment
+      await Payment.updateTransactionStatus(transactionId, 'completed', { sandbox: true });
+      
+      // Record instrument purchase if applicable
+      if (transaction.metadata?.instrumentId) {
+        await Payment.recordInstrumentPurchase(transaction.user_id, transaction.metadata.instrumentId, {
+          blikTransactionId: transactionId,
+          amount: transaction.amount,
+          currency: 'PLN'
+        });
+      }
 
-    // Simulate processing
+      return {
+        transactionId,
+        status: 'completed',
+        mode: 'sandbox',
+        message: 'BLIK payment simulated successfully'
+      };
+    }
+
+    // Update transaction to processing
     await Payment.updateTransactionStatus(transactionId, 'processing');
 
-    return {
-      transactionId,
-      status: 'processing',
-      message: 'Please confirm the payment in your banking app',
+    // Send BLIK code to Przelewy24
+    const chargeData = {
+      token: transaction.provider_transaction_id,
+      blikCode
     };
+
+    try {
+      const response = await fetch(`${przelewy24Config.baseUrl}/api/v1/transaction/charge`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${Buffer.from(`${przelewy24Config.posId}:${przelewy24Config.apiKey}`).toString('base64')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(chargeData)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || result.error) {
+        await Payment.updateTransactionStatus(transactionId, 'failed', result);
+        throw new Error(result.error || 'BLIK payment failed');
+      }
+
+      return {
+        transactionId,
+        status: 'processing',
+        message: 'Please confirm the payment in your banking app'
+      };
+    } catch (error) {
+      console.error('BLIK charge error:', error);
+      throw error;
+    }
   }
 
   /**

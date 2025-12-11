@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Instruments - HAOS.fm</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Three.js for 3D rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #09090B;
+      --bg-secondary: #0F0F12;
+      --bg-tertiary: #18181B;
+      --bg-card: #131316;
+      --text-primary: #FAFAFA;
+      --text-secondary: #A1A1AA;
+      --text-muted: #52525B;
+      --accent-orange: #FF6B35;
+      --accent-gold: #F59E0B;
+      --accent-cyan: #06B6D4;
+      --accent-green: #22C55E;
+      --accent-purple: #8B5CF6;
+      --accent-pink: #EC4899;
+      --accent-red: #EF4444;
+      --border-color: #27272A;
+      --border-light: #3F3F46;
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-primary);
+      min-height: 100vh;
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(9, 9, 11, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      z-index: 1000;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .nav-brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-orange), var(--accent-gold));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--bg-primary);
+    }
+
+    .nav-brand-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--accent-orange), var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .nav-link {
+      padding: 0.5rem 1rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: var(--bg-tertiary);
+    }
+
+    .nav-link.active {
+      color: var(--accent-orange);
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .btn-primary {
+      padding: 0.6rem 1.25rem;
+      background: linear-gradient(135deg, var(--accent-orange), #ff8c5a);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: var(--bg-primary);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+    }
+
+    /* Main Content */
+    .main-content {
+      padding-top: 64px;
+      min-height: 100vh;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 50px;
+      font-size: 0.8rem;
+      color: var(--accent-purple);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      letter-spacing: 3px;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Section Header */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-title i {
+      color: var(--accent-orange);
+    }
+
+    /* Instruments Grid */
+    .instruments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .instrument-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .instrument-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .instrument-3d-viewer {
+      width: 100%;
+      height: 280px;
+      background: linear-gradient(180deg, #0d0d10 0%, #151518 100%);
+      position: relative;
+      cursor: grab;
+      overflow: hidden;
+    }
+
+    .instrument-3d-viewer:active {
+      cursor: grabbing;
+    }
+
+    .instrument-3d-viewer canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .viewer-controls {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 0.5rem;
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(10px);
+    }
+
+    .viewer-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .viewer-btn:hover {
+      background: var(--accent-orange);
+      border-color: var(--accent-orange);
+      color: var(--bg-primary);
+    }
+
+    .viewer-hint {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.75rem;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      backdrop-filter: blur(10px);
+    }
+
+    .instrument-body {
+      padding: 1.5rem;
+    }
+
+    .instrument-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .instrument-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .instrument-type {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .instrument-badge {
+      padding: 0.35rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .instrument-badge.premium {
+      background: linear-gradient(135deg, var(--accent-gold), #fbbf24);
+      color: var(--bg-primary);
+    }
+
+    .instrument-badge.free {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--accent-green);
+    }
+
+    .instrument-description {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+
+    .instrument-specs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .spec-item {
+      text-align: center;
+      padding: 0.75rem;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+    }
+
+    .spec-value {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .spec-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .instrument-price {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .price-amount {
+      font-size: 1.75rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-orange), var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .price-period {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .price-original {
+      font-size: 1rem;
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .instrument-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-instrument {
+      flex: 1;
+      padding: 0.85rem;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .btn-instrument.primary {
+      background: linear-gradient(135deg, var(--accent-orange), #ff8c5a);
+      border: none;
+      color: var(--bg-primary);
+    }
+
+    .btn-instrument.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .btn-instrument.secondary {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .btn-instrument.secondary:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.08);
+    }
+
+    /* Featured Instrument */
+    .featured-instrument {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      margin-bottom: 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .featured-viewer {
+      height: 500px;
+      background: linear-gradient(180deg, #0d0d10 0%, #151518 100%);
+      position: relative;
+    }
+
+    .featured-content {
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .featured-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, var(--accent-gold), #fbbf24);
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--bg-primary);
+      margin-bottom: 1.5rem;
+      width: fit-content;
+    }
+
+    .featured-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+    }
+
+    .featured-type {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .featured-description {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+
+    .featured-features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .feature-item i {
+      color: var(--accent-green);
+    }
+
+    .featured-price {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .featured-price .price-amount {
+      font-size: 2.5rem;
+    }
+
+    .featured-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .featured-actions .btn-instrument {
+      padding: 1rem 2rem;
+    }
+
+    /* Payment Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .payment-modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      width: 95%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .modal-title i {
+      color: var(--accent-orange);
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      color: var(--accent-red);
+      border-color: var(--accent-red);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .checkout-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      margin-bottom: 1.5rem;
+    }
+
+    .checkout-item-image {
+      width: 80px;
+      height: 80px;
+      background: var(--bg-primary);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--accent-orange);
+    }
+
+    .checkout-item-info {
+      flex: 1;
+    }
+
+    .checkout-item-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .checkout-item-type {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .checkout-item-price {
+      font-weight: 600;
+      color: var(--accent-orange);
+    }
+
+    .payment-methods {
+      margin-bottom: 1.5rem;
+    }
+
+    .payment-methods-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .payment-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .payment-option {
+      padding: 1rem;
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .payment-option:hover {
+      border-color: var(--border-light);
+    }
+
+    .payment-option.selected {
+      border-color: var(--accent-orange);
+      background: rgba(255, 107, 53, 0.08);
+    }
+
+    .payment-option-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .payment-option-icon.stripe { color: #635BFF; }
+    .payment-option-icon.paypal { color: #00457C; }
+    .payment-option-icon.apple { color: #fff; }
+    .payment-option-icon.crypto { color: #F7931A; }
+
+    .payment-option-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .card-form {
+      display: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-form.show {
+      display: block;
+    }
+
+    .form-row {
+      margin-bottom: 1rem;
+    }
+
+    .form-row label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    .form-row input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .form-row input:focus {
+      outline: none;
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+    }
+
+    .form-row-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .order-summary {
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .order-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      font-size: 0.9rem;
+    }
+
+    .order-row.total {
+      border-top: 1px solid var(--border-color);
+      margin-top: 0.5rem;
+      padding-top: 1rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .order-row.total .order-value {
+      color: var(--accent-orange);
+    }
+
+    .btn-checkout {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--accent-green), #16a34a);
+      border: none;
+      border-radius: var(--radius-md);
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .btn-checkout:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn-checkout:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .secure-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .secure-badge i {
+      color: var(--accent-green);
+    }
+
+    /* Loading spinner */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .featured-instrument {
+        grid-template-columns: 1fr;
+      }
+      .featured-viewer {
+        height: 350px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero-title { font-size: 2.5rem; }
+      .instruments-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .payment-options { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <a href="/" class="nav-brand">
+      <div class="nav-brand-icon"><i class="fas fa-broadcast-tower"></i></div>
+      <span class="nav-brand-text">HAOS.FM</span>
+    </a>
+    
+    <div class="nav-links">
+      <a href="/dashboard.html" class="nav-link">Dashboard</a>
+      <a href="/instruments.html" class="nav-link active">Instruments</a>
+      <a href="/techno-workspace.html" class="nav-link">Studio</a>
+      <a href="/sounds.html" class="nav-link">Sounds</a>
+    </div>
+    
+    <div class="nav-actions">
+      <a href="/dashboard.html" class="btn-primary">
+        <i class="fas fa-th-large"></i> My Studio
+      </a>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-badge">
+        <i class="fas fa-cube"></i>
+        Interactive 3D Models
+      </div>
+      <h1 class="hero-title">Virtual Instruments</h1>
+      <p class="hero-subtitle">
+        Explore our collection of professional-grade virtual instruments. 
+        Rotate 3D models, preview sounds, and integrate directly with your studio workflow.
+      </p>
+    </section>
+
+    <div class="container">
+      <!-- Featured Instrument -->
+      <div class="featured-instrument">
+        <div class="featured-viewer" id="featured-viewer">
+          <div class="viewer-hint">
+            <i class="fas fa-hand-pointer"></i>
+            Drag to rotate • Scroll to zoom
+          </div>
+          <div class="viewer-controls">
+            <button class="viewer-btn" onclick="resetFeaturedView()" title="Reset View">
+              <i class="fas fa-undo"></i>
+            </button>
+            <button class="viewer-btn" onclick="toggleAutoRotate('featured')" title="Auto Rotate">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+            <button class="viewer-btn" onclick="toggleFullscreen('featured-viewer')" title="Fullscreen">
+              <i class="fas fa-expand"></i>
+            </button>
+          </div>
+        </div>
+        <div class="featured-content">
+          <div class="featured-label">
+            <i class="fas fa-star"></i>
+            Featured Instrument
+          </div>
+          <h2 class="featured-name">HAOS Modular System</h2>
+          <p class="featured-type">Professional Modular Synthesizer</p>
+          <p class="featured-description">
+            Our flagship modular synthesizer with authentic analog modeling. Features 24 oscillators, 
+            16 filter types, extensive modulation matrix, and seamless DAW integration. Perfect for 
+            creating everything from classic Berlin school sequences to modern experimental soundscapes.
+          </p>
+          <div class="featured-features">
+            <div class="feature-item"><i class="fas fa-check"></i> 24 Oscillator Voices</div>
+            <div class="feature-item"><i class="fas fa-check"></i> 16 Filter Algorithms</div>
+            <div class="feature-item"><i class="fas fa-check"></i> MIDI Learn Support</div>
+            <div class="feature-item"><i class="fas fa-check"></i> 500+ Factory Presets</div>
+            <div class="feature-item"><i class="fas fa-check"></i> VST3/AU/AAX Support</div>
+            <div class="feature-item"><i class="fas fa-check"></i> Lifetime Updates</div>
+          </div>
+          <div class="featured-price">
+            <span class="price-amount">$199</span>
+            <span class="price-original">$299</span>
+            <span class="price-period">one-time purchase</span>
+          </div>
+          <div class="featured-actions">
+            <button class="btn-instrument primary" onclick="openCheckout('haos-modular', 'HAOS Modular System', 199)">
+              <i class="fas fa-shopping-cart"></i> Buy Now
+            </button>
+            <a href="/modular-workspace.html" class="btn-instrument secondary">
+              <i class="fas fa-play"></i> Try Demo
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Header -->
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-guitar"></i>
+          All Instruments
+        </h2>
+      </div>
+
+      <!-- Instruments Grid -->
+      <div class="instruments-grid" id="instrumentsGrid">
+        <!-- Instruments loaded dynamically -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Payment Modal -->
+  <div class="modal-overlay" id="paymentModal">
+    <div class="payment-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fas fa-lock"></i>
+          Secure Checkout
+        </h3>
+        <button class="modal-close" onclick="closeCheckout()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="checkout-item">
+          <div class="checkout-item-image" id="checkoutItemImage">
+            <i class="fas fa-wave-square"></i>
+          </div>
+          <div class="checkout-item-info">
+            <div class="checkout-item-name" id="checkoutItemName">HAOS Modular System</div>
+            <div class="checkout-item-type" id="checkoutItemType">Virtual Instrument License</div>
+            <div class="checkout-item-price" id="checkoutItemPrice">$199.00</div>
+          </div>
+        </div>
+
+        <div class="payment-methods">
+          <div class="payment-methods-label">Payment Method</div>
+          <div class="payment-options">
+            <div class="payment-option selected" data-method="stripe" onclick="selectPayment('stripe')">
+              <div class="payment-option-icon stripe"><i class="fab fa-stripe-s"></i></div>
+              <span class="payment-option-name">Credit Card</span>
+            </div>
+            <div class="payment-option" data-method="paypal" onclick="selectPayment('paypal')">
+              <div class="payment-option-icon paypal"><i class="fab fa-paypal"></i></div>
+              <span class="payment-option-name">PayPal</span>
+            </div>
+            <div class="payment-option" data-method="blik" onclick="selectPayment('blik')">
+              <div class="payment-option-icon blik" style="background: linear-gradient(135deg, #E6007E, #000000);"><span style="font-weight: bold; font-size: 0.7rem;">BLIK</span></div>
+              <span class="payment-option-name">BLIK</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-form show" id="cardForm">
+          <div class="form-row">
+            <label>Card Number</label>
+            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+          </div>
+          <div class="form-row">
+            <label>Cardholder Name</label>
+            <input type="text" id="cardName" placeholder="John Doe">
+          </div>
+          <div class="form-row-split">
+            <div class="form-row">
+              <label>Expiry Date</label>
+              <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+            </div>
+            <div class="form-row">
+              <label>CVC</label>
+              <input type="text" id="cardCvc" placeholder="123" maxlength="4">
+            </div>
+          </div>
+        </div>
+
+        <!-- BLIK Code Form -->
+        <div class="card-form" id="blikForm">
+          <div class="blik-info" style="text-align: center; margin-bottom: 1.5rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📱</div>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Enter the 6-digit BLIK code from your banking app</p>
+          </div>
+          <div class="form-row">
+            <label>BLIK Code</label>
+            <input type="text" id="blikCode" placeholder="• • • • • •" maxlength="6" 
+              style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; font-family: monospace;"
+              oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.8rem; text-align: center; margin-top: 0.75rem;">
+            The code is valid for 2 minutes. You'll need to confirm the payment in your banking app.
+          </p>
+        </div>
+
+        <!-- PayPal Info -->
+        <div class="card-form" id="paypalForm">
+          <div class="paypal-info" style="text-align: center; padding: 1.5rem;">
+            <i class="fab fa-paypal" style="font-size: 3rem; color: #003087; margin-bottom: 1rem;"></i>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">You will be redirected to PayPal to complete your purchase securely.</p>
+          </div>
+        </div>
+
+        <div class="order-summary">
+          <div class="order-row">
+            <span>Subtotal</span>
+            <span id="orderSubtotal">$199.00</span>
+          </div>
+          <div class="order-row">
+            <span>Tax (VAT)</span>
+            <span id="orderTax">$0.00</span>
+          </div>
+          <div class="order-row total">
+            <span>Total</span>
+            <span class="order-value" id="orderTotal">$199.00</span>
+          </div>
+        </div>
+
+        <button class="btn-checkout" id="checkoutBtn" onclick="processPayment()">
+          <i class="fas fa-lock"></i>
+          Pay <span id="payAmount">$199.00</span>
+        </button>
+
+        <div class="secure-badge">
+          <i class="fas fa-shield-alt"></i>
+          256-bit SSL Encrypted • PCI DSS Compliant
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Instruments Data
+    const instruments = [
+      {
+        id: 'tb-303',
+        name: 'TB-303 Bassline',
+        type: 'Analog Bass Synthesizer',
+        description: 'Authentic recreation of the legendary acid bass machine. Features the iconic squelchy filter and sequencer.',
+        price: 79,
+        originalPrice: 99,
+        tier: 'premium',
+        specs: { oscillators: 1, filters: 1, presets: 128 },
+        color: 0x00ff88,
+        studioLink: '/techno-workspace.html'
+      },
+      {
+        id: 'juno-106',
+        name: 'Juno-106 Poly',
+        type: 'Polyphonic Synthesizer',
+        description: 'Classic 80s polyphonic sound with rich chorus and warm oscillators. Perfect for pads and leads.',
+        price: 129,
+        originalPrice: 179,
+        tier: 'premium',
+        specs: { oscillators: 6, filters: 1, presets: 256 },
+        color: 0xff6b35,
+        studioLink: '/techno-workspace.html'
+      },
+      {
+        id: 'tr-808',
+        name: 'TR-808 Rhythm',
+        type: 'Drum Machine',
+        description: 'The legendary drum machine that defined hip-hop and electronic music. Punchy kicks and crisp hats.',
+        price: 0,
+        tier: 'free',
+        specs: { voices: 16, patterns: 64, presets: 50 },
+        color: 0xff4444,
+        studioLink: '/techno-workspace.html'
+      },
+      {
+        id: 'prophet-5',
+        name: 'Prophet-5 V',
+        type: 'Analog Polysynth',
+        description: 'Recreation of the first fully programmable polyphonic synthesizer. Thick, rich analog sound.',
+        price: 149,
+        originalPrice: 199,
+        tier: 'premium',
+        specs: { oscillators: 10, filters: 2, presets: 400 },
+        color: 0x8b5cf6,
+        studioLink: '/modular-workspace.html'
+      },
+      {
+        id: 'minimoog',
+        name: 'Minimoog Model D',
+        type: 'Monophonic Synthesizer',
+        description: 'The king of mono synths. Fat basses, screaming leads, and that legendary Moog ladder filter.',
+        price: 99,
+        originalPrice: 149,
+        tier: 'premium',
+        specs: { oscillators: 3, filters: 1, presets: 200 },
+        color: 0x06b6d4,
+        studioLink: '/techno-workspace.html'
+      },
+      {
+        id: 'strings-ensemble',
+        name: 'Vintage Strings',
+        type: 'String Synthesizer',
+        description: 'Lush vintage string machine sounds. Perfect for ambient textures and orchestral pads.',
+        price: 0,
+        tier: 'free',
+        specs: { voices: 12, sections: 4, presets: 80 },
+        color: 0xf59e0b,
+        studioLink: '/techno-workspace.html'
+      }
+    ];
+
+    // Three.js Scenes
+    const scenes = {};
+    const cameras = {};
+    const renderers = {};
+    const controls = {};
+    const meshes = {};
+
+    // Initialize featured 3D viewer
+    function initFeaturedViewer() {
+      const container = document.getElementById('featured-viewer');
+      if (!container) return;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0d0d10);
+
+      const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.set(5, 3, 5);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(renderer.domElement);
+
+      // OrbitControls
+      const orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+      orbitControls.enableDamping = true;
+      orbitControls.dampingFactor = 0.05;
+      orbitControls.autoRotate = true;
+      orbitControls.autoRotateSpeed = 1;
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(5, 10, 7);
+      scene.add(directionalLight);
+
+      const pointLight = new THREE.PointLight(0xff6b35, 0.8, 50);
+      pointLight.position.set(-5, 5, 5);
+      scene.add(pointLight);
+
+      // Create Modular Synth Model
+      const synthGroup = createModularSynth();
+      scene.add(synthGroup);
+
+      scenes['featured'] = scene;
+      cameras['featured'] = camera;
+      renderers['featured'] = renderer;
+      controls['featured'] = orbitControls;
+      meshes['featured'] = synthGroup;
+
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+        orbitControls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Handle resize
+      window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      });
+    }
+
+    function createModularSynth() {
+      const group = new THREE.Group();
+
+      // Main case
+      const caseGeometry = new THREE.BoxGeometry(4, 2.5, 1.5);
+      const caseMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x1a1a1a, 
+        metalness: 0.8, 
+        roughness: 0.3 
+      });
+      const mainCase = new THREE.Mesh(caseGeometry, caseMaterial);
+      group.add(mainCase);
+
+      // Front panel
+      const panelGeometry = new THREE.BoxGeometry(3.8, 2.3, 0.05);
+      const panelMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x2a2a2a, 
+        metalness: 0.5, 
+        roughness: 0.5 
+      });
+      const panel = new THREE.Mesh(panelGeometry, panelMaterial);
+      panel.position.z = 0.75;
+      group.add(panel);
+
+      // Knobs
+      const knobGeometry = new THREE.CylinderGeometry(0.08, 0.1, 0.1, 16);
+      const knobMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0xff6b35, 
+        metalness: 0.3, 
+        roughness: 0.5 
+      });
+
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 8; col++) {
+          const knob = new THREE.Mesh(knobGeometry, knobMaterial);
+          knob.position.set(-1.6 + col * 0.45, 0.8 - row * 0.6, 0.82);
+          knob.rotation.x = Math.PI / 2;
+          group.add(knob);
+        }
+      }
+
+      // Patch points
+      const patchGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.08, 16);
+      const patchMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x333333, 
+        metalness: 0.9, 
+        roughness: 0.1 
+      });
+
+      for (let row = 0; row < 2; row++) {
+        for (let col = 0; col < 12; col++) {
+          const patch = new THREE.Mesh(patchGeometry, patchMaterial);
+          patch.position.set(-1.6 + col * 0.3, -0.6 - row * 0.3, 0.8);
+          patch.rotation.x = Math.PI / 2;
+          group.add(patch);
+        }
+      }
+
+      // LED indicators
+      const ledGeometry = new THREE.SphereGeometry(0.03, 16, 16);
+      const ledColors = [0xff0000, 0x00ff00, 0xffff00, 0x00ffff];
+      for (let i = 0; i < 8; i++) {
+        const ledMaterial = new THREE.MeshStandardMaterial({ 
+          color: ledColors[i % 4], 
+          emissive: ledColors[i % 4],
+          emissiveIntensity: 0.5 
+        });
+        const led = new THREE.Mesh(ledGeometry, ledMaterial);
+        led.position.set(-1.6 + i * 0.45, 1.0, 0.82);
+        group.add(led);
+      }
+
+      return group;
+    }
+
+    function createInstrumentModel(color) {
+      const group = new THREE.Group();
+
+      // Simple synth representation
+      const bodyGeometry = new THREE.BoxGeometry(3, 0.8, 1.5);
+      const bodyMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x1a1a1a, 
+        metalness: 0.7, 
+        roughness: 0.3 
+      });
+      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+      group.add(body);
+
+      // Keys
+      const keyGeometry = new THREE.BoxGeometry(0.12, 0.1, 0.8);
+      const whiteMaterial = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.3 });
+      const blackMaterial = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.3 });
+
+      for (let i = 0; i < 12; i++) {
+        const key = new THREE.Mesh(keyGeometry, whiteMaterial);
+        key.position.set(-1.3 + i * 0.22, -0.3, 0.4);
+        group.add(key);
+
+        if ([1, 3, 6, 8, 10].includes(i)) {
+          const blackKey = new THREE.Mesh(
+            new THREE.BoxGeometry(0.08, 0.12, 0.5),
+            blackMaterial
+          );
+          blackKey.position.set(-1.3 + i * 0.22, -0.25, 0.2);
+          group.add(blackKey);
+        }
+      }
+
+      // Control panel
+      const panelGeometry = new THREE.BoxGeometry(2.8, 0.4, 0.6);
+      const panelMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x2a2a2a, 
+        metalness: 0.5 
+      });
+      const panel = new THREE.Mesh(panelGeometry, panelMaterial);
+      panel.position.set(0, 0.2, -0.3);
+      group.add(panel);
+
+      // Knobs with accent color
+      const knobGeometry = new THREE.CylinderGeometry(0.06, 0.07, 0.08, 16);
+      const knobMaterial = new THREE.MeshStandardMaterial({ 
+        color: color, 
+        metalness: 0.3 
+      });
+
+      for (let i = 0; i < 8; i++) {
+        const knob = new THREE.Mesh(knobGeometry, knobMaterial);
+        knob.position.set(-1.2 + i * 0.35, 0.45, -0.3);
+        knob.rotation.x = Math.PI / 2;
+        group.add(knob);
+      }
+
+      return group;
+    }
+
+    function initInstrumentViewer(containerId, instrumentColor) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0d0d10);
+
+      const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.set(4, 2, 4);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(renderer.domElement);
+
+      const orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+      orbitControls.enableDamping = true;
+      orbitControls.dampingFactor = 0.05;
+      orbitControls.autoRotate = true;
+      orbitControls.autoRotateSpeed = 0.5;
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(5, 10, 7);
+      scene.add(directionalLight);
+
+      // Create instrument
+      const instrument = createInstrumentModel(instrumentColor);
+      scene.add(instrument);
+
+      scenes[containerId] = scene;
+      cameras[containerId] = camera;
+      renderers[containerId] = renderer;
+      controls[containerId] = orbitControls;
+      meshes[containerId] = instrument;
+
+      function animate() {
+        requestAnimationFrame(animate);
+        orbitControls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+
+    function renderInstruments() {
+      const grid = document.getElementById('instrumentsGrid');
+      
+      grid.innerHTML = instruments.map(inst => `
+        <div class="instrument-card">
+          <div class="instrument-3d-viewer" id="viewer-${inst.id}">
+            <div class="viewer-hint">
+              <i class="fas fa-hand-pointer"></i>
+              Drag to rotate
+            </div>
+            <div class="viewer-controls">
+              <button class="viewer-btn" onclick="resetView('viewer-${inst.id}')" title="Reset">
+                <i class="fas fa-undo"></i>
+              </button>
+              <button class="viewer-btn" onclick="toggleAutoRotate('viewer-${inst.id}')" title="Auto Rotate">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+            </div>
+          </div>
+          <div class="instrument-body">
+            <div class="instrument-header">
+              <div>
+                <h3 class="instrument-name">${inst.name}</h3>
+                <p class="instrument-type">${inst.type}</p>
+              </div>
+              <span class="instrument-badge ${inst.tier}">${inst.tier === 'premium' ? 'Premium' : 'Free'}</span>
+            </div>
+            <p class="instrument-description">${inst.description}</p>
+            <div class="instrument-specs">
+              ${Object.entries(inst.specs).map(([key, val]) => `
+                <div class="spec-item">
+                  <div class="spec-value">${val}</div>
+                  <div class="spec-label">${key}</div>
+                </div>
+              `).join('')}
+            </div>
+            <div class="instrument-price">
+              ${inst.price > 0 ? `
+                <span class="price-amount">$${inst.price}</span>
+                ${inst.originalPrice ? `<span class="price-original">$${inst.originalPrice}</span>` : ''}
+              ` : `
+                <span class="price-amount" style="color: var(--accent-green);">Free</span>
+              `}
+            </div>
+            <div class="instrument-actions">
+              ${inst.price > 0 ? `
+                <button class="btn-instrument primary" onclick="openCheckout('${inst.id}', '${inst.name}', ${inst.price})">
+                  <i class="fas fa-shopping-cart"></i> Buy Now
+                </button>
+              ` : `
+                <a href="${inst.studioLink}" class="btn-instrument primary">
+                  <i class="fas fa-download"></i> Get Free
+                </a>
+              `}
+              <a href="${inst.studioLink}" class="btn-instrument secondary">
+                <i class="fas fa-play"></i> Demo
+              </a>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Initialize 3D viewers for each instrument
+      setTimeout(() => {
+        instruments.forEach(inst => {
+          initInstrumentViewer(`viewer-${inst.id}`, inst.color);
+        });
+      }, 100);
+    }
+
+    function resetFeaturedView() {
+      if (controls['featured']) {
+        controls['featured'].reset();
+      }
+    }
+
+    function resetView(viewerId) {
+      if (controls[viewerId]) {
+        controls[viewerId].reset();
+      }
+    }
+
+    function toggleAutoRotate(viewerId) {
+      if (controls[viewerId]) {
+        controls[viewerId].autoRotate = !controls[viewerId].autoRotate;
+      }
+    }
+
+    function toggleFullscreen(viewerId) {
+      const elem = document.getElementById(viewerId);
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      }
+    }
+
+    // Payment handling
+    let currentCheckout = null;
+    let selectedPaymentMethod = 'stripe';
+
+    function openCheckout(instrumentId, name, price) {
+      currentCheckout = { instrumentId, name, price };
+      
+      document.getElementById('checkoutItemName').textContent = name;
+      document.getElementById('checkoutItemPrice').textContent = `$${price.toFixed(2)}`;
+      document.getElementById('orderSubtotal').textContent = `$${price.toFixed(2)}`;
+      document.getElementById('orderTotal').textContent = `$${price.toFixed(2)}`;
+      document.getElementById('payAmount').textContent = `$${price.toFixed(2)}`;
+      
+      document.getElementById('paymentModal').classList.add('show');
+    }
+
+    function closeCheckout() {
+      document.getElementById('paymentModal').classList.remove('show');
+      currentCheckout = null;
+      currentBlikTransaction = null;
+    }
+
+    function selectPayment(method) {
+      selectedPaymentMethod = method;
+      
+      document.querySelectorAll('.payment-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      document.querySelector(`[data-method="${method}"]`)?.classList.add('selected');
+      
+      // Show/hide payment forms based on method
+      const cardForm = document.getElementById('cardForm');
+      const blikForm = document.getElementById('blikForm');
+      const paypalForm = document.getElementById('paypalForm');
+      
+      cardForm.classList.toggle('show', method === 'stripe');
+      blikForm.classList.toggle('show', method === 'blik');
+      paypalForm.classList.toggle('show', method === 'paypal');
+      
+      // Update button text
+      const btn = document.getElementById('checkoutBtn');
+      if (method === 'paypal') {
+        btn.innerHTML = `<i class="fab fa-paypal"></i> Pay with PayPal`;
+      } else if (method === 'blik') {
+        btn.innerHTML = `<i class="fas fa-mobile-alt"></i> Pay with BLIK`;
+      } else {
+        btn.innerHTML = `<i class="fas fa-lock"></i> Pay <span id="payAmount">$${currentCheckout?.price?.toFixed(2) || '0.00'}</span>`;
+      }
+    }
+
+    // BLIK transaction state
+    let currentBlikTransaction = null;
+
+    async function processPayment() {
+      if (!currentCheckout) return;
+      
+      const btn = document.getElementById('checkoutBtn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span> Processing...';
+      btn.disabled = true;
+
+      try {
+        // Map internal instrument IDs to API instrument IDs
+        const instrumentMapping = {
+          'juno-106': 'synth-studio',
+          'tb-303': 'synth-studio',
+          'haos-modular': 'synth-studio',
+          'minimoog': 'synth-studio',
+          'electric-guitar': 'guitar-essentials',
+          'stratocaster': 'guitar-essentials',
+          'violin': 'string-collection',
+          'string-ensemble': 'string-collection',
+          'complete-bundle': 'complete-bundle'
+        };
+
+        const apiInstrumentId = instrumentMapping[currentCheckout.instrumentId] || currentCheckout.instrumentId;
+
+        // Handle different payment methods
+        if (selectedPaymentMethod === 'paypal') {
+          await processPayPalPayment(apiInstrumentId);
+        } else if (selectedPaymentMethod === 'blik') {
+          await processBlikPayment(apiInstrumentId);
+        } else {
+          // Default: Stripe checkout session
+          await processStripePayment(apiInstrumentId);
+        }
+      } catch (error) {
+        console.error('Payment error:', error);
+        showPaymentError(error.message);
+      }
+
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+
+    // Stripe payment processing
+    async function processStripePayment(instrumentId) {
+      const response = await fetch('/api/payments/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({
+          instrumentId,
+          successUrl: `${window.location.origin}/instruments.html?purchase=success&instrument=${instrumentId}`,
+          cancelUrl: `${window.location.origin}/instruments.html?purchase=cancelled`
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.url) {
+          window.location.href = data.url;
+        } else if (data.mode === 'sandbox') {
+          showPaymentSuccess();
+        } else {
+          throw new Error('Invalid response from payment server');
+        }
+      } else if (response.status === 401) {
+        alert('Please log in to purchase instruments');
+        window.location.href = '/login.html?redirect=/instruments.html';
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Payment failed');
+      }
+    }
+
+    // PayPal payment processing
+    async function processPayPalPayment(instrumentId) {
+      const response = await fetch('/api/payments/paypal/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({ instrumentId })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.approvalUrl) {
+          // Redirect to PayPal
+          window.location.href = data.approvalUrl;
+        } else if (data.mode === 'sandbox') {
+          showPaymentSuccess();
+        } else {
+          throw new Error('Invalid PayPal response');
+        }
+      } else if (response.status === 401) {
+        alert('Please log in to purchase instruments');
+        window.location.href = '/login.html?redirect=/instruments.html';
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'PayPal payment failed');
+      }
+    }
+
+    // BLIK payment processing
+    async function processBlikPayment(instrumentId) {
+      const blikCode = document.getElementById('blikCode').value;
+      
+      // If we already have a transaction, confirm with BLIK code
+      if (currentBlikTransaction) {
+        if (!blikCode || blikCode.length !== 6) {
+          throw new Error('Please enter a valid 6-digit BLIK code');
+        }
+
+        const response = await fetch('/api/payments/blik/confirm', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+          },
+          body: JSON.stringify({
+            transactionId: currentBlikTransaction,
+            blikCode
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === 'completed' || data.mode === 'sandbox') {
+            showPaymentSuccess();
+          } else {
+            // Show confirmation message
+            showBlikConfirmation();
+          }
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'BLIK confirmation failed');
+        }
+      } else {
+        // Create BLIK payment first
+        const response = await fetch('/api/payments/blik/create-payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+          },
+          body: JSON.stringify({ instrumentId })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          currentBlikTransaction = data.transactionId;
+          
+          // If user already entered BLIK code, confirm immediately
+          if (blikCode && blikCode.length === 6) {
+            await processBlikPayment(instrumentId);
+          } else {
+            // Show BLIK code input
+            showBlikCodeInput(data);
+          }
+        } else if (response.status === 401) {
+          alert('Please log in to purchase instruments');
+          window.location.href = '/login.html?redirect=/instruments.html';
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'BLIK payment failed');
+        }
+      }
+    }
+
+    function showBlikCodeInput(data) {
+      const btn = document.getElementById('checkoutBtn');
+      btn.innerHTML = `<i class="fas fa-check"></i> Confirm BLIK Payment`;
+      btn.disabled = false;
+      
+      // Focus on BLIK code input
+      document.getElementById('blikCode').focus();
+      
+      // Show info toast
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        padding: 1.25rem 1.5rem;
+        background: linear-gradient(135deg, #E6007E, #000000);
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 8px 32px rgba(230, 0, 126, 0.4);
+      `;
+      toast.innerHTML = `
+        <i class="fas fa-mobile-alt"></i>
+        <span>Enter your BLIK code and click confirm</span>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
+    }
+
+    function showBlikConfirmation() {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        padding: 1.25rem 1.5rem;
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 8px 32px rgba(6, 182, 212, 0.4);
+      `;
+      toast.innerHTML = `
+        <i class="fas fa-spinner fa-spin"></i>
+        <div>
+          <div>Confirm in your banking app</div>
+          <div style="font-size: 0.85rem; opacity: 0.9;">Check your phone for the BLIK confirmation</div>
+        </div>
+      `;
+      document.body.appendChild(toast);
+      
+      // Poll for payment status or wait for webhook
+      // For now, show success after a delay (in production, use webhooks)
+      setTimeout(() => {
+        toast.remove();
+        showPaymentSuccess();
+      }, 5000);
+    }
+
+    function showPaymentError(message) {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        padding: 1.25rem 1.5rem;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 8px 32px rgba(239, 68, 68, 0.4);
+      `;
+      toast.innerHTML = `
+        <i class="fas fa-exclamation-circle"></i>
+        <span>${message || 'Payment processing failed. Please try again.'}</span>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
+    }
+
+    function showPaymentSuccess() {
+      closeCheckout();
+      
+      // Show success toast
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        padding: 1.25rem 1.5rem;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 8px 32px rgba(34, 197, 94, 0.4);
+        animation: slideIn 0.3s ease-out;
+      `;
+      toast.innerHTML = `
+        <i class="fas fa-check-circle" style="font-size: 1.25rem;"></i>
+        <div>
+          <div style="font-size: 1rem;">Payment Successful!</div>
+          <div style="font-size: 0.85rem; opacity: 0.9;">Your instrument is now available in the studio.</div>
+        </div>
+      `;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 5000);
+    }
+
+    // Card number formatting
+    document.getElementById('cardNumber')?.addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\D/g, '');
+      value = value.replace(/(.{4})/g, '$1 ').trim();
+      e.target.value = value;
+    });
+
+    // Expiry formatting
+    document.getElementById('cardExpiry')?.addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2);
+      }
+      e.target.value = value;
+    });
+
+    // Close modal on backdrop click
+    document.getElementById('paymentModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'paymentModal') closeCheckout();
+    });
+
+    // Check for purchase status in URL
+    function checkPurchaseStatus() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const purchaseStatus = urlParams.get('purchase');
+      const instrumentId = urlParams.get('instrument');
+
+      if (purchaseStatus === 'success') {
+        showPaymentSuccess();
+        // Clean up URL
+        window.history.replaceState({}, document.title, '/instruments.html');
+      } else if (purchaseStatus === 'cancelled') {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+          position: fixed;
+          top: 80px;
+          right: 20px;
+          padding: 1.25rem 1.5rem;
+          background: linear-gradient(135deg, #f59e0b, #d97706);
+          color: white;
+          border-radius: 12px;
+          font-weight: 600;
+          z-index: 10001;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          box-shadow: 0 8px 32px rgba(245, 158, 11, 0.4);
+        `;
+        toast.innerHTML = `
+          <i class="fas fa-info-circle"></i>
+          <span>Purchase cancelled. You can try again anytime!</span>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 5000);
+        window.history.replaceState({}, document.title, '/instruments.html');
+      }
+    }
+
+    // Load user's owned instruments
+    async function loadOwnedInstruments() {
+      try {
+        const response = await fetch('/api/payments/instruments/owned', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Mark owned instruments in the UI
+          data.instruments.forEach(purchase => {
+            const card = document.querySelector(`[data-instrument-id="${purchase.instrument_id}"]`);
+            if (card) {
+              const buyBtn = card.querySelector('.btn-instrument.primary');
+              if (buyBtn) {
+                buyBtn.innerHTML = '<i class="fas fa-check"></i> Owned';
+                buyBtn.disabled = true;
+                buyBtn.style.background = 'var(--accent-green)';
+              }
+            }
+          });
+        }
+      } catch (error) {
+        console.log('Could not load owned instruments:', error);
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      initFeaturedViewer();
+      renderInstruments();
+      checkPurchaseStatus();
+      loadOwnedInstruments();
+    });
+  </script>
+</body>
+</html>
