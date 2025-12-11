@@ -1874,14 +1874,51 @@
   </main>
 
   <!-- Premium Modal -->
-  <div class="modal-overlay" id="premiumModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
-    <div style="background: linear-gradient(135deg, #151515, #0d0d0d); border: 2px solid #D4AF37; border-radius: 20px; padding: 40px; max-width: 450px; text-align: center; animation: fadeIn 0.3s ease-out;">
+  <div class="modal-overlay" id="premiumModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+    <div style="background: linear-gradient(135deg, #151515, #0d0d0d); border: 2px solid #D4AF37; border-radius: 20px; padding: 40px; max-width: 600px; text-align: center; animation: fadeIn 0.3s ease-out;">
       <div style="font-size: 4rem; margin-bottom: 20px;">👑</div>
-      <h2 style="font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: #D4AF37; margin-bottom: 16px;">Premium Feature</h2>
-      <p style="color: #6B6B6B; margin-bottom: 24px; line-height: 1.6;">This feature requires a Premium subscription. Upgrade now to unlock Modular Workspace, Builder, and more advanced tools.</p>
+      <h2 style="font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; color: #D4AF37; margin-bottom: 8px; letter-spacing: 2px;">UNLOCK PREMIUM</h2>
+      <p style="color: #888; margin-bottom: 24px; font-size: 1rem;">This feature requires a Premium or Pro subscription</p>
+      
+      <!-- Feature highlights -->
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; text-align: left;">
+        <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 10px; padding: 12px;">
+          <div style="color: #D4AF37; font-weight: 600; margin-bottom: 4px;"><i class="fas fa-cubes"></i> Modular Workspace</div>
+          <div style="color: #888; font-size: 0.8rem;">Full modular synthesis environment</div>
+        </div>
+        <div style="background: rgba(255, 107, 53, 0.1); border: 1px solid rgba(255, 107, 53, 0.2); border-radius: 10px; padding: 12px;">
+          <div style="color: #FF6B35; font-weight: 600; margin-bottom: 4px;"><i class="fas fa-hammer"></i> Builder Studio</div>
+          <div style="color: #888; font-size: 0.8rem;">Custom instrument creation</div>
+        </div>
+        <div style="background: rgba(57, 255, 20, 0.1); border: 1px solid rgba(57, 255, 20, 0.2); border-radius: 10px; padding: 12px;">
+          <div style="color: #39FF14; font-weight: 600; margin-bottom: 4px;"><i class="fas fa-infinity"></i> Unlimited Downloads</div>
+          <div style="color: #888; font-size: 0.8rem;">No daily preset limits</div>
+        </div>
+        <div style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 10px; padding: 12px;">
+          <div style="color: #00D4FF; font-weight: 600; margin-bottom: 4px;"><i class="fas fa-users"></i> Collaboration</div>
+          <div style="color: #888; font-size: 0.8rem;">Real-time session sharing</div>
+        </div>
+      </div>
+
+      <!-- Pricing quick view -->
+      <div style="display: flex; gap: 16px; justify-content: center; margin-bottom: 24px;">
+        <div style="background: rgba(212, 175, 55, 0.15); border: 2px solid #D4AF37; border-radius: 12px; padding: 16px 24px; flex: 1; max-width: 180px;">
+          <div style="color: #D4AF37; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Premium</div>
+          <div style="color: #fff; font-size: 1.8rem; font-weight: 700;">$9.99<span style="font-size: 0.8rem; color: #888;">/mo</span></div>
+          <div style="color: #39FF14; font-size: 0.75rem;">Save 17% yearly</div>
+        </div>
+        <div style="background: rgba(255, 107, 53, 0.15); border: 2px solid #FF6B35; border-radius: 12px; padding: 16px 24px; flex: 1; max-width: 180px;">
+          <div style="color: #FF6B35; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Pro</div>
+          <div style="color: #fff; font-size: 1.8rem; font-weight: 700;">$24.99<span style="font-size: 0.8rem; color: #888;">/mo</span></div>
+          <div style="color: #39FF14; font-size: 0.75rem;">Save 17% yearly</div>
+        </div>
+      </div>
+      
       <div style="display: flex; gap: 12px; justify-content: center;">
-        <button onclick="closePremiumModal()" style="padding: 12px 24px; background: transparent; border: 1px solid #2a2a2a; color: #F4E8D8; border-radius: 10px; cursor: pointer; font-weight: 600;">Maybe Later</button>
-        <a href="/pricing.html" style="padding: 12px 24px; background: linear-gradient(135deg, #D4AF37, #FFD700); color: #0A0A0A; border-radius: 10px; text-decoration: none; font-weight: 600;">View Plans</a>
+        <button onclick="closePremiumModal()" style="padding: 14px 28px; background: transparent; border: 1px solid #2a2a2a; color: #F4E8D8; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Maybe Later</button>
+        <a href="/account.html#subscription" style="padding: 14px 28px; background: linear-gradient(135deg, #D4AF37, #FFD700); color: #0A0A0A; border-radius: 10px; text-decoration: none; font-weight: 700; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-crown"></i> View All Plans
+        </a>
       </div>
     </div>
   </div>

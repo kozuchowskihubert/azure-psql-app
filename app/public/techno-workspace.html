@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HAOS.fm | TECHNO Workspace - Live Production Studio</title>
     
-    <!-- Fonts - Same as sounds.html -->
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Fonts - Technical Monospace -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- HAOS Knob Component -->
     <script src="/js/components/haos-knob.js"></script>
@@ -28,10 +28,11 @@
             --border-subtle: rgba(255, 107, 53, 0.1);
             --border-glow: rgba(255, 107, 53, 0.3);
             
-            /* Fonts */
+            /* Fonts - Updated with JetBrains Mono */
             --font-display: 'Bebas Neue', sans-serif;
-            --font-mono: 'Space Mono', monospace;
+            --font-mono: 'JetBrains Mono', 'Space Mono', monospace;
             --font-body: 'Inter', sans-serif;
+            --font-technical: 'JetBrains Mono', 'Space Mono', monospace;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -270,9 +271,53 @@
             background: var(--bg-glass);
             border: 1px solid var(--border-subtle);
             border-radius: 20px;
-            font-family: var(--font-mono);
+            font-family: var(--font-technical);
             color: var(--accent-orange);
             font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* Live Technical Status */
+        .tech-live-status {
+            display: flex;
+            gap: 1rem;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+        }
+
+        .tech-live-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tech-live-label {
+            font-family: var(--font-technical);
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tech-live-value {
+            font-family: var(--font-technical);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-green);
+            text-shadow: 0 0 6px rgba(57, 255, 20, 0.4);
+            min-width: 50px;
+        }
+
+        .tech-live-value.active {
+            animation: valueBlink 0.2s ease;
+        }
+
+        @keyframes valueBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; color: var(--accent-cyan); }
         }
         
         .dropdown {
@@ -280,7 +325,7 @@
             background: var(--bg-glass);
             border: 1px solid var(--border-subtle);
             border-radius: 20px;
-            font-family: var(--font-mono);
+            font-family: var(--font-technical);
             color: var(--text-primary);
             font-size: 0.9rem;
             cursor: pointer;
@@ -914,6 +959,26 @@
             <button class="transport-btn" id="exportBtn" style="background: linear-gradient(135deg, var(--accent-cyan) 0%, #00B8D4 50%, var(--accent-cyan) 100%);">
                 <span style="margin-right: 8px;">💾</span> EXPORT
             </button>
+
+            <!-- Live Technical Status -->
+            <div class="tech-live-status">
+                <div class="tech-live-item">
+                    <span class="tech-live-label">STEP</span>
+                    <span class="tech-live-value" id="live-step">01</span>
+                </div>
+                <div class="tech-live-item">
+                    <span class="tech-live-label">BAR</span>
+                    <span class="tech-live-value" id="live-bar">1</span>
+                </div>
+                <div class="tech-live-item">
+                    <span class="tech-live-label">CPU</span>
+                    <span class="tech-live-value" id="live-cpu">12%</span>
+                </div>
+                <div class="tech-live-item">
+                    <span class="tech-live-label">LAT</span>
+                    <span class="tech-live-value" id="live-latency">5.8ms</span>
+                </div>
+            </div>
         </div>
 
         <!-- Export Dialog (hidden by default) -->
@@ -1941,6 +2006,28 @@
         let playing = false;
         let currentStep = 0;
         let interval;
+        let currentBar = 1;
+        
+        // Update live status display
+        function updateLiveStatus() {
+            const stepDisplay = document.getElementById('live-step');
+            const barDisplay = document.getElementById('live-bar');
+            const cpuDisplay = document.getElementById('live-cpu');
+            
+            if (stepDisplay) {
+                stepDisplay.textContent = String(currentStep + 1).padStart(2, '0');
+                stepDisplay.classList.add('active');
+                setTimeout(() => stepDisplay.classList.remove('active'), 100);
+            }
+            if (barDisplay) {
+                barDisplay.textContent = currentBar;
+            }
+            if (cpuDisplay) {
+                // Simulated CPU usage
+                const cpu = Math.floor(8 + Math.random() * 12);
+                cpuDisplay.textContent = cpu + '%';
+            }
+        }
         
         function stepSequencer() {
             // Clear previous playing state
@@ -1965,6 +2052,10 @@
             });
             
             currentStep = (currentStep + 1) % 16;
+            if (currentStep === 0) currentBar = (currentBar % 4) + 1;
+            
+            // Update live status
+            updateLiveStatus();
         }
 
         document.getElementById('playBtn').onclick = () => {

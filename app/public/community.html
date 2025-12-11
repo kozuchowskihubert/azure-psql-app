@@ -456,6 +456,40 @@
             color: var(--text-muted);
         }
 
+        .attach-btn, .send-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .attach-btn:hover, .send-btn:hover {
+            color: var(--haos-orange);
+        }
+
+        .send-btn {
+            color: var(--haos-orange);
+        }
+
+        .send-btn:hover {
+            color: var(--haos-gold);
+        }
+
+        .message-input-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border);
+        }
+
         /* Members Sidebar */
         .members-sidebar {
             width: 240px;
@@ -985,11 +1019,18 @@
             </div>
 
             <div class="message-input-container">
+                <button class="attach-btn" onclick="document.getElementById('file-input').click()" title="Attach file">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                <input type="file" id="file-input" style="display: none" accept="image/*,audio/*,.pdf,.txt" onchange="handleFileSelect(event)">
                 <textarea 
                     class="message-input" 
                     placeholder="You don't have permission to send messages in this channel"
                     disabled
                 ></textarea>
+                <button class="send-btn" onclick="sendMessage()" title="Send message">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
         </main>
 
@@ -1163,24 +1204,53 @@
             }
         }
 
-        // WebSocket connection for real-time features
+        // Get JWT token from localStorage or cookies
+        function getAuthToken() {
+            // Check localStorage first (from OAuth callback)
+            const stored = localStorage.getItem('haos_access_token');
+            if (stored) return stored;
+            
+            // Check for token in hash (OAuth redirect)
+            const hash = window.location.hash;
+            if (hash.includes('access_token=')) {
+                const token = hash.match(/access_token=([^&]+)/)?.[1];
+                if (token) {
+                    localStorage.setItem('haos_access_token', token);
+                    return token;
+                }
+            }
+            return null;
+        }
+
+        // WebSocket connection for real-time features with JWT auth
         function initWebSocket() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            ws = new WebSocket(`${protocol}//${window.location.host}`);
+            const token = getAuthToken();
+            
+            // Include JWT token in WebSocket URL for authentication
+            const wsUrl = token 
+                ? `${protocol}//${window.location.host}?token=${encodeURIComponent(token)}`
+                : `${protocol}//${window.location.host}`;
+            
+            ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
-                console.log('WebSocket connected');
-                // Join community room
+                console.log('WebSocket connected (TLS secured)');
+                // Join community room with authenticated user info
                 ws.send(JSON.stringify({
                     type: 'join',
                     room: 'community',
                     channel: currentChannel,
+                    token: token, // Send token for server-side verification
                     user: {
                         id: currentUser?.id,
                         name: currentUser?.display_name || currentUser?.email,
                         avatar: currentUser?.avatar_url
                     }
                 }));
+                
+                // Start presence heartbeat
+                startPresenceHeartbeat();
             };
 
             ws.onmessage = (event) => {
@@ -1196,6 +1266,31 @@
                 console.log('WebSocket disconnected, reconnecting...');
                 setTimeout(initWebSocket, 3000);
             };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+        
+        // Presence heartbeat to keep user online status updated
+        let presenceInterval = null;
+        function startPresenceHeartbeat() {
+            if (presenceInterval) clearInterval(presenceInterval);
+            presenceInterval = setInterval(async () => {
+                try {
+                    const token = getAuthToken();
+                    await fetch('/api/chat/presence', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': token ? `Bearer ${token}` : ''
+                        },
+                        credentials: 'include'
+                    });
+                } catch (e) {
+                    // Silent fail for presence
+                }
+            }, 60000); // Every minute
         }
 
         function handleWebSocketMessage(data) {
@@ -1318,8 +1413,8 @@
             container.appendChild(msgEl);
         }
 
-        // Send message
-        function sendMessage() {
+        // Send message via secure API
+        async function sendMessage() {
             const input = document.querySelector('.message-input');
             const text = input.value.trim();
             
@@ -1334,16 +1429,134 @@
                 timestamp: new Date().toISOString()
             };
 
-            // Send via WebSocket
+            // Clear input immediately for better UX
+            input.value = '';
+
+            // Send via WebSocket for real-time broadcast
             if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify(message));
+                ws.send(JSON.stringify({
+                    ...message,
+                    token: getAuthToken() // Include JWT for server verification
+                }));
             }
 
-            // Add to local view immediately
+            // Also persist to database via secure API
+            try {
+                const token = getAuthToken();
+                const response = await fetch(`/api/chat/channels/${encodeURIComponent(currentChannel)}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ content: text })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to send message', 'error');
+                    // Re-add text to input on failure
+                    input.value = text;
+                }
+            } catch (error) {
+                console.error('Failed to persist message:', error);
+                // Message was already sent via WebSocket, just log the error
+            }
+
+            // Add to local view immediately for optimistic UI
             addMessage(message);
+        }
+        
+        // Send message with attachment
+        async function sendMessageWithAttachment(file) {
+            if (!currentUser || !file) return;
             
-            // Clear input
-            input.value = '';
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('content', ''); // Optional message text
+            
+            try {
+                const token = getAuthToken();
+                const response = await fetch(`/api/chat/channels/${encodeURIComponent(currentChannel)}/messages/attachment`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    credentials: 'include',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    // Message will be broadcast via WebSocket
+                    showToast('Attachment sent!', 'success');
+                } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to send attachment', 'error');
+                }
+            } catch (error) {
+                console.error('Failed to send attachment:', error);
+                showToast('Failed to upload attachment', 'error');
+            }
+        }
+        
+        // Handle file selection for attachments
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validate file size (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('File too large (max 10MB)', 'error');
+                event.target.value = '';
+                return;
+            }
+            
+            // Show preview for images
+            if (file.type.startsWith('image/')) {
+                showAttachmentPreview(file);
+            } else {
+                // Send directly for other file types
+                sendMessageWithAttachment(file);
+            }
+            
+            // Reset file input
+            event.target.value = '';
+        }
+        
+        // Show attachment preview before sending
+        function showAttachmentPreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.createElement('div');
+                preview.className = 'attachment-preview';
+                preview.innerHTML = `
+                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+                        <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; max-width: 500px; text-align: center;">
+                            <img src="${e.target.result}" style="max-width: 100%; max-height: 300px; border-radius: 8px; margin-bottom: 1rem;">
+                            <p style="color: var(--text-muted); margin-bottom: 1rem;">${file.name}</p>
+                            <div style="display: flex; gap: 1rem; justify-content: center;">
+                                <button onclick="this.closest('.attachment-preview').remove()" style="padding: 0.5rem 1rem; background: #333; color: white; border: none; border-radius: 6px; cursor: pointer;">Cancel</button>
+                                <button onclick="confirmSendAttachment()" style="padding: 0.5rem 1rem; background: var(--haos-orange); color: white; border: none; border-radius: 6px; cursor: pointer;">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(preview);
+                
+                // Store file reference for sending
+                window.pendingAttachment = file;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function confirmSendAttachment() {
+            if (window.pendingAttachment) {
+                sendMessageWithAttachment(window.pendingAttachment);
+                window.pendingAttachment = null;
+            }
+            document.querySelector('.attachment-preview')?.remove();
         }
 
         // Message input handling

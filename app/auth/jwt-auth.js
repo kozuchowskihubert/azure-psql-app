@@ -1,6 +1,6 @@
 /**
  * JWT Authentication System for HAOS.fm
- * Complete authentication with JWT tokens, Google OAuth, and local auth
+ * Complete authentication with JWT tokens, Google OAuth, Facebook OAuth, and local auth
  */
 
 const express = require('express');
@@ -9,6 +9,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
 const pool = require('../config/database');
 
 const router = express.Router();
@@ -130,6 +131,77 @@ if (GOOGLE_CONFIG.clientID && GOOGLE_CONFIG.clientSecret) {
   console.log('✓ Google OAuth configured');
 } else {
   console.log('⚠️  Google OAuth not configured (missing credentials)');
+}
+
+// Facebook OAuth Configuration
+const FACEBOOK_CONFIG = {
+  clientID: process.env.FACEBOOK_APP_ID || '',
+  clientSecret: process.env.FACEBOOK_APP_SECRET || '',
+  callbackURL: process.env.FACEBOOK_CALLBACK_URL || 'https://haos.fm/api/auth/facebook/callback',
+  profileFields: ['id', 'emails', 'name', 'displayName', 'photos'],
+};
+
+// Configure Facebook OAuth if credentials provided
+if (FACEBOOK_CONFIG.clientID && FACEBOOK_CONFIG.clientSecret) {
+  passport.use(
+    new FacebookStrategy(
+      FACEBOOK_CONFIG,
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          const email = profile.emails?.[0]?.value;
+          const facebookId = profile.id;
+          const displayName = profile.displayName || `${profile.name?.givenName || ''} ${profile.name?.familyName || ''}`.trim();
+          const avatarUrl = profile.photos?.[0]?.value;
+
+          // Try to find user by Facebook ID
+          let result = await pool.query('SELECT * FROM users WHERE facebook_id = $1', [facebookId]);
+
+          if (result.rows.length > 0) {
+            // Update existing user
+            result = await pool.query(
+              'UPDATE users SET display_name = $1, avatar_url = $2, last_login_at = NOW(), updated_at = NOW() WHERE facebook_id = $3 RETURNING *',
+              [displayName, avatarUrl, facebookId]
+            );
+            return done(null, result.rows[0]);
+          }
+
+          // Try to find by email if provided
+          if (email) {
+            result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+
+            if (result.rows.length > 0) {
+              // Link Facebook to existing email account
+              result = await pool.query(
+                'UPDATE users SET facebook_id = $1, display_name = COALESCE(display_name, $2), avatar_url = COALESCE(avatar_url, $3), email_verified = TRUE, last_login_at = NOW(), updated_at = NOW() WHERE email = $4 RETURNING *',
+                [facebookId, displayName, avatarUrl, email]
+              );
+              return done(null, result.rows[0]);
+            }
+
+            // Create new user with email
+            result = await pool.query(
+              'INSERT INTO users (email, facebook_id, display_name, avatar_url, email_verified, created_at, updated_at, last_login_at) VALUES ($1, $2, $3, $4, TRUE, NOW(), NOW(), NOW()) RETURNING *',
+              [email, facebookId, displayName, avatarUrl]
+            );
+          } else {
+            // Create new user without email (Facebook doesn't always provide email)
+            result = await pool.query(
+              'INSERT INTO users (facebook_id, display_name, avatar_url, email_verified, created_at, updated_at, last_login_at) VALUES ($1, $2, $3, FALSE, NOW(), NOW(), NOW()) RETURNING *',
+              [facebookId, displayName, avatarUrl]
+            );
+          }
+
+          done(null, result.rows[0]);
+        } catch (error) {
+          console.error('Facebook OAuth error:', error);
+          done(error, null);
+        }
+      }
+    )
+  );
+  console.log('✓ Facebook OAuth configured');
+} else {
+  console.log('⚠️  Facebook OAuth not configured (missing credentials)');
 }
 
 // Passport serialization
@@ -357,6 +429,43 @@ router.get('/google/status', (req, res) => {
     success: true,
     configured: !!(GOOGLE_CONFIG.clientID && GOOGLE_CONFIG.clientSecret),
     callbackURL: GOOGLE_CONFIG.callbackURL,
+  });
+});
+
+// GET /api/auth/facebook
+router.get(
+  '/facebook',
+  (req, res, next) => {
+    if (!FACEBOOK_CONFIG.clientID) {
+      return res.status(503).json({ success: false, error: 'Facebook OAuth not configured. Please contact support.' });
+    }
+    next();
+  },
+  passport.authenticate('facebook', { scope: ['email', 'public_profile'], session: false })
+);
+
+// GET /api/auth/facebook/callback
+router.get(
+  '/facebook/callback',
+  passport.authenticate('facebook', { session: false, failureRedirect: '/login.html?error=facebook_auth_failed' }),
+  async (req, res) => {
+    try {
+      const user = req.user;
+      const tokens = generateTokens(user);
+      res.redirect(`/account.html#access_token=${tokens.accessToken}&refresh_token=${tokens.refreshToken}&login=success`);
+    } catch (error) {
+      console.error('Facebook callback error:', error);
+      res.redirect('/login.html?error=auth_callback_failed');
+    }
+  }
+);
+
+// GET /api/auth/facebook/status
+router.get('/facebook/status', (req, res) => {
+  res.json({
+    success: true,
+    configured: !!(FACEBOOK_CONFIG.clientID && FACEBOOK_CONFIG.clientSecret),
+    callbackURL: FACEBOOK_CONFIG.callbackURL,
   });
 });
 

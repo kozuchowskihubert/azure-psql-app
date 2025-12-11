@@ -353,42 +353,110 @@
       letter-spacing: 1px;
     }
 
-    .plan-card-name {
-      font-family: 'Bebas Neue', Arial, sans-serif;
-      font-size: 1.5rem;
-      letter-spacing: 1px;
-      margin-bottom: 0.5rem;
+    .pro-badge {
+      background: linear-gradient(135deg, #FF6B35, #D4AF37) !important;
     }
 
-    .plan-card-price {
-      font-size: 2rem;
-      font-weight: 700;
+    .plan-card-header {
       margin-bottom: 1rem;
     }
 
-    .plan-card-price span {
+    .plan-card-name {
+      font-family: 'Bebas Neue', Arial, sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      margin-bottom: 0.25rem;
+    }
+
+    .plan-tagline {
+      font-size: 0.85rem;
+      color: #888;
+      margin: 0;
+    }
+
+    .plan-card-price {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .price-amount {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FF6B35, #D4AF37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .price-period {
       font-size: 0.9rem;
       color: #6B6B6B;
       font-weight: 400;
     }
 
+    .price-yearly-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .yearly-total {
+      color: #888;
+    }
+
+    .savings-badge {
+      background: linear-gradient(135deg, #39FF14, #00D4FF);
+      color: #0A0A0A;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.7rem;
+    }
+
     .plan-card-features {
       list-style: none;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
 
     .plan-card-features li {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0;
-      font-size: 0.9rem;
+      gap: 0.75rem;
+      padding: 0.4rem 0;
+      font-size: 0.85rem;
       color: #F4E8D8;
     }
 
     .plan-card-features li i {
       color: #39FF14;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+      width: 16px;
+      text-align: center;
+    }
+
+    .plan-limitations {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .limitation {
+      font-size: 0.75rem;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .limitation i {
+      font-size: 0.6rem;
+      color: #444;
     }
 
     /* Buttons */
@@ -1208,37 +1276,110 @@
       const container = document.getElementById('plans-grid');
       const currentPlan = currentSubscription?.plan_code || 'free';
 
+      // Enhanced plan descriptions with detailed features
+      const planDetails = {
+        free: {
+          tagline: 'Get started with HAOS.fm',
+          highlights: [
+            { icon: 'fa-music', text: '5 preset downloads/day' },
+            { icon: 'fa-volume-up', text: 'Basic sound library access' },
+            { icon: 'fa-save', text: '3 saved patches' },
+            { icon: 'fa-file-audio', text: 'WAV export (44.1kHz)' }
+          ],
+          limitations: ['Community support only', 'Ads enabled', 'No cloud storage']
+        },
+        basic: {
+          tagline: 'Perfect for hobbyist producers',
+          highlights: [
+            { icon: 'fa-infinity', text: '25 preset downloads/day' },
+            { icon: 'fa-drum', text: 'Sounds + Techno workspace' },
+            { icon: 'fa-save', text: '25 saved patches' },
+            { icon: 'fa-file-audio', text: 'WAV + MP3 export (48kHz)' },
+            { icon: 'fa-cloud', text: '100 MB cloud storage' },
+            { icon: 'fa-users', text: '2 collab sessions/month' }
+          ],
+          limitations: ['Email support']
+        },
+        premium: {
+          tagline: 'For serious music producers',
+          highlights: [
+            { icon: 'fa-infinity', text: 'Unlimited preset downloads' },
+            { icon: 'fa-cubes', text: 'All workspaces including Modular' },
+            { icon: 'fa-save', text: 'Unlimited saved patches' },
+            { icon: 'fa-file-audio', text: 'WAV/MP3/FLAC/AIFF (96kHz studio quality)' },
+            { icon: 'fa-cloud', text: '1 GB cloud storage' },
+            { icon: 'fa-users', text: '10 collaboration sessions/month' },
+            { icon: 'fa-code', text: 'Full API access' },
+            { icon: 'fa-star', text: 'Exclusive premium presets' },
+            { icon: 'fa-bolt', text: 'Priority rendering' }
+          ],
+          limitations: []
+        },
+        pro: {
+          tagline: 'Professional studio grade',
+          highlights: [
+            { icon: 'fa-crown', text: 'Everything in Premium, plus:' },
+            { icon: 'fa-music', text: 'Pro-exclusive sound packs' },
+            { icon: 'fa-file-audio', text: 'Stem export + mastering quality (192kHz)' },
+            { icon: 'fa-cloud', text: '10 GB cloud storage' },
+            { icon: 'fa-users', text: 'Unlimited collaborations' },
+            { icon: 'fa-headset', text: 'Dedicated support line' },
+            { icon: 'fa-certificate', text: 'Commercial license included' },
+            { icon: 'fa-palette', text: 'White-label options' }
+          ],
+          limitations: []
+        }
+      };
+
       container.innerHTML = plans.map(plan => {
         const isCurrent = plan.plan_code === currentPlan;
         const price = billingCycle === 'yearly' 
           ? (plan.price_yearly / 100).toFixed(2)
           : (plan.price_monthly / 100).toFixed(2);
         const monthlyFromYearly = (plan.price_yearly / 12 / 100).toFixed(2);
+        const yearlyTotal = (plan.price_yearly / 100).toFixed(2);
+        const savings = billingCycle === 'yearly' 
+          ? Math.round((1 - (plan.price_yearly / (plan.price_monthly * 12))) * 100)
+          : 0;
         
-        const features = plan.features || {};
-        const featureList = Object.entries(features)
-          .filter(([k, v]) => v === true || (typeof v === 'number' && v > 0))
-          .slice(0, 5)
-          .map(([key, value]) => {
-            const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            return `<li><i class="fas fa-check"></i> ${typeof value === 'number' ? `${value} ${label}` : label}</li>`;
-          }).join('');
+        const details = planDetails[plan.plan_code] || planDetails.free;
+        
+        const highlightsList = details.highlights.map(h => 
+          `<li><i class="fas ${h.icon}"></i> ${h.text}</li>`
+        ).join('');
+
+        const limitationsList = details.limitations.length > 0 
+          ? `<div class="plan-limitations">
+              ${details.limitations.map(l => `<span class="limitation"><i class="fas fa-minus"></i> ${l}</span>`).join('')}
+            </div>`
+          : '';
 
         return `
           <div class="plan-card ${isCurrent ? 'current' : ''} ${plan.is_featured ? 'featured' : ''}">
-            ${plan.is_featured ? '<span class="featured-badge">Most Popular</span>' : ''}
-            <div class="plan-card-name">${plan.name}</div>
-            <div class="plan-card-price">
-              $${billingCycle === 'yearly' ? monthlyFromYearly : price}
-              <span>/ month${billingCycle === 'yearly' ? ' (billed yearly)' : ''}</span>
+            ${plan.is_featured ? '<span class="featured-badge"><i class="fas fa-fire"></i> Most Popular</span>' : ''}
+            ${plan.plan_code === 'pro' ? '<span class="featured-badge pro-badge"><i class="fas fa-crown"></i> Best Value</span>' : ''}
+            <div class="plan-card-header">
+              <div class="plan-card-name">${plan.name}</div>
+              <p class="plan-tagline">${details.tagline}</p>
             </div>
-            <ul class="plan-card-features">${featureList}</ul>
+            <div class="plan-card-price">
+              <span class="price-amount">$${billingCycle === 'yearly' ? monthlyFromYearly : price}</span>
+              <span class="price-period">/ month</span>
+              ${billingCycle === 'yearly' && plan.price_yearly > 0 ? `
+                <div class="price-yearly-info">
+                  <span class="yearly-total">$${yearlyTotal} billed yearly</span>
+                  ${savings > 0 ? `<span class="savings-badge">Save ${savings}%</span>` : ''}
+                </div>
+              ` : ''}
+            </div>
+            <ul class="plan-card-features">${highlightsList}</ul>
+            ${limitationsList}
             <button 
               class="btn ${isCurrent ? 'current' : 'btn-primary'}" 
               ${isCurrent ? 'disabled' : `onclick="selectPlan('${plan.plan_code}')"`}
               style="width: 100%;"
             >
-              ${isCurrent ? 'Current Plan' : plan.plan_code === 'free' ? 'Downgrade' : 'Upgrade'}
+              ${isCurrent ? '<i class="fas fa-check-circle"></i> Current Plan' : plan.plan_code === 'free' ? '<i class="fas fa-arrow-down"></i> Downgrade' : '<i class="fas fa-arrow-up"></i> Upgrade Now'}
             </button>
           </div>
         `;
@@ -1266,9 +1407,19 @@
     }
 
     async function proceedToPayment() {
-      if (!selectedPlan) return;
+      if (!selectedPlan) {
+        showAlert('error', 'Please select a plan first');
+        return;
+      }
 
+      const paymentBtn = document.getElementById('btn-proceed-payment');
+      const originalText = paymentBtn.innerHTML;
+      
       try {
+        // Show loading state
+        paymentBtn.disabled = true;
+        paymentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
         const response = await fetch('/api/subscriptions/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1282,17 +1433,35 @@
 
         const data = await response.json();
 
+        if (!response.ok) {
+          // Handle HTTP errors (401, 403, 400, 500, etc.)
+          if (response.status === 401) {
+            showAlert('error', 'Please log in to subscribe to a plan');
+            setTimeout(() => window.location.href = '/login.html', 2000);
+          } else {
+            showAlert('error', data.error || `Server error: ${response.status}`);
+          }
+          return;
+        }
+
         if (data.success && data.url) {
+          // Redirect to Stripe checkout
           window.location.href = data.url;
+        } else if (data.success && data.sessionId) {
+          // Alternative: redirect using session ID
+          window.location.href = data.url || `/checkout?session_id=${data.sessionId}`;
         } else {
-          showAlert('error', data.error || 'Failed to start payment process');
+          showAlert('error', data.error || 'Failed to start payment process. Please try again.');
         }
       } catch (error) {
         console.error('Payment error:', error);
-        showAlert('error', 'Failed to process payment');
+        showAlert('error', 'Network error. Please check your connection and try again.');
+      } finally {
+        // Reset button state
+        paymentBtn.disabled = false;
+        paymentBtn.innerHTML = originalText;
+        closeModal('payment-modal');
       }
-
-      closeModal('payment-modal');
     }
 
     async function changePlan(planCode) {

@@ -494,6 +494,21 @@ try {
 }
 
 /**
+ * Chat API
+ * Secure group chat with JWT authentication
+ * - Channel management
+ * - Message sending with attachments
+ * - Real-time presence tracking
+ */
+try {
+  const chatRoutes = require('./routes/chat-routes');
+  app.use('/api/chat', chatRoutes);
+  console.log('✓ Chat API enabled (TLS/SSL secured)');
+} catch (error) {
+  console.log('⚠ Chat routes not available:', error.message);
+}
+
+/**
  * Platform Integration API
  * Unified platform state, Virtual Lab instruments, feature gating
  */

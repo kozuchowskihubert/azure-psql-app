@@ -10,6 +10,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/images/haos-logo-white.png">
     <meta name="theme-color" content="#FF6B35">
     
+    <!-- Google Fonts - Technical Monospace -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
@@ -17,8 +20,15 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --font-technical: 'JetBrains Mono', 'Space Mono', 'Monaco', monospace;
+            --haos-orange: #FF6B35;
+            --accent-cyan: #00d4ff;
+            --accent-green: #39FF14;
+        }
+
         body {
-            font-family: 'Monaco', 'Courier New', monospace;
+            font-family: var(--font-technical);
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
             color: #fff;
             padding: 20px;
@@ -61,17 +71,21 @@
         }
 
         h1 {
+            font-family: 'Bebas Neue', sans-serif;
             font-size: 2.5em;
             margin-bottom: 10px;
             background: linear-gradient(45deg, #FF6B35, #FF8C42);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: 3px;
         }
 
         .subtitle {
+            font-family: var(--font-technical);
             color: #888;
-            font-size: 0.9em;
+            font-size: 0.85em;
+            letter-spacing: 1px;
         }
 
         .main-grid {
@@ -89,12 +103,29 @@
         }
 
         .panel-title {
-            font-size: 1.2em;
+            font-family: var(--font-technical);
+            font-size: 1rem;
+            font-weight: 600;
             margin-bottom: 15px;
             color: #00d4ff;
             display: flex;
             align-items: center;
             gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Live Value Display */
+        .live-value {
+            font-family: var(--font-technical);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-green);
+            text-shadow: 0 0 6px rgba(57, 255, 20, 0.4);
+            background: rgba(57, 255, 20, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(57, 255, 20, 0.3);
         }
 
         .preset-grid {
@@ -111,8 +142,9 @@
             border-radius: 8px;
             color: white;
             cursor: pointer;
-            font-size: 0.9em;
-            font-weight: bold;
+            font-family: var(--font-technical);
+            font-size: 0.85em;
+            font-weight: 600;
             transition: all 0.3s ease;
             text-align: left;
         }
@@ -128,13 +160,32 @@
         }
 
         .preset-name {
+            font-family: 'Bebas Neue', var(--font-technical);
             font-size: 1.1em;
+            letter-spacing: 1px;
             margin-bottom: 5px;
         }
 
         .preset-desc {
-            font-size: 0.75em;
+            font-family: var(--font-technical);
+            font-size: 0.7em;
             opacity: 0.8;
+        }
+
+        .preset-values {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .preset-param {
+            font-family: var(--font-technical);
+            font-size: 0.65rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-green);
         }
 
         .patch-matrix {
@@ -368,16 +419,31 @@
 
                 <div class="preset-grid">
                     <button class="preset-btn" onclick="loadPreset('acid-bass')">
-                        <div class="preset-name">Acid Bass</div>
+                        <div class="preset-name">ACID BASS</div>
                         <div class="preset-desc">Classic 303-style sequenced bass</div>
+                        <div class="preset-values">
+                            <span class="preset-param">VCF: 800Hz</span>
+                            <span class="preset-param">RES: 0.85</span>
+                            <span class="preset-param">ENV: 50ms</span>
+                        </div>
                     </button>
                     <button class="preset-btn" onclick="loadPreset('techno-lead')">
-                        <div class="preset-name">Techno Lead</div>
+                        <div class="preset-name">TECHNO LEAD</div>
                         <div class="preset-desc">Dual VCO arpeggio lead</div>
+                        <div class="preset-values">
+                            <span class="preset-param">VCO1: SAW</span>
+                            <span class="preset-param">VCO2: +7</span>
+                            <span class="preset-param">DETUNE: 5ct</span>
+                        </div>
                     </button>
                     <button class="preset-btn" onclick="loadPreset('random-melody')">
-                        <div class="preset-name">Random Melody</div>
+                        <div class="preset-name">RANDOM MELODY</div>
                         <div class="preset-desc">S&H random note generator</div>
+                        <div class="preset-values">
+                            <span class="preset-param">LFO: 4Hz</span>
+                            <span class="preset-param">S&H: ON</span>
+                            <span class="preset-param">GLIDE: 50ms</span>
+                        </div>
                     </button>
                 </div>
 

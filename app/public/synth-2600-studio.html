@@ -45,6 +45,8 @@
     
     <title>Behringer 2600 Studio - Interactive Patching & Sound Design</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts - Technical Monospace -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -66,6 +68,7 @@
             --accent-red: #ff0000;
             --text-primary: #e4e4e4;
             --text-secondary: #888;
+            --font-technical: 'JetBrains Mono', 'Space Mono', monospace;
         }
 
         html {
@@ -74,7 +77,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'JetBrains Mono', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
             color: var(--text-primary);
             overflow: hidden;
@@ -473,7 +476,63 @@
 
         .knob-value {
             color: var(--accent-cyan);
-            font-weight: bold;
+            font-family: var(--font-technical);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+            letter-spacing: 0.5px;
+        }
+
+        /* Live Parameter Display Panel */
+        .live-params-panel {
+            position: fixed;
+            top: 70px;
+            right: 10px;
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 8px;
+            padding: 12px;
+            z-index: 1000;
+            min-width: 180px;
+            backdrop-filter: blur(10px);
+        }
+
+        .live-params-title {
+            font-family: var(--font-technical);
+            font-size: 0.7rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .live-param-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            font-family: var(--font-technical);
+        }
+
+        .live-param-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .live-param-value {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #39FF14;
+            text-shadow: 0 0 6px rgba(57, 255, 20, 0.4);
+            transition: all 0.1s ease;
+        }
+
+        .live-param-value.active {
+            transform: scale(1.1);
+            color: #00FFFF;
         }
 
         .slider {
@@ -1934,6 +1993,43 @@
         </div>
     </div>
 
+    <!-- Live Parameters Panel -->
+    <div class="live-params-panel" id="live-params-panel">
+        <div class="live-params-title">📊 LIVE PARAMETERS</div>
+        <div class="live-param-row">
+            <span class="live-param-label">VCO1 FREQ</span>
+            <span class="live-param-value" id="live-vco1-freq">440.0 Hz</span>
+        </div>
+        <div class="live-param-row">
+            <span class="live-param-label">VCO2 FREQ</span>
+            <span class="live-param-value" id="live-vco2-freq">442.0 Hz</span>
+        </div>
+        <div class="live-param-row">
+            <span class="live-param-label">VCF CUTOFF</span>
+            <span class="live-param-value" id="live-vcf-cutoff">2.4 kHz</span>
+        </div>
+        <div class="live-param-row">
+            <span class="live-param-label">RESONANCE</span>
+            <span class="live-param-value" id="live-resonance">0.45</span>
+        </div>
+        <div class="live-param-row">
+            <span class="live-param-label">ATTACK</span>
+            <span class="live-param-value" id="live-attack">10 ms</span>
+        </div>
+        <div class="live-param-row">
+            <span class="live-param-label">RELEASE</span>
+            <span class="live-param-value" id="live-release">300 ms</span>
+        </div>
+        <div class="live-param-row">
+            <span class="live-param-label">LFO RATE</span>
+            <span class="live-param-value" id="live-lfo-rate">5.0 Hz</span>
+        </div>
+        <div class="live-param-row">
+            <span class="live-param-label">MASTER</span>
+            <span class="live-param-value" id="live-master">-6.0 dB</span>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <div class="main-container">
         <!-- Left Sidebar - Presets -->
@@ -2572,6 +2668,31 @@
             }
         }
 
+        // Live Parameter Update System
+        function updateLiveParam(paramId, value, unit = '') {
+            const el = document.getElementById(paramId);
+            if (el) {
+                el.textContent = value + unit;
+                el.classList.add('active');
+                setTimeout(() => el.classList.remove('active'), 200);
+            }
+        }
+
+        function formatFrequency(freq) {
+            if (freq >= 1000) return (freq / 1000).toFixed(1) + ' kHz';
+            return freq.toFixed(1) + ' Hz';
+        }
+
+        function formatTime(seconds) {
+            if (seconds < 1) return (seconds * 1000).toFixed(0) + ' ms';
+            return seconds.toFixed(2) + ' s';
+        }
+
+        function formatDb(value) {
+            const db = 20 * Math.log10(value);
+            return db.toFixed(1) + ' dB';
+        }
+
         // Initialize synthesis engine and visualizer
         let synthEngine = null;
         let audioVisualizer = null;
@@ -2638,6 +2759,7 @@
             vco1Slider.addEventListener('input', function(e) {
                 const freq = parseFloat(e.target.value);
                 vco1Value.textContent = `${freq} Hz`;
+                updateLiveParam('live-vco1-freq', formatFrequency(freq));
                 if (synthEngine) {
                     synthEngine.updateParameter('vco1', 'frequency', freq);
                 }
@@ -2650,6 +2772,7 @@
             filterSlider.addEventListener('input', function(e) {
                 const cutoff = parseFloat(e.target.value);
                 filterValue.textContent = `${cutoff} Hz`;
+                updateLiveParam('live-vcf-cutoff', formatFrequency(cutoff));
                 if (synthEngine) {
                     synthEngine.updateParameter('vcf', 'cutoff', cutoff);
                 }
@@ -2662,6 +2785,7 @@
             resSlider.addEventListener('input', function(e) {
                 const res = parseFloat(e.target.value);
                 resValue.textContent = res.toFixed(2);
+                updateLiveParam('live-resonance', res.toFixed(2));
                 if (synthEngine) {
                     synthEngine.updateParameter('vcf', 'resonance', res);
                 }
@@ -2711,6 +2835,7 @@
             attackSlider.addEventListener('input', function(e) {
                 const attack = parseFloat(e.target.value);
                 attackValue.textContent = `${attack.toFixed(3)}s`;
+                updateLiveParam('live-attack', formatTime(attack));
                 if (synthEngine) {
                     synthEngine.updateParameter('env', 'attack', attack);
                 }
@@ -2744,6 +2869,7 @@
             releaseSlider.addEventListener('input', function(e) {
                 const release = parseFloat(e.target.value);
                 releaseValue.textContent = `${release.toFixed(2)}s`;
+                updateLiveParam('live-release', formatTime(release));
                 if (synthEngine) {
                     synthEngine.updateParameter('env', 'release', release);
                 }
@@ -2756,6 +2882,7 @@
             lfoRateSlider.addEventListener('input', function(e) {
                 const rate = parseFloat(e.target.value);
                 lfoRateValue.textContent = `${rate.toFixed(1)} Hz`;
+                updateLiveParam('live-lfo-rate', rate.toFixed(1) + ' Hz');
                 if (synthEngine) {
                     synthEngine.updateParameter('lfo', 'frequency', rate);
                 }

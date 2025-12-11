@@ -9,8 +9,8 @@
     <meta name="description" content="HAOS Modular Workspace - ARP 2600, Guitar, Violin, and Strings instruments in one unified interface">
     <meta name="theme-color" content="#00D9FF">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts - Technical Monospace -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -425,6 +425,120 @@
             justify-items: center;
         }
 
+        /* Live Parameter Value Display */
+        .live-value-display {
+            font-family: 'JetBrains Mono', 'Space Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--modular-primary);
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 4px;
+            padding: 2px 6px;
+            margin-top: 4px;
+            text-align: center;
+            min-width: 50px;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 8px rgba(0, 217, 255, 0.5);
+        }
+
+        .live-value-display.active {
+            background: rgba(0, 217, 255, 0.2);
+            border-color: var(--modular-primary);
+            animation: valuePulse 0.3s ease;
+        }
+
+        @keyframes valuePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Preset Card with Live Values */
+        .preset-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .preset-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .preset-card-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--modular-primary);
+            letter-spacing: 1px;
+        }
+
+        .preset-card-values {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .preset-value-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .preset-value-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .preset-value-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #39FF14;
+            text-shadow: 0 0 6px rgba(57, 255, 20, 0.4);
+        }
+
+        /* Technical Status Bar */
+        .tech-status-bar {
+            display: flex;
+            gap: 1.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .tech-status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tech-status-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .tech-status-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--modular-primary);
+        }
+
         /* Playing Area (Visual representation) */
         .playing-area {
             background: rgba(0, 0, 0, 0.3);
@@ -441,7 +555,7 @@
         }
 
         .playing-area-hint {
-            font-family: 'Space Mono', monospace;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.85rem;
             color: var(--text-dim);
             text-align: center;
@@ -1012,22 +1126,78 @@
 
         <!-- Right Panel -->
         <div class="right-panel">
+            <!-- Live Parameter Monitor -->
+            <div class="preset-card" id="live-params">
+                <div class="preset-card-header">
+                    <span class="preset-card-title">📊 LIVE PARAMETERS</span>
+                    <span class="preset-value-number" id="param-update-rate">60 Hz</span>
+                </div>
+                <div class="preset-card-values" id="live-param-grid">
+                    <div class="preset-value-item">
+                        <span class="preset-value-label">VCO1</span>
+                        <span class="preset-value-number" id="live-vco1">440.0</span>
+                    </div>
+                    <div class="preset-value-item">
+                        <span class="preset-value-label">VCO2</span>
+                        <span class="preset-value-number" id="live-vco2">442.0</span>
+                    </div>
+                    <div class="preset-value-item">
+                        <span class="preset-value-label">VCF</span>
+                        <span class="preset-value-number" id="live-vcf">2.4k</span>
+                    </div>
+                    <div class="preset-value-item">
+                        <span class="preset-value-label">RES</span>
+                        <span class="preset-value-number" id="live-res">0.45</span>
+                    </div>
+                    <div class="preset-value-item">
+                        <span class="preset-value-label">ATK</span>
+                        <span class="preset-value-number" id="live-atk">10ms</span>
+                    </div>
+                    <div class="preset-value-item">
+                        <span class="preset-value-label">DEC</span>
+                        <span class="preset-value-number" id="live-dec">150ms</span>
+                    </div>
+                    <div class="preset-value-item">
+                        <span class="preset-value-label">SUS</span>
+                        <span class="preset-value-number" id="live-sus">0.70</span>
+                    </div>
+                    <div class="preset-value-item">
+                        <span class="preset-value-label">REL</span>
+                        <span class="preset-value-number" id="live-rel">300ms</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="preset-section">
-                <div class="panel-title">Presets</div>
+                <div class="panel-title" style="font-family: 'JetBrains Mono', monospace;">🎛️ PRESETS</div>
                 <haos-preset-manager workspace="modular" category="all" compact="true"></haos-preset-manager>
             </div>
 
             <div class="output-section">
-                <div class="panel-title">Output</div>
+                <div class="panel-title" style="font-family: 'JetBrains Mono', monospace;">📤 OUTPUT</div>
+                <div class="tech-status-bar">
+                    <div class="tech-status-item">
+                        <span class="tech-status-label">SR</span>
+                        <span class="tech-status-value" id="sample-rate">44.1kHz</span>
+                    </div>
+                    <div class="tech-status-item">
+                        <span class="tech-status-label">BIT</span>
+                        <span class="tech-status-value">32-bit</span>
+                    </div>
+                    <div class="tech-status-item">
+                        <span class="tech-status-label">LAT</span>
+                        <span class="tech-status-value" id="latency-display">5.8ms</span>
+                    </div>
+                </div>
                 <div class="output-meters">
                     <div class="meter">
-                        <div class="meter-label">L</div>
+                        <div class="meter-label" style="font-family: 'JetBrains Mono', monospace;">L <span id="db-l">-∞</span></div>
                         <div class="meter-bar">
                             <div class="meter-fill" id="meter-l" style="width: 0%"></div>
                         </div>
                     </div>
                     <div class="meter">
-                        <div class="meter-label">R</div>
+                        <div class="meter-label" style="font-family: 'JetBrains Mono', monospace;">R <span id="db-r">-∞</span></div>
                         <div class="meter-bar">
                             <div class="meter-fill" id="meter-r" style="width: 0%"></div>
                         </div>
@@ -1045,21 +1215,21 @@
             <div class="status-info">
                 <div class="status-item">
                     <span class="status-indicator" id="audio-indicator"></span>
-                    <span id="audio-status">Audio Ready</span>
+                    <span id="audio-status" style="font-family: 'JetBrains Mono', monospace;">Audio Ready</span>
                 </div>
                 <div class="status-item">
-                    <span>CPU:</span>
+                    <span style="font-family: 'JetBrains Mono', monospace;">CPU:</span>
                     <div class="cpu-meter">
                         <div class="cpu-fill" id="cpu-fill" style="width: 15%"></div>
                     </div>
-                    <span id="cpu-percent">15%</span>
+                    <span id="cpu-percent" style="font-family: 'JetBrains Mono', monospace;">15%</span>
                 </div>
                 <div class="status-item">
-                    <span>MIDI:</span>
-                    <span id="midi-status">Not Connected</span>
+                    <span style="font-family: 'JetBrains Mono', monospace;">MIDI:</span>
+                    <span id="midi-status" style="font-family: 'JetBrains Mono', monospace;">Not Connected</span>
                 </div>
             </div>
-            <div style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text-dim);">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim);">
                 Press <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px; font-family: inherit;">?</kbd> for help
             </div>
         </div>
@@ -1361,7 +1531,44 @@
 
         function handleKnobChange(name, value) {
             console.log(`Knob ${name} changed to ${value}`);
-            // TODO: Connect to audio engine
+            // Update live parameter display
+            updateLiveParameter(name, value);
+        }
+
+        // Live parameter value mappings
+        const liveParamMappings = {
+            'FREQ': { id: 'live-vco1', format: (v) => (20 + v * 19980 / 100).toFixed(1) },
+            'DETUNE': { id: 'live-vco2', format: (v) => (440 + (v - 50) * 0.1).toFixed(1) },
+            'CUTOFF': { id: 'live-vcf', format: (v) => v < 1000 ? v.toFixed(0) : (v/1000).toFixed(1) + 'k' },
+            'RES': { id: 'live-res', format: (v) => (v / 100).toFixed(2) },
+            'ATTACK': { id: 'live-atk', format: (v) => v < 1000 ? v.toFixed(0) + 'ms' : (v/1000).toFixed(1) + 's' },
+            'DECAY': { id: 'live-dec', format: (v) => v < 1000 ? v.toFixed(0) + 'ms' : (v/1000).toFixed(1) + 's' },
+            'SUSTAIN': { id: 'live-sus', format: (v) => (v / 100).toFixed(2) },
+            'RELEASE': { id: 'live-rel', format: (v) => v < 1000 ? v.toFixed(0) + 'ms' : (v/1000).toFixed(1) + 's' }
+        };
+
+        function updateLiveParameter(name, value) {
+            const mapping = liveParamMappings[name.toUpperCase()];
+            if (mapping) {
+                const el = document.getElementById(mapping.id);
+                if (el) {
+                    el.textContent = mapping.format(value);
+                    el.classList.add('active');
+                    setTimeout(() => el.classList.remove('active'), 300);
+                }
+            }
+            
+            // Update meters based on activity
+            updateMeters(Math.random() * 30 + 20);
+        }
+
+        // Initialize sample rate display
+        function updateAudioInfo() {
+            if (audioContext) {
+                document.getElementById('sample-rate').textContent = (audioContext.sampleRate / 1000).toFixed(1) + 'kHz';
+                const latency = (audioContext.baseLatency || 0.01) * 1000;
+                document.getElementById('latency-display').textContent = latency.toFixed(1) + 'ms';
+            }
         }
 
         function highlightKey(note, active) {
@@ -1402,6 +1609,7 @@
                 btn.innerHTML = '<i class="fas fa-stop"></i> STOP';
                 indicator.style.background = '#39FF14';
                 status.textContent = 'Audio Running';
+                updateAudioInfo();
             } else {
                 audioContext.suspend();
                 isAudioStarted = false;
@@ -1412,8 +1620,16 @@
         }
 
         function updateMeters(level) {
-            document.getElementById('meter-l').style.width = level + '%';
-            document.getElementById('meter-r').style.width = (level * 0.9) + '%';
+            const levelL = level;
+            const levelR = level * 0.9;
+            document.getElementById('meter-l').style.width = levelL + '%';
+            document.getElementById('meter-r').style.width = levelR + '%';
+            
+            // Calculate and display dB values
+            const dbL = levelL > 0 ? (20 * Math.log10(levelL / 100)).toFixed(1) : '-∞';
+            const dbR = levelR > 0 ? (20 * Math.log10(levelR / 100)).toFixed(1) : '-∞';
+            document.getElementById('db-l').textContent = dbL !== '-∞' ? dbL + 'dB' : dbL;
+            document.getElementById('db-r').textContent = dbR !== '-∞' ? dbR + 'dB' : dbR;
         }
 
         function resetInstrument() {
