@@ -154,6 +154,75 @@ class BlobStorageService {
     const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
     return blockBlobClient.url;
   }
+
+  /**
+   * Upload JSON data as a blob
+   * @param {string} blobName - Name for the blob
+   * @param {object} data - JSON data to upload
+   * @returns {Promise<string>} - Public URL of the uploaded blob
+   */
+  async uploadJSON(blobName, data) {
+    if (!this.enabled) {
+      throw new Error('Blob storage not enabled');
+    }
+
+    try {
+      const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
+      const jsonString = JSON.stringify(data, null, 2);
+      
+      await blockBlobClient.upload(jsonString, Buffer.byteLength(jsonString), {
+        blobHTTPHeaders: {
+          blobContentType: 'application/json',
+        },
+      });
+
+      console.log(`✅ Uploaded JSON to blob storage: ${blobName}`);
+      return blockBlobClient.url;
+    } catch (error) {
+      console.error('❌ JSON blob upload failed:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Download and parse JSON blob
+   * @param {string} blobName - Name of the blob
+   * @returns {Promise<string>} - JSON content as string
+   */
+  async downloadFile(blobName) {
+    if (!this.enabled) {
+      throw new Error('Blob storage not enabled');
+    }
+
+    try {
+      const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
+      const downloadResponse = await blockBlobClient.download(0);
+      const downloaded = await streamToString(downloadResponse.readableStreamBody);
+      return downloaded;
+    } catch (error) {
+      if (error.statusCode === 404) {
+        return null; // Blob doesn't exist yet
+      }
+      console.error('❌ Blob download failed:', error.message);
+      throw error;
+    }
+  }
+}
+
+/**
+ * Helper to convert stream to string
+ */
+async function streamToString(readableStream) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    readableStream.on('data', (data) => {
+      chunks.push(data.toString());
+    });
+    readableStream.on('end', () => {
+      resolve(chunks.join(''));
+    });
+    readableStream.on('error', reject);
+  });
 }
 
 // Export singleton instance

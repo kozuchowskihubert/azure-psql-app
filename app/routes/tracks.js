@@ -21,8 +21,69 @@ const { exec } = require('child_process');
 const execAsync = promisify(exec);
 const blobStorage = require('../utils/blob-storage');
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(__dirname, '../public/uploads/tracks');
+// Metadata blob name
+const METADATA_BLOB_NAME = 'tracks-metadata.json';
+
+/**
+ * Get tracks metadata from blob storage
+ */
+async function getTracksMetadata() {
+  try {
+    if (!blobStorage.enabled) {
+      // Fallback to local storage for development
+      const localPath = path.join(__dirname, '../public/uploads/tracks-metadata.json');
+      if (fs.existsSync(localPath)) {
+        return JSON.parse(fs.readFileSync(localPath, 'utf8'));
+      }
+      return [];
+    }
+
+    // Download metadata from blob storage
+    const metadata = await blobStorage.downloadFile(METADATA_BLOB_NAME);
+    return metadata ? JSON.parse(metadata) : [];
+  } catch (error) {
+    console.warn('Could not load metadata:', error.message);
+    return [];
+  }
+}
+
+/**
+ * Save tracks metadata to blob storage
+ */
+async function saveTrackMetadata(newTrack) {
+  try {
+    // Get existing tracks
+    const tracks = await getTracksMetadata();
+    
+    // Add new track
+    tracks.push(newTrack);
+    
+    if (!blobStorage.enabled) {
+      // Fallback to local storage for development
+      const localPath = path.join(__dirname, '../public/uploads/tracks-metadata.json');
+      const dir = path.dirname(localPath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(localPath, JSON.stringify(tracks, null, 2));
+      return;
+    }
+    
+    // Upload to blob storage
+    await blobStorage.uploadJSON(METADATA_BLOB_NAME, tracks);
+  } catch (error) {
+    console.error('Failed to save metadata:', error);
+    throw error;
+  }
+}
+
+// Use /tmp for serverless environments (Vercel, AWS Lambda)
+// Fall back to local directory for development
+const uploadsDir = process.env.VERCEL 
+  ? '/tmp/uploads' 
+  : path.join(__dirname, '../public/uploads/tracks');
+
+// Ensure uploads directory exists
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log('✅ Created uploads directory:', uploadsDir);
@@ -134,17 +195,9 @@ router.post('/upload', upload.single('audioFile'), async (req, res) => {
       uploadedAt: new Date().toISOString(),
     };
 
-    // Save track metadata to JSON file
-    const metadataPath = path.join(__dirname, '../public/uploads/tracks-metadata.json');
-    let tracks = [];
-
-    if (fs.existsSync(metadataPath)) {
-      const data = fs.readFileSync(metadataPath, 'utf8');
-      tracks = JSON.parse(data);
-    }
-
-    tracks.push(track);
-    fs.writeFileSync(metadataPath, JSON.stringify(tracks, null, 2));
+    // Save track metadata to blob storage as JSON
+    // This works in serverless environments unlike local filesystem
+    await saveTrackMetadata(track);
 
     console.log(`✅ Track uploaded: ${track.title} by ${track.artist} (${duration}s)`);
 
@@ -169,19 +222,11 @@ router.post('/upload', upload.single('audioFile'), async (req, res) => {
 
 /**
  * GET /api/tracks/list
- * Get list of all uploaded tracks
+ * Get list of all uploaded tracks from blob storage
  */
-router.get('/list', (req, res) => {
+router.get('/list', async (req, res) => {
   try {
-    const metadataPath = path.join(__dirname, '../public/uploads/tracks-metadata.json');
-
-    if (!fs.existsSync(metadataPath)) {
-      return res.json({ tracks: [] });
-    }
-
-    const data = fs.readFileSync(metadataPath, 'utf8');
-    const tracks = JSON.parse(data);
-
+    const tracks = await getTracksMetadata();
     res.json({ tracks });
   } catch (error) {
     console.error('Error reading tracks:', error);
