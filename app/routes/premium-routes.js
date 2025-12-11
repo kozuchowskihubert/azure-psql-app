@@ -251,6 +251,94 @@ router.post('/can-download-preset', async (req, res) => {
 // ============================================================================
 
 /**
+ * GET /api/premium/checkout
+ * Redirect to checkout for premium subscription
+ */
+router.get('/checkout', async (req, res) => {
+  try {
+    const { plan, billing } = req.query;
+    const planCode = plan || 'premium';
+    const billingPeriod = billing || 'monthly';
+
+    // Redirect to instruments page with plan info
+    res.redirect(`/instruments.html?checkout=true&plan=${planCode}&billing=${billingPeriod}`);
+  } catch (error) {
+    console.error('Error redirecting to checkout:', error);
+    res.redirect('/instruments.html?error=checkout_failed');
+  }
+});
+
+/**
+ * POST /api/premium/subscribe
+ * Start premium subscription
+ */
+router.post('/subscribe', async (req, res) => {
+  try {
+    const userId = getUserId(req);
+    const { planCode, billingPeriod, paymentMethod } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Authentication required',
+        redirectUrl: '/login.html?redirect=/instruments.html?checkout=true'
+      });
+    }
+
+    if (!planCode) {
+      return res.status(400).json({ success: false, error: 'Plan code required' });
+    }
+
+    const plans = PremiumService.getPlans();
+    const plan = plans.find(p => p.code === planCode);
+
+    if (!plan) {
+      return res.status(400).json({ success: false, error: 'Invalid plan' });
+    }
+
+    const amount = billingPeriod === 'yearly' ? plan.price.yearly : plan.price.monthly;
+
+    // Return checkout info based on payment method
+    res.json({
+      success: true,
+      checkoutInfo: {
+        plan: {
+          code: plan.code,
+          name: plan.name,
+          amount: amount,
+          amountFormatted: PremiumService.formatPrice(amount, plan.currency),
+          currency: plan.currency,
+          billingPeriod,
+        },
+        paymentMethods: ['card', 'paypal', 'blik'],
+        redirectUrl: `/instruments.html?checkout=success&plan=${planCode}`,
+        cancelUrl: `/instruments.html?checkout=cancelled`,
+      }
+    });
+  } catch (error) {
+    console.error('Error creating subscription:', error);
+    res.status(500).json({ success: false, error: 'Failed to create subscription' });
+  }
+});
+
+/**
+ * GET /api/premium/success
+ * Handle successful payment redirect
+ */
+router.get('/success', async (req, res) => {
+  const { session_id, plan } = req.query;
+  res.redirect(`/instruments.html?payment=success&plan=${plan || 'premium'}&session=${session_id || ''}`);
+});
+
+/**
+ * GET /api/premium/cancel
+ * Handle cancelled payment redirect
+ */
+router.get('/cancel', async (req, res) => {
+  res.redirect('/instruments.html?payment=cancelled');
+});
+
+/**
  * GET /api/premium/page-data
  * Get all data needed for the premium upgrade page
  */

@@ -925,7 +925,7 @@
                 <select id="exportFormat" style="width: 100%; padding: 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--accent-cyan); border-radius: 8px; color: white; font-family: 'Space Mono', monospace; font-size: 14px;">
                     <option value="audio/webm">WebM (recommended)</option>
                     <option value="audio/ogg">OGG</option>
-                    <option value="audio/wav">WAV (if supported)</option>
+                    <option value="wav-custom">WAV (44.1kHz 16-bit)</option>
                 </select>
             </div>
             
@@ -1185,6 +1185,74 @@
         let recordedChunks = [];
         let recordingDestination;
         let isRecording = false;
+        let offlineAudioContext = null;
+        
+        // WAV Encoder - Encodes raw audio data to WAV file format
+        function encodeWAV(samples, sampleRate, numChannels) {
+            const buffer = new ArrayBuffer(44 + samples.length * 2);
+            const view = new DataView(buffer);
+            
+            // RIFF identifier
+            writeString(view, 0, 'RIFF');
+            // file length minus RIFF identifier length and file description length
+            view.setUint32(4, 36 + samples.length * 2, true);
+            // RIFF type
+            writeString(view, 8, 'WAVE');
+            // format chunk identifier
+            writeString(view, 12, 'fmt ');
+            // format chunk length
+            view.setUint32(16, 16, true);
+            // sample format (1 = PCM)
+            view.setUint16(20, 1, true);
+            // channel count
+            view.setUint16(22, numChannels, true);
+            // sample rate
+            view.setUint32(24, sampleRate, true);
+            // byte rate (sample rate * block align)
+            view.setUint32(28, sampleRate * numChannels * 2, true);
+            // block align (channel count * bytes per sample)
+            view.setUint16(32, numChannels * 2, true);
+            // bits per sample
+            view.setUint16(34, 16, true);
+            // data chunk identifier
+            writeString(view, 36, 'data');
+            // data chunk length
+            view.setUint32(40, samples.length * 2, true);
+            
+            // Write PCM samples
+            floatTo16BitPCM(view, 44, samples);
+            
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+        
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+        
+        function floatTo16BitPCM(view, offset, input) {
+            for (let i = 0; i < input.length; i++, offset += 2) {
+                const s = Math.max(-1, Math.min(1, input[i]));
+                view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+            }
+        }
+        
+        function interleave(inputL, inputR) {
+            const length = inputL.length + inputR.length;
+            const result = new Float32Array(length);
+            
+            let index = 0;
+            let inputIndex = 0;
+            
+            while (index < length) {
+                result[index++] = inputL[inputIndex];
+                result[index++] = inputR[inputIndex];
+                inputIndex++;
+            }
+            
+            return result;
+        }
         
         // MIDI Setup
         let midiOutput = null;
@@ -2025,7 +2093,147 @@
             const format = document.getElementById('exportFormat').value;
             const bars = parseInt(document.getElementById('exportBars').value);
             
-            // Check if format is supported
+            // Calculate duration (bars * 16 steps * time per step)
+            const duration = bars * 16 * (60 / currentBPM) * 1000 / 4;
+            const durationSeconds = duration / 1000;
+            
+            // Handle WAV export separately with offline audio context
+            if (format === 'wav-custom') {
+                document.getElementById('exportStatus').style.display = 'block';
+                document.getElementById('exportStatus').textContent = '⏳ Rendering WAV audio...';
+                document.getElementById('exportStatus').style.background = 'rgba(0, 217, 255, 0.1)';
+                document.getElementById('exportStatus').style.borderColor = 'var(--accent-cyan)';
+                document.getElementById('exportStatus').style.color = 'var(--accent-cyan)';
+                document.getElementById('exportStartBtn').disabled = true;
+                document.getElementById('exportStartBtn').style.opacity = '0.5';
+                document.getElementById('exportProgress').style.display = 'block';
+                
+                try {
+                    // Create offline audio context for WAV rendering
+                    const sampleRate = 44100;
+                    const channels = 2;
+                    const offlineCtx = new OfflineAudioContext(channels, sampleRate * durationSeconds, sampleRate);
+                    
+                    // Create master gain for offline context
+                    const offlineMaster = offlineCtx.createGain();
+                    offlineMaster.gain.value = 0.8;
+                    offlineMaster.connect(offlineCtx.destination);
+                    
+                    // Simulate rendering by using MediaRecorder with webm and converting
+                    // For now, record in real-time with WebM then download as WAV concept
+                    recordedChunks = [];
+                    recordingDestination = audioContext.createMediaStreamDestination();
+                    
+                    masterGain.disconnect();
+                    masterGain.connect(analyserNode);
+                    masterGain.connect(recordingDestination);
+                    analyserNode.connect(audioContext.destination);
+                    
+                    const webmFormat = 'audio/webm';
+                    mediaRecorder = new MediaRecorder(recordingDestination.stream, {
+                        mimeType: webmFormat
+                    });
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            recordedChunks.push(event.data);
+                        }
+                    };
+                    
+                    mediaRecorder.onstop = async () => {
+                        const webmBlob = new Blob(recordedChunks, { type: webmFormat });
+                        
+                        // Convert WebM to WAV using AudioContext
+                        const arrayBuffer = await webmBlob.arrayBuffer();
+                        const decodedAudio = await audioContext.decodeAudioData(arrayBuffer);
+                        
+                        // Get audio data
+                        const leftChannel = decodedAudio.getChannelData(0);
+                        const rightChannel = decodedAudio.numberOfChannels > 1 
+                            ? decodedAudio.getChannelData(1) 
+                            : decodedAudio.getChannelData(0);
+                        
+                        // Interleave channels and encode as WAV
+                        const interleaved = interleave(leftChannel, rightChannel);
+                        const wavBlob = encodeWAV(interleaved, decodedAudio.sampleRate, 2);
+                        
+                        // Download WAV file
+                        const url = URL.createObjectURL(wavBlob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = `techno-pattern-${Date.now()}.wav`;
+                        document.body.appendChild(a);
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        
+                        // Restore audio routing
+                        masterGain.disconnect();
+                        masterGain.connect(analyserNode);
+                        analyserNode.connect(audioContext.destination);
+                        
+                        document.getElementById('exportProgress').style.display = 'none';
+                        document.getElementById('exportStatus').textContent = '✓ WAV exported successfully!';
+                        document.getElementById('exportStatus').style.background = 'rgba(57, 255, 20, 0.1)';
+                        document.getElementById('exportStatus').style.borderColor = 'var(--accent-green)';
+                        document.getElementById('exportStatus').style.color = 'var(--accent-green)';
+                        document.getElementById('exportStartBtn').disabled = false;
+                        document.getElementById('exportStartBtn').style.opacity = '1';
+                        
+                        isRecording = false;
+                        
+                        setTimeout(() => {
+                            document.getElementById('exportDialog').style.display = 'none';
+                            document.getElementById('exportStatus').style.display = 'none';
+                        }, 2000);
+                    };
+                    
+                    // Start recording
+                    mediaRecorder.start();
+                    isRecording = true;
+                    
+                    // Start playback if not playing
+                    const wasPlaying = playing;
+                    if (!playing) {
+                        document.getElementById('playBtn').click();
+                    }
+                    
+                    // Update progress bar
+                    const startTime = Date.now();
+                    const progressInterval = setInterval(() => {
+                        const elapsed = Date.now() - startTime;
+                        const progress = Math.min((elapsed / duration) * 100, 100);
+                        document.getElementById('exportProgressBar').style.width = progress + '%';
+                        document.getElementById('exportProgressText').textContent = `Recording WAV... ${Math.round(progress)}%`;
+                        
+                        if (progress >= 100) {
+                            clearInterval(progressInterval);
+                        }
+                    }, 100);
+                    
+                    // Stop recording after duration
+                    setTimeout(() => {
+                        clearInterval(progressInterval);
+                        mediaRecorder.stop();
+                        
+                        if (!wasPlaying) {
+                            document.getElementById('stopBtn').click();
+                        }
+                    }, duration);
+                    
+                } catch (error) {
+                    console.error('WAV export error:', error);
+                    document.getElementById('exportStatus').textContent = '❌ WAV export failed: ' + error.message;
+                    document.getElementById('exportStatus').style.background = 'rgba(255, 107, 53, 0.1)';
+                    document.getElementById('exportStatus').style.borderColor = 'var(--accent-orange)';
+                    document.getElementById('exportStatus').style.color = 'var(--accent-orange)';
+                    document.getElementById('exportStartBtn').disabled = false;
+                    document.getElementById('exportStartBtn').style.opacity = '1';
+                }
+                return;
+            }
+            
+            // Check if format is supported (for WebM/OGG)
             if (!MediaRecorder.isTypeSupported(format)) {
                 document.getElementById('exportStatus').style.display = 'block';
                 document.getElementById('exportStatus').textContent = `⚠️ ${format} not supported. Try WebM.`;
@@ -2097,8 +2305,7 @@
             document.getElementById('exportStartBtn').disabled = true;
             document.getElementById('exportStartBtn').style.opacity = '0.5';
             
-            // Calculate duration (bars * 16 steps * time per step)
-            const duration = bars * 16 * (60 / currentBPM) * 1000 / 4;
+            // Duration already calculated above
             
             // Start playback if not playing
             const wasPlaying = playing;

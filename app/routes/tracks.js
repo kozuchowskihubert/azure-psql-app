@@ -104,16 +104,34 @@ const storage = multer.diskStorage({
 
 // File filter - only accept audio files
 const fileFilter = (req, file, cb) => {
-  const allowedMimes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/webm'];
-  const allowedExts = ['.mp3', '.wav', '.ogg', '.webm'];
+  // Extended MIME types for better browser compatibility
+  const allowedMimes = [
+    'audio/mpeg', 
+    'audio/mp3', 
+    'audio/wav', 
+    'audio/wave',
+    'audio/x-wav',
+    'audio/vnd.wave',
+    'audio/ogg', 
+    'audio/webm',
+    'audio/aiff',
+    'audio/x-aiff',
+    'audio/flac',
+    'audio/x-flac'
+  ];
+  const allowedExts = ['.mp3', '.wav', '.ogg', '.webm', '.aiff', '.aif', '.flac'];
 
   const ext = path.extname(file.originalname).toLowerCase();
   const mimeOk = allowedMimes.includes(file.mimetype);
   const extOk = allowedExts.includes(ext);
 
-  if (mimeOk && extOk) {
+  // Also check if MIME type starts with 'audio/' for broad compatibility
+  const isAudioMime = file.mimetype && file.mimetype.startsWith('audio/');
+
+  if ((mimeOk || isAudioMime) && extOk) {
     cb(null, true);
   } else {
+    console.log(`Rejected file: ${file.originalname}, MIME: ${file.mimetype}, ext: ${ext}`);
     cb(new Error(`Invalid file type. Allowed: ${allowedExts.join(', ')}`), false);
   }
 };

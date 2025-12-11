@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="/css/haos-brand.css">
     
     <style>
-        /* HAOS.fm Landing Page Styles */
+        /* HAOS.fm Landing Page Styles - Orange Theme */
         
         /* Custom Scrollbar - Vintage Style */
         ::-webkit-scrollbar { width: 12px; }
@@ -40,6 +40,49 @@
         }
         ::-webkit-scrollbar-thumb:hover {
             background: var(--haos-groove-orange);
+        }
+        
+        /* Orange Theme Typography Overrides */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0A0A0A 0%, #121212 50%, #0A0A0A 100%);
+        }
+        
+        h1, h2, h3, .haos-display-xl, .haos-display-lg, .haos-display-md, .haos-display-sm {
+            font-family: 'Bebas Neue', Arial, sans-serif !important;
+            letter-spacing: 0.05em;
+        }
+        
+        /* All labels, captions, and mono text */
+        .haos-label, .haos-mono, code, pre, .mono-text {
+            font-family: 'Space Mono', 'Courier New', monospace !important;
+        }
+        
+        /* Orange accent colors throughout */
+        a:not(.haos-btn-primary):not(.haos-btn-secondary):hover {
+            color: #FF6B35 !important;
+        }
+        
+        /* Enhanced gradient text */
+        .haos-text-gradient-orange {
+            background: linear-gradient(135deg, #FF6B35 0%, #FFD700 50%, #FF6B35 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Orange glow effects */
+        .orange-glow {
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.4), 0 0 60px rgba(255, 107, 53, 0.2);
+        }
+        
+        .orange-border {
+            border: 2px solid rgba(255, 107, 53, 0.5);
+        }
+        
+        .orange-border:hover {
+            border-color: rgba(255, 107, 53, 0.8);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
         }
         
         /* Enhanced Monitoring Animations */
@@ -243,8 +286,8 @@
                 </div>
                 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">Audio Files * (.mp3, .wav, .ogg) - Multiple files allowed</label>
-                    <input type="file" id="track-file" name="audioFile" accept="audio/mp3,audio/wav,audio/ogg,audio/mpeg" required multiple
+                    <label style="display: block; color: #FF5500; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">Audio Files * (.mp3, .wav, .ogg, .flac, .aiff) - Multiple files allowed</label>
+                    <input type="file" id="track-file" name="audioFile" accept="audio/mp3,audio/wav,audio/wave,audio/x-wav,audio/ogg,audio/mpeg,audio/flac,audio/aiff,audio/x-aiff,.mp3,.wav,.ogg,.flac,.aiff,.aif" required multiple
                            style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,85,0,0.3); border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 0.85rem;">
                     <div id="file-info" style="margin-top: 5px; font-size: 0.75rem; color: rgba(255,255,255,0.5); font-family: var(--font-mono);"></div>
                 </div>
@@ -550,8 +593,8 @@
                     <a href="/community.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
                         <i class="fas fa-users mr-2"></i>COMMUNITY
                     </a>
-                    <a href="#features" class="haos-label hover:text-orange-400 transition-colors">
-                        <i class="fas fa-star mr-2"></i>FEATURES
+                    <a href="/instruments.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
+                        <i class="fas fa-keyboard mr-2"></i>INSTRUMENTS
                     </a>
                     <a href="/dashboard.html" class="haos-btn-primary px-4 py-2 rounded-full text-sm font-bold">
                         <i class="fas fa-th-large mr-2"></i>DASHBOARD
@@ -579,8 +622,8 @@
                     <a href="/community.html" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded" style="font-weight: bold;">
                         <i class="fas fa-users mr-2"></i>COMMUNITY
                     </a>
-                    <a href="#features" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded">
-                        <i class="fas fa-star mr-2"></i>FEATURES
+                    <a href="/instruments.html" class="haos-label hover:text-orange-400 transition-colors py-2 px-4 rounded" style="font-weight: bold;">
+                        <i class="fas fa-keyboard mr-2"></i>INSTRUMENTS
                     </a>
                     <a href="/dashboard.html" class="haos-btn-primary py-3 px-4 rounded-lg text-center font-bold mt-4">
                         <i class="fas fa-th-large mr-2"></i>DASHBOARD
@@ -985,41 +1028,73 @@
             currentPlaylist: 'technobot-detroit',
             volume: 70,
             
-            // Import playlists from Studio Radio system
+            // Import playlists from Studio Radio system - Extended with more tracks
             playlists: {
                 'technobot-detroit': [
                     { title: 'HAOS - Rave Rage', artist: 'HAOS', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
                     { title: 'HAOS - Techno Track', artist: 'HAOS', duration: 360, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' },
                     { title: 'Detroit Techno Mix 01', artist: 'Various Artists', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' },
                     { title: 'Underground Resistance Set', artist: 'UR', duration: 380, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' },
-                    { title: 'Juan Atkins - Classics', artist: 'Juan Atkins', duration: 360, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3' }
+                    { title: 'Juan Atkins - Classics', artist: 'Juan Atkins', duration: 360, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3' },
+                    { title: 'Motor City Groove', artist: 'Detroit Movement', duration: 445, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3' },
+                    { title: 'Belleville Three Tribute', artist: 'UR Collective', duration: 398, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3' },
+                    { title: 'Cosmic Cars Remix', artist: 'Cybotron', duration: 370, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3' }
                 ],
                 'industrial-techno': [
                     { title: 'HAOS - Rave Rage', artist: 'HAOS', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
                     { title: 'HAOS - Industrial Mix', artist: 'HAOS', duration: 450, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3' },
                     { title: 'Hard Industrial Mix', artist: 'Various Artists', duration: 480, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3' },
                     { title: 'Berghain Sound', artist: 'Various Artists', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3' },
-                    { title: 'Dark Techno Selection', artist: 'Various Artists', duration: 390, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3' }
+                    { title: 'Dark Techno Selection', artist: 'Various Artists', duration: 390, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3' },
+                    { title: 'Machine Factory', artist: 'Industrial Works', duration: 510, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3' },
+                    { title: 'Steel City Pulse', artist: 'Heavy Industry', duration: 465, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3' },
+                    { title: 'Warehouse Sessions', artist: 'HAOS Industrial', duration: 540, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3' }
                 ],
                 'acid-classics': [
                     { title: 'HAOS - Acid Session', artist: 'HAOS', duration: 320, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3' },
                     { title: 'TB-303 Anthology', artist: 'Various Artists', duration: 300, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3' },
                     { title: 'Acid House Classics', artist: 'Various Artists', duration: 330, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3' },
-                    { title: 'Squelchy Basslines', artist: 'Various Artists', duration: 290, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3' }
+                    { title: 'Squelchy Basslines', artist: 'Various Artists', duration: 290, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3' },
+                    { title: 'Roland Acid Dreams', artist: 'Acidic Minds', duration: 355, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3' },
+                    { title: 'Chicago House Roots', artist: 'Windy City', duration: 340, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3' },
+                    { title: 'Silver Box Sessions', artist: 'TB Collective', duration: 380, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3' },
+                    { title: 'Phuture Acid Trax', artist: 'Phuture', duration: 395, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3' }
                 ],
                 'deep-techno': [
                     { title: 'HAOS - Deep Journey', artist: 'HAOS', duration: 600, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3' },
                     { title: 'Deep Techno Journey', artist: 'Various Artists', duration: 540, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3' },
                     { title: 'Hypnotic Grooves', artist: 'Various Artists', duration: 480, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3' },
-                    { title: 'Minimal Deep Set', artist: 'Various Artists', duration: 510, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3' }
+                    { title: 'Minimal Deep Set', artist: 'Various Artists', duration: 510, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3' },
+                    { title: 'Submarine Bass', artist: 'Depth Perception', duration: 620, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+                    { title: 'Twilight Zone Mix', artist: 'Night Vision', duration: 555, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' },
+                    { title: 'Berlin Nights', artist: 'HAOS Deep', duration: 590, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' },
+                    { title: 'Abstract Dimensions', artist: 'Sonic Depth', duration: 630, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' }
                 ],
                 'haos-exclusive': [
-                    { title: 'HAOS - Rave Rage', artist: 'HAOS', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
-                    { title: 'HAOS - Exclusive Track 1', artist: 'HAOS', duration: 380, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' },
-                    { title: 'HAOS - Exclusive Track 2', artist: 'HAOS', duration: 400, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' },
-                    { title: 'HAOS - Exclusive Track 3', artist: 'HAOS', duration: 360, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' },
-                    { title: 'HAOS - Exclusive Track 4', artist: 'HAOS', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3' },
-                    { title: 'HAOS - Exclusive Track 5', artist: 'HAOS', duration: 390, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3' }
+                    { title: 'Chromacid Pulse', artist: 'HAOS', duration: 252, url: '/audio/haos-radio/HAOS - Chromacid Pulse  (Original Mix).mp3' },
+                    { title: 'Damage', artist: 'HAOS', duration: 507, url: '/audio/haos-radio/HAOS - Damage (Original Mix).mp3' },
+                    { title: 'Dark Volcano', artist: 'HAOS', duration: 390, url: '/audio/haos-radio/HAOS - Dark Volcano (Official Music Video).mp3' },
+                    { title: 'Liquid', artist: 'HAOS', duration: 200, url: '/audio/haos-radio/HAOS - Liquid (Original Mix).mp3' },
+                    { title: 'Ratte', artist: 'HAOS', duration: 370, url: '/audio/haos-radio/HAOS - Ratte (Original Mix).mp3' },
+                    { title: 'Reckless', artist: 'HAOS', duration: 817, url: '/audio/haos-radio/Reckless.mp3' },
+                    { title: 'You Are Not Prepared', artist: 'HAOS', duration: 837, url: '/audio/haos-radio/You Are Not Prepared 1.mp3' }
+                ],
+                'ambient-chillout': [
+                    { title: 'Ambient Waves', artist: 'HAOS Ambient', duration: 720, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3' },
+                    { title: 'Cosmic Drift', artist: 'Space Ambient', duration: 660, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3' },
+                    { title: 'Morning Meditation', artist: 'Zen Electronic', duration: 540, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3' },
+                    { title: 'Ocean Depths', artist: 'Deep Blue', duration: 600, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3' },
+                    { title: 'Forest Dreams', artist: 'Nature Sounds', duration: 480, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3' },
+                    { title: 'Stellar Journey', artist: 'Cosmos', duration: 780, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3' }
+                ],
+                'house-grooves': [
+                    { title: 'Classic House Vibes', artist: 'House Masters', duration: 380, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+                    { title: 'Deep House Session', artist: 'Deep Collective', duration: 420, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' },
+                    { title: 'Funky House Mix', artist: 'Groove Nation', duration: 360, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' },
+                    { title: 'Ibiza Sunset', artist: 'Island Sounds', duration: 450, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' },
+                    { title: 'Soulful House Journey', artist: 'Soul Factory', duration: 390, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3' },
+                    { title: 'Tech House Workout', artist: 'Gym Beats', duration: 340, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3' },
+                    { title: 'Progressive House Set', artist: 'Progressive Mind', duration: 480, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3' }
                 ],
                 'youtube-radio': [
                     { title: 'YouTube Radio - Live Mix', artist: 'HAOS YouTube Channel', duration: 10142, url: 'https://www.youtube.com/watch?v=sH4o0fTXCLI&list=RDsH4o0fTXCLI&start_radio=1&t=10142s', isYouTube: true }
@@ -1510,7 +1585,7 @@
                 totalPresets: 50,
                 tracks: 26,
                 playlists: {
-                    'haos-exclusive': { name: 'HAOS Exclusive', tracks: 6, genre: 'Original' },
+                    'haos-exclusive': { name: 'HAOS Exclusive', tracks: 7, genre: 'Original Productions' },
                     'technobot-detroit': { name: 'Technobot Detroit', tracks: 5, genre: 'Detroit Techno' },
                     'industrial-techno': { name: 'Industrial Techno', tracks: 5, genre: 'Industrial' },
                     'acid-classics': { name: 'Acid Classics', tracks: 4, genre: 'Acid House' },
