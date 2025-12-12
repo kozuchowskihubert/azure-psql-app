@@ -9,9 +9,10 @@ const Subscription = require('../models/subscription');
 const PaymentService = require('../services/payment-service');
 const authService = require('../services/auth-service');
 
-// Middleware to load user from session cookie
+// Middleware to load user from session cookie OR Bearer token (fallback)
 const loadUserFromSession = async (req, res, next) => {
   try {
+    // Try cookie first (preferred method)
     const sessionId = req.cookies?.haos_session;
     console.log('[Subscription] loadUserFromSession - sessionId:', sessionId ? `${sessionId.substring(0, 8)}...` : 'NONE');
     
@@ -21,13 +22,44 @@ const loadUserFromSession = async (req, res, next) => {
       
       if (session && session.type === 'authenticated' && session.user) {
         req.user = session.user;
-        console.log('[Subscription] ✅ User loaded:', req.user.id, req.user.email);
+        console.log('[Subscription] ✅ User loaded from cookie:', req.user.id, req.user.email);
+        return next();
       } else {
         console.log('[Subscription] ❌ Session invalid or not authenticated');
       }
     } else {
       console.log('[Subscription] ❌ No haos_session cookie in request');
       console.log('[Subscription] Available cookies:', Object.keys(req.cookies || {}));
+    }
+    
+    // Fallback: Try Bearer token from Authorization header
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      console.log('[Subscription] 🔑 Trying Bearer token fallback:', token.substring(0, 20) + '...');
+      
+      try {
+        const decoded = await authService.verifyToken(token);
+        if (decoded && decoded.userId) {
+          // Load user from database
+          const { Pool } = require('pg');
+          const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+          const result = await pool.query('SELECT id, email, name, tier FROM users WHERE id = $1', [decoded.userId]);
+          
+          if (result.rows.length > 0) {
+            req.user = result.rows[0];
+            console.log('[Subscription] ✅ User loaded from Bearer token:', req.user.id, req.user.email);
+          } else {
+            console.log('[Subscription] ❌ User not found for token userId:', decoded.userId);
+          }
+        } else {
+          console.log('[Subscription] ❌ Invalid token payload');
+        }
+      } catch (tokenError) {
+        console.error('[Subscription] ❌ Bearer token verification failed:', tokenError.message);
+      }
+    } else {
+      console.log('[Subscription] ❌ No Authorization header');
     }
   } catch (error) {
     console.error('[Subscription] ❌ Error loading user from session:', error.message);

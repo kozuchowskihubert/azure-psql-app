@@ -1624,9 +1624,17 @@
           provider: selectedPaymentMethod
         });
 
+        // Prepare headers with Bearer token fallback
+        const headers = { 'Content-Type': 'application/json' };
+        const token = localStorage.getItem('haos_token');
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+          console.log('🔑 Adding Bearer token to request');
+        }
+        
         const response = await fetch('/api/subscriptions/subscribe', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: headers,
           credentials: 'include',
           body: JSON.stringify({
             planCode: selectedPlan.plan_code,

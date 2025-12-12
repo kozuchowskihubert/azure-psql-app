@@ -358,34 +358,79 @@ router.post('/refresh', async (req, res) => {
   }
 });
 
-// GET /api/auth/me
-router.get('/me', authenticateToken, async (req, res) => {
+// GET /api/auth/me - Accepts Bearer token OR haos_session cookie
+router.get('/me', async (req, res) => {
   try {
-    const result = await pool.query(
-      'SELECT id, email, display_name, avatar_url, roles, created_at, last_login_at FROM users WHERE id = $1',
-      [req.user.id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'User not found' });
+    let user = null;
+    
+    // Try 1: Bearer token (from Authorization header)
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (token) {
+      console.log('[Auth /me] Trying Bearer token auth...');
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const result = await pool.query(
+          'SELECT id, email, display_name, avatar_url, roles, tier, created_at, last_login_at FROM users WHERE id = $1',
+          [decoded.userId || decoded.id]
+        );
+        if (result.rows.length > 0) {
+          user = result.rows[0];
+          console.log('[Auth /me] ✅ Authenticated via Bearer token:', user.email);
+        }
+      } catch (tokenErr) {
+        console.log('[Auth /me] ❌ Bearer token invalid:', tokenErr.message);
+      }
     }
-
-    const user = result.rows[0];
-
-    res.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.display_name,
-        avatar: user.avatar_url,
-        roles: user.roles || ['user'],
-        createdAt: user.created_at,
-        lastLoginAt: user.last_login_at,
-      },
-    });
+    
+    // Try 2: haos_session cookie (fallback)
+    if (!user) {
+      const sessionId = req.cookies?.haos_session;
+      if (sessionId) {
+        console.log('[Auth /me] Trying haos_session cookie...');
+        const authService = require('../services/auth-service');
+        const session = await authService.getSession(sessionId);
+        
+        if (session && session.type === 'authenticated' && session.user) {
+          user = session.user;
+          console.log('[Auth /me] ✅ Authenticated via haos_session cookie:', user.email);
+        } else {
+          console.log('[Auth /me] ❌ haos_session invalid or expired');
+        }
+      } else {
+        console.log('[Auth /me] ❌ No haos_session cookie');
+      }
+    }
+    
+    // Return result
+    if (user) {
+      return res.json({
+        success: true,
+        authenticated: true,
+        tier: user.tier || 'free',
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.display_name || user.name,
+          avatar: user.avatar_url,
+          roles: user.roles || ['user'],
+          tier: user.tier || 'free',
+          createdAt: user.created_at,
+          lastLoginAt: user.last_login_at,
+        },
+      });
+    } else {
+      console.log('[Auth /me] ❌ Not authenticated (no valid token or session)');
+      return res.json({
+        success: true,
+        authenticated: false,
+        tier: 'anonymous',
+        user: null
+      });
+    }
   } catch (error) {
-    console.error('Get user error:', error);
+    console.error('[Auth /me] ❌ Error:', error);
     res.status(500).json({ success: false, error: 'Failed to get user information' });
   }
 });
