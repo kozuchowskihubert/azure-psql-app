@@ -554,6 +554,17 @@ try {
 }
 
 /**
+ * Migration Routes (import subscription schema)
+ */
+try {
+  const migrateRoutes = require('./routes/migrate-routes');
+  app.use('/api', migrateRoutes);
+  console.log('✓ Migration routes enabled');
+} catch (error) {
+  console.log('⚠ Migration routes not available:', error.message);
+}
+
+/**
  * User Profile API
  * User profile, preferences, and account management
  */
