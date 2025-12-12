@@ -122,19 +122,36 @@ router.get('/google', passport.authenticate('google', {
   prompt: 'consent select_account'
 }));
 
-router.get('/google/callback',
-  passport.authenticate('google', {
-    failureRedirect: '/login.html?error=google_failed',
-    session: false
-  }),
-  async (req, res) => {
+router.get('/google/callback', (req, res, next) => {
+  passport.authenticate('google', { session: false }, (err, user, info) => {
+    if (err) {
+      console.error('[OAuth] Passport error:', err);
+      return res.redirect('/login.html?error=passport_error&details=' + encodeURIComponent(err.message));
+    }
+    if (!user) {
+      console.error('[OAuth] No user returned, info:', info);
+      return res.redirect('/login.html?error=no_user&details=' + encodeURIComponent(JSON.stringify(info)));
+    }
+    req.user = user;
+    next();
+  })(req, res, next);
+}, async (req, res) => {
     // Create session and redirect with tokens
     const authService = require('../services/auth-service');
     const jwt = require('jsonwebtoken');
     
     try {
+      console.log('[OAuth Callback] User authenticated:', req.user?.email);
       const user = req.user;
+      
+      if (!user) {
+        console.error('[OAuth Callback] No user in request');
+        return res.redirect('/login.html?error=no_user');
+      }
+      
+      console.log('[OAuth Callback] Creating session for user:', user.id);
       const sessionData = await authService.createUserSession(user.id, req);
+      console.log('[OAuth Callback] Session created:', sessionData.sessionId);
       
       // Set session cookie
       res.cookie('haos_session', sessionData.sessionId, {
@@ -162,10 +179,15 @@ router.get('/google/callback',
       const referer = req.get('referer') || '';
       const redirectUrl = referer.includes('oauth-test.html') ? '/oauth-test.html' : '/account.html';
       const tokenData = JSON.stringify({ accessToken, refreshToken, user: { email: user.email, name: user.display_name } });
+      
+      console.log('[OAuth Callback] Redirecting to:', redirectUrl);
+      console.log('[OAuth Callback] Token data prepared, access token length:', accessToken?.length);
+      
       res.redirect(`${redirectUrl}?login=success&tokens=${encodeURIComponent(tokenData)}`);
     } catch (error) {
-      console.error('[OAuth] Error:', error);
-      res.redirect('/login.html?error=session_failed');
+      console.error('[OAuth Callback] ❌ Error:', error.message);
+      console.error('[OAuth Callback] Stack:', error.stack);
+      res.redirect('/login.html?error=session_failed&details=' + encodeURIComponent(error.message));
     }
   });
 
