@@ -576,6 +576,17 @@ try {
 }
 
 /**
+ * Debug Routes (check module loading)
+ */
+try {
+  const debugRoutes = require('./routes/debug-routes');
+  app.use('/api', debugRoutes);
+  console.log('✓ Debug routes enabled');
+} catch (error) {
+  console.log('⚠ Debug routes not available:', error.message);
+}
+
+/**
  * User Profile API
  * User profile, preferences, and account management
  */
