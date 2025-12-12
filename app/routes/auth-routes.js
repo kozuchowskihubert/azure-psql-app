@@ -16,50 +16,90 @@ const router = express.Router();
 /**
  * GET /api/auth/me
  * Get current user/session info
+ * Supports both session cookie AND Bearer token authentication
  */
 router.get('/me', async (req, res) => {
   try {
     const sessionId = req.cookies?.haos_session;
+    const authHeader = req.headers['authorization'];
+    const bearerToken = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
     
     console.log('[Auth /me] Request received');
-    console.log('[Auth /me] Cookies:', req.cookies);
-    console.log('[Auth /me] Session ID from cookie:', sessionId);
+    console.log('[Auth /me] Has session cookie:', !!sessionId);
+    console.log('[Auth /me] Has bearer token:', !!bearerToken);
     
-    if (!sessionId) {
-      console.log('[Auth /me] ❌ No session cookie found');
-      return res.json({
-        authenticated: false,
-        tier: 'anonymous',
-        session: null,
-        user: null
-      });
-    }
-
-    const session = await authService.getSession(sessionId);
-    
-    console.log('[Auth /me] Session from DB:', session ? 'FOUND' : 'NOT FOUND');
-    
-    if (!session) {
-      console.log('[Auth /me] ❌ Session not found in database for ID:', sessionId);
-      return res.json({
-        authenticated: false,
-        tier: 'anonymous',
-        session: null,
-        user: null
-      });
+    // Try session cookie first
+    if (sessionId) {
+      console.log('[Auth /me] Trying session cookie authentication...');
+      const session = await authService.getSession(sessionId);
+      
+      if (session) {
+        console.log('[Auth /me] ✅ Session cookie authenticated:', session.user?.email);
+        return res.json({
+          authenticated: session.type === 'authenticated',
+          tier: session.tier,
+          session: {
+            id: session.id,
+            type: session.type,
+            expiresAt: session.expiresAt
+          },
+          user: session.user
+        });
+      }
+      
+      console.log('[Auth /me] ❌ Session cookie invalid or expired');
     }
     
-    console.log('[Auth /me] ✅ User authenticated:', session.user?.email);
-
-    res.json({
-      authenticated: session.type === 'authenticated',
-      tier: session.tier,
-      session: {
-        id: session.id,
-        type: session.type,
-        expiresAt: session.expiresAt
-      },
-      user: session.user
+    // Fallback to Bearer token
+    if (bearerToken) {
+      console.log('[Auth /me] Trying Bearer token authentication...');
+      const decoded = authService.verifyToken(bearerToken, 'access');
+      
+      if (decoded && decoded.userId) {
+        console.log('[Auth /me] ✅ Bearer token authenticated, fetching user:', decoded.userId);
+        
+        // Fetch user from database
+        const db = require('../config/database');
+        const result = await db.query(
+          'SELECT id, email, name, display_name, avatar_url, google_id FROM users WHERE id = $1',
+          [decoded.userId]
+        );
+        
+        if (result.rows.length > 0) {
+          const user = result.rows[0];
+          console.log('[Auth /me] ✅ User found:', user.email);
+          
+          return res.json({
+            authenticated: true,
+            tier: decoded.tier || 'free',
+            session: {
+              type: 'jwt',
+              expiresAt: new Date(decoded.exp * 1000).toISOString()
+            },
+            user: {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              displayName: user.display_name,
+              avatarUrl: user.avatar_url,
+              googleId: user.google_id
+            }
+          });
+        }
+        
+        console.log('[Auth /me] ❌ User not found for token userId:', decoded.userId);
+      } else {
+        console.log('[Auth /me] ❌ Bearer token invalid or expired');
+      }
+    }
+    
+    // No valid authentication found
+    console.log('[Auth /me] ❌ No valid authentication found');
+    return res.json({
+      authenticated: false,
+      tier: 'anonymous',
+      session: null,
+      user: null
     });
   } catch (error) {
     console.error('[Auth] /me error:', error);

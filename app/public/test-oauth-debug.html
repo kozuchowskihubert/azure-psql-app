@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Debug - HAOS.fm</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0A0A0A;
+            color: #F4E8D8;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #FF6B35;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            color: #39FF14;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        button {
+            background: #FF6B35;
+            color: #0A0A0A;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #FF8C61;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .log {
+            background: #000;
+            border: 1px solid #39FF14;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+        }
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        .success { color: #39FF14; }
+        .error { color: #FF6B35; }
+        .info { color: #4FC3F7; }
+        .warning { color: #FFD700; }
+        pre {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.ok { background: #39FF14; color: #0A0A0A; }
+        .status.fail { background: #FF6B35; color: #0A0A0A; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .card {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid #FF6B35;
+        }
+        .card h3 {
+            color: #FF6B35;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 OAuth Debug Tool</h1>
+        
+        <div class="section">
+            <h2>1️⃣ Current State</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>URL Info</h3>
+                    <div id="url-info"></div>
+                </div>
+                <div class="card">
+                    <h3>localStorage</h3>
+                    <div id="localstorage-info"></div>
+                </div>
+                <div class="card">
+                    <h3>Cookies</h3>
+                    <div id="cookie-info"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>2️⃣ Actions</h2>
+            <button onclick="clearAll()">🗑️ Clear All (localStorage + cookies)</button>
+            <button onclick="testOAuthDirect()">🔐 Test OAuth Direct (/auth/google)</button>
+            <button onclick="testOAuthButton()">🔐 Test OAuth via Button (login.html flow)</button>
+            <button onclick="checkAuth()">✅ Check Auth Status</button>
+            <button onclick="testSubscription()">💳 Test Subscription API</button>
+        </div>
+
+        <div class="section">
+            <h2>3️⃣ OAuth Flow Tracker</h2>
+            <div id="flow-tracker"></div>
+        </div>
+
+        <div class="section">
+            <h2>4️⃣ Debug Logs</h2>
+            <button onclick="clearLogs()">Clear Logs</button>
+            <div class="log" id="debug-log"></div>
+        </div>
+    </div>
+
+    <script>
+        // Track navigation for OAuth flow
+        const flowSteps = [];
+        let trackingEnabled = false;
+
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<span style="color: #666">[${timestamp}]</span> ${message}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(`[OAuth Debug] ${message}`);
+        }
+
+        function addFlowStep(step, details) {
+            flowSteps.push({ step, details, time: new Date().toLocaleTimeString() });
+            updateFlowTracker();
+        }
+
+        function updateFlowTracker() {
+            const tracker = document.getElementById('flow-tracker');
+            if (flowSteps.length === 0) {
+                tracker.innerHTML = '<p style="color: #666">No OAuth flow tracked yet. Click "Test OAuth Direct" to start.</p>';
+                return;
+            }
+            
+            tracker.innerHTML = flowSteps.map((item, i) => `
+                <div style="padding: 10px; background: #1a1a1a; margin: 5px 0; border-left: 3px solid #39FF14;">
+                    <strong>${i + 1}. ${item.step}</strong> <span style="color: #666">${item.time}</span>
+                    <pre style="margin-top: 5px; font-size: 0.85rem;">${item.details}</pre>
+                </div>
+            `).join('');
+        }
+
+        function updateState() {
+            // URL Info
+            const urlInfo = document.getElementById('url-info');
+            const urlParams = new URLSearchParams(window.location.search);
+            urlInfo.innerHTML = `
+                <p><strong>Current URL:</strong><br><code style="font-size: 0.8rem;">${window.location.href}</code></p>
+                <p><strong>Params:</strong> ${urlParams.toString() || '<em>none</em>'}</p>
+            `;
+
+            // localStorage Info
+            const localStorageInfo = document.getElementById('localstorage-info');
+            const token = localStorage.getItem('haos_token');
+            const refreshToken = localStorage.getItem('haos_refresh_token');
+            const user = localStorage.getItem('haos_user');
+            
+            localStorageInfo.innerHTML = `
+                <p><strong>haos_token:</strong> ${token ? `<span class="success">✓ Present (${token.substring(0, 20)}...)</span>` : '<span class="error">✗ Missing</span>'}</p>
+                <p><strong>haos_refresh_token:</strong> ${refreshToken ? '<span class="success">✓ Present</span>' : '<span class="error">✗ Missing</span>'}</p>
+                <p><strong>haos_user:</strong> ${user ? '<span class="success">✓ Present</span>' : '<span class="error">✗ Missing</span>'}</p>
+                ${user ? `<pre style="font-size: 0.75rem; margin-top: 5px;">${user}</pre>` : ''}
+            `;
+
+            // Cookie Info
+            const cookieInfo = document.getElementById('cookie-info');
+            const cookies = document.cookie;
+            const haosSession = cookies.split(';').find(c => c.trim().startsWith('haos_session='));
+            
+            cookieInfo.innerHTML = `
+                <p><strong>haos_session:</strong> ${haosSession ? '<span class="success">✓ Present</span>' : '<span class="error">✗ Missing</span>'}</p>
+                <p><strong>All cookies:</strong></p>
+                <pre style="font-size: 0.75rem;">${cookies || '<em>none</em>'}</pre>
+            `;
+        }
+
+        function clearAll() {
+            log('🗑️ Clearing all localStorage and cookies...', 'warning');
+            
+            // Clear localStorage
+            localStorage.clear();
+            log('✓ localStorage cleared', 'success');
+            
+            // Clear cookies
+            document.cookie.split(';').forEach(c => {
+                const name = c.trim().split('=')[0];
+                document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+            });
+            log('✓ Cookies cleared', 'success');
+            
+            updateState();
+            log('All data cleared. Ready for fresh OAuth test.', 'success');
+        }
+
+        function clearLogs() {
+            document.getElementById('debug-log').innerHTML = '';
+            flowSteps.length = 0;
+            updateFlowTracker();
+        }
+
+        async function testOAuthDirect() {
+            log('🔐 Starting direct OAuth test...', 'info');
+            log('Opening /auth/google in current window...', 'info');
+            
+            flowSteps.length = 0;
+            trackingEnabled = true;
+            addFlowStep('START', 'User clicked "Test OAuth Direct"');
+            addFlowStep('REDIRECT', `Redirecting to: https://haos.fm/auth/google`);
+            
+            // Store state to track after redirect
+            sessionStorage.setItem('oauth_debug_tracking', 'true');
+            sessionStorage.setItem('oauth_debug_start_time', Date.now());
+            
+            // Redirect
+            window.location.href = '/auth/google';
+        }
+
+        function testOAuthButton() {
+            log('🔐 Testing OAuth via login.html flow...', 'info');
+            window.location.href = '/login.html';
+        }
+
+        async function checkAuth() {
+            log('✅ Checking authentication status...', 'info');
+            
+            const token = localStorage.getItem('haos_token');
+            
+            if (!token) {
+                log('❌ No token found in localStorage', 'error');
+                return;
+            }
+            
+            try {
+                log('Calling /api/auth/me with Bearer token...', 'info');
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                log(`Response data: ${JSON.stringify(data, null, 2)}`, response.ok ? 'success' : 'error');
+                
+                if (data.authenticated) {
+                    log(`✅ AUTHENTICATED as ${data.user.email}`, 'success');
+                } else {
+                    log('❌ NOT AUTHENTICATED', 'error');
+                }
+            } catch (error) {
+                log(`❌ Error checking auth: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSubscription() {
+            log('💳 Testing subscription API...', 'info');
+            
+            const token = localStorage.getItem('haos_token');
+            
+            if (!token) {
+                log('❌ No token found. Login first!', 'error');
+                return;
+            }
+            
+            try {
+                log('Calling /api/subscriptions/current...', 'info');
+                const response = await fetch('/api/subscriptions/current', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                log(`Response data: ${JSON.stringify(data, null, 2)}`, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Check if we just came back from OAuth
+        window.addEventListener('DOMContentLoaded', () => {
+            updateState();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const isTracking = sessionStorage.getItem('oauth_debug_tracking');
+            const startTime = sessionStorage.getItem('oauth_debug_start_time');
+            
+            if (isTracking === 'true') {
+                const duration = Date.now() - parseInt(startTime || 0);
+                addFlowStep('CALLBACK RETURN', `Returned to test page after ${duration}ms`);
+                
+                // Check URL params
+                const loginParam = urlParams.get('login');
+                const tokensParam = urlParams.get('tokens');
+                const errorParam = urlParams.get('error');
+                
+                if (loginParam === 'success') {
+                    addFlowStep('SUCCESS PARAM', 'login=success found in URL');
+                }
+                
+                if (tokensParam) {
+                    addFlowStep('TOKENS PARAM', `tokens parameter found (length: ${tokensParam.length})`);
+                    try {
+                        const tokenData = JSON.parse(decodeURIComponent(tokensParam));
+                        addFlowStep('TOKENS PARSED', JSON.stringify(tokenData, null, 2));
+                    } catch (e) {
+                        addFlowStep('TOKENS PARSE ERROR', e.message);
+                    }
+                }
+                
+                if (errorParam) {
+                    addFlowStep('ERROR', `error=${errorParam}`);
+                    log(`❌ OAuth returned with error: ${errorParam}`, 'error');
+                }
+                
+                // Check localStorage
+                const token = localStorage.getItem('haos_token');
+                if (token) {
+                    addFlowStep('TOKEN STORED', `Token found in localStorage (${token.substring(0, 30)}...)`);
+                    log('✅ Token successfully stored!', 'success');
+                } else {
+                    addFlowStep('NO TOKEN', 'Token NOT found in localStorage');
+                    log('❌ Token was NOT stored in localStorage', 'error');
+                }
+                
+                sessionStorage.removeItem('oauth_debug_tracking');
+                sessionStorage.removeItem('oauth_debug_start_time');
+                
+                log('OAuth flow completed. Check "OAuth Flow Tracker" section above.', 'info');
+            }
+            
+            // Log initial state
+            const token = localStorage.getItem('haos_token');
+            const cookies = document.cookie;
+            log(`Initial state: token=${token ? 'present' : 'missing'}, cookies=${cookies ? 'present' : 'none'}`, 'info');
+        });
+
+        // Update state every 2 seconds
+        setInterval(updateState, 2000);
+    </script>
+</body>
+</html>
