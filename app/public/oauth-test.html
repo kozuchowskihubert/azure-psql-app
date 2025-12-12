@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Flow Test - HAOS.fm</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0A0A0A;
+            color: #F4E8D8;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #FF6B35;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #FF6B35;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #39FF14;
+            margin: 20px 0 10px 0;
+        }
+        .test-section {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px 0;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .status.pending { background: #666; }
+        .status.success { background: #39FF14; color: #000; }
+        .status.error { background: #FF3333; color: #fff; }
+        .status.warning { background: #FFA500; color: #000; }
+        button {
+            background: #FF6B35;
+            color: #0A0A0A;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #FF8C61; }
+        button:disabled { 
+            background: #666; 
+            cursor: not-allowed; 
+        }
+        pre {
+            background: #000;
+            padding: 10px;
+            border: 1px solid #333;
+            overflow-x: auto;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .log {
+            font-size: 12px;
+            color: #39FF14;
+        }
+        .error-log {
+            color: #FF3333;
+        }
+        .warning-log {
+            color: #FFA500;
+        }
+        .code-block {
+            background: #000;
+            padding: 10px;
+            border-left: 3px solid #FF6B35;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 HAOS.fm OAuth Flow Debugger</h1>
+        
+        <div class="test-section">
+            <h2>📊 Current State</h2>
+            <div id="current-state">
+                <p>URL: <strong id="current-url">-</strong></p>
+                <p>Token: <span id="token-status" class="status pending">Checking...</span></p>
+                <p>Cookie: <span id="cookie-status" class="status pending">Checking...</span></p>
+                <p>User: <span id="user-status" class="status pending">Checking...</span></p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 Test Actions</h2>
+            <button onclick="clearAll()">🗑️ Clear All (localStorage + cookies)</button>
+            <button onclick="testDirectOAuth()">🔗 Test Direct OAuth (/auth/google)</button>
+            <button onclick="testViaLoginPage()">📄 Test via Login Page</button>
+            <button onclick="checkAuth()">✅ Check Auth Status</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 Test Results</h2>
+            <div id="test-results">
+                <p class="log">Ready to test...</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔬 URL Analysis</h2>
+            <div id="url-analysis">
+                <p>Analyzing URL parameters...</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>💾 Storage Contents</h2>
+            <pre id="storage-contents">Loading...</pre>
+        </div>
+
+        <div class="test-section">
+            <h2>🌐 Network Test</h2>
+            <button onclick="testAuthEndpoint()">Test /api/auth/me</button>
+            <button onclick="testSubscriptionEndpoint()">Test /api/subscriptions/current</button>
+            <div id="network-results">
+                <p class="log">Click buttons to test endpoints...</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📖 Instructions</h2>
+            <div class="code-block">
+                <p><strong>Step-by-step test:</strong></p>
+                <ol>
+                    <li>Click "Clear All" to start fresh</li>
+                    <li>Click "Test Direct OAuth" - see where it redirects</li>
+                    <li>After redirect, check this page again to see if token was saved</li>
+                    <li>Use "Check Auth Status" to verify authentication</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize
+        updateCurrentState();
+        analyzeURL();
+        updateStorageContents();
+
+        function log(message, type = 'log') {
+            const results = document.getElementById('test-results');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error-log' : type === 'warning' ? 'warning-log' : 'log';
+            results.innerHTML += `<p class="${className}">[${timestamp}] ${message}</p>`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function updateCurrentState() {
+            document.getElementById('current-url').textContent = window.location.href;
+            
+            // Check token
+            const token = localStorage.getItem('haos_token');
+            const tokenStatus = document.getElementById('token-status');
+            if (token) {
+                tokenStatus.textContent = `✅ Present (${token.substring(0, 20)}...)`;
+                tokenStatus.className = 'status success';
+            } else {
+                tokenStatus.textContent = '❌ Not found';
+                tokenStatus.className = 'status error';
+            }
+
+            // Check cookie
+            const cookies = document.cookie;
+            const cookieStatus = document.getElementById('cookie-status');
+            if (cookies.includes('haos_session')) {
+                cookieStatus.textContent = '✅ haos_session found';
+                cookieStatus.className = 'status success';
+            } else {
+                cookieStatus.textContent = '❌ No haos_session';
+                cookieStatus.className = 'status error';
+            }
+
+            // Check user
+            const user = localStorage.getItem('haos_user');
+            const userStatus = document.getElementById('user-status');
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    userStatus.textContent = `✅ ${userData.email || userData.name || 'User'}`;
+                    userStatus.className = 'status success';
+                } catch (e) {
+                    userStatus.textContent = '⚠️ Invalid user data';
+                    userStatus.className = 'status warning';
+                }
+            } else {
+                userStatus.textContent = '❌ No user data';
+                userStatus.className = 'status error';
+            }
+        }
+
+        function analyzeURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const analysis = document.getElementById('url-analysis');
+            
+            let html = '<ul>';
+            html += `<li><strong>Full URL:</strong> ${window.location.href}</li>`;
+            html += `<li><strong>Pathname:</strong> ${window.location.pathname}</li>`;
+            
+            // Check for OAuth parameters
+            const loginParam = urlParams.get('login');
+            const tokensParam = urlParams.get('tokens');
+            const errorParam = urlParams.get('error');
+            
+            if (loginParam) {
+                html += `<li><strong>login param:</strong> <span class="status success">${loginParam}</span></li>`;
+            }
+            
+            if (tokensParam) {
+                html += `<li><strong>tokens param:</strong> <span class="status success">Present (${tokensParam.length} chars)</span></li>`;
+                try {
+                    const tokenData = JSON.parse(decodeURIComponent(tokensParam));
+                    html += `<li><strong>Token data:</strong> accessToken: ${tokenData.accessToken ? '✅' : '❌'}, refreshToken: ${tokenData.refreshToken ? '✅' : '❌'}</li>`;
+                } catch (e) {
+                    html += `<li><strong>Token data:</strong> <span class="status error">Parse error: ${e.message}</span></li>`;
+                }
+            }
+            
+            if (errorParam) {
+                html += `<li><strong>error param:</strong> <span class="status error">${errorParam}</span></li>`;
+            }
+            
+            if (!loginParam && !tokensParam && !errorParam) {
+                html += `<li><em>No OAuth parameters in URL</em></li>`;
+            }
+            
+            html += '</ul>';
+            analysis.innerHTML = html;
+        }
+
+        function updateStorageContents() {
+            const contents = document.getElementById('storage-contents');
+            let output = '=== localStorage ===\n';
+            
+            if (localStorage.length === 0) {
+                output += '(empty)\n';
+            } else {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    const value = localStorage.getItem(key);
+                    if (value.length > 100) {
+                        output += `${key}: ${value.substring(0, 100)}...\n`;
+                    } else {
+                        output += `${key}: ${value}\n`;
+                    }
+                }
+            }
+            
+            output += '\n=== Cookies ===\n';
+            if (document.cookie) {
+                document.cookie.split(';').forEach(cookie => {
+                    output += cookie.trim() + '\n';
+                });
+            } else {
+                output += '(empty)\n';
+            }
+            
+            contents.textContent = output;
+        }
+
+        function clearAll() {
+            log('🗑️ Clearing localStorage...');
+            localStorage.clear();
+            
+            log('🗑️ Clearing cookies...');
+            document.cookie.split(';').forEach(c => {
+                document.cookie = c.trim().split('=')[0] + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+            });
+            
+            log('✅ Cleared all storage!', 'log');
+            updateCurrentState();
+            updateStorageContents();
+        }
+
+        function testDirectOAuth() {
+            log('🔗 Redirecting to /auth/google...');
+            log('⏳ Watch the URL bar and Network tab!', 'warning');
+            setTimeout(() => {
+                window.location.href = '/auth/google';
+            }, 1000);
+        }
+
+        function testViaLoginPage() {
+            log('📄 Redirecting to /login.html...');
+            setTimeout(() => {
+                window.location.href = '/login.html';
+            }, 1000);
+        }
+
+        async function checkAuth() {
+            log('✅ Checking authentication...');
+            
+            const token = localStorage.getItem('haos_token');
+            if (!token) {
+                log('❌ No token found in localStorage', 'error');
+                return;
+            }
+            
+            try {
+                log('🌐 Calling /api/auth/me with Bearer token...');
+                const response = await fetch('/api/auth/me', {
+                    headers: {'Authorization': `Bearer ${token}`},
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                log(`📊 Response (${response.status}): ${JSON.stringify(data, null, 2)}`);
+                
+                if (data.authenticated) {
+                    log(`✅ Authenticated as: ${data.user.email}`, 'log');
+                    updateCurrentState();
+                } else {
+                    log('❌ Not authenticated', 'error');
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAuthEndpoint() {
+            const results = document.getElementById('network-results');
+            results.innerHTML = '<p class="log">Testing /api/auth/me...</p>';
+            
+            try {
+                const token = localStorage.getItem('haos_token');
+                const headers = token ? {'Authorization': `Bearer ${token}`} : {};
+                
+                const response = await fetch('/api/auth/me', {
+                    headers,
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                results.innerHTML += `<p class="log">Status: ${response.status}</p>`;
+                results.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                results.innerHTML += `<p class="error-log">Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testSubscriptionEndpoint() {
+            const results = document.getElementById('network-results');
+            results.innerHTML = '<p class="log">Testing /api/subscriptions/current...</p>';
+            
+            try {
+                const token = localStorage.getItem('haos_token');
+                const headers = token ? {'Authorization': `Bearer ${token}`} : {};
+                
+                const response = await fetch('/api/subscriptions/current', {
+                    headers,
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                results.innerHTML += `<p class="log">Status: ${response.status}</p>`;
+                results.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                results.innerHTML += `<p class="error-log">Error: ${error.message}</p>`;
+            }
+        }
+
+        // Check if we just came back from OAuth
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('login') === 'success') {
+            log('🎉 OAuth redirect detected!', 'log');
+            log('⏳ Waiting for oauth-redirect-handler.js to process tokens...', 'warning');
+            
+            setTimeout(() => {
+                log('🔄 Refreshing state...', 'log');
+                updateCurrentState();
+                updateStorageContents();
+                
+                const token = localStorage.getItem('haos_token');
+                if (token) {
+                    log('✅ Token successfully saved!', 'log');
+                } else {
+                    log('❌ Token NOT saved - oauth-redirect-handler.js may have failed!', 'error');
+                }
+            }, 1000);
+        }
+
+        // Auto-refresh every 2 seconds
+        setInterval(() => {
+            updateStorageContents();
+        }, 2000);
+    </script>
+</body>
+</html>
