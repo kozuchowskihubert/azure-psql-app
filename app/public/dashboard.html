@@ -1940,43 +1940,90 @@
 
     // Auth check and user data
     async function initDashboard() {
-      const accessToken = localStorage.getItem('accessToken');
+      // Try new token name first, fallback to old name
+      const accessToken = localStorage.getItem('haos_token') || localStorage.getItem('accessToken');
       
-      if (!accessToken) {
-        window.location.href = '/login.html';
-        return;
-      }
+      console.log('[Dashboard] Initializing...');
+      console.log('[Dashboard] Has token:', !!accessToken);
+      console.log('[Dashboard] Cookies:', document.cookie);
 
       try {
-        const response = await fetch('/api/auth/me', {
-          headers: { 'Authorization': `Bearer ${accessToken}` }
+        let data = null;
+        
+        // Try 1: Session-based auth (cookie)
+        console.log('[Dashboard] Trying session auth...');
+        const sessionResponse = await fetch('/api/auth/me', {
+          credentials: 'include'
         });
+        
+        if (sessionResponse.ok) {
+          const sessionData = await sessionResponse.json();
+          console.log('[Dashboard] Session auth response:', sessionData);
+          if (sessionData.authenticated && sessionData.user) {
+            data = sessionData;
+          }
+        }
+        
+        // Try 2: JWT Bearer token auth (fallback)
+        if (!data && accessToken) {
+          console.log('[Dashboard] Session failed, trying Bearer token...');
+          const tokenResponse = await fetch('/api/auth/me', {
+            headers: { 'Authorization': `Bearer ${accessToken}` },
+            credentials: 'include'
+          });
 
-        if (!response.ok) {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/login.html';
-          return;
+          if (tokenResponse.ok) {
+            const tokenData = await tokenResponse.json();
+            console.log('[Dashboard] Bearer token auth response:', tokenData);
+            if (tokenData.authenticated && tokenData.user) {
+              data = tokenData;
+            } else {
+              console.log('[Dashboard] Token expired, clearing...');
+              // Token expired, clear it
+              localStorage.removeItem('accessToken');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('haos_token');
+              localStorage.removeItem('haos_refresh_token');
+            }
+          }
         }
 
-        const data = await response.json();
-        if (data.success && data.user) {
+        // Check if authenticated
+        if (data && data.user) {
+          console.log('[Dashboard] ✅ Authenticated as:', data.user.email);
           updateUserUI(data.user);
           loadDashboardData();
+        } else {
+          console.log('[Dashboard] ❌ Not authenticated, redirecting to login...');
+          window.location.href = '/login.html';
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error('[Dashboard] Auth check failed:', error);
         window.location.href = '/login.html';
       }
     }
 
     function updateUserUI(user) {
+      console.log('[Dashboard] updateUserUI called with user:', user);
+      
       const userName = document.getElementById('sidebarUserName');
       const userEmail = document.getElementById('sidebarUserEmail');
       const userAvatar = document.getElementById('sidebarAvatar');
       
-      if (userName) userName.textContent = user.display_name || user.name || user.email?.split('@')[0] || 'User';
-      if (userEmail) userEmail.textContent = user.email || '';
+      // Determine display name priority: display_name > name > email username > 'User'
+      const displayName = user.display_name || user.name || user.email?.split('@')[0] || 'User';
+      console.log('[Dashboard] Display name:', displayName);
+      
+      if (userName) {
+        userName.textContent = displayName;
+        console.log('[Dashboard] ✅ Updated userName element to:', displayName);
+      } else {
+        console.error('[Dashboard] ❌ sidebarUserName element not found!');
+      }
+      
+      if (userEmail) {
+        userEmail.textContent = user.email || '';
+      }
       
       if (userAvatar) {
         if (user.avatar_url || user.avatar) {
