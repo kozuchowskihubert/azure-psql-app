@@ -454,9 +454,16 @@
     function redirect() {
       // Set flag to indicate OAuth redirect
       localStorage.setItem('oauth_redirect', 'true');
+      localStorage.setItem('oauth_redirect_time', Date.now().toString());
       
-      // Redirect to Profile tab in account page
-      window.location.href = '/account.html?tab=profile';
+      // Debug: Log what we have before redirect
+      console.log('[Welcome] Redirecting with:');
+      console.log('  - haos_token:', !!localStorage.getItem('haos_token'));
+      console.log('  - haos_user:', localStorage.getItem('haos_user'));
+      console.log('  - cookies:', document.cookie);
+      
+      // Redirect to Profile tab in account page with oauth flag
+      window.location.href = '/account.html?tab=profile&from=oauth';
     }
 
     // Auto-redirect after 3 seconds

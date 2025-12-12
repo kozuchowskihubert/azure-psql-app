@@ -1301,6 +1301,7 @@
       const successParam = urlParams.get('success');
       const loginParam = urlParams.get('login');
       const tabParam = urlParams.get('tab');
+      const fromParam = urlParams.get('from');
       
       if (successParam === 'true') {
         showAlert('success', 'Payment successful! Your subscription has been activated.');
@@ -1310,23 +1311,46 @@
 
       // Check for OAuth redirect from welcome.html
       const oauthRedirectFlag = localStorage.getItem('oauth_redirect');
+      const oauthRedirectTime = localStorage.getItem('oauth_redirect_time');
       const hasTokens = localStorage.getItem('haos_token');
+      const hasCookie = document.cookie.includes('haos_session');
       
-      // If coming from OAuth redirect, wait for oauth-redirect-handler.js to process tokens
-      const isOAuthRedirect = oauthRedirectFlag || loginParam === 'success' || urlParams.get('tokens') || sessionStorage.getItem('oauth_in_progress');
+      // Debug logging
+      console.log('[Account] Page loaded with params:', { 
+        from: fromParam, 
+        login: loginParam, 
+        tab: tabParam,
+        oauthFlag: !!oauthRedirectFlag,
+        oauthTime: oauthRedirectTime,
+        hasTokens: !!hasTokens,
+        hasCookie: hasCookie,
+        cookies: document.cookie
+      });
+      
+      // If coming from OAuth redirect, wait for session to be fully established
+      const isOAuthRedirect = fromParam === 'oauth' || oauthRedirectFlag || loginParam === 'success' || urlParams.get('tokens') || sessionStorage.getItem('oauth_in_progress');
       
       if (isOAuthRedirect) {
-        console.log('[Account] OAuth redirect detected, waiting for token processing...');
-        // Give oauth-redirect-handler.js time to save tokens
-        await new Promise(resolve => setTimeout(resolve, 800));
+        console.log('[Account] ⏳ OAuth redirect detected, waiting for session establishment...');
+        console.log('[Account]   - Has tokens in localStorage:', !!hasTokens);
+        console.log('[Account]   - Has haos_session cookie:', hasCookie);
+        console.log('[Account]   - All cookies:', document.cookie);
+        
+        // Give more time for session cookie to be set and recognized
+        // Vercel serverless can be slow, so wait longer
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         // Clear OAuth flags
         sessionStorage.removeItem('oauth_in_progress');
         localStorage.removeItem('oauth_redirect');
+        localStorage.removeItem('oauth_redirect_time');
+        
+        console.log('[Account] ✅ Delay complete, checking auth...');
       }
       // Always delay slightly if tokens exist to ensure they're saved
       else if (hasTokens) {
         console.log('[Account] Tokens found in localStorage, brief delay...');
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
 
       await checkAuth();
