@@ -20,11 +20,12 @@ CREATE TABLE IF NOT EXISTS user_sessions (
     expires_at TIMESTAMP NOT NULL,
     last_activity TIMESTAMP DEFAULT NOW(),
     user_agent TEXT,
-    ip_address INET,
-    INDEX idx_session_id (session_id),
-    INDEX idx_user_id (user_id),
-    INDEX idx_expires_at (expires_at)
+    ip_address INET
 );
+
+CREATE INDEX IF NOT EXISTS idx_user_sessions_session_id ON user_sessions(session_id);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_expires_at ON user_sessions(expires_at);
 
 -- Magic Links Table (Passwordless Authentication)
 CREATE TABLE IF NOT EXISTS magic_links (
@@ -35,11 +36,12 @@ CREATE TABLE IF NOT EXISTS magic_links (
     expires_at TIMESTAMP NOT NULL,
     used_at TIMESTAMP,
     ip_address INET,
-    user_agent TEXT,
-    INDEX idx_token (token),
-    INDEX idx_email (email),
-    INDEX idx_expires_at (expires_at)
+    user_agent TEXT
 );
+
+CREATE INDEX IF NOT EXISTS idx_magic_links_token ON magic_links(token);
+CREATE INDEX IF NOT EXISTS idx_magic_links_email ON magic_links(email);
+CREATE INDEX IF NOT EXISTS idx_magic_links_expires_at ON magic_links(expires_at);
 
 -- OAuth Accounts Table
 CREATE TABLE IF NOT EXISTS oauth_accounts (
@@ -53,10 +55,11 @@ CREATE TABLE IF NOT EXISTS oauth_accounts (
     profile_data JSONB,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
-    UNIQUE(provider, provider_user_id),
-    INDEX idx_user_id (user_id),
-    INDEX idx_provider (provider, provider_user_id)
+    UNIQUE(provider, provider_user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_oauth_accounts_user_id ON oauth_accounts(user_id);
+CREATE INDEX IF NOT EXISTS idx_oauth_accounts_provider ON oauth_accounts(provider, provider_user_id);
 
 -- Update users table to support new auth system
 ALTER TABLE users 
@@ -85,22 +88,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_user_sessions_updated_at ON user_sessions;
 CREATE TRIGGER update_user_sessions_updated_at BEFORE UPDATE ON user_sessions
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_oauth_accounts_updated_at ON oauth_accounts;
 CREATE TRIGGER update_oauth_accounts_updated_at BEFORE UPDATE ON oauth_accounts
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Grant necessary permissions
-GRANT SELECT, INSERT, UPDATE, DELETE ON user_sessions TO haos_user;
-GRANT SELECT, INSERT, UPDATE, DELETE ON magic_links TO haos_user;
-GRANT SELECT, INSERT, UPDATE, DELETE ON oauth_accounts TO haos_user;
-GRANT USAGE, SELECT ON SEQUENCE user_sessions_id_seq TO haos_user;
-GRANT USAGE, SELECT ON SEQUENCE magic_links_id_seq TO haos_user;
-GRANT USAGE, SELECT ON SEQUENCE oauth_accounts_id_seq TO haos_user;
 
 -- Migration complete
 COMMENT ON TABLE user_sessions IS 'Unified session management for anonymous and authenticated users';
