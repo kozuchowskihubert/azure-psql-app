@@ -9,11 +9,22 @@ const Subscription = require('../models/subscription');
 const PaymentService = require('../services/payment-service');
 const authService = require('../services/auth-service');
 
+// Helper to parse cookies from Cookie header
+function parseCookies(cookieHeader) {
+  if (!cookieHeader) return {};
+  return cookieHeader.split(';').reduce((cookies, cookie) => {
+    const [name, value] = cookie.trim().split('=');
+    if (name && value) cookies[name] = decodeURIComponent(value);
+    return cookies;
+  }, {});
+}
+
 // Middleware to load user from session cookie OR Bearer token (fallback)
 const loadUserFromSession = async (req, res, next) => {
   try {
-    // Try cookie first (preferred method)
-    const sessionId = req.cookies?.haos_session;
+    // Parse cookies manually from Cookie header
+    const cookies = parseCookies(req.headers.cookie);
+    const sessionId = cookies.haos_session;
     console.log('[Subscription] loadUserFromSession - sessionId:', sessionId ? `${sessionId.substring(0, 8)}...` : 'NONE');
     
     if (sessionId) {
@@ -29,7 +40,7 @@ const loadUserFromSession = async (req, res, next) => {
       }
     } else {
       console.log('[Subscription] ❌ No haos_session cookie in request');
-      console.log('[Subscription] Available cookies:', Object.keys(req.cookies || {}));
+      console.log('[Subscription] Available cookies:', Object.keys(cookies));
     }
     
     // Fallback: Try Bearer token from Authorization header
