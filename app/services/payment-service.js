@@ -948,12 +948,12 @@ class PaymentService {
     try {
       const order = await payuService.createOrder(orderData);
 
-      // Store transaction in database
+      // Store transaction in database (convert amount to cents)
       await Payment.createTransaction({
         userId: orderData.userId,
         type: 'subscription',
         status: 'pending',
-        amount: order.amount,
+        amount: Math.round(order.amount * 100), // Convert PLN to groszy (cents)
         currency: order.currency,
         provider: 'payu',
         providerTransactionId: order.orderId,
@@ -983,12 +983,12 @@ class PaymentService {
     try {
       const order = await payuService.createBlikPayment(orderData, blikCode);
 
-      // Store transaction in database
+      // Store transaction in database (convert amount to cents)
       await Payment.createTransaction({
         userId: orderData.userId,
         type: 'subscription',
         status: 'pending',
-        amount: order.amount,
+        amount: Math.round(order.amount * 100), // Convert PLN to groszy (cents)
         currency: order.currency,
         provider: 'payu',
         providerTransactionId: order.orderId,
