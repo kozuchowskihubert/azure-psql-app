@@ -5,7 +5,20 @@
 
 const express = require('express');
 const passport = require('passport');
-const jwt = require('jsonwebtoken');
+c/**
+ * GET /auth/apple/callback
+ * Apple OAuth callback
+ */
+router.post('/apple/callback',
+  passport.authenticate('apple', {
+    failureRedirect: '/login.html?error=apple_failed',
+    session: false
+  }),
+  async (req, res) => {
+    await handleOAuthSuccess(req, res);
+  }
+);require('jsonwebtoken');
+const authService = require('../services/auth-service');
 
 const router = express.Router();
 
@@ -43,42 +56,63 @@ function generateTokens(user) {
 /**
  * Handle successful OAuth login
  */
-function handleOAuthSuccess(req, res) {
+async function handleOAuthSuccess(req, res) {
   if (!req.user) {
     return res.redirect('/login.html?error=oauth_failed');
   }
 
-  const tokens = generateTokens(req.user);
-  
-  // Return HTML that posts message to opener and closes
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head><title>Login Successful</title></head>
-    <body>
-      <script>
-        // Store tokens
-        localStorage.setItem('haos_token', '${tokens.accessToken}');
-        localStorage.setItem('haos_refresh_token', '${tokens.refreshToken}');
-        localStorage.setItem('haos_user', JSON.stringify({
-          id: ${req.user.id},
-          email: '${req.user.email}',
-          name: '${req.user.display_name || req.user.name || ''}'
-        }));
-        
-        // Notify parent window
-        if (window.opener) {
-          window.opener.postMessage({ type: 'oauth-success', tokens: ${JSON.stringify(tokens)} }, '*');
-          window.close();
-        } else {
-          // Redirect to account page
-          window.location.href = '/account.html?login=success';
-        }
-      </script>
-      <p>Login successful! Redirecting...</p>
-    </body>
-    </html>
-  `);
+  try {
+    // Create authenticated session in database
+    const session = await authService.createUserSession(req.user);
+    
+    // Set session cookie
+    res.cookie('haos_session', session.sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
+    // Generate JWT tokens for compatibility
+    const tokens = generateTokens(req.user);
+    
+    // Return HTML that sets up session and closes popup
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>Login Successful</title></head>
+      <body>
+        <script>
+          // Store tokens for backwards compatibility
+          localStorage.setItem('haos_token', '${tokens.accessToken}');
+          localStorage.setItem('haos_refresh_token', '${tokens.refreshToken}');
+          localStorage.setItem('haos_user', JSON.stringify({
+            id: ${req.user.id},
+            email: '${req.user.email}',
+            name: '${req.user.display_name || req.user.name || ''}'
+          }));
+          
+          // Notify parent window
+          if (window.opener) {
+            window.opener.postMessage({ 
+              type: 'oauth-success', 
+              sessionId: '${session.sessionId}',
+              tokens: ${JSON.stringify(tokens)} 
+            }, '*');
+            window.close();
+          } else {
+            // Redirect to account page
+            window.location.href = '/account.html?login=success';
+          }
+        </script>
+        <p>Login successful! Redirecting...</p>
+      </body>
+      </html>
+    `);
+  } catch (error) {
+    console.error('[OAuth] Failed to create session:', error);
+    return res.redirect('/login.html?error=session_failed');
+  }
 }
 
 // ============================================================================
@@ -103,7 +137,9 @@ router.get('/google/callback',
     failureRedirect: '/login.html?error=google_failed',
     session: false
   }),
-  handleOAuthSuccess
+  async (req, res) => {
+    await handleOAuthSuccess(req, res);
+  }
 );
 
 // ============================================================================
@@ -127,7 +163,9 @@ router.get('/facebook/callback',
     failureRedirect: '/login.html?error=facebook_failed',
     session: false
   }),
-  handleOAuthSuccess
+  async (req, res) => {
+    await handleOAuthSuccess(req, res);
+  }
 );
 
 // ============================================================================
