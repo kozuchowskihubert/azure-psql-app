@@ -301,4 +301,73 @@ router.post('/test-payu-order', async (req, res) => {
   }
 });
 
+// Check database subscriptions and transactions
+router.post('/check-subscriptions', async (req, res) => {
+  const { secret } = req.body;
+  
+  if (secret !== 'haos-migrate-2025') {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    console.log('🔍 Checking database subscriptions...');
+    
+    // Check user subscriptions
+    const subs = await pool.query(`
+      SELECT 
+        us.id, us.user_id, us.status, us.billing_cycle,
+        us.started_at, us.current_period_end,
+        sp.plan_code, sp.name as plan_name, sp.price_monthly, sp.price_yearly,
+        u.email, u.name as user_name
+      FROM user_subscriptions us
+      JOIN subscription_plans sp ON us.plan_id = sp.id
+      JOIN users u ON us.user_id = u.id
+      ORDER BY us.started_at DESC
+      LIMIT 10
+    `);
+    
+    // Check transactions
+    const trans = await pool.query(`
+      SELECT 
+        t.id, t.user_id, t.type, t.status, 
+        t.amount, t.currency, t.provider,
+        t.provider_transaction_id, t.created_at,
+        u.email
+      FROM transactions t
+      JOIN users u ON t.user_id = u.id
+      ORDER BY t.created_at DESC
+      LIMIT 10
+    `);
+    
+    res.json({
+      success: true,
+      subscriptions: subs.rows.map(sub => ({
+        user: `${sub.user_name} (${sub.email})`,
+        plan: `${sub.plan_name} (${sub.plan_code})`,
+        status: sub.status,
+        billing_cycle: sub.billing_cycle,
+        started_at: sub.started_at,
+        period_end: sub.current_period_end
+      })),
+      transactions: trans.rows.map(t => ({
+        user: t.email,
+        type: t.type,
+        amount: `${(t.amount / 100).toFixed(2)} ${t.currency}`,
+        provider: t.provider,
+        status: t.status,
+        payu_order_id: t.provider_transaction_id,
+        created_at: t.created_at
+      })),
+      total_subscriptions: subs.rows.length,
+      total_transactions: trans.rows.length
+    });
+  } catch (error) {
+    console.error('❌ Database check failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
