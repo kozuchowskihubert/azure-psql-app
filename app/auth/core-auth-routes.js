@@ -155,6 +155,26 @@ async function handleOAuthSuccess(req, res) {
 }
 
 // ============================================================================
+// TEST & DEBUG Routes
+// ============================================================================
+
+/**
+ * GET /auth/test
+ * Test if auth routes are working
+ */
+router.get('/test', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    message: 'Auth routes are working!',
+    env: {
+      hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
+      hasGoogleClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
+      appUrl: process.env.APP_URL || 'not set'
+    }
+  });
+});
+
+// ============================================================================
 // GOOGLE OAuth Routes
 // ============================================================================
 
