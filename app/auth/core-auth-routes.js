@@ -185,7 +185,7 @@ router.get('/google/callback', (req, res, next) => {
       console.log('[OAuth Callback] Session created:', sessionId);
       
       // Set session cookie
-      res.cookie('haos_session', sessionData.sessionId, {
+      res.cookie('haos_session', sessionId, {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
