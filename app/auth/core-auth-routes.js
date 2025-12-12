@@ -196,9 +196,9 @@ router.get('/google/callback', (req, res, next) => {
       // Wait a bit to ensure session is fully committed to database
       await new Promise(resolve => setTimeout(resolve, 150));
       
-      // Redirect with tokens
+      // Redirect with tokens to welcome page
       const referer = req.get('referer') || '';
-      const redirectUrl = referer.includes('oauth-test.html') ? '/oauth-test.html' : '/account.html';
+      const redirectUrl = referer.includes('oauth-test.html') ? '/oauth-test.html' : '/welcome.html';
       const tokenData = JSON.stringify({ 
         accessToken, 
         refreshToken, 

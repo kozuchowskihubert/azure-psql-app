@@ -860,6 +860,32 @@
         <p>Manage your subscription, profile, and billing</p>
       </div>
 
+      <!-- User Welcome Section -->
+      <div class="account-card" style="margin-bottom: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 28px;">
+            <i class="fas fa-user"></i>
+          </div>
+          <div style="flex: 1;">
+            <h2 style="margin: 0 0 0.5rem 0; font-size: 1.75rem;">
+              Welcome, <span id="user-display-name">User</span>!
+            </h2>
+            <p style="margin: 0; opacity: 0.9; font-size: 1rem;">
+              <i class="fas fa-envelope" style="margin-right: 0.5rem;"></i>
+              <span id="user-display-email">user@example.com</span>
+            </p>
+            <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">
+              <i class="fas fa-crown" style="margin-right: 0.5rem;"></i>
+              Tier: <strong><span id="user-display-tier">Free</span></strong>
+            </p>
+          </div>
+          <div style="text-align: right;">
+            <p style="margin: 0; font-size: 0.85rem; opacity: 0.8;">Member since</p>
+            <p style="margin: 0.25rem 0 0 0; font-size: 1rem; font-weight: 500;" id="user-member-since">2024</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Alert Container -->
       <div id="alert-container"></div>
 
@@ -942,6 +968,17 @@
           </div>
           <div id="plans-grid" class="plans-grid">
             <!-- Plans will be loaded here -->
+          </div>
+        </div>
+
+        <!-- Inspirational Motto -->
+        <div style="margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);">
+          <div style="font-size: 1.5rem; font-weight: 700; color: white; letter-spacing: 2px; line-height: 1.6; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+            "IF YOU DON'T WANNA MOVE FORWARD,<br>
+            MOVE SIDEWAYS, NOT BACKWARD"
+          </div>
+          <div style="margin-top: 1rem; font-size: 0.9rem; color: rgba(255,255,255,0.8); font-style: italic;">
+            — Keep creating, keep evolving 🎵
           </div>
         </div>
       </div>
@@ -1202,6 +1239,52 @@
     // Check for OAuth callback immediately
     handleOAuthCallback();
     
+    // Update user welcome section with user data
+    function updateUserWelcome(user) {
+      if (!user) {
+        // Try to get user from localStorage
+        const storedUser = localStorage.getItem('haos_user');
+        if (storedUser) {
+          try {
+            user = JSON.parse(storedUser);
+          } catch (e) {
+            console.error('[Account] Failed to parse stored user:', e);
+            return;
+          }
+        } else {
+          return;
+        }
+      }
+      
+      // Update name
+      const displayName = user.display_name || user.name || 'User';
+      document.getElementById('user-display-name').textContent = displayName;
+      
+      // Update email
+      document.getElementById('user-display-email').textContent = user.email || 'No email';
+      
+      // Update tier
+      const tier = user.subscription_tier || 'free';
+      document.getElementById('user-display-tier').textContent = tier.charAt(0).toUpperCase() + tier.slice(1);
+      
+      // Update member since
+      if (user.created_at) {
+        const date = new Date(user.created_at);
+        const monthYear = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        document.getElementById('user-member-since').textContent = monthYear;
+      }
+      
+      // Update tier badge color based on tier
+      const tierBadge = document.getElementById('user-display-tier');
+      if (tier === 'pro') {
+        tierBadge.style.color = '#FFD700';
+      } else if (tier === 'premium') {
+        tierBadge.style.color = '#E0E0E0';
+      } else if (tier === 'basic') {
+        tierBadge.style.color = '#90EE90';
+      }
+    }
+    
     // State
     let currentUser = null;
     let currentSubscription = null;
@@ -1290,6 +1373,7 @@
           console.log('[Account] ✅ Authenticated as:', data.user.email);
           currentUser = data.user;
           localStorage.setItem('userProfile', JSON.stringify(data.user));
+          updateUserWelcome(data.user);
           document.getElementById('account-content').style.display = 'block';
           await loadAccountData();
         } else {
