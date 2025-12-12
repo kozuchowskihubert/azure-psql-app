@@ -104,13 +104,20 @@ class HAOSAuthManager {
    */
   async loginWithOAuth(provider) {
     try {
+      console.log(`[HAOSAuth] Starting OAuth flow for: ${provider}`);
+      
       // Save return URL
       const returnTo = window.location.pathname + window.location.search;
       sessionStorage.setItem('oauth_return_to', returnTo);
+      console.log(`[HAOSAuth] Saved return URL: ${returnTo}`);
       
       // Use redirect flow instead of popup
       // This ensures cookie is set in the MAIN window
-      window.location.href = `/auth/${provider}`;
+      const authUrl = `/auth/${provider}`;
+      console.log(`[HAOSAuth] Redirecting to: ${authUrl}`);
+      console.log(`[HAOSAuth] Current window location: ${window.location.href}`);
+      
+      window.location.href = authUrl;
       
       // Note: This function never resolves because page redirects
       // Session will be restored on callback redirect

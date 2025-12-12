@@ -159,7 +159,8 @@ async function handleOAuthSuccess(req, res) {
  */
 router.get('/google', passport.authenticate('google', {
   scope: ['profile', 'email'],
-  prompt: 'select_account'
+  accessType: 'offline',
+  prompt: 'consent select_account' // Force consent screen and account selection
 }));
 
 /**
