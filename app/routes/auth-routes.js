@@ -55,14 +55,14 @@ router.get('/me', async (req, res) => {
       console.log('[Auth /me] Trying Bearer token authentication...');
       const decoded = authService.verifyToken(bearerToken, 'access');
       
-      if (decoded && decoded.userId) {
-        console.log('[Auth /me] ✅ Bearer token authenticated, fetching user:', decoded.userId);
+      if (decoded && decoded.id) {
+        console.log('[Auth /me] ✅ Bearer token authenticated, fetching user:', decoded.id);
         
         // Fetch user from database
         const db = require('../config/database');
         const result = await db.query(
           'SELECT id, email, name, display_name, avatar_url, google_id FROM users WHERE id = $1',
-          [decoded.userId]
+          [decoded.id]
         );
         
         if (result.rows.length > 0) {
@@ -87,7 +87,7 @@ router.get('/me', async (req, res) => {
           });
         }
         
-        console.log('[Auth /me] ❌ User not found for token userId:', decoded.userId);
+        console.log('[Auth /me] ❌ User not found for token id:', decoded.id);
       } else {
         console.log('[Auth /me] ❌ Bearer token invalid or expired');
       }
