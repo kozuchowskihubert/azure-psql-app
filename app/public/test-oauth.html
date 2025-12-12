@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Test - HAOS.fm</title>
+    <style>
+        body {
+            background: #0A0A0A;
+            color: #F4E8D8;
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #1A1A1A;
+            border: 1px solid #FF6B35;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        button {
+            background: #FF6B35;
+            color: #0A0A0A;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #D4AF37;
+        }
+        .log {
+            background: #000;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #39FF14; }
+        .error { color: #FF3333; }
+        .info { color: #00BFFF; }
+    </style>
+</head>
+<body>
+    <h1>🔐 HAOS.fm OAuth Test</h1>
+    <p>Test narzędzie do debugowania OAuth Google flow</p>
+
+    <div class="test-section">
+        <h2>Test 1: Endpoint Accessibility</h2>
+        <button onclick="testEndpoint()">Test /auth/google endpoint</button>
+        <div id="endpoint-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Popup Opening</h2>
+        <button onclick="testPopup()">Open OAuth Popup</button>
+        <div id="popup-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Full OAuth Flow (with HAOSAuth)</h2>
+        <button onclick="testFullFlow()">Test Full Google Login</button>
+        <div id="full-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Check Current Session</h2>
+        <button onclick="checkSession()">Check /api/auth/me</button>
+        <div id="session-result" class="log"></div>
+    </div>
+
+    <script src="/js/auth-manager.js"></script>
+    <script>
+        function log(elementId, message, type = 'info') {
+            const el = document.getElementById(elementId);
+            const time = new Date().toLocaleTimeString();
+            el.innerHTML += `<div class="${type}">[${time}] ${message}</div>`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        async function testEndpoint() {
+            const resultId = 'endpoint-result';
+            document.getElementById(resultId).innerHTML = '';
+            
+            log(resultId, 'Testing /auth/google endpoint...', 'info');
+            
+            try {
+                const response = await fetch('/auth/google', {
+                    method: 'GET',
+                    redirect: 'manual'
+                });
+                
+                log(resultId, `Status: ${response.status} ${response.statusText}`, 'info');
+                log(resultId, `Type: ${response.type}`, 'info');
+                
+                if (response.status === 0 && response.type === 'opaqueredirect') {
+                    log(resultId, '✅ Endpoint works! Redirects to Google OAuth', 'success');
+                } else if (response.status === 302) {
+                    log(resultId, '✅ Endpoint works! 302 redirect detected', 'success');
+                } else {
+                    log(resultId, `⚠️ Unexpected response: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(resultId, `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function testPopup() {
+            const resultId = 'popup-result';
+            document.getElementById(resultId).innerHTML = '';
+            
+            log(resultId, 'Opening popup to /auth/google...', 'info');
+            
+            const width = 600;
+            const height = 700;
+            const left = window.screen.width / 2 - width / 2;
+            const top = window.screen.height / 2 - height / 2;
+
+            const popup = window.open(
+                '/auth/google',
+                'Google Login Test',
+                `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
+            );
+
+            if (!popup) {
+                log(resultId, '❌ Popup blocked! Please allow popups for this site.', 'error');
+                return;
+            }
+
+            log(resultId, '✅ Popup opened successfully', 'success');
+            log(resultId, 'Monitoring popup state...', 'info');
+
+            const monitor = setInterval(() => {
+                if (popup.closed) {
+                    clearInterval(monitor);
+                    log(resultId, '🔄 Popup closed', 'info');
+                    log(resultId, 'Checking if auth succeeded...', 'info');
+                    
+                    setTimeout(async () => {
+                        const token = localStorage.getItem('haos_token');
+                        if (token) {
+                            log(resultId, '✅ Token found in localStorage!', 'success');
+                            log(resultId, `Token: ${token.substring(0, 20)}...`, 'info');
+                        } else {
+                            log(resultId, '⚠️ No token found. Auth may have failed or been cancelled.', 'error');
+                        }
+                    }, 500);
+                }
+            }, 500);
+
+            setTimeout(() => {
+                if (!popup.closed) {
+                    log(resultId, '⏰ Still waiting for popup (30s elapsed)...', 'info');
+                }
+            }, 30000);
+        }
+
+        async function testFullFlow() {
+            const resultId = 'full-result';
+            document.getElementById(resultId).innerHTML = '';
+            
+            log(resultId, 'Testing full OAuth flow with HAOSAuth...', 'info');
+            
+            if (!window.HAOSAuth) {
+                log(resultId, '❌ HAOSAuth not loaded!', 'error');
+                return;
+            }
+
+            log(resultId, '✅ HAOSAuth loaded', 'success');
+            
+            try {
+                log(resultId, 'Calling loginWithGoogle()...', 'info');
+                const result = await window.HAOSAuth.loginWithGoogle();
+                
+                log(resultId, '✅ Login successful!', 'success');
+                log(resultId, `User: ${JSON.stringify(result, null, 2)}`, 'success');
+            } catch (error) {
+                log(resultId, `❌ Login failed: ${error.message}`, 'error');
+                log(resultId, `Stack: ${error.stack}`, 'error');
+            }
+        }
+
+        async function checkSession() {
+            const resultId = 'session-result';
+            document.getElementById(resultId).innerHTML = '';
+            
+            log(resultId, 'Checking current session...', 'info');
+            
+            try {
+                const response = await fetch('/api/auth/me', {
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                log(resultId, `Status: ${response.status}`, 'info');
+                log(resultId, `Response: ${JSON.stringify(data, null, 2)}`, data.authenticated ? 'success' : 'info');
+                
+                if (data.authenticated) {
+                    log(resultId, '✅ User is authenticated!', 'success');
+                    log(resultId, `Email: ${data.user?.email}`, 'success');
+                } else {
+                    log(resultId, '⚠️ User is not authenticated', 'info');
+                }
+            } catch (error) {
+                log(resultId, `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize HAOSAuth on load
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (window.HAOSAuth) {
+                await window.HAOSAuth.init();
+                console.log('HAOSAuth initialized');
+            }
+        });
+    </script>
+</body>
+</html>
