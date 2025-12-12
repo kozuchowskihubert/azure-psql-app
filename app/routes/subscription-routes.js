@@ -34,12 +34,16 @@ const loadUserFromSession = async (req, res, next) => {
     
     // Fallback: Try Bearer token from Authorization header
     const authHeader = req.headers.authorization;
+    console.log('[Subscription] Authorization header:', authHeader ? 'EXISTS' : 'MISSING');
+    
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       console.log('[Subscription] 🔑 Trying Bearer token fallback:', token.substring(0, 20) + '...');
       
       try {
         const decoded = await authService.verifyToken(token);
+        console.log('[Subscription] Token decoded:', decoded ? { id: decoded.id, email: decoded.email } : 'NULL');
+        
         if (decoded && decoded.id) {
           // Load user from database
           const { Pool } = require('pg');
