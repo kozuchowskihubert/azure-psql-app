@@ -643,22 +643,65 @@
     });
 
     async function checkAuth() {
+      const accessToken = localStorage.getItem('haos_token') || localStorage.getItem('accessToken');
+      
       try {
-        const response = await fetch('/api/auth/me', { credentials: 'include' });
-        const data = await response.json();
-
-        // Check if user is authenticated (using correct response structure)
-        if (data.authenticated && data.user) {
+        let data = null;
+        
+        console.log('[Subscription] Checking auth...');
+        console.log('[Subscription] Has token:', !!accessToken);
+        
+        // Try session cookie first
+        const sessionResponse = await fetch('/api/auth/me', { 
+          credentials: 'include' 
+        });
+        
+        if (sessionResponse.ok) {
+          data = await sessionResponse.json();
+          console.log('[Subscription] Session auth:', data.authenticated ? '✅' : '❌');
+        }
+        
+        // Fallback to Bearer token if session didn't work
+        if (!data || !data.authenticated) {
+          console.log('[Subscription] Trying Bearer token...');
+          
+          if (accessToken) {
+            const bearerResponse = await fetch('/api/auth/me', {
+              headers: { 'Authorization': `Bearer ${accessToken}` },
+              credentials: 'include'
+            });
+            
+            if (bearerResponse.ok) {
+              const bearerData = await bearerResponse.json();
+              console.log('[Subscription] Bearer auth:', bearerData.authenticated ? '✅' : '❌');
+              
+              if (bearerData.authenticated && bearerData.user) {
+                data = bearerData;
+              }
+            } else {
+              console.log('[Subscription] Bearer token invalid, clearing...');
+              localStorage.removeItem('haos_token');
+              localStorage.removeItem('haos_refresh_token');
+              localStorage.removeItem('accessToken');
+              localStorage.removeItem('refreshToken');
+            }
+          }
+        }
+        
+        // Show/hide content based on auth status
+        if (data && data.authenticated && data.user) {
+          console.log('[Subscription] ✅ Authenticated as:', data.user.email);
           currentUser = data.user;
           document.getElementById('login-prompt').style.display = 'none';
           document.getElementById('subscription-content').style.display = 'block';
           await loadData();
         } else {
+          console.log('[Subscription] ❌ Not authenticated');
           document.getElementById('login-prompt').style.display = 'block';
           document.getElementById('subscription-content').style.display = 'none';
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error('[Subscription] Auth check failed:', error);
         document.getElementById('login-prompt').style.display = 'block';
         document.getElementById('subscription-content').style.display = 'none';
       }
