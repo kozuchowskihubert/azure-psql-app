@@ -1,21 +1,26 @@
 {
-  "name": "haos-fm-platform",
-  "version": "1.0.0",
-  "description": "HAOS.fm - Hardware Analog Oscillator Synthesis Platform",
+  "name": "azure-psql-app",
+  "version": "1.1.0",
   "private": true,
-  "main": "api/index.js",
   "scripts": {
-    "vercel-build": "echo 'No build step required'",
-    "dev": "cd app && npm run dev",
-    "start": "cd app && npm start"
-  },
-  "engines": {
-    "node": ">=18.x"
+    "start": "node server.js",
+    "start:https": "node server-https.js",
+    "dev": "nodemon server.js",
+    "dev:https": "nodemon server-https.js",
+    "test": "jest --coverage --verbose",
+    "test:ci": "jest smoke.test.js --coverage",
+    "test:watch": "jest --watch",
+    "test:unit": "jest --testPathPattern=test --coverage",
+    "test:integration": "jest --testPathPattern=test/database.test.js",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "migrate": "node utils/db-init.js"
   },
   "dependencies": {
     "@azure/storage-blob": "^12.29.1",
     "@paypal/checkout-server-sdk": "^1.0.3",
     "archiver": "^7.0.1",
+    "axios": "^1.13.2",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.3",
     "connect-pg-simple": "^9.0.1",
@@ -25,6 +30,7 @@
     "express-rate-limit": "^7.1.5",
     "express-session": "^1.17.3",
     "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.11",
     "passport": "^0.7.0",
@@ -39,8 +45,13 @@
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.8"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kozuchowskihubert/azure-psql-app"
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.32.0",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11",
+    "supertest": "^7.1.4"
   }
 }
