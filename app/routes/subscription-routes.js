@@ -7,6 +7,26 @@ const express = require('express');
 const router = express.Router();
 const Subscription = require('../models/subscription');
 const PaymentService = require('../services/payment-service');
+const authService = require('../services/auth-service');
+
+// Middleware to load user from session cookie
+const loadUserFromSession = async (req, res, next) => {
+  try {
+    const sessionId = req.cookies?.haos_session;
+    
+    if (sessionId) {
+      const session = await authService.getSession(sessionId);
+      
+      if (session && session.type === 'authenticated' && session.user) {
+        req.user = session.user;
+      }
+    }
+  } catch (error) {
+    console.error('[Subscription] Error loading user from session:', error);
+  }
+  
+  next();
+};
 
 // Middleware to check authentication
 const requireAuth = (req, res, next) => {
@@ -15,6 +35,9 @@ const requireAuth = (req, res, next) => {
   }
   next();
 };
+
+// Apply session middleware to ALL routes (loads user if session cookie exists)
+router.use(loadUserFromSession);
 
 // ============================================================================
 // PUBLIC ENDPOINTS
