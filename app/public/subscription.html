@@ -713,7 +713,16 @@
 
     async function loadSubscription() {
       try {
-        const response = await fetch('/api/subscriptions/current', { credentials: 'include' });
+        const token = localStorage.getItem('haos_token') || localStorage.getItem('accessToken');
+        const headers = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const response = await fetch('/api/subscriptions/current', { 
+          credentials: 'include',
+          headers: headers
+        });
         const data = await response.json();
 
         if (data.success) {
