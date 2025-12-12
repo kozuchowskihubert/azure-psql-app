@@ -846,6 +846,11 @@
       <h2>Sign In Required</h2>
       <p>Please sign in to manage your account and subscription.</p>
       <a href="/login.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+      <div style="margin-top: 20px; padding: 15px; background: rgba(255,107,53,0.1); border: 1px solid rgba(255,107,53,0.3); border-radius: 8px; font-size: 14px;">
+        <strong>🔍 Troubleshooting:</strong><br>
+        If you just logged in and see this message, your session might not be working.<br>
+        <a href="/debug-session.html" style="color: #FF6B35; text-decoration: underline;">Click here to debug your session</a>
+      </div>
     </div>
 
     <!-- Account Content -->
@@ -1225,6 +1230,11 @@
       try {
         let data = null;
         
+        // Debug: Log cookies
+        console.log('[Account] Checking auth...');
+        console.log('[Account] Cookies:', document.cookie);
+        console.log('[Account] Has access token:', !!accessToken);
+        
         // Try session-based auth first (most reliable with OAuth)
         const sessionResponse = await fetch('/api/auth/me', { 
           credentials: 'include' // Include haos_session cookie
@@ -1232,10 +1242,13 @@
         
         if (sessionResponse.ok) {
           data = await sessionResponse.json();
+          console.log('[Account] Session auth response:', data);
         }
         
         // Fallback to JWT authentication if session didn't work
         if (!data || !data.authenticated) {
+          console.log('[Account] Session auth failed, trying JWT...');
+          
           if (accessToken) {
             const jwtResponse = await fetch('/api/auth/me', {
               headers: { 'Authorization': `Bearer ${accessToken}` },
@@ -1244,10 +1257,13 @@
             
             if (jwtResponse.ok) {
               const jwtData = await jwtResponse.json();
+              console.log('[Account] JWT auth response:', jwtData);
+              
               if (jwtData.authenticated && jwtData.user) {
                 data = jwtData;
               }
             } else {
+              console.log('[Account] JWT expired, clearing tokens');
               // Token expired, clear it
               localStorage.removeItem('accessToken');
               localStorage.removeItem('refreshToken');
@@ -1260,11 +1276,14 @@
         document.getElementById('loading').style.display = 'none';
 
         if (data && data.authenticated && data.user) {
+          console.log('[Account] ✅ Authenticated as:', data.user.email);
           currentUser = data.user;
           localStorage.setItem('userProfile', JSON.stringify(data.user));
           document.getElementById('account-content').style.display = 'block';
           await loadAccountData();
         } else {
+          console.log('[Account] ❌ Not authenticated, showing login prompt');
+          console.log('[Account] 💡 Check: https://haos.fm/debug-session.html');
           document.getElementById('not-logged-in').style.display = 'block';
         }
       } catch (error) {
