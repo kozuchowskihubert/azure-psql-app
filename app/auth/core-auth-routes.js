@@ -150,7 +150,7 @@ router.get('/google/callback', (req, res, next) => {
       }
       
       console.log('[OAuth Callback] Creating session for user:', user.id);
-      const sessionData = await authService.createUserSession(user.id, req);
+      const sessionData = await authService.createUserSession(user);
       console.log('[OAuth Callback] Session created:', sessionData.sessionId);
       
       // Set session cookie
