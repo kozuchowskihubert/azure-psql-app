@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Session - HAOS.fm</title>
+  <link rel="stylesheet" href="/css/haos-brand.css">
+  <style>
+    body {
+      background: #0A0A0A;
+      color: #F4E8D8;
+      font-family: 'Monaco', 'Courier New', monospace;
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 { color: #FF6B35; margin-bottom: 30px; }
+    h2 { color: #D4AF37; margin: 30px 0 15px 0; font-size: 20px; }
+    .section {
+      background: #151515;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .code {
+      background: #0d0d0d;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .success { color: #4CAF50; }
+    .error { color: #f44336; }
+    .warning { color: #FFC107; }
+    button {
+      background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
+      color: #0A0A0A;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 10px 10px 10px 0;
+      transition: transform 0.2s;
+    }
+    button:hover { transform: translateY(-2px); }
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .status-ok { background: #4CAF50; }
+    .status-error { background: #f44336; }
+    .status-warning { background: #FFC107; }
+  </style>
+</head>
+<body>
+  <h1>🔍 HAOS.fm Session Debug</h1>
+
+  <div class="section">
+    <h2>1. Browser Cookies</h2>
+    <div id="cookies-output" class="code">Loading...</div>
+  </div>
+
+  <div class="section">
+    <h2>2. LocalStorage Tokens</h2>
+    <div id="localstorage-output" class="code">Loading...</div>
+  </div>
+
+  <div class="section">
+    <h2>3. /api/auth/me Response</h2>
+    <button onclick="testAuthMe()">🔄 Test Now</button>
+    <div id="authme-output" class="code">Click button to test...</div>
+  </div>
+
+  <div class="section">
+    <h2>4. /api/subscriptions/current Response</h2>
+    <button onclick="testSubscription()">🔄 Test Now</button>
+    <div id="subscription-output" class="code">Click button to test...</div>
+  </div>
+
+  <div class="section">
+    <h2>5. OAuth Test</h2>
+    <button onclick="testOAuth('google')">🔐 Test Google OAuth</button>
+    <button onclick="testOAuth('facebook')">🔐 Test Facebook OAuth</button>
+    <div id="oauth-output" class="code">Click button to test OAuth...</div>
+  </div>
+
+  <div class="section">
+    <h2>6. Session Status Summary</h2>
+    <div id="summary-output" class="code">Run tests above...</div>
+  </div>
+
+  <script>
+    let testResults = {
+      hasCookie: false,
+      hasTokens: false,
+      authMeWorks: false,
+      subscriptionWorks: false
+    };
+
+    // 1. Display cookies
+    function displayCookies() {
+      const cookies = document.cookie;
+      const output = document.getElementById('cookies-output');
+      
+      if (!cookies) {
+        output.innerHTML = '<span class="warning">⚠️ No cookies found!</span>';
+        testResults.hasCookie = false;
+        return;
+      }
+
+      const cookieArr = cookies.split(';').map(c => c.trim());
+      const haosSession = cookieArr.find(c => c.startsWith('haos_session='));
+      
+      let html = '';
+      cookieArr.forEach(cookie => {
+        const isSession = cookie.startsWith('haos_session=');
+        const color = isSession ? 'success' : '';
+        const icon = isSession ? '✅' : '📝';
+        html += `${icon} <span class="${color}">${cookie}</span>\n`;
+      });
+
+      if (haosSession) {
+        testResults.hasCookie = true;
+        html += '\n<span class="success">✅ haos_session cookie FOUND</span>';
+      } else {
+        testResults.hasCookie = false;
+        html += '\n<span class="error">❌ haos_session cookie NOT FOUND</span>';
+      }
+
+      output.innerHTML = html;
+      updateSummary();
+    }
+
+    // 2. Display localStorage
+    function displayLocalStorage() {
+      const output = document.getElementById('localstorage-output');
+      const keys = ['haos_token', 'haos_refresh_token', 'haos_user', 'accessToken', 'refreshToken', 'userProfile'];
+      
+      let html = '';
+      let foundTokens = false;
+
+      keys.forEach(key => {
+        const value = localStorage.getItem(key);
+        if (value) {
+          foundTokens = true;
+          const display = value.length > 50 ? value.substring(0, 50) + '...' : value;
+          html += `✅ <span class="success">${key}</span>: ${display}\n`;
+        } else {
+          html += `❌ <span class="warning">${key}</span>: not set\n`;
+        }
+      });
+
+      if (foundTokens) {
+        html += '\n<span class="success">✅ Some tokens found in localStorage</span>';
+        testResults.hasTokens = true;
+      } else {
+        html += '\n<span class="warning">⚠️ No tokens in localStorage</span>';
+        testResults.hasTokens = false;
+      }
+
+      output.innerHTML = html;
+      updateSummary();
+    }
+
+    // 3. Test /api/auth/me
+    async function testAuthMe() {
+      const output = document.getElementById('authme-output');
+      output.innerHTML = '<span class="warning">⏳ Testing...</span>';
+      
+      try {
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        let html = `<strong>Status:</strong> ${response.status}\n\n`;
+        html += `<strong>Response:</strong>\n${JSON.stringify(data, null, 2)}\n\n`;
+        
+        if (data.authenticated) {
+          html += '<span class="success">✅ AUTHENTICATED</span>';
+          testResults.authMeWorks = true;
+        } else {
+          html += '<span class="error">❌ NOT AUTHENTICATED</span>';
+          testResults.authMeWorks = false;
+        }
+        
+        output.innerHTML = html;
+      } catch (error) {
+        output.innerHTML = `<span class="error">❌ ERROR: ${error.message}</span>`;
+        testResults.authMeWorks = false;
+      }
+      
+      updateSummary();
+    }
+
+    // 4. Test subscription
+    async function testSubscription() {
+      const output = document.getElementById('subscription-output');
+      output.innerHTML = '<span class="warning">⏳ Testing...</span>';
+      
+      try {
+        const response = await fetch('/api/subscriptions/current', {
+          credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        let html = `<strong>Status:</strong> ${response.status}\n\n`;
+        html += `<strong>Response:</strong>\n${JSON.stringify(data, null, 2)}\n\n`;
+        
+        if (data.success && data.subscription) {
+          html += '<span class="success">✅ Subscription found</span>';
+          testResults.subscriptionWorks = true;
+        } else if (data.success && !data.subscription) {
+          html += '<span class="warning">⚠️ No active subscription (this is OK)</span>';
+          testResults.subscriptionWorks = true;
+        } else {
+          html += '<span class="error">❌ Subscription check failed</span>';
+          testResults.subscriptionWorks = false;
+        }
+        
+        output.innerHTML = html;
+      } catch (error) {
+        output.innerHTML = `<span class="error">❌ ERROR: ${error.message}</span>`;
+        testResults.subscriptionWorks = false;
+      }
+      
+      updateSummary();
+    }
+
+    // 5. Test OAuth
+    function testOAuth(provider) {
+      const output = document.getElementById('oauth-output');
+      output.innerHTML = `<span class="warning">⏳ Redirecting to ${provider}...</span>`;
+      
+      // Save current page for return
+      sessionStorage.setItem('debug_return', 'true');
+      
+      // Redirect to OAuth
+      window.location.href = `/auth/${provider}`;
+    }
+
+    // 6. Update summary
+    function updateSummary() {
+      const output = document.getElementById('summary-output');
+      
+      let html = '<strong>Session Status:</strong>\n\n';
+      
+      html += testResults.hasCookie 
+        ? '<span class="status-indicator status-ok"></span>Cookie: ✅ haos_session exists\n'
+        : '<span class="status-indicator status-error"></span>Cookie: ❌ haos_session missing\n';
+      
+      html += testResults.hasTokens 
+        ? '<span class="status-indicator status-ok"></span>Tokens: ✅ Found in localStorage\n'
+        : '<span class="status-indicator status-warning"></span>Tokens: ⚠️ Not in localStorage\n';
+      
+      html += testResults.authMeWorks 
+        ? '<span class="status-indicator status-ok"></span>Auth: ✅ /api/auth/me works\n'
+        : '<span class="status-indicator status-error"></span>Auth: ❌ /api/auth/me failed\n';
+      
+      html += '\n<strong>Diagnosis:</strong>\n';
+      
+      if (testResults.hasCookie && testResults.authMeWorks) {
+        html += '<span class="success">✅ Everything looks good! Session is working.</span>';
+      } else if (!testResults.hasCookie) {
+        html += '<span class="error">❌ PROBLEM: No haos_session cookie.\nTry logging in again via OAuth.</span>';
+      } else if (testResults.hasCookie && !testResults.authMeWorks) {
+        html += '<span class="error">❌ PROBLEM: Cookie exists but /api/auth/me fails.\nCookie might be invalid or expired.</span>';
+      }
+      
+      output.innerHTML = html;
+    }
+
+    // Run on load
+    displayCookies();
+    displayLocalStorage();
+    
+    // Check if returning from OAuth
+    if (sessionStorage.getItem('debug_return') === 'true') {
+      sessionStorage.removeItem('debug_return');
+      setTimeout(() => {
+        testAuthMe();
+        displayCookies();
+        displayLocalStorage();
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

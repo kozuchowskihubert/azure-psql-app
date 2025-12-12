@@ -1220,38 +1220,46 @@
     });
 
     async function checkAuth() {
-      const accessToken = localStorage.getItem('accessToken');
+      const accessToken = localStorage.getItem('haos_token') || localStorage.getItem('accessToken');
       
       try {
         let data = null;
         
-        // First try JWT authentication
-        if (accessToken) {
-          const jwtResponse = await fetch('/api/auth/me', {
-            headers: { 'Authorization': `Bearer ${accessToken}` }
-          });
-          
-          if (jwtResponse.ok) {
-            const jwtData = await jwtResponse.json();
-            if (jwtData.success && jwtData.user) {
-              data = { authenticated: true, user: jwtData.user };
-            }
-          } else {
-            // Token expired, clear it
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-          }
+        // Try session-based auth first (most reliable with OAuth)
+        const sessionResponse = await fetch('/api/auth/me', { 
+          credentials: 'include' // Include haos_session cookie
+        });
+        
+        if (sessionResponse.ok) {
+          data = await sessionResponse.json();
         }
         
-        // Fallback to session auth if JWT didn't work
-        if (!data) {
-          const response = await fetch('/auth/status', { credentials: 'include' });
-          data = await response.json();
+        // Fallback to JWT authentication if session didn't work
+        if (!data || !data.authenticated) {
+          if (accessToken) {
+            const jwtResponse = await fetch('/api/auth/me', {
+              headers: { 'Authorization': `Bearer ${accessToken}` },
+              credentials: 'include'
+            });
+            
+            if (jwtResponse.ok) {
+              const jwtData = await jwtResponse.json();
+              if (jwtData.authenticated && jwtData.user) {
+                data = jwtData;
+              }
+            } else {
+              // Token expired, clear it
+              localStorage.removeItem('accessToken');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('haos_token');
+              localStorage.removeItem('haos_refresh_token');
+            }
+          }
         }
 
         document.getElementById('loading').style.display = 'none';
 
-        if (data.authenticated && data.user) {
+        if (data && data.authenticated && data.user) {
           currentUser = data.user;
           localStorage.setItem('userProfile', JSON.stringify(data.user));
           document.getElementById('account-content').style.display = 'block';
