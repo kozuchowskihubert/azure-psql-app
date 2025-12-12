@@ -261,4 +261,44 @@ router.get('/test-payu', async (req, res) => {
   }
 });
 
+// Test PayU order creation
+router.post('/test-payu-order', async (req, res) => {
+  const { secret } = req.body;
+  
+  if (secret !== 'haos-migrate-2025') {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    const PaymentService = require('../services/payment-service');
+    
+    console.log('🧪 Testing PayU order creation...');
+    
+    const testOrder = await PaymentService.createPayUOrder({
+      userId: 1, // Test user ID
+      planCode: 'basic',
+      amount: 19.99,
+      email: 'test@haos.fm',
+      firstName: 'Test',
+      lastName: 'User',
+      customerIp: '127.0.0.1',
+      description: 'Test HAOS.fm Basic Subscription'
+    });
+    
+    console.log('✅ PayU order created:', testOrder);
+    
+    res.json({
+      success: true,
+      order: testOrder
+    });
+  } catch (error) {
+    console.error('❌ PayU order creation failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+
 module.exports = router;
