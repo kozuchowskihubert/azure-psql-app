@@ -392,6 +392,15 @@ app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
+// DIRECT TEST ROUTE - bypasses all module loading
+app.get('/auth/direct-test', (req, res) => {
+  res.json({ 
+    status: 'ok',
+    message: 'Direct route works!',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Enterprise SSO (Azure AD, Google) - optional
 const enableSSO = process.env.ENABLE_SSO === 'true';
 if (enableSSO) {
