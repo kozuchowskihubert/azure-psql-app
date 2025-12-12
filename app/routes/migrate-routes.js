@@ -232,4 +232,33 @@ router.post('/fix-transactions', async (req, res) => {
   }
 });
 
+// Test PayU configuration
+router.get('/test-payu', async (req, res) => {
+  try {
+    const PaymentService = require('../services/payment-service');
+    
+    const payuAvailable = PaymentService.isProviderAvailable('payu');
+    const availableProviders = PaymentService.getAvailableProviders();
+    
+    res.json({
+      success: true,
+      payuAvailable: payuAvailable,
+      availableProviders: availableProviders,
+      envVars: {
+        PAYU_POS_ID: !!process.env.PAYU_POS_ID,
+        PAYU_CLIENT_ID: !!process.env.PAYU_CLIENT_ID,
+        PAYU_CLIENT_SECRET: !!process.env.PAYU_CLIENT_SECRET,
+        PAYU_MD5_KEY: !!process.env.PAYU_MD5_KEY,
+        PAYU_MODE: process.env.PAYU_MODE || 'not set'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+
 module.exports = router;
