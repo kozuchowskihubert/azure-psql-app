@@ -13,16 +13,24 @@ const authService = require('../services/auth-service');
 const loadUserFromSession = async (req, res, next) => {
   try {
     const sessionId = req.cookies?.haos_session;
+    console.log('[Subscription] loadUserFromSession - sessionId:', sessionId ? `${sessionId.substring(0, 8)}...` : 'NONE');
     
     if (sessionId) {
       const session = await authService.getSession(sessionId);
+      console.log('[Subscription] Session found:', session ? { type: session.type, userId: session.user?.id } : 'NULL');
       
       if (session && session.type === 'authenticated' && session.user) {
         req.user = session.user;
+        console.log('[Subscription] ✅ User loaded:', req.user.id, req.user.email);
+      } else {
+        console.log('[Subscription] ❌ Session invalid or not authenticated');
       }
+    } else {
+      console.log('[Subscription] ❌ No haos_session cookie in request');
+      console.log('[Subscription] Available cookies:', Object.keys(req.cookies || {}));
     }
   } catch (error) {
-    console.error('[Subscription] Error loading user from session:', error);
+    console.error('[Subscription] ❌ Error loading user from session:', error.message);
   }
   
   next();
@@ -30,9 +38,12 @@ const loadUserFromSession = async (req, res, next) => {
 
 // Middleware to check authentication
 const requireAuth = (req, res, next) => {
+  console.log('[Subscription] requireAuth check - req.user exists:', !!req.user);
   if (!req.user) {
+    console.error('[Subscription] ❌ Authentication required but no req.user');
     return res.status(401).json({ error: 'Authentication required' });
   }
+  console.log('[Subscription] ✅ User authenticated:', req.user.id);
   next();
 };
 
