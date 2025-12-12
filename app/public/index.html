@@ -2559,6 +2559,45 @@
         </div>
     </footer>
 
+    <!-- OAuth Handler -->
+    <script src="/js/oauth-redirect-handler.js"></script>
+    
+    <!-- OAuth Initialization -->
+    <script>
+        // Check if redirected from OAuth
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromOAuth = urlParams.get('from') === 'oauth';
+        
+        if (fromOAuth) {
+            console.log('[HAOS] OAuth redirect detected');
+            console.log('[HAOS] Has token:', !!localStorage.getItem('haos_token'));
+            console.log('[HAOS] Has user:', !!localStorage.getItem('haos_user'));
+            console.log('[HAOS] Cookies:', document.cookie);
+            
+            // Clean URL
+            window.history.replaceState({}, document.title, '/');
+            
+            // Clear OAuth flags
+            localStorage.removeItem('oauth_redirect');
+            localStorage.removeItem('oauth_redirect_time');
+            
+            // Show success message
+            const user = localStorage.getItem('haos_user');
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    const userName = userData.name || userData.email?.split('@')[0] || 'User';
+                    console.log('[HAOS] Welcome back,', userName + '! 🎵');
+                    
+                    // Optional: Show a welcome toast notification
+                    // You can add a toast/notification system here
+                } catch (e) {
+                    console.error('[HAOS] Failed to parse user data:', e);
+                }
+            }
+        }
+    </script>
+
     <!-- Buy Me a Coffee Widget -->
     <script data-name="BMC-Widget" 
             data-cfasync="false" 
