@@ -532,6 +532,17 @@ try {
 }
 
 /**
+ * Ping Routes (minimal test - no deps)
+ */
+try {
+  const pingRoutes = require('./routes/ping-routes');
+  app.use('/api', pingRoutes);
+  console.log('✓ Ping routes enabled');
+} catch (error) {
+  console.log('⚠ Ping routes not available:', error.message);
+}
+
+/**
  * User Profile API
  * User profile, preferences, and account management
  */
