@@ -196,4 +196,40 @@ router.post('/migrate-subscriptions', async (req, res) => {
   }
 });
 
+// Fix transactions table - add missing columns
+router.post('/fix-transactions', async (req, res) => {
+  const { secret } = req.body;
+  
+  if (secret !== 'haos-migrate-2025') {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    console.log('🔄 Adding missing columns to transactions table...');
+
+    // Add missing columns if they don't exist
+    await pool.query(`
+      ALTER TABLE transactions 
+      ADD COLUMN IF NOT EXISTS subscription_id INTEGER REFERENCES user_subscriptions(id) ON DELETE SET NULL,
+      ADD COLUMN IF NOT EXISTS payment_method_id INTEGER REFERENCES payment_methods(id) ON DELETE SET NULL,
+      ADD COLUMN IF NOT EXISTS tax_amount INTEGER DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS tax_rate DECIMAL(5,2) DEFAULT 23.00,
+      ADD COLUMN IF NOT EXISTS provider_response JSONB
+    `);
+
+    console.log('✅ Transactions table updated!');
+
+    res.json({
+      success: true,
+      message: 'Transactions table structure updated successfully'
+    });
+  } catch (error) {
+    console.error('❌ Fix failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
