@@ -559,7 +559,7 @@
     <div id="login-prompt" class="login-prompt" style="display: none;">
       <h2><i class="fas fa-lock"></i> Sign In Required</h2>
       <p>Please sign in to view and manage your subscription</p>
-      <a href="/login" class="btn btn-primary" style="width: auto; padding: 0.85rem 2rem;">
+      <a href="/login.html" class="btn btn-primary" style="width: auto; padding: 0.85rem 2rem;">
         <i class="fas fa-sign-in-alt"></i> Sign In
       </a>
     </div>
@@ -575,7 +575,7 @@
             <small id="current-plan-status">Active</small>
           </div>
         </div>
-        <a href="/account" class="btn btn-secondary" style="width: auto; padding: 0.5rem 1rem;">
+        <a href="/account.html" class="btn btn-secondary" style="width: auto; padding: 0.5rem 1rem;">
           <i class="fas fa-cog"></i> Manage Subscription
         </a>
       </div>
@@ -647,7 +647,8 @@
         const response = await fetch('/api/auth/me', { credentials: 'include' });
         const data = await response.json();
 
-        if (data.success && data.user) {
+        // Check if user is authenticated (using correct response structure)
+        if (data.authenticated && data.user) {
           currentUser = data.user;
           document.getElementById('login-prompt').style.display = 'none';
           document.getElementById('subscription-content').style.display = 'block';
@@ -659,6 +660,7 @@
       } catch (error) {
         console.error('Auth check failed:', error);
         document.getElementById('login-prompt').style.display = 'block';
+        document.getElementById('subscription-content').style.display = 'none';
       }
     }
 
