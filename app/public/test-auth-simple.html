@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Test - HAOS.fm</title>
+  <style>
+    body {
+      font-family: 'Monaco', 'Courier New', monospace;
+      background: #0A0A0A;
+      color: #00FF00;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1 { color: #FF6B35; }
+    .test-section {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+    }
+    .pass { color: #00FF00; }
+    .fail { color: #FF0000; }
+    .info { color: #00D9FF; }
+    button {
+      background: #FF6B35;
+      color: #0A0A0A;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+      margin: 0.5rem 0.5rem 0.5rem 0;
+    }
+    button:hover {
+      background: #D4AF37;
+    }
+    pre {
+      background: #000;
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+      border: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔐 HAOS.fm Authentication Test</h1>
+  
+  <div class="test-section">
+    <h2>1. LocalStorage Check</h2>
+    <div id="localStorage-check"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>2. Cookie Check</h2>
+    <div id="cookie-check"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>3. Session Auth Test</h2>
+    <button onclick="testSessionAuth()">Test Session Cookie</button>
+    <div id="session-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>4. Bearer Token Auth Test</h2>
+    <button onclick="testBearerAuth()">Test Bearer Token</button>
+    <div id="bearer-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>5. Quick Actions</h2>
+    <button onclick="window.location.href='/login.html'">Go to Login</button>
+    <button onclick="clearAll()">Clear All Data</button>
+    <button onclick="location.reload()">Refresh</button>
+  </div>
+
+  <script>
+    // 1. Check localStorage
+    function checkLocalStorage() {
+      const tokens = {
+        haos_token: localStorage.getItem('haos_token'),
+        haos_refresh_token: localStorage.getItem('haos_refresh_token'),
+        haos_user: localStorage.getItem('haos_user'),
+        accessToken: localStorage.getItem('accessToken'),
+        refreshToken: localStorage.getItem('refreshToken')
+      };
+      
+      let html = '<ul>';
+      for (const [key, value] of Object.entries(tokens)) {
+        if (value) {
+          html += `<li class="pass">✅ ${key}: ${value.substring(0, 30)}...</li>`;
+        } else {
+          html += `<li class="fail">❌ ${key}: Not found</li>`;
+        }
+      }
+      html += '</ul>';
+      
+      document.getElementById('localStorage-check').innerHTML = html;
+    }
+    
+    // 2. Check cookies
+    function checkCookies() {
+      const cookies = document.cookie;
+      const hasCookie = cookies.includes('haos_session');
+      
+      let html = '<p class="info">All cookies: <code>' + (cookies || 'None') + '</code></p>';
+      
+      if (hasCookie) {
+        html += '<p class="pass">✅ haos_session cookie found!</p>';
+      } else {
+        html += '<p class="fail">❌ haos_session cookie NOT found</p>';
+      }
+      
+      document.getElementById('cookie-check').innerHTML = html;
+    }
+    
+    // 3. Test session auth
+    async function testSessionAuth() {
+      const resultDiv = document.getElementById('session-result');
+      resultDiv.innerHTML = '<p class="info">⏳ Testing session auth...</p>';
+      
+      try {
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        let html = '<p>Status: ' + response.status + '</p>';
+        html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        
+        if (data.authenticated) {
+          html = '<p class="pass">✅ SESSION AUTH WORKS!</p>' + html;
+        } else {
+          html = '<p class="fail">❌ Session auth failed</p>' + html;
+        }
+        
+        resultDiv.innerHTML = html;
+      } catch (error) {
+        resultDiv.innerHTML = '<p class="fail">❌ Error: ' + error.message + '</p>';
+      }
+    }
+    
+    // 4. Test bearer token auth
+    async function testBearerAuth() {
+      const resultDiv = document.getElementById('bearer-result');
+      const token = localStorage.getItem('haos_token') || localStorage.getItem('accessToken');
+      
+      if (!token) {
+        resultDiv.innerHTML = '<p class="fail">❌ No token found in localStorage</p>';
+        return;
+      }
+      
+      resultDiv.innerHTML = '<p class="info">⏳ Testing bearer token auth...</p>';
+      
+      try {
+        const response = await fetch('/api/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        let html = '<p>Status: ' + response.status + '</p>';
+        html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        
+        if (data.authenticated) {
+          html = '<p class="pass">✅ BEARER TOKEN AUTH WORKS!</p>' + html;
+        } else {
+          html = '<p class="fail">❌ Bearer token auth failed</p>' + html;
+        }
+        
+        resultDiv.innerHTML = html;
+      } catch (error) {
+        resultDiv.innerHTML = '<p class="fail">❌ Error: ' + error.message + '</p>';
+      }
+    }
+    
+    // Clear all
+    function clearAll() {
+      localStorage.clear();
+      document.cookie.split(";").forEach(c => {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+      alert('Cleared all localStorage and cookies. Refreshing...');
+      location.reload();
+    }
+    
+    // Run checks on load
+    checkLocalStorage();
+    checkCookies();
+  </script>
+</body>
+</html>
