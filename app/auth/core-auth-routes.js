@@ -128,7 +128,11 @@ async function handleOAuthSuccess(req, res) {
     } else {
       // Redirect mode: simple redirect (cookie already set)
       // Store tokens in a temporary URL parameter for client-side storage
-      const redirectUrl = req.session?.returnTo || '/account.html';
+      // Check if referrer was oauth-test page
+      const referer = req.get('Referer') || '';
+      const isTestPage = referer.includes('oauth-test.html');
+      const redirectUrl = isTestPage ? '/oauth-test.html' : (req.session?.returnTo || '/account.html');
+      
       const tokenData = encodeURIComponent(JSON.stringify({
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
@@ -140,6 +144,7 @@ async function handleOAuthSuccess(req, res) {
       }));
       
       console.log('[OAuth] 🔀 Redirecting to:', `${redirectUrl}?login=success`);
+      console.log('[OAuth] 🔀 Referer was:', referer);
       res.redirect(`${redirectUrl}?login=success&tokens=${tokenData}`);
     }
   } catch (error) {
