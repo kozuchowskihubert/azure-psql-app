@@ -860,17 +860,15 @@
       const plan = plans.find(p => p.plan_code === selectedPlan);
       if (!plan) throw new Error('Plan not found');
 
-      const price = billingCycle === 'yearly' ? plan.price_yearly : plan.price_monthly;
-
-      const response = await fetch('/api/payments/payu/create-order', {
+      // Use the new unified subscription endpoint
+      const response = await fetch('/api/subscriptions/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
           planCode: selectedPlan,
           billingCycle: billingCycle,
-          amount: price / 100, // Convert from cents to PLN
-          description: `HAOS.fm ${plan.name} - ${billingCycle === 'yearly' ? 'Yearly' : 'Monthly'} Subscription`
+          provider: 'payu'
         })
       });
 
@@ -878,6 +876,7 @@
 
       if (data.success && data.redirectUri) {
         // Redirect to PayU payment page
+        console.log('🎯 Redirecting to PayU:', data.redirectUri);
         window.location.href = data.redirectUri;
       } else {
         throw new Error(data.error || 'Failed to create payment');
