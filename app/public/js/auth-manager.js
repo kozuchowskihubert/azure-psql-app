@@ -100,55 +100,21 @@ class HAOSAuthManager {
 
   /**
    * Generic OAuth login handler
+   * Uses redirect flow to ensure cookies are set in main window
    */
   async loginWithOAuth(provider) {
     try {
-      // Open OAuth popup
-      const width = 600;
-      const height = 700;
-      const left = window.screen.width / 2 - width / 2;
-      const top = window.screen.height / 2 - height / 2;
-
-      const popup = window.open(
-        `/auth/${provider}`,
-        `${provider} Login`,
-        `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
-      );
-
-      if (!popup) {
-        throw new Error('Popup blocked. Please allow popups for this site.');
-      }
-
-      // Poll popup for completion
-      return new Promise((resolve, reject) => {
-        const pollTimer = setInterval(async () => {
-          try {
-            if (popup.closed) {
-              clearInterval(pollTimer);
-              
-              // Check if login was successful
-              const session = await this.checkSession();
-              
-              if (session && session.authenticated) {
-                resolve(session);
-              } else {
-                reject(new Error('OAuth login cancelled or failed'));
-              }
-            }
-          } catch (error) {
-            // Ignore cross-origin errors while popup is open
-          }
-        }, 500);
-
-        // Timeout after 5 minutes
-        setTimeout(() => {
-          clearInterval(pollTimer);
-          if (!popup.closed) {
-            popup.close();
-          }
-          reject(new Error('OAuth login timeout'));
-        }, 5 * 60 * 1000);
-      });
+      // Save return URL
+      const returnTo = window.location.pathname + window.location.search;
+      sessionStorage.setItem('oauth_return_to', returnTo);
+      
+      // Use redirect flow instead of popup
+      // This ensures cookie is set in the MAIN window
+      window.location.href = `/auth/${provider}`;
+      
+      // Note: This function never resolves because page redirects
+      // Session will be restored on callback redirect
+      return new Promise(() => {});
     } catch (error) {
       console.error(`[HAOSAuth] ${provider} OAuth failed:`, error);
       throw error;

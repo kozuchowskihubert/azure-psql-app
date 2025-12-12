@@ -65,50 +65,70 @@ async function handleOAuthSuccess(req, res) {
     // Create authenticated session in database
     const session = await authService.createUserSession(req.user);
     
-    // Set session cookie
+    // Set session cookie in MAIN WINDOW (not popup)
     res.cookie('haos_session', session.sessionId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      path: '/' // Available across entire domain
     });
 
     // Generate JWT tokens for compatibility
     const tokens = generateTokens(req.user);
     
-    // Return HTML that sets up session and closes popup
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head><title>Login Successful</title></head>
-      <body>
-        <script>
-          // Store tokens for backwards compatibility
-          localStorage.setItem('haos_token', '${tokens.accessToken}');
-          localStorage.setItem('haos_refresh_token', '${tokens.refreshToken}');
-          localStorage.setItem('haos_user', JSON.stringify({
-            id: ${req.user.id},
-            email: '${req.user.email}',
-            name: '${req.user.display_name || req.user.name || ''}'
-          }));
-          
-          // Notify parent window
-          if (window.opener) {
-            window.opener.postMessage({ 
-              type: 'oauth-success', 
-              sessionId: '${session.sessionId}',
-              tokens: ${JSON.stringify(tokens)} 
-            }, '*');
-            window.close();
-          } else {
-            // Redirect to account page
-            window.location.href = '/account.html?login=success';
-          }
-        </script>
-        <p>Login successful! Redirecting...</p>
-      </body>
-      </html>
-    `);
+    // Check if this is a popup or redirect flow
+    const isPopup = req.query.mode === 'popup';
+    
+    if (isPopup) {
+      // Popup mode: notify parent and close
+      res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head><title>Login Successful</title></head>
+        <body>
+          <script>
+            // Store tokens for backwards compatibility
+            localStorage.setItem('haos_token', '${tokens.accessToken}');
+            localStorage.setItem('haos_refresh_token', '${tokens.refreshToken}');
+            localStorage.setItem('haos_user', JSON.stringify({
+              id: ${req.user.id},
+              email: '${req.user.email}',
+              name: '${req.user.display_name || req.user.name || ''}'
+            }));
+            
+            // Cookie is now set in parent window too!
+            if (window.opener) {
+              window.opener.postMessage({ 
+                type: 'oauth-success', 
+                sessionId: '${session.sessionId}',
+                tokens: ${JSON.stringify(tokens)} 
+              }, '*');
+              setTimeout(() => window.close(), 100);
+            } else {
+              window.location.href = '/account.html?login=success';
+            }
+          </script>
+          <p>✅ Login successful! Closing popup...</p>
+        </body>
+        </html>
+      `);
+    } else {
+      // Redirect mode: simple redirect (cookie already set)
+      // Store tokens in a temporary URL parameter for client-side storage
+      const redirectUrl = req.session?.returnTo || '/account.html';
+      const tokenData = encodeURIComponent(JSON.stringify({
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        user: {
+          id: req.user.id,
+          email: req.user.email,
+          name: req.user.display_name || req.user.name || ''
+        }
+      }));
+      
+      res.redirect(`${redirectUrl}?login=success&tokens=${tokenData}`);
+    }
   } catch (error) {
     console.error('[OAuth] Failed to create session:', error);
     return res.redirect('/login.html?error=session_failed');
