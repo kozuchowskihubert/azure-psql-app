@@ -923,25 +923,31 @@
       }
 
       // Use the new unified subscription endpoint
+      const requestBody = {
+        planCode: selectedPlan,
+        billingCycle: billingCycle,
+        provider: 'payu'
+      };
+      console.log('[Subscription] Request payload:', requestBody);
+
       const response = await fetch('/api/subscriptions/subscribe', {
         method: 'POST',
         headers: headers,
         credentials: 'include',
-        body: JSON.stringify({
-          planCode: selectedPlan,
-          billingCycle: billingCycle,
-          provider: 'payu'
-        })
+        body: JSON.stringify(requestBody)
       });
 
+      console.log('[Subscription] Response status:', response.status, response.statusText);
       const data = await response.json();
+      console.log('[Subscription] Response data:', data);
 
       if (data.success && data.redirectUri) {
         // Redirect to PayU payment page
         console.log('🎯 Redirecting to PayU:', data.redirectUri);
         window.location.href = data.redirectUri;
       } else {
-        throw new Error(data.error || 'Failed to create payment');
+        console.error('[Subscription] ❌ Payment creation failed:', data);
+        throw new Error(data.error || data.details || 'Failed to create payment');
       }
     }
 
