@@ -299,7 +299,17 @@ router.post('/subscribe', loadUserFromSession, requireAuth, async (req, res) => 
     });
   } catch (error) {
     console.error('Error subscribing:', error);
-    res.status(500).json({ error: 'Failed to create subscription' });
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      planCode: req.body.planCode,
+      provider: req.body.provider,
+      userId: req.user?.id
+    });
+    res.status(500).json({ 
+      error: 'Failed to create subscription',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
