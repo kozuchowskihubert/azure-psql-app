@@ -21,14 +21,126 @@ router.post('/migrate-subscriptions', async (req, res) => {
   }
 
   try {
-    // Read schema file
-    const schemaPath = path.join(__dirname, '../../infra/schema-subscriptions.sql');
-    const schema = fs.readFileSync(schemaPath, 'utf8');
-
     console.log('🔄 Migrating subscription schema to production...');
 
-    // Execute schema
-    await pool.query(schema);
+    // Execute schema (inline to avoid file system issues on Vercel)
+    // Create subscription_plans table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS subscription_plans (
+        id SERIAL PRIMARY KEY,
+        plan_code VARCHAR(50) UNIQUE NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        description TEXT,
+        price_monthly INTEGER NOT NULL DEFAULT 0,
+        price_yearly INTEGER NOT NULL DEFAULT 0,
+        currency VARCHAR(3) DEFAULT 'PLN',
+        features JSONB DEFAULT '{}'::JSONB,
+        is_active BOOLEAN DEFAULT TRUE,
+        is_featured BOOLEAN DEFAULT FALSE,
+        sort_order INTEGER DEFAULT 0,
+        trial_days INTEGER DEFAULT 0,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `);
+
+    // Insert default plans
+    await pool.query(`
+      INSERT INTO subscription_plans (plan_code, name, description, price_monthly, price_yearly, currency, features, is_featured, trial_days, sort_order) 
+      VALUES 
+        ('free', 'Free', 'Perfect for getting started with HAOS.fm', 0, 0, 'PLN', 
+         '{"max_tracks": 3, "max_presets": 10, "export_formats": ["mp3"], "cloud_storage_mb": 100}'::JSONB,
+         false, 0, 1),
+        ('basic', 'Basic', 'For hobbyist producers and musicians', 1999, 19990, 'PLN',
+         '{"max_tracks": 25, "max_presets": 100, "export_formats": ["mp3", "wav"], "cloud_storage_mb": 2000}'::JSONB,
+         false, 7, 2),
+        ('premium', 'Premium', 'For serious producers who need more power', 4999, 49990, 'PLN',
+         '{"max_tracks": -1, "max_presets": -1, "export_formats": ["mp3", "wav", "flac", "ogg"], "cloud_storage_mb": 10000}'::JSONB,
+         true, 14, 3),
+        ('pro', 'Pro Studio', 'For professional studios and labels', 9999, 99990, 'PLN',
+         '{"max_tracks": -1, "max_presets": -1, "export_formats": ["mp3", "wav", "flac", "ogg", "aiff", "stems"], "cloud_storage_mb": -1}'::JSONB,
+         false, 30, 4)
+      ON CONFLICT (plan_code) DO NOTHING
+    `);
+
+    // Create user_subscriptions table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_subscriptions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        plan_id INTEGER NOT NULL REFERENCES subscription_plans(id),
+        status VARCHAR(50) DEFAULT 'active',
+        billing_cycle VARCHAR(20) DEFAULT 'monthly',
+        started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        current_period_start TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        current_period_end TIMESTAMP WITH TIME ZONE,
+        trial_ends_at TIMESTAMP WITH TIME ZONE,
+        cancelled_at TIMESTAMP WITH TIME ZONE,
+        cancel_at_period_end BOOLEAN DEFAULT FALSE,
+        cancellation_reason TEXT,
+        stripe_subscription_id VARCHAR(255),
+        paypal_subscription_id VARCHAR(255),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        CONSTRAINT unique_active_subscription UNIQUE (user_id)
+      )
+    `);
+
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_subscriptions_user ON user_subscriptions(user_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_subscriptions_status ON user_subscriptions(status)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_subscriptions_period_end ON user_subscriptions(current_period_end)`);
+
+    // Create payment_methods table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS payment_methods (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        provider VARCHAR(50) NOT NULL,
+        provider_payment_method_id VARCHAR(255),
+        card_brand VARCHAR(50),
+        card_last_four VARCHAR(4),
+        card_exp_month INTEGER,
+        card_exp_year INTEGER,
+        paypal_email VARCHAR(255),
+        blik_phone_last_four VARCHAR(4),
+        is_default BOOLEAN DEFAULT FALSE,
+        is_active BOOLEAN DEFAULT TRUE,
+        billing_name VARCHAR(255),
+        billing_address JSONB,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `);
+
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_payment_methods_user ON payment_methods(user_id)`);
+
+    // Create transactions table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS transactions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type VARCHAR(50) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        amount INTEGER NOT NULL,
+        currency VARCHAR(3) DEFAULT 'PLN',
+        provider VARCHAR(50),
+        provider_transaction_id VARCHAR(255),
+        provider_payment_method_id VARCHAR(255),
+        description TEXT,
+        metadata JSONB,
+        card_brand VARCHAR(50),
+        card_last_four VARCHAR(4),
+        failure_code VARCHAR(100),
+        failure_message TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        completed_at TIMESTAMP WITH TIME ZONE,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `);
+
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_transactions_status ON transactions(status)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_transactions_provider ON transactions(provider, provider_transaction_id)`);
 
     console.log('✅ Schema migrated!');
 
