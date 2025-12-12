@@ -73,14 +73,17 @@ async function handleOAuthSuccess(req, res) {
     console.log('[OAuth] ✅ Session created:', session.sessionId);
     
     // Set session cookie in MAIN WINDOW (not popup)
-    res.cookie('haos_session', session.sessionId, {
+    // Use 'none' for sameSite to allow cross-site cookies during OAuth redirect
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true, // Always use secure for production (HTTPS required)
+      sameSite: 'none', // Required for OAuth redirect flow
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       path: '/' // Available across entire domain
-    });
+    };
     
+    console.log('[OAuth] Setting cookie with options:', cookieOptions);
+    res.cookie('haos_session', session.sessionId, cookieOptions);
     console.log('[OAuth] ✅ Cookie set: haos_session =', session.sessionId);
 
     // Generate JWT tokens for compatibility
