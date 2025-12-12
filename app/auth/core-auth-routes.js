@@ -57,13 +57,20 @@ function generateTokens(user) {
  * Handle successful OAuth login
  */
 async function handleOAuthSuccess(req, res) {
+  console.log('[OAuth] handleOAuthSuccess called');
+  console.log('[OAuth] req.user exists:', !!req.user);
+  console.log('[OAuth] req.user:', req.user ? { id: req.user.id, email: req.user.email } : 'undefined');
+  
   if (!req.user) {
+    console.error('[OAuth] ❌ No user in request, redirecting to login');
     return res.redirect('/login.html?error=oauth_failed');
   }
 
   try {
     // Create authenticated session in database
+    console.log('[OAuth] Creating session for user:', req.user.id);
     const session = await authService.createUserSession(req.user);
+    console.log('[OAuth] ✅ Session created:', session.sessionId);
     
     // Set session cookie in MAIN WINDOW (not popup)
     res.cookie('haos_session', session.sessionId, {
@@ -73,6 +80,8 @@ async function handleOAuthSuccess(req, res) {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       path: '/' // Available across entire domain
     });
+    
+    console.log('[OAuth] ✅ Cookie set: haos_session =', session.sessionId);
 
     // Generate JWT tokens for compatibility
     const tokens = generateTokens(req.user);
@@ -127,10 +136,12 @@ async function handleOAuthSuccess(req, res) {
         }
       }));
       
+      console.log('[OAuth] 🔀 Redirecting to:', `${redirectUrl}?login=success`);
       res.redirect(`${redirectUrl}?login=success&tokens=${tokenData}`);
     }
   } catch (error) {
-    console.error('[OAuth] Failed to create session:', error);
+    console.error('[OAuth] ❌ Failed to create session:', error);
+    console.error('[OAuth] Error details:', error.message, error.stack);
     return res.redirect('/login.html?error=session_failed');
   }
 }
@@ -158,6 +169,8 @@ router.get('/google/callback',
     session: false
   }),
   async (req, res) => {
+    console.log('[OAuth] Google callback received');
+    console.log('[OAuth] Query params:', req.query);
     await handleOAuthSuccess(req, res);
   }
 );
