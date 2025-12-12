@@ -40,20 +40,20 @@ const loadUserFromSession = async (req, res, next) => {
       
       try {
         const decoded = await authService.verifyToken(token);
-        if (decoded && decoded.userId) {
+        if (decoded && decoded.id) {
           // Load user from database
           const { Pool } = require('pg');
           const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
-          const result = await pool.query('SELECT id, email, name, tier FROM users WHERE id = $1', [decoded.userId]);
+          const result = await pool.query('SELECT id, email, name, tier FROM users WHERE id = $1', [decoded.id]);
           
           if (result.rows.length > 0) {
             req.user = result.rows[0];
             console.log('[Subscription] ✅ User loaded from Bearer token:', req.user.id, req.user.email);
           } else {
-            console.log('[Subscription] ❌ User not found for token userId:', decoded.userId);
+            console.log('[Subscription] ❌ User not found for token id:', decoded.id);
           }
         } else {
-          console.log('[Subscription] ❌ Invalid token payload');
+          console.log('[Subscription] ❌ Invalid token payload - missing id field');
         }
       } catch (tokenError) {
         console.error('[Subscription] ❌ Bearer token verification failed:', tokenError.message);
