@@ -363,6 +363,10 @@
       <span>Loading...</span>
     </div>
 
+    <div class="status" style="margin-bottom: 30px; font-style: italic; color: rgba(244, 232, 216, 0.8);">
+      "Every sound you create is a step toward musical mastery"
+    </div>
+
     <div class="features">
       <div class="feature-item">
         <i class="fas fa-sliders"></i>
@@ -403,34 +407,43 @@
   <script src="/js/oauth-redirect-handler.js"></script>
 
   <script>
-    // Extract user email from URL or localStorage
-    function getUserEmail() {
+    // Debug: Log what we received
+    console.log('[Welcome] Page loaded');
+    console.log('[Welcome] Current URL:', window.location.href);
+    console.log('[Welcome] URL params:', window.location.search);
+    console.log('[Welcome] localStorage haos_token:', localStorage.getItem('haos_token') ? 'EXISTS' : 'MISSING');
+    console.log('[Welcome] localStorage haos_user:', localStorage.getItem('haos_user'));
+    console.log('[Welcome] Cookies:', document.cookie);
+
+    // Extract user display name from URL or localStorage
+    function getUserDisplayName() {
       try {
         // Try to get from localStorage first
         const userData = localStorage.getItem('haos_user');
         if (userData) {
           const user = JSON.parse(userData);
-          return user.email || user.name || 'User';
+          // Prefer display name over email
+          return user.name || user.display_name || user.email?.split('@')[0] || 'User';
         }
 
         // Fallback to URL params
         const urlParams = new URLSearchParams(window.location.search);
-        const email = urlParams.get('email');
-        if (email) {
-          return email;
+        const name = urlParams.get('name');
+        if (name) {
+          return name;
         }
 
-        return 'Operator';
+        return 'User';
       } catch (e) {
-        console.error('Error getting user email:', e);
-        return 'Operator';
+        console.error('Error getting user display name:', e);
+        return 'User';
       }
     }
 
-    // Display user email
+    // Display user name
     const emailEl = document.getElementById('userEmail');
-    const userEmail = getUserEmail();
-    emailEl.innerHTML = `<i class="fas fa-user-circle"></i> ${userEmail}`;
+    const userName = getUserDisplayName();
+    emailEl.innerHTML = `<i class="fas fa-user-circle"></i> <span>${userName}</span>`;
 
     // Auto-redirect function
     function redirect() {

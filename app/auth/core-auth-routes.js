@@ -211,8 +211,13 @@ router.get('/google/callback', (req, res, next) => {
       
       console.log('[OAuth Callback] Redirecting to:', redirectUrl);
       console.log('[OAuth Callback] Token data prepared, access token length:', accessToken?.length);
+      console.log('[OAuth Callback] Session ID:', sessionId);
+      console.log('[OAuth Callback] User:', { id: user.id, email: user.email, name: user.display_name });
       
-      res.redirect(`${redirectUrl}?login=success&tokens=${encodeURIComponent(tokenData)}`);
+      const redirectWithTokens = `${redirectUrl}?login=success&tokens=${encodeURIComponent(tokenData)}`;
+      console.log('[OAuth Callback] Full redirect URL (first 200 chars):', redirectWithTokens.substring(0, 200));
+      
+      res.redirect(redirectWithTokens);
     } catch (error) {
       console.error('[OAuth Callback] ❌ Error:', error.message);
       console.error('[OAuth Callback] Stack:', error.stack);
