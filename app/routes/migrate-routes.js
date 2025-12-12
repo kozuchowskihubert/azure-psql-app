@@ -66,8 +66,8 @@ router.post('/migrate-subscriptions', async (req, res) => {
     // Create user_subscriptions table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS user_subscriptions (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         plan_id INTEGER NOT NULL REFERENCES subscription_plans(id),
         status VARCHAR(50) DEFAULT 'active',
         billing_cycle VARCHAR(20) DEFAULT 'monthly',
@@ -93,8 +93,8 @@ router.post('/migrate-subscriptions', async (req, res) => {
     // Create payment_methods table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS payment_methods (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         provider VARCHAR(50) NOT NULL,
         provider_payment_method_id VARCHAR(255),
         card_brand VARCHAR(50),
@@ -117,8 +117,8 @@ router.post('/migrate-subscriptions', async (req, res) => {
     // Create transactions table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS transactions (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         type VARCHAR(50) NOT NULL,
         status VARCHAR(50) DEFAULT 'pending',
         amount INTEGER NOT NULL,
