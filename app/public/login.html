@@ -287,8 +287,16 @@
             }
         }
         
-        // Handle email/password login form
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
+        // Wait for DOM before attaching event listeners
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Handle email/password login form
+            const loginForm = document.getElementById('login-form');
+            if (!loginForm) {
+                console.error('[Login] login-form element not found!');
+                return;
+            }
+            
+            loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const email = document.getElementById('login-email').value;
@@ -319,40 +327,45 @@
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i>SIGN IN';
             }
-        });
-        
-        // Handle magic link form
-        document.getElementById('magic-link-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+            });
             
-            const email = document.getElementById('magic-email').value;
-            const magicStatus = document.getElementById('magic-status');
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            
-            // Disable button and show loading
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-            
-            try {
-                const result = await window.HAOSAuth.sendMagicLink(email);
-                
-                if (result.success) {
-                    showSuccess('✓ Magic link sent! Check your email and click the link to sign in.');
-                    document.getElementById('magic-email').value = '';
-                } else {
-                    showError(result.error || 'Failed to send magic link. Please try again.');
-                }
-            } catch (error) {
-                console.error('Magic link error:', error);
-                showError(error.message || 'Failed to send magic link. Please try again.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i>Send Link';
+            // Handle magic link form
+            const magicLinkForm = document.getElementById('magic-link-form');
+            if (!magicLinkForm) {
+                console.error('[Login] magic-link-form element not found!');
+                return;
             }
-        });
+            
+            magicLinkForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = document.getElementById('magic-email').value;
+                const magicStatus = document.getElementById('magic-status');
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                
+                // Disable button and show loading
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                
+                try {
+                    const result = await window.HAOSAuth.sendMagicLink(email);
+                    
+                    if (result.success) {
+                        showSuccess('✓ Magic link sent! Check your email and click the link to sign in.');
+                        document.getElementById('magic-email').value = '';
+                    } else {
+                        showError(result.error || 'Failed to send magic link. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Magic link error:', error);
+                    showError(error.message || 'Failed to send magic link. Please try again.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i>Send Link';
+                }
+            });
 
-        
-        document.addEventListener('DOMContentLoaded', async () => {
+            // Rest of DOMContentLoaded initialization
             checkUrlError();
             
             // Check if already authenticated using HAOSAuth
