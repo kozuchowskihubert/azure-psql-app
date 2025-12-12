@@ -410,14 +410,28 @@ if (enableSSO) {
 
 // Social Authentication (Google, Facebook, Apple) - always enabled
 try {
+  console.log('[Auth Setup] Loading social auth modules...');
   const { initializeSocialAuth } = require('./auth/social-auth');
   const coreAuthRoutes = require('./auth/core-auth-routes');
-
+  
+  console.log('[Auth Setup] Initializing social auth with pool...');
   initializeSocialAuth(pool);
+  
+  console.log('[Auth Setup] Mounting /auth routes...');
   app.use('/auth', coreAuthRoutes);
+  
   console.log('✓ Social authentication enabled (Google, Facebook, Apple)');
 } catch (error) {
-  console.log('⚠ Social auth not configured:', error.message);
+  console.error('⚠ Social auth initialization failed:', error);
+  console.error('Error stack:', error.stack);
+  // Mount routes anyway so we can see test endpoint
+  try {
+    const coreAuthRoutes = require('./auth/core-auth-routes');
+    app.use('/auth', coreAuthRoutes);
+    console.log('✓ Auth routes mounted (without Google strategy)');
+  } catch (e) {
+    console.error('Failed to mount auth routes:', e);
+  }
 }
 
 // Email/Password Registration & Authentication
