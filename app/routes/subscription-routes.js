@@ -151,18 +151,23 @@ router.get('/providers', (req, res) => {
  */
 router.get('/current', requireAuth, async (req, res) => {
   try {
+    console.log('[Subscription] GET /current - User ID:', req.user?.id, 'Email:', req.user?.email);
     let subscription = await Subscription.getUserSubscription(req.user.id);
+    console.log('[Subscription] Current subscription:', subscription ? 'Found' : 'None');
     
     // If no subscription exists, create a free one or return default free plan details
     if (!subscription) {
       const freePlan = await Subscription.getPlanByCode('free');
+      console.log('[Subscription] Free plan:', freePlan ? freePlan.plan_code : 'Not found');
       
       if (freePlan) {
         // Try to create a free subscription record for the user
         try {
+          console.log('[Subscription] Creating free subscription for user:', req.user.id);
           subscription = await Subscription.createSubscription(req.user.id, 'free');
+          console.log('[Subscription] Free subscription created successfully');
         } catch (err) {
-          console.error('Error creating free subscription:', err);
+          console.error('[Subscription] Error creating free subscription:', err.message, err.stack);
           // Fallback to free plan details without DB record
           subscription = {
             plan_code: 'free',
@@ -196,8 +201,13 @@ router.get('/current', requireAuth, async (req, res) => {
       features,
     });
   } catch (error) {
-    console.error('Error fetching subscription:', error);
-    res.status(500).json({ error: 'Failed to fetch subscription' });
+    console.error('[Subscription] Error fetching subscription:', error.message);
+    console.error('[Subscription] Stack:', error.stack);
+    console.error('[Subscription] User ID:', req.user?.id);
+    res.status(500).json({ 
+      error: 'Failed to fetch subscription',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
