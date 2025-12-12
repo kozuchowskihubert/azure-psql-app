@@ -153,7 +153,7 @@ router.get('/google/callback', (req, res, next) => {
       // Create session directly using pool
       console.log('[OAuth Callback] Creating session for user:', user.id);
       const sessionId = crypto.randomUUID();
-      const JWT_SECRET = process.env.JWT_SECRET || process.env.SESSION_SECRET || 'haos-fm-secret';
+      const JWT_SECRET = process.env.JWT_SECRET || 'haos-platform-secret-2025';
       
       const accessToken = jwt.sign(
         { id: user.id, email: user.email, name: user.display_name },
