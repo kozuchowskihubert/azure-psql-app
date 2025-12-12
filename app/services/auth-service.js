@@ -432,6 +432,12 @@ class HAOSAuthService {
     const expiresAt = new Date(Date.now() + this.sessionExpiry * 1000);
 
     try {
+      console.log('[Auth] Creating session for user:', {
+        userId: user.id,
+        email: user.email,
+        tier: user.subscription_tier || 'basic'
+      });
+      
       await pool.query(`
         INSERT INTO user_sessions (
           session_id, user_id, session_type, tier,
@@ -445,6 +451,8 @@ class HAOSAuthService {
         refreshToken,
         expiresAt
       ]);
+      
+      console.log('[Auth] Session created successfully:', sessionId);
 
       return {
         sessionId,
@@ -462,8 +470,14 @@ class HAOSAuthService {
         }
       };
     } catch (error) {
-      console.error('[Auth] Failed to create user session:', error);
-      throw new Error('Could not create session');
+      console.error('[Auth] ❌ Failed to create user session:', error);
+      console.error('[Auth] Error details:', {
+        message: error.message,
+        code: error.code,
+        detail: error.detail,
+        hint: error.hint
+      });
+      throw new Error(`Could not create session: ${error.message}`);
     }
   }
 
