@@ -905,10 +905,18 @@
       const plan = plans.find(p => p.plan_code === selectedPlan);
       if (!plan) throw new Error('Plan not found');
 
+      // Get Bearer token from localStorage
+      const token = localStorage.getItem('haos_token') || localStorage.getItem('accessToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        console.log('[Subscription] 🔑 Adding Bearer token to request');
+      }
+
       // Use the new unified subscription endpoint
       const response = await fetch('/api/subscriptions/subscribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: headers,
         credentials: 'include',
         body: JSON.stringify({
           planCode: selectedPlan,
@@ -929,9 +937,17 @@
     }
 
     async function checkoutWithProvider(provider) {
+      // Get Bearer token from localStorage
+      const token = localStorage.getItem('haos_token') || localStorage.getItem('accessToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        console.log('[Subscription] 🔑 Adding Bearer token to request');
+      }
+
       const response = await fetch('/api/subscriptions/subscribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: headers,
         credentials: 'include',
         body: JSON.stringify({
           planCode: selectedPlan,
