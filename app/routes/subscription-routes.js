@@ -56,10 +56,9 @@ const loadUserFromSession = async (req, res, next) => {
         console.log('[Subscription] Token decoded:', decoded ? { id: decoded.id, email: decoded.email } : 'NULL');
         
         if (decoded && decoded.id) {
-          // Load user from database
-          const { Pool } = require('pg');
-          const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
-          const result = await pool.query('SELECT id, email, name, tier FROM users WHERE id = $1', [decoded.id]);
+          // Load user from database using shared pool
+          const pool = require('../config/database');
+          const result = await pool.query('SELECT id, email, name FROM users WHERE id = $1', [decoded.id]);
           
           if (result.rows.length > 0) {
             req.user = result.rows[0];
