@@ -195,7 +195,7 @@ router.get('/current', requireAuth, async (req, res) => {
  * POST /api/subscriptions/subscribe
  * Subscribe to a plan
  */
-router.post('/subscribe', requireAuth, async (req, res) => {
+router.post('/subscribe', loadUserFromSession, requireAuth, async (req, res) => {
   try {
     const {
       planCode, billingCycle, provider, couponCode,
