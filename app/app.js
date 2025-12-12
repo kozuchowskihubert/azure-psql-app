@@ -543,6 +543,17 @@ try {
 }
 
 /**
+ * DB Status Routes (check subscription tables)
+ */
+try {
+  const dbStatusRoutes = require('./routes/db-status-routes');
+  app.use('/api', dbStatusRoutes);
+  console.log('✓ DB Status routes enabled');
+} catch (error) {
+  console.log('⚠ DB Status routes not available:', error.message);
+}
+
+/**
  * User Profile API
  * User profile, preferences, and account management
  */
