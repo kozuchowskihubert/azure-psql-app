@@ -184,14 +184,23 @@ router.get('/google/callback', (req, res, next) => {
       
       console.log('[OAuth Callback] Session created:', sessionId);
       
-      // Set session cookie
-      res.cookie('haos_session', sessionId, {
+      // Set session cookie with explicit domain
+      const isProduction = process.env.NODE_ENV === 'production' || req.hostname.includes('haos.fm');
+      const cookieOptions = {
         httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-        maxAge: 30 * 24 * 60 * 60 * 1000,
+        secure: isProduction,
+        sameSite: isProduction ? 'lax' : 'lax', // Changed from 'none' to 'lax' for same-site navigation
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
         path: '/'
-      });
+      };
+      
+      // Add domain for production
+      if (isProduction) {
+        cookieOptions.domain = '.haos.fm'; // Allows cookie on all subdomains
+      }
+      
+      console.log('[OAuth Callback] Setting cookie with options:', cookieOptions);
+      res.cookie('haos_session', sessionId, cookieOptions);
       
       // Wait a bit to ensure session is fully committed to database
       await new Promise(resolve => setTimeout(resolve, 150));

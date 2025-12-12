@@ -21,7 +21,12 @@ router.get('/me', async (req, res) => {
   try {
     const sessionId = req.cookies?.haos_session;
     
+    console.log('[Auth /me] Request received');
+    console.log('[Auth /me] Cookies:', req.cookies);
+    console.log('[Auth /me] Session ID from cookie:', sessionId);
+    
     if (!sessionId) {
+      console.log('[Auth /me] ❌ No session cookie found');
       return res.json({
         authenticated: false,
         tier: 'anonymous',
@@ -32,7 +37,10 @@ router.get('/me', async (req, res) => {
 
     const session = await authService.getSession(sessionId);
     
+    console.log('[Auth /me] Session from DB:', session ? 'FOUND' : 'NOT FOUND');
+    
     if (!session) {
+      console.log('[Auth /me] ❌ Session not found in database for ID:', sessionId);
       return res.json({
         authenticated: false,
         tier: 'anonymous',
@@ -40,6 +48,8 @@ router.get('/me', async (req, res) => {
         user: null
       });
     }
+    
+    console.log('[Auth /me] ✅ User authenticated:', session.user?.email);
 
     res.json({
       authenticated: session.type === 'authenticated',
