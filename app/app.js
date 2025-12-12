@@ -565,6 +565,17 @@ try {
 }
 
 /**
+ * Check Users Routes (debug users table structure)
+ */
+try {
+  const checkUsersRoutes = require('./routes/check-users-routes');
+  app.use('/api', checkUsersRoutes);
+  console.log('✓ Check Users routes enabled');
+} catch (error) {
+  console.log('⚠ Check Users routes not available:', error.message);
+}
+
+/**
  * User Profile API
  * User profile, preferences, and account management
  */
