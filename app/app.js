@@ -521,6 +521,17 @@ try {
 }
 
 /**
+ * Test DB Routes (temporary - for debugging)
+ */
+try {
+  const testDbRoutes = require('./routes/test-db-routes');
+  app.use('/api', testDbRoutes);
+  console.log('✓ Test DB routes enabled');
+} catch (error) {
+  console.log('⚠ Test DB routes not available:', error.message);
+}
+
+/**
  * User Profile API
  * User profile, preferences, and account management
  */
