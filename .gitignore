@@ -1,12 +1,23 @@
 # Dependencies
 node_modules/
 
-# Environment files
+# Environment files (ALL .env files except examples)
 .env
+.env.*
+!.env.example
+!.env.example.safe
 .env.local
 .env.*.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
 .env.production
+.env.production.local
+.env.staging
+.env.staging.local
 .env.vercel
+.env.vercel.*
 .vercel
 
 # Terraform
@@ -80,13 +91,16 @@ env/
 app/ableton-cli/output/
 !app/ableton-cli/output/presets/preset_library.json
 
-# Scripts (user-specific automation)
-scripts/*.sh
-!scripts/deploy.sh
-!scripts/deploy-pwa.sh
-!scripts/run-local.sh
-scripts/*.ps1
-!scripts/permissions.ps1
+# Scripts (all shell scripts - security sensitive)
+*.sh
+**/*.sh
+scripts/
+infra/*.sh
+music-tf/*.sh
+
+# PowerShell scripts
+*.ps1
+**/*.ps1
 
 # Backup files
 *.bak
@@ -120,3 +134,109 @@ azure-psql-app/
 .vercel
 .env*.local
 .env.vercel.*
+
+# Security & Credentials
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.cer
+*.der
+secrets/
+secrets.json
+credentials.json
+service-account.json
+.credentials/
+.secrets/
+*.credentials
+
+# API Keys & Tokens
+.env.keys
+api-keys.txt
+*.apikey
+.api-keys/
+
+# Database credentials & connection strings
+database.json
+db-config.json
+connection-strings.txt
+.pgpass
+.my.cnf
+
+# SSL/TLS Certificates
+ssl/
+certs/
+certificates/
+
+# OAuth & Authentication
+oauth-credentials.json
+client-secret*.json
+.oauth/
+refresh-token.json
+
+# Payment Provider Credentials
+payu-credentials.json
+stripe-keys.json
+paypal-credentials.json
+
+# Temporary & Debug files
+check_subscription.js
+check-*.js
+test-*.js
+debug-*.js
+temp-*.js
+scratch.*
+verify-*.js
+
+# Session & Cache
+sessions/
+.sessions/
+redis-dump.rdb
+
+# User Uploads (if sensitive)
+uploads/*.pdf
+uploads/*.doc
+uploads/*.docx
+uploads/*.xls
+uploads/*.xlsx
+
+# Local test data
+test-data/
+mock-data/
+fixtures/local/
+
+# IDE specific
+.vscode/settings.json
+.idea/workspace.xml
+.idea/tasks.xml
+*.sublime-workspace
+
+# macOS
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+desktop.ini
+ehthumbs.db
+ehthumbs_vista.db
+
+# Linux
+.directory
+.Trash-*
+
+# Backup & Old files
+*.old
+*.orig
+*.rej
+*~.nib
+*.swp
+*.swo
+*.un~
+
+# Compiled binaries
+*.exe
+*.dll
+*.dylib
+*.so.*
