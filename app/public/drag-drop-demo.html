@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎬 Drag-and-Drop Demo | HAOS.fm Beat Maker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+      color: #ffffff;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 4rem;
+      letter-spacing: 6px;
+      background: linear-gradient(135deg, #ff6b35, #ff8c42);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.2rem;
+      margin-bottom: 3rem;
+    }
+
+    .demo-section {
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid rgba(255, 107, 53, 0.3);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      backdrop-filter: blur(20px);
+    }
+
+    h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 4px;
+      color: #ff6b35;
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .feature-card {
+      background: rgba(255, 107, 53, 0.1);
+      border: 2px solid rgba(255, 107, 53, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: #ff6b35;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(255, 107, 53, 0.4);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #ff6b35;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-desc {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.95rem;
+    }
+
+    .workflow {
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 4px solid #ff6b35;
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .workflow-step {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .step-number {
+      background: linear-gradient(135deg, #ff6b35, #ff8c42);
+      color: #0a0a0a;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff6b35, #ff8c42);
+      color: #0a0a0a;
+      padding: 1.5rem 3rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 30px rgba(255, 107, 53, 0.4);
+      margin: 2rem auto;
+      display: block;
+      max-width: 400px;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(255, 107, 53, 0.6);
+    }
+
+    .visual-demo {
+      background: rgba(10, 10, 10, 0.8);
+      border: 2px solid rgba(255, 107, 53, 0.3);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+      overflow-x: auto;
+    }
+
+    .timeline-mockup {
+      font-family: 'Courier New', monospace;
+      color: #ff6b35;
+      font-size: 0.9rem;
+      white-space: pre;
+      line-height: 1.8;
+    }
+
+    code {
+      background: rgba(255, 107, 53, 0.1);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      color: #ff8c42;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 1.5rem;
+      background: rgba(255, 107, 53, 0.05);
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      border-radius: 8px;
+    }
+
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #ff6b35;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .tag {
+      display: inline-block;
+      background: rgba(255, 107, 53, 0.2);
+      color: #ff6b35;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎬 Drag-and-Drop Arrangement</h1>
+    <p class="subtitle">Professional DAW-Style Beat Production | HAOS.fm Studio</p>
+
+    <!-- Overview -->
+    <div class="demo-section">
+      <h2>🎯 What You Get</h2>
+      <p style="color: rgba(255, 255, 255, 0.8); font-size: 1.1rem; margin-bottom: 1rem;">
+        A complete drag-and-drop arrangement interface that lets you create professional beats by simply dragging instruments onto a timeline. No complex setup, no steep learning curve—just intuitive music creation.
+      </p>
+      
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-number">11</div>
+          <div class="stat-label">Instruments</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">60+</div>
+          <div class="stat-label">Presets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">64</div>
+          <div class="stat-label">Bars Timeline</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">∞</div>
+          <div class="stat-label">Possibilities</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Features -->
+    <div class="demo-section">
+      <h2>✨ Key Features</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <div class="feature-title">Instrument Palette</div>
+          <div class="feature-desc">11 professional instruments ready to drag: Drums, Bass, Synths, Piano, Strings, and more.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <div class="feature-title">64-Bar Timeline</div>
+          <div class="feature-desc">Complete song arrangement with visual ruler, grid cells, and zoom controls (50%-200%).</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <div class="feature-title">Drag & Drop</div>
+          <div class="feature-desc">Intuitive interface—grab instruments, drag to timeline, and watch clips appear instantly.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎛️</div>
+          <div class="feature-title">Clip Controls</div>
+          <div class="feature-desc">Mute, delete, or move clips with ease. Visual feedback shows drop zones in orange.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">▶️</div>
+          <div class="feature-title">Real-Time Playback</div>
+          <div class="feature-desc">Click play to hear your arrangement with animated playhead and perfect sync.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <div class="feature-title">HAOS.fm Design</div>
+          <div class="feature-desc">Beautiful orange-themed UI with glassmorphism effects and smooth animations.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workflow -->
+    <div class="demo-section">
+      <h2>🚀 Quick Start Workflow</h2>
+      <div class="workflow">
+        <div class="workflow-step">
+          <div class="step-number">1</div>
+          <div>
+            <strong>Open Beat Maker</strong><br>
+            Navigate to <code>app/public/beat-maker.html</code>
+          </div>
+        </div>
+        <div class="workflow-step">
+          <div class="step-number">2</div>
+          <div>
+            <strong>Switch to Arrangement View</strong><br>
+            Click the "🎬 ARRANGEMENT VIEW" tab at the top
+          </div>
+        </div>
+        <div class="workflow-step">
+          <div class="step-number">3</div>
+          <div>
+            <strong>Drag Instruments</strong><br>
+            Grab any instrument from the colorful palette (e.g., 🥁 Kick)
+          </div>
+        </div>
+        <div class="workflow-step">
+          <div class="step-number">4</div>
+          <div>
+            <strong>Drop on Timeline</strong><br>
+            Release on any bar to create a 4-bar clip automatically
+          </div>
+        </div>
+        <div class="workflow-step">
+          <div class="step-number">5</div>
+          <div>
+            <strong>Arrange Your Beat</strong><br>
+            Move clips horizontally (time) or vertically (tracks)
+          </div>
+        </div>
+        <div class="workflow-step">
+          <div class="step-number">6</div>
+          <div>
+            <strong>Play & Enjoy</strong><br>
+            Click ▶️ Play to hear your creation come to life!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual Demo -->
+    <div class="demo-section">
+      <h2>👁️ Visual Timeline Preview</h2>
+      <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1rem;">
+        Here's what a typical beat arrangement looks like:
+      </p>
+      <div class="visual-demo">
+        <div class="timeline-mockup">
+Bars:  1    4    8    12   16   20   24   28   32
+       ├────┼────┼────┼────┼────┼────┼────┼────┤
+       
+Kick:  [====][====][====][====][====][====]
+       🥁 Four-on-the-floor pattern
+
+Snare:      [====]    [====]    [====]    [====]
+       🎹 Backbeat on 2 & 4
+
+HH:    [====][====][====][====][====][====][====][====]
+       🎵 Continuous hi-hat groove
+
+Bass:  [========]    [========]    [========]
+       🎸 Root note bassline
+
+Synth:           [====]         [========]
+       🎛️ Melodic synth stabs
+
+Piano: [====]                   [====]
+       🎹 Chord hits
+
+       ↓
+       Red playhead moves during playback
+        </div>
+      </div>
+    </div>
+
+    <!-- Technical Highlights -->
+    <div class="demo-section">
+      <h2>⚙️ Technical Highlights</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0;">
+        <span class="tag">HTML5 Drag & Drop API</span>
+        <span class="tag">Web Audio API</span>
+        <span class="tag">CSS Grid Layout</span>
+        <span class="tag">Glassmorphism Design</span>
+        <span class="tag">60fps Animations</span>
+        <span class="tag"><10ms Audio Latency</span>
+        <span class="tag">Responsive Design</span>
+        <span class="tag">Zero Dependencies</span>
+      </div>
+      <p style="color: rgba(255, 255, 255, 0.7); margin-top: 1rem;">
+        Built with modern web standards for maximum performance and compatibility. Works in all major browsers with hardware-accelerated graphics and professional-grade audio timing.
+      </p>
+    </div>
+
+    <!-- Use Cases -->
+    <div class="demo-section">
+      <h2>🎵 Perfect For</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎧</div>
+          <div class="feature-title">Music Producers</div>
+          <div class="feature-desc">Sketch ideas quickly with visual arrangement before moving to your DAW.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎓</div>
+          <div class="feature-title">Students & Teachers</div>
+          <div class="feature-desc">Learn music production concepts with an intuitive, visual interface.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎬</div>
+          <div class="feature-title">Content Creators</div>
+          <div class="feature-desc">Create custom background music for videos and podcasts.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎪</div>
+          <div class="feature-title">Live Performers</div>
+          <div class="feature-desc">Build sets with visual timeline navigation and real-time control.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <a href="../beat-maker.html" class="cta-button">
+      🎬 Try It Now!
+    </a>
+
+    <!-- Documentation -->
+    <div class="demo-section">
+      <h2>📚 Documentation</h2>
+      <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1rem;">
+        Complete guides and references available:
+      </p>
+      <ul style="list-style: none; padding: 0;">
+        <li style="padding: 0.5rem 0;">
+          📄 <a href="../../QUICK_START_ARRANGEMENT.md" style="color: #ff6b35; text-decoration: none; font-weight: 600;">Quick Start Guide</a> - Get started in 60 seconds
+        </li>
+        <li style="padding: 0.5rem 0;">
+          📄 <a href="../../DRAG_DROP_ARRANGEMENT_VIEW.md" style="color: #ff6b35; text-decoration: none; font-weight: 600;">Full Documentation</a> - Complete technical reference
+        </li>
+        <li style="padding: 0.5rem 0;">
+          📄 <a href="../../DRAG_DROP_SUMMARY.md" style="color: #ff6b35; text-decoration: none; font-weight: 600;">Implementation Summary</a> - Architecture and features
+        </li>
+        <li style="padding: 0.5rem 0;">
+          📄 <a href="../../CHANGELOG.md" style="color: #ff6b35; text-decoration: none; font-weight: 600;">Changelog</a> - Version history
+        </li>
+      </ul>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; margin-top: 4rem; padding: 2rem; color: rgba(255, 255, 255, 0.5);">
+      <p style="font-size: 0.9rem;">Made with ❤️ for HAOS.fm</p>
+      <p style="font-size: 0.85rem; margin-top: 0.5rem;">Professional beat production in your browser</p>
+    </div>
+  </div>
+</body>
+</html>

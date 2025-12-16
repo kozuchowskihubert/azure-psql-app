@@ -3,8 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Beat Maker + Vocal Recorder - HAOS.fm</title>
+  <title>Beat Maker | HAOS.fm Studio</title>
+  
+  <!-- HAOS Platform Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
   <style>
+    :root {
+      /* HAOS Orange Brand Theme 🔥 */
+      --haos-bg-dark: #0a0a0a;
+      --haos-bg-panel: #151515;
+      --haos-bg-elevated: #1f1f1f;
+      --haos-bg-panel-trans: rgba(21, 21, 21, 0.9);
+      
+      /* Orange theme - HAOS brand colors */
+      --haos-orange-primary: #ff6b35;
+      --haos-orange-bright: #ff8c42;
+      --haos-orange-dark: #e55a2b;
+      --haos-orange-glow: rgba(255, 107, 53, 0.5);
+      
+      /* Supporting accents */
+      --haos-accent-warm: #ff9e6d;
+      --haos-accent-deep: #d14d28;
+      --haos-accent-neon: #ffaa00;
+      --haos-accent-fire: #ff4500;
+      
+      /* Text */
+      --haos-text-primary: #ffffff;
+      --haos-text-secondary: #cccccc;
+      --haos-text-dim: #888888;
+      
+      /* Borders */
+      --haos-border: rgba(255, 107, 53, 0.2);
+      --haos-border-bright: rgba(255, 107, 53, 0.4);
+      
+      /* Typography */
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      --font-body: 'Inter', sans-serif;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -12,63 +50,85 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0a0a12;
+      font-family: var(--font-body);
+      background: var(--haos-bg-dark);
       background-image: 
-        radial-gradient(at 20% 30%, rgba(100, 255, 218, 0.05) 0%, transparent 50%),
-        radial-gradient(at 80% 70%, rgba(138, 43, 226, 0.05) 0%, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(0, 184, 255, 0.03) 0%, transparent 50%);
-      color: #e8e8f0;
+        radial-gradient(circle at 20% 30%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 140, 66, 0.06) 0%, transparent 50%);
+      color: var(--haos-text-primary);
       min-height: 100vh;
       overflow-x: hidden;
     }
 
     .container {
-      max-width: 1600px;
+      max-width: 2000px;
       margin: 0 auto;
-      padding: 30px 20px;
+      padding: 20px;
     }
 
-    /* Glassmorphism Cards */
+    /* HAOS Glassmorphism Cards */
     .glass-card {
-      background: rgba(20, 20, 35, 0.6);
+      background: var(--haos-bg-panel-trans);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(100, 255, 218, 0.1);
-      border-radius: 20px;
+      border: 2px solid var(--haos-border);
+      border-radius: 16px;
       padding: 25px;
       box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 107, 53, 0.1),
+        inset 0 1px 0 rgba(255, 107, 53, 0.1);
     }
 
-    /* Header */
+    /* HAOS Header */
     .header {
-      text-align: center;
-      margin-bottom: 40px;
-      padding: 30px 20px;
-      background: linear-gradient(135deg, rgba(100, 255, 218, 0.1) 0%, rgba(138, 43, 226, 0.1) 100%);
-      border-radius: 24px;
-      border: 1px solid rgba(100, 255, 218, 0.2);
-      box-shadow: 0 8px 32px rgba(100, 255, 218, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 2px solid var(--haos-border);
+      padding: 20px 30px;
+      margin: -20px -20px 30px -20px;
+      box-shadow: 0 4px 20px var(--haos-orange-glow);
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 2000px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
     }
 
     .header h1 {
-      font-size: 56px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #64FFDA 0%, #00B8FF 50%, #8A2BE2 100%);
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 400;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-bright));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 12px;
-      letter-spacing: -1px;
-      text-shadow: 0 0 30px rgba(100, 255, 218, 0.5);
+      text-shadow: 0 0 30px var(--haos-orange-glow);
+      margin: 0;
     }
 
     .header p {
-      color: rgba(232, 232, 240, 0.7);
-      font-size: 18px;
-      font-weight: 500;
+      font-family: var(--font-mono);
+      color: var(--haos-text-dim);
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin: 0;
     }
 
     /* Transport Controls */
@@ -114,64 +174,69 @@
     }
 
     .btn-play {
-      background: linear-gradient(135deg, #64FFDA 0%, #00E5A0 100%);
-      color: #0a0a12;
-      box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4);
+      background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-bright));
+      color: var(--haos-bg-dark);
+      box-shadow: 0 4px 15px var(--haos-orange-glow);
+      font-weight: 700;
     }
 
     .btn-play:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(100, 255, 218, 0.6);
+      box-shadow: 0 8px 25px var(--haos-orange-glow);
+      background: linear-gradient(135deg, var(--haos-orange-bright), var(--haos-accent-warm));
+    }
+
+    .btn-play:active {
+      transform: translateY(0);
     }
 
     .btn-stop {
-      background: rgba(255, 107, 53, 0.15);
-      border: 2px solid rgba(255, 107, 53, 0.5);
-      color: #FF6B35;
+      background: var(--haos-bg-elevated);
+      border: 2px solid var(--haos-border);
+      color: var(--haos-text-primary);
     }
 
     .btn-stop:hover {
-      background: rgba(255, 107, 53, 0.25);
-      border-color: #FF6B35;
+      background: var(--haos-bg-panel);
+      border-color: var(--haos-orange-primary);
+      box-shadow: 0 4px 15px var(--haos-orange-glow);
     }
 
     .btn-record {
-      background: rgba(255, 0, 80, 0.15);
-      border: 2px solid rgba(255, 0, 80, 0.5);
-      color: #FF0050;
+      background: var(--haos-bg-elevated);
+      border: 2px solid rgba(255, 69, 0, 0.4);
+      color: var(--haos-accent-fire);
     }
 
     .btn-record:hover {
-      background: rgba(255, 0, 80, 0.25);
-      border-color: #FF0050;
+      background: rgba(255, 69, 0, 0.1);
+      border-color: var(--haos-accent-fire);
+      box-shadow: 0 4px 15px rgba(255, 69, 0, 0.4);
     }
 
     .btn-record.recording {
-      animation: pulse-red 1.5s ease-in-out infinite;
+      background: var(--haos-accent-fire);
+      color: var(--haos-bg-dark);
+      animation: pulse-rec 1.5s ease-in-out infinite;
     }
 
-    @keyframes pulse-red {
-      0%, 100% { box-shadow: 0 0 15px rgba(255, 0, 80, 0.4); }
-      50% { box-shadow: 0 0 30px rgba(255, 0, 80, 0.8); }
-    }
-
-    .btn-record.recording {
-      background: #ff0000;
-      color: white;
-      animation: pulse 1s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
+    @keyframes pulse-rec {
+      0%, 100% { 
+        box-shadow: 0 0 15px rgba(255, 69, 0, 0.6);
+        transform: scale(1);
+      }
+      50% { 
+        box-shadow: 0 0 30px rgba(255, 69, 0, 1);
+        transform: scale(1.02);
+      }
     }
 
     /* Harmony Selector */
     .harmony-section {
-      background: rgba(20, 20, 35, 0.7);
+      background: var(--haos-bg-elevated);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(138, 43, 226, 0.3);
-      border-radius: 20px;
+      border: 1px solid var(--haos-border);
+      border-radius: 16px;
       padding: 28px;
       margin-bottom: 30px;
       box-shadow: 0 8px 32px rgba(138, 43, 226, 0.15);
@@ -190,92 +255,103 @@
     .harmony-controls {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
+      gap: 1.5rem;
     }
 
     .control-group {
       display: flex;
       flex-direction: column;
+      gap: 0.75rem;
     }
 
     .control-group label {
       display: block;
-      margin-bottom: 10px;
-      color: #64FFDA;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
       font-weight: 600;
-      font-size: 14px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 2px;
+      color: var(--haos-text-secondary);
     }
 
     select, input[type="range"] {
       width: 100%;
       padding: 14px 16px;
-      background: rgba(100, 255, 218, 0.05);
-      border: 1px solid rgba(100, 255, 218, 0.2);
-      border-radius: 10px;
-      color: #e8e8f0;
+      background: var(--haos-bg-panel);
+      border: 2px solid var(--haos-border);
+      border-radius: 12px;
+      color: var(--haos-text-primary);
+      font-family: var(--font-body);
       font-size: 15px;
       font-weight: 500;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     select:hover, input[type="range"]:hover {
-      background: rgba(100, 255, 218, 0.1);
-      border-color: #64FFDA;
+      background: var(--haos-bg-elevated);
+      border-color: var(--haos-orange-primary);
+      box-shadow: 0 4px 15px var(--haos-orange-glow);
     }
 
     select:focus, input[type="range"]:focus {
       outline: none;
-      border-color: #64FFDA;
-      box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.2);
+      border-color: var(--haos-orange-primary);
+      box-shadow: 0 0 0 3px var(--haos-orange-glow),
+                  0 4px 20px var(--haos-orange-glow);
     }
 
     /* Sequencer */
     .sequencer-section {
-      background: rgba(20, 20, 35, 0.7);
+      background: var(--haos-bg-elevated);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(100, 255, 218, 0.15);
-      border-radius: 20px;
-      padding: 30px;
-      margin-bottom: 30px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--haos-border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5),
+                  0 0 20px var(--haos-orange-glow);
     }
 
     .sequencer-section h2 {
-      font-size: 26px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #64FFDA 0%, #00B8FF 100%);
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 400;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-accent-warm));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 25px;
+      margin-bottom: 1.5rem;
     }
 
     .instrument-row {
       display: flex;
       align-items: center;
-      gap: 15px;
-      margin-bottom: 18px;
-      padding: 15px;
-      background: rgba(100, 255, 218, 0.03);
-      border: 1px solid rgba(100, 255, 218, 0.1);
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: var(--haos-bg-panel);
+      border: 1px solid var(--haos-border);
       border-radius: 12px;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .instrument-row:hover {
-      background: rgba(100, 255, 218, 0.05);
-      border-color: rgba(100, 255, 218, 0.2);
+      background: var(--haos-bg-elevated);
+      border-color: var(--haos-orange-primary);
+      box-shadow: 0 4px 15px var(--haos-orange-glow);
+      transform: translateX(4px);
     }
 
     .instrument-label {
       width: 140px;
+      font-family: var(--font-mono);
       font-weight: 700;
-      font-size: 15px;
-      color: #64FFDA;
+      font-size: 0.85rem;
+      color: var(--haos-text-primary);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
 
     .steps-container {
@@ -287,8 +363,8 @@
     .step {
       width: 44px;
       height: 44px;
-      background: rgba(100, 255, 218, 0.05);
-      border: 2px solid rgba(100, 255, 218, 0.2);
+      background: var(--haos-bg-panel);
+      border: 2px solid var(--haos-border);
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -303,7 +379,7 @@
       left: 50%;
       width: 0;
       height: 0;
-      background: rgba(100, 255, 218, 0.3);
+      background: var(--haos-orange-glow);
       border-radius: 50%;
       transform: translate(-50%, -50%);
       transition: width 0.3s, height 0.3s;
@@ -315,16 +391,16 @@
     }
 
     .step:hover {
-      background: rgba(100, 255, 218, 0.15);
-      border-color: #64FFDA;
+      background: rgba(255, 107, 53, 0.1);
+      border-color: var(--haos-orange-primary);
       transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+      box-shadow: 0 4px 15px var(--haos-orange-glow);
     }
 
     .step.active {
-      background: linear-gradient(135deg, #64FFDA 0%, #00B8FF 100%);
-      border-color: #64FFDA;
-      box-shadow: 0 4px 20px rgba(100, 255, 218, 0.5);
+      background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-bright));
+      border-color: var(--haos-orange-bright);
+      box-shadow: 0 4px 20px var(--haos-orange-glow);
     }
 
     .step.playing {
@@ -334,36 +410,43 @@
     @keyframes stepPulse {
       0% { 
         transform: scale(1);
-        box-shadow: 0 4px 20px rgba(100, 255, 218, 0.5);
+        box-shadow: 0 4px 20px var(--haos-orange-glow);
       }
       50% { 
         transform: scale(1.15);
-        box-shadow: 0 8px 30px rgba(100, 255, 218, 0.8);
+        box-shadow: 0 8px 30px rgba(255, 107, 53, 0.8);
       }
       100% { 
         transform: scale(1);
-        box-shadow: 0 4px 20px rgba(100, 255, 218, 0.5);
+        box-shadow: 0 4px 20px var(--haos-orange-glow);
       }
     }
 
     /* Vocal Recorder */
     .vocal-section {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(0, 255, 157, 0.2);
+      background: var(--haos-bg-elevated);
+      border: 2px solid var(--haos-border);
       border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 30px;
+      padding: 2rem;
+      margin-bottom: 2rem;
     }
 
     .vocal-section h2 {
-      font-size: 24px;
-      color: #00ff9d;
-      margin-bottom: 20px;
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 400;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-accent-warm));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1.5rem;
     }
 
     .vocal-controls {
       display: flex;
-      gap: 20px;
+      gap: 1.5rem;
       align-items: center;
       flex-wrap: wrap;
     }
@@ -440,6 +523,301 @@
       border-color: #D4AF37;
     }
 
+    /* Arrangement View Styles */
+    .view-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid var(--haos-border);
+      padding-bottom: 0;
+    }
+
+    .view-tab {
+      padding: 1rem 2rem;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      color: var(--haos-text-secondary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+
+    .view-tab:hover {
+      color: var(--haos-orange-primary);
+      border-bottom-color: var(--haos-orange-primary);
+    }
+
+    .view-tab.active {
+      color: var(--haos-orange-primary);
+      border-bottom-color: var(--haos-orange-primary);
+      font-weight: 600;
+    }
+
+    .view-content {
+      display: none;
+    }
+
+    .view-content.active {
+      display: block;
+    }
+
+    /* Arrangement Timeline */
+    .arrangement-view {
+      background: var(--haos-bg-elevated);
+      border: 2px solid var(--haos-border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .timeline-controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .timeline-zoom {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .timeline-container {
+      position: relative;
+      height: 600px;
+      background: var(--haos-bg-panel);
+      border: 1px solid var(--haos-border);
+      border-radius: 12px;
+      overflow: auto;
+    }
+
+    .timeline-ruler {
+      position: sticky;
+      top: 0;
+      height: 40px;
+      background: var(--haos-bg-elevated);
+      border-bottom: 2px solid var(--haos-orange-primary);
+      display: flex;
+      z-index: 10;
+    }
+
+    .timeline-marker {
+      flex: 1;
+      min-width: 60px;
+      border-right: 1px solid var(--haos-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--haos-text-secondary);
+    }
+
+    .timeline-marker:nth-child(4n) {
+      border-right-color: var(--haos-orange-primary);
+      border-right-width: 2px;
+      color: var(--haos-orange-primary);
+      font-weight: 700;
+    }
+
+    .timeline-tracks {
+      position: relative;
+    }
+
+    .timeline-track {
+      position: relative;
+      height: 80px;
+      border-bottom: 1px solid var(--haos-border);
+      display: flex;
+    }
+
+    .track-label {
+      position: sticky;
+      left: 0;
+      width: 150px;
+      background: var(--haos-bg-elevated);
+      border-right: 2px solid var(--haos-border);
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--haos-text-primary);
+      z-index: 5;
+    }
+
+    .track-content {
+      flex: 1;
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(64, 60px);
+    }
+
+    .track-cell {
+      border-right: 1px solid rgba(255, 107, 53, 0.1);
+      height: 100%;
+      transition: background 0.2s ease;
+    }
+
+    .track-cell:nth-child(4n) {
+      border-right-color: rgba(255, 107, 53, 0.3);
+    }
+
+    .track-cell.drop-target {
+      background: rgba(255, 107, 53, 0.2);
+      border: 2px dashed var(--haos-orange-primary);
+    }
+
+    /* Instrument Clips */
+    .instrument-clip {
+      position: absolute;
+      height: 60px;
+      top: 10px;
+      background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-orange-bright));
+      border: 2px solid var(--haos-orange-bright);
+      border-radius: 8px;
+      padding: 0.5rem;
+      cursor: move;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 15px var(--haos-orange-glow);
+      transition: all 0.2s ease;
+      z-index: 2;
+    }
+
+    .instrument-clip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px var(--haos-orange-glow);
+      z-index: 3;
+    }
+
+    .instrument-clip.dragging {
+      opacity: 0.6;
+      transform: scale(1.05);
+      z-index: 100;
+    }
+
+    .clip-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      flex: 1;
+    }
+
+    .clip-name {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--haos-bg-dark);
+    }
+
+    .clip-duration {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: rgba(10, 10, 10, 0.7);
+    }
+
+    .clip-controls {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .clip-btn {
+      width: 24px;
+      height: 24px;
+      background: rgba(10, 10, 10, 0.3);
+      border: 1px solid rgba(10, 10, 10, 0.5);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.7rem;
+      transition: all 0.2s ease;
+    }
+
+    .clip-btn:hover {
+      background: rgba(10, 10, 10, 0.5);
+      transform: scale(1.1);
+    }
+
+    /* Instrument Palette */
+    .instrument-palette {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--haos-bg-panel);
+      border: 2px solid var(--haos-border);
+      border-radius: 12px;
+    }
+
+    .palette-instrument {
+      padding: 1rem;
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 140, 66, 0.1));
+      border: 2px solid var(--haos-border);
+      border-radius: 8px;
+      text-align: center;
+      cursor: grab;
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+
+    .palette-instrument:hover {
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 140, 66, 0.2));
+      border-color: var(--haos-orange-primary);
+      transform: translateY(-4px);
+      box-shadow: 0 6px 20px var(--haos-orange-glow);
+    }
+
+    .palette-instrument:active {
+      cursor: grabbing;
+      transform: scale(0.95);
+    }
+
+    .palette-instrument.dragging {
+      opacity: 0.5;
+    }
+
+    .palette-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .palette-name {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--haos-text-primary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .playhead {
+      position: absolute;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: var(--haos-accent-fire);
+      box-shadow: 0 0 10px var(--haos-accent-fire);
+      z-index: 50;
+      pointer-events: none;
+    }
+
     @media (max-width: 768px) {
       .instrument-label {
         width: 80px;
@@ -455,6 +833,15 @@
         padding: 12px 20px;
         font-size: 14px;
       }
+
+      .track-label {
+        width: 100px;
+        font-size: 0.7rem;
+      }
+
+      .track-content {
+        grid-template-columns: repeat(64, 40px);
+      }
     }
   </style>
 </head>
@@ -463,6 +850,16 @@
     <div class="header">
       <h1>🎵 Beat Maker + Vocal Recorder</h1>
       <p>Twórz beaty, nagrywaj vocal, komponuj w harmonii</p>
+    </div>
+
+    <!-- View Tabs -->
+    <div class="view-tabs">
+      <button class="view-tab active" data-view="arrangement">
+        🎬 Arrangement View
+      </button>
+      <button class="view-tab" data-view="sequencer">
+        🥁 Pattern Sequencer
+      </button>
     </div>
 
     <!-- Transport Controls -->
@@ -547,6 +944,235 @@
       </p>
     </div>
 
+    <!-- Effects Rack & Modulation Panel -->
+    <div class="harmony-section" style="margin-bottom: 30px;">
+      <h2>🎛️ Effects Rack & Modulation</h2>
+      
+      <!-- Effects Section -->
+      <div style="background: rgba(100, 255, 218, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <h3 style="color: #FF6B35; margin-bottom: 15px; font-size: 16px;">🔊 Master Effects</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+          
+          <!-- Reverb -->
+          <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 6px; padding: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <label style="color: #64FFDA; font-weight: 600;">Reverb</label>
+              <button id="reverbToggle" onclick="toggleEffect('reverb')" style="padding: 4px 12px; background: rgba(255, 107, 53, 0.2); border: 1px solid #FF6B35; border-radius: 4px; color: #FF6B35; cursor: pointer; font-size: 12px;">OFF</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <label style="color: #999; font-size: 12px;">Wet: <span id="reverbWetValue">30%</span></label>
+                <input type="range" id="reverbWet" min="0" max="100" value="30" onchange="updateEffect('reverb', 'wet', this.value)" style="width: 100%;">
+              </div>
+              <div>
+                <label style="color: #999; font-size: 12px;">Decay: <span id="reverbDecayValue">2.0s</span></label>
+                <input type="range" id="reverbDecay" min="0.5" max="5" step="0.1" value="2" onchange="updateEffect('reverb', 'decay', this.value)" style="width: 100%;">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Delay -->
+          <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 6px; padding: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <label style="color: #64FFDA; font-weight: 600;">Delay</label>
+              <button id="delayToggle" onclick="toggleEffect('delay')" style="padding: 4px 12px; background: rgba(255, 107, 53, 0.2); border: 1px solid #FF6B35; border-radius: 4px; color: #FF6B35; cursor: pointer; font-size: 12px;">OFF</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <label style="color: #999; font-size: 12px;">Time: <span id="delayTimeValue">375ms</span></label>
+                <input type="range" id="delayTime" min="50" max="2000" value="375" onchange="updateEffect('delay', 'time', this.value)" style="width: 100%;">
+              </div>
+              <div>
+                <label style="color: #999; font-size: 12px;">Feedback: <span id="delayFeedbackValue">40%</span></label>
+                <input type="range" id="delayFeedback" min="0" max="90" value="40" onchange="updateEffect('delay', 'feedback', this.value)" style="width: 100%;">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Filter -->
+          <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 6px; padding: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <label style="color: #64FFDA; font-weight: 600;">Filter</label>
+              <button id="filterToggle" onclick="toggleEffect('filter')" style="padding: 4px 12px; background: rgba(255, 107, 53, 0.2); border: 1px solid #FF6B35; border-radius: 4px; color: #FF6B35; cursor: pointer; font-size: 12px;">OFF</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <label style="color: #999; font-size: 12px;">Type</label>
+                <select id="filterType" onchange="updateEffect('filter', 'type', this.value)" style="width: 100%; padding: 4px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 4px; color: #64FFDA;">
+                  <option value="lowpass">Lowpass</option>
+                  <option value="highpass">Highpass</option>
+                  <option value="bandpass">Bandpass</option>
+                  <option value="notch">Notch</option>
+                </select>
+              </div>
+              <div>
+                <label style="color: #999; font-size: 12px;">Freq: <span id="filterFreqValue">5000Hz</span></label>
+                <input type="range" id="filterFreq" min="20" max="20000" value="5000" onchange="updateEffect('filter', 'frequency', this.value)" style="width: 100%;">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Distortion -->
+          <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 6px; padding: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <label style="color: #64FFDA; font-weight: 600;">Distortion</label>
+              <button id="distortionToggle" onclick="toggleEffect('distortion')" style="padding: 4px 12px; background: rgba(255, 107, 53, 0.2); border: 1px solid #FF6B35; border-radius: 4px; color: #FF6B35; cursor: pointer; font-size: 12px;">OFF</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <label style="color: #999; font-size: 12px;">Type</label>
+                <select id="distortionType" onchange="updateEffect('distortion', 'type', this.value)" style="width: 100%; padding: 4px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 4px; color: #64FFDA;">
+                  <option value="soft">Soft</option>
+                  <option value="hard">Hard</option>
+                  <option value="warm">Warm</option>
+                </select>
+              </div>
+              <div>
+                <label style="color: #999; font-size: 12px;">Drive: <span id="distortionAmountValue">0%</span></label>
+                <input type="range" id="distortionAmount" min="0" max="100" value="0" onchange="updateEffect('distortion', 'amount', this.value)" style="width: 100%;">
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- LFO Modulation Section -->
+      <div style="background: rgba(255, 107, 53, 0.05); border: 1px solid rgba(255, 107, 53, 0.2); border-radius: 8px; padding: 20px;">
+        <h3 style="color: #FF6B35; margin-bottom: 15px; font-size: 16px;">🌊 LFO Modulation</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+          
+          <!-- Filter LFO -->
+          <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 107, 53, 0.2); border-radius: 6px; padding: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <label style="color: #FF6B35; font-weight: 600;">Filter LFO</label>
+              <button id="filterLfoToggle" onclick="toggleLFOUI('filter')" style="padding: 4px 12px; background: rgba(255, 107, 53, 0.2); border: 1px solid #FF6B35; border-radius: 4px; color: #FF6B35; cursor: pointer; font-size: 12px;">OFF</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <label style="color: #999; font-size: 12px;">Waveform</label>
+                <select id="filterLfoWave" onchange="updateLFOUI('filter', 'waveform', this.value)" style="width: 100%; padding: 4px; background: rgba(255, 107, 53, 0.1); border: 1px solid rgba(255, 107, 53, 0.3); border-radius: 4px; color: #FF6B35;">
+                  <option value="sine">Sine</option>
+                  <option value="square">Square</option>
+                  <option value="sawtooth">Sawtooth</option>
+                  <option value="triangle">Triangle</option>
+                </select>
+              </div>
+              <div>
+                <label style="color: #999; font-size: 12px;">Rate: <span id="filterLfoRateValue">0.5Hz</span></label>
+                <input type="range" id="filterLfoRate" min="0.1" max="20" step="0.1" value="0.5" onchange="updateLFOUI('filter', 'rate', this.value)" style="width: 100%;">
+              </div>
+              <div>
+                <label style="color: #999; font-size: 12px;">Depth: <span id="filterLfoDepthValue">500</span></label>
+                <input type="range" id="filterLfoDepth" min="0" max="2000" value="500" onchange="updateLFOUI('filter', 'depth', this.value)" style="width: 100%;">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pitch LFO (Vibrato) -->
+          <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 107, 53, 0.2); border-radius: 6px; padding: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <label style="color: #FF6B35; font-weight: 600;">Pitch LFO (Vibrato)</label>
+              <button id="pitchLfoToggle" onclick="toggleLFOUI('pitch')" style="padding: 4px 12px; background: rgba(255, 107, 53, 0.2); border: 1px solid #FF6B35; border-radius: 4px; color: #FF6B35; cursor: pointer; font-size: 12px;">OFF</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <label style="color: #999; font-size: 12px;">Waveform</label>
+                <select id="pitchLfoWave" onchange="updateLFOUI('pitch', 'waveform', this.value)" style="width: 100%; padding: 4px; background: rgba(255, 107, 53, 0.1); border: 1px solid rgba(255, 107, 53, 0.3); border-radius: 4px; color: #FF6B35;">
+                  <option value="sine">Sine</option>
+                  <option value="square">Square</option>
+                  <option value="sawtooth">Sawtooth</option>
+                  <option value="triangle">Triangle</option>
+                </select>
+              </div>
+              <div>
+                <label style="color: #999; font-size: 12px;">Rate: <span id="pitchLfoRateValue">5Hz</span></label>
+                <input type="range" id="pitchLfoRate" min="0.1" max="20" step="0.1" value="5" onchange="updateLFOUI('pitch', 'rate', this.value)" style="width: 100%;">
+              </div>
+              <div>
+                <label style="color: #999; font-size: 12px;">Depth: <span id="pitchLfoDepthValue">10 cents</span></label>
+                <input type="range" id="pitchLfoDepth" min="0" max="100" value="10" onchange="updateLFOUI('pitch', 'depth', this.value)" style="width: 100%;">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Amplitude LFO (Tremolo) -->
+          <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 107, 53, 0.2); border-radius: 6px; padding: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <label style="color: #FF6B35; font-weight: 600;">Amplitude LFO (Tremolo)</label>
+              <button id="amplitudeLfoToggle" onclick="toggleLFOUI('amplitude')" style="padding: 4px 12px; background: rgba(255, 107, 53, 0.2); border: 1px solid #FF6B35; border-radius: 4px; color: #FF6B35; cursor: pointer; font-size: 12px;">OFF</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <label style="color: #999; font-size: 12px;">Waveform</label>
+                <select id="amplitudeLfoWave" onchange="updateLFOUI('amplitude', 'waveform', this.value)" style="width: 100%; padding: 4px; background: rgba(255, 107, 53, 0.1); border: 1px solid rgba(255, 107, 53, 0.3); border-radius: 4px; color: #FF6B35;">
+                  <option value="sine">Sine</option>
+                  <option value="square">Square</option>
+                  <option value="sawtooth">Sawtooth</option>
+                  <option value="triangle">Triangle</option>
+                </select>
+              </div>
+              <div>
+                <label style="color: #999; font-size: 12px;">Rate: <span id="amplitudeLfoRateValue">4Hz</span></label>
+                <input type="range" id="amplitudeLfoRate" min="0.1" max="20" step="0.1" value="4" onchange="updateLFOUI('amplitude', 'rate', this.value)" style="width: 100%;">
+              </div>
+              <div>
+                <label style="color: #999; font-size: 12px;">Depth: <span id="amplitudeLfoDepthValue">30%</span></label>
+                <input type="range" id="amplitudeLfoDepth" min="0" max="100" value="30" onchange="updateLFOUI('amplitude', 'depth', this.value)" style="width: 100%;">
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+
+    <!-- Arrangement View Content -->
+    <div id="arrangementView" class="view-content active">
+      <div class="arrangement-view">
+        <div class="timeline-header">
+          <h2 style="font-family: var(--font-display); font-size: 2rem; letter-spacing: 4px; background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-accent-warm)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0;">
+            🎬 Arrangement Timeline
+          </h2>
+          <div class="timeline-controls">
+            <div class="timeline-zoom">
+              <label style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haos-text-secondary);">ZOOM:</label>
+              <button class="btn" style="padding: 8px 16px; font-size: 0.85rem;" onclick="zoomTimeline(-1)">➖</button>
+              <span id="zoomLevel" style="font-family: var(--font-mono); color: var(--haos-orange-primary); min-width: 50px; text-align: center;">100%</span>
+              <button class="btn" style="padding: 8px 16px; font-size: 0.85rem;" onclick="zoomTimeline(1)">➕</button>
+            </div>
+            <button class="btn" style="padding: 8px 16px;" onclick="clearArrangement()">🗑️ Clear</button>
+          </div>
+        </div>
+
+        <!-- Instrument Palette -->
+        <div style="margin-bottom: 2rem;">
+          <h3 style="font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 3px; color: var(--haos-orange-primary); margin-bottom: 1rem;">
+            🎨 DRAG INSTRUMENTS TO TIMELINE
+          </h3>
+          <div class="instrument-palette" id="instrumentPalette">
+            <!-- Instruments will be populated here -->
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-container" id="timelineContainer">
+          <div class="timeline-ruler" id="timelineRuler">
+            <!-- Ruler markers will be populated here -->
+          </div>
+          <div class="timeline-tracks" id="timelineTracks">
+            <!-- Tracks will be populated here -->
+          </div>
+          <div class="playhead" id="playhead" style="left: 0;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sequencer View Content -->
+    <div id="sequencerView" class="view-content">
+      
     <!-- Harmony Selector -->
     <div class="harmony-section">
       <h2>🎹 Ustawienia Harmoniczne</h2>
@@ -747,6 +1373,8 @@
       </div>
     </div>
 
+    </div> <!-- End Sequencer View -->
+
     <!-- Export -->
     <div class="export-section">
       <button class="btn btn-export" id="exportBtn">
@@ -761,7 +1389,285 @@
     // ============================================================================
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let masterGain = audioContext.createGain();
-    masterGain.connect(audioContext.destination);
+    
+    // ============================================================================
+    // EFFECTS RACK - Professional Audio Effects
+    // ============================================================================
+    
+    // Global effects chain
+    let globalEffects = {
+      reverb: null,
+      delay: null,
+      filter: null,
+      compressor: null,
+      distortion: null
+    };
+    
+    // Effects settings
+    let effectsSettings = {
+      reverb: { enabled: false, wet: 0.3, decay: 2.0, preDelay: 0.01 },
+      delay: { enabled: false, wet: 0.4, time: 0.375, feedback: 0.4 },
+      filter: { enabled: false, type: 'lowpass', frequency: 5000, q: 1 },
+      compressor: { enabled: true, threshold: -24, ratio: 4, attack: 0.003, release: 0.25 },
+      distortion: { enabled: false, amount: 0, type: 'soft' }
+    };
+    
+    // Per-track effects
+    const trackEffects = [];
+    
+    // Create reverb impulse response
+    function createReverbImpulse(duration = 2.0, decay = 2.0, reverse = false) {
+      const sampleRate = audioContext.sampleRate;
+      const length = sampleRate * duration;
+      const impulse = audioContext.createBuffer(2, length, sampleRate);
+      const impulseL = impulse.getChannelData(0);
+      const impulseR = impulse.getChannelData(1);
+
+      for (let i = 0; i < length; i++) {
+        const n = reverse ? length - i : i;
+        impulseL[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+        impulseR[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+      }
+
+      return impulse;
+    }
+    
+    // Initialize global effects
+    function initializeGlobalEffects() {
+      // Reverb
+      globalEffects.reverb = audioContext.createConvolver();
+      globalEffects.reverb.buffer = createReverbImpulse(
+        effectsSettings.reverb.decay,
+        effectsSettings.reverb.decay
+      );
+      
+      const reverbWet = audioContext.createGain();
+      const reverbDry = audioContext.createGain();
+      reverbWet.gain.value = effectsSettings.reverb.wet;
+      reverbDry.gain.value = 1 - effectsSettings.reverb.wet;
+      
+      globalEffects.reverbWet = reverbWet;
+      globalEffects.reverbDry = reverbDry;
+      
+      // Delay
+      globalEffects.delay = audioContext.createDelay(5.0);
+      globalEffects.delay.delayTime.value = effectsSettings.delay.time;
+      
+      const delayFeedback = audioContext.createGain();
+      delayFeedback.gain.value = effectsSettings.delay.feedback;
+      
+      const delayWet = audioContext.createGain();
+      delayWet.gain.value = effectsSettings.delay.wet;
+      
+      globalEffects.delayFeedback = delayFeedback;
+      globalEffects.delayWet = delayWet;
+      
+      // Connect delay feedback loop
+      globalEffects.delay.connect(delayFeedback);
+      delayFeedback.connect(globalEffects.delay);
+      
+      // Filter
+      globalEffects.filter = audioContext.createBiquadFilter();
+      globalEffects.filter.type = effectsSettings.filter.type;
+      globalEffects.filter.frequency.value = effectsSettings.filter.frequency;
+      globalEffects.filter.Q.value = effectsSettings.filter.q;
+      
+      // Compressor
+      globalEffects.compressor = audioContext.createDynamicsCompressor();
+      globalEffects.compressor.threshold.value = effectsSettings.compressor.threshold;
+      globalEffects.compressor.ratio.value = effectsSettings.compressor.ratio;
+      globalEffects.compressor.knee.value = 10;
+      globalEffects.compressor.attack.value = effectsSettings.compressor.attack;
+      globalEffects.compressor.release.value = effectsSettings.compressor.release;
+      
+      // Distortion
+      globalEffects.distortion = createDistortionNode('soft', 0);
+      
+      console.log('🎛️ Global effects initialized');
+    }
+    
+    // Create distortion wave shaper
+    function createDistortionNode(type = 'soft', amount = 0) {
+      const distortion = audioContext.createWaveShaper();
+      const samples = 44100;
+      const curve = new Float32Array(samples);
+      const drive = amount * 100;
+
+      for (let i = 0; i < samples; i++) {
+        const x = (i * 2) / samples - 1;
+        
+        if (type === 'soft') {
+          curve[i] = Math.tanh(x * (1 + drive));
+        } else if (type === 'hard') {
+          curve[i] = Math.max(-1, Math.min(1, x * (1 + drive)));
+        } else if (type === 'warm') {
+          curve[i] = (3 + drive) * x * 20 / (Math.PI + drive * Math.abs(x));
+        }
+      }
+
+      distortion.curve = curve;
+      distortion.oversample = '4x';
+      return distortion;
+    }
+    
+    // Connect effects chain
+    function connectEffectsChain() {
+      // Disconnect everything first
+      masterGain.disconnect();
+      
+      let currentNode = masterGain;
+      
+      // Apply effects in order if enabled
+      if (effectsSettings.distortion.enabled && effectsSettings.distortion.amount > 0) {
+        currentNode.connect(globalEffects.distortion);
+        currentNode = globalEffects.distortion;
+      }
+      
+      if (effectsSettings.filter.enabled) {
+        currentNode.connect(globalEffects.filter);
+        currentNode = globalEffects.filter;
+      }
+      
+      if (effectsSettings.compressor.enabled) {
+        currentNode.connect(globalEffects.compressor);
+        currentNode = globalEffects.compressor;
+      }
+      
+      // Reverb (parallel processing)
+      if (effectsSettings.reverb.enabled) {
+        currentNode.connect(globalEffects.reverbDry);
+        currentNode.connect(globalEffects.reverb);
+        globalEffects.reverb.connect(globalEffects.reverbWet);
+        
+        const reverbMix = audioContext.createGain();
+        globalEffects.reverbDry.connect(reverbMix);
+        globalEffects.reverbWet.connect(reverbMix);
+        currentNode = reverbMix;
+        globalEffects.reverbMix = reverbMix;
+      }
+      
+      // Delay (parallel processing)
+      if (effectsSettings.delay.enabled) {
+        const delayMix = audioContext.createGain();
+        currentNode.connect(delayMix); // Dry
+        currentNode.connect(globalEffects.delay);
+        globalEffects.delay.connect(globalEffects.delayWet);
+        globalEffects.delayWet.connect(delayMix); // Wet
+        currentNode = delayMix;
+        globalEffects.delayMix = delayMix;
+      }
+      
+      // Final output
+      currentNode.connect(audioContext.destination);
+      
+      console.log('🔊 Effects chain connected');
+    }
+    
+    // ============================================================================
+    // LFO & MODULATION SYSTEM
+    // ============================================================================
+    
+    let lfoSystem = {
+      filter: {
+        enabled: false,
+        rate: 0.5,
+        depth: 500,
+        waveform: 'sine',
+        oscillator: null,
+        gainNode: null
+      },
+      pitch: {
+        enabled: false,
+        rate: 5,
+        depth: 10,
+        waveform: 'sine',
+        oscillator: null,
+        gainNode: null
+      },
+      amplitude: {
+        enabled: false,
+        rate: 4,
+        depth: 0.3,
+        waveform: 'sine',
+        oscillator: null,
+        gainNode: null
+      }
+    };
+    
+    // Initialize LFO
+    function initializeLFO(target) {
+      const lfo = lfoSystem[target];
+      
+      if (lfo.oscillator) {
+        lfo.oscillator.stop();
+        lfo.oscillator.disconnect();
+      }
+      
+      lfo.oscillator = audioContext.createOscillator();
+      lfo.gainNode = audioContext.createGain();
+      
+      lfo.oscillator.type = lfo.waveform;
+      lfo.oscillator.frequency.value = lfo.rate;
+      lfo.gainNode.gain.value = lfo.depth;
+      
+      lfo.oscillator.connect(lfo.gainNode);
+      lfo.oscillator.start();
+      
+      console.log(`🌊 LFO initialized for ${target}`);
+    }
+    
+    // Apply LFO modulation
+    function applyLFOModulation(target, audioParam) {
+      const lfo = lfoSystem[target];
+      
+      if (lfo.enabled && lfo.gainNode) {
+        lfo.gainNode.connect(audioParam);
+      }
+    }
+    
+    // Update LFO parameter
+    function updateLFO(target, param, value) {
+      const lfo = lfoSystem[target];
+      
+      if (param === 'rate' && lfo.oscillator) {
+        lfo.oscillator.frequency.value = value;
+        lfo.rate = value;
+      } else if (param === 'depth' && lfo.gainNode) {
+        lfo.gainNode.gain.value = value;
+        lfo.depth = value;
+      } else if (param === 'waveform') {
+        lfo.waveform = value;
+        if (lfo.enabled) {
+          initializeLFO(target);
+        }
+      }
+      
+      console.log(`🎚️ LFO ${target}.${param} = ${value}`);
+    }
+    
+    // Toggle LFO
+    function toggleLFO(target) {
+      const lfo = lfoSystem[target];
+      lfo.enabled = !lfo.enabled;
+      
+      if (lfo.enabled) {
+        initializeLFO(target);
+      } else if (lfo.oscillator) {
+        lfo.oscillator.stop();
+        lfo.oscillator.disconnect();
+        lfo.oscillator = null;
+      }
+      
+      console.log(`${lfo.enabled ? '✅' : '❌'} LFO ${target} ${lfo.enabled ? 'enabled' : 'disabled'}`);
+      return lfo.enabled;
+    }
+    
+    // Initialize effects and modulation on load
+    setTimeout(() => {
+      initializeGlobalEffects();
+      connectEffectsChain();
+    }, 100);
+    
     masterGain.gain.value = 0.7;
 
     // ============================================================================
@@ -2884,14 +3790,579 @@
     });
 
     // ============================================================================
+    // ARRANGEMENT VIEW - DRAG AND DROP
+    // ============================================================================
+    let arrangementClips = [];
+    let clipIdCounter = 0;
+    let timelineZoom = 100; // percentage
+    let draggedElement = null;
+    let dragType = null; // 'palette' or 'clip'
+    let currentPlayheadPosition = 0;
+
+    const instrumentIcons = {
+      'kick': '🥁',
+      'snare': '🎹',
+      'hihat': '🎵',
+      'bass': '🎸',
+      'synth': '🎛️',
+      'piano': '🎹',
+      'organ': '🎼',
+      'strings': '🎻',
+      'violin': '🎻',
+      'trumpet': '🎺',
+      'guitar': '🎸'
+    };
+
+    function initializeArrangementView() {
+      // Populate instrument palette
+      const palette = document.getElementById('instrumentPalette');
+      palette.innerHTML = '';
+      
+      instruments.forEach(inst => {
+        const item = document.createElement('div');
+        item.className = 'palette-instrument';
+        item.draggable = true;
+        item.dataset.instrumentType = inst.type;
+        item.dataset.instrumentName = inst.name;
+        
+        item.innerHTML = `
+          <div class="palette-icon">${instrumentIcons[inst.type] || '🎵'}</div>
+          <div class="palette-name">${inst.name}</div>
+        `;
+        
+        // Drag events for palette items
+        item.addEventListener('dragstart', handlePaletteDragStart);
+        item.addEventListener('dragend', handleDragEnd);
+        
+        palette.appendChild(item);
+      });
+
+      // Create timeline ruler (64 bars = 256 beats at 4/4)
+      const ruler = document.getElementById('timelineRuler');
+      ruler.innerHTML = '';
+      for (let i = 0; i < 64; i++) {
+        const marker = document.createElement('div');
+        marker.className = 'timeline-marker';
+        marker.textContent = `${i + 1}`;
+        ruler.appendChild(marker);
+      }
+
+      // Create tracks for each instrument
+      const tracksContainer = document.getElementById('timelineTracks');
+      tracksContainer.innerHTML = '';
+      
+      instruments.forEach((inst, index) => {
+        const track = document.createElement('div');
+        track.className = 'timeline-track';
+        track.dataset.trackIndex = index;
+        track.dataset.instrumentType = inst.type;
+        
+        const label = document.createElement('div');
+        label.className = 'track-label';
+        label.innerHTML = `${instrumentIcons[inst.type] || '🎵'} ${inst.name}`;
+        
+        const content = document.createElement('div');
+        content.className = 'track-content';
+        
+        // Create drop zones
+        for (let i = 0; i < 64; i++) {
+          const cell = document.createElement('div');
+          cell.className = 'track-cell';
+          cell.dataset.bar = i;
+          cell.dataset.trackIndex = index;
+          
+          cell.addEventListener('dragover', handleDragOver);
+          cell.addEventListener('drop', handleDrop);
+          cell.addEventListener('dragleave', handleDragLeave);
+          
+          content.appendChild(cell);
+        }
+        
+        track.appendChild(label);
+        track.appendChild(content);
+        tracksContainer.appendChild(track);
+      });
+
+      console.log('🎬 Arrangement view initialized!');
+    }
+
+    function handlePaletteDragStart(e) {
+      draggedElement = e.target.closest('.palette-instrument');
+      dragType = 'palette';
+      
+      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData('instrumentType', draggedElement.dataset.instrumentType);
+      e.dataTransfer.setData('instrumentName', draggedElement.dataset.instrumentName);
+      
+      draggedElement.classList.add('dragging');
+      console.log('🎨 Dragging instrument:', draggedElement.dataset.instrumentName);
+    }
+
+    function handleClipDragStart(e) {
+      draggedElement = e.target.closest('.instrument-clip');
+      dragType = 'clip';
+      
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('clipId', draggedElement.dataset.clipId);
+      
+      draggedElement.classList.add('dragging');
+      console.log('🎵 Moving clip:', draggedElement.dataset.clipId);
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = dragType === 'palette' ? 'copy' : 'move';
+      
+      const cell = e.target.closest('.track-cell');
+      if (cell) {
+        cell.classList.add('drop-target');
+      }
+    }
+
+    function handleDragLeave(e) {
+      const cell = e.target.closest('.track-cell');
+      if (cell) {
+        cell.classList.remove('drop-target');
+      }
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      
+      const cell = e.target.closest('.track-cell');
+      if (!cell) return;
+      
+      cell.classList.remove('drop-target');
+      
+      const trackIndex = parseInt(cell.dataset.trackIndex);
+      const bar = parseInt(cell.dataset.bar);
+      
+      if (dragType === 'palette') {
+        // Create new clip from palette
+        const instrumentType = e.dataTransfer.getData('instrumentType');
+        const instrumentName = e.dataTransfer.getData('instrumentName');
+        
+        createClip(trackIndex, bar, instrumentType, instrumentName, 4); // 4 bars default
+      } else if (dragType === 'clip') {
+        // Move existing clip
+        const clipId = e.dataTransfer.getData('clipId');
+        moveClip(clipId, trackIndex, bar);
+      }
+    }
+
+    function handleDragEnd(e) {
+      if (draggedElement) {
+        draggedElement.classList.remove('dragging');
+      }
+      
+      // Remove all drop targets
+      document.querySelectorAll('.drop-target').forEach(el => {
+        el.classList.remove('drop-target');
+      });
+      
+      draggedElement = null;
+      dragType = null;
+    }
+
+    function createClip(trackIndex, startBar, instrumentType, instrumentName, duration) {
+      const clipId = `clip_${clipIdCounter++}`;
+      
+      const clip = {
+        id: clipId,
+        trackIndex: trackIndex,
+        startBar: startBar,
+        duration: duration, // in bars
+        instrumentType: instrumentType,
+        instrumentName: instrumentName,
+        muted: false
+      };
+      
+      arrangementClips.push(clip);
+      renderClip(clip);
+      
+      console.log('✅ Created clip:', clip);
+    }
+
+    function renderClip(clip) {
+      const track = document.querySelector(`.timeline-track[data-track-index="${clip.trackIndex}"]`);
+      if (!track) return;
+      
+      const content = track.querySelector('.track-content');
+      
+      // Remove existing clip element if it exists
+      const existingClip = document.getElementById(clip.id);
+      if (existingClip) {
+        existingClip.remove();
+      }
+      
+      const clipEl = document.createElement('div');
+      clipEl.className = 'instrument-clip';
+      clipEl.id = clip.id;
+      clipEl.dataset.clipId = clip.id;
+      clipEl.draggable = true;
+      
+      // Position and size based on bars
+      const barWidth = 60 * (timelineZoom / 100);
+      clipEl.style.left = `${clip.startBar * barWidth}px`;
+      clipEl.style.width = `${clip.duration * barWidth}px`;
+      
+      if (clip.muted) {
+        clipEl.style.opacity = '0.5';
+      }
+      
+      clipEl.innerHTML = `
+        <div class="clip-info">
+          <div class="clip-name">${instrumentIcons[clip.instrumentType] || '🎵'} ${clip.instrumentName}</div>
+          <div class="clip-duration">${clip.startBar + 1} - ${clip.startBar + clip.duration + 1} (${clip.duration} bars)</div>
+        </div>
+        <div class="clip-controls">
+          <button class="clip-btn" onclick="event.stopPropagation(); toggleClipMute('${clip.id}')" title="Mute">M</button>
+          <button class="clip-btn" onclick="event.stopPropagation(); deleteClip('${clip.id}')" title="Delete">×</button>
+        </div>
+      `;
+      
+      // Drag events for clips
+      clipEl.addEventListener('dragstart', handleClipDragStart);
+      clipEl.addEventListener('dragend', handleDragEnd);
+      
+      content.appendChild(clipEl);
+    }
+
+    function moveClip(clipId, newTrackIndex, newStartBar) {
+      const clip = arrangementClips.find(c => c.id === clipId);
+      if (!clip) return;
+      
+      clip.trackIndex = newTrackIndex;
+      clip.startBar = newStartBar;
+      
+      renderClip(clip);
+      console.log('🔄 Moved clip:', clip);
+    }
+
+    function toggleClipMute(clipId) {
+      const clip = arrangementClips.find(c => c.id === clipId);
+      if (!clip) return;
+      
+      clip.muted = !clip.muted;
+      renderClip(clip);
+      
+      console.log(`🔇 Clip ${clipId} ${clip.muted ? 'muted' : 'unmuted'}`);
+    }
+
+    function deleteClip(clipId) {
+      const index = arrangementClips.findIndex(c => c.id === clipId);
+      if (index === -1) return;
+      
+      arrangementClips.splice(index, 1);
+      
+      const clipEl = document.getElementById(clipId);
+      if (clipEl) {
+        clipEl.remove();
+      }
+      
+      console.log('🗑️ Deleted clip:', clipId);
+    }
+
+    function clearArrangement() {
+      if (!confirm('Clear all clips from arrangement?')) return;
+      
+      arrangementClips = [];
+      
+      document.querySelectorAll('.instrument-clip').forEach(el => el.remove());
+      
+      console.log('🗑️ Arrangement cleared!');
+    }
+
+    function zoomTimeline(direction) {
+      timelineZoom = Math.max(50, Math.min(200, timelineZoom + (direction * 25)));
+      
+      document.getElementById('zoomLevel').textContent = `${timelineZoom}%`;
+      
+      // Update ruler markers
+      const ruler = document.getElementById('timelineRuler');
+      const markers = ruler.querySelectorAll('.timeline-marker');
+      markers.forEach(marker => {
+        marker.style.minWidth = `${60 * (timelineZoom / 100)}px`;
+      });
+      
+      // Update track cells
+      document.querySelectorAll('.track-cell').forEach(cell => {
+        cell.style.minWidth = `${60 * (timelineZoom / 100)}px`;
+      });
+      
+      // Re-render all clips with new zoom
+      arrangementClips.forEach(clip => renderClip(clip));
+      
+      console.log(`🔍 Zoom: ${timelineZoom}%`);
+    }
+
+    // Play arrangement
+    function playArrangement() {
+      if (isPlaying) {
+        stopPlayback();
+        return;
+      }
+      
+      // Resume audio context if suspended
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+      
+      isPlaying = true;
+      currentPlayheadPosition = 0;
+      
+      // Schedule clips
+      const secondsPerBar = (60 / bpm) * 4; // 4 beats per bar
+      
+      arrangementClips.forEach(clip => {
+        if (clip.muted) return;
+        
+        const track = pattern[clip.trackIndex];
+        if (!track) return;
+        
+        const startTime = audioContext.currentTime + (clip.startBar * secondsPerBar);
+        
+        // Play the instrument for the duration
+        for (let bar = 0; bar < clip.duration; bar++) {
+          const barTime = startTime + (bar * secondsPerBar);
+          
+          // Play 4 beats per bar
+          for (let beat = 0; beat < 4; beat++) {
+            const beatTime = barTime + (beat * (60 / bpm));
+            
+            const { frequencies } = getScaleFrequencies(
+              document.getElementById('keySelect').value,
+              document.getElementById('scaleSelect').value
+            );
+            
+            // Play based on instrument type
+            switch(clip.instrumentType) {
+              case 'bass':
+                track.synth(beatTime, frequencies[0] / 2);
+                break;
+              case 'synth':
+                track.synth(beatTime, frequencies[2]);
+                break;
+              case 'piano':
+                track.synth(beatTime, frequencies[0]);
+                break;
+              default:
+                track.synth(beatTime);
+            }
+          }
+        }
+      });
+      
+      // Animate playhead
+      animatePlayhead();
+      
+      document.getElementById('playBtn').textContent = '⏸️ Pause';
+      console.log('▶️ Playing arrangement...');
+    }
+
+    function animatePlayhead() {
+      if (!isPlaying) return;
+      
+      const secondsPerBar = (60 / bpm) * 4;
+      const elapsed = audioContext.currentTime - nextStepTime + (currentPlayheadPosition * secondsPerBar);
+      const barPosition = elapsed / secondsPerBar;
+      
+      const barWidth = 60 * (timelineZoom / 100);
+      const playhead = document.getElementById('playhead');
+      playhead.style.left = `${barPosition * barWidth}px`;
+      
+      requestAnimationFrame(animatePlayhead);
+    }
+
+    // ============================================================================
+    // EFFECTS RACK UI CONTROLS
+    // ============================================================================
+    
+    function toggleEffect(effectName) {
+      effectsSettings[effectName].enabled = !effectsSettings[effectName].enabled;
+      const button = document.getElementById(`${effectName}Toggle`);
+      
+      if (effectsSettings[effectName].enabled) {
+        button.textContent = 'ON';
+        button.style.background = 'linear-gradient(135deg, #00E5A0 0%, #64FFDA 100%)';
+        button.style.color = '#0a0a12';
+      } else {
+        button.textContent = 'OFF';
+        button.style.background = 'rgba(255, 107, 53, 0.2)';
+        button.style.color = '#FF6B35';
+      }
+      
+      // Reconnect effects chain
+      connectEffectsChain();
+      console.log(`${effectsSettings[effectName].enabled ? '✅' : '❌'} ${effectName} ${effectsSettings[effectName].enabled ? 'enabled' : 'disabled'}`);
+    }
+    
+    function updateEffect(effectName, param, value) {
+      const numValue = parseFloat(value);
+      
+      switch(effectName) {
+        case 'reverb':
+          if (param === 'wet') {
+            effectsSettings.reverb.wet = numValue / 100;
+            if (globalEffects.reverbWet) {
+              globalEffects.reverbWet.gain.value = effectsSettings.reverb.wet;
+              globalEffects.reverbDry.gain.value = 1 - effectsSettings.reverb.wet;
+            }
+            document.getElementById('reverbWetValue').textContent = `${numValue}%`;
+          } else if (param === 'decay') {
+            effectsSettings.reverb.decay = numValue;
+            globalEffects.reverb.buffer = createReverbImpulse(numValue, numValue);
+            document.getElementById('reverbDecayValue').textContent = `${numValue.toFixed(1)}s`;
+          }
+          break;
+          
+        case 'delay':
+          if (param === 'time') {
+            effectsSettings.delay.time = numValue / 1000;
+            if (globalEffects.delay) {
+              globalEffects.delay.delayTime.value = effectsSettings.delay.time;
+            }
+            document.getElementById('delayTimeValue').textContent = `${numValue}ms`;
+          } else if (param === 'feedback') {
+            effectsSettings.delay.feedback = numValue / 100;
+            if (globalEffects.delayFeedback) {
+              globalEffects.delayFeedback.gain.value = effectsSettings.delay.feedback;
+            }
+            document.getElementById('delayFeedbackValue').textContent = `${numValue}%`;
+          }
+          break;
+          
+        case 'filter':
+          if (param === 'type') {
+            effectsSettings.filter.type = value;
+            if (globalEffects.filter) {
+              globalEffects.filter.type = value;
+            }
+          } else if (param === 'frequency') {
+            effectsSettings.filter.frequency = numValue;
+            if (globalEffects.filter) {
+              globalEffects.filter.frequency.value = numValue;
+            }
+            document.getElementById('filterFreqValue').textContent = `${numValue}Hz`;
+          }
+          break;
+          
+        case 'distortion':
+          if (param === 'type') {
+            effectsSettings.distortion.type = value;
+            globalEffects.distortion = createDistortionNode(value, effectsSettings.distortion.amount);
+            connectEffectsChain();
+          } else if (param === 'amount') {
+            effectsSettings.distortion.amount = numValue / 100;
+            globalEffects.distortion = createDistortionNode(effectsSettings.distortion.type, effectsSettings.distortion.amount);
+            connectEffectsChain();
+            document.getElementById('distortionAmountValue').textContent = `${numValue}%`;
+          }
+          break;
+      }
+      
+      console.log(`🎚️ ${effectName}.${param} = ${value}`);
+    }
+    
+    // ============================================================================
+    // LFO UI CONTROLS
+    // ============================================================================
+    
+    function toggleLFOUI(target) {
+      const isEnabled = toggleLFO(target);
+      const button = document.getElementById(`${target}LfoToggle`);
+      
+      if (isEnabled) {
+        button.textContent = 'ON';
+        button.style.background = 'linear-gradient(135deg, #FF6B35 0%, #FF8C35 100%)';
+        button.style.color = '#0a0a12';
+      } else {
+        button.textContent = 'OFF';
+        button.style.background = 'rgba(255, 107, 53, 0.2)';
+        button.style.color = '#FF6B35';
+      }
+    }
+    
+    function updateLFOUI(target, param, value) {
+      updateLFO(target, param, value);
+      const numValue = parseFloat(value);
+      
+      // Update display values
+      if (param === 'rate') {
+        document.getElementById(`${target}LfoRateValue`).textContent = `${numValue.toFixed(1)}Hz`;
+      } else if (param === 'depth') {
+        if (target === 'filter') {
+          document.getElementById(`${target}LfoDepthValue`).textContent = numValue;
+        } else if (target === 'pitch') {
+          document.getElementById(`${target}LfoDepthValue`).textContent = `${numValue} cents`;
+        } else if (target === 'amplitude') {
+          document.getElementById(`${target}LfoDepthValue`).textContent = `${numValue}%`;
+        }
+      }
+    }
+    
+    // View switching
+    function switchView(viewName) {
+      // Hide all views
+      document.querySelectorAll('.view-content').forEach(view => {
+        view.classList.remove('active');
+      });
+      
+      // Remove active from all tabs
+      document.querySelectorAll('.view-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Show selected view
+      if (viewName === 'arrangement') {
+        document.getElementById('arrangementView').classList.add('active');
+      } else if (viewName === 'sequencer') {
+        document.getElementById('sequencerView').classList.add('active');
+      }
+      
+      // Activate tab
+      const activeTab = document.querySelector(`.view-tab[data-view="${viewName}"]`);
+      if (activeTab) {
+        activeTab.classList.add('active');
+      }
+      
+      console.log(`🔄 Switched to ${viewName} view`);
+    }
+
+    // View tab click handlers
+    document.querySelectorAll('.view-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const viewName = tab.dataset.view;
+        switchView(viewName);
+      });
+    });
+
+    // ============================================================================
     // INITIALIZATION
     // ============================================================================
     renderSequencer();
     updateHarmonyInfo();
+    initializeArrangementView();
+
+    // Override play button to check which view is active
+    const originalPlayBtn = document.getElementById('playBtn');
+    originalPlayBtn.onclick = () => {
+      const arrangementView = document.getElementById('arrangementView');
+      if (arrangementView.classList.contains('active')) {
+        playArrangement();
+      } else {
+        if (isPlaying) {
+          stopPlayback();
+        } else {
+          startPlayback();
+        }
+      }
+    };
 
     console.log('🎵 Beat Maker + Vocal Recorder initialized!');
     console.log('Instruments:', instruments.map(i => i.name));
     console.log('Current harmony:', document.getElementById('currentKey').textContent);
+    console.log('🎬 Arrangement view with drag-and-drop enabled!');
   </script>
 </body>
 </html>
