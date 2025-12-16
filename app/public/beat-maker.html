@@ -355,6 +355,35 @@
       <button class="btn btn-secondary" id="clearBtn">
         🗑️ Wyczyść
       </button>
+      <button class="btn" id="saveBtn" style="background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%); color: #0a0a0a;">
+        💾 Zapisz Pattern
+      </button>
+      <button class="btn" id="loadBtn" style="background: linear-gradient(135deg, #00b8ff 0%, #00ff9d 100%); color: #0a0a0a;">
+        📂 Wczytaj Pattern
+      </button>
+    </div>
+    
+    <!-- Pattern Controls -->
+    <div class="harmony-section" style="margin-bottom: 20px;">
+      <h3 style="font-size: 18px; margin-bottom: 15px;">⚙️ Ustawienia Patternu</h3>
+      <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <label style="color: #64FFDA;">Długość:</label>
+          <select id="patternLengthSelect" style="padding: 8px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 4px; color: #64FFDA; cursor: pointer;">
+            <option value="8">8 kroków</option>
+            <option value="16" selected>16 kroków</option>
+            <option value="32">32 kroki</option>
+          </select>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <label style="color: #64FFDA;">Swing:</label>
+          <input type="range" id="swingRange" min="0" max="100" value="0" style="width: 150px;">
+          <span id="swingValue" style="color: #64FFDA; min-width: 40px;">0%</span>
+        </div>
+      </div>
+      <p style="text-align: center; margin-top: 10px; color: #808080; font-size: 12px;">
+        💡 Lewy klick: włącz/wyłącz krok | Prawy klick: zmień velocity | Shift+klick: ręczna velocity
+      </p>
     </div>
 
     <!-- Beat Style Presets -->
@@ -1270,12 +1299,17 @@
     let currentStep = 0;
     let nextStepTime = 0;
     let sequencerInterval = null;
+    let patternLength = 16;
+    let swingAmount = 0;
 
     const pattern = instruments.map(inst => ({
       name: inst.name,
       type: inst.type,
       synth: inst.synth,
-      steps: new Array(16).fill(false)
+      steps: new Array(16).fill(false),
+      muted: false,
+      solo: false,
+      velocity: new Array(16).fill(1.0) // 0.0 to 1.0
     }));
 
     // ============================================================================
@@ -1339,10 +1373,59 @@
         labelContainer.style.flexDirection = 'column';
         labelContainer.style.gap = '4px';
         
+        // Track name and controls wrapper
+        const trackHeader = document.createElement('div');
+        trackHeader.style.display = 'flex';
+        trackHeader.style.alignItems = 'center';
+        trackHeader.style.gap = '6px';
+        
         const label = document.createElement('div');
         label.className = 'instrument-label';
         label.textContent = track.name;
-        labelContainer.appendChild(label);
+        label.style.flex = '1';
+        if (track.muted) label.style.opacity = '0.4';
+        if (track.solo) label.style.fontWeight = 'bold';
+        trackHeader.appendChild(label);
+        
+        // Mute button
+        const muteBtn = document.createElement('button');
+        muteBtn.textContent = 'M';
+        muteBtn.title = 'Mute';
+        muteBtn.style.cssText = `
+          width: 24px;
+          height: 24px;
+          padding: 0;
+          font-size: 11px;
+          font-weight: bold;
+          background: ${track.muted ? '#ff4444' : 'rgba(100, 255, 218, 0.1)'};
+          border: 1px solid ${track.muted ? '#ff4444' : 'rgba(100, 255, 218, 0.3)'};
+          color: ${track.muted ? '#fff' : '#64FFDA'};
+          border-radius: 4px;
+          cursor: pointer;
+        `;
+        muteBtn.addEventListener('click', () => toggleMute(trackIndex));
+        trackHeader.appendChild(muteBtn);
+        
+        // Solo button
+        const soloBtn = document.createElement('button');
+        soloBtn.textContent = 'S';
+        soloBtn.title = 'Solo';
+        soloBtn.style.cssText = `
+          width: 24px;
+          height: 24px;
+          padding: 0;
+          font-size: 11px;
+          font-weight: bold;
+          background: ${track.solo ? '#ffaa00' : 'rgba(100, 255, 218, 0.1)'};
+          border: 1px solid ${track.solo ? '#ffaa00' : 'rgba(100, 255, 218, 0.3)'};
+          color: ${track.solo ? '#000' : '#64FFDA'};
+          border-radius: 4px;
+          cursor: pointer;
+        `;
+        soloBtn.addEventListener('click', () => toggleSolo(trackIndex));
+        trackHeader.appendChild(soloBtn);
+        
+        labelContainer.appendChild(trackHeader);
         
         // Add preset dropdown for melodic instruments
         const melodicTypes = ['piano', 'organ', 'strings', 'violin', 'trumpet', 'guitar'];
@@ -1382,16 +1465,117 @@
 
         const stepsContainer = document.createElement('div');
         stepsContainer.className = 'steps-container';
+        
+        // Get note names for melodic instruments
+        const melodicInstruments = ['bass', 'synth', 'piano', 'organ', 'strings', 'violin', 'trumpet', 'guitar'];
+        const isMelodic = melodicInstruments.includes(track.type);
+        let noteInfo = null;
+        
+        if (isMelodic) {
+          noteInfo = getScaleFrequencies(
+            document.getElementById('keySelect').value,
+            document.getElementById('scaleSelect').value
+          );
+        }
 
-        track.steps.forEach((active, stepIndex) => {
+        for (let stepIndex = 0; stepIndex < patternLength; stepIndex++) {
+          // Create wrapper for step + note label
+          const stepWrapper = document.createElement('div');
+          stepWrapper.style.cssText = 'display: flex; flex-direction: column; align-items: center; gap: 2px;';
+          
           const step = document.createElement('div');
+          const active = track.steps[stepIndex];
           step.className = 'step' + (active ? ' active' : '');
-          step.addEventListener('click', () => {
-            pattern[trackIndex].steps[stepIndex] = !pattern[trackIndex].steps[stepIndex];
+          
+          // Add velocity indicator
+          const velocity = track.velocity[stepIndex] || 1.0;
+          if (active && velocity < 1.0) {
+            step.style.opacity = 0.3 + (velocity * 0.7);
+          }
+          
+          // Left click to toggle
+          step.addEventListener('click', (e) => {
+            if (e.shiftKey) {
+              // Shift+click to adjust velocity
+              if (track.steps[stepIndex]) {
+                const newVelocity = prompt(`Velocity for step ${stepIndex + 1} (0.1 - 1.0):`, track.velocity[stepIndex]);
+                if (newVelocity !== null) {
+                  track.velocity[stepIndex] = Math.max(0.1, Math.min(1.0, parseFloat(newVelocity) || 1.0));
+                }
+              }
+            } else {
+              track.steps[stepIndex] = !track.steps[stepIndex];
+            }
             renderSequencer();
           });
-          stepsContainer.appendChild(step);
-        });
+          
+          // Right click to set velocity
+          step.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (track.steps[stepIndex]) {
+              const velocities = [0.25, 0.5, 0.75, 1.0];
+              const currentIndex = velocities.findIndex(v => Math.abs(v - track.velocity[stepIndex]) < 0.01);
+              const nextIndex = (currentIndex + 1) % velocities.length;
+              track.velocity[stepIndex] = velocities[nextIndex];
+              renderSequencer();
+            }
+          });
+          
+          stepWrapper.appendChild(step);
+          
+          // Add note label for melodic instruments
+          if (isMelodic && noteInfo) {
+            const noteLabel = document.createElement('div');
+            noteLabel.style.cssText = `
+              font-size: 9px;
+              color: ${active ? '#64FFDA' : 'rgba(100, 255, 218, 0.4)'};
+              font-weight: ${active ? 'bold' : 'normal'};
+              height: 12px;
+              text-align: center;
+              user-select: none;
+            `;
+            
+            // Determine which note to display based on instrument type
+            let noteIndex = 0;
+            let octaveModifier = '';
+            
+            switch(track.type) {
+              case 'bass':
+                noteIndex = 0; // Root note
+                octaveModifier = '↓'; // One octave lower
+                break;
+              case 'synth':
+                noteIndex = 2; // Third
+                break;
+              case 'piano':
+                noteIndex = 0; // Root
+                break;
+              case 'organ':
+                noteIndex = 4; // Fifth
+                break;
+              case 'strings':
+                noteIndex = 2; // Third
+                break;
+              case 'violin':
+                noteIndex = 4; // Fifth
+                octaveModifier = '↑'; // One octave higher
+                break;
+              case 'trumpet':
+                noteIndex = 2; // Third
+                octaveModifier = '↑'; // One octave higher
+                break;
+              case 'guitar':
+                noteIndex = 0; // Root
+                break;
+            }
+            
+            const noteName = noteInfo.noteNames[noteIndex] || '';
+            noteLabel.textContent = noteName + octaveModifier;
+            stepWrapper.appendChild(noteLabel);
+          }
+          
+          stepsContainer.appendChild(stepWrapper);
+        }
 
         row.appendChild(stepsContainer);
         container.appendChild(row);
@@ -1572,10 +1756,150 @@
 
     function clearPattern() {
       pattern.forEach(track => {
-        track.steps = new Array(16).fill(false);
+        track.steps = new Array(patternLength).fill(false);
+        track.velocity = new Array(patternLength).fill(1.0);
       });
       renderSequencer();
       console.log('🗑️ Pattern cleared!');
+    }
+
+    // ============================================================================
+    // PATTERN MANAGEMENT
+    // ============================================================================
+    function savePattern() {
+      const patternData = {
+        bpm,
+        patternLength,
+        swingAmount,
+        tracks: pattern.map(track => ({
+          name: track.name,
+          type: track.type,
+          steps: track.steps,
+          muted: track.muted,
+          solo: track.solo,
+          velocity: track.velocity
+        })),
+        presets: { ...currentPresets }
+      };
+      
+      const patternName = prompt('Enter pattern name:', `Pattern_${Date.now()}`);
+      if (!patternName) return;
+      
+      localStorage.setItem(`beatmaker_${patternName}`, JSON.stringify(patternData));
+      
+      const notification = document.createElement('div');
+      notification.textContent = `💾 Pattern "${patternName}" saved!`;
+      notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%); color: #0a0a0a; padding: 20px 30px; border-radius: 12px; font-weight: 600; z-index: 10000; box-shadow: 0 8px 32px rgba(0, 255, 157, 0.4);';
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 2000);
+      
+      console.log(`💾 Saved pattern: ${patternName}`);
+    }
+
+    function loadPattern() {
+      // Get all saved patterns
+      const savedPatterns = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('beatmaker_')) {
+          savedPatterns.push(key.replace('beatmaker_', ''));
+        }
+      }
+      
+      if (savedPatterns.length === 0) {
+        alert('No saved patterns found!');
+        return;
+      }
+      
+      const patternName = prompt(`Available patterns:\n${savedPatterns.join('\n')}\n\nEnter pattern name to load:`);
+      if (!patternName) return;
+      
+      const patternData = localStorage.getItem(`beatmaker_${patternName}`);
+      if (!patternData) {
+        alert(`Pattern "${patternName}" not found!`);
+        return;
+      }
+      
+      const data = JSON.parse(patternData);
+      
+      // Restore BPM and settings
+      bpm = data.bpm || 120;
+      patternLength = data.patternLength || 16;
+      swingAmount = data.swingAmount || 0;
+      
+      document.getElementById('bpmRange').value = bpm;
+      document.getElementById('bpmValue').textContent = bpm;
+      
+      // Restore presets
+      if (data.presets) {
+        Object.assign(currentPresets, data.presets);
+      }
+      
+      // Restore tracks
+      data.tracks.forEach((savedTrack, index) => {
+        if (pattern[index]) {
+          pattern[index].steps = savedTrack.steps || new Array(patternLength).fill(false);
+          pattern[index].muted = savedTrack.muted || false;
+          pattern[index].solo = savedTrack.solo || false;
+          pattern[index].velocity = savedTrack.velocity || new Array(patternLength).fill(1.0);
+        }
+      });
+      
+      renderSequencer();
+      
+      const notification = document.createElement('div');
+      notification.textContent = `📂 Pattern "${patternName}" loaded!`;
+      notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%); color: #0a0a0a; padding: 20px 30px; border-radius: 12px; font-weight: 600; z-index: 10000; box-shadow: 0 8px 32px rgba(0, 255, 157, 0.4);';
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 2000);
+      
+      console.log(`📂 Loaded pattern: ${patternName}`);
+    }
+
+    function toggleMute(trackIndex) {
+      const track = pattern[trackIndex];
+      
+      // If any track is soloed, mute behavior changes
+      const hasSolo = pattern.some(t => t.solo);
+      
+      if (hasSolo && !track.solo) {
+        // Can't mute when other tracks are soloed
+        return;
+      }
+      
+      track.muted = !track.muted;
+      renderSequencer();
+    }
+
+    function toggleSolo(trackIndex) {
+      const track = pattern[trackIndex];
+      track.solo = !track.solo;
+      
+      // If no tracks are soloed, unmute all
+      const hasSolo = pattern.some(t => t.solo);
+      if (!hasSolo) {
+        pattern.forEach(t => t.muted = false);
+      }
+      
+      renderSequencer();
+    }
+
+    function changePatternLength(newLength) {
+      patternLength = newLength;
+      pattern.forEach(track => {
+        const oldSteps = track.steps;
+        const oldVelocity = track.velocity;
+        track.steps = new Array(newLength).fill(false);
+        track.velocity = new Array(newLength).fill(1.0);
+        
+        // Copy existing steps
+        for (let i = 0; i < Math.min(oldSteps.length, newLength); i++) {
+          track.steps[i] = oldSteps[i];
+          track.velocity[i] = oldVelocity[i];
+        }
+      });
+      renderSequencer();
+      console.log(`📏 Pattern length: ${newLength} steps`);
     }
 
     // ============================================================================
@@ -1583,6 +1907,19 @@
     // ============================================================================
     function scheduleNote(time, trackIndex) {
       const track = pattern[trackIndex];
+      
+      // Check mute/solo status
+      const hasSolo = pattern.some(t => t.solo);
+      if (track.muted) return;
+      if (hasSolo && !track.solo) return;
+      
+      // Get velocity for this step
+      const velocity = track.velocity[currentStep] || 1.0;
+      
+      // Store current master gain
+      const originalGain = masterGain.gain.value;
+      masterGain.gain.value = originalGain * velocity;
+      
       const { frequencies } = getScaleFrequencies(
         document.getElementById('keySelect').value,
         document.getElementById('scaleSelect').value
@@ -1617,15 +1954,27 @@
         default:
           track.synth(time); // Drums (no pitch)
       }
+      
+      // Restore master gain
+      masterGain.gain.value = originalGain;
     }
 
     function scheduler() {
       if (!isPlaying) return; // Safety check
       
       while (nextStepTime < audioContext.currentTime + 0.1) {
+        let stepTime = nextStepTime;
+        
+        // Apply swing (delay every other 16th note)
+        if (swingAmount > 0 && currentStep % 2 === 1) {
+          const secondsPerBeat = 60.0 / bpm;
+          const secondsPerStep = secondsPerBeat / 4;
+          stepTime += secondsPerStep * (swingAmount / 100) * 0.5;
+        }
+        
         pattern.forEach((track, trackIndex) => {
           if (track.steps[currentStep]) {
-            scheduleNote(nextStepTime, trackIndex);
+            scheduleNote(stepTime, trackIndex);
           }
         });
 
@@ -1636,13 +1985,13 @@
         const secondsPerBeat = 60.0 / bpm;
         const secondsPerStep = secondsPerBeat / 4; // 16th notes
         nextStepTime += secondsPerStep;
-        currentStep = (currentStep + 1) % 16;
+        currentStep = (currentStep + 1) % patternLength;
       }
     }
 
     function updateStepHighlight(step) {
       document.querySelectorAll('.step').forEach((el, index) => {
-        const stepIndex = index % 16;
+        const stepIndex = index % patternLength;
         if (stepIndex === step) {
           el.classList.add('playing');
           setTimeout(() => el.classList.remove('playing'), 100);
@@ -2198,10 +2547,21 @@
     document.getElementById('exportBtn').addEventListener('click', exportToWAV);
     document.getElementById('generateBtn').addEventListener('click', generateBeat);
     document.getElementById('clearBtn').addEventListener('click', clearPattern);
+    document.getElementById('saveBtn').addEventListener('click', savePattern);
+    document.getElementById('loadBtn').addEventListener('click', loadPattern);
 
     document.getElementById('bpmRange').addEventListener('input', (e) => {
       bpm = parseInt(e.target.value);
       document.getElementById('bpmValue').textContent = bpm;
+    });
+
+    document.getElementById('patternLengthSelect').addEventListener('change', (e) => {
+      changePatternLength(parseInt(e.target.value));
+    });
+
+    document.getElementById('swingRange').addEventListener('input', (e) => {
+      swingAmount = parseInt(e.target.value);
+      document.getElementById('swingValue').textContent = swingAmount + '%';
     });
 
     document.getElementById('keySelect').addEventListener('change', updateHarmonyInfo);
