@@ -3168,7 +3168,19 @@
         clearInterval(sequencerInterval);
         sequencerInterval = null;
       }
+      
+      // Reset playhead
+      const playhead = document.getElementById('playhead');
+      if (playhead) {
+        playhead.style.left = '0px';
+        playhead.style.display = 'block';
+      }
+      
+      currentPlayheadPosition = 0;
+      currentStep = 0;
+      
       document.getElementById('playBtn').textContent = '▶️ Play';
+      console.log('⏹️ Playback stopped');
     }
 
     // ============================================================================
@@ -4185,17 +4197,30 @@
       
       isPlaying = true;
       currentPlayheadPosition = 0;
+      nextStepTime = audioContext.currentTime;
       
       // Schedule clips
       const secondsPerBar = (60 / bpm) * 4; // 4 beats per bar
       
+      console.log(`▶️ Playing ${arrangementClips.length} clips at ${bpm} BPM`);
+      
       arrangementClips.forEach(clip => {
         if (clip.muted) return;
         
-        const track = pattern[clip.trackIndex];
-        if (!track) return;
+        // Find the instrument by type, not by track index
+        const instrument = instruments.find(inst => inst.type === clip.instrumentType);
+        if (!instrument) {
+          console.warn(`⚠️ Instrument not found for clip: ${clip.instrumentType}`);
+          return;
+        }
         
         const startTime = audioContext.currentTime + (clip.startBar * secondsPerBar);
+        
+        // Get harmony frequencies
+        const { frequencies } = getScaleFrequencies(
+          document.getElementById('keySelect').value,
+          document.getElementById('scaleSelect').value
+        );
         
         // Play the instrument for the duration
         for (let bar = 0; bar < clip.duration; bar++) {
@@ -4205,25 +4230,37 @@
           for (let beat = 0; beat < 4; beat++) {
             const beatTime = barTime + (beat * (60 / bpm));
             
-            const { frequencies } = getScaleFrequencies(
-              document.getElementById('keySelect').value,
-              document.getElementById('scaleSelect').value
-            );
+            // Select frequency based on instrument type
+            let freq = 440; // Default A4
             
-            // Play based on instrument type
-            switch(clip.instrumentType) {
-              case 'bass':
-                track.synth(beatTime, frequencies[0] / 2);
-                break;
-              case 'synth':
-                track.synth(beatTime, frequencies[2]);
-                break;
-              case 'piano':
-                track.synth(beatTime, frequencies[0]);
-                break;
-              default:
-                track.synth(beatTime);
+            // Drums don't need frequency
+            const drumInstruments = ['kick', 'snare', 'hihat'];
+            if (!drumInstruments.includes(clip.instrumentType)) {
+              // Melodic instruments - use scale frequencies
+              switch(clip.instrumentType) {
+                case 'bass':
+                  freq = frequencies[0] / 2; // Root note, one octave down
+                  break;
+                case 'synth':
+                case 'piano':
+                  freq = frequencies[Math.floor(Math.random() * frequencies.length)]; // Random note from scale
+                  break;
+                case 'organ':
+                case 'strings':
+                case 'violin':
+                  freq = frequencies[2]; // Third note of scale
+                  break;
+                case 'trumpet':
+                case 'guitar':
+                  freq = frequencies[4 % frequencies.length]; // Fifth note
+                  break;
+                default:
+                  freq = frequencies[0]; // Root note
+              }
             }
+            
+            // Play the sound
+            instrument.synth(beatTime, freq);
           }
         }
       });
@@ -4238,13 +4275,25 @@
     function animatePlayhead() {
       if (!isPlaying) return;
       
-      const secondsPerBar = (60 / bpm) * 4;
-      const elapsed = audioContext.currentTime - nextStepTime + (currentPlayheadPosition * secondsPerBar);
+      const secondsPerBar = (60 / bpm) * 4; // 4 beats = 1 bar
+      const elapsed = audioContext.currentTime - nextStepTime;
       const barPosition = elapsed / secondsPerBar;
       
+      // Calculate pixel position based on zoom
       const barWidth = 60 * (timelineZoom / 100);
       const playhead = document.getElementById('playhead');
-      playhead.style.left = `${barPosition * barWidth}px`;
+      
+      if (playhead) {
+        playhead.style.left = `${barPosition * barWidth}px`;
+        playhead.style.display = 'block';
+      }
+      
+      // Stop if we've reached the end of all clips
+      const maxBar = Math.max(...arrangementClips.map(clip => clip.startBar + clip.duration), 0);
+      if (barPosition >= maxBar && arrangementClips.length > 0) {
+        stopPlayback();
+        return;
+      }
       
       requestAnimationFrame(animatePlayhead);
     }
