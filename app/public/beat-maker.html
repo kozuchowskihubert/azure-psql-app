@@ -357,6 +357,34 @@
       </button>
     </div>
 
+    <!-- Beat Style Presets -->
+    <div class="harmony-section" style="margin-bottom: 30px;">
+      <h2>🎼 Presety Stylów</h2>
+      <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+        <button class="btn btn-secondary" onclick="loadBeatPreset('trap')" style="padding: 14px 24px; font-size: 16px;">
+          🔥 Trap
+        </button>
+        <button class="btn btn-secondary" onclick="loadBeatPreset('house')" style="padding: 14px 24px; font-size: 16px;">
+          🏠 House
+        </button>
+        <button class="btn btn-secondary" onclick="loadBeatPreset('dnb')" style="padding: 14px 24px; font-size: 16px;">
+          ⚡ Drum & Bass
+        </button>
+        <button class="btn btn-secondary" onclick="loadBeatPreset('techno')" style="padding: 14px 24px; font-size: 16px;">
+          🤖 Techno
+        </button>
+        <button class="btn btn-secondary" onclick="loadBeatPreset('jazz')" style="padding: 14px 24px; font-size: 16px;">
+          🎷 Jazz
+        </button>
+        <button class="btn btn-secondary" onclick="loadBeatPreset('orchestral')" style="padding: 14px 24px; font-size: 16px;">
+          🎻 Orchestral
+        </button>
+      </div>
+      <p style="text-align: center; margin-top: 15px; color: #808080; font-size: 14px;">
+        Kliknij preset aby automatycznie załadować kompletny beat w danym stylu
+      </p>
+    </div>
+
     <!-- Harmony Selector -->
     <div class="harmony-section">
       <h2>🎹 Ustawienia Harmoniczne</h2>
@@ -739,6 +767,217 @@
           osc.start(time);
           osc.stop(time + 0.2);
         }
+      },
+      { 
+        name: 'Piano', 
+        type: 'piano',
+        synth: (time, freq) => {
+          // Piano with harmonics
+          const fundamentalGain = audioContext.createGain();
+          fundamentalGain.gain.value = 0.3;
+          
+          // Fundamental
+          const osc1 = audioContext.createOscillator();
+          osc1.type = 'sine';
+          osc1.frequency.value = freq || 440;
+          
+          // Harmonics
+          const osc2 = audioContext.createOscillator();
+          osc2.type = 'sine';
+          osc2.frequency.value = (freq || 440) * 2;
+          const gain2 = audioContext.createGain();
+          gain2.gain.value = 0.15;
+          
+          const osc3 = audioContext.createOscillator();
+          osc3.type = 'sine';
+          osc3.frequency.value = (freq || 440) * 3;
+          const gain3 = audioContext.createGain();
+          gain3.gain.value = 0.08;
+          
+          // Piano envelope (fast attack, medium decay)
+          fundamentalGain.gain.setValueAtTime(0.3, time);
+          fundamentalGain.gain.exponentialRampToValueAtTime(0.01, time + 0.8);
+          
+          osc1.connect(fundamentalGain);
+          osc2.connect(gain2);
+          osc3.connect(gain3);
+          
+          fundamentalGain.connect(masterGain);
+          gain2.connect(masterGain);
+          gain3.connect(masterGain);
+          
+          osc1.start(time);
+          osc2.start(time);
+          osc3.start(time);
+          osc1.stop(time + 0.8);
+          osc2.stop(time + 0.8);
+          osc3.stop(time + 0.8);
+        }
+      },
+      { 
+        name: 'Organ', 
+        type: 'organ',
+        synth: (time, freq) => {
+          // Hammond-style organ with drawbars
+          const drawbars = [
+            { freq: freq * 0.5, gain: 0.2 },  // 16'
+            { freq: freq * 1, gain: 0.3 },    // 8'
+            { freq: freq * 2, gain: 0.15 },   // 4'
+            { freq: freq * 3, gain: 0.1 },    // 2 2/3'
+            { freq: freq * 4, gain: 0.08 }    // 2'
+          ];
+          
+          drawbars.forEach(bar => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.value = bar.freq;
+            gain.gain.value = bar.gain;
+            
+            osc.connect(gain);
+            gain.connect(masterGain);
+            
+            osc.start(time);
+            osc.stop(time + 0.5);
+          });
+        }
+      },
+      { 
+        name: 'Strings', 
+        type: 'strings',
+        synth: (time, freq) => {
+          // String pad with slow attack
+          const osc1 = audioContext.createOscillator();
+          const osc2 = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          
+          osc1.type = 'sawtooth';
+          osc2.type = 'sawtooth';
+          osc1.frequency.value = freq || 440;
+          osc2.frequency.value = (freq || 440) * 1.01; // Slight detune
+          
+          // Slow attack for strings
+          gain.gain.setValueAtTime(0, time);
+          gain.gain.linearRampToValueAtTime(0.2, time + 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + 1.2);
+          
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(masterGain);
+          
+          osc1.start(time);
+          osc2.start(time);
+          osc1.stop(time + 1.2);
+          osc2.stop(time + 1.2);
+        }
+      },
+      { 
+        name: 'Violin', 
+        type: 'violin',
+        synth: (time, freq) => {
+          // Violin with vibrato
+          const osc = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          const vibrato = audioContext.createOscillator();
+          const vibratoGain = audioContext.createGain();
+          
+          osc.type = 'sawtooth';
+          osc.frequency.value = freq || 440;
+          
+          // Vibrato (5 Hz)
+          vibrato.frequency.value = 5;
+          vibratoGain.gain.value = 8;
+          
+          vibrato.connect(vibratoGain);
+          vibratoGain.connect(osc.frequency);
+          
+          // Violin envelope
+          gain.gain.setValueAtTime(0, time);
+          gain.gain.linearRampToValueAtTime(0.25, time + 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
+          
+          osc.connect(gain);
+          gain.connect(masterGain);
+          
+          vibrato.start(time);
+          osc.start(time);
+          vibrato.stop(time + 0.6);
+          osc.stop(time + 0.6);
+        }
+      },
+      { 
+        name: 'Trumpet', 
+        type: 'trumpet',
+        synth: (time, freq) => {
+          // Brass with harmonics
+          const osc1 = audioContext.createOscillator();
+          const osc2 = audioContext.createOscillator();
+          const osc3 = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          
+          osc1.type = 'sawtooth';
+          osc2.type = 'square';
+          osc3.type = 'sine';
+          
+          osc1.frequency.value = freq || 440;
+          osc2.frequency.value = freq || 440;
+          osc3.frequency.value = (freq || 440) * 2;
+          
+          const gain2 = audioContext.createGain();
+          const gain3 = audioContext.createGain();
+          gain2.gain.value = 0.3;
+          gain3.gain.value = 0.15;
+          
+          // Brass attack
+          gain.gain.setValueAtTime(0, time);
+          gain.gain.linearRampToValueAtTime(0.3, time + 0.05);
+          gain.gain.setValueAtTime(0.25, time + 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+          
+          osc1.connect(gain);
+          osc2.connect(gain2);
+          osc3.connect(gain3);
+          
+          gain.connect(masterGain);
+          gain2.connect(masterGain);
+          gain3.connect(masterGain);
+          
+          osc1.start(time);
+          osc2.start(time);
+          osc3.start(time);
+          osc1.stop(time + 0.4);
+          osc2.stop(time + 0.4);
+          osc3.stop(time + 0.4);
+        }
+      },
+      { 
+        name: 'Guitar', 
+        type: 'guitar',
+        synth: (time, freq) => {
+          // Plucked string sound
+          const osc = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          const filter = audioContext.createBiquadFilter();
+          
+          osc.type = 'sawtooth';
+          osc.frequency.value = freq || 440;
+          
+          filter.type = 'lowpass';
+          filter.frequency.value = 2000;
+          filter.Q.value = 1;
+          
+          // Pluck envelope
+          gain.gain.setValueAtTime(0.35, time);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
+          
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(masterGain);
+          
+          osc.start(time);
+          osc.stop(time + 0.6);
+        }
       }
     ];
 
@@ -842,62 +1081,126 @@
     // ============================================================================
     const beatPatterns = {
       trap: {
-        kick: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+        kick: [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
         snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
         hihat: [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
         bass: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
-        synth: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+        synth: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        piano: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        organ: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        strings: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        violin: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        trumpet: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        guitar: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
       },
       house: {
         kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
         snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
         hihat: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
         bass: [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-        synth: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]
+        synth: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+        piano: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        organ: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        strings: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        violin: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        trumpet: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        guitar: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
       },
       dnb: {
         kick: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
         snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
         hihat: [1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1],
         bass: [1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
-        synth: [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        synth: [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        piano: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        organ: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        strings: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        violin: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        trumpet: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        guitar: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       },
       techno: {
         kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
         snare: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
         hihat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
         bass: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-        synth: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+        synth: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+        piano: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        organ: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        strings: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        violin: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        trumpet: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        guitar: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      },
+      jazz: {
+        kick: [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+        snare: [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+        hihat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+        bass: [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+        synth: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        piano: [1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+        organ: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        strings: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        violin: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        trumpet: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+        guitar: [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0]
+      },
+      orchestral: {
+        kick: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        snare: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+        hihat: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        bass: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        synth: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        piano: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        organ: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        strings: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+        violin: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+        trumpet: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        guitar: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     };
+
+    function loadBeatPreset(presetName) {
+      if (!beatPatterns[presetName]) {
+        console.error(`Preset ${presetName} not found!`);
+        return;
+      }
+
+      const selectedPattern = beatPatterns[presetName];
+
+      // Apply to sequencer
+      pattern.forEach((track) => {
+        const patternKey = track.type;
+        
+        if (selectedPattern[patternKey]) {
+          track.steps = selectedPattern[patternKey].map(v => v === 1);
+        } else {
+          // Clear if not in preset
+          track.steps = new Array(16).fill(false);
+        }
+      });
+
+      renderSequencer();
+      console.log(`🎼 Loaded ${presetName} preset!`);
+      
+      // Show notification
+      const notification = document.createElement('div');
+      notification.textContent = `🎼 ${presetName.toUpperCase()} preset loaded!`;
+      notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%); color: #0a0a0a; padding: 20px 30px; border-radius: 12px; font-weight: 600; z-index: 10000; box-shadow: 0 8px 32px rgba(0, 255, 157, 0.4);';
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
+
+      // Auto-start playback for preview
+      if (!isPlaying) {
+        setTimeout(() => startPlayback(), 500);
+      }
+    }
 
     function generateBeat() {
       // Random pattern selection
       const patternTypes = Object.keys(beatPatterns);
       const selectedPattern = patternTypes[Math.floor(Math.random() * patternTypes.length)];
-      const generatedPattern = beatPatterns[selectedPattern];
-
-      // Apply to sequencer
-      pattern.forEach((track, index) => {
-        const patternKey = track.type === 'kick' ? 'kick' :
-                          track.type === 'snare' ? 'snare' :
-                          track.type === 'hihat' ? 'hihat' :
-                          track.type === 'bass' ? 'bass' : 'synth';
-        
-        if (generatedPattern[patternKey]) {
-          track.steps = generatedPattern[patternKey].map(v => v === 1);
-        }
-      });
-
-      renderSequencer();
-      console.log(`✨ Generated ${selectedPattern} beat pattern!`);
-      
-      // Show notification
-      const notification = document.createElement('div');
-      notification.textContent = `✨ ${selectedPattern.toUpperCase()} beat generated!`;
-      notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #9d4edd 0%, #c77dff 100%); color: white; padding: 20px 30px; border-radius: 12px; font-weight: 600; z-index: 10000; box-shadow: 0 8px 32px rgba(157, 78, 221, 0.4);';
-      document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 3000);
+      loadBeatPreset(selectedPattern);
     }
 
     function clearPattern() {
@@ -918,12 +1221,34 @@
         document.getElementById('scaleSelect').value
       );
 
-      if (track.type === 'bass') {
-        track.synth(time, frequencies[0] / 2); // Root note, one octave lower
-      } else if (track.type === 'synth') {
-        track.synth(time, frequencies[2]); // Third of the scale
-      } else {
-        track.synth(time);
+      // Assign frequencies based on instrument type
+      switch(track.type) {
+        case 'bass':
+          track.synth(time, frequencies[0] / 2); // Root note, one octave lower
+          break;
+        case 'synth':
+          track.synth(time, frequencies[2]); // Third of the scale
+          break;
+        case 'piano':
+          track.synth(time, frequencies[0]); // Root note
+          break;
+        case 'organ':
+          track.synth(time, frequencies[4]); // Fifth of the scale
+          break;
+        case 'strings':
+          track.synth(time, frequencies[2]); // Third (harmony)
+          break;
+        case 'violin':
+          track.synth(time, frequencies[4] * 2); // Fifth, one octave higher
+          break;
+        case 'trumpet':
+          track.synth(time, frequencies[2] * 2); // Third, one octave higher
+          break;
+        case 'guitar':
+          track.synth(time, frequencies[0]); // Root note
+          break;
+        default:
+          track.synth(time); // Drums (no pitch)
       }
     }
 
