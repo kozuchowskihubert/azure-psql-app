@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Beat Maker | HAOS.fm Studio</title>
+  <title>Synthesis Flight Beat Engine | HAOS.fm Studio</title>
   
   <!-- HAOS Platform Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -848,7 +848,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>🎵 Beat Maker + Vocal Recorder</h1>
+      <h1>🎵 Synthesis Flight Beat Engine + Vocal Recorder</h1>
       <p>Twórz beaty, nagrywaj vocal, komponuj w harmonii</p>
     </div>
 
@@ -3859,7 +3859,57 @@
         
         const label = document.createElement('div');
         label.className = 'track-label';
-        label.innerHTML = `${instrumentIcons[inst.type] || '🎵'} ${inst.name}`;
+        label.style.display = 'flex';
+        label.style.flexDirection = 'column';
+        label.style.gap = '4px';
+        label.style.padding = '8px';
+        
+        // Track name
+        const trackName = document.createElement('div');
+        trackName.style.fontWeight = 'bold';
+        trackName.style.fontSize = '12px';
+        trackName.innerHTML = `${instrumentIcons[inst.type] || '🎵'} ${inst.name}`;
+        label.appendChild(trackName);
+        
+        // Add preset selector for instruments with presets
+        const instrumentsWithPresets = ['kick', 'snare', 'hihat', 'bass', 'synth', 'piano', 'organ', 'strings', 'violin', 'trumpet', 'guitar'];
+        if (instrumentsWithPresets.includes(inst.type) && instrumentPresets[inst.type]) {
+          const presetSelect = document.createElement('select');
+          presetSelect.style.fontSize = '9px';
+          presetSelect.style.padding = '2px 4px';
+          presetSelect.style.background = 'rgba(100, 255, 218, 0.1)';
+          presetSelect.style.border = '1px solid rgba(100, 255, 218, 0.3)';
+          presetSelect.style.borderRadius = '3px';
+          presetSelect.style.color = '#64FFDA';
+          presetSelect.style.cursor = 'pointer';
+          presetSelect.style.width = '100%';
+          presetSelect.title = 'Select preset for ' + inst.name;
+          
+          const presets = Object.keys(instrumentPresets[inst.type]);
+          presets.forEach(presetName => {
+            const option = document.createElement('option');
+            option.value = presetName;
+            option.textContent = presetName;
+            if (currentPresets[inst.type] === presetName) {
+              option.selected = true;
+            }
+            presetSelect.appendChild(option);
+          });
+          
+          presetSelect.addEventListener('change', (e) => {
+            currentPresets[inst.type] = e.target.value;
+            console.log(`🎛️ ${inst.name} preset changed to: ${e.target.value}`);
+            // Preview sound
+            const now = audioContext.currentTime;
+            if (audioContext.state === 'suspended') {
+              audioContext.resume();
+            }
+            const freq = 440; // A4 for melodic, ignored for drums
+            inst.synth(now, freq);
+          });
+          
+          label.appendChild(presetSelect);
+        }
         
         const content = document.createElement('div');
         content.className = 'track-content';
@@ -4359,7 +4409,7 @@
       }
     };
 
-    console.log('🎵 Beat Maker + Vocal Recorder initialized!');
+    console.log('🎵 Synthesis Flight Beat Engine + Vocal Recorder initialized!');
     console.log('Instruments:', instruments.map(i => i.name));
     console.log('Current harmony:', document.getElementById('currentKey').textContent);
     console.log('🎬 Arrangement view with drag-and-drop enabled!');
