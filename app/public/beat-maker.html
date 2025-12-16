@@ -670,9 +670,29 @@
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
+    .timeline-ruler::before {
+      content: 'TRACKS';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--haos-orange-primary);
+      border-right: 3px solid var(--haos-orange-primary);
+      background: linear-gradient(135deg, rgba(15, 15, 25, 0.98) 0%, rgba(25, 25, 40, 0.98) 100%);
+      width: 180px;
+      min-width: 180px;
+      max-width: 180px;
+      flex-shrink: 0;
+    }
+
     .timeline-marker {
-      flex: 1;
+      width: 60px;
       min-width: 60px;
+      max-width: 60px;
+      flex-shrink: 0;
       border-right: 1px solid rgba(255, 107, 53, 0.15);
       display: flex;
       align-items: center;
@@ -690,7 +710,7 @@
       color: var(--haos-orange-primary);
     }
 
-    .timeline-marker:nth-child(4n) {
+    .timeline-marker:nth-child(4n+1) {
       border-right-color: var(--haos-orange-primary);
       border-right-width: 2px;
       color: var(--haos-orange-primary);
@@ -699,9 +719,15 @@
       background: rgba(255, 107, 53, 0.05);
     }
 
-    .timeline-marker:nth-child(8n) {
+    .timeline-marker:nth-child(8n+1) {
       background: rgba(255, 107, 53, 0.1);
       border-right-width: 3px;
+    }
+
+    .timeline-marker:nth-child(16n+1) {
+      background: rgba(255, 107, 53, 0.15);
+      border-right-width: 3px;
+      font-size: 0.9rem;
     }
 
     .timeline-tracks {
@@ -712,7 +738,8 @@
       position: relative;
       height: 100px;
       border-bottom: 1px solid rgba(255, 107, 53, 0.2);
-      display: flex;
+      display: grid;
+      grid-template-columns: 180px 1fr;
       transition: background 0.2s ease;
     }
 
@@ -732,6 +759,11 @@
       position: sticky;
       left: 0;
       width: 180px;
+      min-width: 180px;
+      max-width: 180px;
+      height: 100px;
+      min-height: 100px;
+      max-height: 100px;
       background: linear-gradient(135deg, rgba(15, 15, 25, 0.98) 0%, rgba(25, 25, 40, 0.98) 100%);
       backdrop-filter: blur(12px);
       border-right: 3px solid var(--haos-orange-primary);
@@ -739,7 +771,7 @@
       flex-direction: column;
       align-items: flex-start;
       justify-content: center;
-      padding: 12px 14px;
+      padding: 10px 12px;
       font-family: var(--font-display);
       font-size: 0.85rem;
       font-weight: 700;
@@ -750,28 +782,39 @@
       box-shadow: 
         3px 0 12px rgba(0, 0, 0, 0.4),
         inset -1px 0 0 rgba(255, 107, 53, 0.2);
+      overflow: hidden;
     }
 
     .track-label .instrument-name {
       color: var(--haos-orange-primary);
-      font-size: 1rem;
+      font-size: 0.9rem;
+      line-height: 1.2;
       margin-bottom: 6px;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
     }
 
     .track-label .preset-selector {
       width: 100%;
-      padding: 6px 10px;
-      margin-top: 6px;
+      max-width: 100%;
+      padding: 5px 8px;
+      margin-top: 4px;
       background: rgba(10, 10, 18, 0.9);
       border: 1.5px solid var(--haos-orange-primary);
-      border-radius: 8px;
+      border-radius: 6px;
       color: var(--haos-text-primary);
       font-family: var(--font-mono);
-      font-size: 0.75rem;
+      font-size: 0.7rem;
+      line-height: 1.2;
       cursor: pointer;
       transition: all 0.2s ease;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      height: 28px;
+      min-height: 28px;
+      max-height: 28px;
     }
 
     .track-label .preset-selector:hover {
@@ -788,10 +831,10 @@
     }
 
     .track-content {
-      flex: 1;
       position: relative;
       display: grid;
       grid-template-columns: repeat(64, 60px);
+      width: fit-content;
       background: 
         repeating-linear-gradient(
           90deg,
@@ -4104,15 +4147,10 @@
         
         const label = document.createElement('div');
         label.className = 'track-label';
-        label.style.display = 'flex';
-        label.style.flexDirection = 'column';
-        label.style.gap = '4px';
-        label.style.padding = '8px';
         
         // Track name
         const trackName = document.createElement('div');
-        trackName.style.fontWeight = 'bold';
-        trackName.style.fontSize = '12px';
+        trackName.className = 'instrument-name';
         trackName.innerHTML = `${instrumentIcons[inst.type] || '🎵'} ${inst.name}`;
         label.appendChild(trackName);
         
@@ -4120,32 +4158,8 @@
         const instrumentsWithPresets = ['kick', 'snare', 'hihat', 'bass', 'synth', 'piano', 'organ', 'strings', 'violin', 'trumpet', 'guitar'];
         if (instrumentsWithPresets.includes(inst.type) && instrumentPresets[inst.type]) {
           const presetSelect = document.createElement('select');
-          presetSelect.style.cssText = `
-            font-size: 10px;
-            padding: 4px 6px;
-            background: rgba(255, 107, 53, 0.1);
-            border: 1px solid rgba(255, 107, 53, 0.4);
-            border-radius: 4px;
-            color: #FF6B35;
-            cursor: pointer;
-            width: 100%;
-            font-family: var(--font-mono);
-            font-weight: 600;
-            transition: all 0.2s ease;
-          `;
+          presetSelect.className = 'preset-selector';
           presetSelect.title = 'Select preset for ' + inst.name;
-          
-          // Hover effects
-          presetSelect.addEventListener('mouseenter', function() {
-            this.style.background = 'rgba(255, 107, 53, 0.2)';
-            this.style.borderColor = '#FF6B35';
-            this.style.boxShadow = '0 0 8px rgba(255, 107, 53, 0.3)';
-          });
-          presetSelect.addEventListener('mouseleave', function() {
-            this.style.background = 'rgba(255, 107, 53, 0.1)';
-            this.style.borderColor = 'rgba(255, 107, 53, 0.4)';
-            this.style.boxShadow = 'none';
-          });
           
           const presets = Object.keys(instrumentPresets[inst.type]);
           presets.forEach(presetName => {
