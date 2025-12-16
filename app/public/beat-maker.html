@@ -649,6 +649,58 @@
     }
 
     // ============================================================================
+    // INSTRUMENT PRESETS
+    // ============================================================================
+    const instrumentPresets = {
+      piano: {
+        'Classic Grand': { brightness: 8000, decay: 1.5, harmonicStrength: 1.0 },
+        'Bright Piano': { brightness: 12000, decay: 1.2, harmonicStrength: 1.3 },
+        'Mellow Piano': { brightness: 4000, decay: 2.0, harmonicStrength: 0.7 },
+        'Electric Piano': { brightness: 6000, decay: 0.8, harmonicStrength: 0.9 }
+      },
+      organ: {
+        'Full Hammond': { drawbarMix: [0.25, 0.35, 0.15, 0.2, 0.12, 0.1, 0.06, 0.04, 0.03], leslieRate: 6.5 },
+        'Jazz Organ': { drawbarMix: [0.3, 0.4, 0.2, 0.15, 0.08, 0.05, 0.02, 0.01, 0.01], leslieRate: 5.0 },
+        'Church Organ': { drawbarMix: [0.4, 0.3, 0.1, 0.25, 0.15, 0.08, 0.04, 0.02, 0.01], leslieRate: 0 },
+        'Soft Organ': { drawbarMix: [0.2, 0.5, 0.1, 0.1, 0.05, 0.03, 0.02, 0.01, 0.01], leslieRate: 4.0 }
+      },
+      strings: {
+        'Lush Strings': { detune: 1.01, attack: 0.15, filterFreq: 3000 },
+        'Solo Cello': { detune: 1.005, attack: 0.08, filterFreq: 2500 },
+        'String Ensemble': { detune: 1.02, attack: 0.2, filterFreq: 3500 },
+        'Warm Pad': { detune: 1.015, attack: 0.25, filterFreq: 2000 }
+      },
+      violin: {
+        'Classical Violin': { vibratoRate: 5, vibratoDepth: 8, brightness: 4000 },
+        'Solo Violin': { vibratoRate: 6, vibratoDepth: 12, brightness: 5000 },
+        'Fiddle': { vibratoRate: 7, vibratoDepth: 15, brightness: 6000 },
+        'Dark Viola': { vibratoRate: 4, vibratoDepth: 6, brightness: 2500 }
+      },
+      trumpet: {
+        'Bright Brass': { harmonicMix: [1.0, 0.4, 0.2], attack: 0.05, brightness: 3000 },
+        'Muted Trumpet': { harmonicMix: [0.8, 0.3, 0.1], attack: 0.08, brightness: 1500 },
+        'Jazz Trumpet': { harmonicMix: [0.9, 0.5, 0.25], attack: 0.04, brightness: 3500 },
+        'Flugelhorn': { harmonicMix: [0.7, 0.2, 0.1], attack: 0.1, brightness: 2000 }
+      },
+      guitar: {
+        'Acoustic': { filterFreq: 2500, pluckSharpness: 0.002, sustain: 0.6 },
+        'Electric Clean': { filterFreq: 3500, pluckSharpness: 0.001, sustain: 0.5 },
+        'Nylon String': { filterFreq: 2000, pluckSharpness: 0.003, sustain: 0.8 },
+        'Steel String': { filterFreq: 3000, pluckSharpness: 0.0015, sustain: 0.55 }
+      }
+    };
+
+    // Current preset selection for each instrument
+    const currentPresets = {
+      piano: 'Classic Grand',
+      organ: 'Full Hammond',
+      strings: 'Lush Strings',
+      violin: 'Classical Violin',
+      trumpet: 'Bright Brass',
+      guitar: 'Acoustic'
+    };
+
+    // ============================================================================
     // INSTRUMENT SYNTHESIS
     // ============================================================================
     const instruments = [
@@ -772,98 +824,140 @@
         name: 'Piano', 
         type: 'piano',
         synth: (time, freq) => {
-          // Piano with harmonics
-          const fundamentalGain = audioContext.createGain();
-          fundamentalGain.gain.value = 0.3;
+          freq = freq || 440;
+          const preset = instrumentPresets.piano[currentPresets.piano];
           
-          // Fundamental
-          const osc1 = audioContext.createOscillator();
-          osc1.type = 'sine';
-          osc1.frequency.value = freq || 440;
+          // Create multiple harmonics with inharmonicity
+          const harmonics = [
+            { ratio: 1.0, gain: 0.4 * preset.harmonicStrength, detune: 0 },
+            { ratio: 2.001, gain: 0.25 * preset.harmonicStrength, detune: 3 },
+            { ratio: 2.998, gain: 0.15 * preset.harmonicStrength, detune: -2 },
+            { ratio: 4.006, gain: 0.1 * preset.harmonicStrength, detune: 5 },
+            { ratio: 5.01, gain: 0.06 * preset.harmonicStrength, detune: 7 },
+            { ratio: 6.02, gain: 0.03 * preset.harmonicStrength, detune: 10 }
+          ];
           
-          // Harmonics
-          const osc2 = audioContext.createOscillator();
-          osc2.type = 'sine';
-          osc2.frequency.value = (freq || 440) * 2;
-          const gain2 = audioContext.createGain();
-          gain2.gain.value = 0.15;
+          const masterPianoGain = audioContext.createGain();
+          masterPianoGain.gain.setValueAtTime(0, time);
+          masterPianoGain.gain.linearRampToValueAtTime(0.6, time + 0.002);
+          masterPianoGain.gain.exponentialRampToValueAtTime(0.4, time + 0.05);
+          masterPianoGain.gain.exponentialRampToValueAtTime(0.15, time + 0.3);
+          masterPianoGain.gain.exponentialRampToValueAtTime(0.001, time + preset.decay);
           
-          const osc3 = audioContext.createOscillator();
-          osc3.type = 'sine';
-          osc3.frequency.value = (freq || 440) * 3;
-          const gain3 = audioContext.createGain();
-          gain3.gain.value = 0.08;
+          const pianoFilter = audioContext.createBiquadFilter();
+          pianoFilter.type = 'lowpass';
+          pianoFilter.frequency.setValueAtTime(preset.brightness, time);
+          pianoFilter.frequency.exponentialRampToValueAtTime(preset.brightness * 0.4, time + 0.5);
+          pianoFilter.Q.value = 1;
           
-          // Piano envelope (fast attack, medium decay)
-          fundamentalGain.gain.setValueAtTime(0.3, time);
-          fundamentalGain.gain.exponentialRampToValueAtTime(0.01, time + 0.8);
+          harmonics.forEach(harm => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.value = freq * harm.ratio;
+            osc.detune.value = harm.detune;
+            gain.gain.value = harm.gain;
+            
+            osc.connect(gain);
+            gain.connect(pianoFilter);
+            
+            osc.start(time);
+            osc.stop(time + preset.decay);
+          });
           
-          osc1.connect(fundamentalGain);
-          osc2.connect(gain2);
-          osc3.connect(gain3);
-          
-          fundamentalGain.connect(masterGain);
-          gain2.connect(masterGain);
-          gain3.connect(masterGain);
-          
-          osc1.start(time);
-          osc2.start(time);
-          osc3.start(time);
-          osc1.stop(time + 0.8);
-          osc2.stop(time + 0.8);
-          osc3.stop(time + 0.8);
+          pianoFilter.connect(masterPianoGain);
+          masterPianoGain.connect(masterGain);
         }
       },
       { 
         name: 'Organ', 
         type: 'organ',
         synth: (time, freq) => {
-          // Hammond-style organ with drawbars
-          const drawbars = [
-            { freq: freq * 0.5, gain: 0.2 },  // 16'
-            { freq: freq * 1, gain: 0.3 },    // 8'
-            { freq: freq * 2, gain: 0.15 },   // 4'
-            { freq: freq * 3, gain: 0.1 },    // 2 2/3'
-            { freq: freq * 4, gain: 0.08 }    // 2'
-          ];
+          freq = freq || 440;
+          const preset = instrumentPresets.organ[currentPresets.organ];
           
-          drawbars.forEach(bar => {
+          const drawbarRatios = [0.5, 1.0, 1.498, 2.0, 2.997, 4.0, 5.04, 5.997, 8.0];
+          
+          // Key click
+          const clickOsc = audioContext.createOscillator();
+          const clickGain = audioContext.createGain();
+          clickOsc.frequency.value = freq * 8;
+          clickGain.gain.setValueAtTime(0.15, time);
+          clickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.01);
+          clickOsc.connect(clickGain);
+          clickGain.connect(masterGain);
+          clickOsc.start(time);
+          clickOsc.stop(time + 0.01);
+          
+          // Leslie effect
+          let leslieRate, leslieDepth;
+          if (preset.leslieRate > 0) {
+            leslieRate = audioContext.createOscillator();
+            leslieDepth = audioContext.createGain();
+            leslieRate.frequency.value = preset.leslieRate;
+            leslieDepth.gain.value = 12;
+            leslieRate.connect(leslieDepth);
+            leslieRate.start(time);
+            leslieRate.stop(time + 0.8);
+          }
+          
+          const organEnv = audioContext.createGain();
+          organEnv.gain.setValueAtTime(0, time);
+          organEnv.gain.linearRampToValueAtTime(0.7, time + 0.005);
+          organEnv.gain.setValueAtTime(0.65, time + 0.6);
+          organEnv.gain.exponentialRampToValueAtTime(0.001, time + 0.8);
+          
+          drawbarRatios.forEach((ratio, idx) => {
             const osc = audioContext.createOscillator();
             const gain = audioContext.createGain();
             
             osc.type = 'sine';
-            osc.frequency.value = bar.freq;
-            gain.gain.value = bar.gain;
+            osc.frequency.value = freq * ratio;
+            gain.gain.value = preset.drawbarMix[idx];
+            
+            if (preset.leslieRate > 0 && ratio >= 2.0) {
+              leslieDepth.connect(osc.frequency);
+            }
             
             osc.connect(gain);
-            gain.connect(masterGain);
+            gain.connect(organEnv);
             
             osc.start(time);
-            osc.stop(time + 0.5);
+            osc.stop(time + 0.8);
           });
+          
+          organEnv.connect(masterGain);
         }
       },
       { 
         name: 'Strings', 
         type: 'strings',
         synth: (time, freq) => {
-          // String pad with slow attack
+          freq = freq || 440;
+          const preset = instrumentPresets.strings[currentPresets.strings];
+          
           const osc1 = audioContext.createOscillator();
           const osc2 = audioContext.createOscillator();
           const gain = audioContext.createGain();
+          const filter = audioContext.createBiquadFilter();
           
           osc1.type = 'sawtooth';
           osc2.type = 'sawtooth';
-          osc1.frequency.value = freq || 440;
-          osc2.frequency.value = (freq || 440) * 1.01; // Slight detune
+          osc1.frequency.value = freq;
+          osc2.frequency.value = freq * preset.detune;
           
-          // Slow attack for strings
+          filter.type = 'lowpass';
+          filter.frequency.value = preset.filterFreq;
+          filter.Q.value = 1;
+          
           gain.gain.setValueAtTime(0, time);
-          gain.gain.linearRampToValueAtTime(0.2, time + 0.15);
+          gain.gain.linearRampToValueAtTime(0.2, time + preset.attack);
           gain.gain.exponentialRampToValueAtTime(0.01, time + 1.2);
           
-          osc1.connect(gain);
-          osc2.connect(gain);
+          osc1.connect(filter);
+          osc2.connect(filter);
+          filter.connect(gain);
           gain.connect(masterGain);
           
           osc1.start(time);
@@ -876,28 +970,34 @@
         name: 'Violin', 
         type: 'violin',
         synth: (time, freq) => {
-          // Violin with vibrato
+          freq = freq || 440;
+          const preset = instrumentPresets.violin[currentPresets.violin];
+          
           const osc = audioContext.createOscillator();
           const gain = audioContext.createGain();
           const vibrato = audioContext.createOscillator();
           const vibratoGain = audioContext.createGain();
+          const filter = audioContext.createBiquadFilter();
           
           osc.type = 'sawtooth';
-          osc.frequency.value = freq || 440;
+          osc.frequency.value = freq;
           
-          // Vibrato (5 Hz)
-          vibrato.frequency.value = 5;
-          vibratoGain.gain.value = 8;
+          vibrato.frequency.value = preset.vibratoRate;
+          vibratoGain.gain.value = preset.vibratoDepth;
+          
+          filter.type = 'lowpass';
+          filter.frequency.value = preset.brightness;
+          filter.Q.value = 2;
           
           vibrato.connect(vibratoGain);
           vibratoGain.connect(osc.frequency);
           
-          // Violin envelope
           gain.gain.setValueAtTime(0, time);
           gain.gain.linearRampToValueAtTime(0.25, time + 0.08);
           gain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
           
-          osc.connect(gain);
+          osc.connect(filter);
+          filter.connect(gain);
           gain.connect(masterGain);
           
           vibrato.start(time);
@@ -910,73 +1010,63 @@
         name: 'Trumpet', 
         type: 'trumpet',
         synth: (time, freq) => {
-          // Brass with harmonics
-          const osc1 = audioContext.createOscillator();
-          const osc2 = audioContext.createOscillator();
-          const osc3 = audioContext.createOscillator();
-          const gain = audioContext.createGain();
+          freq = freq || 440;
+          const preset = instrumentPresets.trumpet[currentPresets.trumpet];
           
-          osc1.type = 'sawtooth';
-          osc2.type = 'square';
-          osc3.type = 'sine';
+          const harmonics = [1, 2, 3, 4, 5];
+          const filter = audioContext.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.value = preset.brightness;
+          filter.Q.value = 3;
+          filter.connect(masterGain);
           
-          osc1.frequency.value = freq || 440;
-          osc2.frequency.value = freq || 440;
-          osc3.frequency.value = (freq || 440) * 2;
-          
-          const gain2 = audioContext.createGain();
-          const gain3 = audioContext.createGain();
-          gain2.gain.value = 0.3;
-          gain3.gain.value = 0.15;
-          
-          // Brass attack
-          gain.gain.setValueAtTime(0, time);
-          gain.gain.linearRampToValueAtTime(0.3, time + 0.05);
-          gain.gain.setValueAtTime(0.25, time + 0.1);
-          gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
-          
-          osc1.connect(gain);
-          osc2.connect(gain2);
-          osc3.connect(gain3);
-          
-          gain.connect(masterGain);
-          gain2.connect(masterGain);
-          gain3.connect(masterGain);
-          
-          osc1.start(time);
-          osc2.start(time);
-          osc3.start(time);
-          osc1.stop(time + 0.4);
-          osc2.stop(time + 0.4);
-          osc3.stop(time + 0.4);
+          harmonics.forEach((harm, i) => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.value = freq * harm;
+            
+            const amp = preset.harmonicMix[i];
+            gain.gain.setValueAtTime(0, time);
+            gain.gain.linearRampToValueAtTime(amp * 0.15, time + preset.attack);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+            
+            osc.connect(gain);
+            gain.connect(filter);
+            
+            osc.start(time);
+            osc.stop(time + 0.5);
+          });
         }
       },
       { 
         name: 'Guitar', 
         type: 'guitar',
         synth: (time, freq) => {
-          // Plucked string sound
+          freq = freq || 440;
+          const preset = instrumentPresets.guitar[currentPresets.guitar];
+          
           const osc = audioContext.createOscillator();
           const gain = audioContext.createGain();
           const filter = audioContext.createBiquadFilter();
           
           osc.type = 'sawtooth';
-          osc.frequency.value = freq || 440;
+          osc.frequency.value = freq;
           
           filter.type = 'lowpass';
-          filter.frequency.value = 2000;
-          filter.Q.value = 1;
+          filter.frequency.value = preset.filterFreq;
+          filter.Q.value = preset.pluckSharpness;
           
-          // Pluck envelope
           gain.gain.setValueAtTime(0.35, time);
-          gain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + preset.sustain);
           
           osc.connect(filter);
           filter.connect(gain);
           gain.connect(masterGain);
           
           osc.start(time);
-          osc.stop(time + 0.6);
+          osc.stop(time + preset.sustain);
         }
       }
     ];
@@ -1053,10 +1143,51 @@
         const row = document.createElement('div');
         row.className = 'instrument-row';
 
+        const labelContainer = document.createElement('div');
+        labelContainer.style.display = 'flex';
+        labelContainer.style.flexDirection = 'column';
+        labelContainer.style.gap = '4px';
+        
         const label = document.createElement('div');
         label.className = 'instrument-label';
         label.textContent = track.name;
-        row.appendChild(label);
+        labelContainer.appendChild(label);
+        
+        // Add preset dropdown for melodic instruments
+        const melodicTypes = ['piano', 'organ', 'strings', 'violin', 'trumpet', 'guitar'];
+        if (melodicTypes.includes(track.type)) {
+          const presetSelect = document.createElement('select');
+          presetSelect.style.fontSize = '10px';
+          presetSelect.style.padding = '2px';
+          presetSelect.style.background = 'rgba(100, 255, 218, 0.1)';
+          presetSelect.style.border = '1px solid rgba(100, 255, 218, 0.3)';
+          presetSelect.style.borderRadius = '3px';
+          presetSelect.style.color = '#64FFDA';
+          presetSelect.style.cursor = 'pointer';
+          
+          const presets = Object.keys(instrumentPresets[track.type]);
+          presets.forEach(presetName => {
+            const option = document.createElement('option');
+            option.value = presetName;
+            option.textContent = presetName;
+            if (currentPresets[track.type] === presetName) {
+              option.selected = true;
+            }
+            presetSelect.appendChild(option);
+          });
+          
+          presetSelect.addEventListener('change', (e) => {
+            currentPresets[track.type] = e.target.value;
+            // Preview sound
+            const now = audioContext.currentTime;
+            const freq = 440; // A4
+            track.synth(now, freq);
+          });
+          
+          labelContainer.appendChild(presetSelect);
+        }
+        
+        row.appendChild(labelContainer);
 
         const stepsContainer = document.createElement('div');
         stepsContainer.className = 'steps-container';
