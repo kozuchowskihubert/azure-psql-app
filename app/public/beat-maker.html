@@ -4876,6 +4876,7 @@
       
       // Resume audio context if suspended
       if (audioContext.state === 'suspended') {
+        console.log('🔊 Resuming audio context...');
         audioContext.resume();
       }
       
@@ -4887,16 +4888,24 @@
       const secondsPerBar = (60 / bpm) * 4; // 4 beats per bar
       
       console.log(`▶️ Playing ${arrangementClips.length} clips at ${bpm} BPM`);
+      console.log('📊 Available instruments:', instruments.map(i => i.type));
+      console.log('🎵 Clips to play:', arrangementClips.map(c => `${c.instrumentType} (bars ${c.startBar}-${c.startBar + c.duration}, muted: ${c.muted})`));
       
-      arrangementClips.forEach(clip => {
-        if (clip.muted) return;
+      arrangementClips.forEach((clip, index) => {
+        if (clip.muted) {
+          console.log(`⏭️ Skipping muted clip ${index}: ${clip.instrumentType}`);
+          return;
+        }
         
         // Find the instrument by type, not by track index
         const instrument = instruments.find(inst => inst.type === clip.instrumentType);
         if (!instrument) {
-          console.warn(`⚠️ Instrument not found for clip: ${clip.instrumentType}`);
+          console.warn(`❌ Instrument not found for clip ${index}: "${clip.instrumentType}"`);
+          console.warn(`   Available types: ${instruments.map(i => `"${i.type}"`).join(', ')}`);
           return;
         }
+        
+        console.log(`✅ Found instrument for clip ${index}: ${instrument.name} (${instrument.type})`);
         
         const startTime = audioContext.currentTime + (clip.startBar * secondsPerBar);
         
@@ -4944,6 +4953,9 @@
             }
             
             // Play the sound
+            if (bar === 0 && beat === 0) {
+              console.log(`🎼 Scheduling ${instrument.name} at time ${beatTime.toFixed(2)}s (freq: ${freq.toFixed(1)}Hz)`);
+            }
             instrument.synth(beatTime, freq);
           }
         }
