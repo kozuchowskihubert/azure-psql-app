@@ -349,6 +349,12 @@
       <button class="btn btn-record" id="recordBtn">
         🎤 Nagraj Vocal
       </button>
+      <button class="btn" id="generateBtn" style="background: linear-gradient(135deg, #9d4edd 0%, #c77dff 100%); color: white;">
+        ✨ Generate Beat
+      </button>
+      <button class="btn btn-secondary" id="clearBtn">
+        🗑️ Wyczyść
+      </button>
     </div>
 
     <!-- Harmony Selector -->
@@ -479,6 +485,55 @@
             </div>
           </div>
 
+          <!-- Compressor -->
+          <div class="effect-panel" style="background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 12px; border: 1px solid rgba(0, 255, 157, 0.2);">
+            <h4 style="color: #D4AF37; margin-bottom: 15px;">🎚️ Kompresor</h4>
+            <div class="control-group">
+              <label for="compThreshold">Próg: <span id="compThresholdValue">-24</span> dB</label>
+              <input type="range" id="compThreshold" min="-60" max="0" value="-24">
+            </div>
+            <div class="control-group">
+              <label for="compRatio">Ratio: <span id="compRatioValue">4</span>:1</label>
+              <input type="range" id="compRatio" min="1" max="20" value="4">
+            </div>
+          </div>
+
+          <!-- Distortion/Saturation -->
+          <div class="effect-panel" style="background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 12px; border: 1px solid rgba(0, 255, 157, 0.2);">
+            <h4 style="color: #D4AF37; margin-bottom: 15px;">🎸 Distortion</h4>
+            <div class="control-group">
+              <label for="distAmount">Ilość: <span id="distValue">0</span>%</label>
+              <input type="range" id="distAmount" min="0" max="100" value="0">
+            </div>
+            <div class="control-group">
+              <label for="distType">Typ</label>
+              <select id="distType">
+                <option value="soft">Soft Saturation</option>
+                <option value="hard">Hard Clip</option>
+                <option value="warm">Warm Tube</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Chorus/Flanger -->
+          <div class="effect-panel" style="background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 12px; border: 1px solid rgba(0, 255, 157, 0.2);">
+            <h4 style="color: #D4AF37; margin-bottom: 15px;">🌊 Chorus</h4>
+            <div class="control-group">
+              <label for="chorusAmount">Ilość: <span id="chorusValue">0</span>%</label>
+              <input type="range" id="chorusAmount" min="0" max="100" value="0">
+            </div>
+            <div class="control-group">
+              <label for="chorusRate">Prędkość: <span id="chorusRateValue">1.5</span> Hz</label>
+              <input type="range" id="chorusRate" min="0.1" max="5" step="0.1" value="1.5">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Spectrum Analyzer -->
+        <div style="margin-top: 30px; background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 12px; border: 1px solid rgba(0, 255, 157, 0.2);">
+          <h3 style="color: #00ff9d; margin-bottom: 15px;">📊 Analizator Spektrum</h3>
+          <canvas id="spectrumCanvas" style="width: 100%; height: 150px; background: rgba(0, 0, 0, 0.5); border-radius: 8px;"></canvas>
         </div>
 
         <!-- Preset Buttons -->
@@ -720,11 +775,16 @@
       echo: { amount: 0.4, time: 0.3, feedback: 0.4 },
       pitch: { shift: 0, modulation: 0 },
       volume: 1.0,
-      lowCut: 80
+      lowCut: 80,
+      compressor: { threshold: -24, ratio: 4 },
+      distortion: { amount: 0, type: 'soft' },
+      chorus: { amount: 0, rate: 1.5 }
     };
 
     let convolver = null;
     let reverbBuffer = null;
+    let analyser = null;
+    let spectrumAnimationId = null;
 
     // Create reverb impulse response
     function createReverbIR(duration = 2.0, decay = 2.0, reverse = false) {
@@ -775,6 +835,77 @@
         row.appendChild(stepsContainer);
         container.appendChild(row);
       });
+    }
+
+    // ============================================================================
+    // BEAT GENERATION
+    // ============================================================================
+    const beatPatterns = {
+      trap: {
+        kick: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+        snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+        hihat: [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
+        bass: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
+        synth: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+      },
+      house: {
+        kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+        snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+        hihat: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+        bass: [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+        synth: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]
+      },
+      dnb: {
+        kick: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+        snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+        hihat: [1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1],
+        bass: [1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+        synth: [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      },
+      techno: {
+        kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+        snare: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+        hihat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+        bass: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        synth: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+      }
+    };
+
+    function generateBeat() {
+      // Random pattern selection
+      const patternTypes = Object.keys(beatPatterns);
+      const selectedPattern = patternTypes[Math.floor(Math.random() * patternTypes.length)];
+      const generatedPattern = beatPatterns[selectedPattern];
+
+      // Apply to sequencer
+      pattern.forEach((track, index) => {
+        const patternKey = track.type === 'kick' ? 'kick' :
+                          track.type === 'snare' ? 'snare' :
+                          track.type === 'hihat' ? 'hihat' :
+                          track.type === 'bass' ? 'bass' : 'synth';
+        
+        if (generatedPattern[patternKey]) {
+          track.steps = generatedPattern[patternKey].map(v => v === 1);
+        }
+      });
+
+      renderSequencer();
+      console.log(`✨ Generated ${selectedPattern} beat pattern!`);
+      
+      // Show notification
+      const notification = document.createElement('div');
+      notification.textContent = `✨ ${selectedPattern.toUpperCase()} beat generated!`;
+      notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #9d4edd 0%, #c77dff 100%); color: white; padding: 20px 30px; border-radius: 12px; font-weight: 600; z-index: 10000; box-shadow: 0 8px 32px rgba(157, 78, 221, 0.4);';
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
+    }
+
+    function clearPattern() {
+      pattern.forEach(track => {
+        track.steps = new Array(16).fill(false);
+      });
+      renderSequencer();
+      console.log('🗑️ Pattern cleared!');
     }
 
     // ============================================================================
@@ -979,8 +1110,89 @@
       canvasCtx.stroke();
     }
 
+    // Distortion/Saturation
+    function createDistortion(type = 'soft', amount = 0) {
+      const distortion = audioContext.createWaveShaper();
+      const samples = 44100;
+      const curve = new Float32Array(samples);
+      const deg = Math.PI / 180;
+      const drive = amount * 100;
+
+      for (let i = 0; i < samples; i++) {
+        const x = (i * 2) / samples - 1;
+        
+        if (type === 'soft') {
+          // Soft saturation (tanh-like)
+          curve[i] = Math.tanh(x * drive);
+        } else if (type === 'hard') {
+          // Hard clipping
+          curve[i] = Math.max(-1, Math.min(1, x * drive));
+        } else if (type === 'warm') {
+          // Warm tube-like
+          curve[i] = (3 + drive) * x * 20 * deg / (Math.PI + drive * Math.abs(x));
+        }
+      }
+
+      distortion.curve = curve;
+      distortion.oversample = '4x';
+      return distortion;
+    }
+
+    // Spectrum Analyzer
+    function startSpectrumAnalyzer(audioNode) {
+      if (!analyser) {
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+      }
+
+      audioNode.connect(analyser);
+
+      const canvas = document.getElementById('spectrumCanvas');
+      const canvasCtx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth;
+      canvas.height = 150;
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function draw() {
+        spectrumAnimationId = requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(dataArray);
+
+        canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength) * 2.5;
+        let barHeight;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          barHeight = (dataArray[i] / 255) * canvas.height;
+
+          // Gradient colors
+          const hue = (i / bufferLength) * 120 + 160; // Green to cyan
+          canvasCtx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+          canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+          x += barWidth + 1;
+        }
+      }
+
+      draw();
+    }
+
+    function stopSpectrumAnalyzer() {
+      if (spectrumAnimationId) {
+        cancelAnimationFrame(spectrumAnimationId);
+        spectrumAnimationId = null;
+      }
+    }
+
     function playVocal() {
       if (!vocalBuffer) return;
+
+      // Stop previous analyzer
+      stopSpectrumAnalyzer();
 
       // Create audio processing chain
       const source = audioContext.createBufferSource();
@@ -994,6 +1206,62 @@
       const highPass = audioContext.createBiquadFilter();
       highPass.type = 'highpass';
       highPass.frequency.value = vocalEffects.lowCut;
+
+      // Compressor
+      const compressor = audioContext.createDynamicsCompressor();
+      compressor.threshold.value = vocalEffects.compressor.threshold;
+      compressor.ratio.value = vocalEffects.compressor.ratio;
+      compressor.knee.value = 10;
+      compressor.attack.value = 0.003;
+      compressor.release.value = 0.25;
+
+      // Distortion
+      let distortion = null;
+      if (vocalEffects.distortion.amount > 0) {
+        distortion = createDistortion(
+          vocalEffects.distortion.type, 
+          vocalEffects.distortion.amount / 100
+        );
+      }
+
+      // Chorus effect
+      let chorusDelay1 = null;
+      let chorusDelay2 = null;
+      let chorusLFO1 = null;
+      let chorusLFO2 = null;
+      let chorusGain1 = null;
+      let chorusGain2 = null;
+      let chorusMix = null;
+
+      if (vocalEffects.chorus.amount > 0) {
+        chorusDelay1 = audioContext.createDelay();
+        chorusDelay2 = audioContext.createDelay();
+        chorusLFO1 = audioContext.createOscillator();
+        chorusLFO2 = audioContext.createOscillator();
+        chorusGain1 = audioContext.createGain();
+        chorusGain2 = audioContext.createGain();
+        chorusMix = audioContext.createGain();
+
+        chorusDelay1.delayTime.value = 0.02;
+        chorusDelay2.delayTime.value = 0.03;
+        
+        chorusLFO1.frequency.value = vocalEffects.chorus.rate;
+        chorusLFO2.frequency.value = vocalEffects.chorus.rate * 1.3;
+        
+        chorusGain1.gain.value = 0.007;
+        chorusGain2.gain.value = 0.009;
+        
+        chorusMix.gain.value = vocalEffects.chorus.amount / 100;
+
+        chorusLFO1.connect(chorusGain1);
+        chorusGain1.connect(chorusDelay1.delayTime);
+        
+        chorusLFO2.connect(chorusGain2);
+        chorusGain2.connect(chorusDelay2.delayTime);
+
+        chorusLFO1.start();
+        chorusLFO2.start();
+      }
 
       // Modulation (vibrato)
       const modLFO = audioContext.createOscillator();
@@ -1035,35 +1303,59 @@
 
       // Connect the chain
       source.connect(highPass);
-      
+      highPass.connect(compressor);
+
+      let currentNode = compressor;
+
+      // Add distortion if enabled
+      if (distortion) {
+        currentNode.connect(distortion);
+        currentNode = distortion;
+      }
+
       // Dry signal
-      highPass.connect(dryGain);
+      currentNode.connect(dryGain);
       dryGain.connect(volumeControl);
 
+      // Chorus path
+      if (vocalEffects.chorus.amount > 0) {
+        currentNode.connect(chorusDelay1);
+        currentNode.connect(chorusDelay2);
+        chorusDelay1.connect(chorusMix);
+        chorusDelay2.connect(chorusMix);
+        chorusMix.connect(volumeControl);
+      }
+
       // Reverb path
-      highPass.connect(convolver);
+      currentNode.connect(convolver);
       convolver.connect(reverbGain);
       reverbGain.connect(volumeControl);
 
       // Echo path
-      highPass.connect(delay);
+      currentNode.connect(delay);
       delay.connect(delayFeedback);
       delayFeedback.connect(delay);
       delay.connect(delayWet);
       delayWet.connect(volumeControl);
 
-      // Output
+      // Output & Analyzer
       volumeControl.connect(masterGain);
+      startSpectrumAnalyzer(volumeControl);
 
       // Start playback
       source.start(0);
 
-      // Stop modulation after playback
-      if (vocalEffects.pitch.modulation > 0) {
-        source.onended = () => {
+      // Cleanup
+      source.onended = () => {
+        if (vocalEffects.pitch.modulation > 0) {
           modLFO.stop();
-        };
-      }
+        }
+        if (vocalEffects.chorus.amount > 0) {
+          chorusLFO1.stop();
+          chorusLFO2.stop();
+        }
+        stopSpectrumAnalyzer();
+      };
     }
 
     // ============================================================================
@@ -1095,35 +1387,50 @@
         echo: { amount: 0.1, time: 0.2, feedback: 0.2 },
         pitch: { shift: 0, modulation: 0 },
         volume: 1.0,
-        lowCut: 80
+        lowCut: 80,
+        compressor: { threshold: -30, ratio: 2 },
+        distortion: { amount: 0, type: 'soft' },
+        chorus: { amount: 0, rate: 1.5 }
       },
       studio: {
         reverb: { amount: 0.25, decay: 2.0 },
         echo: { amount: 0.2, time: 0.25, feedback: 0.3 },
         pitch: { shift: 0, modulation: 0 },
         volume: 1.2,
-        lowCut: 100
+        lowCut: 100,
+        compressor: { threshold: -24, ratio: 4 },
+        distortion: { amount: 0, type: 'soft' },
+        chorus: { amount: 15, rate: 1.2 }
       },
       ambient: {
         reverb: { amount: 0.6, decay: 4.0 },
         echo: { amount: 0.5, time: 0.5, feedback: 0.6 },
         pitch: { shift: 0, modulation: 0.5 },
         volume: 0.9,
-        lowCut: 60
+        lowCut: 60,
+        compressor: { threshold: -20, ratio: 3 },
+        distortion: { amount: 0, type: 'soft' },
+        chorus: { amount: 40, rate: 0.8 }
       },
       radio: {
         reverb: { amount: 0.1, decay: 0.5 },
         echo: { amount: 0.05, time: 0.1, feedback: 0.1 },
         pitch: { shift: 0, modulation: 0 },
         volume: 1.5,
-        lowCut: 200
+        lowCut: 200,
+        compressor: { threshold: -18, ratio: 8 },
+        distortion: { amount: 20, type: 'warm' },
+        chorus: { amount: 0, rate: 1.5 }
       },
       trap: {
         reverb: { amount: 0.35, decay: 2.5 },
         echo: { amount: 0.45, time: 0.375, feedback: 0.5 },
         pitch: { shift: -2, modulation: 0 },
         volume: 1.3,
-        lowCut: 80
+        lowCut: 80,
+        compressor: { threshold: -20, ratio: 6 },
+        distortion: { amount: 10, type: 'soft' },
+        chorus: { amount: 25, rate: 1.8 }
       }
     };
 
@@ -1157,6 +1464,23 @@
       document.getElementById('lowCut').value = preset.lowCut;
       document.getElementById('lowCutValue').textContent = preset.lowCut;
 
+      // Compressor
+      document.getElementById('compThreshold').value = preset.compressor.threshold;
+      document.getElementById('compThresholdValue').textContent = preset.compressor.threshold;
+      document.getElementById('compRatio').value = preset.compressor.ratio;
+      document.getElementById('compRatioValue').textContent = preset.compressor.ratio;
+
+      // Distortion
+      document.getElementById('distAmount').value = preset.distortion.amount;
+      document.getElementById('distValue').textContent = preset.distortion.amount;
+      document.getElementById('distType').value = preset.distortion.type;
+
+      // Chorus
+      document.getElementById('chorusAmount').value = preset.chorus.amount;
+      document.getElementById('chorusValue').textContent = preset.chorus.amount;
+      document.getElementById('chorusRate').value = preset.chorus.rate;
+      document.getElementById('chorusRateValue').textContent = preset.chorus.rate.toFixed(1);
+
       // Recreate reverb buffer
       convolver = null;
 
@@ -1178,6 +1502,8 @@
     document.getElementById('recordBtn').addEventListener('click', startVocalRecording);
     document.getElementById('playVocalBtn').addEventListener('click', playVocal);
     document.getElementById('exportBtn').addEventListener('click', exportToWAV);
+    document.getElementById('generateBtn').addEventListener('click', generateBeat);
+    document.getElementById('clearBtn').addEventListener('click', clearPattern);
 
     document.getElementById('bpmRange').addEventListener('input', (e) => {
       bpm = parseInt(e.target.value);
@@ -1233,6 +1559,38 @@
     document.getElementById('lowCut').addEventListener('input', (e) => {
       vocalEffects.lowCut = parseInt(e.target.value);
       document.getElementById('lowCutValue').textContent = e.target.value;
+    });
+
+    // Compressor controls
+    document.getElementById('compThreshold').addEventListener('input', (e) => {
+      vocalEffects.compressor.threshold = parseInt(e.target.value);
+      document.getElementById('compThresholdValue').textContent = e.target.value;
+    });
+
+    document.getElementById('compRatio').addEventListener('input', (e) => {
+      vocalEffects.compressor.ratio = parseInt(e.target.value);
+      document.getElementById('compRatioValue').textContent = e.target.value;
+    });
+
+    // Distortion controls
+    document.getElementById('distAmount').addEventListener('input', (e) => {
+      vocalEffects.distortion.amount = parseInt(e.target.value);
+      document.getElementById('distValue').textContent = e.target.value;
+    });
+
+    document.getElementById('distType').addEventListener('change', (e) => {
+      vocalEffects.distortion.type = e.target.value;
+    });
+
+    // Chorus controls
+    document.getElementById('chorusAmount').addEventListener('input', (e) => {
+      vocalEffects.chorus.amount = parseInt(e.target.value);
+      document.getElementById('chorusValue').textContent = e.target.value;
+    });
+
+    document.getElementById('chorusRate').addEventListener('input', (e) => {
+      vocalEffects.chorus.rate = parseFloat(e.target.value);
+      document.getElementById('chorusRateValue').textContent = parseFloat(e.target.value).toFixed(1);
     });
 
     // ============================================================================
