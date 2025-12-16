@@ -12,90 +12,147 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
-      color: #e0e0e0;
-      padding: 20px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a12;
+      background-image: 
+        radial-gradient(at 20% 30%, rgba(100, 255, 218, 0.05) 0%, transparent 50%),
+        radial-gradient(at 80% 70%, rgba(138, 43, 226, 0.05) 0%, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(0, 184, 255, 0.03) 0%, transparent 50%);
+      color: #e8e8f0;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     .container {
-      max-width: 1400px;
+      max-width: 1600px;
       margin: 0 auto;
+      padding: 30px 20px;
     }
 
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: rgba(20, 20, 35, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(100, 255, 218, 0.1);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    /* Header */
     .header {
       text-align: center;
       margin-bottom: 40px;
-      padding-bottom: 20px;
-      border-bottom: 2px solid rgba(255, 107, 53, 0.3);
+      padding: 30px 20px;
+      background: linear-gradient(135deg, rgba(100, 255, 218, 0.1) 0%, rgba(138, 43, 226, 0.1) 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(100, 255, 218, 0.2);
+      box-shadow: 0 8px 32px rgba(100, 255, 218, 0.1);
     }
 
     .header h1 {
-      font-size: 42px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
+      font-size: 56px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #64FFDA 0%, #00B8FF 50%, #8A2BE2 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+      text-shadow: 0 0 30px rgba(100, 255, 218, 0.5);
     }
 
     .header p {
-      color: #808080;
-      font-size: 16px;
+      color: rgba(232, 232, 240, 0.7);
+      font-size: 18px;
+      font-weight: 500;
     }
 
     /* Transport Controls */
     .transport-controls {
       display: flex;
       justify-content: center;
-      gap: 20px;
-      margin-bottom: 40px;
+      gap: 15px;
+      margin-bottom: 35px;
       flex-wrap: wrap;
     }
 
     .btn {
-      padding: 16px 32px;
+      padding: 14px 28px;
       border: none;
-      border-radius: 12px;
-      font-size: 16px;
+      border-radius: 14px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:active::before {
+      width: 300px;
+      height: 300px;
     }
 
     .btn-play {
-      background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%);
-      color: #0a0a0a;
+      background: linear-gradient(135deg, #64FFDA 0%, #00E5A0 100%);
+      color: #0a0a12;
+      box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4);
     }
 
     .btn-play:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0, 255, 157, 0.4);
+      box-shadow: 0 8px 25px rgba(100, 255, 218, 0.6);
     }
 
     .btn-stop {
-      background: rgba(255, 107, 53, 0.2);
-      border: 2px solid #FF6B35;
+      background: rgba(255, 107, 53, 0.15);
+      border: 2px solid rgba(255, 107, 53, 0.5);
       color: #FF6B35;
     }
 
     .btn-stop:hover {
-      background: rgba(255, 107, 53, 0.3);
+      background: rgba(255, 107, 53, 0.25);
+      border-color: #FF6B35;
     }
 
     .btn-record {
-      background: rgba(255, 0, 0, 0.2);
-      border: 2px solid #ff0000;
-      color: #ff0000;
+      background: rgba(255, 0, 80, 0.15);
+      border: 2px solid rgba(255, 0, 80, 0.5);
+      color: #FF0050;
     }
 
     .btn-record:hover {
-      background: rgba(255, 0, 0, 0.3);
+      background: rgba(255, 0, 80, 0.25);
+      border-color: #FF0050;
+    }
+
+    .btn-record.recording {
+      animation: pulse-red 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-red {
+      0%, 100% { box-shadow: 0 0 15px rgba(255, 0, 80, 0.4); }
+      50% { box-shadow: 0 0 30px rgba(255, 0, 80, 0.8); }
     }
 
     .btn-record.recording {
@@ -111,112 +168,182 @@
 
     /* Harmony Selector */
     .harmony-section {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 107, 53, 0.2);
-      border-radius: 16px;
-      padding: 24px;
+      background: rgba(20, 20, 35, 0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(138, 43, 226, 0.3);
+      border-radius: 20px;
+      padding: 28px;
       margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(138, 43, 226, 0.15);
     }
 
     .harmony-section h2 {
-      font-size: 24px;
-      color: #FF6B35;
-      margin-bottom: 20px;
+      font-size: 26px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #8A2BE2 0%, #DA70D6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 22px;
     }
 
     .harmony-controls {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 20px;
-      flex-wrap: wrap;
     }
 
     .control-group {
-      flex: 1;
-      min-width: 200px;
+      display: flex;
+      flex-direction: column;
     }
 
     .control-group label {
       display: block;
-      margin-bottom: 8px;
-      color: #D4AF37;
+      margin-bottom: 10px;
+      color: #64FFDA;
       font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     select, input[type="range"] {
       width: 100%;
-      padding: 12px;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 107, 53, 0.3);
-      border-radius: 8px;
-      color: #e0e0e0;
-      font-size: 14px;
+      padding: 14px 16px;
+      background: rgba(100, 255, 218, 0.05);
+      border: 1px solid rgba(100, 255, 218, 0.2);
+      border-radius: 10px;
+      color: #e8e8f0;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    select:hover, input[type="range"]:hover {
+      background: rgba(100, 255, 218, 0.1);
+      border-color: #64FFDA;
+    }
+
+    select:focus, input[type="range"]:focus {
+      outline: none;
+      border-color: #64FFDA;
+      box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.2);
     }
 
     /* Sequencer */
     .sequencer-section {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 107, 53, 0.2);
-      border-radius: 16px;
-      padding: 24px;
+      background: rgba(20, 20, 35, 0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(100, 255, 218, 0.15);
+      border-radius: 20px;
+      padding: 30px;
       margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
     .sequencer-section h2 {
-      font-size: 24px;
-      color: #FF6B35;
-      margin-bottom: 20px;
+      font-size: 26px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #64FFDA 0%, #00B8FF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 25px;
     }
 
     .instrument-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-      padding: 12px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
+      gap: 15px;
+      margin-bottom: 18px;
+      padding: 15px;
+      background: rgba(100, 255, 218, 0.03);
+      border: 1px solid rgba(100, 255, 218, 0.1);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .instrument-row:hover {
+      background: rgba(100, 255, 218, 0.05);
+      border-color: rgba(100, 255, 218, 0.2);
     }
 
     .instrument-label {
-      width: 120px;
-      font-weight: 600;
-      color: #D4AF37;
+      width: 140px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #64FFDA;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .steps-container {
       display: flex;
-      gap: 4px;
+      gap: 6px;
       flex: 1;
     }
 
     .step {
-      width: 40px;
-      height: 40px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(255, 107, 53, 0.3);
-      border-radius: 6px;
+      width: 44px;
+      height: 44px;
+      background: rgba(100, 255, 218, 0.05);
+      border: 2px solid rgba(100, 255, 218, 0.2);
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .step::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(100, 255, 218, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s;
+    }
+
+    .step:hover::before {
+      width: 100%;
+      height: 100%;
     }
 
     .step:hover {
-      background: rgba(255, 107, 53, 0.2);
-      border-color: #FF6B35;
+      background: rgba(100, 255, 218, 0.15);
+      border-color: #64FFDA;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
     }
 
     .step.active {
-      background: linear-gradient(135deg, #FF6B35 0%, #D4AF37 100%);
-      border-color: #D4AF37;
+      background: linear-gradient(135deg, #64FFDA 0%, #00B8FF 100%);
+      border-color: #64FFDA;
+      box-shadow: 0 4px 20px rgba(100, 255, 218, 0.5);
     }
 
     .step.playing {
-      animation: stepPulse 0.2s ease;
+      animation: stepPulse 0.15s ease;
     }
 
     @keyframes stepPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
+      0% { 
+        transform: scale(1);
+        box-shadow: 0 4px 20px rgba(100, 255, 218, 0.5);
+      }
+      50% { 
+        transform: scale(1.15);
+        box-shadow: 0 8px 30px rgba(100, 255, 218, 0.8);
+      }
+      100% { 
+        transform: scale(1);
+        box-shadow: 0 4px 20px rgba(100, 255, 218, 0.5);
+      }
     }
 
     /* Vocal Recorder */
@@ -349,16 +476,16 @@
       <button class="btn btn-record" id="recordBtn">
         🎤 Nagraj Vocal
       </button>
-      <button class="btn" id="generateBtn" style="background: linear-gradient(135deg, #9d4edd 0%, #c77dff 100%); color: white;">
+      <button class="btn" id="generateBtn" style="background: linear-gradient(135deg, #8A2BE2 0%, #DA70D6 100%); color: white; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);">
         ✨ Generate Beat
       </button>
-      <button class="btn btn-secondary" id="clearBtn">
+      <button class="btn" id="clearBtn" style="background: rgba(255, 107, 53, 0.15); border: 2px solid rgba(255, 107, 53, 0.5); color: #FF6B35;">
         🗑️ Wyczyść
       </button>
-      <button class="btn" id="saveBtn" style="background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%); color: #0a0a0a;">
+      <button class="btn" id="saveBtn" style="background: linear-gradient(135deg, #00E5A0 0%, #64FFDA 100%); color: #0a0a12; box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4);">
         💾 Zapisz Pattern
       </button>
-      <button class="btn" id="loadBtn" style="background: linear-gradient(135deg, #00b8ff 0%, #00ff9d 100%); color: #0a0a0a;">
+      <button class="btn" id="loadBtn" style="background: linear-gradient(135deg, #00B8FF 0%, #64FFDA 100%); color: #0a0a12; box-shadow: 0 4px 15px rgba(0, 184, 255, 0.4);">
         📂 Wczytaj Pattern
       </button>
     </div>
@@ -687,6 +814,76 @@
     // INSTRUMENT PRESETS
     // ============================================================================
     const instrumentPresets = {
+      kick: {
+        '808 Classic': { pitchStart: 150, pitchEnd: 40, decay: 0.6, subLevel: 0.8, clickLevel: 0.3 },
+        'Boomy Kick': { pitchStart: 180, pitchEnd: 35, decay: 0.9, subLevel: 1.0, clickLevel: 0.2 },
+        'Tight Kick': { pitchStart: 120, pitchEnd: 50, decay: 0.3, subLevel: 0.5, clickLevel: 0.5 },
+        'Sub Kick': { pitchStart: 100, pitchEnd: 30, decay: 1.2, subLevel: 1.2, clickLevel: 0.1 },
+        'Punchy Kick': { pitchStart: 160, pitchEnd: 55, decay: 0.4, subLevel: 0.6, clickLevel: 0.6 },
+        'Deep Kick': { pitchStart: 80, pitchEnd: 25, decay: 1.0, subLevel: 1.0, clickLevel: 0.15 },
+        'Hard Kick': { pitchStart: 200, pitchEnd: 60, decay: 0.35, subLevel: 0.4, clickLevel: 0.7 },
+        'Techno Kick': { pitchStart: 140, pitchEnd: 45, decay: 0.5, subLevel: 0.7, clickLevel: 0.4 },
+        'Trap 808': { pitchStart: 130, pitchEnd: 35, decay: 0.8, subLevel: 0.9, clickLevel: 0.25 },
+        'Rock Kick': { pitchStart: 170, pitchEnd: 65, decay: 0.45, subLevel: 0.5, clickLevel: 0.55 },
+        'DnB Kick': { pitchStart: 110, pitchEnd: 48, decay: 0.25, subLevel: 0.6, clickLevel: 0.65 },
+        'House Kick': { pitchStart: 145, pitchEnd: 42, decay: 0.55, subLevel: 0.75, clickLevel: 0.35 }
+      },
+      snare: {
+        'Classic Snare': { tone: 180, toneDecay: 0.15, noiseDecay: 0.2, noiseMix: 0.8, snap: 0.4 },
+        'Tight Snare': { tone: 200, toneDecay: 0.1, noiseDecay: 0.15, noiseMix: 0.7, snap: 0.5 },
+        'Fat Snare': { tone: 150, toneDecay: 0.2, noiseDecay: 0.25, noiseMix: 0.9, snap: 0.3 },
+        'Rimshot': { tone: 250, toneDecay: 0.08, noiseDecay: 0.12, noiseMix: 0.5, snap: 0.7 },
+        'Clap': { tone: 0, toneDecay: 0.05, noiseDecay: 0.18, noiseMix: 1.0, snap: 0.6 },
+        '808 Snare': { tone: 160, toneDecay: 0.25, noiseDecay: 0.3, noiseMix: 0.6, snap: 0.2 },
+        'Crispy Snare': { tone: 220, toneDecay: 0.12, noiseDecay: 0.16, noiseMix: 0.85, snap: 0.55 },
+        'Deep Snare': { tone: 120, toneDecay: 0.18, noiseDecay: 0.22, noiseMix: 0.75, snap: 0.35 },
+        'Electro Snare': { tone: 190, toneDecay: 0.14, noiseDecay: 0.19, noiseMix: 0.65, snap: 0.45 },
+        'Pop Snare': { tone: 210, toneDecay: 0.13, noiseDecay: 0.17, noiseMix: 0.8, snap: 0.5 },
+        'Ambient Snare': { tone: 140, toneDecay: 0.3, noiseDecay: 0.35, noiseMix: 0.7, snap: 0.25 },
+        'Trap Snare': { tone: 175, toneDecay: 0.16, noiseDecay: 0.21, noiseMix: 0.85, snap: 0.4 }
+      },
+      hihat: {
+        'Classic HH': { metalRatios: [2, 3, 4.16, 5.43, 6.79, 8.21], decay: 0.05, brightness: 10000, noiseMix: 0.4 },
+        'Open HH': { metalRatios: [2, 3, 4.16, 5.43, 6.79, 8.21], decay: 0.2, brightness: 11000, noiseMix: 0.5 },
+        'Closed HH': { metalRatios: [2.5, 3.5, 4.5, 5.5, 7, 8.5], decay: 0.03, brightness: 9000, noiseMix: 0.3 },
+        'Trashy HH': { metalRatios: [2.2, 3.3, 4.4, 5.5, 6.6, 8.8], decay: 0.08, brightness: 12000, noiseMix: 0.6 },
+        'Tight HH': { metalRatios: [2.8, 3.8, 4.8, 5.8, 7.2, 8.8], decay: 0.025, brightness: 8500, noiseMix: 0.25 },
+        '808 HH': { metalRatios: [2, 3, 4, 5, 6, 8], decay: 0.04, brightness: 9500, noiseMix: 0.35 },
+        'Bright HH': { metalRatios: [2.5, 3.5, 4.5, 5.8, 7.5, 9], decay: 0.06, brightness: 13000, noiseMix: 0.45 },
+        'Dark HH': { metalRatios: [1.8, 2.8, 3.8, 4.8, 6, 7.5], decay: 0.045, brightness: 7500, noiseMix: 0.35 },
+        'Crisp HH': { metalRatios: [2.5, 3.8, 4.8, 6, 7.5, 9.5], decay: 0.04, brightness: 11500, noiseMix: 0.4 },
+        'Sizzle HH': { metalRatios: [2.2, 3.4, 4.6, 5.9, 7.2, 8.9], decay: 0.12, brightness: 12500, noiseMix: 0.55 },
+        'Pedal HH': { metalRatios: [2, 2.8, 3.6, 4.5, 5.5, 7], decay: 0.035, brightness: 8000, noiseMix: 0.3 },
+        'Techno HH': { metalRatios: [2.4, 3.6, 4.8, 6, 7.8, 9.2], decay: 0.05, brightness: 10500, noiseMix: 0.42 }
+      },
+      bass: {
+        '808 Bass': { waveform: 'sine', subLevel: 0.8, filterQ: 3, filterSweep: 6, decay: 0.5 },
+        'Sub Bass': { waveform: 'sine', subLevel: 1.0, filterQ: 2, filterSweep: 4, decay: 0.7 },
+        'Reese Bass': { waveform: 'sawtooth', subLevel: 0.6, filterQ: 5, filterSweep: 10, decay: 0.4 },
+        'Acid Bass': { waveform: 'sawtooth', subLevel: 0.4, filterQ: 8, filterSweep: 15, decay: 0.3 },
+        'Wobble Bass': { waveform: 'sawtooth', subLevel: 0.5, filterQ: 12, filterSweep: 20, decay: 0.35 },
+        'Deep Bass': { waveform: 'sine', subLevel: 0.9, filterQ: 2.5, filterSweep: 5, decay: 0.6 },
+        'Punchy Bass': { waveform: 'triangle', subLevel: 0.6, filterQ: 6, filterSweep: 8, decay: 0.3 },
+        'Fat Bass': { waveform: 'sawtooth', subLevel: 0.7, filterQ: 4, filterSweep: 7, decay: 0.45 },
+        'Synth Bass': { waveform: 'square', subLevel: 0.5, filterQ: 7, filterSweep: 12, decay: 0.35 },
+        'DnB Bass': { waveform: 'sawtooth', subLevel: 0.55, filterQ: 10, filterSweep: 18, decay: 0.25 },
+        'Trap Bass': { waveform: 'sine', subLevel: 0.85, filterQ: 3.5, filterSweep: 6, decay: 0.55 },
+        'Funk Bass': { waveform: 'sawtooth', subLevel: 0.4, filterQ: 6, filterSweep: 9, decay: 0.25 }
+      },
+      synth: {
+        'Classic Saw': { osc1: 'sawtooth', osc2: 'sawtooth', osc3: 'square', detune: 7, filterQ: 5, filterSweep: 12 },
+        'Super Saw': { osc1: 'sawtooth', osc2: 'sawtooth', osc3: 'sawtooth', detune: 10, filterQ: 4, filterSweep: 8 },
+        'Pluck Synth': { osc1: 'triangle', osc2: 'sine', osc3: 'square', detune: 5, filterQ: 8, filterSweep: 20 },
+        'Pad Synth': { osc1: 'sawtooth', osc2: 'square', osc3: 'triangle', detune: 12, filterQ: 3, filterSweep: 6 },
+        'Lead Synth': { osc1: 'sawtooth', osc2: 'square', osc3: 'sawtooth', detune: 8, filterQ: 7, filterSweep: 15 },
+        'Brass Synth': { osc1: 'sawtooth', osc2: 'sawtooth', osc3: 'triangle', detune: 6, filterQ: 6, filterSweep: 10 },
+        'Square Lead': { osc1: 'square', osc2: 'square', osc3: 'sawtooth', detune: 9, filterQ: 5, filterSweep: 12 },
+        'Warm Synth': { osc1: 'triangle', osc2: 'sawtooth', osc3: 'sine', detune: 5, filterQ: 4, filterSweep: 7 },
+        'Bright Synth': { osc1: 'sawtooth', osc2: 'square', osc3: 'square', detune: 11, filterQ: 6, filterSweep: 14 },
+        'Analog Synth': { osc1: 'sawtooth', osc2: 'sawtooth', osc3: 'triangle', detune: 7, filterQ: 5, filterSweep: 11 },
+        'Trance Lead': { osc1: 'sawtooth', osc2: 'sawtooth', osc3: 'square', detune: 14, filterQ: 8, filterSweep: 18 },
+        'Bell Synth': { osc1: 'sine', osc2: 'triangle', osc3: 'square', detune: 15, filterQ: 10, filterSweep: 25 }
+      },
       piano: {
         'Classic Grand': { brightness: 8000, decay: 1.5, harmonicStrength: 1.0 },
         'Bright Piano': { brightness: 12000, decay: 1.2, harmonicStrength: 1.3 },
@@ -739,6 +936,11 @@
 
     // Current preset selection for each instrument
     const currentPresets = {
+      kick: '808 Classic',
+      snare: 'Classic Snare',
+      hihat: 'Classic HH',
+      bass: '808 Bass',
+      synth: 'Classic Saw',
       piano: 'Classic Grand',
       organ: 'Full Hammond',
       strings: 'Lush Strings',
@@ -755,40 +957,42 @@
         name: 'Kick', 
         type: 'kick',
         synth: (time) => {
+          const preset = instrumentPresets.kick[currentPresets.kick];
+          
           // Main body (pitch sweep)
           const osc = audioContext.createOscillator();
           const gain = audioContext.createGain();
           
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(150, time);
-          osc.frequency.exponentialRampToValueAtTime(50, time + 0.05);
-          osc.frequency.exponentialRampToValueAtTime(40, time + 0.5);
+          osc.frequency.setValueAtTime(preset.pitchStart, time);
+          osc.frequency.exponentialRampToValueAtTime(preset.pitchEnd + 10, time + 0.05);
+          osc.frequency.exponentialRampToValueAtTime(preset.pitchEnd, time + preset.decay);
           
           gain.gain.setValueAtTime(1, time);
           gain.gain.exponentialRampToValueAtTime(0.7, time + 0.05);
-          gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + preset.decay);
           
           osc.connect(gain);
           gain.connect(masterGain);
           
           osc.start(time);
-          osc.stop(time + 0.5);
+          osc.stop(time + preset.decay);
           
           // Sub-bass layer
           const subOsc = audioContext.createOscillator();
           const subGain = audioContext.createGain();
           
           subOsc.type = 'sine';
-          subOsc.frequency.value = 50;
+          subOsc.frequency.value = preset.pitchEnd;
           
-          subGain.gain.setValueAtTime(0.8, time);
-          subGain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
+          subGain.gain.setValueAtTime(preset.subLevel, time);
+          subGain.gain.exponentialRampToValueAtTime(0.01, time + preset.decay + 0.1);
           
           subOsc.connect(subGain);
           subGain.connect(masterGain);
           
           subOsc.start(time);
-          subOsc.stop(time + 0.6);
+          subOsc.stop(time + preset.decay + 0.1);
           
           // Click/beater attack
           const clickNoise = audioContext.createBufferSource();
@@ -804,7 +1008,7 @@
           clickFilter.type = 'highpass';
           clickFilter.frequency.value = 3000;
           
-          clickGain.gain.setValueAtTime(0.3, time);
+          clickGain.gain.setValueAtTime(preset.clickLevel, time);
           clickGain.gain.exponentialRampToValueAtTime(0.01, time + 0.01);
           
           clickNoise.connect(clickFilter);
@@ -819,26 +1023,30 @@
         name: 'Snare', 
         type: 'snare',
         synth: (time) => {
-          // Body tone (tuned element)
-          const bodyOsc = audioContext.createOscillator();
-          const bodyGain = audioContext.createGain();
+          const preset = instrumentPresets.snare[currentPresets.snare];
           
-          bodyOsc.type = 'triangle';
-          bodyOsc.frequency.setValueAtTime(180, time);
-          bodyOsc.frequency.exponentialRampToValueAtTime(100, time + 0.1);
-          
-          bodyGain.gain.setValueAtTime(0.5, time);
-          bodyGain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
-          
-          bodyOsc.connect(bodyGain);
-          bodyGain.connect(masterGain);
-          
-          bodyOsc.start(time);
-          bodyOsc.stop(time + 0.15);
+          // Body tone (tuned element) - only if tone is set
+          if (preset.tone > 0) {
+            const bodyOsc = audioContext.createOscillator();
+            const bodyGain = audioContext.createGain();
+            
+            bodyOsc.type = 'triangle';
+            bodyOsc.frequency.setValueAtTime(preset.tone, time);
+            bodyOsc.frequency.exponentialRampToValueAtTime(preset.tone * 0.55, time + preset.toneDecay * 0.7);
+            
+            bodyGain.gain.setValueAtTime(0.5, time);
+            bodyGain.gain.exponentialRampToValueAtTime(0.01, time + preset.toneDecay);
+            
+            bodyOsc.connect(bodyGain);
+            bodyGain.connect(masterGain);
+            
+            bodyOsc.start(time);
+            bodyOsc.stop(time + preset.toneDecay);
+          }
           
           // Snares (noise)
           const noise = audioContext.createBufferSource();
-          const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.2, audioContext.sampleRate);
+          const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * preset.noiseDecay, audioContext.sampleRate);
           const output = noiseBuffer.getChannelData(0);
           for (let i = 0; i < noiseBuffer.length; i++) {
             output[i] = Math.random() * 2 - 1;
@@ -846,9 +1054,9 @@
           noise.buffer = noiseBuffer;
           
           const noiseGain = audioContext.createGain();
-          noiseGain.gain.setValueAtTime(0.8, time);
-          noiseGain.gain.setValueAtTime(0.6, time + 0.01);
-          noiseGain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+          noiseGain.gain.setValueAtTime(preset.noiseMix, time);
+          noiseGain.gain.setValueAtTime(preset.noiseMix * 0.75, time + 0.01);
+          noiseGain.gain.exponentialRampToValueAtTime(0.01, time + preset.noiseDecay);
           
           const filter = audioContext.createBiquadFilter();
           filter.type = 'bandpass';
@@ -860,9 +1068,9 @@
           noiseGain.connect(masterGain);
           
           noise.start(time);
-          noise.stop(time + 0.2);
+          noise.stop(time + preset.noiseDecay);
           
-          // Attack transient
+          // Attack transient (snap)
           const transient = audioContext.createBufferSource();
           const transBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.005, audioContext.sampleRate);
           const transData = transBuffer.getChannelData(0);
@@ -872,7 +1080,7 @@
           transient.buffer = transBuffer;
           
           const transGain = audioContext.createGain();
-          transGain.gain.value = 0.4;
+          transGain.gain.value = preset.snap;
           
           transient.connect(transGain);
           transGain.connect(masterGain);
@@ -885,11 +1093,12 @@
         name: 'Hi-Hat', 
         type: 'hihat',
         synth: (time) => {
+          const preset = instrumentPresets.hihat[currentPresets.hihat];
+          
           // Metallic oscillators (square waves for metallic timbre)
-          const ratios = [2, 3, 4.16, 5.43, 6.79, 8.21];
           const fundamentalFreq = 320;
           
-          ratios.forEach((ratio, index) => {
+          preset.metalRatios.forEach((ratio, index) => {
             const osc = audioContext.createOscillator();
             const oscGain = audioContext.createGain();
             
@@ -898,18 +1107,18 @@
             
             const amp = 1 / (index + 1);
             oscGain.gain.setValueAtTime(amp * 0.1, time);
-            oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+            oscGain.gain.exponentialRampToValueAtTime(0.001, time + preset.decay);
             
             osc.connect(oscGain);
             oscGain.connect(masterGain);
             
             osc.start(time);
-            osc.stop(time + 0.05);
+            osc.stop(time + preset.decay);
           });
           
           // Noise layer
           const noise = audioContext.createBufferSource();
-          const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.05, audioContext.sampleRate);
+          const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * preset.decay, audioContext.sampleRate);
           const output = noiseBuffer.getChannelData(0);
           for (let i = 0; i < noiseBuffer.length; i++) {
             output[i] = Math.random() * 2 - 1;
@@ -918,16 +1127,16 @@
           
           const bandpass = audioContext.createBiquadFilter();
           bandpass.type = 'bandpass';
-          bandpass.frequency.value = 10000;
+          bandpass.frequency.value = preset.brightness;
           bandpass.Q.value = 1.5;
           
           const highpass = audioContext.createBiquadFilter();
           highpass.type = 'highpass';
-          highpass.frequency.value = 7000;
+          highpass.frequency.value = preset.brightness * 0.7;
           
           const gain = audioContext.createGain();
-          gain.gain.setValueAtTime(0.4, time);
-          gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
+          gain.gain.setValueAtTime(preset.noiseMix, time);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + preset.decay);
           
           noise.connect(highpass);
           highpass.connect(bandpass);
@@ -935,7 +1144,7 @@
           gain.connect(masterGain);
           
           noise.start(time);
-          noise.stop(time + 0.05);
+          noise.stop(time + preset.decay);
         }
       },
       { 
@@ -943,32 +1152,33 @@
         type: 'bass',
         synth: (time, freq) => {
           freq = freq || 110;
+          const preset = instrumentPresets.bass[currentPresets.bass];
           
           // Main bass oscillator
           const osc = audioContext.createOscillator();
           const gain = audioContext.createGain();
           const filter = audioContext.createBiquadFilter();
           
-          osc.type = 'sawtooth';
+          osc.type = preset.waveform;
           osc.frequency.value = freq;
           
           // Filter sweep for punch
           filter.type = 'lowpass';
-          filter.Q.value = 4;
-          filter.frequency.setValueAtTime(freq * 8, time);
+          filter.Q.value = preset.filterQ;
+          filter.frequency.setValueAtTime(freq * preset.filterSweep, time);
           filter.frequency.exponentialRampToValueAtTime(freq * 2, time + 0.05);
           filter.frequency.setValueAtTime(freq * 1.5, time + 0.1);
           
           gain.gain.setValueAtTime(0.5, time);
           gain.gain.exponentialRampToValueAtTime(0.3, time + 0.05);
-          gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + preset.decay);
           
           osc.connect(filter);
           filter.connect(gain);
           gain.connect(masterGain);
           
           osc.start(time);
-          osc.stop(time + 0.4);
+          osc.stop(time + preset.decay);
           
           // Sub-bass layer
           const subOsc = audioContext.createOscillator();
@@ -977,14 +1187,14 @@
           subOsc.type = 'sine';
           subOsc.frequency.value = freq / 2;
           
-          subGain.gain.setValueAtTime(0.6, time);
-          subGain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+          subGain.gain.setValueAtTime(preset.subLevel, time);
+          subGain.gain.exponentialRampToValueAtTime(0.01, time + preset.decay + 0.1);
           
           subOsc.connect(subGain);
           subGain.connect(masterGain);
           
           subOsc.start(time);
-          subOsc.stop(time + 0.5);
+          subOsc.stop(time + preset.decay + 0.1);
         }
       },
       { 
@@ -992,6 +1202,7 @@
         type: 'synth',
         synth: (time, freq) => {
           freq = freq || 440;
+          const preset = instrumentPresets.synth[currentPresets.synth];
           
           // Detuned oscillators for thickness
           const osc1 = audioContext.createOscillator();
@@ -1001,23 +1212,23 @@
           const gain = audioContext.createGain();
           const filter = audioContext.createBiquadFilter();
           
-          osc1.type = 'sawtooth';
-          osc2.type = 'sawtooth';
-          osc3.type = 'square';
+          osc1.type = preset.osc1;
+          osc2.type = preset.osc2;
+          osc3.type = preset.osc3;
           
           osc1.frequency.value = freq;
           osc2.frequency.value = freq;
           osc3.frequency.value = freq;
           
-          osc1.detune.value = -7;
-          osc2.detune.value = 7;
+          osc1.detune.value = -preset.detune;
+          osc2.detune.value = preset.detune;
           osc3.detune.value = 0;
           
           // Filter envelope
           filter.type = 'lowpass';
-          filter.Q.value = 5;
+          filter.Q.value = preset.filterQ;
           filter.frequency.setValueAtTime(freq * 2, time);
-          filter.frequency.exponentialRampToValueAtTime(freq * 12, time + 0.1);
+          filter.frequency.exponentialRampToValueAtTime(freq * preset.filterSweep, time + 0.1);
           filter.frequency.exponentialRampToValueAtTime(freq * 4, time + 0.5);
           
           // Gain envelope
@@ -1427,17 +1638,20 @@
         
         labelContainer.appendChild(trackHeader);
         
-        // Add preset dropdown for melodic instruments
-        const melodicTypes = ['piano', 'organ', 'strings', 'violin', 'trumpet', 'guitar'];
-        if (melodicTypes.includes(track.type)) {
+        // Add preset dropdown for ALL instruments (drums + melodic)
+        const instrumentsWithPresets = ['kick', 'snare', 'hihat', 'bass', 'synth', 'piano', 'organ', 'strings', 'violin', 'trumpet', 'guitar'];
+        if (instrumentsWithPresets.includes(track.type)) {
           const presetSelect = document.createElement('select');
           presetSelect.style.fontSize = '10px';
-          presetSelect.style.padding = '2px';
+          presetSelect.style.padding = '3px 4px';
           presetSelect.style.background = 'rgba(100, 255, 218, 0.1)';
           presetSelect.style.border = '1px solid rgba(100, 255, 218, 0.3)';
-          presetSelect.style.borderRadius = '3px';
+          presetSelect.style.borderRadius = '4px';
           presetSelect.style.color = '#64FFDA';
           presetSelect.style.cursor = 'pointer';
+          presetSelect.style.maxWidth = '130px';
+          presetSelect.style.transition = 'all 0.2s ease';
+          presetSelect.title = 'Select preset';
           
           const presets = Object.keys(instrumentPresets[track.type]);
           presets.forEach(presetName => {
@@ -1450,11 +1664,25 @@
             presetSelect.appendChild(option);
           });
           
+          presetSelect.addEventListener('mouseenter', () => {
+            presetSelect.style.background = 'rgba(100, 255, 218, 0.15)';
+            presetSelect.style.borderColor = '#64FFDA';
+          });
+          
+          presetSelect.addEventListener('mouseleave', () => {
+            presetSelect.style.background = 'rgba(100, 255, 218, 0.1)';
+            presetSelect.style.borderColor = 'rgba(100, 255, 218, 0.3)';
+          });
+          
           presetSelect.addEventListener('change', (e) => {
             currentPresets[track.type] = e.target.value;
+            console.log(`🎛️ ${track.name} preset changed to: ${e.target.value}`);
             // Preview sound
             const now = audioContext.currentTime;
-            const freq = 440; // A4
+            if (audioContext.state === 'suspended') {
+              audioContext.resume();
+            }
+            const freq = 440; // A4 for melodic, ignored for drums
             track.synth(now, freq);
           });
           
@@ -1916,6 +2144,9 @@
       // Get velocity for this step
       const velocity = track.velocity[currentStep] || 1.0;
       
+      // Debug logging
+      console.log(`🎵 Playing ${track.name} at step ${currentStep}, velocity: ${velocity}`);
+      
       // Store current master gain
       const originalGain = masterGain.gain.value;
       masterGain.gain.value = originalGain * velocity;
@@ -1999,10 +2230,14 @@
       });
     }
 
-    function startPlayback() {
+    async function startPlayback() {
       if (isPlaying) return;
       
-      audioContext.resume();
+      // Resume audio context if suspended
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+      
       isPlaying = true;
       currentStep = 0;
       nextStepTime = audioContext.currentTime;
@@ -2010,6 +2245,7 @@
       sequencerInterval = setInterval(scheduler, 25);
       
       document.getElementById('playBtn').textContent = '⏸️ Pause';
+      console.log('▶️ Sequencer started, BPM:', bpm);
     }
 
     function stopPlayback() {
