@@ -4213,7 +4213,19 @@
     }
 
     function handlePaletteDragStart(e) {
+      // Prevent multiple drag operations
+      if (draggedElement) {
+        console.warn('⚠️ Drag already in progress, ignoring new drag');
+        e.preventDefault();
+        return;
+      }
+      
       draggedElement = e.target.closest('.palette-instrument');
+      if (!draggedElement) {
+        e.preventDefault();
+        return;
+      }
+      
       dragType = 'palette';
       
       e.dataTransfer.effectAllowed = 'copy';
@@ -4225,7 +4237,19 @@
     }
 
     function handleClipDragStart(e) {
+      // Prevent multiple drag operations
+      if (draggedElement) {
+        console.warn('⚠️ Drag already in progress, ignoring new drag');
+        e.preventDefault();
+        return;
+      }
+      
       draggedElement = e.target.closest('.instrument-clip');
+      if (!draggedElement) {
+        e.preventDefault();
+        return;
+      }
+      
       dragType = 'clip';
       
       e.dataTransfer.effectAllowed = 'move';
@@ -4254,25 +4278,55 @@
 
     function handleDrop(e) {
       e.preventDefault();
+      e.stopPropagation();
       
       const cell = e.target.closest('.track-cell');
-      if (!cell) return;
+      if (!cell) {
+        console.warn('⚠️ Drop target not found');
+        handleDragEnd(e);
+        return;
+      }
       
       cell.classList.remove('drop-target');
       
       const trackIndex = parseInt(cell.dataset.trackIndex);
       const bar = parseInt(cell.dataset.bar);
       
-      if (dragType === 'palette') {
-        // Create new clip from palette
-        const instrumentType = e.dataTransfer.getData('instrumentType');
-        const instrumentName = e.dataTransfer.getData('instrumentName');
-        
-        createClip(trackIndex, bar, instrumentType, instrumentName, 4); // 4 bars default
-      } else if (dragType === 'clip') {
-        // Move existing clip
-        const clipId = e.dataTransfer.getData('clipId');
-        moveClip(clipId, trackIndex, bar);
+      // Validate data
+      if (isNaN(trackIndex) || isNaN(bar)) {
+        console.error('❌ Invalid drop target:', { trackIndex, bar });
+        handleDragEnd(e);
+        return;
+      }
+      
+      try {
+        if (dragType === 'palette') {
+          // Create new clip from palette
+          const instrumentType = e.dataTransfer.getData('instrumentType');
+          const instrumentName = e.dataTransfer.getData('instrumentName');
+          
+          if (!instrumentType || !instrumentName) {
+            console.error('❌ Missing instrument data');
+            return;
+          }
+          
+          createClip(trackIndex, bar, instrumentType, instrumentName, 4); // 4 bars default
+        } else if (dragType === 'clip') {
+          // Move existing clip
+          const clipId = e.dataTransfer.getData('clipId');
+          
+          if (!clipId) {
+            console.error('❌ Missing clip ID');
+            return;
+          }
+          
+          moveClip(clipId, trackIndex, bar);
+        }
+      } catch (error) {
+        console.error('❌ Error in handleDrop:', error);
+      } finally {
+        // Always clean up
+        handleDragEnd(e);
       }
     }
 
@@ -4286,11 +4340,28 @@
         el.classList.remove('drop-target');
       });
       
+      // Reset state
       draggedElement = null;
       dragType = null;
+      
+      console.log('✅ Drag operation ended');
     }
 
     function createClip(trackIndex, startBar, instrumentType, instrumentName, duration) {
+      // Check for overlapping clips on the same track
+      const endBar = startBar + duration;
+      const hasOverlap = arrangementClips.some(existingClip => {
+        if (existingClip.trackIndex !== trackIndex) return false;
+        
+        const existingEnd = existingClip.startBar + existingClip.duration;
+        return (startBar < existingEnd && endBar > existingClip.startBar);
+      });
+      
+      if (hasOverlap) {
+        console.warn('⚠️ Cannot create clip: overlaps with existing clip');
+        return null;
+      }
+      
       const clipId = `clip_${clipIdCounter++}`;
       
       const clip = {
@@ -4307,62 +4378,100 @@
       renderClip(clip);
       
       console.log('✅ Created clip:', clip);
+      return clip;
     }
 
     function renderClip(clip) {
-      const track = document.querySelector(`.timeline-track[data-track-index="${clip.trackIndex}"]`);
-      if (!track) return;
-      
-      const content = track.querySelector('.track-content');
-      
-      // Remove existing clip element if it exists
-      const existingClip = document.getElementById(clip.id);
-      if (existingClip) {
-        existingClip.remove();
+      try {
+        const track = document.querySelector(`.timeline-track[data-track-index="${clip.trackIndex}"]`);
+        if (!track) {
+          console.error('❌ Track not found for clip:', clip);
+          return;
+        }
+        
+        const content = track.querySelector('.track-content');
+        if (!content) {
+          console.error('❌ Track content not found for clip:', clip);
+          return;
+        }
+        
+        // Remove existing clip element if it exists
+        const existingClip = document.getElementById(clip.id);
+        if (existingClip) {
+          existingClip.remove();
+        }
+        
+        const clipEl = document.createElement('div');
+        clipEl.className = 'instrument-clip';
+        clipEl.id = clip.id;
+        clipEl.dataset.clipId = clip.id;
+        clipEl.draggable = true;
+        
+        // Position and size based on bars
+        const barWidth = 60 * (timelineZoom / 100);
+        clipEl.style.left = `${clip.startBar * barWidth}px`;
+        clipEl.style.width = `${clip.duration * barWidth}px`;
+        
+        if (clip.muted) {
+          clipEl.style.opacity = '0.5';
+        }
+        
+        clipEl.innerHTML = `
+          <div class="clip-info">
+            <div class="clip-name">${instrumentIcons[clip.instrumentType] || '🎵'} ${clip.instrumentName}</div>
+            <div class="clip-duration">${clip.startBar + 1} - ${clip.startBar + clip.duration + 1} (${clip.duration} bars)</div>
+          </div>
+          <div class="clip-controls">
+            <button class="clip-btn" onclick="event.stopPropagation(); toggleClipMute('${clip.id}')" title="Mute">M</button>
+            <button class="clip-btn" onclick="event.stopPropagation(); deleteClip('${clip.id}')" title="Delete">×</button>
+          </div>
+        `;
+        
+        // Drag events for clips
+        clipEl.addEventListener('dragstart', handleClipDragStart);
+        clipEl.addEventListener('dragend', handleDragEnd);
+        
+        content.appendChild(clipEl);
+      } catch (error) {
+        console.error('❌ Error rendering clip:', error, clip);
       }
-      
-      const clipEl = document.createElement('div');
-      clipEl.className = 'instrument-clip';
-      clipEl.id = clip.id;
-      clipEl.dataset.clipId = clip.id;
-      clipEl.draggable = true;
-      
-      // Position and size based on bars
-      const barWidth = 60 * (timelineZoom / 100);
-      clipEl.style.left = `${clip.startBar * barWidth}px`;
-      clipEl.style.width = `${clip.duration * barWidth}px`;
-      
-      if (clip.muted) {
-        clipEl.style.opacity = '0.5';
-      }
-      
-      clipEl.innerHTML = `
-        <div class="clip-info">
-          <div class="clip-name">${instrumentIcons[clip.instrumentType] || '🎵'} ${clip.instrumentName}</div>
-          <div class="clip-duration">${clip.startBar + 1} - ${clip.startBar + clip.duration + 1} (${clip.duration} bars)</div>
-        </div>
-        <div class="clip-controls">
-          <button class="clip-btn" onclick="event.stopPropagation(); toggleClipMute('${clip.id}')" title="Mute">M</button>
-          <button class="clip-btn" onclick="event.stopPropagation(); deleteClip('${clip.id}')" title="Delete">×</button>
-        </div>
-      `;
-      
-      // Drag events for clips
-      clipEl.addEventListener('dragstart', handleClipDragStart);
-      clipEl.addEventListener('dragend', handleDragEnd);
-      
-      content.appendChild(clipEl);
     }
 
     function moveClip(clipId, newTrackIndex, newStartBar) {
       const clip = arrangementClips.find(c => c.id === clipId);
-      if (!clip) return;
+      if (!clip) {
+        console.error('❌ Clip not found:', clipId);
+        return false;
+      }
       
+      // Store old position in case we need to revert
+      const oldTrackIndex = clip.trackIndex;
+      const oldStartBar = clip.startBar;
+      
+      // Check for overlapping clips on the target track (excluding itself)
+      const endBar = newStartBar + clip.duration;
+      const hasOverlap = arrangementClips.some(existingClip => {
+        if (existingClip.id === clipId) return false; // Ignore self
+        if (existingClip.trackIndex !== newTrackIndex) return false;
+        
+        const existingEnd = existingClip.startBar + existingClip.duration;
+        return (newStartBar < existingEnd && endBar > existingClip.startBar);
+      });
+      
+      if (hasOverlap) {
+        console.warn('⚠️ Cannot move clip: would overlap with existing clip');
+        // Revert to old position visually
+        renderClip(clip);
+        return false;
+      }
+      
+      // Update position
       clip.trackIndex = newTrackIndex;
       clip.startBar = newStartBar;
       
       renderClip(clip);
       console.log('🔄 Moved clip:', clip);
+      return true;
     }
 
     function toggleClipMute(clipId) {
