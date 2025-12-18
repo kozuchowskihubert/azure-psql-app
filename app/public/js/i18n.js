@@ -64,6 +64,7 @@ const translations = {
     
     // Navigation
     'nav-home': '🏠 Strona Główna',
+    'nav-beatmaker': '🥁 Kreator Bitów',
     'nav-studio': '🎚️ Studio',
     'nav-techno': '🤖 Techno Workspace',
     'nav-platform': '🌐 Platforma HAOS',
@@ -283,6 +284,7 @@ const translations = {
     
     // Navigation
     'nav-home': '🏠 Home',
+    'nav-beatmaker': '🥁 Beat Maker',
     'nav-studio': '🎚️ Studio',
     'nav-techno': '🤖 Techno Workspace',
     'nav-platform': '🌐 HAOS Platform',
