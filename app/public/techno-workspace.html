@@ -2694,38 +2694,62 @@
 
         function loadPatternPreset(index) {
             const pattern = patternPresets[index];
-            if (!pattern) return;
+            if (!pattern) {
+                console.error('❌ Pattern not found at index', index);
+                return;
+            }
 
-            console.log('Loading pattern:', pattern.name);
+            console.log('🎼 Loading pattern:', pattern.name, pattern);
             activePatternIndex = index;
 
             // Update BPM
-            const bpmInput = document.getElementById('bpmInput');
-            if (bpmInput) {
-                bpmInput.value = pattern.bpm;
+            if (pattern.bpm) {
+                changeBPM(pattern.bpm);
+                console.log(`🎵 BPM set to ${pattern.bpm}`);
             }
 
-            // Load pattern into sequencer
-            const tracks = ['kick', 'snare', 'hihat', 'openhat', 'clap', 'bass'];
-            tracks.forEach(trackName => {
+            // Load pattern into sequencer - use correct grid IDs
+            const availableTracks = ['kick', 'snare', 'hihat', 'bass']; // Tracks that exist in our sequencer
+            
+            availableTracks.forEach(trackName => {
                 const trackSteps = pattern.tracks[trackName];
-                if (!trackSteps) return;
+                if (!trackSteps) {
+                    console.warn(`⚠️ No steps found for track: ${trackName}`);
+                    return;
+                }
 
-                const trackGrid = document.querySelector(`[data-track="${trackName}"]`)?.querySelector('.step-grid');
-                if (!trackGrid) return;
+                // Find the grid by ID (e.g., "kick-grid")
+                const trackGrid = document.getElementById(`${trackName}-grid`);
+                if (!trackGrid) {
+                    console.error(`❌ Grid not found: ${trackName}-grid`);
+                    return;
+                }
 
+                // Get all step elements in this grid
                 const steps = trackGrid.querySelectorAll('.step');
+                if (steps.length === 0) {
+                    console.error(`❌ No steps found in ${trackName}-grid`);
+                    return;
+                }
+
+                console.log(`✅ Loading ${trackName}:`, trackSteps);
+
+                // Apply pattern to steps
                 steps.forEach((step, i) => {
-                    if (trackSteps[i] === 1) {
-                        step.classList.add('active');
-                    } else {
-                        step.classList.remove('active');
+                    if (i < trackSteps.length) {
+                        if (trackSteps[i] === 1) {
+                            step.classList.add('active');
+                        } else {
+                            step.classList.remove('active');
+                        }
                     }
                 });
             });
 
             // Update button states
             renderPatternButtons();
+            
+            console.log('✅ Pattern loaded successfully:', pattern.name);
         }
 
         function renderPatternButtons() {
