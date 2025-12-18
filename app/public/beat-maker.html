@@ -4105,6 +4105,12 @@
       if (track.muted) return;
       if (hasSolo && !track.solo) return;
       
+      // ✅ DEFENSIVE CHECK: Skip if synth function doesn't exist
+      if (!track.synth || typeof track.synth !== 'function') {
+        console.warn(`⚠️ No synth function for ${track.name} - skipping`);
+        return;
+      }
+      
       // Get velocity for this step
       const velocity = track.velocity[currentStep] || 1.0;
       
@@ -4115,43 +4121,48 @@
       const originalGain = masterGain.gain.value;
       masterGain.gain.value = originalGain * velocity;
       
-      const { frequencies } = getScaleFrequencies(
-        document.getElementById('keySelect').value,
-        document.getElementById('scaleSelect').value
-      );
+      try {
+        const { frequencies } = getScaleFrequencies(
+          document.getElementById('keySelect').value,
+          document.getElementById('scaleSelect').value
+        );
 
-      // Assign frequencies based on instrument type
-      switch(track.type) {
-        case 'bass':
-          track.synth(time, frequencies[0] / 2); // Root note, one octave lower
-          break;
-        case 'synth':
-          track.synth(time, frequencies[2]); // Third of the scale
-          break;
-        case 'piano':
-          track.synth(time, frequencies[0]); // Root note
-          break;
-        case 'organ':
-          track.synth(time, frequencies[4]); // Fifth of the scale
-          break;
-        case 'strings':
-          track.synth(time, frequencies[2]); // Third (harmony)
-          break;
-        case 'violin':
-          track.synth(time, frequencies[4] * 2); // Fifth, one octave higher
-          break;
-        case 'trumpet':
-          track.synth(time, frequencies[2] * 2); // Third, one octave higher
-          break;
-        case 'guitar':
-          track.synth(time, frequencies[0]); // Root note
-          break;
-        default:
-          track.synth(time); // Drums (no pitch)
+        // Assign frequencies based on instrument type - każdy instrument niezależnie gra
+        switch(track.type) {
+          case 'bass':
+            track.synth(time, frequencies[0] / 2); // Root note, one octave lower
+            break;
+          case 'synth':
+            track.synth(time, frequencies[2]); // Third of the scale
+            break;
+          case 'piano':
+            track.synth(time, frequencies[0]); // Root note
+            break;
+          case 'organ':
+            track.synth(time, frequencies[4]); // Fifth of the scale
+            break;
+          case 'strings':
+            track.synth(time, frequencies[2]); // Third (harmony)
+            break;
+          case 'violin':
+            track.synth(time, frequencies[4] * 2); // Fifth, one octave higher
+            break;
+          case 'trumpet':
+            track.synth(time, frequencies[2] * 2); // Third, one octave higher
+            break;
+          case 'guitar':
+            track.synth(time, frequencies[0]); // Root note
+            break;
+          default:
+            track.synth(time); // Drums (no pitch)
+        }
+      } catch (error) {
+        console.error(`❌ Error playing ${track.name}:`, error);
+        // Don't stop the sequencer - let other instruments play
+      } finally {
+        // Restore master gain
+        masterGain.gain.value = originalGain;
       }
-      
-      // Restore master gain
-      masterGain.gain.value = originalGain;
     }
 
     function scheduler() {
