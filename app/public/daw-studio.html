@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DAW STUDIO - HAOS.fm Professional Music Production</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    :root {
+      --haos-bg-dark: #0a0a12;
+      --haos-bg-darker: #050508;
+      --haos-orange-primary: #FF6B35;
+      --haos-orange-bright: #FF8C42;
+      --haos-orange-fire: #FF4500;
+      --haos-orange-glow: rgba(255, 107, 53, 0.4);
+      --haos-accent-neon: #39FF14;
+      --haos-accent-cyan: #00F5FF;
+      --haos-accent-purple: #DA70D6;
+      --haos-text-light: #E8E8F0;
+      --haos-text-dim: #A0A0B0;
+      --track-audio: #FF6B35;
+      --track-midi: #00F5FF;
+      --track-instrument: #DA70D6;
+      --track-return: #39FF14;
+      --font-display: 'Orbitron', 'SF Pro Display', -apple-system, sans-serif;
+      --font-mono: 'Courier New', monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--haos-bg-dark);
+      color: var(--haos-text-light);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* Header */
+    .daw-header {
+      background: linear-gradient(135deg, var(--haos-bg-darker) 0%, rgba(255, 107, 53, 0.1) 100%);
+      border-bottom: 2px solid var(--haos-orange-primary);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+      box-shadow: 0 4px 20px var(--haos-orange-glow);
+    }
+
+    .daw-logo {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--haos-orange-primary), var(--haos-accent-neon));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+    }
+
+    /* Transport Controls */
+    .transport-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 8px 15px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 107, 53, 0.3);
+    }
+
+    .transport-btn {
+      background: rgba(255, 107, 53, 0.2);
+      border: 1px solid var(--haos-orange-primary);
+      color: var(--haos-text-light);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .transport-btn:hover {
+      background: var(--haos-orange-primary);
+      box-shadow: 0 0 15px var(--haos-orange-glow);
+      transform: scale(1.05);
+    }
+
+    .transport-btn.active {
+      background: var(--haos-orange-primary);
+      box-shadow: 0 0 20px var(--haos-orange-glow);
+    }
+
+    .bpm-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(0, 245, 255, 0.1);
+      border: 1px solid var(--haos-accent-cyan);
+      border-radius: 6px;
+    }
+
+    .bpm-control input {
+      width: 60px;
+      background: transparent;
+      border: none;
+      color: var(--haos-accent-cyan);
+      font-weight: 600;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    /* Main DAW Layout */
+    .daw-workspace {
+      display: grid;
+      grid-template-columns: 250px 1fr 300px;
+      grid-template-rows: 1fr 200px;
+      height: calc(100vh - 60px);
+      gap: 2px;
+      background: var(--haos-bg-darker);
+    }
+
+    /* Browser Panel (Left) */
+    .browser-panel {
+      background: rgba(10, 10, 18, 0.95);
+      border-right: 1px solid rgba(255, 107, 53, 0.3);
+      overflow-y: auto;
+      padding: 15px;
+    }
+
+    .browser-section {
+      margin-bottom: 20px;
+    }
+
+    .browser-section h3 {
+      color: var(--haos-orange-bright);
+      font-size: 14px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .browser-item {
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      margin-bottom: 6px;
+      cursor: grab;
+      transition: all 0.2s;
+      font-size: 13px;
+    }
+
+    .browser-item:hover {
+      background: rgba(255, 107, 53, 0.2);
+      border-color: var(--haos-orange-primary);
+      transform: translateX(5px);
+    }
+
+    .browser-item:active {
+      cursor: grabbing;
+    }
+
+    /* Arrangement View (Center) */
+    .arrangement-view {
+      background: var(--haos-bg-dark);
+      overflow: auto;
+      position: relative;
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .timeline-header {
+      background: rgba(0, 0, 0, 0.5);
+      height: 40px;
+      border-bottom: 1px solid rgba(255, 107, 53, 0.3);
+      display: flex;
+      align-items: center;
+      padding: 0 50px 0 200px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .timeline-ruler {
+      display: flex;
+      flex: 1;
+      position: relative;
+    }
+
+    .timeline-bar {
+      flex: 1;
+      min-width: 100px;
+      text-align: center;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--haos-text-dim);
+      font-size: 12px;
+      font-family: var(--font-mono);
+    }
+
+    .tracks-container {
+      padding: 0;
+    }
+
+    .track {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      height: 80px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      transition: background 0.2s;
+    }
+
+    .track:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .track-header {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .track-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--haos-text-light);
+      margin-bottom: 4px;
+    }
+
+    .track-controls {
+      display: flex;
+      gap: 4px;
+    }
+
+    .track-btn {
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+
+    .track-btn.solo {
+      background: rgba(57, 255, 20, 0.1);
+      border-color: var(--haos-accent-neon);
+      color: var(--haos-accent-neon);
+    }
+
+    .track-btn.mute {
+      background: rgba(255, 107, 53, 0.1);
+      border-color: var(--haos-orange-primary);
+      color: var(--haos-orange-primary);
+    }
+
+    .track-btn.record {
+      background: rgba(255, 0, 0, 0.1);
+      border-color: #ff0000;
+      color: #ff0000;
+    }
+
+    .track-btn.active {
+      background: currentColor;
+      color: var(--haos-bg-dark);
+    }
+
+    .track-content {
+      position: relative;
+      background: linear-gradient(90deg, transparent 0%, transparent 99%, rgba(255, 255, 255, 0.05) 100%);
+      background-size: 100px 100%;
+    }
+
+    .clip {
+      position: absolute;
+      height: 60px;
+      top: 10px;
+      border-radius: 6px;
+      padding: 8px;
+      cursor: move;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s;
+      border: 1px solid;
+      overflow: hidden;
+    }
+
+    .clip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .clip-name {
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .clip-waveform {
+      height: 30px;
+      background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        rgba(255, 255, 255, 0.3) 20%,
+        rgba(255, 255, 255, 0.2) 40%,
+        rgba(255, 255, 255, 0.4) 60%,
+        rgba(255, 255, 255, 0.1) 80%,
+        rgba(255, 255, 255, 0.2) 100%
+      );
+      border-radius: 3px;
+    }
+
+    /* Mixer Panel (Right) */
+    .mixer-panel {
+      background: rgba(10, 10, 18, 0.95);
+      border-left: 1px solid rgba(255, 107, 53, 0.3);
+      padding: 15px;
+      overflow-y: auto;
+      grid-column: 3;
+      grid-row: 1 / 3;
+    }
+
+    .mixer-channel {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .channel-name {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--haos-text-light);
+    }
+
+    .fader-container {
+      height: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .fader {
+      width: 40px;
+      height: 100%;
+      -webkit-appearance: slider-vertical;
+      writing-mode: bt-lr;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .vu-meter {
+      height: 8px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+
+    .vu-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff00, #ffff00, #ff6b35, #ff0000);
+      width: 0%;
+      transition: width 0.1s;
+    }
+
+    /* Inspector Panel (Bottom) */
+    .inspector-panel {
+      background: rgba(10, 10, 18, 0.95);
+      border-top: 1px solid rgba(255, 107, 53, 0.3);
+      padding: 15px;
+      overflow-y: auto;
+      grid-column: 1 / 3;
+      grid-row: 2;
+    }
+
+    .inspector-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
+    }
+
+    .inspector-tab {
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .inspector-tab:hover {
+      background: rgba(255, 107, 53, 0.2);
+    }
+
+    .inspector-tab.active {
+      background: var(--haos-orange-primary);
+      border-color: var(--haos-orange-primary);
+    }
+
+    .inspector-content {
+      display: none;
+    }
+
+    .inspector-content.active {
+      display: block;
+    }
+
+    .param-group {
+      margin-bottom: 15px;
+    }
+
+    .param-label {
+      font-size: 11px;
+      color: var(--haos-text-dim);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .param-control {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .knob {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 107, 53, 0.3), rgba(0, 0, 0, 0.8));
+      border: 2px solid var(--haos-orange-primary);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .knob::after {
+      content: '';
+      position: absolute;
+      width: 2px;
+      height: 20px;
+      background: var(--haos-orange-bright);
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 2px;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--haos-orange-primary);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--haos-orange-bright);
+    }
+
+    /* Track Type Colors */
+    .track-audio .track-header { border-left: 3px solid var(--track-audio); }
+    .track-midi .track-header { border-left: 3px solid var(--track-midi); }
+    .track-instrument .track-header { border-left: 3px solid var(--track-instrument); }
+    .track-return .track-header { border-left: 3px solid var(--track-return); }
+
+    .clip-audio { background: rgba(255, 107, 53, 0.3); border-color: var(--track-audio); }
+    .clip-midi { background: rgba(0, 245, 255, 0.3); border-color: var(--track-midi); }
+    .clip-instrument { background: rgba(218, 112, 214, 0.3); border-color: var(--track-instrument); }
+
+    /* Status Bar */
+    .status-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--haos-bg-darker);
+      border-top: 1px solid rgba(255, 107, 53, 0.3);
+      padding: 8px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--haos-text-dim);
+      z-index: 100;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--haos-accent-neon);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Tooltips */
+    [data-tooltip] {
+      position: relative;
+    }
+
+    [data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 12px;
+      background: rgba(0, 0, 0, 0.9);
+      color: var(--haos-text-light);
+      font-size: 11px;
+      border-radius: 6px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      margin-bottom: 5px;
+      border: 1px solid var(--haos-orange-primary);
+    }
+
+    [data-tooltip]:hover::after {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="daw-header">
+    <div class="daw-logo">
+      🎛️ DAW STUDIO
+    </div>
+    
+    <div class="transport-bar">
+      <button class="transport-btn" id="playBtn" onclick="togglePlay()" data-tooltip="Play/Pause (Space)">▶️</button>
+      <button class="transport-btn" id="stopBtn" onclick="stop()" data-tooltip="Stop">⏹️</button>
+      <button class="transport-btn" id="recordBtn" onclick="toggleRecord()" data-tooltip="Record (R)">🔴</button>
+      <button class="transport-btn" onclick="toggleLoop()" data-tooltip="Loop (L)">🔁</button>
+      <div class="bpm-control" data-tooltip="Tempo (BPM)">
+        <span style="color: var(--haos-accent-cyan); font-size: 12px;">BPM:</span>
+        <input type="number" id="bpmInput" value="120" min="60" max="200" onchange="updateBPM()">
+      </div>
+      <div style="font-family: var(--font-mono); color: var(--haos-accent-cyan);" id="timeDisplay">
+        00:00:000
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button class="transport-btn" onclick="saveProject()" data-tooltip="Save Project (Ctrl+S)">💾 Save</button>
+      <button class="transport-btn" onclick="exportAudio()" data-tooltip="Export Audio">📤 Export</button>
+      <button class="transport-btn" onclick="window.location.href='/'" data-tooltip="Back to Home">🏠 Home</button>
+    </div>
+  </header>
+
+  <!-- Main DAW Workspace -->
+  <div class="daw-workspace">
+    
+    <!-- Browser Panel (Left) -->
+    <aside class="browser-panel">
+      <div class="browser-section">
+        <h3>🥁 DRUMS</h3>
+        <div class="browser-item" draggable="true" data-type="audio" data-instrument="kick">
+          808 Kick
+        </div>
+        <div class="browser-item" draggable="true" data-type="audio" data-instrument="snare">
+          Snare Classic
+        </div>
+        <div class="browser-item" draggable="true" data-type="audio" data-instrument="hihat">
+          Hi-Hat Closed
+        </div>
+        <div class="browser-item" draggable="true" data-type="audio" data-instrument="clap">
+          Clap Modern
+        </div>
+      </div>
+
+      <div class="browser-section">
+        <h3>🎸 BASS</h3>
+        <div class="browser-item" draggable="true" data-type="instrument" data-instrument="bass">
+          Sub Bass
+        </div>
+        <div class="browser-item" draggable="true" data-type="instrument" data-instrument="bass">
+          Acid Bass
+        </div>
+        <div class="browser-item" draggable="true" data-type="instrument" data-instrument="bass">
+          Reese Bass
+        </div>
+      </div>
+
+      <div class="browser-section">
+        <h3>🎹 SYNTHS</h3>
+        <div class="browser-item" draggable="true" data-type="instrument" data-instrument="synth">
+          Supersaw Lead
+        </div>
+        <div class="browser-item" draggable="true" data-type="instrument" data-instrument="synth">
+          Pluck Synth
+        </div>
+        <div class="browser-item" draggable="true" data-type="instrument" data-instrument="pad">
+          Warm Pad
+        </div>
+      </div>
+
+      <div class="browser-section">
+        <h3>🎼 MELODY</h3>
+        <div class="browser-item" draggable="true" data-type="instrument" data-instrument="piano">
+          Grand Piano
+        </div>
+        <div class="browser-item" draggable="true" data-type="instrument" data-instrument="strings">
+          String Ensemble
+        </div>
+        <div class="browser-item" draggable="true" data-type="instrument" data-instrument="brass">
+          Brass Section
+        </div>
+      </div>
+
+      <div class="browser-section">
+        <h3>✨ EFFECTS</h3>
+        <div class="browser-item" draggable="true" data-type="effect" data-effect="reverb">
+          🌊 Reverb
+        </div>
+        <div class="browser-item" draggable="true" data-type="effect" data-effect="delay">
+          ⏱️ Delay
+        </div>
+        <div class="browser-item" draggable="true" data-type="effect" data-effect="eq">
+          🎚️ EQ
+        </div>
+        <div class="browser-item" draggable="true" data-type="effect" data-effect="compressor">
+          📊 Compressor
+        </div>
+      </div>
+    </aside>
+
+    <!-- Arrangement View (Center) -->
+    <main class="arrangement-view">
+      <div class="timeline-header">
+        <div class="timeline-ruler" id="timelineRuler">
+          <!-- Timeline bars will be generated by JS -->
+        </div>
+      </div>
+      
+      <div class="tracks-container" id="tracksContainer">
+        <!-- Tracks will be generated by JS -->
+      </div>
+    </main>
+
+    <!-- Mixer Panel (Right) -->
+    <aside class="mixer-panel">
+      <h3 style="color: var(--haos-orange-bright); margin-bottom: 15px; font-size: 16px;">🎛️ MIXER</h3>
+      
+      <div id="mixerChannels">
+        <!-- Mixer channels will be generated by JS -->
+      </div>
+
+      <!-- Master Channel -->
+      <div class="mixer-channel" style="border: 2px solid var(--haos-orange-primary);">
+        <div class="channel-name" style="color: var(--haos-orange-bright);">👑 MASTER</div>
+        <div class="fader-container">
+          <input type="range" class="fader" min="0" max="100" value="80" orient="vertical">
+        </div>
+        <div class="vu-meter">
+          <div class="vu-bar" id="masterVU"></div>
+        </div>
+        <div style="text-align: center; font-size: 11px; color: var(--haos-text-dim);">
+          -6.0 dB
+        </div>
+      </div>
+    </aside>
+
+    <!-- Inspector Panel (Bottom) -->
+    <section class="inspector-panel">
+      <div class="inspector-tabs">
+        <div class="inspector-tab active" onclick="switchInspectorTab('instrument')">🎹 INSTRUMENT</div>
+        <div class="inspector-tab" onclick="switchInspectorTab('effects')">✨ EFFECTS</div>
+        <div class="inspector-tab" onclick="switchInspectorTab('automation')">📈 AUTOMATION</div>
+        <div class="inspector-tab" onclick="switchInspectorTab('info')">ℹ️ INFO</div>
+      </div>
+
+      <div class="inspector-content active" id="inspectorInstrument">
+        <h4 style="color: var(--haos-orange-bright); margin-bottom: 10px;">Selected: No track selected</h4>
+        <p style="color: var(--haos-text-dim); font-size: 13px;">
+          👉 Click on a track to edit its instrument parameters, or drag an instrument from the browser to create a new track.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;">
+          <div class="param-group">
+            <div class="param-label">Attack</div>
+            <div class="param-control">
+              <div class="knob"></div>
+              <span style="font-size: 12px;">10ms</span>
+            </div>
+          </div>
+          <div class="param-group">
+            <div class="param-label">Decay</div>
+            <div class="param-control">
+              <div class="knob"></div>
+              <span style="font-size: 12px;">200ms</span>
+            </div>
+          </div>
+          <div class="param-group">
+            <div class="param-label">Sustain</div>
+            <div class="param-control">
+              <div class="knob"></div>
+              <span style="font-size: 12px;">70%</span>
+            </div>
+          </div>
+          <div class="param-group">
+            <div class="param-label">Release</div>
+            <div class="param-control">
+              <div class="knob"></div>
+              <span style="font-size: 12px;">500ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inspector-content" id="inspectorEffects">
+        <h4 style="color: var(--haos-orange-bright); margin-bottom: 10px;">Effects Chain</h4>
+        <p style="color: var(--haos-text-dim); font-size: 13px;">
+          ✨ Drag effects from the browser to add them to the selected track's effects chain.
+        </p>
+      </div>
+
+      <div class="inspector-content" id="inspectorAutomation">
+        <h4 style="color: var(--haos-orange-bright); margin-bottom: 10px;">Automation</h4>
+        <p style="color: var(--haos-text-dim); font-size: 13px;">
+          📈 Draw automation curves to control parameters over time.
+        </p>
+      </div>
+
+      <div class="inspector-content" id="inspectorInfo">
+        <h4 style="color: var(--haos-orange-bright); margin-bottom: 10px;">Project Info</h4>
+        <div style="font-size: 13px; color: var(--haos-text-dim); line-height: 1.6;">
+          <p><strong>Sample Rate:</strong> 44100 Hz</p>
+          <p><strong>Bit Depth:</strong> 16-bit</p>
+          <p><strong>Project Length:</strong> 00:00</p>
+          <p><strong>CPU Usage:</strong> 12%</p>
+          <p><strong>Tracks:</strong> 0</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-item">
+      <div class="status-indicator"></div>
+      <span>Audio Engine Active</span>
+    </div>
+    <div class="status-item">
+      <span>Project: Untitled.haos</span>
+    </div>
+    <div class="status-item">
+      <span>CPU: <span id="cpuUsage">12%</span></span>
+    </div>
+    <div class="status-item">
+      <span>Buffer: 512 samples</span>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================================
+    // DAW STUDIO - HAOS.fm Professional Music Production
+    // ============================================================================
+
+    let audioContext = null;
+    let isPlaying = false;
+    let isRecording = false;
+    let isLooping = false;
+    let currentTime = 0;
+    let bpm = 120;
+    let tracks = [];
+
+    // Initialize Audio Context
+    function initAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log('🎵 Audio Context initialized');
+      }
+    }
+
+    // Transport Controls
+    function togglePlay() {
+      initAudio();
+      isPlaying = !isPlaying;
+      
+      const playBtn = document.getElementById('playBtn');
+      if (isPlaying) {
+        playBtn.textContent = '⏸️';
+        playBtn.classList.add('active');
+        console.log('▶️ Playback started');
+      } else {
+        playBtn.textContent = '▶️';
+        playBtn.classList.remove('active');
+        console.log('⏸️ Playback paused');
+      }
+    }
+
+    function stop() {
+      isPlaying = false;
+      currentTime = 0;
+      document.getElementById('playBtn').textContent = '▶️';
+      document.getElementById('playBtn').classList.remove('active');
+      document.getElementById('timeDisplay').textContent = '00:00:000';
+      console.log('⏹️ Playback stopped');
+    }
+
+    function toggleRecord() {
+      initAudio();
+      isRecording = !isRecording;
+      
+      const recordBtn = document.getElementById('recordBtn');
+      if (isRecording) {
+        recordBtn.classList.add('active');
+        console.log('🔴 Recording started');
+      } else {
+        recordBtn.classList.remove('active');
+        console.log('⏺️ Recording stopped');
+      }
+    }
+
+    function toggleLoop() {
+      isLooping = !isLooping;
+      console.log(`🔁 Loop: ${isLooping ? 'ON' : 'OFF'}`);
+    }
+
+    function updateBPM() {
+      bpm = parseInt(document.getElementById('bpmInput').value);
+      console.log(`🎵 BPM set to: ${bpm}`);
+    }
+
+    // Project Management
+    function saveProject() {
+      const projectData = {
+        bpm: bpm,
+        tracks: tracks,
+        timestamp: new Date().toISOString()
+      };
+      
+      localStorage.setItem('dawProject', JSON.stringify(projectData));
+      console.log('💾 Project saved');
+      alert('Project saved successfully!');
+    }
+
+    function exportAudio() {
+      console.log('📤 Exporting audio...');
+      alert('Audio export feature coming soon!');
+    }
+
+    // Inspector Tabs
+    function switchInspectorTab(tab) {
+      document.querySelectorAll('.inspector-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.inspector-content').forEach(c => c.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById(`inspector${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+    }
+
+    // Initialize Timeline
+    function initTimeline() {
+      const ruler = document.getElementById('timelineRuler');
+      for (let i = 1; i <= 32; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'timeline-bar';
+        bar.textContent = i;
+        ruler.appendChild(bar);
+      }
+    }
+
+    // Initialize Default Tracks
+    function initTracks() {
+      const defaultTracks = [
+        { name: 'Kick', type: 'audio', color: 'audio' },
+        { name: 'Snare', type: 'audio', color: 'audio' },
+        { name: 'Hi-Hat', type: 'audio', color: 'audio' },
+        { name: 'Bass', type: 'instrument', color: 'instrument' },
+        { name: 'Synth Lead', type: 'instrument', color: 'instrument' },
+        { name: 'Pad', type: 'instrument', color: 'instrument' }
+      ];
+
+      const container = document.getElementById('tracksContainer');
+      const mixerChannels = document.getElementById('mixerChannels');
+
+      defaultTracks.forEach((track, index) => {
+        // Create track in arrangement
+        const trackEl = document.createElement('div');
+        trackEl.className = `track track-${track.color}`;
+        trackEl.innerHTML = `
+          <div class="track-header">
+            <div class="track-name">${track.name}</div>
+            <div class="track-controls">
+              <button class="track-btn solo" onclick="toggleSolo(${index})">S</button>
+              <button class="track-btn mute" onclick="toggleMute(${index})">M</button>
+              <button class="track-btn record" onclick="toggleTrackRecord(${index})">●</button>
+            </div>
+            <input type="range" min="0" max="100" value="80" style="width: 100%; margin-top: 4px;" oninput="updateTrackVolume(${index}, this.value)">
+          </div>
+          <div class="track-content" id="track-${index}">
+            <!-- Clips will be added here -->
+          </div>
+        `;
+        container.appendChild(trackEl);
+
+        // Create mixer channel
+        const channelEl = document.createElement('div');
+        channelEl.className = 'mixer-channel';
+        channelEl.innerHTML = `
+          <div class="channel-name">${track.name}</div>
+          <div class="fader-container">
+            <input type="range" class="fader" min="0" max="100" value="80" orient="vertical" oninput="updateTrackVolume(${index}, this.value)">
+          </div>
+          <div class="vu-meter">
+            <div class="vu-bar" id="vu-${index}"></div>
+          </div>
+          <div style="text-align: center; font-size: 11px; color: var(--haos-text-dim);">
+            -12.0 dB
+          </div>
+        `;
+        mixerChannels.appendChild(channelEl);
+
+        tracks.push({
+          name: track.name,
+          type: track.type,
+          solo: false,
+          mute: false,
+          record: false,
+          volume: 80
+        });
+      });
+
+      console.log(`🎛️ ${defaultTracks.length} tracks initialized`);
+    }
+
+    // Track Controls
+    function toggleSolo(index) {
+      tracks[index].solo = !tracks[index].solo;
+      event.target.classList.toggle('active');
+      console.log(`S: ${tracks[index].name} - ${tracks[index].solo ? 'ON' : 'OFF'}`);
+    }
+
+    function toggleMute(index) {
+      tracks[index].mute = !tracks[index].mute;
+      event.target.classList.toggle('active');
+      console.log(`M: ${tracks[index].name} - ${tracks[index].mute ? 'ON' : 'OFF'}`);
+    }
+
+    function toggleTrackRecord(index) {
+      tracks[index].record = !tracks[index].record;
+      event.target.classList.toggle('active');
+      console.log(`●: ${tracks[index].name} - ${tracks[index].record ? 'ON' : 'OFF'}`);
+    }
+
+    function updateTrackVolume(index, value) {
+      tracks[index].volume = value;
+      console.log(`🔊 ${tracks[index].name} volume: ${value}%`);
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.key === 'r' || e.key === 'R') {
+        toggleRecord();
+      } else if (e.key === 'l' || e.key === 'L') {
+        toggleLoop();
+      } else if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        saveProject();
+      }
+    });
+
+    // Initialize on Load
+    window.addEventListener('load', () => {
+      console.log('🎛️ DAW STUDIO Initializing...');
+      initTimeline();
+      initTracks();
+      console.log('✅ DAW STUDIO Ready!');
+    });
+
+    // Animate VU Meters
+    setInterval(() => {
+      if (isPlaying) {
+        const masterVU = document.getElementById('masterVU');
+        const randomLevel = Math.random() * 80 + 20;
+        masterVU.style.width = randomLevel + '%';
+
+        tracks.forEach((track, index) => {
+          const vu = document.getElementById(`vu-${index}`);
+          if (vu && !track.mute) {
+            vu.style.width = (Math.random() * 70 + 10) + '%';
+          }
+        });
+      }
+    }, 100);
+  </script>
+
+</body>
+</html>
