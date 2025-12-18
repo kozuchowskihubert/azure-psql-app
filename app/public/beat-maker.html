@@ -3190,6 +3190,26 @@
     // ============================================================================
     // UI RENDERING
     // ============================================================================
+    
+    function updatePresetDropdowns() {
+      // Update all preset dropdowns to match currentPresets
+      const container = document.getElementById('sequencer');
+      if (!container) return;
+      
+      const rows = container.querySelectorAll('.instrument-row');
+      rows.forEach((row, trackIndex) => {
+        const track = pattern[trackIndex];
+        if (!track) return;
+        
+        const select = row.querySelector('select');
+        if (select && currentPresets[track.type]) {
+          select.value = currentPresets[track.type];
+        }
+      });
+      
+      console.log('🔄 Updated preset dropdowns');
+    }
+    
     function renderSequencer() {
       const container = document.getElementById('sequencer');
       container.innerHTML = '';
@@ -3683,6 +3703,9 @@
           }
         });
         console.log(`🎛️ Applied ${presetName} instrument presets`);
+        
+        // Update UI dropdowns to reflect new presets
+        updatePresetDropdowns();
       }
 
       // Apply to sequencer
