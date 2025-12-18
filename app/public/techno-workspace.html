@@ -1816,7 +1816,10 @@
         
         function updateKnobRotation(param, value) {
             const knob = document.getElementById(`knob-${param}`);
-            if (!knob) return;
+            if (!knob) {
+                console.warn(`⚠️ Knob not found: knob-${param}`);
+                return;
+            }
             
             const min = parseFloat(knob.dataset.min);
             const max = parseFloat(knob.dataset.max);
@@ -1826,6 +1829,8 @@
             
             knob.style.transform = `rotate(${degrees}deg)`;
             knob.style.transition = 'transform 0.1s ease-out';
+            
+            console.log(`🎛️ Rotated ${param}: ${val} (${degrees.toFixed(1)}°) [${min}-${max}]`);
         }
         
         // Initialize knob interactions
@@ -2175,12 +2180,22 @@
             selectedPresetIndex = presetIndex;
             
             // Map preset parameters to synth controls
-            if (preset.filter && preset.filter.cutoff) {
-                updateKnob('cutoff', preset.filter.cutoff);
+            // Support both vcf (VCF) and filter naming conventions
+            const filterData = preset.vcf || preset.filter;
+            if (filterData) {
+                if (filterData.cutoff !== undefined) {
+                    // Convert resonance from 0-1 range to 0-20 range if needed
+                    const cutoffValue = filterData.cutoff;
+                    updateKnob('cutoff', cutoffValue);
+                }
+                if (filterData.resonance !== undefined) {
+                    // Convert resonance from 0-1 range to 0-20 range if needed
+                    const resonanceValue = filterData.resonance <= 1 ? filterData.resonance * 20 : filterData.resonance;
+                    updateKnob('resonance', resonanceValue);
+                }
             }
-            if (preset.filter && preset.filter.resonance) {
-                updateKnob('resonance', preset.filter.resonance);
-            }
+            
+            // Map envelope parameters
             if (preset.envelope) {
                 if (preset.envelope.attack !== undefined) {
                     updateKnob('attack', preset.envelope.attack);
@@ -2190,11 +2205,22 @@
                 }
             }
             
-            // Set distortion based on type or default
+            // Set distortion based on type or category
             if (preset.type === 'analog' || preset.category === 'Bass') {
                 updateKnob('distortion', 30);
+            } else if (preset.category === 'Lead' || preset.category === 'Pad') {
+                updateKnob('distortion', 10);
             } else {
                 updateKnob('distortion', 0);
+            }
+            
+            // Set reverb based on category
+            if (preset.category === 'Pad' || preset.category === 'String') {
+                updateKnob('reverb', 40);
+            } else if (preset.category === 'Lead') {
+                updateKnob('reverb', 20);
+            } else {
+                updateKnob('reverb', 0);
             }
             
             // Auto-adjust pitch based on preset category
@@ -2205,6 +2231,15 @@
             
             // Show visual feedback
             renderPresets();
+            
+            console.log('✅ Preset loaded:', {
+                cutoff: synthParams.cutoff,
+                resonance: synthParams.resonance,
+                attack: synthParams.attack,
+                release: synthParams.release,
+                distortion: synthParams.distortion,
+                reverb: synthParams.reverb
+            });
         }
         
         function updatePitch(semitone) {
