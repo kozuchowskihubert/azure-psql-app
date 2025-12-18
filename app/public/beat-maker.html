@@ -1216,6 +1216,29 @@
       </button>
     </div>
     
+    <!-- Bass Pitch Control -->
+    <div style="margin: 20px auto; max-width: 600px; padding: 15px; background: rgba(255, 107, 53, 0.05); border: 1px solid rgba(255, 107, 53, 0.2); border-radius: 8px;">
+      <div style="text-align: center; margin-bottom: 10px;">
+        <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--haos-orange-bright); letter-spacing: 0.1em;">🎸 BASS PITCH</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: center;">
+        <div>
+          <input type="range" id="bassPitchSlider" min="0" max="24" value="12" step="1" 
+                 style="width: 100%; height: 6px; background: linear-gradient(90deg, rgba(255, 107, 53, 0.2), rgba(255, 107, 53, 0.6)); border-radius: 3px; cursor: pointer; appearance: none;"
+                 oninput="updateBassPitch(this.value)">
+          <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.65rem; color: var(--text-dim);">
+            <span>C1 (33Hz)</span>
+            <span id="currentBassNote">C2 (65Hz)</span>
+            <span>C3 (131Hz)</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 5px; flex-direction: column;">
+          <button onclick="adjustBassPitch(-12)" class="transport-btn" style="padding: 6px 12px; font-size: 0.7rem; background: rgba(255, 107, 53, 0.1);" title="Down octave">-8ve</button>
+          <button onclick="adjustBassPitch(12)" class="transport-btn" style="padding: 6px 12px; font-size: 0.7rem; background: rgba(255, 107, 53, 0.1);" title="Up octave">+8ve</button>
+        </div>
+      </div>
+    </div>
+    
     <!-- Pattern Controls -->
     <div class="harmony-section" style="margin-bottom: 20px;">
       <h3 style="font-size: 18px; margin-bottom: 15px;" data-i18n="pattern-settings">⚙️ Ustawienia Patternu</h3>
@@ -3252,6 +3275,39 @@
     ];
 
     // ============================================================================
+    // BASS NOTE FREQUENCIES FOR PITCH CONTROL (C1-C3)
+    // ============================================================================
+    const BASS_NOTE_FREQUENCIES = [
+      { note: 'C1', freq: 32.70, semitone: -12 },
+      { note: 'C#1', freq: 34.65, semitone: -11 },
+      { note: 'D1', freq: 36.71, semitone: -10 },
+      { note: 'D#1', freq: 38.89, semitone: -9 },
+      { note: 'E1', freq: 41.20, semitone: -8 },
+      { note: 'F1', freq: 43.65, semitone: -7 },
+      { note: 'F#1', freq: 46.25, semitone: -6 },
+      { note: 'G1', freq: 49.00, semitone: -5 },
+      { note: 'G#1', freq: 51.91, semitone: -4 },
+      { note: 'A1', freq: 55.00, semitone: -3 },
+      { note: 'A#1', freq: 58.27, semitone: -2 },
+      { note: 'B1', freq: 61.74, semitone: -1 },
+      { note: 'C2', freq: 65.41, semitone: 0 },
+      { note: 'C#2', freq: 69.30, semitone: 1 },
+      { note: 'D2', freq: 73.42, semitone: 2 },
+      { note: 'D#2', freq: 77.78, semitone: 3 },
+      { note: 'E2', freq: 82.41, semitone: 4 },
+      { note: 'F2', freq: 87.31, semitone: 5 },
+      { note: 'F#2', freq: 92.50, semitone: 6 },
+      { note: 'G2', freq: 98.00, semitone: 7 },
+      { note: 'G#2', freq: 103.83, semitone: 8 },
+      { note: 'A2', freq: 110.00, semitone: 9 },
+      { note: 'A#2', freq: 116.54, semitone: 10 },
+      { note: 'B2', freq: 123.47, semitone: 11 },
+      { note: 'C3', freq: 130.81, semitone: 12 }
+    ];
+    
+    let bassPitchIndex = 12; // Default C2 (index 12 = 65.41Hz)
+
+    // ============================================================================
     // SEQUENCER STATE
     // ============================================================================
     let bpm = 120;
@@ -3931,6 +3987,10 @@
 
     // Add hover effects to pattern cards
     document.addEventListener('DOMContentLoaded', () => {
+      // Initialize bass pitch display
+      updateBassPitch(bassPitchIndex);
+      
+      // Pattern card hover effects
       const patternCards = document.querySelectorAll('.pattern-card');
       patternCards.forEach(card => {
         card.addEventListener('mouseenter', () => {
@@ -4095,6 +4155,37 @@
     }
 
     // ============================================================================
+    // BASS PITCH CONTROL
+    // ============================================================================
+    function updateBassPitch(semitone) {
+      bassPitchIndex = parseInt(semitone);
+      const noteData = BASS_NOTE_FREQUENCIES[bassPitchIndex];
+      
+      const currentNoteEl = document.getElementById('currentBassNote');
+      if (currentNoteEl) {
+        currentNoteEl.textContent = `${noteData.note} (${Math.round(noteData.freq)}Hz)`;
+      }
+      
+      // Update slider style to show position
+      const slider = document.getElementById('bassPitchSlider');
+      if (slider) {
+        const percent = (bassPitchIndex / 24) * 100;
+        slider.style.background = `linear-gradient(90deg, rgba(255, 107, 53, 0.6) 0%, rgba(255, 107, 53, 0.6) ${percent}%, rgba(255, 107, 53, 0.2) ${percent}%, rgba(255, 107, 53, 0.2) 100%)`;
+      }
+      
+      console.log(`🎸 Bass pitch: ${noteData.note} (${Math.round(noteData.freq)}Hz)`);
+    }
+    
+    function adjustBassPitch(semitones) {
+      const newIndex = Math.max(0, Math.min(24, bassPitchIndex + semitones));
+      const slider = document.getElementById('bassPitchSlider');
+      if (slider) {
+        slider.value = newIndex;
+      }
+      updateBassPitch(newIndex);
+    }
+
+    // ============================================================================
     // SEQUENCER PLAYBACK
     // ============================================================================
     function scheduleNote(time, trackIndex) {
@@ -4130,7 +4221,9 @@
         // Assign frequencies based on instrument type - każdy instrument niezależnie gra
         switch(track.type) {
           case 'bass':
-            track.synth(time, frequencies[0] / 2); // Root note, one octave lower
+            // Use bass pitch from slider (C1-C3 range)
+            const bassFreq = BASS_NOTE_FREQUENCIES[bassPitchIndex].freq;
+            track.synth(time, bassFreq);
             break;
           case 'synth':
             track.synth(time, frequencies[2]); // Third of the scale
