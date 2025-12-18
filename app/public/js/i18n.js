@@ -88,11 +88,58 @@ const translations = {
     'platform-subtitle': 'Profesjonalna platforma produkcji muzycznej',
     'platform-features': 'Funkcje Platformy',
     
-    // Index Page
+    // Index Page - Hero Section
     'index-welcome': 'Witaj w HAOS.fm',
     'index-tagline': 'Twoja muzyczna przygoda zaczyna się tutaj',
     'index-get-started': 'Rozpocznij',
     'index-explore': 'Odkrywaj',
+    'index-hero-title': 'HARDWARE ANALOG SYNTHESIS',
+    'index-hero-subtitle': 'Twórz muzykę elektroniczną z autentycznymi syntezatorami sprzętowymi.',
+    'index-hero-description': 'TB-303 acid bass, TR-909 drums, 16-step sequencer i pełne HAOS Studio.',
+    
+    // Index Page - Studio Cards (Kafelki)
+    'card-haos-studio-title': 'HAOS STUDIO',
+    'card-haos-studio-desc': 'Kompletne środowisko produkcji: 16-step sequencer, TB-303, TR-909, modular synthesis i współpraca w czasie rzeczywistym',
+    'card-beatmaker-title': 'BEAT MAKER',
+    'card-beatmaker-desc': 'Kreator Bitów z Vocal Recorder i Auto-Tune',
+    'card-sounds-title': 'SOUNDS',
+    'card-sounds-desc': '1500+ hardware presetów od Moog, Roland, Korg',
+    'card-arp2600-title': 'ARP 2600',
+    'card-arp2600-desc': 'Legendarny półmodularny syntezator',
+    'card-legendary2600-title': 'LEGENDARY 2600',
+    'card-legendary2600-desc': '⚡ Ultra-realistyczny Behringer 2600 z kablami',
+    'card-platform-title': 'HAOS PLATFORM',
+    'card-platform-desc': 'Kompletne DAW ze wszystkimi synthami i współpracą',
+    'card-modular-title': 'MODULAR',
+    'card-modular-desc': 'Eurorack z kablami i routingiem CV',
+    'card-builder-title': 'BUILDER',
+    'card-builder-desc': 'Stwórz własny syntezator od podstaw',
+    'card-piano-title': 'EPIC PIANO',
+    'card-piano-desc': 'Fortepian z akordami i skalami',
+    'card-midi-title': 'MIDI GENERATOR',
+    'card-midi-desc': 'Kreatywny generator patternów',
+    
+    // Navigation Menu
+    'nav-instruments': 'INSTRUMENTY',
+    'nav-account': 'KONTO',
+    'nav-dashboard': 'PANEL',
+    'nav-sounds': 'SOUNDS',
+    
+    // Dropdown Labels
+    'dropdown-modular': 'MODULAR',
+    'dropdown-modular-subtitle': 'System Eurorack',
+    'dropdown-builder': 'BUILDER',
+    'dropdown-builder-subtitle': 'Kreator Syntezatorów',
+    'dropdown-arp2600': 'ARP 2600',
+    'dropdown-arp2600-subtitle': 'Legendarny Synth',
+    'dropdown-2600ultra': '2600 ULTRA',
+    'dropdown-2600ultra-subtitle': '⚡ Fotorealistyczny',
+    'dropdown-2600studio': '2600 STUDIO',
+    'dropdown-2600studio-subtitle': 'Pełna Stacja Robocza',
+    'dropdown-piano': '🎹 PIANO',
+    'dropdown-piano-subtitle': 'Akordy & Skale',
+    'dropdown-midigen': 'MIDI GEN',
+    'dropdown-midigen-subtitle': 'Kreator Patternów',
     
     // Messages & Notifications
     'msg-saved': '✅ Zapisano pomyślnie',
@@ -210,11 +257,58 @@ const translations = {
     'platform-subtitle': 'Professional music production platform',
     'platform-features': 'Platform Features',
     
-    // Index Page
+    // Index Page - Hero Section
     'index-welcome': 'Welcome to HAOS.fm',
     'index-tagline': 'Your musical journey starts here',
     'index-get-started': 'Get Started',
     'index-explore': 'Explore',
+    'index-hero-title': 'HARDWARE ANALOG SYNTHESIS',
+    'index-hero-subtitle': 'Create electronic music with authentic hardware-inspired synthesis engines.',
+    'index-hero-description': 'TB-303 acid bass, TR-909 drums, 16-step sequencer, and full HAOS Studio.',
+    
+    // Index Page - Studio Cards (Kafelki)
+    'card-haos-studio-title': 'HAOS STUDIO',
+    'card-haos-studio-desc': 'Complete production environment: 16-step sequencer, TB-303, TR-909, modular synthesis & real-time collaboration',
+    'card-beatmaker-title': 'BEAT MAKER',
+    'card-beatmaker-desc': 'Beat Creator with Vocal Recorder & Auto-Tune',
+    'card-sounds-title': 'SOUNDS',
+    'card-sounds-desc': '1500+ hardware presets from Moog, Roland, Korg',
+    'card-arp2600-title': 'ARP 2600',
+    'card-arp2600-desc': 'Legendary semi-modular synthesizer emulation',
+    'card-legendary2600-title': 'LEGENDARY 2600',
+    'card-legendary2600-desc': '⚡ Ultra-realistic Behringer 2600 with patch cables',
+    'card-platform-title': 'HAOS PLATFORM',
+    'card-platform-desc': 'Complete DAW with all synths & collaboration',
+    'card-modular-title': 'MODULAR',
+    'card-modular-desc': 'Eurorack-inspired with patch cables & CV routing',
+    'card-builder-title': 'BUILDER',
+    'card-builder-desc': 'Create your own custom synthesizer from scratch',
+    'card-piano-title': 'EPIC PIANO',
+    'card-piano-desc': 'Piano with chords & scales',
+    'card-midi-title': 'MIDI GENERATOR',
+    'card-midi-desc': 'Creative pattern generator',
+    
+    // Navigation Menu
+    'nav-instruments': 'INSTRUMENTS',
+    'nav-account': 'ACCOUNT',
+    'nav-dashboard': 'DASHBOARD',
+    'nav-sounds': 'SOUNDS',
+    
+    // Dropdown Labels
+    'dropdown-modular': 'MODULAR',
+    'dropdown-modular-subtitle': 'Eurorack System',
+    'dropdown-builder': 'BUILDER',
+    'dropdown-builder-subtitle': 'Synth Creator',
+    'dropdown-arp2600': 'ARP 2600',
+    'dropdown-arp2600-subtitle': 'Legendary Synth',
+    'dropdown-2600ultra': '2600 ULTRA',
+    'dropdown-2600ultra-subtitle': '⚡ Photorealistic',
+    'dropdown-2600studio': '2600 STUDIO',
+    'dropdown-2600studio-subtitle': 'Full Workstation',
+    'dropdown-piano': '🎹 PIANO',
+    'dropdown-piano-subtitle': 'Chords & Scales',
+    'dropdown-midigen': 'MIDI GEN',
+    'dropdown-midigen-subtitle': 'Pattern Creator',
     
     // Messages & Notifications
     'msg-saved': '✅ Saved successfully',

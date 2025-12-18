@@ -28,6 +28,9 @@
     <!-- HAOS.fm Brand CSS -->
     <link rel="stylesheet" href="/css/haos-brand.css">
     
+    <!-- i18n Translation System -->
+    <script src="/js/i18n.js"></script>
+    
     <style>
         /* HAOS.fm Landing Page Styles - Orange Theme */
         
@@ -587,20 +590,28 @@
                             HARDWARE ANALOG OSCILLATOR SYNTHESIS
                         </p>
                     </div>
+                    
+                    <!-- Language Toggle Button -->
+                    <button id="languageToggle" onclick="toggleLanguage()" 
+                        style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; margin-left: 20px;"
+                        onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 15px rgba(255, 107, 53, 0.4)';"
+                        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                        🇵🇱 PL
+                    </button>
                 </div>
                 
                 <!-- Navigation -->
                 <nav class="hidden md:flex items-center space-x-6">
-                    <a href="/haos-platform.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;">
+                    <a href="/haos-platform.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold;" data-i18n="nav-platform">
                         <i class="fas fa-cubes mr-2"></i>PLATFORM
                     </a>
-                    <a href="/techno-workspace.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.3em; font-weight: bold; color: #FF6B35;">
+                    <a href="/techno-workspace.html" class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.3em; font-weight: bold; color: #FF6B35;" data-i18n="nav-studio">
                         <i class="fas fa-record-vinyl mr-2"></i>STUDIO
                     </a>
                     <!-- Instruments Dropdown -->
                     <div class="relative group">
-                        <button class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold; display: flex; align-items: center; gap: 4px;">
-                            <i class="fas fa-keyboard mr-2"></i>INSTRUMENTS <i class="fas fa-chevron-down text-xs ml-1"></i>
+                        <button class="haos-label hover:text-orange-400 transition-colors" style="font-size: 1.1em; font-weight: bold; display: flex; align-items: center; gap: 4px;" data-i18n="nav-instruments">
+                            <i class="fas fa-keyboard mr-2"></i>INSTRUMENTY <i class="fas fa-chevron-down text-xs ml-1"></i>
                         </button>
                         <div class="absolute top-full left-0 mt-2 w-64 bg-black/95 backdrop-blur-xl border border-orange-500/30 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50" style="box-shadow: 0 10px 40px rgba(255, 107, 53, 0.3);">
                             <div style="padding: 8px 0;">
@@ -808,11 +819,11 @@
                 <img src="/images/haos-logo-white.png" alt="HAOS.fm - Hardware Analog Oscillator Synthesis" class="w-full logo-glow" style="max-width: 600px; margin: 0 auto; filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.4)) drop-shadow(0 0 60px rgba(255, 107, 53, 0.2)); animation: pulse 3s ease-in-out infinite;">
             </div>
             
-            <h2 class="haos-display-md mb-4" style="background: linear-gradient(135deg, #FF6B35, #FFD700, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: 0.1em; text-shadow: 0 0 40px rgba(255, 107, 53, 0.3);">
+            <h2 class="haos-display-md mb-4" style="background: linear-gradient(135deg, #FF6B35, #FFD700, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: 0.1em; text-shadow: 0 0 40px rgba(255, 107, 53, 0.3);" data-i18n="index-hero-title">
                 HARDWARE ANALOG SYNTHESIS
             </h2>
             
-            <p class="haos-body-lg mb-8 max-w-3xl mx-auto" style="color: rgba(244, 232, 216, 0.9); font-size: 1.25rem; line-height: 1.8; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);">
+            <p class="haos-body-lg mb-8 max-w-3xl mx-auto" style="color: rgba(244, 232, 216, 0.9); font-size: 1.25rem; line-height: 1.8; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);" data-i18n="index-hero-subtitle">
                 Create electronic music with authentic hardware-inspired synthesis engines. 
                 <br><strong style="color: #FF6B35;">TB-303</strong> acid bass, <strong style="color: #39FF14;">TR-909</strong> drums, <strong style="color: #FF1493;">16-step sequencer</strong>, and full <strong style="color: #FFD700;">HAOS Studio</strong>.
             </p>
@@ -824,11 +835,37 @@
                 <a href="/techno-workspace.html" style="position: relative; display: block; padding: 40px; background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 140, 66, 0.15)); border: 3px solid #FF6B35; border-radius: 20px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(15px); overflow: hidden; box-shadow: 0 10px 50px rgba(255, 107, 53, 0.5);" onmouseover="this.style.transform='translateY(-12px) scale(1.03)'; this.style.borderColor='#FFD700'; this.style.boxShadow='0 20px 60px rgba(255, 107, 53, 0.7)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.borderColor='#FF6B35'; this.style.boxShadow='0 10px 50px rgba(255, 107, 53, 0.5)';">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, #FF6B35, #FFD700, #FF6B35); animation: shimmer 3s infinite;"></div>
                     <div style="position: absolute; top: 15px; right: 15px; background: linear-gradient(135deg, #FF0000, #FF6B35); color: #FFF; padding: 8px 16px; border-radius: 20px; font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: bold; animation: pulse 2s infinite;">⭐ MAIN</div>
-                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: #FFD700; margin-bottom: 12px; margin-top: 20px; letter-spacing: 0.1em; text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);">HAOS STUDIO</h3>
-                    <p style="font-family: 'Space Mono', monospace; font-size: 0.9rem; color: rgba(255, 255, 255, 0.9); line-height: 1.8; margin: 0; font-weight: 500;">Complete production environment: 16-step sequencer, TB-303, TR-909, modular synthesis & real-time collaboration</p>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: #FFD700; margin-bottom: 12px; margin-top: 20px; letter-spacing: 0.1em; text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);" data-i18n="card-haos-studio-title">HAOS STUDIO</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.9rem; color: rgba(255, 255, 255, 0.9); line-height: 1.8; margin: 0; font-weight: 500;" data-i18n="card-haos-studio-desc">Complete production environment: 16-step sequencer, TB-303, TR-909, modular synthesis & real-time collaboration</p>
                 </a>
                 
-                <!-- 2. SOUNDS -->
+                <!-- 2. BEAT MAKER -->
+                <a href="/beat-maker.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(57, 255, 20, 0.15), rgba(0, 217, 255, 0.1)); border: 2px solid rgba(57, 255, 20, 0.5); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(57, 255, 20, 0.8)'; this.style.boxShadow='0 15px 40px rgba(57, 255, 20, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(57, 255, 20, 0.5)'; this.style.boxShadow='none';">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #39FF14, #00D9FF);"></div>
+                    <svg style="width: 48px; height: 48px; margin-bottom: 15px;" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="32" cy="32" r="28" fill="url(#beatGradient)" opacity="0.2"/>
+                        <circle cx="20" cy="32" r="6" fill="#39FF14" stroke="#00D9FF" stroke-width="2"/>
+                        <circle cx="32" cy="22" r="5" fill="#00D9FF" stroke="#39FF14" stroke-width="2"/>
+                        <circle cx="44" cy="32" r="6" fill="#39FF14" stroke="#00D9FF" stroke-width="2"/>
+                        <circle cx="32" cy="42" r="5" fill="#00D9FF" stroke="#39FF14" stroke-width="2"/>
+                        <path d="M48 16 L52 20 L48 24 Z" fill="#39FF14"/>
+                        <rect x="14" y="48" width="36" height="4" rx="2" fill="#00D9FF"/>
+                        <circle cx="18" cy="50" r="1.5" fill="#39FF14"/>
+                        <circle cx="26" cy="50" r="1.5" fill="#39FF14"/>
+                        <circle cx="34" cy="50" r="1.5" fill="#39FF14"/>
+                        <circle cx="42" cy="50" r="1.5" fill="#39FF14"/>
+                        <defs>
+                            <linearGradient id="beatGradient" x1="0" y1="0" x2="64" y2="64">
+                                <stop offset="0%" stop-color="#39FF14"/>
+                                <stop offset="100%" stop-color="#00D9FF"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #39FF14; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;" data-i18n="card-beatmaker-title">BEAT MAKER</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;" data-i18n="card-beatmaker-desc">Kreator Bitów z Vocal Recorder i Auto-Tune</p>
+                </a>
+                
+                <!-- 3. SOUNDS -->
                 <a href="/sounds.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(212, 175, 55, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(212, 175, 55, 0.8)'; this.style.boxShadow='0 15px 40px rgba(212, 175, 55, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(212, 175, 55, 0.4)'; this.style.boxShadow='none';">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #D4AF37, #FFD700);"></div>
                     <svg style="width: 48px; height: 48px; margin-bottom: 15px;" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -844,11 +881,11 @@
                             </linearGradient>
                         </defs>
                     </svg>
-                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #D4AF37; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;">SOUNDS</h3>
-                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">1500+ hardware presets from Moog, Roland, Korg</p>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #D4AF37; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;" data-i18n="card-sounds-title">SOUNDS</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;" data-i18n="card-sounds-desc">1500+ hardware presets from Moog, Roland, Korg</p>
                 </a>
                 
-                <!-- 3. ARP 2600 -->
+                <!-- 4. ARP 2600 -->
                 <a href="/synth-2600.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(255, 107, 53, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(255, 107, 53, 0.8)'; this.style.boxShadow='0 15px 40px rgba(255, 107, 53, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255, 107, 53, 0.4)'; this.style.boxShadow='none';">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #FF6B35, #FF8C42);"></div>
                     <svg style="width: 48px; height: 48px; margin-bottom: 15px;" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -871,11 +908,11 @@
                             </linearGradient>
                         </defs>
                     </svg>
-                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #FF6B35; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;">ARP 2600</h3>
-                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Legendary semi-modular synthesizer emulation</p>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #FF6B35; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;" data-i18n="card-arp2600-title">ARP 2600</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;" data-i18n="card-arp2600-desc">Legendary semi-modular synthesizer emulation</p>
                 </a>
                 
-                <!-- 4. LEGENDARY 2600 -->
+                <!-- 5. LEGENDARY 2600 -->
                 <a href="/behringer-2600-ultra-realistic.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(212, 175, 55, 0.1)); border: 3px solid rgba(255, 107, 53, 0.8); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden; box-shadow: 0 0 30px rgba(255, 107, 53, 0.3);" onmouseover="this.style.transform='translateY(-8px) scale(1.02)'; this.style.borderColor='#FF6B35'; this.style.boxShadow='0 20px 60px rgba(255, 107, 53, 0.6), 0 0 40px rgba(255, 107, 53, 0.4)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.borderColor='rgba(255, 107, 53, 0.8)'; this.style.boxShadow='0 0 30px rgba(255, 107, 53, 0.3)';">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, #FF6B35, #D4AF37, #FF6B35); animation: shimmer 2s ease-in-out infinite;"></div>
                     <div style="position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #FF6B35, #D4AF37); color: #0A0A0A; font-size: 0.65rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; font-family: 'Space Mono', monospace; letter-spacing: 1px;">⚡ NEW</div>
@@ -902,11 +939,11 @@
                             </linearGradient>
                         </defs>
                     </svg>
-                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; background: linear-gradient(135deg, #FF6B35, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;">LEGENDARY 2600</h3>
-                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.9); line-height: 1.6; margin: 0;">⚡ Ultra-realistic Behringer 2600 with patch cables</p>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; background: linear-gradient(135deg, #FF6B35, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;" data-i18n="card-legendary2600-title">LEGENDARY 2600</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.9); line-height: 1.6; margin: 0;" data-i18n="card-legendary2600-desc">⚡ Ultra-realistic Behringer 2600 with patch cables</p>
                 </a>
                 
-                <!-- 5. HAOS PLATFORM -->
+                <!-- 6. HAOS PLATFORM -->
                 <a href="/haos-platform.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(255, 107, 53, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(255, 107, 53, 0.8)'; this.style.boxShadow='0 15px 40px rgba(255, 107, 53, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255, 107, 53, 0.4)'; this.style.boxShadow='none';">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #FF6B35, #D4AF37);"></div>
                     <svg style="width: 48px; height: 48px; margin-bottom: 15px;" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -929,11 +966,11 @@
                             </linearGradient>
                         </defs>
                     </svg>
-                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #FF6B35; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;">HAOS PLATFORM</h3>
-                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Complete DAW with all synths & collaboration</p>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #FF6B35; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;" data-i18n="card-platform-title">HAOS PLATFORM</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;" data-i18n="card-platform-desc">Complete DAW with all synths & collaboration</p>
                 </a>
                 
-                <!-- 6. MODULAR -->
+                <!-- 7. MODULAR -->
                 <a href="/modular-workspace.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(212, 175, 55, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(212, 175, 55, 0.8)'; this.style.boxShadow='0 15px 40px rgba(212, 175, 55, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(212, 175, 55, 0.4)'; this.style.boxShadow='none';">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #D4AF37, #FFD700);"></div>
                     <svg style="width: 48px; height: 48px; margin-bottom: 15px;" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -960,11 +997,11 @@
                             </linearGradient>
                         </defs>
                     </svg>
-                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #D4AF37; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;">MODULAR</h3>
-                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Eurorack-inspired with patch cables & CV routing</p>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #D4AF37; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;" data-i18n="card-modular-title">MODULAR</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;" data-i18n="card-modular-desc">Eurorack-inspired with patch cables & CV routing</p>
                 </a>
                 
-                <!-- 7. BUILDER -->
+                <!-- 8. BUILDER -->
                 <a href="/builder.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(57, 255, 20, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(57, 255, 20, 0.8)'; this.style.boxShadow='0 15px 40px rgba(57, 255, 20, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(57, 255, 20, 0.4)'; this.style.boxShadow='none';">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #39FF14, #00FF00);"></div>
                     <svg style="width: 48px; height: 48px; margin-bottom: 15px;" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -985,11 +1022,11 @@
                             </linearGradient>
                         </defs>
                     </svg>
-                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #39FF14; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;">BUILDER</h3>
-                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Create your own custom synthesizer from scratch</p>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #39FF14; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;" data-i18n="card-builder-title">BUILDER</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;" data-i18n="card-builder-desc">Create your own custom synthesizer from scratch</p>
                 </a>
                 
-                <!-- 8. EPIC PIANO -->
+                <!-- 9. EPIC PIANO -->
                 <a href="/piano.html" style="position: relative; display: block; padding: 30px; background: linear-gradient(135deg, rgba(15, 15, 20, 0.9), rgba(20, 15, 25, 0.8)); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); overflow: hidden;" onmouseover="this.style.transform='translateY(-8px)'; this.style.borderColor='rgba(139, 92, 246, 0.8)'; this.style.boxShadow='0 15px 40px rgba(139, 92, 246, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(139, 92, 246, 0.4)'; this.style.boxShadow='none';">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #8B5CF6, #A78BFA);"></div>
                     <svg style="width: 48px; height: 48px; margin-bottom: 15px;" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1015,8 +1052,8 @@
                             </linearGradient>
                         </defs>
                     </svg>
-                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #8B5CF6; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;">EPIC PIANO</h3>
-                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;">Virtual piano with chords, scales & MIDI export</p>
+                    <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #8B5CF6; margin-bottom: 10px; letter-spacing: 0.05em; margin-top: 0;" data-i18n="card-piano-title">EPIC PIANO</h3>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 0.85rem; color: rgba(244, 232, 216, 0.7); line-height: 1.6; margin: 0;" data-i18n="card-piano-desc">Virtual piano with chords, scales & MIDI export</p>
                 </a>
             </div>
             
@@ -2608,6 +2645,20 @@
             data-position="Right" 
             data-x_margin="18" 
             data-y_margin="18">
+    </script>
+    
+    <!-- Initialize i18n Translation System -->
+    <script>
+        // Apply translations on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            translatePage();
+            
+            // Update language toggle button text
+            const langBtn = document.getElementById('languageToggle');
+            if (langBtn) {
+                langBtn.textContent = currentLanguage === 'pl' ? '🇵🇱 PL' : '🇬🇧 EN';
+            }
+        });
     </script>
 </body>
 </html>
