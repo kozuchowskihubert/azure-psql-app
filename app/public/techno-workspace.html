@@ -2105,18 +2105,29 @@
         }
         
         fetch('/data/synth-presets.json')
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+                return r.json();
+            })
             .then(presets => {
+                console.log('📦 Raw presets data:', presets);
+                
+                // Check if it's an array
+                if (!Array.isArray(presets)) {
+                    console.error('❌ Presets is not an array:', typeof presets);
+                    throw new Error('Invalid presets format');
+                }
+                
                 allPresets = presets;
                 filteredPresets = presets;
                 renderPresets();
                 
-                console.log('✅ Loaded', presets.length, 'presets');
+                console.log('✅ Loaded', presets.length, 'synth presets');
             })
             .catch(e => {
-                console.error('Failed to load presets:', e);
+                console.error('❌ Failed to load synth presets:', e);
                 document.getElementById('presetList').innerHTML = 
-                    '<p style="text-align: center; color: var(--text-dim); padding: 20px;">Presets unavailable</p>';
+                    '<p style="text-align: center; color: var(--text-dim); padding: 20px;">Presets unavailable: ' + e.message + '</p>';
             });
 
         // Pattern Presets
