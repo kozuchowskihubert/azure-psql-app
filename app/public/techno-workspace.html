@@ -1725,6 +1725,49 @@
         };
         
         let currentBPM = 135;
+        
+        // Note frequencies (12-tone equal temperament)
+        const NOTE_FREQUENCIES = [
+            { note: 'C2', freq: 65.41, semitone: 0 },
+            { note: 'C#2', freq: 69.30, semitone: 1 },
+            { note: 'D2', freq: 73.42, semitone: 2 },
+            { note: 'D#2', freq: 77.78, semitone: 3 },
+            { note: 'E2', freq: 82.41, semitone: 4 },
+            { note: 'F2', freq: 87.31, semitone: 5 },
+            { note: 'F#2', freq: 92.50, semitone: 6 },
+            { note: 'G2', freq: 98.00, semitone: 7 },
+            { note: 'G#2', freq: 103.83, semitone: 8 },
+            { note: 'A2', freq: 110.00, semitone: 9 },
+            { note: 'A#2', freq: 116.54, semitone: 10 },
+            { note: 'B2', freq: 123.47, semitone: 11 },
+            { note: 'C3', freq: 130.81, semitone: 12 },
+            { note: 'C#3', freq: 138.59, semitone: 13 },
+            { note: 'D3', freq: 146.83, semitone: 14 },
+            { note: 'D#3', freq: 155.56, semitone: 15 },
+            { note: 'E3', freq: 164.81, semitone: 16 },
+            { note: 'F3', freq: 174.61, semitone: 17 },
+            { note: 'F#3', freq: 185.00, semitone: 18 },
+            { note: 'G3', freq: 196.00, semitone: 19 },
+            { note: 'G#3', freq: 207.65, semitone: 20 },
+            { note: 'A3', freq: 220.00, semitone: 21 },
+            { note: 'A#3', freq: 233.08, semitone: 22 },
+            { note: 'B3', freq: 246.94, semitone: 23 },
+            { note: 'C4', freq: 261.63, semitone: 24 },
+            { note: 'C#4', freq: 277.18, semitone: 25 },
+            { note: 'D4', freq: 293.66, semitone: 26 },
+            { note: 'D#4', freq: 311.13, semitone: 27 },
+            { note: 'E4', freq: 329.63, semitone: 28 },
+            { note: 'F4', freq: 349.23, semitone: 29 },
+            { note: 'F#4', freq: 369.99, semitone: 30 },
+            { note: 'G4', freq: 392.00, semitone: 31 },
+            { note: 'G#4', freq: 415.30, semitone: 32 },
+            { note: 'A4', freq: 440.00, semitone: 33 },
+            { note: 'A#4', freq: 466.16, semitone: 34 },
+            { note: 'B4', freq: 493.88, semitone: 35 },
+            { note: 'C5', freq: 523.25, semitone: 36 }
+        ];
+        
+        let currentPitchIndex = 12; // Default C3
 
         function changeBPM(bpm) {
             currentBPM = parseInt(bpm);
@@ -1929,20 +1972,13 @@
 
         function playBass() {
             initAudio();
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
             
-            osc.type = 'sawtooth';
-            osc.frequency.value = 55; // A1
+            // Use the current pitch from pitch slider
+            const noteData = NOTE_FREQUENCIES[currentPitchIndex];
+            const frequency = noteData ? noteData.freq : 130.81; // Default to C3 if not set
             
-            gain.gain.setValueAtTime(0.4, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + synthParams.release);
-            
-            osc.connect(gain);
-            gain.connect(filterNode);
-            
-            osc.start(audioContext.currentTime);
-            osc.stop(audioContext.currentTime + synthParams.release);
+            // Use the advanced synthesizer engine with preset parameters
+            playSynthNote(frequency, 0.2); // 0.2 second duration for bass notes
         }
 
         const soundMap = {
@@ -2170,49 +2206,6 @@
             // Show visual feedback
             renderPresets();
         }
-        
-        // Note frequencies (12-tone equal temperament)
-        const NOTE_FREQUENCIES = [
-            { note: 'C2', freq: 65.41, semitone: 0 },
-            { note: 'C#2', freq: 69.30, semitone: 1 },
-            { note: 'D2', freq: 73.42, semitone: 2 },
-            { note: 'D#2', freq: 77.78, semitone: 3 },
-            { note: 'E2', freq: 82.41, semitone: 4 },
-            { note: 'F2', freq: 87.31, semitone: 5 },
-            { note: 'F#2', freq: 92.50, semitone: 6 },
-            { note: 'G2', freq: 98.00, semitone: 7 },
-            { note: 'G#2', freq: 103.83, semitone: 8 },
-            { note: 'A2', freq: 110.00, semitone: 9 },
-            { note: 'A#2', freq: 116.54, semitone: 10 },
-            { note: 'B2', freq: 123.47, semitone: 11 },
-            { note: 'C3', freq: 130.81, semitone: 12 },
-            { note: 'C#3', freq: 138.59, semitone: 13 },
-            { note: 'D3', freq: 146.83, semitone: 14 },
-            { note: 'D#3', freq: 155.56, semitone: 15 },
-            { note: 'E3', freq: 164.81, semitone: 16 },
-            { note: 'F3', freq: 174.61, semitone: 17 },
-            { note: 'F#3', freq: 185.00, semitone: 18 },
-            { note: 'G3', freq: 196.00, semitone: 19 },
-            { note: 'G#3', freq: 207.65, semitone: 20 },
-            { note: 'A3', freq: 220.00, semitone: 21 },
-            { note: 'A#3', freq: 233.08, semitone: 22 },
-            { note: 'B3', freq: 246.94, semitone: 23 },
-            { note: 'C4', freq: 261.63, semitone: 24 },
-            { note: 'C#4', freq: 277.18, semitone: 25 },
-            { note: 'D4', freq: 293.66, semitone: 26 },
-            { note: 'D#4', freq: 311.13, semitone: 27 },
-            { note: 'E4', freq: 329.63, semitone: 28 },
-            { note: 'F4', freq: 349.23, semitone: 29 },
-            { note: 'F#4', freq: 369.99, semitone: 30 },
-            { note: 'G4', freq: 392.00, semitone: 31 },
-            { note: 'G#4', freq: 415.30, semitone: 32 },
-            { note: 'A4', freq: 440.00, semitone: 33 },
-            { note: 'A#4', freq: 466.16, semitone: 34 },
-            { note: 'B4', freq: 493.88, semitone: 35 },
-            { note: 'C5', freq: 523.25, semitone: 36 }
-        ];
-        
-        let currentPitchIndex = 12; // Default C3
         
         function updatePitch(semitone) {
             currentPitchIndex = parseInt(semitone);
