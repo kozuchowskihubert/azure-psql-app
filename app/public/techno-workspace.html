@@ -1374,6 +1374,29 @@
                 <h2 class="panel-title" data-i18n="techno-preset-browser">📚 PRZEGLĄDARKA PRESETÓW</h2>
             </div>
             
+            <!-- Preset Status & Controls -->
+            <div style="background: rgba(57, 255, 20, 0.05); padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(57, 255, 20, 0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div id="presetStatus" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-green);">
+                        ⏳ Initializing...
+                    </div>
+                    <button onclick="retryLoadPresets()" class="transport-btn" style="padding: 6px 12px; font-size: 0.7rem; background: rgba(255, 107, 53, 0.1);">
+                        🔄 Reload
+                    </button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;">
+                    <button onclick="loadRandomPreset()" class="transport-btn" style="padding: 6px 10px; font-size: 0.65rem; background: rgba(212, 175, 55, 0.1);">
+                        🎲 Random
+                    </button>
+                    <button onclick="loadPreviousPreset()" class="transport-btn" style="padding: 6px 10px; font-size: 0.65rem; background: rgba(0, 217, 255, 0.1);">
+                        ⬅️ Prev
+                    </button>
+                    <button onclick="loadNextPreset()" class="transport-btn" style="padding: 6px 10px; font-size: 0.65rem; background: rgba(0, 217, 255, 0.1);">
+                        Next ➡️
+                    </button>
+                </div>
+            </div>
+            
             <!-- Preset Filters -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                 <select class="dropdown" id="categoryFilter" onchange="filterPresets()" style="font-size: 0.8rem; padding: 8px 12px;">
@@ -2141,6 +2164,9 @@
             // Auto-adjust pitch based on preset category
             autoPitchForCategory(preset.category);
             
+            // Update status
+            updatePresetStatus(`${presetIndex + 1}/${filteredPresets.length}: ${preset.name}`, 'success');
+            
             // Show visual feedback
             renderPresets();
         }
@@ -2312,9 +2338,33 @@
             }).join('');
         }
         
+        // Update preset status display
+        function updatePresetStatus(message, type = 'info') {
+            const statusEl = document.getElementById('presetStatus');
+            if (!statusEl) return;
+            
+            const icons = {
+                loading: '⏳',
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️'
+            };
+            
+            const colors = {
+                loading: 'var(--accent-gold)',
+                success: 'var(--accent-green)',
+                error: 'var(--accent-orange)',
+                info: 'var(--accent-cyan)'
+            };
+            
+            statusEl.textContent = `${icons[type]} ${message}`;
+            statusEl.style.color = colors[type];
+        }
+        
         // Load presets with proper error handling
         function loadSynthPresets() {
             console.log('🔄 Loading synth presets from /data/synth-presets.json...');
+            updatePresetStatus('Loading presets...', 'loading');
             
             fetch('/data/synth-presets.json')
                 .then(r => {
@@ -2336,15 +2386,81 @@
                     renderPresets();
                     
                     console.log('✅ Loaded', presets.length, 'synth presets');
+                    updatePresetStatus(`Loaded ${presets.length} presets`, 'success');
                 })
                 .catch(e => {
                     console.error('❌ Failed to load synth presets:', e);
+                    updatePresetStatus(`Error: ${e.message}`, 'error');
+                    
                     const presetList = document.getElementById('presetList');
                     if (presetList) {
                         presetList.innerHTML = 
                             '<p style="text-align: center; color: var(--text-dim); padding: 20px;">Presets unavailable: ' + e.message + '</p>';
                     }
                 });
+        }
+        
+        // Retry loading presets
+        function retryLoadPresets() {
+            console.log('🔄 Retrying preset load...');
+            allPresets = [];
+            filteredPresets = [];
+            selectedPresetIndex = -1;
+            
+            const presetList = document.getElementById('presetList');
+            if (presetList) {
+                presetList.innerHTML = '<p style="text-align: center; color: var(--text-dim); padding: 20px;">Loading presets...</p>';
+            }
+            
+            loadSynthPresets();
+        }
+        
+        // Load random preset
+        function loadRandomPreset() {
+            if (filteredPresets.length === 0) {
+                console.warn('⚠️ No presets available');
+                updatePresetStatus('No presets to load', 'error');
+                return;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * filteredPresets.length);
+            loadPreset(randomIndex);
+            console.log('🎲 Random preset loaded:', filteredPresets[randomIndex].name);
+            updatePresetStatus(`Random: ${filteredPresets[randomIndex].name}`, 'info');
+        }
+        
+        // Load previous preset
+        function loadPreviousPreset() {
+            if (filteredPresets.length === 0) {
+                console.warn('⚠️ No presets available');
+                return;
+            }
+            
+            let newIndex = selectedPresetIndex - 1;
+            if (newIndex < 0) {
+                newIndex = filteredPresets.length - 1; // Wrap to last
+            }
+            
+            loadPreset(newIndex);
+            console.log('⬅️ Previous preset:', filteredPresets[newIndex].name);
+            updatePresetStatus(`${newIndex + 1}/${filteredPresets.length}: ${filteredPresets[newIndex].name}`, 'info');
+        }
+        
+        // Load next preset
+        function loadNextPreset() {
+            if (filteredPresets.length === 0) {
+                console.warn('⚠️ No presets available');
+                return;
+            }
+            
+            let newIndex = selectedPresetIndex + 1;
+            if (newIndex >= filteredPresets.length) {
+                newIndex = 0; // Wrap to first
+            }
+            
+            loadPreset(newIndex);
+            console.log('➡️ Next preset:', filteredPresets[newIndex].name);
+            updatePresetStatus(`${newIndex + 1}/${filteredPresets.length}: ${filteredPresets[newIndex].name}`, 'info');
         }
         
         // Call after DOM is ready
@@ -3289,6 +3405,28 @@
                     
                 case 'Escape': // Stop
                     document.getElementById('stopBtn').click();
+                    break;
+                    
+                case 'ArrowLeft': // Previous preset
+                    if (e.shiftKey) {
+                        e.preventDefault();
+                        loadPreviousPreset();
+                    }
+                    break;
+                    
+                case 'ArrowRight': // Next preset
+                    if (e.shiftKey) {
+                        e.preventDefault();
+                        loadNextPreset();
+                    }
+                    break;
+                    
+                case 'r': // Random preset
+                case 'R':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        loadRandomPreset();
+                    }
                     break;
                     
                 case 's': // Save
