@@ -1704,10 +1704,45 @@
 
     <!-- Export -->
     <div class="export-section">
-      <button class="btn btn-export" id="exportBtn">
-        💾 Eksportuj jako WAV
+      <button class="btn btn-export" id="exportBtn" onclick="showExportDialog()">
+        💾 Export Audio
       </button>
     </div>
+
+    <!-- Export Dialog -->
+    <div id="exportDialog" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 100%); border: 2px solid #FF6B35; border-radius: 12px; padding: 30px; z-index: 10000; min-width: 400px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);">
+      <h3 style="color: #FF6B35; margin-top: 0; margin-bottom: 20px; font-size: 20px;">🎵 Export Arrangement</h3>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="color: #64FFDA; display: block; margin-bottom: 8px; font-size: 14px;">Format:</label>
+        <select id="exportFormat" style="width: 100%; padding: 10px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 6px; color: #64FFDA; font-size: 14px;">
+          <option value="wav">WAV (Lossless, High Quality)</option>
+          <option value="webm">WebM (Compressed, Small Size)</option>
+          <option value="audio/webm">WebM Audio Only</option>
+        </select>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="color: #64FFDA; display: block; margin-bottom: 8px; font-size: 14px;">Duration (bars):</label>
+        <input type="number" id="exportBars" value="16" min="1" max="64" style="width: 100%; padding: 10px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 6px; color: #64FFDA; font-size: 14px;">
+      </div>
+      
+      <div id="exportProgress" style="display: none; margin-bottom: 20px;">
+        <div style="background: rgba(0, 0, 0, 0.3); border-radius: 10px; height: 30px; overflow: hidden; position: relative;">
+          <div id="exportProgressBar" style="background: linear-gradient(90deg, #FF6B35 0%, #FF8C35 100%); height: 100%; width: 0%; transition: width 0.3s;"></div>
+          <span id="exportProgressText" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 12px; font-weight: bold;">0%</span>
+        </div>
+      </div>
+      
+      <div id="exportStatus" style="display: none; padding: 12px; border-radius: 6px; margin-bottom: 15px; text-align: center; font-size: 14px;"></div>
+      
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button onclick="closeExportDialog()" style="padding: 10px 20px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: white; cursor: pointer; font-size: 14px;">Cancel</button>
+        <button id="exportStartBtn" onclick="startExport()" style="padding: 10px 20px; background: linear-gradient(135deg, #FF6B35 0%, #FF8C35 100%); border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; font-size: 14px;">Start Export</button>
+      </div>
+    </div>
+    
+    <div id="exportOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 9999;" onclick="closeExportDialog()"></div>
   </div>
 
   <script>
@@ -4183,8 +4218,379 @@
     // ============================================================================
     // EXPORT
     // ============================================================================
-    async function exportToWAV() {
-      alert('Eksport do WAV będzie dostępny wkrótce! 🎵\n\nTa funkcja wymaga dodatkowego przetwarzania offline.');
+    // ============================================================================
+    // EXPORT TO WAV/MP3 - Audio Export System
+    // ============================================================================
+    
+    let exportRecorder = null;
+    let exportChunks = [];
+    let exportDestination = null;
+    let isExporting = false;
+    
+    function showExportDialog() {
+      document.getElementById('exportDialog').style.display = 'block';
+      document.getElementById('exportOverlay').style.display = 'block';
+      document.getElementById('exportStatus').style.display = 'none';
+      document.getElementById('exportProgress').style.display = 'none';
+      document.getElementById('exportProgressBar').style.width = '0%';
+      document.getElementById('exportStartBtn').disabled = false;
+      document.getElementById('exportStartBtn').style.opacity = '1';
+    }
+    
+    function closeExportDialog() {
+      document.getElementById('exportDialog').style.display = 'none';
+      document.getElementById('exportOverlay').style.display = 'none';
+    }
+    
+    async function startExport() {
+      if (isExporting) return;
+      
+      // Resume audio context if suspended
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+      
+      const format = document.getElementById('exportFormat').value;
+      const bars = parseInt(document.getElementById('exportBars').value);
+      
+      // Calculate duration (bars * 4 beats * time per beat)
+      const secondsPerBeat = 60 / bpm;
+      const duration = bars * 4 * secondsPerBeat * 1000; // in milliseconds
+      const durationSeconds = duration / 1000;
+      
+      // Handle WAV export
+      if (format === 'wav') {
+        await exportToWAV(bars, duration, durationSeconds);
+      } else {
+        // Handle WebM export
+        await exportToWebM(format, bars, duration);
+      }
+    }
+    
+    async function exportToWAV(bars, duration, durationSeconds) {
+      document.getElementById('exportStatus').style.display = 'block';
+      document.getElementById('exportStatus').textContent = '⏳ Rendering WAV audio...';
+      document.getElementById('exportStatus').style.background = 'rgba(100, 255, 218, 0.1)';
+      document.getElementById('exportStatus').style.borderColor = '#64FFDA';
+      document.getElementById('exportStatus').style.color = '#64FFDA';
+      document.getElementById('exportStartBtn').disabled = true;
+      document.getElementById('exportStartBtn').style.opacity = '0.5';
+      document.getElementById('exportProgress').style.display = 'block';
+      isExporting = true;
+      
+      try {
+        // Setup recording
+        exportChunks = [];
+        exportDestination = audioContext.createMediaStreamDestination();
+        
+        // Create a separate gain node for recording to avoid affecting playback
+        const recordingGain = audioContext.createGain();
+        recordingGain.gain.value = 0.8;
+        
+        // Connect masterGain to both destination and recording
+        masterGain.disconnect();
+        masterGain.connect(recordingGain);
+        masterGain.connect(audioContext.destination);
+        recordingGain.connect(exportDestination);
+        
+        const webmFormat = 'audio/webm';
+        exportRecorder = new MediaRecorder(exportDestination.stream, {
+          mimeType: webmFormat,
+          audioBitsPerSecond: 320000
+        });
+        
+        exportRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            exportChunks.push(event.data);
+          }
+        };
+        
+        exportRecorder.onstop = async () => {
+          try {
+            const webmBlob = new Blob(exportChunks, { type: webmFormat });
+            
+            // Convert WebM to WAV
+            const arrayBuffer = await webmBlob.arrayBuffer();
+            const decodedAudio = await audioContext.decodeAudioData(arrayBuffer);
+            
+            // Get audio channels
+            const leftChannel = decodedAudio.getChannelData(0);
+            const rightChannel = decodedAudio.numberOfChannels > 1 
+              ? decodedAudio.getChannelData(1) 
+              : decodedAudio.getChannelData(0);
+            
+            // Interleave channels and encode as WAV
+            const interleaved = interleave(leftChannel, rightChannel);
+            const wavBlob = encodeWAV(interleaved, decodedAudio.sampleRate, 2);
+            
+            // Download WAV file
+            const url = URL.createObjectURL(wavBlob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `haos-beat-${Date.now()}.wav`;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              URL.revokeObjectURL(url);
+              document.body.removeChild(a);
+            }, 100);
+            
+            // Restore audio routing
+            masterGain.disconnect();
+            connectEffectsChain();
+            
+            document.getElementById('exportProgress').style.display = 'none';
+            document.getElementById('exportStatus').textContent = '✅ WAV exported successfully!';
+            document.getElementById('exportStatus').style.background = 'rgba(57, 255, 20, 0.1)';
+            document.getElementById('exportStatus').style.borderColor = '#39FF14';
+            document.getElementById('exportStatus').style.color = '#39FF14';
+            document.getElementById('exportStartBtn').disabled = false;
+            document.getElementById('exportStartBtn').style.opacity = '1';
+            
+            isExporting = false;
+            
+            setTimeout(() => {
+              closeExportDialog();
+            }, 2000);
+          } catch (error) {
+            console.error('WAV conversion error:', error);
+            showExportError('WAV conversion failed: ' + error.message);
+          }
+        };
+        
+        // Start recording
+        exportRecorder.start();
+        
+        // Start playback
+        const wasPlaying = isPlaying;
+        if (!wasPlaying) {
+          playArrangement();
+        }
+        
+        // Update progress bar
+        const startTime = Date.now();
+        const progressInterval = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min((elapsed / duration) * 100, 100);
+          document.getElementById('exportProgressBar').style.width = progress + '%';
+          document.getElementById('exportProgressText').textContent = `Recording... ${Math.round(progress)}%`;
+          
+          if (progress >= 100) {
+            clearInterval(progressInterval);
+          }
+        }, 100);
+        
+        // Stop recording after duration
+        setTimeout(() => {
+          clearInterval(progressInterval);
+          if (exportRecorder && exportRecorder.state === 'recording') {
+            exportRecorder.stop();
+          }
+          
+          if (!wasPlaying) {
+            stopPlayback();
+          }
+        }, duration + 500); // Add 500ms buffer
+        
+      } catch (error) {
+        console.error('WAV export error:', error);
+        showExportError('WAV export failed: ' + error.message);
+      }
+    }
+    
+    async function exportToWebM(format, bars, duration) {
+      document.getElementById('exportStatus').style.display = 'block';
+      document.getElementById('exportStatus').textContent = '⏳ Recording WebM...';
+      document.getElementById('exportStatus').style.background = 'rgba(100, 255, 218, 0.1)';
+      document.getElementById('exportStatus').style.borderColor = '#64FFDA';
+      document.getElementById('exportStatus').style.color = '#64FFDA';
+      document.getElementById('exportStartBtn').disabled = true;
+      document.getElementById('exportStartBtn').style.opacity = '0.5';
+      document.getElementById('exportProgress').style.display = 'block';
+      isExporting = true;
+      
+      try {
+        // Check if format is supported
+        if (!MediaRecorder.isTypeSupported(format)) {
+          showExportError(`${format} not supported. Try WAV instead.`);
+          return;
+        }
+        
+        // Setup recording
+        exportChunks = [];
+        exportDestination = audioContext.createMediaStreamDestination();
+        
+        // Connect audio
+        const recordingGain = audioContext.createGain();
+        recordingGain.gain.value = 0.8;
+        
+        masterGain.disconnect();
+        masterGain.connect(recordingGain);
+        masterGain.connect(audioContext.destination);
+        recordingGain.connect(exportDestination);
+        
+        exportRecorder = new MediaRecorder(exportDestination.stream, {
+          mimeType: format,
+          audioBitsPerSecond: 320000
+        });
+        
+        exportRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            exportChunks.push(event.data);
+          }
+        };
+        
+        exportRecorder.onstop = () => {
+          const blob = new Blob(exportChunks, { type: format });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = `haos-beat-${Date.now()}.webm`;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+          }, 100);
+          
+          // Restore audio routing
+          masterGain.disconnect();
+          connectEffectsChain();
+          
+          document.getElementById('exportProgress').style.display = 'none';
+          document.getElementById('exportStatus').textContent = '✅ WebM exported successfully!';
+          document.getElementById('exportStatus').style.background = 'rgba(57, 255, 20, 0.1)';
+          document.getElementById('exportStatus').style.borderColor = '#39FF14';
+          document.getElementById('exportStatus').style.color = '#39FF14';
+          document.getElementById('exportStartBtn').disabled = false;
+          document.getElementById('exportStartBtn').style.opacity = '1';
+          
+          isExporting = false;
+          
+          setTimeout(() => {
+            closeExportDialog();
+          }, 2000);
+        };
+        
+        // Start recording
+        exportRecorder.start();
+        
+        // Start playback
+        const wasPlaying = isPlaying;
+        if (!wasPlaying) {
+          playArrangement();
+        }
+        
+        // Update progress bar
+        const startTime = Date.now();
+        const progressInterval = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min((elapsed / duration) * 100, 100);
+          document.getElementById('exportProgressBar').style.width = progress + '%';
+          document.getElementById('exportProgressText').textContent = `Recording... ${Math.round(progress)}%`;
+          
+          if (progress >= 100) {
+            clearInterval(progressInterval);
+          }
+        }, 100);
+        
+        // Stop recording after duration
+        setTimeout(() => {
+          clearInterval(progressInterval);
+          if (exportRecorder && exportRecorder.state === 'recording') {
+            exportRecorder.stop();
+          }
+          
+          if (!wasPlaying) {
+            stopPlayback();
+          }
+        }, duration + 500);
+        
+      } catch (error) {
+        console.error('WebM export error:', error);
+        showExportError('WebM export failed: ' + error.message);
+      }
+    }
+    
+    function showExportError(message) {
+      document.getElementById('exportStatus').style.display = 'block';
+      document.getElementById('exportStatus').textContent = '❌ ' + message;
+      document.getElementById('exportStatus').style.background = 'rgba(255, 107, 53, 0.1)';
+      document.getElementById('exportStatus').style.borderColor = '#FF6B35';
+      document.getElementById('exportStatus').style.color = '#FF6B35';
+      document.getElementById('exportStartBtn').disabled = false;
+      document.getElementById('exportStartBtn').style.opacity = '1';
+      document.getElementById('exportProgress').style.display = 'none';
+      isExporting = false;
+    }
+    
+    // WAV Encoding Functions
+    function encodeWAV(samples, sampleRate, numChannels) {
+      const buffer = new ArrayBuffer(44 + samples.length * 2);
+      const view = new DataView(buffer);
+      
+      // RIFF identifier
+      writeString(view, 0, 'RIFF');
+      // file length minus RIFF identifier length and file description length
+      view.setUint32(4, 36 + samples.length * 2, true);
+      // RIFF type
+      writeString(view, 8, 'WAVE');
+      // format chunk identifier
+      writeString(view, 12, 'fmt ');
+      // format chunk length
+      view.setUint32(16, 16, true);
+      // sample format (1 = PCM)
+      view.setUint16(20, 1, true);
+      // channel count
+      view.setUint16(22, numChannels, true);
+      // sample rate
+      view.setUint32(24, sampleRate, true);
+      // byte rate (sample rate * block align)
+      view.setUint32(28, sampleRate * numChannels * 2, true);
+      // block align (channel count * bytes per sample)
+      view.setUint16(32, numChannels * 2, true);
+      // bits per sample
+      view.setUint16(34, 16, true);
+      // data chunk identifier
+      writeString(view, 36, 'data');
+      // data chunk length
+      view.setUint32(40, samples.length * 2, true);
+      
+      // Write PCM samples
+      floatTo16BitPCM(view, 44, samples);
+      
+      return new Blob([buffer], { type: 'audio/wav' });
+    }
+    
+    function writeString(view, offset, string) {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    }
+    
+    function floatTo16BitPCM(view, offset, input) {
+      for (let i = 0; i < input.length; i++, offset += 2) {
+        const s = Math.max(-1, Math.min(1, input[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      }
+    }
+    
+    function interleave(inputL, inputR) {
+      const length = inputL.length + inputR.length;
+      const result = new Float32Array(length);
+      
+      let index = 0;
+      let inputIndex = 0;
+      
+      while (index < length) {
+        result[index++] = inputL[inputIndex];
+        result[index++] = inputR[inputIndex];
+        inputIndex++;
+      }
+      
+      return result;
     }
 
     // ============================================================================
@@ -4310,7 +4716,7 @@
     document.getElementById('stopBtn').addEventListener('click', stopPlayback);
     document.getElementById('recordBtn').addEventListener('click', startVocalRecording);
     document.getElementById('playVocalBtn').addEventListener('click', playVocal);
-    document.getElementById('exportBtn').addEventListener('click', exportToWAV);
+    // Export button now uses onclick="showExportDialog()" in HTML
     document.getElementById('generateBtn').addEventListener('click', generateBeat);
     document.getElementById('clearBtn').addEventListener('click', clearPattern);
     document.getElementById('saveBtn').addEventListener('click', savePattern);
