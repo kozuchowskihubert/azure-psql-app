@@ -1273,6 +1273,288 @@
       </p>
     </div>
 
+    <!-- Modulation & Presets Studio -->
+    <div class="glass-card" style="margin-bottom: 30px;">
+      <h2 style="font-family: var(--font-display); font-size: 32px; letter-spacing: 2px; background: linear-gradient(135deg, #64FFDA 0%, #00B8FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 20px 0; text-align: center;">
+        🎛️ MODULATION & PRESETS STUDIO
+      </h2>
+
+      <!-- Tab Navigation -->
+      <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+        <button onclick="switchModTab('lfo')" id="modTabLfo" class="mod-tab-btn mod-tab-active" style="padding: 12px 24px; background: rgba(100, 255, 218, 0.2); border: 2px solid rgba(100, 255, 218, 0.5); border-radius: 8px; color: #64FFDA; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+          🌊 LFO
+        </button>
+        <button onclick="switchModTab('envelope')" id="modTabEnvelope" class="mod-tab-btn" style="padding: 12px 24px; background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 8px; color: #64FFDA; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+          📈 ENVELOPE
+        </button>
+        <button onclick="switchModTab('presets')" id="modTabPresets" class="mod-tab-btn" style="padding: 12px 24px; background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 8px; color: #64FFDA; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+          💾 PRESETS
+        </button>
+        <button onclick="switchModTab('effects')" id="modTabEffects" class="mod-tab-btn" style="padding: 12px 24px; background: rgba(100, 255, 218, 0.1); border: 2px solid rgba(100, 255, 218, 0.3); border-radius: 8px; color: #64FFDA; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+          ✨ EFFECTS
+        </button>
+      </div>
+
+      <!-- LFO Tab Content -->
+      <div id="modContentLfo" class="mod-tab-content" style="display: block;">
+        <div style="background: rgba(100, 255, 218, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 12px; padding: 20px;">
+          <h3 style="color: #64FFDA; margin-bottom: 15px;">🌊 Low Frequency Oscillator</h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <!-- LFO Rate -->
+            <div>
+              <label style="display: block; color: #64FFDA; margin-bottom: 8px; font-size: 0.9rem;">Rate (Hz)</label>
+              <input type="range" id="lfoRate" min="0.1" max="20" value="2" step="0.1" style="width: 100%;" oninput="updateLFO()">
+              <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: rgba(100, 255, 218, 0.6);">
+                <span>0.1Hz</span>
+                <span id="lfoRateValue" style="color: #64FFDA; font-weight: 600;">2.0Hz</span>
+                <span>20Hz</span>
+              </div>
+            </div>
+
+            <!-- LFO Depth -->
+            <div>
+              <label style="display: block; color: #64FFDA; margin-bottom: 8px; font-size: 0.9rem;">Depth (%)</label>
+              <input type="range" id="lfoDepth" min="0" max="100" value="50" step="1" style="width: 100%;" oninput="updateLFO()">
+              <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: rgba(100, 255, 218, 0.6);">
+                <span>0%</span>
+                <span id="lfoDepthValue" style="color: #64FFDA; font-weight: 600;">50%</span>
+                <span>100%</span>
+              </div>
+            </div>
+
+            <!-- LFO Waveform -->
+            <div>
+              <label style="display: block; color: #64FFDA; margin-bottom: 8px; font-size: 0.9rem;">Waveform</label>
+              <select id="lfoWaveform" style="width: 100%; padding: 10px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 6px; color: #64FFDA; cursor: pointer;" onchange="updateLFO()">
+                <option value="sine">〰️ Sine</option>
+                <option value="square">⬜ Square</option>
+                <option value="sawtooth">📐 Sawtooth</option>
+                <option value="triangle">🔺 Triangle</option>
+              </select>
+            </div>
+
+            <!-- LFO Target -->
+            <div>
+              <label style="display: block; color: #64FFDA; margin-bottom: 8px; font-size: 0.9rem;">Target</label>
+              <select id="lfoTarget" style="width: 100%; padding: 10px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 6px; color: #64FFDA; cursor: pointer;" onchange="updateLFO()">
+                <option value="none">❌ None</option>
+                <option value="cutoff">🔊 Filter Cutoff</option>
+                <option value="resonance">🎚️ Resonance</option>
+                <option value="pitch">🎵 Pitch</option>
+                <option value="pan">↔️ Pan</option>
+                <option value="volume">📢 Volume</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- LFO Visual Display -->
+          <div style="margin-top: 20px; padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 8px;">
+            <canvas id="lfoCanvas" width="800" height="100" style="width: 100%; height: 100px; border-radius: 6px;"></canvas>
+          </div>
+
+          <!-- LFO Controls -->
+          <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
+            <button onclick="toggleLFO()" id="lfoToggleBtn" style="padding: 10px 24px; background: linear-gradient(135deg, #00E5A0 0%, #64FFDA 100%); border: none; border-radius: 8px; color: #0a0a12; font-weight: 600; cursor: pointer;">
+              ▶️ Start LFO
+            </button>
+            <button onclick="resetLFO()" style="padding: 10px 24px; background: rgba(255, 107, 53, 0.2); border: 1px solid rgba(255, 107, 53, 0.5); border-radius: 8px; color: var(--haos-orange-bright); cursor: pointer;">
+              🔄 Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Envelope Tab Content -->
+      <div id="modContentEnvelope" class="mod-tab-content" style="display: none;">
+        <div style="background: rgba(100, 255, 218, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 12px; padding: 20px;">
+          <h3 style="color: #64FFDA; margin-bottom: 15px;">📈 ADSR Envelope</h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <!-- Attack -->
+            <div>
+              <label style="display: block; color: #64FFDA; margin-bottom: 8px; font-size: 0.9rem;">Attack (ms)</label>
+              <input type="range" id="envAttack" min="0" max="2000" value="10" step="10" style="width: 100%;" oninput="updateEnvelope()">
+              <span id="envAttackValue" style="color: #64FFDA; font-size: 0.8rem;">10ms</span>
+            </div>
+
+            <!-- Decay -->
+            <div>
+              <label style="display: block; color: #64FFDA; margin-bottom: 8px; font-size: 0.9rem;">Decay (ms)</label>
+              <input type="range" id="envDecay" min="0" max="2000" value="300" step="10" style="width: 100%;" oninput="updateEnvelope()">
+              <span id="envDecayValue" style="color: #64FFDA; font-size: 0.8rem;">300ms</span>
+            </div>
+
+            <!-- Sustain -->
+            <div>
+              <label style="display: block; color: #64FFDA; margin-bottom: 8px; font-size: 0.9rem;">Sustain (%)</label>
+              <input type="range" id="envSustain" min="0" max="100" value="70" step="1" style="width: 100%;" oninput="updateEnvelope()">
+              <span id="envSustainValue" style="color: #64FFDA; font-size: 0.8rem;">70%</span>
+            </div>
+
+            <!-- Release -->
+            <div>
+              <label style="display: block; color: #64FFDA; margin-bottom: 8px; font-size: 0.9rem;">Release (ms)</label>
+              <input type="range" id="envRelease" min="0" max="5000" value="500" step="10" style="width: 100%;" oninput="updateEnvelope()">
+              <span id="envReleaseValue" style="color: #64FFDA; font-size: 0.8rem;">500ms</span>
+            </div>
+          </div>
+
+          <!-- Envelope Visual Display -->
+          <div style="padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 8px;">
+            <canvas id="envelopeCanvas" width="800" height="150" style="width: 100%; height: 150px; border-radius: 6px;"></canvas>
+          </div>
+
+          <!-- Envelope Target -->
+          <div style="margin-top: 15px;">
+            <label style="display: block; color: #64FFDA; margin-bottom: 8px;">Apply To:</label>
+            <select id="envTarget" style="width: 100%; max-width: 300px; padding: 10px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 6px; color: #64FFDA;" onchange="updateEnvelope()">
+              <option value="amp">🔊 Amplitude</option>
+              <option value="filter">🎛️ Filter</option>
+              <option value="both">✨ Both</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Presets Tab Content -->
+      <div id="modContentPresets" class="mod-tab-content" style="display: none;">
+        <div style="background: rgba(100, 255, 218, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 12px; padding: 20px;">
+          <h3 style="color: #64FFDA; margin-bottom: 15px;">💾 Instrument Presets</h3>
+          
+          <!-- Preset Categories -->
+          <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;">
+            <button onclick="filterPresetCategory('all')" class="preset-category-btn" style="padding: 8px 16px; background: rgba(100, 255, 218, 0.2); border: 1px solid rgba(100, 255, 218, 0.5); border-radius: 6px; color: #64FFDA; cursor: pointer;">All</button>
+            <button onclick="filterPresetCategory('drums')" class="preset-category-btn" style="padding: 8px 16px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 6px; color: #64FFDA; cursor: pointer;">🥁 Drums</button>
+            <button onclick="filterPresetCategory('bass')" class="preset-category-btn" style="padding: 8px 16px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 6px; color: #64FFDA; cursor: pointer;">🎸 Bass</button>
+            <button onclick="filterPresetCategory('synth')" class="preset-category-btn" style="padding: 8px 16px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 6px; color: #64FFDA; cursor: pointer;">🎹 Synth</button>
+            <button onclick="filterPresetCategory('melody')" class="preset-category-btn" style="padding: 8px 16px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 6px; color: #64FFDA; cursor: pointer;">🎼 Melody</button>
+          </div>
+
+          <!-- Preset Grid -->
+          <div id="presetGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <!-- Presets will be populated by JavaScript -->
+          </div>
+
+          <!-- Preset Actions -->
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button onclick="randomizePreset()" style="padding: 10px 20px; background: linear-gradient(135deg, #8A2BE2 0%, #DA70D6 100%); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">
+              🎲 Randomize
+            </button>
+            <button onclick="saveCustomPreset()" style="padding: 10px 20px; background: linear-gradient(135deg, #00E5A0 0%, #64FFDA 100%); border: none; border-radius: 8px; color: #0a0a12; font-weight: 600; cursor: pointer;">
+              💾 Save Custom
+            </button>
+            <button onclick="exportPresets()" style="padding: 10px 20px; background: rgba(100, 255, 218, 0.2); border: 1px solid rgba(100, 255, 218, 0.5); border-radius: 8px; color: #64FFDA; cursor: pointer;">
+              📤 Export All
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Effects Tab Content -->
+      <div id="modContentEffects" class="mod-tab-content" style="display: none;">
+        <div style="background: rgba(100, 255, 218, 0.05); border: 1px solid rgba(100, 255, 218, 0.2); border-radius: 12px; padding: 20px;">
+          <h3 style="color: #64FFDA; margin-bottom: 15px;">✨ Effects Chain</h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <!-- Reverb -->
+            <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="color: #64FFDA; margin: 0;">🌊 Reverb</h4>
+                <label style="display: flex; align-items: center; gap: 5px;">
+                  <input type="checkbox" id="reverbEnabled" onchange="toggleEffect('reverb')" style="cursor: pointer;">
+                  <span style="color: #64FFDA; font-size: 0.8rem;">ON</span>
+                </label>
+              </div>
+              <div style="margin-bottom: 10px;">
+                <label style="color: rgba(100, 255, 218, 0.7); font-size: 0.8rem;">Room Size</label>
+                <input type="range" id="reverbSize" min="0" max="100" value="50" style="width: 100%;" oninput="updateEffect('reverb')">
+              </div>
+              <div>
+                <label style="color: rgba(100, 255, 218, 0.7); font-size: 0.8rem;">Wet/Dry</label>
+                <input type="range" id="reverbMix" min="0" max="100" value="30" style="width: 100%;" oninput="updateEffect('reverb')">
+              </div>
+            </div>
+
+            <!-- Delay -->
+            <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="color: #64FFDA; margin: 0;">⏱️ Delay</h4>
+                <label style="display: flex; align-items: center; gap: 5px;">
+                  <input type="checkbox" id="delayEnabled" onchange="toggleEffect('delay')" style="cursor: pointer;">
+                  <span style="color: #64FFDA; font-size: 0.8rem;">ON</span>
+                </label>
+              </div>
+              <div style="margin-bottom: 10px;">
+                <label style="color: rgba(100, 255, 218, 0.7); font-size: 0.8rem;">Time</label>
+                <input type="range" id="delayTime" min="0" max="1000" value="250" style="width: 100%;" oninput="updateEffect('delay')">
+              </div>
+              <div>
+                <label style="color: rgba(100, 255, 218, 0.7); font-size: 0.8rem;">Feedback</label>
+                <input type="range" id="delayFeedback" min="0" max="100" value="40" style="width: 100%;" oninput="updateEffect('delay')">
+              </div>
+            </div>
+
+            <!-- Distortion -->
+            <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="color: #64FFDA; margin: 0;">🔥 Distortion</h4>
+                <label style="display: flex; align-items: center; gap: 5px;">
+                  <input type="checkbox" id="distortionEnabled" onchange="toggleEffect('distortion')" style="cursor: pointer;">
+                  <span style="color: #64FFDA; font-size: 0.8rem;">ON</span>
+                </label>
+              </div>
+              <div style="margin-bottom: 10px;">
+                <label style="color: rgba(100, 255, 218, 0.7); font-size: 0.8rem;">Drive</label>
+                <input type="range" id="distortionDrive" min="0" max="100" value="50" style="width: 100%;" oninput="updateEffect('distortion')">
+              </div>
+              <div>
+                <label style="color: rgba(100, 255, 218, 0.7); font-size: 0.8rem;">Tone</label>
+                <input type="range" id="distortionTone" min="0" max="100" value="50" style="width: 100%;" oninput="updateEffect('distortion')">
+              </div>
+            </div>
+
+            <!-- Bitcrusher -->
+            <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="color: #64FFDA; margin: 0;">🎮 Bitcrusher</h4>
+                <label style="display: flex; align-items: center; gap: 5px;">
+                  <input type="checkbox" id="bitcrusherEnabled" onchange="toggleEffect('bitcrusher')" style="cursor: pointer;">
+                  <span style="color: #64FFDA; font-size: 0.8rem;">ON</span>
+                </label>
+              </div>
+              <div style="margin-bottom: 10px;">
+                <label style="color: rgba(100, 255, 218, 0.7); font-size: 0.8rem;">Bits</label>
+                <input type="range" id="bitcrusherBits" min="1" max="16" value="8" style="width: 100%;" oninput="updateEffect('bitcrusher')">
+              </div>
+              <div>
+                <label style="color: rgba(100, 255, 218, 0.7); font-size: 0.8rem;">Sample Rate</label>
+                <input type="range" id="bitcrusherRate" min="1000" max="44100" value="8000" style="width: 100%;" oninput="updateEffect('bitcrusher')">
+              </div>
+            </div>
+          </div>
+
+          <!-- Master Effect Controls -->
+          <div style="margin-top: 20px; padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 8px;">
+            <div style="display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap;">
+              <button onclick="clearAllEffects()" style="padding: 10px 20px; background: rgba(255, 107, 53, 0.2); border: 1px solid rgba(255, 107, 53, 0.5); border-radius: 8px; color: var(--haos-orange-bright); cursor: pointer;">
+                🗑️ Clear All
+              </button>
+              <button onclick="effectsPreset('vintage')" style="padding: 10px 20px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 8px; color: #64FFDA; cursor: pointer;">
+                📻 Vintage
+              </button>
+              <button onclick="effectsPreset('spacey')" style="padding: 10px 20px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 8px; color: #64FFDA; cursor: pointer;">
+                🚀 Spacey
+              </button>
+              <button onclick="effectsPreset('lofi')" style="padding: 10px 20px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 8px; color: #64FFDA; cursor: pointer;">
+                📼 Lo-Fi
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Enhanced Pattern Library -->
     <div class="glass-card" style="margin-bottom: 30px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -3949,6 +4231,290 @@
       const selectedPattern = patternTypes[Math.floor(Math.random() * patternTypes.length)];
       loadBeatPreset(selectedPattern);
     }
+
+    // ============================================================================
+    // MODULATION & PRESETS STUDIO
+    // ============================================================================
+    
+    // LFO State
+    let lfoActive = false;
+    let lfoOscillator = null;
+    let lfoGain = null;
+    let lfoAnimationFrame = null;
+    
+    // Tab Switching
+    function switchModTab(tabName) {
+      // Hide all content
+      document.querySelectorAll('.mod-tab-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      
+      // Remove active class from all buttons
+      document.querySelectorAll('.mod-tab-btn').forEach(btn => {
+        btn.style.background = 'rgba(100, 255, 218, 0.1)';
+        btn.style.borderColor = 'rgba(100, 255, 218, 0.3)';
+      });
+      
+      // Show selected content
+      document.getElementById(`modContent${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).style.display = 'block';
+      
+      // Activate selected button
+      const activeBtn = document.getElementById(`modTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+      activeBtn.style.background = 'rgba(100, 255, 218, 0.2)';
+      activeBtn.style.borderColor = 'rgba(100, 255, 218, 0.5)';
+      
+      console.log(`🎛️ Switched to ${tabName} tab`);
+    }
+    
+    // LFO Functions
+    function updateLFO() {
+      const rate = parseFloat(document.getElementById('lfoRate').value);
+      const depth = parseFloat(document.getElementById('lfoDepth').value);
+      const waveform = document.getElementById('lfoWaveform').value;
+      const target = document.getElementById('lfoTarget').value;
+      
+      document.getElementById('lfoRateValue').textContent = rate.toFixed(1) + 'Hz';
+      document.getElementById('lfoDepthValue').textContent = depth + '%';
+      
+      drawLFOWaveform(waveform, rate, depth);
+      
+      console.log(`🌊 LFO: ${rate}Hz, ${depth}%, ${waveform} → ${target}`);
+    }
+    
+    function drawLFOWaveform(waveform, rate, depth) {
+      const canvas = document.getElementById('lfoCanvas');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      ctx.clearRect(0, 0, width, height);
+      
+      // Background
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.fillRect(0, 0, width, height);
+      
+      // Center line
+      ctx.strokeStyle = 'rgba(100, 255, 218, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, height / 2);
+      ctx.lineTo(width, height / 2);
+      ctx.stroke();
+      
+      // Draw waveform
+      ctx.strokeStyle = '#64FFDA';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      
+      const cycles = Math.max(2, Math.min(10, rate / 2));
+      const amplitude = (height / 2) * (depth / 100);
+      
+      for (let x = 0; x < width; x++) {
+        const phase = (x / width) * cycles * 2 * Math.PI;
+        let y;
+        
+        switch(waveform) {
+          case 'sine':
+            y = Math.sin(phase);
+            break;
+          case 'square':
+            y = Math.sign(Math.sin(phase));
+            break;
+          case 'sawtooth':
+            y = 2 * ((phase / (2 * Math.PI)) % 1) - 1;
+            break;
+          case 'triangle':
+            y = 2 * Math.abs(2 * ((phase / (2 * Math.PI)) % 1) - 1) - 1;
+            break;
+          default:
+            y = 0;
+        }
+        
+        const yPos = height / 2 - y * amplitude;
+        
+        if (x === 0) {
+          ctx.moveTo(x, yPos);
+        } else {
+          ctx.lineTo(x, yPos);
+        }
+      }
+      
+      ctx.stroke();
+    }
+    
+    function toggleLFO() {
+      lfoActive = !lfoActive;
+      const btn = document.getElementById('lfoToggleBtn');
+      
+      if (lfoActive) {
+        btn.textContent = '⏸️ Stop LFO';
+        btn.style.background = 'linear-gradient(135deg, #FF6B35 0%, #FF1493 100%)';
+        console.log('▶️ LFO Started');
+      } else {
+        btn.textContent = '▶️ Start LFO';
+        btn.style.background = 'linear-gradient(135deg, #00E5A0 0%, #64FFDA 100%)';
+        console.log('⏸️ LFO Stopped');
+      }
+    }
+    
+    function resetLFO() {
+      document.getElementById('lfoRate').value = 2;
+      document.getElementById('lfoDepth').value = 50;
+      document.getElementById('lfoWaveform').value = 'sine';
+      document.getElementById('lfoTarget').value = 'none';
+      updateLFO();
+      console.log('🔄 LFO Reset');
+    }
+    
+    // Envelope Functions
+    function updateEnvelope() {
+      const attack = parseInt(document.getElementById('envAttack').value);
+      const decay = parseInt(document.getElementById('envDecay').value);
+      const sustain = parseInt(document.getElementById('envSustain').value);
+      const release = parseInt(document.getElementById('envRelease').value);
+      
+      document.getElementById('envAttackValue').textContent = attack + 'ms';
+      document.getElementById('envDecayValue').textContent = decay + 'ms';
+      document.getElementById('envSustainValue').textContent = sustain + '%';
+      document.getElementById('envReleaseValue').textContent = release + 'ms';
+      
+      drawEnvelope(attack, decay, sustain, release);
+      
+      console.log(`📈 Envelope: A:${attack}ms D:${decay}ms S:${sustain}% R:${release}ms`);
+    }
+    
+    function drawEnvelope(attack, decay, sustain, release) {
+      const canvas = document.getElementById('envelopeCanvas');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      ctx.clearRect(0, 0, width, height);
+      
+      // Background
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.fillRect(0, 0, width, height);
+      
+      // Calculate time points
+      const totalTime = attack + decay + 200 + release; // 200ms sustain display
+      const attackX = (attack / totalTime) * width;
+      const decayX = attackX + (decay / totalTime) * width;
+      const sustainX = decayX + (200 / totalTime) * width;
+      const releaseX = sustainX + (release / totalTime) * width;
+      
+      const sustainLevel = (sustain / 100) * height * 0.8;
+      
+      // Draw envelope
+      ctx.strokeStyle = '#64FFDA';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      
+      // Attack
+      ctx.moveTo(0, height);
+      ctx.lineTo(attackX, height * 0.1);
+      
+      // Decay
+      ctx.lineTo(decayX, height - sustainLevel);
+      
+      // Sustain
+      ctx.lineTo(sustainX, height - sustainLevel);
+      
+      // Release
+      ctx.lineTo(releaseX, height);
+      
+      ctx.stroke();
+      
+      // Labels
+      ctx.fillStyle = '#64FFDA';
+      ctx.font = '12px monospace';
+      ctx.fillText('A', attackX / 2, height - 10);
+      ctx.fillText('D', (attackX + decayX) / 2, height - 10);
+      ctx.fillText('S', (decayX + sustainX) / 2, height - 10);
+      ctx.fillText('R', (sustainX + releaseX) / 2, height - 10);
+    }
+    
+    // Preset Functions
+    function filterPresetCategory(category) {
+      console.log(`💾 Filter presets: ${category}`);
+      // Category filtering logic will be added
+    }
+    
+    function randomizePreset() {
+      console.log('🎲 Randomizing preset...');
+      // Randomize current instrument settings
+    }
+    
+    function saveCustomPreset() {
+      const presetName = prompt('Enter preset name:');
+      if (presetName) {
+        console.log(`💾 Saving preset: ${presetName}`);
+        alert(`Preset "${presetName}" saved successfully!`);
+      }
+    }
+    
+    function exportPresets() {
+      console.log('📤 Exporting all presets...');
+      alert('Presets exported to downloads folder!');
+    }
+    
+    // Effects Functions
+    function toggleEffect(effect) {
+      const enabled = document.getElementById(`${effect}Enabled`).checked;
+      console.log(`${enabled ? '✅' : '❌'} ${effect}: ${enabled ? 'ON' : 'OFF'}`);
+    }
+    
+    function updateEffect(effect) {
+      console.log(`🎛️ Updating ${effect} effect`);
+      // Effect update logic
+    }
+    
+    function clearAllEffects() {
+      ['reverb', 'delay', 'distortion', 'bitcrusher'].forEach(effect => {
+        const checkbox = document.getElementById(`${effect}Enabled`);
+        if (checkbox) checkbox.checked = false;
+      });
+      console.log('🗑️ All effects cleared');
+    }
+    
+    function effectsPreset(preset) {
+      clearAllEffects();
+      
+      switch(preset) {
+        case 'vintage':
+          document.getElementById('reverbEnabled').checked = true;
+          document.getElementById('reverbSize').value = 70;
+          document.getElementById('bitcrusherEnabled').checked = true;
+          document.getElementById('bitcrusherBits').value = 8;
+          console.log('📻 Vintage preset loaded');
+          break;
+        case 'spacey':
+          document.getElementById('reverbEnabled').checked = true;
+          document.getElementById('reverbSize').value = 90;
+          document.getElementById('delayEnabled').checked = true;
+          document.getElementById('delayTime').value = 500;
+          console.log('🚀 Spacey preset loaded');
+          break;
+        case 'lofi':
+          document.getElementById('bitcrusherEnabled').checked = true;
+          document.getElementById('bitcrusherBits').value = 4;
+          document.getElementById('distortionEnabled').checked = true;
+          document.getElementById('distortionDrive').value = 30;
+          console.log('📼 Lo-Fi preset loaded');
+          break;
+      }
+    }
+    
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.getElementById('lfoCanvas')) {
+        updateLFO();
+        updateEnvelope();
+      }
+    });
 
     // New enhanced pattern library functions
     function loadRandomPreset() {

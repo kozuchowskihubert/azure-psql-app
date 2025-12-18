@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎛️ HAOS Ableton Studio - Professional DAW</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  
+  <style>
+    :root {
+      --bg-dark: #0a0a12;
+      --bg-darker: #050508;
+      --bg-panel: #1a1a24;
+      --border-color: rgba(100, 255, 218, 0.2);
+      --accent-cyan: #64FFDA;
+      --accent-orange: #FF6B35;
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --track-height: 80px;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+    }
+    
+    /* Main Layout - Like Ableton */
+    .studio-container {
+      display: grid;
+      grid-template-rows: 60px 1fr 200px;
+      grid-template-columns: 250px 1fr 300px;
+      height: 100vh;
+      gap: 1px;
+      background: var(--border-color);
+    }
+    
+    /* Top Bar */
+    .top-bar {
+      grid-column: 1 / -1;
+      background: var(--bg-darker);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      border-bottom: 2px solid var(--accent-cyan);
+    }
+    
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+    }
+    
+    .transport-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .transport-btn {
+      padding: 10px 20px;
+      background: rgba(100, 255, 218, 0.1);
+      border: 2px solid var(--accent-cyan);
+      border-radius: 6px;
+      color: var(--accent-cyan);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .transport-btn:hover {
+      background: rgba(100, 255, 218, 0.2);
+      transform: scale(1.05);
+    }
+    
+    .transport-btn.active {
+      background: var(--accent-cyan);
+      color: var(--bg-dark);
+    }
+    
+    .bpm-display {
+      padding: 10px 20px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      color: var(--accent-orange);
+    }
+    
+    /* Instrument Rack (Left Panel) */
+    .instrument-rack {
+      background: var(--bg-panel);
+      padding: 20px;
+      overflow-y: auto;
+    }
+    
+    .rack-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+    }
+    
+    .instrument-item {
+      padding: 12px;
+      background: rgba(100, 255, 218, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      margin-bottom: 10px;
+      cursor: grab;
+      transition: all 0.3s;
+    }
+    
+    .instrument-item:hover {
+      background: rgba(100, 255, 218, 0.1);
+      border-color: var(--accent-cyan);
+      transform: translateX(5px);
+    }
+    
+    .instrument-item.dragging {
+      opacity: 0.5;
+      cursor: grabbing;
+    }
+    
+    .instrument-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    
+    .instrument-desc {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    
+    .instrument-category {
+      font-size: 10px;
+      color: var(--accent-orange);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    /* Timeline & Tracks (Center Panel) */
+    .timeline-area {
+      background: var(--bg-dark);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .timeline-header {
+      height: 40px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      position: relative;
+    }
+    
+    .timeline-ruler {
+      display: flex;
+      height: 100%;
+      flex: 1;
+      position: relative;
+    }
+    
+    .bar-marker {
+      flex: 1;
+      border-left: 1px solid rgba(100, 255, 218, 0.3);
+      display: flex;
+      align-items: center;
+      padding-left: 5px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    
+    .tracks-container {
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+    }
+    
+    .track {
+      height: var(--track-height);
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      position: relative;
+    }
+    
+    .track-header {
+      width: 200px;
+      background: var(--bg-panel);
+      padding: 10px;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .track-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+    
+    .track-controls {
+      display: flex;
+      gap: 5px;
+    }
+    
+    .track-btn {
+      padding: 4px 8px;
+      background: rgba(100, 255, 218, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+      font-size: 10px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    
+    .track-btn.active {
+      background: var(--accent-cyan);
+      color: var(--bg-dark);
+    }
+    
+    .track-timeline {
+      flex: 1;
+      background: linear-gradient(90deg, 
+        rgba(100, 255, 218, 0.02) 0%, 
+        rgba(100, 255, 218, 0.02) 49%, 
+        rgba(100, 255, 218, 0.05) 50%, 
+        rgba(100, 255, 218, 0.05) 100%);
+      background-size: 100px 100%;
+      position: relative;
+    }
+    
+    .clip {
+      position: absolute;
+      height: 60px;
+      top: 10px;
+      background: linear-gradient(135deg, rgba(100, 255, 218, 0.3), rgba(255, 107, 53, 0.3));
+      border: 1px solid var(--accent-cyan);
+      border-radius: 4px;
+      padding: 5px;
+      cursor: move;
+      transition: all 0.2s;
+    }
+    
+    .clip:hover {
+      border-width: 2px;
+      box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+    }
+    
+    .clip-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    /* Mixer Panel (Right Panel) */
+    .mixer-panel {
+      background: var(--bg-panel);
+      padding: 20px;
+      overflow-y: auto;
+    }
+    
+    .mixer-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-orange);
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+    }
+    
+    .mixer-channel {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .channel-name {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--accent-cyan);
+    }
+    
+    .fader-container {
+      margin-bottom: 15px;
+    }
+    
+    .fader-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+    }
+    
+    .fader {
+      width: 100%;
+      height: 4px;
+      -webkit-appearance: none;
+      background: rgba(100, 255, 218, 0.2);
+      border-radius: 2px;
+      outline: none;
+    }
+    
+    .fader::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    
+    .channel-buttons {
+      display: flex;
+      gap: 5px;
+    }
+    
+    .channel-btn {
+      flex: 1;
+      padding: 6px;
+      background: rgba(100, 255, 218, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 10px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    
+    .channel-btn.active {
+      background: var(--accent-orange);
+      color: white;
+    }
+    
+    .vu-meter {
+      height: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 3px;
+      margin-top: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .vu-meter-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff00, #ffff00 50%, #ff0000);
+      width: 0%;
+      transition: width 0.1s;
+    }
+    
+    /* Effects Panel (Bottom) */
+    .effects-panel {
+      grid-column: 1 / -1;
+      background: var(--bg-panel);
+      padding: 20px;
+      border-top: 2px solid var(--accent-orange);
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+    
+    .effects-container {
+      display: flex;
+      gap: 15px;
+      height: 100%;
+    }
+    
+    .effect-module {
+      min-width: 200px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+    }
+    
+    .effect-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--accent-cyan);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .effect-toggle {
+      width: 40px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .effect-toggle.active {
+      background: var(--accent-cyan);
+    }
+    
+    .effect-toggle::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+    }
+    
+    .effect-toggle.active::after {
+      transform: translateX(20px);
+    }
+    
+    .effect-knob {
+      width: 100%;
+      margin: 10px 0;
+    }
+    
+    .knob-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+    }
+    
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--bg-darker);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent-cyan);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-orange);
+    }
+    
+    /* Add Track Button */
+    .add-track-btn {
+      width: calc(100% - 40px);
+      margin: 20px;
+      padding: 15px;
+      background: rgba(100, 255, 218, 0.1);
+      border: 2px dashed var(--accent-cyan);
+      border-radius: 8px;
+      color: var(--accent-cyan);
+      cursor: pointer;
+      text-align: center;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .add-track-btn:hover {
+      background: rgba(100, 255, 218, 0.2);
+      transform: scale(1.02);
+    }
+    
+    /* Playhead */
+    .playhead {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 2px;
+      height: 100%;
+      background: var(--accent-orange);
+      z-index: 100;
+      pointer-events: none;
+    }
+    
+    /* Instructions Overlay */
+    .instructions {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: rgba(26, 26, 36, 0.95);
+      border: 2px solid var(--accent-cyan);
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 350px;
+      z-index: 1000;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+    
+    .instructions.hidden {
+      display: none;
+    }
+    
+    .instructions h3 {
+      color: var(--accent-cyan);
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    
+    .instructions p {
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    
+    .instructions strong {
+      color: var(--accent-orange);
+    }
+    
+    .close-instructions {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: var(--accent-orange);
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Instructions Overlay -->
+<div class="instructions" id="instructions">
+  <button class="close-instructions" onclick="closeInstructions()">×</button>
+  <h3>🎛️ HAOS Ableton Studio</h3>
+  <p><strong>📖 Quick Start Guide:</strong></p>
+  
+  <p><strong>1. INSTRUMENTS (Lewy Panel):</strong></p>
+  <p>• <strong>🥁 DRUMS</strong>: Kick, Snare, Hi-Hat - fundament rytmu<br>
+  • <strong>🎸 BASS</strong>: Sub-bass (C1-C3) - niskie częstotliwości<br>
+  • <strong>🎹 MELODIC</strong>: Synth, Piano, Organ - harmonia i melodia<br>
+  • Przeciągnij instrumenty na ścieżki</p>
+  
+  <p><strong>2. TIMELINE (Środek):</strong></p>
+  <p>• Układaj klipy poziomo<br>
+  • Snap do siatki = perfekcyjny timing<br>
+  • Transport: Play/Pause/Record/Loop</p>
+  
+  <p><strong>3. MIXER (Prawy Panel):</strong></p>
+  <p>• Volume i Pan per track<br>
+  • Mute/Solo kanałów<br>
+  • VU meters pokazują poziomy</p>
+  
+  <p><strong>4. EFFECTS (Dół):</strong></p>
+  <p>• Reverb - przestrzeń i głębia<br>
+  • Delay - rytmiczne echa<br>
+  • EQ - balans częstotliwości<br>
+  • Distortion - charakter i szorstkość</p>
+  
+  <p><strong>💡 TIP:</strong> Zacznij od drums, dodaj bass, potem melodie!</p>
+</div>
+
+<div class="studio-container">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">🎛️ HAOS ABLETON STUDIO</div>
+    
+    <div class="transport-controls">
+      <button class="transport-btn" onclick="togglePlay()">
+        <span id="playBtnText">▶️ Play</span>
+      </button>
+      <button class="transport-btn" onclick="stopPlayback()">⏹️ Stop</button>
+      <button class="transport-btn" onclick="toggleRecord()">🔴 Record</button>
+      <button class="transport-btn" onclick="toggleLoop()">🔁 Loop</button>
+      <div class="bpm-display">
+        <span id="bpmValue">120</span> BPM
+      </div>
+      <button class="transport-btn" onclick="saveProject()">💾 Save</button>
+      <button class="transport-btn" onclick="exportAudio()">📤 Export</button>
+    </div>
+    
+    <div style="display: flex; gap: 15px; align-items: center;">
+      <button class="transport-btn" onclick="showInstructions()" style="font-size: 20px; padding: 10px 15px;">❓</button>
+      <a href="/" style="color: var(--accent-cyan); text-decoration: none; font-weight: 600;">← Home</a>
+    </div>
+  </div>
+  
+  <!-- Instrument Rack (Left) -->
+  <div class="instrument-rack">
+    <div class="rack-title">🎹 INSTRUMENTS</div>
+    
+    <div class="instrument-category">DRUMS</div>
+    <div class="instrument-item" draggable="true" data-instrument="kick">
+      <div class="instrument-name">🥁 Kick Drum</div>
+      <div class="instrument-desc">Deep sub-bass kick for low-end foundation</div>
+    </div>
+    <div class="instrument-item" draggable="true" data-instrument="snare">
+      <div class="instrument-name">🥁 Snare</div>
+      <div class="instrument-desc">Sharp snare for backbeat rhythm</div>
+    </div>
+    <div class="instrument-item" draggable="true" data-instrument="hihat">
+      <div class="instrument-name">🥁 Hi-Hat</div>
+      <div class="instrument-desc">Metallic hi-hat for groove patterns</div>
+    </div>
+    
+    <div class="instrument-category">BASS</div>
+    <div class="instrument-item" draggable="true" data-instrument="bass">
+      <div class="instrument-name">🎸 Bass Synth</div>
+      <div class="instrument-desc">Sub-bass for low frequencies (C1-C3)</div>
+    </div>
+    
+    <div class="instrument-category">MELODIC</div>
+    <div class="instrument-item" draggable="true" data-instrument="synth">
+      <div class="instrument-name">🎹 Synthesizer</div>
+      <div class="instrument-desc">Lead synth for melodies and chords</div>
+    </div>
+    <div class="instrument-item" draggable="true" data-instrument="piano">
+      <div class="instrument-name">🎹 Piano</div>
+      <div class="instrument-desc">Acoustic piano sound for harmony</div>
+    </div>
+    <div class="instrument-item" draggable="true" data-instrument="organ">
+      <div class="instrument-name">🎹 Organ</div>
+      <div class="instrument-desc">Hammond organ for vintage vibes</div>
+    </div>
+    <div class="instrument-item" draggable="true" data-instrument="strings">
+      <div class="instrument-name">🎻 Strings</div>
+      <div class="instrument-desc">String ensemble for ambient pads</div>
+    </div>
+    
+    <div class="instrument-category">EFFECTS</div>
+    <div class="instrument-item" draggable="true" data-instrument="pad">
+      <div class="instrument-name">✨ Ambient Pad</div>
+      <div class="instrument-desc">Atmospheric textures and soundscapes</div>
+    </div>
+    
+    <button class="add-track-btn" onclick="addNewTrack()">
+      ➕ Add New Track
+    </button>
+  </div>
+  
+  <!-- Timeline & Tracks (Center) -->
+  <div class="timeline-area">
+    <div class="timeline-header">
+      <div class="timeline-ruler" id="timelineRuler">
+        <!-- Bar markers will be generated by JS -->
+      </div>
+    </div>
+    
+    <div class="tracks-container" id="tracksContainer">
+      <div class="playhead" id="playhead"></div>
+      
+      <!-- Example Tracks -->
+      <div class="track" data-track-id="1">
+        <div class="track-header">
+          <div class="track-name">Kick</div>
+          <div class="track-controls">
+            <button class="track-btn" onclick="toggleMute(1)">M</button>
+            <button class="track-btn" onclick="toggleSolo(1)">S</button>
+            <button class="track-btn" onclick="armTrack(1)">●</button>
+          </div>
+        </div>
+        <div class="track-timeline" ondrop="dropClip(event, 1)" ondragover="allowDrop(event)">
+          <div class="clip" style="left: 0px; width: 200px;" draggable="true">
+            <div class="clip-name">Kick Pattern</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="track" data-track-id="2">
+        <div class="track-header">
+          <div class="track-name">Bass</div>
+          <div class="track-controls">
+            <button class="track-btn" onclick="toggleMute(2)">M</button>
+            <button class="track-btn" onclick="toggleSolo(2)">S</button>
+            <button class="track-btn" onclick="armTrack(2)">●</button>
+          </div>
+        </div>
+        <div class="track-timeline" ondrop="dropClip(event, 2)" ondragover="allowDrop(event)">
+          <div class="clip" style="left: 200px; width: 400px;" draggable="true">
+            <div class="clip-name">Bass Line</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="track" data-track-id="3">
+        <div class="track-header">
+          <div class="track-name">Synth</div>
+          <div class="track-controls">
+            <button class="track-btn" onclick="toggleMute(3)">M</button>
+            <button class="track-btn" onclick="toggleSolo(3)">S</button>
+            <button class="track-btn" onclick="armTrack(3)">●</button>
+          </div>
+        </div>
+        <div class="track-timeline" ondrop="dropClip(event, 3)" ondragover="allowDrop(event)">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mixer Panel (Right) -->
+  <div class="mixer-panel">
+    <div class="mixer-title">🎚️ MIXER</div>
+    
+    <div class="mixer-channel">
+      <div class="channel-name">Kick</div>
+      <div class="fader-container">
+        <div class="fader-label">Volume</div>
+        <input type="range" class="fader" min="0" max="100" value="80">
+      </div>
+      <div class="fader-container">
+        <div class="fader-label">Pan</div>
+        <input type="range" class="fader" min="-100" max="100" value="0">
+      </div>
+      <div class="channel-buttons">
+        <button class="channel-btn" onclick="toggleChannelMute(1)">M</button>
+        <button class="channel-btn" onclick="toggleChannelSolo(1)">S</button>
+      </div>
+      <div class="vu-meter">
+        <div class="vu-meter-bar" style="width: 70%;"></div>
+      </div>
+    </div>
+    
+    <div class="mixer-channel">
+      <div class="channel-name">Bass</div>
+      <div class="fader-container">
+        <div class="fader-label">Volume</div>
+        <input type="range" class="fader" min="0" max="100" value="75">
+      </div>
+      <div class="fader-container">
+        <div class="fader-label">Pan</div>
+        <input type="range" class="fader" min="-100" max="100" value="0">
+      </div>
+      <div class="channel-buttons">
+        <button class="channel-btn" onclick="toggleChannelMute(2)">M</button>
+        <button class="channel-btn" onclick="toggleChannelSolo(2)">S</button>
+      </div>
+      <div class="vu-meter">
+        <div class="vu-meter-bar" style="width: 60%;"></div>
+      </div>
+    </div>
+    
+    <div class="mixer-channel">
+      <div class="channel-name">Master</div>
+      <div class="fader-container">
+        <div class="fader-label">Master Volume</div>
+        <input type="range" class="fader" min="0" max="100" value="80">
+      </div>
+      <div class="vu-meter">
+        <div class="vu-meter-bar" style="width: 75%;"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Effects Panel (Bottom) -->
+  <div class="effects-panel">
+    <div class="effects-container">
+      <div class="effect-module">
+        <div class="effect-title">
+          <span>🌊 Reverb</span>
+          <div class="effect-toggle" onclick="toggleEffect(this)"></div>
+        </div>
+        <div class="effect-knob">
+          <div class="knob-label">Room Size</div>
+          <input type="range" class="fader" min="0" max="100" value="50">
+        </div>
+        <div class="effect-knob">
+          <div class="knob-label">Wet/Dry</div>
+          <input type="range" class="fader" min="0" max="100" value="30">
+        </div>
+      </div>
+      
+      <div class="effect-module">
+        <div class="effect-title">
+          <span>⏱️ Delay</span>
+          <div class="effect-toggle" onclick="toggleEffect(this)"></div>
+        </div>
+        <div class="effect-knob">
+          <div class="knob-label">Time (ms)</div>
+          <input type="range" class="fader" min="0" max="1000" value="250">
+        </div>
+        <div class="effect-knob">
+          <div class="knob-label">Feedback</div>
+          <input type="range" class="fader" min="0" max="100" value="40">
+        </div>
+      </div>
+      
+      <div class="effect-module">
+        <div class="effect-title">
+          <span>🎚️ EQ</span>
+          <div class="effect-toggle active" onclick="toggleEffect(this)"></div>
+        </div>
+        <div class="effect-knob">
+          <div class="knob-label">Low</div>
+          <input type="range" class="fader" min="-12" max="12" value="0">
+        </div>
+        <div class="effect-knob">
+          <div class="knob-label">High</div>
+          <input type="range" class="fader" min="-12" max="12" value="0">
+        </div>
+      </div>
+      
+      <div class="effect-module">
+        <div class="effect-title">
+          <span>🔥 Distortion</span>
+          <div class="effect-toggle" onclick="toggleEffect(this)"></div>
+        </div>
+        <div class="effect-knob">
+          <div class="knob-label">Drive</div>
+          <input type="range" class="fader" min="0" max="100" value="50">
+        </div>
+        <div class="effect-knob">
+          <div class="knob-label">Tone</div>
+          <input type="range" class="fader" min="0" max="100" value="50">
+        </div>
+      </div>
+      
+      <div class="effect-module">
+        <div class="effect-title">
+          <span>🎮 Bitcrusher</span>
+          <div class="effect-toggle" onclick="toggleEffect(this)"></div>
+        </div>
+        <div class="effect-knob">
+          <div class="knob-label">Bits</div>
+          <input type="range" class="fader" min="1" max="16" value="8">
+        </div>
+        <div class="effect-knob">
+          <div class="knob-label">Sample Rate</div>
+          <input type="range" class="fader" min="1000" max="44100" value="8000">
+        </div>
+      </div>
+      
+      <div class="effect-module">
+        <div class="effect-title">
+          <span>🎛️ Filter</span>
+          <div class="effect-toggle" onclick="toggleEffect(this)"></div>
+        </div>
+        <div class="effect-knob">
+          <div class="knob-label">Cutoff</div>
+          <input type="range" class="fader" min="20" max="20000" value="1000">
+        </div>
+        <div class="effect-knob">
+          <div class="knob-label">Resonance</div>
+          <input type="range" class="fader" min="0" max="20" value="5">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============================================================================
+  // STUDIO STATE
+  // ============================================================================
+  let isPlaying = false;
+  let isRecording = false;
+  let isLooping = false;
+  let bpm = 120;
+  let playheadPosition = 0;
+  let tracks = [];
+  
+  // ============================================================================
+  // INSTRUCTIONS
+  // ============================================================================
+  function showInstructions() {
+    document.getElementById('instructions').classList.remove('hidden');
+  }
+  
+  function closeInstructions() {
+    document.getElementById('instructions').classList.add('hidden');
+  }
+  
+  // ============================================================================
+  // TRANSPORT CONTROLS
+  // ============================================================================
+  function togglePlay() {
+    isPlaying = !isPlaying;
+    const btn = document.getElementById('playBtnText');
+    
+    if (isPlaying) {
+      btn.textContent = '⏸️ Pause';
+      startPlayback();
+    } else {
+      btn.textContent = '▶️ Play';
+      pausePlayback();
+    }
+  }
+  
+  function stopPlayback() {
+    isPlaying = false;
+    playheadPosition = 0;
+    document.getElementById('playhead').style.left = '0px';
+    document.getElementById('playBtnText').textContent = '▶️ Play';
+    console.log('⏹️ Playback stopped');
+  }
+  
+  function toggleRecord() {
+    isRecording = !isRecording;
+    event.target.classList.toggle('active');
+    console.log(isRecording ? '🔴 Recording started' : '⏹️ Recording stopped');
+  }
+  
+  function toggleLoop() {
+    isLooping = !isLooping;
+    event.target.classList.toggle('active');
+    console.log(isLooping ? '🔁 Loop enabled' : '➡️ Loop disabled');
+  }
+  
+  function startPlayback() {
+    console.log('▶️ Playback started');
+    animatePlayhead();
+  }
+  
+  function pausePlayback() {
+    console.log('⏸️ Playback paused');
+  }
+  
+  function animatePlayhead() {
+    if (!isPlaying) return;
+    
+    playheadPosition += 2;
+    document.getElementById('playhead').style.left = playheadPosition + 'px';
+    
+    // Loop back if needed
+    if (isLooping && playheadPosition > 1600) {
+      playheadPosition = 0;
+    }
+    
+    requestAnimationFrame(animatePlayhead);
+  }
+  
+  // ============================================================================
+  // TRACK MANAGEMENT
+  // ============================================================================
+  function toggleMute(trackId) {
+    console.log(`🔇 Toggle mute track ${trackId}`);
+    event.target.classList.toggle('active');
+  }
+  
+  function toggleSolo(trackId) {
+    console.log(`🎧 Toggle solo track ${trackId}`);
+    event.target.classList.toggle('active');
+  }
+  
+  function armTrack(trackId) {
+    console.log(`🔴 Arm track ${trackId} for recording`);
+    event.target.classList.toggle('active');
+  }
+  
+  function addNewTrack() {
+    const trackId = Date.now();
+    const tracksContainer = document.getElementById('tracksContainer');
+    
+    const newTrack = document.createElement('div');
+    newTrack.className = 'track';
+    newTrack.dataset.trackId = trackId;
+    newTrack.innerHTML = `
+      <div class="track-header">
+        <div class="track-name">New Track</div>
+        <div class="track-controls">
+          <button class="track-btn" onclick="toggleMute(${trackId})">M</button>
+          <button class="track-btn" onclick="toggleSolo(${trackId})">S</button>
+          <button class="track-btn" onclick="armTrack(${trackId})">●</button>
+        </div>
+      </div>
+      <div class="track-timeline" ondrop="dropClip(event, ${trackId})" ondragover="allowDrop(event)">
+      </div>
+    `;
+    
+    tracksContainer.appendChild(newTrack);
+    console.log(`➕ Added new track: ${trackId}`);
+  }
+  
+  // ============================================================================
+  // DRAG & DROP
+  // ============================================================================
+  function allowDrop(event) {
+    event.preventDefault();
+  }
+  
+  function dropClip(event, trackId) {
+    event.preventDefault();
+    const data = event.dataTransfer.getData('text');
+    console.log(`📥 Dropped ${data} on track ${trackId}`);
+    
+    // Create new clip at drop position
+    const timeline = event.currentTarget;
+    const rect = timeline.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    
+    const clip = document.createElement('div');
+    clip.className = 'clip';
+    clip.style.left = Math.floor(x / 100) * 100 + 'px'; // Snap to grid
+    clip.style.width = '200px';
+    clip.draggable = true;
+    clip.innerHTML = `<div class="clip-name">${data} Clip</div>`;
+    
+    timeline.appendChild(clip);
+  }
+  
+  // Instrument drag start
+  document.querySelectorAll('.instrument-item').forEach(item => {
+    item.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text', e.target.dataset.instrument);
+      e.target.classList.add('dragging');
+    });
+    
+    item.addEventListener('dragend', (e) => {
+      e.target.classList.remove('dragging');
+    });
+  });
+  
+  // ============================================================================
+  // MIXER CONTROLS
+  // ============================================================================
+  function toggleChannelMute(channelId) {
+    console.log(`🔇 Toggle channel ${channelId} mute`);
+    event.target.classList.toggle('active');
+  }
+  
+  function toggleChannelSolo(channelId) {
+    console.log(`🎧 Toggle channel ${channelId} solo`);
+    event.target.classList.toggle('active');
+  }
+  
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
+  function toggleEffect(element) {
+    element.classList.toggle('active');
+    const effectName = element.previousElementSibling.textContent;
+    console.log(`${element.classList.contains('active') ? '✅' : '❌'} ${effectName}`);
+  }
+  
+  // ============================================================================
+  // PROJECT MANAGEMENT
+  // ============================================================================
+  function saveProject() {
+    console.log('💾 Saving project...');
+    const project = {
+      bpm: bpm,
+      tracks: tracks,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('haos_ableton_project', JSON.stringify(project));
+    alert('✅ Project saved successfully!');
+  }
+  
+  function exportAudio() {
+    console.log('📤 Exporting audio...');
+    alert('🎵 Audio export will be available soon!\nFormats: WAV, MP3, OGG');
+  }
+  
+  // ============================================================================
+  // INITIALIZATION
+  // ============================================================================
+  function initTimeline() {
+    const ruler = document.getElementById('timelineRuler');
+    for (let i = 1; i <= 16; i++) {
+      const marker = document.createElement('div');
+      marker.className = 'bar-marker';
+      marker.textContent = i;
+      ruler.appendChild(marker);
+    }
+  }
+  
+  // Initialize on load
+  window.addEventListener('DOMContentLoaded', () => {
+    initTimeline();
+    console.log('🎛️ HAOS Ableton Studio initialized');
+    console.log('');
+    console.log('╔════════════════════════════════════════╗');
+    console.log('║   WELCOME TO HAOS ABLETON STUDIO      ║');
+    console.log('╚════════════════════════════════════════╝');
+    console.log('');
+    console.log('📖 QUICK START GUIDE:');
+    console.log('');
+    console.log('1. INSTRUMENTS (Left Panel):');
+    console.log('   🥁 Drums: Kick, Snare, Hi-Hat');
+    console.log('   🎸 Bass: Sub-bass synth (C1-C3)');
+    console.log('   🎹 Melodic: Synth, Piano, Organ, Strings');
+    console.log('   ➡️  Drag instruments to tracks');
+    console.log('');
+    console.log('2. TIMELINE (Center):');
+    console.log('   📊 Arrange clips horizontally');
+    console.log('   🎯 Snap to grid for timing');
+    console.log('   ▶️  Transport controls');
+    console.log('');
+    console.log('3. MIXER (Right Panel):');
+    console.log('   🎚️  Volume & Pan per track');
+    console.log('   🔇 Mute/Solo channels');
+    console.log('   📊 VU meters');
+    console.log('');
+    console.log('4. EFFECTS (Bottom):');
+    console.log('   🌊 Reverb - space');
+    console.log('   ⏱️  Delay - echoes');
+    console.log('   🎚️  EQ - balance');
+    console.log('   🔥 Distortion - character');
+    console.log('');
+    console.log('💡 TIP: Start with drums → bass → melodies!');
+    console.log('');
+    console.log('Click ❓ button for full instructions');
+  });
+</script>
+
+</body>
+</html>
