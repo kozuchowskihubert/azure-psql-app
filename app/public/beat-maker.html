@@ -8,6 +8,9 @@
   <!-- HAOS Platform Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   
+  <!-- i18n Translation System -->
+  <script src="/js/i18n.js"></script>
+  
   <style>
     :root {
       /* HAOS Orange Brand Theme 🔥 */
@@ -5952,12 +5955,31 @@
     console.log('🎬 Arrangement view with drag-and-drop enabled!');
 
     // ============================================================================
-    // LANGUAGE TRANSLATION SYSTEM
+    // LANGUAGE TRANSLATION SYSTEM (using shared i18n.js)
     // ============================================================================
     
-    let currentLanguage = localStorage.getItem('language') || 'pl'; // Default to Polish
+    // Apply translations on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      translatePage();
+      
+      // Update language toggle button text
+      const langBtn = document.getElementById('langToggle');
+      if (langBtn) {
+        langBtn.innerHTML = currentLanguage === 'pl' ? '🇬🇧 English' : '🇵🇱 Polski';
+      }
+      
+      // Custom Auto-Tune button state update (Beat Maker specific)
+      window.updateAutoTuneLanguage = function() {
+        const autotuneText = document.getElementById('autotuneQuickText');
+        if (autotuneText && typeof effectsSettings !== 'undefined' && effectsSettings.autotune) {
+          const key = effectsSettings.autotune.enabled ? 'autotune-on' : 'autotune-off';
+          autotuneText.innerHTML = t(key);
+        }
+      };
+    });
     
-    const translations = {
+    // Backup: Keep old translation structure for reference (will be removed by i18n.js)
+    const _localTranslationsBackup = {
       pl: {
         'header-title': '🎵 Synthesis Flight Beat Engine + Vocal Recorder',
         'header-subtitle': 'Twórz beaty, nagrywaj vocal, komponuj w harmonii',
@@ -6053,66 +6075,8 @@
         'add-instrument': '➕ Add Instrument'
       }
     };
-
-    function translatePage() {
-      const lang = currentLanguage;
-      const translation = translations[lang];
-      
-      if (!translation) {
-        console.error('Translation not found for language:', lang);
-        return;
-      }
-
-      // Translate all elements with data-i18n attribute
-      document.querySelectorAll('[data-i18n]').forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        if (translation[key]) {
-          // Preserve emojis and icons at the start
-          const emoji = element.textContent.match(/^[\u{1F000}-\u{1F9FF}][\u{FE00}-\u{FE0F}]?\s*/u);
-          const emojiStr = emoji ? emoji[0] : '';
-          
-          // For elements with HTML content, update textContent
-          if (element.tagName === 'OPTION') {
-            element.textContent = translation[key];
-          } else {
-            element.innerHTML = translation[key];
-          }
-        }
-      });
-
-      // Update language toggle button
-      const langButton = document.getElementById('langToggle');
-      if (langButton) {
-        langButton.innerHTML = lang === 'pl' ? '🇬🇧 English' : '🇵🇱 Polski';
-      }
-
-      // Update Auto-Tune button state text
-      const autotuneText = document.getElementById('autotuneQuickText');
-      if (autotuneText && effectsSettings.autotune) {
-        const key = effectsSettings.autotune.enabled ? 'autotune-on' : 'autotune-off';
-        autotuneText.textContent = translation[key];
-      }
-
-      console.log(`🌍 Language changed to: ${lang === 'pl' ? 'Polski' : 'English'}`);
-    }
-
-    function toggleLanguage() {
-      currentLanguage = currentLanguage === 'pl' ? 'en' : 'pl';
-      localStorage.setItem('language', currentLanguage);
-      translatePage();
-      
-      // Show notification
-      const notification = document.createElement('div');
-      notification.textContent = currentLanguage === 'pl' 
-        ? '🇵🇱 Zmieniono język na Polski' 
-        : '🇬🇧 Language changed to English';
-      notification.style.cssText = 'position: fixed; top: 80px; right: 20px; background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%); color: white; padding: 15px 25px; border-radius: 12px; font-weight: 600; z-index: 10000; box-shadow: 0 8px 32px rgba(255, 107, 53, 0.4);';
-      document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 2000);
-    }
-
-    // Apply saved language on page load
-    translatePage();
+    
+    // Note: translatePage() and toggleLanguage() are now provided by /js/i18n.js
   </script>
 </body>
 </html>
