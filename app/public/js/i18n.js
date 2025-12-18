@@ -424,6 +424,18 @@ function toggleLanguage() {
   localStorage.setItem('language', currentLanguage);
   translatePage();
   
+  // Update language toggle buttons (desktop and mobile)
+  const langBtnDesktop = document.getElementById('languageToggle');
+  const langBtnMobile = document.getElementById('languageToggleMobile');
+  const buttonText = currentLanguage === 'pl' ? '🇵🇱 PL' : '🇬🇧 EN';
+  
+  if (langBtnDesktop) {
+    langBtnDesktop.textContent = buttonText;
+  }
+  if (langBtnMobile) {
+    langBtnMobile.textContent = buttonText;
+  }
+  
   // Show notification
   const notification = document.createElement('div');
   const translation = translations[currentLanguage];

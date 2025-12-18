@@ -590,14 +590,6 @@
                             HARDWARE ANALOG OSCILLATOR SYNTHESIS
                         </p>
                     </div>
-                    
-                    <!-- Language Toggle Button -->
-                    <button id="languageToggle" onclick="toggleLanguage()" 
-                        style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; margin-left: 20px;"
-                        onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 15px rgba(255, 107, 53, 0.4)';"
-                        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
-                        🇵🇱 PL
-                    </button>
                 </div>
                 
                 <!-- Navigation -->
@@ -704,6 +696,14 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Language Toggle Button -->
+                    <button id="languageToggle" onclick="toggleLanguage()" 
+                        style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; margin-left: 20px;"
+                        onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 15px rgba(255, 107, 53, 0.4)';"
+                        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                        🇵🇱 PL
+                    </button>
                 </nav>
                 
                 <!-- Mobile Menu -->
@@ -785,6 +785,12 @@
                     <a href="/dashboard.html" class="haos-btn-primary py-3 px-4 rounded-lg text-center font-bold mt-4">
                         <i class="fas fa-th-large mr-2"></i>DASHBOARD
                     </a>
+                    
+                    <!-- Mobile Language Toggle -->
+                    <button id="languageToggleMobile" onclick="toggleLanguage()" 
+                        style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: white; border: none; border-radius: 8px; padding: 12px 16px; font-family: 'Space Mono', monospace; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; width: 100%; margin-top: 12px; text-align: center;">
+                        🇵🇱 PL
+                    </button>
                 </nav>
             </div>
         </div>
@@ -2750,10 +2756,16 @@
         document.addEventListener('DOMContentLoaded', () => {
             translatePage();
             
-            // Update language toggle button text
-            const langBtn = document.getElementById('languageToggle');
-            if (langBtn) {
-                langBtn.textContent = currentLanguage === 'pl' ? '🇵🇱 PL' : '🇬🇧 EN';
+            // Update language toggle buttons text (desktop and mobile)
+            const langBtnDesktop = document.getElementById('languageToggle');
+            const langBtnMobile = document.getElementById('languageToggleMobile');
+            const buttonText = currentLanguage === 'pl' ? '🇵🇱 PL' : '🇬🇧 EN';
+            
+            if (langBtnDesktop) {
+                langBtnDesktop.textContent = buttonText;
+            }
+            if (langBtnMobile) {
+                langBtnMobile.textContent = buttonText;
             }
         });
     </script>
