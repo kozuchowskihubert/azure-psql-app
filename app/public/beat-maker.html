@@ -3810,59 +3810,80 @@
     };
 
     function loadBeatPreset(presetName) {
-      if (!beatPatterns[presetName]) {
-        console.error(`Preset ${presetName} not found!`);
-        return;
-      }
+      try {
+        if (!beatPatterns[presetName]) {
+          console.error(`❌ Preset ${presetName} not found!`);
+          alert(`Preset "${presetName}" not found in beat library`);
+          return;
+        }
 
-      const selectedPattern = beatPatterns[presetName];
+        const selectedPattern = beatPatterns[presetName];
+        
+        if (!selectedPattern) {
+          console.error(`❌ Pattern data is undefined for ${presetName}`);
+          return;
+        }
 
-      // Auto-set BPM for the genre
-      if (genreBPM[presetName]) {
-        bpm = genreBPM[presetName];
-        document.getElementById('bpmRange').value = bpm;
-        document.getElementById('bpmValue').textContent = bpm;
-      }
+        console.log(`🎼 Loading preset: ${presetName}`, selectedPattern);
 
-      // Apply genre-specific instrument presets
-      if (genreInstrumentPresets[presetName]) {
-        const genrePresets = genreInstrumentPresets[presetName];
-        Object.keys(genrePresets).forEach(instrumentType => {
-          if (currentPresets[instrumentType] !== undefined) {
-            currentPresets[instrumentType] = genrePresets[instrumentType];
+        // Auto-set BPM for the genre
+        if (genreBPM[presetName]) {
+          bpm = genreBPM[presetName];
+          const bpmRange = document.getElementById('bpmRange');
+          const bpmValue = document.getElementById('bpmValue');
+          if (bpmRange) bpmRange.value = bpm;
+          if (bpmValue) bpmValue.textContent = bpm;
+        }
+
+        // Apply genre-specific instrument presets
+        if (genreInstrumentPresets[presetName]) {
+          const genrePresets = genreInstrumentPresets[presetName];
+          Object.keys(genrePresets).forEach(instrumentType => {
+            if (currentPresets[instrumentType] !== undefined) {
+              currentPresets[instrumentType] = genrePresets[instrumentType];
+            }
+          });
+          console.log(`🎛️ Applied ${presetName} instrument presets`);
+          
+          // Update UI dropdowns to reflect new presets
+          if (typeof updatePresetDropdowns === 'function') {
+            updatePresetDropdowns();
+          }
+        }
+
+        // Apply to sequencer
+        pattern.forEach((track) => {
+          const patternKey = track.type;
+          
+          if (selectedPattern[patternKey]) {
+            track.steps = selectedPattern[patternKey].map(v => v === 1);
+          } else {
+            // Clear if not in preset
+            track.steps = new Array(16).fill(false);
           }
         });
-        console.log(`🎛️ Applied ${presetName} instrument presets`);
-        
-        // Update UI dropdowns to reflect new presets
-        updatePresetDropdowns();
-      }
 
-      // Apply to sequencer
-      pattern.forEach((track) => {
-        const patternKey = track.type;
+        renderSequencer();
+        console.log(`✅ Loaded ${presetName} preset at ${bpm} BPM!`);
         
-        if (selectedPattern[patternKey]) {
-          track.steps = selectedPattern[patternKey].map(v => v === 1);
-        } else {
-          // Clear if not in preset
-          track.steps = new Array(16).fill(false);
+        // Show notification
+        const notification = document.createElement('div');
+        notification.textContent = `🎼 ${presetName.toUpperCase()} preset loaded at ${bpm} BPM!`;
+        notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%); color: #0a0a0a; padding: 20px 30px; border-radius: 12px; font-weight: 600; z-index: 10000; box-shadow: 0 8px 32px rgba(0, 255, 157, 0.4);';
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+
+        // Auto-start playback for preview
+        if (!isPlaying) {
+          setTimeout(() => {
+            if (typeof startPlayback === 'function') {
+              startPlayback();
+            }
+          }, 500);
         }
-      });
-
-      renderSequencer();
-      console.log(`🎼 Loaded ${presetName} preset at ${bpm} BPM!`);
-      
-      // Show notification
-      const notification = document.createElement('div');
-      notification.textContent = `🎼 ${presetName.toUpperCase()} preset loaded at ${bpm} BPM!`;
-      notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%); color: #0a0a0a; padding: 20px 30px; border-radius: 12px; font-weight: 600; z-index: 10000; box-shadow: 0 8px 32px rgba(0, 255, 157, 0.4);';
-      document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 3000);
-
-      // Auto-start playback for preview
-      if (!isPlaying) {
-        setTimeout(() => startPlayback(), 500);
+      } catch (error) {
+        console.error(`❌ Error loading preset ${presetName}:`, error);
+        alert(`Error loading preset: ${error.message}`);
       }
     }
 
