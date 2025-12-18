@@ -2191,17 +2191,26 @@
         function updatePitch(semitone) {
             currentPitchIndex = parseInt(semitone);
             const noteData = NOTE_FREQUENCIES[currentPitchIndex];
-            document.getElementById('currentNote').textContent = `${noteData.note} (${Math.round(noteData.freq)}Hz)`;
+            
+            const currentNoteEl = document.getElementById('currentNote');
+            if (currentNoteEl) {
+                currentNoteEl.textContent = `${noteData.note} (${Math.round(noteData.freq)}Hz)`;
+            }
             
             // Update slider style to show position
             const slider = document.getElementById('pitchSlider');
-            const percent = (currentPitchIndex / 36) * 100;
-            slider.style.background = `linear-gradient(90deg, rgba(57, 255, 20, 0.6) 0%, rgba(57, 255, 20, 0.6) ${percent}%, rgba(57, 255, 20, 0.2) ${percent}%, rgba(57, 255, 20, 0.2) 100%)`;
+            if (slider) {
+                const percent = (currentPitchIndex / 36) * 100;
+                slider.style.background = `linear-gradient(90deg, rgba(57, 255, 20, 0.6) 0%, rgba(57, 255, 20, 0.6) ${percent}%, rgba(57, 255, 20, 0.2) ${percent}%, rgba(57, 255, 20, 0.2) 100%)`;
+            }
         }
         
         function adjustPitch(semitones) {
             const newIndex = Math.max(0, Math.min(36, currentPitchIndex + semitones));
-            document.getElementById('pitchSlider').value = newIndex;
+            const slider = document.getElementById('pitchSlider');
+            if (slider) {
+                slider.value = newIndex;
+            }
             updatePitch(newIndex);
         }
         
@@ -2235,15 +2244,23 @@
                     targetIndex = 12; // C3 - default
             }
             
-            document.getElementById('pitchSlider').value = targetIndex;
+            const slider = document.getElementById('pitchSlider');
+            if (slider) {
+                slider.value = targetIndex;
+            }
             updatePitch(targetIndex);
             console.log(`🎵 Auto-pitched to ${NOTE_FREQUENCIES[targetIndex].note} for ${category}`);
         }
         
-        // Initialize pitch display
-        document.addEventListener('DOMContentLoaded', () => {
-            updatePitch(12); // Initialize to C3
-        });
+        // Initialize pitch display (safe initialization)
+        let pitchInitialized = false;
+        function initializePitch() {
+            if (!pitchInitialized && document.getElementById('pitchSlider')) {
+                updatePitch(12); // Initialize to C3
+                pitchInitialized = true;
+                console.log('✅ Pitch control initialized');
+            }
+        }
         
         function filterPresets() {
             const category = document.getElementById('categoryFilter').value;
@@ -2295,31 +2312,47 @@
             }).join('');
         }
         
-        fetch('/data/synth-presets.json')
-            .then(r => {
-                if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
-                return r.json();
-            })
-            .then(presets => {
-                console.log('📦 Raw presets data:', presets);
-                
-                // Check if it's an array
-                if (!Array.isArray(presets)) {
-                    console.error('❌ Presets is not an array:', typeof presets);
-                    throw new Error('Invalid presets format');
-                }
-                
-                allPresets = presets;
-                filteredPresets = presets;
-                renderPresets();
-                
-                console.log('✅ Loaded', presets.length, 'synth presets');
-            })
-            .catch(e => {
-                console.error('❌ Failed to load synth presets:', e);
-                document.getElementById('presetList').innerHTML = 
-                    '<p style="text-align: center; color: var(--text-dim); padding: 20px;">Presets unavailable: ' + e.message + '</p>';
-            });
+        // Load presets with proper error handling
+        function loadSynthPresets() {
+            console.log('🔄 Loading synth presets from /data/synth-presets.json...');
+            
+            fetch('/data/synth-presets.json')
+                .then(r => {
+                    console.log('📡 Fetch response:', r.status, r.statusText);
+                    if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+                    return r.json();
+                })
+                .then(presets => {
+                    console.log('📦 Raw presets data:', presets);
+                    
+                    // Check if it's an array
+                    if (!Array.isArray(presets)) {
+                        console.error('❌ Presets is not an array:', typeof presets);
+                        throw new Error('Invalid presets format');
+                    }
+                    
+                    allPresets = presets;
+                    filteredPresets = presets;
+                    renderPresets();
+                    
+                    console.log('✅ Loaded', presets.length, 'synth presets');
+                })
+                .catch(e => {
+                    console.error('❌ Failed to load synth presets:', e);
+                    const presetList = document.getElementById('presetList');
+                    if (presetList) {
+                        presetList.innerHTML = 
+                            '<p style="text-align: center; color: var(--text-dim); padding: 20px;">Presets unavailable: ' + e.message + '</p>';
+                    }
+                });
+        }
+        
+        // Call after DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadSynthPresets);
+        } else {
+            loadSynthPresets();
+        }
 
         // Test Preset Sound Function
         function testPresetSound(presetIndex) {
@@ -3412,6 +3445,11 @@ EDITING:
                     localStorage.setItem('haos_help_shown', 'true');
                 }, 2000);
             }
+            
+            // Initialize pitch control after DOM is ready
+            setTimeout(() => {
+                initializePitch();
+            }, 100);
         });
 
         console.log('🎹 HAOS Techno Workspace - Ready with Web Audio!');
