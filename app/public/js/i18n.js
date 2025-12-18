@@ -118,6 +118,8 @@ const translations = {
     'card-piano-desc': 'Fortepian z akordami i skalami',
     'card-strings-title': 'ENIGMATIC STRINGS',
     'card-strings-desc': 'Skrzypce z emocjonalnymi frazami i arpeggios',
+    'card-bass-title': 'BASS STUDIO',
+    'card-bass-desc': 'Kreuj własny bass z eksportem WAV/MIDI',
     'card-midi-title': 'MIDI GENERATOR',
     'card-midi-desc': 'Kreatywny generator patternów',
     
@@ -305,6 +307,8 @@ const translations = {
     'card-piano-desc': 'Piano with chords & scales',
     'card-strings-title': 'ENIGMATIC STRINGS',
     'card-strings-desc': 'Violin with emotional phrases & arpeggios',
+    'card-bass-title': 'BASS STUDIO',
+    'card-bass-desc': 'Create your own bass with WAV/MIDI export',
     'card-midi-title': 'MIDI GENERATOR',
     'card-midi-desc': 'Creative pattern generator',
     
