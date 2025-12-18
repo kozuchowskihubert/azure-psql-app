@@ -595,6 +595,146 @@
 
         updateLanguageButton();
 
+        // ===== WEB AUDIO API SETUP =====
+        let audioContext;
+        let masterGain;
+        let reverbNode;
+        let delayNode;
+        let currentOscillators = [];
+        
+        // ADSR Parameters
+        let adsrParams = {
+            attack: 0.1,
+            decay: 0.3,
+            sustain: 0.7,
+            release: 0.5
+        };
+        
+        // Effect Parameters
+        let effectParams = {
+            reverb: 0.4,
+            delay: 0.2,
+            vibrato: 0.3,
+            expression: 0.7
+        };
+        
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                masterGain = audioContext.createGain();
+                masterGain.gain.value = 0.3;
+                
+                // Create reverb (convolver)
+                reverbNode = audioContext.createConvolver();
+                const reverbLength = audioContext.sampleRate * 2;
+                const reverbBuffer = audioContext.createBuffer(2, reverbLength, audioContext.sampleRate);
+                for (let channel = 0; channel < 2; channel++) {
+                    const channelData = reverbBuffer.getChannelData(channel);
+                    for (let i = 0; i < reverbLength; i++) {
+                        channelData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (reverbLength * 0.3));
+                    }
+                }
+                reverbNode.buffer = reverbBuffer;
+                
+                // Create delay
+                delayNode = audioContext.createDelay(2);
+                delayNode.delayTime.value = 0.3;
+                const delayFeedback = audioContext.createGain();
+                delayFeedback.gain.value = 0.4;
+                delayNode.connect(delayFeedback);
+                delayFeedback.connect(delayNode);
+                
+                // Connect effects chain
+                masterGain.connect(reverbNode);
+                masterGain.connect(delayNode);
+                reverbNode.connect(audioContext.destination);
+                delayNode.connect(audioContext.destination);
+                masterGain.connect(audioContext.destination);
+                
+                console.log('🎻 Audio engine initialized');
+            }
+        }
+        
+        // String synthesis with multiple oscillators for rich sound
+        function playStringNote(frequency, duration = 2) {
+            initAudio();
+            
+            const now = audioContext.currentTime;
+            const oscillators = [];
+            const gains = [];
+            
+            // Create multiple oscillators for rich string sound
+            const harmonics = [
+                { ratio: 1, detune: 0, gain: 0.8 },      // Fundamental
+                { ratio: 2, detune: 3, gain: 0.4 },      // 2nd harmonic
+                { ratio: 3, detune: -2, gain: 0.3 },     // 3rd harmonic
+                { ratio: 4, detune: 5, gain: 0.2 },      // 4th harmonic
+                { ratio: 5, detune: -3, gain: 0.15 }     // 5th harmonic
+            ];
+            
+            harmonics.forEach(h => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                const vibratoLFO = audioContext.createOscillator();
+                const vibratoGain = audioContext.createGain();
+                
+                // Main oscillator
+                osc.type = 'sawtooth';
+                osc.frequency.value = frequency * h.ratio;
+                osc.detune.value = h.detune;
+                
+                // Vibrato LFO
+                vibratoLFO.type = 'sine';
+                vibratoLFO.frequency.value = 5 + effectParams.vibrato * 2;
+                vibratoGain.gain.value = effectParams.vibrato * 10;
+                vibratoLFO.connect(vibratoGain);
+                vibratoGain.connect(osc.frequency);
+                
+                // ADSR Envelope
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(h.gain * effectParams.expression, now + adsrParams.attack);
+                gain.gain.linearRampToValueAtTime(h.gain * adsrParams.sustain * effectParams.expression, now + adsrParams.attack + adsrParams.decay);
+                gain.gain.setValueAtTime(h.gain * adsrParams.sustain * effectParams.expression, now + duration - adsrParams.release);
+                gain.gain.linearRampToValueAtTime(0, now + duration);
+                
+                // Connect chain
+                osc.connect(gain);
+                gain.connect(masterGain);
+                
+                // Start
+                osc.start(now);
+                vibratoLFO.start(now);
+                osc.stop(now + duration);
+                vibratoLFO.stop(now + duration);
+                
+                oscillators.push(osc);
+                gains.push(gain);
+            });
+            
+            currentOscillators.push(...oscillators);
+            
+            // Cleanup
+            setTimeout(() => {
+                oscillators.forEach(osc => {
+                    try { osc.disconnect(); } catch(e) {}
+                });
+                gains.forEach(g => {
+                    try { g.disconnect(); } catch(e) {}
+                });
+            }, duration * 1000 + 100);
+        }
+        
+        // Stop all playing notes
+        function stopAllNotes() {
+            currentOscillators.forEach(osc => {
+                try {
+                    osc.stop();
+                    osc.disconnect();
+                } catch(e) {}
+            });
+            currentOscillators = [];
+        }
+        
         // Preset Selection
         document.querySelectorAll('.preset-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -609,6 +749,22 @@
                 // Update note display
                 const noteDisplay = document.querySelector('.note-display');
                 noteDisplay.textContent = `Playing: ${this.textContent}`;
+                
+                // Play a test note
+                initAudio();
+                const testFrequencies = {
+                    'melancholic': 293.66,      // D4
+                    'passionate': 329.63,       // E4
+                    'mysterious': 246.94,       // B3
+                    'dramatic': 392.00,         // G4
+                    'romantic': 349.23,         // F4
+                    'epic': 440.00,             // A4
+                    'haunting': 261.63,         // C4
+                    'triumphant': 523.25        // C5
+                };
+                
+                const freq = testFrequencies[preset] || 440;
+                playStringNote(freq, 1.5);
             });
         });
 
@@ -650,18 +806,53 @@
             });
         });
 
+        // Arpeggio patterns
+        const arpeggioPatterns = {
+            'up': [0, 2, 4, 7],
+            'down': [7, 4, 2, 0],
+            'updown': [0, 2, 4, 7, 4, 2],
+            'random': [0, 4, 2, 7, 3, 5],
+            'chord': [0, 2, 4],
+            'baroque': [0, 2, 4, 2, 0, 4, 2, 4],
+            'waltz': [0, 4, 4, 0, 4, 4],
+            'broken': [0, 4, 2, 7, 2, 4]
+        };
+        
+        let isPlaying = false;
+        let playInterval;
+        
         // Transport Controls
         const playBtn = document.getElementById('playBtn');
         const stopBtn = document.getElementById('stopBtn');
         const recordBtn = document.getElementById('recordBtn');
 
         playBtn.addEventListener('click', () => {
+            initAudio();
+            const wasPlaying = playBtn.classList.contains('playing');
             playBtn.classList.toggle('playing');
-            console.log('Play/Pause');
+            isPlaying = !wasPlaying;
+            
+            if (isPlaying) {
+                // Play active preset or default melody
+                const activePreset = document.querySelector('.preset-btn.active');
+                if (activePreset) {
+                    const preset = activePreset.dataset.preset || activePreset.dataset.arp;
+                    playMelody(preset);
+                } else {
+                    // Default melody
+                    playStringNote(440, 1);
+                }
+            } else {
+                stopAllNotes();
+                if (playInterval) clearInterval(playInterval);
+            }
         });
 
         stopBtn.addEventListener('click', () => {
             playBtn.classList.remove('playing');
+            isPlaying = false;
+            stopAllNotes();
+            if (playInterval) clearInterval(playInterval);
             console.log('Stop');
         });
 
@@ -669,13 +860,65 @@
             recordBtn.classList.toggle('playing');
             console.log('Record');
         });
+        
+        // Play melody or arpeggio
+        function playMelody(preset) {
+            const baseFreq = 440; // A4
+            const scale = [0, 2, 4, 5, 7, 9, 11, 12]; // Major scale in semitones
+            
+            if (arpeggioPatterns[preset]) {
+                // Play arpeggio
+                let step = 0;
+                const pattern = arpeggioPatterns[preset];
+                playInterval = setInterval(() => {
+                    if (!isPlaying) {
+                        clearInterval(playInterval);
+                        return;
+                    }
+                    const semitone = scale[pattern[step % pattern.length]];
+                    const freq = baseFreq * Math.pow(2, semitone / 12);
+                    playStringNote(freq, 0.5);
+                    step++;
+                }, 300);
+            } else {
+                // Play single sustained note for phrases
+                playStringNote(baseFreq, 2);
+                playInterval = setInterval(() => {
+                    if (!isPlaying) {
+                        clearInterval(playInterval);
+                        return;
+                    }
+                    playStringNote(baseFreq, 2);
+                }, 2000);
+            }
+        }
 
         // Effect Sliders
         document.querySelectorAll('.slider').forEach(slider => {
             slider.addEventListener('input', (e) => {
-                console.log(`${e.target.id}:`, e.target.value);
+                const value = parseInt(e.target.value) / 100;
+                effectParams[e.target.id] = value;
+                console.log(`${e.target.id}:`, value);
+                
+                // Update audio nodes in real-time
+                if (audioContext) {
+                    if (e.target.id === 'reverb' && reverbNode) {
+                        const reverbGain = audioContext.createGain();
+                        reverbGain.gain.value = value;
+                    }
+                    if (e.target.id === 'delay' && delayNode) {
+                        delayNode.delayTime.value = 0.2 + value * 0.6;
+                    }
+                }
             });
         });
+        
+        // Initialize audio on first user interaction
+        document.addEventListener('click', () => {
+            if (!audioContext) {
+                initAudio();
+            }
+        }, { once: true });
     </script>
 </body>
 </html>

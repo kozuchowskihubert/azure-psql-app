@@ -2087,8 +2087,17 @@
         
         function renderPresets() {
             const list = document.getElementById('presetList');
+            if (!list) return;
+            
+            // If allPresets is empty, we haven't loaded yet
+            if (allPresets.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-dim); padding: 20px;">Loading presets...</p>';
+                return;
+            }
+            
+            // If filtered is empty after loading, no matches
             if (filteredPresets.length === 0) {
-                list.innerHTML = '<p style="text-align: center; color: var(--text-dim); padding: 20px;">No presets found</p>';
+                list.innerHTML = '<p style="text-align: center; color: var(--text-dim); padding: 20px;">No presets match filters</p>';
                 return;
             }
             
