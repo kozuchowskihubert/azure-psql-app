@@ -2524,7 +2524,11 @@
         name: 'Kick', 
         type: 'kick',
         synth: (time) => {
-          const preset = instrumentPresets.kick[currentPresets.kick];
+          const preset = instrumentPresets.kick[currentPresets.kick] || instrumentPresets.kick['808 Classic'];
+          if (!preset) {
+            console.error('❌ Kick preset not found:', currentPresets.kick);
+            return;
+          }
           
           // Main body (pitch sweep)
           const osc = audioContext.createOscillator();
@@ -3578,7 +3582,7 @@
         snare: 'Tight Snare',
         hihat: 'Bright HH',
         bass: 'DnB Bass',           // Heavy sub-bass for DnB
-        synth: 'Analog Lead',       // Bright lead sounds
+        synth: 'Lead Synth',        // Bright lead sounds
         piano: 'Classic Grand',
         organ: 'Full Hammond',
         strings: 'Lush Strings',
@@ -3593,49 +3597,49 @@
         bass: 'Acid Bass',          // Techno acid bass
         synth: 'Techno Stab',       // Big techno stabs and leads
         piano: 'Electric Piano',
-        organ: 'Techno Organ',      // Industrial organ sounds
-        strings: 'Analog Strings',
+        organ: 'Full Hammond',      // Industrial organ sounds
+        strings: 'Lush Strings',
         violin: 'Classical Violin',
-        trumpet: 'Synth Brass',     // Synthy brass for techno
-        guitar: 'Distorted'
+        trumpet: 'Bright Brass',    // Synthy brass for techno
+        guitar: 'Acoustic'
       },
       orchestral: {
         kick: 'Orchestral Kick',
         snare: 'Orchestral Snare',
         hihat: 'Classic HH',
-        bass: 'Upright Bass',       // Orchestral upright bass
-        synth: 'Pad Symphony',      // Symphonic pads
-        piano: 'Concert Grand',     // Grand piano for orchestral
-        organ: 'Cathedral Organ',   // Cathedral organ
-        strings: 'Orchestra Strings', // Full orchestral strings
+        bass: '808 Bass',           // Orchestral upright bass
+        synth: 'Pad Synth',         // Symphonic pads
+        piano: 'Classic Grand',     // Grand piano for orchestral
+        organ: 'Church Organ',      // Cathedral organ
+        strings: 'Lush Strings',    // Full orchestral strings
         violin: 'Classical Violin',
-        trumpet: 'Classical Trumpet', // Classical brass
-        guitar: 'Classical'
+        trumpet: 'Bright Brass',    // Classical brass
+        guitar: 'Acoustic'
       },
       trap: {
         kick: '808 Classic',
         snare: 'Trap Snare',
         hihat: 'Trap Roll HH',
         bass: '808 Bass',           // Classic 808 sub-bass
-        synth: 'Pluck',             // Trap plucks
+        synth: 'Pluck Synth',       // Trap plucks
         piano: 'Electric Piano',
         organ: 'Full Hammond',
         strings: 'Lush Strings',
         violin: 'Classical Violin',
         trumpet: 'Bright Brass',
-        guitar: 'Distorted'
+        guitar: 'Acoustic'
       },
       hiphop: {
         kick: '808 Classic',
         snare: 'Classic Snare',
         hihat: 'Classic HH',
         bass: '808 Bass',           // Classic 808 bass
-        synth: 'Warm Pad',          // Warm synth pads
+        synth: 'Warm Synth',        // Warm synth pads
         piano: 'Classic Grand',     // Classic piano samples
         organ: 'Jazz Organ',
         strings: 'Lush Strings',
         violin: 'Classical Violin',
-        trumpet: 'Muted Trumpet',
+        trumpet: 'Bright Brass',
         guitar: 'Acoustic'
       },
       jazz: {
