@@ -1124,58 +1124,63 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>🎵 Synthesis Flight Beat Engine + Vocal Recorder</h1>
-      <p>Twórz beaty, nagrywaj vocal, komponuj w harmonii</p>
+      <h1 data-i18n="header-title">🎵 Synthesis Flight Beat Engine + Vocal Recorder</h1>
+      <p data-i18n="header-subtitle">Twórz beaty, nagrywaj vocal, komponuj w harmonii</p>
+      
+      <!-- Language Toggle -->
+      <button id="langToggle" onclick="toggleLanguage()" style="position: absolute; top: 20px; right: 20px; padding: 10px 20px; background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4); transition: all 0.3s ease;">
+        🇵🇱 Polski
+      </button>
     </div>
 
     <!-- View Tabs -->
     <div class="view-tabs">
-      <button class="view-tab active" data-view="arrangement">
+      <button class="view-tab active" data-view="arrangement" data-i18n="tab-arrangement">
         🎬 Arrangement View
       </button>
-      <button class="view-tab" data-view="sequencer">
+      <button class="view-tab" data-view="sequencer" data-i18n="tab-sequencer">
         🥁 Pattern Sequencer
       </button>
     </div>
 
     <!-- Transport Controls -->
     <div class="transport-controls">
-      <button class="btn btn-play" id="playBtn">
+      <button class="btn btn-play" id="playBtn" data-i18n="btn-play">
         ▶️ Play
       </button>
-      <button class="btn btn-stop" id="stopBtn">
+      <button class="btn btn-stop" id="stopBtn" data-i18n="btn-stop">
         ⏹️ Stop
       </button>
-      <button class="btn btn-record" id="recordBtn">
+      <button class="btn btn-record" id="recordBtn" data-i18n="btn-record">
         🎤 Nagraj Vocal
       </button>
       <button class="btn" id="autotuneQuickBtn" onclick="toggleAutoTuneQuick()" style="background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%); color: white; box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);">
-        🎤 <span id="autotuneQuickText">Auto-Tune: OFF</span>
+        🎤 <span id="autotuneQuickText" data-i18n="autotune-off">Auto-Tune: OFF</span>
       </button>
-      <button class="btn" id="generateBtn" style="background: linear-gradient(135deg, #8A2BE2 0%, #DA70D6 100%); color: white; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);">
+      <button class="btn" id="generateBtn" style="background: linear-gradient(135deg, #8A2BE2 0%, #DA70D6 100%); color: white; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);" data-i18n="btn-generate">
         ✨ Generate Beat
       </button>
-      <button class="btn" id="clearBtn" style="background: rgba(255, 107, 53, 0.15); border: 2px solid rgba(255, 107, 53, 0.5); color: #FF6B35;">
+      <button class="btn" id="clearBtn" style="background: rgba(255, 107, 53, 0.15); border: 2px solid rgba(255, 107, 53, 0.5); color: #FF6B35;" data-i18n="btn-clear">
         🗑️ Wyczyść
       </button>
-      <button class="btn" id="saveBtn" style="background: linear-gradient(135deg, #00E5A0 0%, #64FFDA 100%); color: #0a0a12; box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4);">
+      <button class="btn" id="saveBtn" style="background: linear-gradient(135deg, #00E5A0 0%, #64FFDA 100%); color: #0a0a12; box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4);" data-i18n="btn-save">
         💾 Zapisz Pattern
       </button>
-      <button class="btn" id="loadBtn" style="background: linear-gradient(135deg, #00B8FF 0%, #64FFDA 100%); color: #0a0a12; box-shadow: 0 4px 15px rgba(0, 184, 255, 0.4);">
+      <button class="btn" id="loadBtn" style="background: linear-gradient(135deg, #00B8FF 0%, #64FFDA 100%); color: #0a0a12; box-shadow: 0 4px 15px rgba(0, 184, 255, 0.4);" data-i18n="btn-load">
         📂 Wczytaj Pattern
       </button>
     </div>
     
     <!-- Pattern Controls -->
     <div class="harmony-section" style="margin-bottom: 20px;">
-      <h3 style="font-size: 18px; margin-bottom: 15px;">⚙️ Ustawienia Patternu</h3>
+      <h3 style="font-size: 18px; margin-bottom: 15px;" data-i18n="pattern-settings">⚙️ Ustawienia Patternu</h3>
       <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; align-items: center;">
         <div style="display: flex; align-items: center; gap: 10px;">
-          <label style="color: #64FFDA;">Długość:</label>
+          <label style="color: #64FFDA;" data-i18n="pattern-length">Długość:</label>
           <select id="patternLengthSelect" style="padding: 8px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 4px; color: #64FFDA; cursor: pointer;">
-            <option value="8">8 kroków</option>
-            <option value="16" selected>16 kroków</option>
-            <option value="32">32 kroki</option>
+            <option value="8" data-i18n="steps-8">8 kroków</option>
+            <option value="16" selected data-i18n="steps-16">16 kroków</option>
+            <option value="32" data-i18n="steps-32">32 kroki</option>
           </select>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -5736,16 +5741,18 @@
       // Toggle Auto-Tune effect
       toggleEffect('autotune');
       
-      // Update quick button appearance
+      // Update quick button appearance with translation support
       const quickBtn = document.getElementById('autotuneQuickBtn');
       const quickText = document.getElementById('autotuneQuickText');
+      const lang = currentLanguage || 'pl';
+      const translation = translations[lang];
       
       if (effectsSettings.autotune.enabled) {
-        quickText.textContent = 'Auto-Tune: ON';
+        quickText.textContent = translation['autotune-on'] || 'Auto-Tune: ON';
         quickBtn.style.background = 'linear-gradient(135deg, #00E5A0 0%, #64FFDA 100%)';
         quickBtn.style.boxShadow = '0 4px 15px rgba(0, 229, 160, 0.4)';
       } else {
-        quickText.textContent = 'Auto-Tune: OFF';
+        quickText.textContent = translation['autotune-off'] || 'Auto-Tune: OFF';
         quickBtn.style.background = 'linear-gradient(135deg, #FF1493 0%, #FF69B4 100%)';
         quickBtn.style.boxShadow = '0 4px 15px rgba(255, 20, 147, 0.4)';
       }
@@ -5943,6 +5950,169 @@
     console.log('Instruments:', instruments.map(i => i.name));
     console.log('Current harmony:', document.getElementById('currentKey').textContent);
     console.log('🎬 Arrangement view with drag-and-drop enabled!');
+
+    // ============================================================================
+    // LANGUAGE TRANSLATION SYSTEM
+    // ============================================================================
+    
+    let currentLanguage = localStorage.getItem('language') || 'pl'; // Default to Polish
+    
+    const translations = {
+      pl: {
+        'header-title': '🎵 Synthesis Flight Beat Engine + Vocal Recorder',
+        'header-subtitle': 'Twórz beaty, nagrywaj vocal, komponuj w harmonii',
+        'tab-arrangement': '🎬 Widok Aranżacji',
+        'tab-sequencer': '🥁 Sekwencer Patternu',
+        'btn-play': '▶️ Graj',
+        'btn-stop': '⏹️ Stop',
+        'btn-record': '🎤 Nagraj Vocal',
+        'autotune-off': 'Auto-Tune: WYŁ',
+        'autotune-on': 'Auto-Tune: WŁ',
+        'btn-generate': '✨ Generuj Beat',
+        'btn-clear': '🗑️ Wyczyść',
+        'btn-save': '💾 Zapisz Pattern',
+        'btn-load': '📂 Wczytaj Pattern',
+        'pattern-settings': '⚙️ Ustawienia Patternu',
+        'pattern-length': 'Długość:',
+        'steps-8': '8 kroków',
+        'steps-16': '16 kroków',
+        'steps-32': '32 kroki',
+        'bpm-label': 'BPM:',
+        'swing-label': 'Swing:',
+        'key-label': 'Tonacja:',
+        'scale-label': 'Skala:',
+        'genre-presets': '🎼 Presets Gatunków',
+        'effects-rack': '🎛️ Rack Efektów',
+        'reverb': 'Pogłos',
+        'delay': 'Delay',
+        'filter': 'Filtr',
+        'compressor': 'Kompresor',
+        'distortion': 'Distortion',
+        'autotune': 'Auto-Tune',
+        'vocal-effects': '🎤 Efekty Vocalu',
+        'volume': 'Głośność',
+        'pitch': 'Wysokość',
+        'low-cut': 'Low-Cut',
+        'reverb-amount': 'Pogłos',
+        'echo': 'Echo',
+        'chorus': 'Chorus',
+        'export-title': '📥 Eksport Audio',
+        'export-format': 'Format:',
+        'export-duration': 'Czas (takty):',
+        'export-include-vocal': 'Dołącz nagrany vocal',
+        'export-start': '🎬 Rozpocznij Eksport',
+        'arrangement-title': '🎬 WIDOK ARANŻACJI',
+        'arrangement-subtitle': 'Układaj instrumenty na osi czasu - przeciągnij i upuść',
+        'add-instrument': '➕ Dodaj Instrument'
+      },
+      en: {
+        'header-title': '🎵 Synthesis Flight Beat Engine + Vocal Recorder',
+        'header-subtitle': 'Create beats, record vocals, compose in harmony',
+        'tab-arrangement': '🎬 Arrangement View',
+        'tab-sequencer': '🥁 Pattern Sequencer',
+        'btn-play': '▶️ Play',
+        'btn-stop': '⏹️ Stop',
+        'btn-record': '🎤 Record Vocal',
+        'autotune-off': 'Auto-Tune: OFF',
+        'autotune-on': 'Auto-Tune: ON',
+        'btn-generate': '✨ Generate Beat',
+        'btn-clear': '🗑️ Clear',
+        'btn-save': '💾 Save Pattern',
+        'btn-load': '📂 Load Pattern',
+        'pattern-settings': '⚙️ Pattern Settings',
+        'pattern-length': 'Length:',
+        'steps-8': '8 steps',
+        'steps-16': '16 steps',
+        'steps-32': '32 steps',
+        'bpm-label': 'BPM:',
+        'swing-label': 'Swing:',
+        'key-label': 'Key:',
+        'scale-label': 'Scale:',
+        'genre-presets': '🎼 Genre Presets',
+        'effects-rack': '🎛️ Effects Rack',
+        'reverb': 'Reverb',
+        'delay': 'Delay',
+        'filter': 'Filter',
+        'compressor': 'Compressor',
+        'distortion': 'Distortion',
+        'autotune': 'Auto-Tune',
+        'vocal-effects': '🎤 Vocal Effects',
+        'volume': 'Volume',
+        'pitch': 'Pitch',
+        'low-cut': 'Low-Cut',
+        'reverb-amount': 'Reverb',
+        'echo': 'Echo',
+        'chorus': 'Chorus',
+        'export-title': '📥 Export Audio',
+        'export-format': 'Format:',
+        'export-duration': 'Duration (bars):',
+        'export-include-vocal': 'Include recorded vocal',
+        'export-start': '🎬 Start Export',
+        'arrangement-title': '🎬 ARRANGEMENT VIEW',
+        'arrangement-subtitle': 'Arrange instruments on timeline - drag and drop',
+        'add-instrument': '➕ Add Instrument'
+      }
+    };
+
+    function translatePage() {
+      const lang = currentLanguage;
+      const translation = translations[lang];
+      
+      if (!translation) {
+        console.error('Translation not found for language:', lang);
+        return;
+      }
+
+      // Translate all elements with data-i18n attribute
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translation[key]) {
+          // Preserve emojis and icons at the start
+          const emoji = element.textContent.match(/^[\u{1F000}-\u{1F9FF}][\u{FE00}-\u{FE0F}]?\s*/u);
+          const emojiStr = emoji ? emoji[0] : '';
+          
+          // For elements with HTML content, update textContent
+          if (element.tagName === 'OPTION') {
+            element.textContent = translation[key];
+          } else {
+            element.innerHTML = translation[key];
+          }
+        }
+      });
+
+      // Update language toggle button
+      const langButton = document.getElementById('langToggle');
+      if (langButton) {
+        langButton.innerHTML = lang === 'pl' ? '🇬🇧 English' : '🇵🇱 Polski';
+      }
+
+      // Update Auto-Tune button state text
+      const autotuneText = document.getElementById('autotuneQuickText');
+      if (autotuneText && effectsSettings.autotune) {
+        const key = effectsSettings.autotune.enabled ? 'autotune-on' : 'autotune-off';
+        autotuneText.textContent = translation[key];
+      }
+
+      console.log(`🌍 Language changed to: ${lang === 'pl' ? 'Polski' : 'English'}`);
+    }
+
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'pl' ? 'en' : 'pl';
+      localStorage.setItem('language', currentLanguage);
+      translatePage();
+      
+      // Show notification
+      const notification = document.createElement('div');
+      notification.textContent = currentLanguage === 'pl' 
+        ? '🇵🇱 Zmieniono język na Polski' 
+        : '🇬🇧 Language changed to English';
+      notification.style.cssText = 'position: fixed; top: 80px; right: 20px; background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%); color: white; padding: 15px 25px; border-radius: 12px; font-weight: 600; z-index: 10000; box-shadow: 0 8px 32px rgba(255, 107, 53, 0.4);';
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 2000);
+    }
+
+    // Apply saved language on page load
+    translatePage();
   </script>
 </body>
 </html>
