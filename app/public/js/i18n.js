@@ -116,6 +116,8 @@ const translations = {
     'card-builder-desc': 'Stwórz własny syntezator od podstaw',
     'card-piano-title': 'EPIC PIANO',
     'card-piano-desc': 'Fortepian z akordami i skalami',
+    'card-strings-title': 'ENIGMATIC STRINGS',
+    'card-strings-desc': 'Skrzypce z emocjonalnymi frazami i arpeggios',
     'card-midi-title': 'MIDI GENERATOR',
     'card-midi-desc': 'Kreatywny generator patternów',
     
@@ -154,6 +156,8 @@ const translations = {
     'techno-save-pattern': '💾 Zapisz Pattern',
     'techno-pattern-saved': '✅ Pattern zapisany!',
     'techno-select-preset': 'Wybierz preset...',
+    'techno-pattern-presets': 'PATTERN PRESETS',
+    'techno-pattern-desc': 'Załaduj gotowe patterny i modyfikuj je na bieżąco',
     
     // Messages & Notifications
     'msg-saved': '✅ Zapisano pomyślnie',
@@ -299,6 +303,8 @@ const translations = {
     'card-builder-desc': 'Create your own custom synthesizer from scratch',
     'card-piano-title': 'EPIC PIANO',
     'card-piano-desc': 'Piano with chords & scales',
+    'card-strings-title': 'ENIGMATIC STRINGS',
+    'card-strings-desc': 'Violin with emotional phrases & arpeggios',
     'card-midi-title': 'MIDI GENERATOR',
     'card-midi-desc': 'Creative pattern generator',
     
@@ -337,6 +343,8 @@ const translations = {
     'techno-save-pattern': '💾 Save Pattern',
     'techno-pattern-saved': '✅ Pattern saved!',
     'techno-select-preset': 'Select preset...',
+    'techno-pattern-presets': 'PATTERN PRESETS',
+    'techno-pattern-desc': 'Load ready-made patterns and modify them on the fly',
     
     // Messages & Notifications
     'msg-saved': '✅ Saved successfully',

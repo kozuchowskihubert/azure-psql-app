@@ -536,6 +536,97 @@
             color: var(--text-dim);
         }
 
+        /* Pattern Preset Buttons */
+        .pattern-preset-btn {
+            padding: 15px 12px;
+            background: linear-gradient(145deg, rgba(57, 255, 20, 0.15), rgba(57, 255, 20, 0.05));
+            border: 2px solid rgba(57, 255, 20, 0.3);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .pattern-preset-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(57, 255, 20, 0.4), transparent);
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease;
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .pattern-preset-btn:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .pattern-preset-btn:hover {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 5px 20px rgba(57, 255, 20, 0.4),
+                0 0 30px rgba(57, 255, 20, 0.2);
+        }
+
+        .pattern-preset-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .pattern-preset-btn.active {
+            background: linear-gradient(135deg, var(--accent-green), #4AFF14);
+            border-color: var(--accent-green);
+            color: #000;
+            font-weight: 700;
+            box-shadow: 
+                0 5px 25px rgba(57, 255, 20, 0.6),
+                0 0 40px rgba(57, 255, 20, 0.4),
+                inset 0 2px 10px rgba(255, 255, 255, 0.3);
+            animation: patternPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes patternPulse {
+            0%, 100% { 
+                box-shadow: 
+                    0 5px 25px rgba(57, 255, 20, 0.6),
+                    0 0 40px rgba(57, 255, 20, 0.4),
+                    inset 0 2px 10px rgba(255, 255, 255, 0.3);
+            }
+            50% { 
+                box-shadow: 
+                    0 7px 35px rgba(57, 255, 20, 0.8),
+                    0 0 60px rgba(57, 255, 20, 0.6),
+                    inset 0 2px 10px rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        .pattern-preset-name {
+            position: relative;
+            z-index: 1;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .pattern-preset-bpm {
+            position: relative;
+            z-index: 1;
+            font-size: 0.7rem;
+            color: var(--accent-green);
+            opacity: 0.8;
+        }
+
         /* Responsive */
         @media (min-width: 768px) {
             .workspace-grid {
@@ -1237,6 +1328,22 @@
             
             <div id="presetList" class="preset-list">
                 <p style="text-align: center; color: var(--text-dim); padding: 20px;">Loading presets...</p>
+            </div>
+        </div>
+
+        <!-- Pattern Presets Panel -->
+        <div class="panel" style="border: 2px solid rgba(57, 255, 20, 0.3);">
+            <div class="panel-header">
+                <div class="panel-icon" style="background: rgba(57, 255, 20, 0.15);">🎵</div>
+                <h2 class="panel-title" style="color: var(--accent-green);" data-i18n="techno-pattern-presets">PATTERN PRESETS</h2>
+            </div>
+            
+            <p style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); margin-bottom: 15px; text-align: center;" data-i18n="techno-pattern-desc">
+                Load ready-made patterns and modify them on the fly
+            </p>
+            
+            <div id="patternPresetGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px;">
+                <!-- Pattern buttons will be loaded here -->
             </div>
         </div>
     </div>
@@ -2010,6 +2117,76 @@
                 console.error('Failed to load presets:', e);
                 document.getElementById('presetList').innerHTML = 
                     '<p style="text-align: center; color: var(--text-dim); padding: 20px;">Presets unavailable</p>';
+            });
+
+        // Pattern Presets
+        let patternPresets = [];
+        let activePatternIndex = -1;
+
+        function loadPatternPreset(index) {
+            const pattern = patternPresets[index];
+            if (!pattern) return;
+
+            console.log('Loading pattern:', pattern.name);
+            activePatternIndex = index;
+
+            // Update BPM
+            const bpmInput = document.getElementById('bpmInput');
+            if (bpmInput) {
+                bpmInput.value = pattern.bpm;
+            }
+
+            // Load pattern into sequencer
+            const tracks = ['kick', 'snare', 'hihat', 'openhat', 'clap', 'bass'];
+            tracks.forEach(trackName => {
+                const trackSteps = pattern.tracks[trackName];
+                if (!trackSteps) return;
+
+                const trackGrid = document.querySelector(`[data-track="${trackName}"]`)?.querySelector('.step-grid');
+                if (!trackGrid) return;
+
+                const steps = trackGrid.querySelectorAll('.step');
+                steps.forEach((step, i) => {
+                    if (trackSteps[i] === 1) {
+                        step.classList.add('active');
+                    } else {
+                        step.classList.remove('active');
+                    }
+                });
+            });
+
+            // Update button states
+            renderPatternButtons();
+        }
+
+        function renderPatternButtons() {
+            const grid = document.getElementById('patternPresetGrid');
+            if (!grid) return;
+
+            grid.innerHTML = patternPresets.map((pattern, index) => `
+                <button 
+                    class="pattern-preset-btn ${index === activePatternIndex ? 'active' : ''}"
+                    onclick="loadPatternPreset(${index})"
+                >
+                    <div class="pattern-preset-name">${pattern.name}</div>
+                    <div class="pattern-preset-bpm">${pattern.bpm} BPM</div>
+                </button>
+            `).join('');
+        }
+
+        fetch('/data/pattern-presets.json')
+            .then(r => r.json())
+            .then(data => {
+                patternPresets = data.patterns;
+                renderPatternButtons();
+                console.log('✅ Loaded', patternPresets.length, 'pattern presets');
+            })
+            .catch(e => {
+                console.error('Failed to load pattern presets:', e);
+                const grid = document.getElementById('patternPresetGrid');
+                if (grid) {
+                    grid.innerHTML = '<p style="text-align: center; color: var(--text-dim); padding: 20px; grid-column: 1 / -1;">Pattern presets unavailable</p>';
+                }
             });
 
         // Transport controls
