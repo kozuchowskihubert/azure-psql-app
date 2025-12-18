@@ -1293,6 +1293,18 @@
                         <div class="knob-value" id="value-reverb">0 %</div>
                     </div>
                 </div>
+                
+                <!-- Action Buttons -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                    <button onclick="testCurrentSound()" class="transport-btn" style="background: rgba(57, 255, 20, 0.1); border-color: var(--accent-green);">
+                        🔊 Test Sound
+                    </button>
+                    <button onclick="saveModifiedPreset()" class="transport-btn" style="background: rgba(255, 107, 53, 0.1); border-color: var(--accent-orange);">
+                        💾 Save Preset
+                    </button>
+                </div>
+                
+                <div id="presetSaveStatus" style="text-align: center; margin-top: 10px; font-size: 0.75rem; color: var(--accent-green); min-height: 20px;"></div>
             </div>
         </div>
 
@@ -2104,10 +2116,18 @@
             list.innerHTML = filteredPresets.map((p, i) => {
                 const isSelected = i === selectedPresetIndex;
                 return `
-                    <div class="preset-item" onclick="loadPreset(${i})" 
-                         style="${isSelected ? 'background: rgba(255, 107, 53, 0.2); border-color: var(--accent-orange);' : ''}">
-                        <div class="preset-name">${p.name}</div>
-                        <div class="preset-info">${p.manufacturer} - ${p.category}</div>
+                    <div class="preset-item" 
+                         style="${isSelected ? 'background: rgba(255, 107, 53, 0.2); border-color: var(--accent-orange);' : ''} display: flex; align-items: center; justify-content: space-between;">
+                        <div onclick="loadPreset(${i})" style="flex: 1; cursor: pointer;">
+                            <div class="preset-name">${p.name}</div>
+                            <div class="preset-info">${p.manufacturer} - ${p.category}</div>
+                        </div>
+                        <button onclick="event.stopPropagation(); testPresetSound(${i})" 
+                                class="transport-btn" 
+                                style="padding: 8px 12px; font-size: 0.7rem; margin-left: 10px; background: rgba(57, 255, 20, 0.1); border-color: var(--accent-green);"
+                                title="Test sound">
+                            🔊 Test
+                        </button>
                     </div>
                 `;
             }).join('');
@@ -2138,6 +2158,180 @@
                 document.getElementById('presetList').innerHTML = 
                     '<p style="text-align: center; color: var(--text-dim); padding: 20px;">Presets unavailable: ' + e.message + '</p>';
             });
+
+        // Test Preset Sound Function
+        function testPresetSound(presetIndex) {
+            const preset = filteredPresets[presetIndex];
+            if (!preset) return;
+            
+            // Load preset first
+            loadPreset(presetIndex);
+            
+            // Play a test note sequence (C3, E3, G3 chord)
+            console.log('🔊 Testing preset:', preset.name);
+            playSynthNote(261.63, 0.8); // C3
+            setTimeout(() => playSynthNote(329.63, 0.8), 100); // E3
+            setTimeout(() => playSynthNote(392.00, 0.8), 200); // G3
+        }
+        
+        // Synthesizer Engine
+        function playSynthNote(frequency, duration = 1.0) {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const now = audioContext.currentTime;
+            
+            // Get current knob values
+            const cutoff = parseFloat(document.querySelector('[data-param="cutoff"]')?.dataset.value || 2000);
+            const resonance = parseFloat(document.querySelector('[data-param="resonance"]')?.dataset.value || 1);
+            const attack = parseFloat(document.querySelector('[data-param="attack"]')?.dataset.value || 0.01);
+            const release = parseFloat(document.querySelector('[data-param="release"]')?.dataset.value || 0.3);
+            const distortionAmount = parseFloat(document.querySelector('[data-param="distortion"]')?.dataset.value || 0);
+            
+            // Create oscillators (dual-oscillator synth)
+            const osc1 = audioContext.createOscillator();
+            const osc2 = audioContext.createOscillator();
+            
+            // Set waveforms
+            osc1.type = 'sawtooth';
+            osc2.type = 'square';
+            
+            // Set frequencies (osc2 slightly detuned)
+            osc1.frequency.setValueAtTime(frequency, now);
+            osc2.frequency.setValueAtTime(frequency * 1.01, now);
+            
+            // Create gains for each oscillator
+            const osc1Gain = audioContext.createGain();
+            const osc2Gain = audioContext.createGain();
+            osc1Gain.gain.value = 0.5;
+            osc2Gain.gain.value = 0.3;
+            
+            // Create filter
+            const filter = audioContext.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(cutoff, now);
+            filter.Q.value = resonance;
+            
+            // Filter envelope
+            filter.frequency.setValueAtTime(cutoff * 0.5, now);
+            filter.frequency.exponentialRampToValueAtTime(cutoff, now + attack);
+            filter.frequency.exponentialRampToValueAtTime(cutoff * 0.3, now + duration + release);
+            
+            // Create master gain for amplitude envelope
+            const masterGain = audioContext.createGain();
+            
+            // ADSR Envelope
+            masterGain.gain.setValueAtTime(0, now);
+            masterGain.gain.linearRampToValueAtTime(0.8, now + attack);
+            masterGain.gain.setValueAtTime(0.8, now + duration);
+            masterGain.gain.exponentialRampToValueAtTime(0.001, now + duration + release);
+            
+            // Optional distortion
+            let distortionNode = null;
+            if (distortionAmount > 5) {
+                distortionNode = audioContext.createWaveShaper();
+                distortionNode.curve = makeDistortionCurve(distortionAmount * 10);
+                distortionNode.oversample = '4x';
+            }
+            
+            // Connect audio graph
+            osc1.connect(osc1Gain);
+            osc2.connect(osc2Gain);
+            osc1Gain.connect(filter);
+            osc2Gain.connect(filter);
+            
+            if (distortionNode) {
+                filter.connect(distortionNode);
+                distortionNode.connect(masterGain);
+            } else {
+                filter.connect(masterGain);
+            }
+            
+            masterGain.connect(audioContext.destination);
+            
+            // Start and stop
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + duration + release + 0.1);
+            osc2.stop(now + duration + release + 0.1);
+        }
+        
+        // Distortion curve generator
+        function makeDistortionCurve(amount) {
+            const k = amount;
+            const samples = 44100;
+            const curve = new Float32Array(samples);
+            const deg = Math.PI / 180;
+            
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2) / samples - 1;
+                curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+            }
+            return curve;
+        }
+        
+        // Test Current Sound (with current knob settings)
+        function testCurrentSound() {
+            console.log('🎹 Testing current synth settings...');
+            playSynthNote(261.63, 0.8); // C3
+            setTimeout(() => playSynthNote(329.63, 0.8), 150); // E3
+            setTimeout(() => playSynthNote(392.00, 0.8), 300); // G3
+            setTimeout(() => playSynthNote(523.25, 1.2), 450); // C4
+        }
+        
+        // Save Modified Preset
+        function saveModifiedPreset() {
+            const cutoff = parseFloat(document.querySelector('[data-param="cutoff"]')?.dataset.value || 1000);
+            const resonance = parseFloat(document.querySelector('[data-param="resonance"]')?.dataset.value || 5);
+            const attack = parseFloat(document.querySelector('[data-param="attack"]')?.dataset.value || 0.01);
+            const release = parseFloat(document.querySelector('[data-param="release"]')?.dataset.value || 0.1);
+            const distortion = parseFloat(document.querySelector('[data-param="distortion"]')?.dataset.value || 0);
+            const reverb = parseFloat(document.querySelector('[data-param="reverb"]')?.dataset.value || 0);
+            
+            const currentPreset = selectedPresetIndex >= 0 ? filteredPresets[selectedPresetIndex] : null;
+            const presetName = currentPreset ? currentPreset.name + ' (Modified)' : 'Custom Preset';
+            
+            const modifiedPreset = {
+                name: presetName,
+                manufacturer: currentPreset ? currentPreset.manufacturer : 'User',
+                category: currentPreset ? currentPreset.category : 'Custom',
+                type: currentPreset ? currentPreset.type : 'analog',
+                filter: {
+                    cutoff: Math.round(cutoff),
+                    resonance: parseFloat(resonance.toFixed(1))
+                },
+                envelope: {
+                    attack: parseFloat(attack.toFixed(3)),
+                    release: parseFloat(release.toFixed(3))
+                },
+                distortion: Math.round(distortion),
+                reverb: Math.round(reverb)
+            };
+            
+            // Download as JSON
+            const blob = new Blob([JSON.stringify(modifiedPreset, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${presetName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Show status message
+            const status = document.getElementById('presetSaveStatus');
+            if (status) {
+                status.textContent = `✅ Saved: ${presetName}`;
+                status.style.color = 'var(--accent-green)';
+                setTimeout(() => {
+                    status.textContent = '';
+                }, 3000);
+            }
+            
+            console.log('💾 Saved preset:', modifiedPreset);
+        }
 
         // Pattern Presets
         let patternPresets = [];
