@@ -649,6 +649,22 @@ try {
 }
 
 /**
+ * DAW Studio API
+ * Digital Audio Workstation - Projects, tracks, patterns, presets
+ * - Project management with BPM, time signature, key
+ * - Multi-track recording and sequencing
+ * - ADSR envelope and effects parameters
+ * - User presets and activity tracking
+ */
+try {
+  const dawRoutes = require('./routes/daw');
+  app.use('/api/daw', dawRoutes);
+  console.log('✓ DAW Studio API enabled');
+} catch (error) {
+  console.log('⚠ DAW routes not available:', error.message);
+}
+
+/**
  * Preset Management API
  * HAOS Platform modular synthesis presets with tier-based access
  */

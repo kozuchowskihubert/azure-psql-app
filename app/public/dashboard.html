@@ -2137,6 +2137,32 @@
       if (!accessToken) return;
 
       try {
+        // Try DAW Studio API first
+        const dawResponse = await fetch('/api/daw/projects', {
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (dawResponse.ok) {
+          const dawData = await dawResponse.json();
+          if (dawData.success && dawData.projects) {
+            userProjects = dawData.projects.map(p => ({
+              id: p.id,
+              name: p.project_name,
+              description: p.project_data?.description || '',
+              type: 'daw',
+              bpm: p.bpm,
+              time_signature: p.time_signature,
+              track_count: p.track_count || 0,
+              created_at: p.created_at,
+              updated_at: p.updated_at
+            }));
+            renderProjects();
+            updateDashboardStats();
+            return;
+          }
+        }
+
+        // Fallback to old API
         const response = await fetch('/api/user/projects', {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         });
@@ -2145,6 +2171,7 @@
           const data = await response.json();
           userProjects = data.projects || [];
           renderProjects();
+          updateDashboardStats();
         } else {
           // If API not available, use localStorage fallback
           userProjects = JSON.parse(localStorage.getItem('userProjects') || '[]');
@@ -2154,6 +2181,35 @@
         console.log('Using local projects:', error);
         userProjects = JSON.parse(localStorage.getItem('userProjects') || '[]');
         renderProjects();
+      }
+    }
+
+    async function updateDashboardStats() {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) return;
+
+      try {
+        // Fetch statistics from database
+        const statsResponse = await fetch('/api/daw/statistics', {
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (statsResponse.ok) {
+          const { statistics } = await statsResponse.json();
+          
+          // Update stat cards
+          const statTracks = document.getElementById('stat-tracks');
+          const statPresets = document.getElementById('stat-presets');
+          
+          if (statTracks) statTracks.textContent = statistics.total_tracks || 0;
+          if (statPresets) statPresets.textContent = statistics.total_presets || 0;
+          
+          // Update projects count
+          const projectsCount = document.querySelector('[data-stat="projects"]');
+          if (projectsCount) projectsCount.textContent = statistics.total_projects || 0;
+        }
+      } catch (error) {
+        console.log('Could not fetch statistics:', error);
       }
     }
 
@@ -2247,47 +2303,64 @@
       }
 
       const accessToken = localStorage.getItem('accessToken');
-      const newProject = {
-        id: 'proj_' + Date.now(),
-        name,
-        description,
-        type,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
 
       try {
-        const response = await fetch('/api/user/projects', {
+        // Create project in DAW Studio database
+        const response = await fetch('/api/daw/projects', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ name, description, type })
+          body: JSON.stringify({ 
+            project_name: name,
+            project_data: { description, type }
+          })
         });
 
         if (response.ok) {
           const data = await response.json();
-          userProjects.unshift(data.project || newProject);
-        } else {
-          // Fallback to localStorage
-          userProjects.unshift(newProject);
-          localStorage.setItem('userProjects', JSON.stringify(userProjects));
+          if (data.success) {
+            // Reload projects from database
+            await loadUserProjects();
+            closeNewProjectModal();
+            showToast('Project created successfully!', 'success');
+            
+            // Redirect to DAW Studio with project
+            window.location.href = `/daw-studio.html?project=${data.project.id}`;
+            return;
+          }
         }
+
+        // Fallback to localStorage
+        const newProject = {
+          id: 'proj_' + Date.now(),
+          name,
+          description,
+          type,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        userProjects.unshift(newProject);
+        localStorage.setItem('userProjects', JSON.stringify(userProjects));
+        
       } catch (error) {
         console.log('Saving project locally:', error);
+        const newProject = {
+          id: 'proj_' + Date.now(),
+          name,
+          description,
+          type,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
         userProjects.unshift(newProject);
         localStorage.setItem('userProjects', JSON.stringify(userProjects));
       }
 
       renderProjects();
       closeNewProjectModal();
-
-      // Update stats
-      const statTracks = document.getElementById('stat-tracks');
-      if (statTracks) {
-        statTracks.textContent = userProjects.filter(p => p.type === 'track').length;
-      }
+      updateDashboardStats();
 
       // Show success toast
       showToast('Project created successfully!', 'success');
