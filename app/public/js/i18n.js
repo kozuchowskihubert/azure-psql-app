@@ -161,6 +161,36 @@ const translations = {
     'techno-pattern-presets': 'PATTERN PRESETS',
     'techno-pattern-desc': 'Załaduj gotowe patterny i modyfikuj je na bieżąco',
     
+    // About Section
+    'about-title': 'O HAOS.FM',
+    'about-subtitle': 'Hardware Analog Oscillator Synthesis - Twoja Kompletna Platforma Produkcji Muzycznej',
+    'about-mission-title': 'Nasza Misja',
+    'about-mission-text': 'Demokratyzacja produkcji muzycznej poprzez przeniesienie profesjonalnych syntezatorów sprzętowych i narzędzi studyjnych do Twojej przeglądarki. Bez pobierania, bez instalacji—tylko czysta kreatywność.',
+    'about-technology-title': 'Web Audio API',
+    'about-technology-text': 'Zbudowane z wykorzystaniem najnowocześniejszej technologii Web Audio API, dostarczające autentycznego analogowego ciepła i krystalicznej cyfrowej czystości bezpośrednio w Twojej przeglądarce.',
+    'about-community-title': 'Globalna Społeczność',
+    'about-community-text': 'Dołącz do tysięcy producentów, beatmakerów i muzyków tworzących kolejną generację muzyki elektronicznej. Dziel się presetami, współpracuj i rozwijaj się razem.',
+    'about-stat-instruments': 'Profesjonalnych Instrumentów',
+    'about-stat-presets': 'Premium Presetów',
+    'about-stat-downloads': 'Wymaganych Pobrań',
+    'about-stat-access': 'Dostęp do Chmury',
+    
+    // Features Section
+    'features-title': 'POTĘŻNE FUNKCJE',
+    'features-subtitle': 'Wszystko czego potrzebujesz do tworzenia profesjonalnej muzyki, w jednej platformie',
+    'features-daw-title': 'DAW Studio',
+    'features-daw-desc': 'Wielościeżkowa oś czasu, profesjonalny mikser z miernikami VU, łańcuch efektów w czasie rzeczywistym i automatyzacja. Pełne doświadczenie DAW w Twojej przeglądarce.',
+    'features-beatmaker-title': 'Beat Maker',
+    'features-beatmaker-desc': 'Sekwencer 16-krokowy z 11 instrumentami, nagrywanie vocalu z auto-tune, aranżacja przeciągnij i upuść oraz presety gatunków.',
+    'features-modular-title': 'System Modularny',
+    'features-modular-desc': 'Patchowanie w stylu Eurorack z oscylatorami, filtrami, obwiedniami i LFO. Twórz nieograniczone możliwości dźwiękowe.',
+    'features-arp2600-title': 'ARP 2600',
+    'features-arp2600-desc': 'Fotorealistyczna odtworzenie legendarnego półmodularnego syntezatora z autentycznym analogowym ciepłem i charakterem.',
+    'features-cloud-title': 'Przechowywanie w Chmurze',
+    'features-cloud-desc': 'Zapisuj swoje utwory, presety i projekty w chmurze. Uzyskaj dostęp do swojej pracy z dowolnego urządzenia, w dowolnym miejscu na świecie.',
+    'features-collaboration-title': 'Współpraca',
+    'features-collaboration-desc': 'Pracuj razem w czasie rzeczywistym. Udostępniaj projekty, wymieniaj presety i twórz muzykę z producentami z całego świata.',
+    
     // Messages & Notifications
     'msg-saved': '✅ Zapisano pomyślnie',
     'msg-loaded': '✅ Wczytano pomyślnie',
@@ -349,6 +379,36 @@ const translations = {
     'techno-select-preset': 'Select preset...',
     'techno-pattern-presets': 'PATTERN PRESETS',
     'techno-pattern-desc': 'Load ready-made patterns and modify them on the fly',
+    
+    // About Section
+    'about-title': 'ABOUT HAOS.FM',
+    'about-subtitle': 'Hardware Analog Oscillator Synthesis - Your Complete Music Production Platform',
+    'about-mission-title': 'Our Mission',
+    'about-mission-text': 'To democratize music production by bringing professional hardware synthesizers and studio tools to your browser. No downloads, no installations—just pure creativity.',
+    'about-technology-title': 'Web Audio API',
+    'about-technology-text': 'Built with cutting-edge Web Audio API technology, delivering authentic analog warmth and pristine digital clarity right in your browser.',
+    'about-community-title': 'Global Community',
+    'about-community-text': 'Join thousands of producers, beatmakers, and musicians creating the next generation of electronic music. Share presets, collaborate, and grow together.',
+    'about-stat-instruments': 'Professional Instruments',
+    'about-stat-presets': 'Premium Presets',
+    'about-stat-downloads': 'Downloads Required',
+    'about-stat-access': 'Cloud Access',
+    
+    // Features Section
+    'features-title': 'POWERFUL FEATURES',
+    'features-subtitle': 'Everything you need to create professional music, all in one platform',
+    'features-daw-title': 'DAW Studio',
+    'features-daw-desc': 'Multi-track timeline, professional mixer with VU meters, real-time effects chain, and automation. Full DAW experience in your browser.',
+    'features-beatmaker-title': 'Beat Maker',
+    'features-beatmaker-desc': '16-step sequencer with 11 instruments, vocal recording with auto-tune, drag-and-drop arrangement, and genre presets.',
+    'features-modular-title': 'Modular System',
+    'features-modular-desc': 'Eurorack-style modular patching with oscillators, filters, envelopes, and LFOs. Create unlimited sonic possibilities.',
+    'features-arp2600-title': 'ARP 2600',
+    'features-arp2600-desc': 'Photorealistic recreation of the legendary semi-modular synthesizer with authentic analog warmth and character.',
+    'features-cloud-title': 'Cloud Storage',
+    'features-cloud-desc': 'Save your tracks, presets, and projects to the cloud. Access your work from any device, anywhere in the world.',
+    'features-collaboration-title': 'Collaboration',
+    'features-collaboration-desc': 'Work together in real-time. Share projects, exchange presets, and create music with producers worldwide.',
     
     // Messages & Notifications
     'msg-saved': '✅ Saved successfully',
