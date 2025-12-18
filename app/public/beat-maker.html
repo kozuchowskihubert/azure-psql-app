@@ -4348,6 +4348,66 @@
       }
     }
     
+    function playVocalForExport(destination) {
+      if (!vocalBuffer) return null;
+      
+      console.log('🎤 Starting vocal playback for export...');
+      
+      // Create audio processing chain (same as playVocal but connects to export destination)
+      const source = audioContext.createBufferSource();
+      source.buffer = vocalBuffer;
+
+      // Pitch shift
+      const pitchShift = vocalEffects.pitch.shift;
+      source.playbackRate.value = Math.pow(2, pitchShift / 12);
+
+      // High-pass filter
+      const highPass = audioContext.createBiquadFilter();
+      highPass.type = 'highpass';
+      highPass.frequency.value = vocalEffects.lowCut;
+
+      // Compressor
+      const compressor = audioContext.createDynamicsCompressor();
+      compressor.threshold.value = vocalEffects.compressor.threshold;
+      compressor.ratio.value = vocalEffects.compressor.ratio;
+      compressor.knee.value = 10;
+      compressor.attack.value = 0.003;
+      compressor.release.value = 0.25;
+
+      // Distortion (if enabled)
+      let distortion = null;
+      if (vocalEffects.distortion.amount > 0) {
+        distortion = createDistortion(
+          vocalEffects.distortion.type, 
+          vocalEffects.distortion.amount / 100
+        );
+      }
+
+      // Volume control
+      const volumeControl = audioContext.createGain();
+      volumeControl.gain.value = vocalEffects.volume;
+
+      // Connect chain
+      source.connect(highPass);
+      highPass.connect(compressor);
+
+      let currentNode = compressor;
+      if (distortion) {
+        currentNode.connect(distortion);
+        currentNode = distortion;
+      }
+
+      // Connect to destination (export gain)
+      currentNode.connect(volumeControl);
+      volumeControl.connect(destination);
+
+      // Start playback
+      source.start(0);
+      
+      console.log('✅ Vocal connected to export stream');
+      return source;
+    }
+    
     async function exportToWAV(bars, duration, durationSeconds) {
       const includeVocal = document.getElementById('exportIncludeVocal').checked;
       
@@ -4453,6 +4513,13 @@
           playArrangement();
         }
         
+        // Start vocal playback if included
+        let vocalSource = null;
+        if (includeVocal && vocalBuffer) {
+          vocalSource = playVocalForExport(recordingGain);
+          console.log('🎤 Vocal added to export mix');
+        }
+        
         // Update progress bar
         const startTime = Date.now();
         const progressInterval = setInterval(() => {
@@ -4485,8 +4552,12 @@
     }
     
     async function exportToWebM(format, bars, duration) {
+      const includeVocal = document.getElementById('exportIncludeVocal').checked;
+      
       document.getElementById('exportStatus').style.display = 'block';
-      document.getElementById('exportStatus').textContent = '⏳ Recording WebM...';
+      document.getElementById('exportStatus').textContent = includeVocal && vocalBuffer 
+        ? '⏳ Recording WebM with vocal...' 
+        : '⏳ Recording WebM...';
       document.getElementById('exportStatus').style.background = 'rgba(100, 255, 218, 0.1)';
       document.getElementById('exportStatus').style.borderColor = '#64FFDA';
       document.getElementById('exportStatus').style.color = '#64FFDA';
@@ -4566,6 +4637,13 @@
         const wasPlaying = isPlaying;
         if (!wasPlaying) {
           playArrangement();
+        }
+        
+        // Start vocal playback if included
+        let vocalSource = null;
+        if (includeVocal && vocalBuffer) {
+          vocalSource = playVocalForExport(recordingGain);
+          console.log('🎤 Vocal added to WebM export mix');
         }
         
         // Update progress bar
