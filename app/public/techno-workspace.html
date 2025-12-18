@@ -2363,10 +2363,10 @@
         
         // Load presets with proper error handling
         function loadSynthPresets() {
-            console.log('🔄 Loading synth presets from /data/synth-presets.json...');
+            console.log('🔄 Loading synth presets from ./data/synth-presets.json...');
             updatePresetStatus('Loading presets...', 'loading');
             
-            fetch('/data/synth-presets.json')
+            fetch('./data/synth-presets.json')
                 .then(r => {
                     console.log('📡 Fetch response:', r.status, r.statusText);
                     if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
@@ -2715,18 +2715,21 @@
             `).join('');
         }
 
-        fetch('/data/pattern-presets.json')
-            .then(r => r.json())
+        fetch('./data/pattern-presets.json')
+            .then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+                return r.json();
+            })
             .then(data => {
                 patternPresets = data.patterns;
                 renderPatternButtons();
                 console.log('✅ Loaded', patternPresets.length, 'pattern presets');
             })
             .catch(e => {
-                console.error('Failed to load pattern presets:', e);
+                console.error('❌ Failed to load pattern presets:', e);
                 const grid = document.getElementById('patternPresetGrid');
                 if (grid) {
-                    grid.innerHTML = '<p style="text-align: center; color: var(--text-dim); padding: 20px; grid-column: 1 / -1;">Pattern presets unavailable</p>';
+                    grid.innerHTML = '<p style="text-align: center; color: var(--text-dim); padding: 20px; grid-column: 1 / -1;">Pattern presets unavailable: ' + e.message + '</p>';
                 }
             });
 
