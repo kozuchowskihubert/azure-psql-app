@@ -3551,6 +3551,114 @@
       rap: 90
     };
 
+    // Genre-specific instrument presets - set ideal sounds for each style
+    const genreInstrumentPresets = {
+      dnb: {
+        kick: 'DnB Kick',
+        snare: 'Tight Snare',
+        hihat: 'Bright HH',
+        bass: 'DnB Bass',           // Heavy sub-bass for DnB
+        synth: 'Analog Lead',       // Bright lead sounds
+        piano: 'Classic Grand',
+        organ: 'Full Hammond',
+        strings: 'Lush Strings',
+        violin: 'Classical Violin',
+        trumpet: 'Bright Brass',
+        guitar: 'Acoustic'
+      },
+      techno: {
+        kick: 'Techno Kick',
+        snare: 'Industrial Clap',
+        hihat: 'Techno HH',
+        bass: 'Acid Bass',          // Techno acid bass
+        synth: 'Techno Stab',       // Big techno stabs and leads
+        piano: 'Electric Piano',
+        organ: 'Techno Organ',      // Industrial organ sounds
+        strings: 'Analog Strings',
+        violin: 'Classical Violin',
+        trumpet: 'Synth Brass',     // Synthy brass for techno
+        guitar: 'Distorted'
+      },
+      orchestral: {
+        kick: 'Orchestral Kick',
+        snare: 'Orchestral Snare',
+        hihat: 'Classic HH',
+        bass: 'Upright Bass',       // Orchestral upright bass
+        synth: 'Pad Symphony',      // Symphonic pads
+        piano: 'Concert Grand',     // Grand piano for orchestral
+        organ: 'Cathedral Organ',   // Cathedral organ
+        strings: 'Orchestra Strings', // Full orchestral strings
+        violin: 'Classical Violin',
+        trumpet: 'Classical Trumpet', // Classical brass
+        guitar: 'Classical'
+      },
+      trap: {
+        kick: '808 Classic',
+        snare: 'Trap Snare',
+        hihat: 'Trap Roll HH',
+        bass: '808 Bass',           // Classic 808 sub-bass
+        synth: 'Pluck',             // Trap plucks
+        piano: 'Electric Piano',
+        organ: 'Full Hammond',
+        strings: 'Lush Strings',
+        violin: 'Classical Violin',
+        trumpet: 'Bright Brass',
+        guitar: 'Distorted'
+      },
+      hiphop: {
+        kick: '808 Classic',
+        snare: 'Classic Snare',
+        hihat: 'Classic HH',
+        bass: '808 Bass',           // Classic 808 bass
+        synth: 'Warm Pad',          // Warm synth pads
+        piano: 'Classic Grand',     // Classic piano samples
+        organ: 'Jazz Organ',
+        strings: 'Lush Strings',
+        violin: 'Classical Violin',
+        trumpet: 'Muted Trumpet',
+        guitar: 'Acoustic'
+      },
+      jazz: {
+        kick: 'Classic Kick',
+        snare: 'Classic Snare',
+        hihat: 'Jazz Brush',
+        bass: 'Upright Bass',       // Jazz upright bass
+        synth: 'Classic Saw',
+        piano: 'Jazz Piano',        // Jazz piano sound
+        organ: 'Jazz Organ',        // Hammond jazz organ
+        strings: 'Lush Strings',
+        violin: 'Classical Violin',
+        trumpet: 'Muted Trumpet',   // Jazz muted trumpet
+        guitar: 'Jazz Guitar'
+      },
+      rap: {
+        kick: '808 Classic',
+        snare: 'Classic Snare',
+        hihat: 'Classic HH',
+        bass: '808 Bass',           // Heavy 808 bass
+        synth: 'Classic Saw',
+        piano: 'Electric Piano',
+        organ: 'Full Hammond',
+        strings: 'Lush Strings',
+        violin: 'Classical Violin',
+        trumpet: 'Bright Brass',
+        guitar: 'Acoustic'
+      },
+      house: {
+        kick: 'Deep House',
+        snare: 'Classic Snare',
+        hihat: 'Classic HH',
+        bass: 'Sub Bass',
+        synth: 'Classic Saw',
+        piano: 'Electric Piano',
+        organ: 'Full Hammond',
+        strings: 'Analog Strings',
+        violin: 'Classical Violin',
+        trumpet: 'Bright Brass',
+        guitar: 'Acoustic'
+      }
+    };
+
     function loadBeatPreset(presetName) {
       if (!beatPatterns[presetName]) {
         console.error(`Preset ${presetName} not found!`);
@@ -3564,6 +3672,17 @@
         bpm = genreBPM[presetName];
         document.getElementById('bpmRange').value = bpm;
         document.getElementById('bpmValue').textContent = bpm;
+      }
+
+      // Apply genre-specific instrument presets
+      if (genreInstrumentPresets[presetName]) {
+        const genrePresets = genreInstrumentPresets[presetName];
+        Object.keys(genrePresets).forEach(instrumentType => {
+          if (currentPresets[instrumentType] !== undefined) {
+            currentPresets[instrumentType] = genrePresets[instrumentType];
+          }
+        });
+        console.log(`🎛️ Applied ${presetName} instrument presets`);
       }
 
       // Apply to sequencer
