@@ -1149,6 +1149,9 @@
       <button class="btn btn-record" id="recordBtn">
         🎤 Nagraj Vocal
       </button>
+      <button class="btn" id="autotuneQuickBtn" onclick="toggleAutoTuneQuick()" style="background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%); color: white; box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);">
+        🎤 <span id="autotuneQuickText">Auto-Tune: OFF</span>
+      </button>
       <button class="btn" id="generateBtn" style="background: linear-gradient(135deg, #8A2BE2 0%, #DA70D6 100%); color: white; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);">
         ✨ Generate Beat
       </button>
@@ -1725,6 +1728,16 @@
       <div style="margin-bottom: 20px;">
         <label style="color: #64FFDA; display: block; margin-bottom: 8px; font-size: 14px;">Duration (bars):</label>
         <input type="number" id="exportBars" value="16" min="1" max="64" style="width: 100%; padding: 10px; background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); border-radius: 6px; color: #64FFDA; font-size: 14px;">
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="color: #64FFDA; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px;">
+          <input type="checkbox" id="exportIncludeVocal" checked style="width: 18px; height: 18px; cursor: pointer;">
+          <span>🎤 Include recorded vocal</span>
+        </label>
+        <div id="vocalInfo" style="margin-top: 8px; padding: 8px; background: rgba(255, 107, 53, 0.1); border-radius: 4px; font-size: 12px; color: #FF6B35; display: none;">
+          ℹ️ Vocal will be mixed with arrangement
+        </div>
       </div>
       
       <div id="exportProgress" style="display: none; margin-bottom: 20px;">
@@ -4288,6 +4301,21 @@
       document.getElementById('exportProgressBar').style.width = '0%';
       document.getElementById('exportStartBtn').disabled = false;
       document.getElementById('exportStartBtn').style.opacity = '1';
+      
+      // Show vocal info if vocal is recorded
+      const vocalInfoDiv = document.getElementById('vocalInfo');
+      const vocalCheckbox = document.getElementById('exportIncludeVocal');
+      if (vocalBuffer) {
+        vocalInfoDiv.style.display = 'block';
+        vocalInfoDiv.innerHTML = `✅ Vocal recorded (${vocalBuffer.duration.toFixed(1)}s) - will be included in export`;
+        vocalCheckbox.checked = true;
+        vocalCheckbox.disabled = false;
+      } else {
+        vocalInfoDiv.style.display = 'block';
+        vocalInfoDiv.innerHTML = `⚠️ No vocal recorded - only arrangement will be exported`;
+        vocalCheckbox.checked = false;
+        vocalCheckbox.disabled = true;
+      }
     }
     
     function closeExportDialog() {
@@ -4321,8 +4349,12 @@
     }
     
     async function exportToWAV(bars, duration, durationSeconds) {
+      const includeVocal = document.getElementById('exportIncludeVocal').checked;
+      
       document.getElementById('exportStatus').style.display = 'block';
-      document.getElementById('exportStatus').textContent = '⏳ Rendering WAV audio...';
+      document.getElementById('exportStatus').textContent = includeVocal && vocalBuffer 
+        ? '⏳ Rendering WAV audio with vocal...' 
+        : '⏳ Rendering WAV audio...';
       document.getElementById('exportStatus').style.background = 'rgba(100, 255, 218, 0.1)';
       document.getElementById('exportStatus').style.borderColor = '#64FFDA';
       document.getElementById('exportStatus').style.color = '#64FFDA';
@@ -5474,6 +5506,25 @@
       // Reconnect effects chain
       connectEffectsChain();
       console.log(`${effectsSettings[effectName].enabled ? '✅' : '❌'} ${effectName} ${effectsSettings[effectName].enabled ? 'enabled' : 'disabled'}`);
+    }
+    
+    function toggleAutoTuneQuick() {
+      // Toggle Auto-Tune effect
+      toggleEffect('autotune');
+      
+      // Update quick button appearance
+      const quickBtn = document.getElementById('autotuneQuickBtn');
+      const quickText = document.getElementById('autotuneQuickText');
+      
+      if (effectsSettings.autotune.enabled) {
+        quickText.textContent = 'Auto-Tune: ON';
+        quickBtn.style.background = 'linear-gradient(135deg, #00E5A0 0%, #64FFDA 100%)';
+        quickBtn.style.boxShadow = '0 4px 15px rgba(0, 229, 160, 0.4)';
+      } else {
+        quickText.textContent = 'Auto-Tune: OFF';
+        quickBtn.style.background = 'linear-gradient(135deg, #FF1493 0%, #FF69B4 100%)';
+        quickBtn.style.boxShadow = '0 4px 15px rgba(255, 20, 147, 0.4)';
+      }
     }
     
     function updateEffect(effectName, param, value) {
