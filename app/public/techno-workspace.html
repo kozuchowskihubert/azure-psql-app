@@ -955,6 +955,42 @@
         ::-webkit-scrollbar-track { background: var(--bg-dark); }
         ::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent-orange); }
+        
+        /* Pitch Slider Styling */
+        #pitchSlider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            cursor: pointer;
+            border: 2px solid rgba(57, 255, 20, 0.8);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+            transition: all 0.2s ease;
+        }
+        
+        #pitchSlider::-webkit-slider-thumb:hover {
+            background: rgba(57, 255, 20, 1);
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.8);
+            transform: scale(1.1);
+        }
+        
+        #pitchSlider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            cursor: pointer;
+            border: 2px solid rgba(57, 255, 20, 0.8);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+            transition: all 0.2s ease;
+        }
+        
+        #pitchSlider::-moz-range-thumb:hover {
+            background: rgba(57, 255, 20, 1);
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.8);
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -1291,6 +1327,29 @@
                         <div class="knob-label">REVERB</div>
                         <div class="knob" id="knob-reverb" data-param="reverb" data-min="0" data-max="100" data-value="0"></div>
                         <div class="knob-value" id="value-reverb">0 %</div>
+                    </div>
+                </div>
+                
+                <!-- Pitch/Note Control -->
+                <div style="margin-top: 20px; padding: 15px; background: rgba(57, 255, 20, 0.05); border: 1px solid rgba(57, 255, 20, 0.2); border-radius: 8px;">
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-green); letter-spacing: 0.1em;">🎵 NOTE PITCH</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: center;">
+                        <div>
+                            <input type="range" id="pitchSlider" min="0" max="36" value="12" step="1" 
+                                   style="width: 100%; height: 6px; background: linear-gradient(90deg, rgba(57, 255, 20, 0.2), rgba(57, 255, 20, 0.6)); border-radius: 3px; cursor: pointer; appearance: none;"
+                                   oninput="updatePitch(this.value)">
+                            <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.65rem; color: var(--text-dim);">
+                                <span>C2 (65Hz)</span>
+                                <span id="currentNote">C3 (131Hz)</span>
+                                <span>C5 (523Hz)</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 5px; flex-direction: column;">
+                            <button onclick="adjustPitch(-12)" class="transport-btn" style="padding: 6px 12px; font-size: 0.7rem; background: rgba(255, 107, 53, 0.1);" title="Down octave">-8ve</button>
+                            <button onclick="adjustPitch(12)" class="transport-btn" style="padding: 6px 12px; font-size: 0.7rem; background: rgba(57, 255, 20, 0.1);" title="Up octave">+8ve</button>
+                        </div>
                     </div>
                 </div>
                 
@@ -2079,9 +2138,112 @@
                 updateKnob('distortion', 0);
             }
             
+            // Auto-adjust pitch based on preset category
+            autoPitchForCategory(preset.category);
+            
             // Show visual feedback
             renderPresets();
         }
+        
+        // Note frequencies (12-tone equal temperament)
+        const NOTE_FREQUENCIES = [
+            { note: 'C2', freq: 65.41, semitone: 0 },
+            { note: 'C#2', freq: 69.30, semitone: 1 },
+            { note: 'D2', freq: 73.42, semitone: 2 },
+            { note: 'D#2', freq: 77.78, semitone: 3 },
+            { note: 'E2', freq: 82.41, semitone: 4 },
+            { note: 'F2', freq: 87.31, semitone: 5 },
+            { note: 'F#2', freq: 92.50, semitone: 6 },
+            { note: 'G2', freq: 98.00, semitone: 7 },
+            { note: 'G#2', freq: 103.83, semitone: 8 },
+            { note: 'A2', freq: 110.00, semitone: 9 },
+            { note: 'A#2', freq: 116.54, semitone: 10 },
+            { note: 'B2', freq: 123.47, semitone: 11 },
+            { note: 'C3', freq: 130.81, semitone: 12 },
+            { note: 'C#3', freq: 138.59, semitone: 13 },
+            { note: 'D3', freq: 146.83, semitone: 14 },
+            { note: 'D#3', freq: 155.56, semitone: 15 },
+            { note: 'E3', freq: 164.81, semitone: 16 },
+            { note: 'F3', freq: 174.61, semitone: 17 },
+            { note: 'F#3', freq: 185.00, semitone: 18 },
+            { note: 'G3', freq: 196.00, semitone: 19 },
+            { note: 'G#3', freq: 207.65, semitone: 20 },
+            { note: 'A3', freq: 220.00, semitone: 21 },
+            { note: 'A#3', freq: 233.08, semitone: 22 },
+            { note: 'B3', freq: 246.94, semitone: 23 },
+            { note: 'C4', freq: 261.63, semitone: 24 },
+            { note: 'C#4', freq: 277.18, semitone: 25 },
+            { note: 'D4', freq: 293.66, semitone: 26 },
+            { note: 'D#4', freq: 311.13, semitone: 27 },
+            { note: 'E4', freq: 329.63, semitone: 28 },
+            { note: 'F4', freq: 349.23, semitone: 29 },
+            { note: 'F#4', freq: 369.99, semitone: 30 },
+            { note: 'G4', freq: 392.00, semitone: 31 },
+            { note: 'G#4', freq: 415.30, semitone: 32 },
+            { note: 'A4', freq: 440.00, semitone: 33 },
+            { note: 'A#4', freq: 466.16, semitone: 34 },
+            { note: 'B4', freq: 493.88, semitone: 35 },
+            { note: 'C5', freq: 523.25, semitone: 36 }
+        ];
+        
+        let currentPitchIndex = 12; // Default C3
+        
+        function updatePitch(semitone) {
+            currentPitchIndex = parseInt(semitone);
+            const noteData = NOTE_FREQUENCIES[currentPitchIndex];
+            document.getElementById('currentNote').textContent = `${noteData.note} (${Math.round(noteData.freq)}Hz)`;
+            
+            // Update slider style to show position
+            const slider = document.getElementById('pitchSlider');
+            const percent = (currentPitchIndex / 36) * 100;
+            slider.style.background = `linear-gradient(90deg, rgba(57, 255, 20, 0.6) 0%, rgba(57, 255, 20, 0.6) ${percent}%, rgba(57, 255, 20, 0.2) ${percent}%, rgba(57, 255, 20, 0.2) 100%)`;
+        }
+        
+        function adjustPitch(semitones) {
+            const newIndex = Math.max(0, Math.min(36, currentPitchIndex + semitones));
+            document.getElementById('pitchSlider').value = newIndex;
+            updatePitch(newIndex);
+        }
+        
+        function autoPitchForCategory(category) {
+            let targetIndex = 12; // Default C3
+            
+            // Auto-adjust based on category
+            switch(category?.toLowerCase()) {
+                case 'bass':
+                    targetIndex = 4; // E2 - low bass
+                    break;
+                case 'lead':
+                    targetIndex = 24; // C4 - mid-high lead
+                    break;
+                case 'pad':
+                    targetIndex = 19; // G3 - mid pad
+                    break;
+                case 'keys':
+                    targetIndex = 24; // C4 - standard keys
+                    break;
+                case 'brass':
+                    targetIndex = 21; // A3 - brass range
+                    break;
+                case 'strings':
+                    targetIndex = 19; // G3 - strings
+                    break;
+                case 'fx':
+                    targetIndex = 28; // E4 - high FX
+                    break;
+                default:
+                    targetIndex = 12; // C3 - default
+            }
+            
+            document.getElementById('pitchSlider').value = targetIndex;
+            updatePitch(targetIndex);
+            console.log(`🎵 Auto-pitched to ${NOTE_FREQUENCIES[targetIndex].note} for ${category}`);
+        }
+        
+        // Initialize pitch display
+        document.addEventListener('DOMContentLoaded', () => {
+            updatePitch(12); // Initialize to C3
+        });
         
         function filterPresets() {
             const category = document.getElementById('categoryFilter').value;
@@ -2167,11 +2329,15 @@
             // Load preset first
             loadPreset(presetIndex);
             
-            // Play a test note sequence (C3, E3, G3 chord)
-            console.log('🔊 Testing preset:', preset.name);
-            playSynthNote(261.63, 0.8); // C3
-            setTimeout(() => playSynthNote(329.63, 0.8), 100); // E3
-            setTimeout(() => playSynthNote(392.00, 0.8), 200); // G3
+            // Get current selected note
+            const baseFreq = NOTE_FREQUENCIES[currentPitchIndex].freq;
+            const noteName = NOTE_FREQUENCIES[currentPitchIndex].note;
+            
+            // Play a chord based on selected note
+            console.log('🔊 Testing preset:', preset.name, 'at', noteName);
+            playSynthNote(baseFreq, 0.8); // Root
+            setTimeout(() => playSynthNote(baseFreq * 1.2599, 0.8), 100); // Major third (+4 semitones)
+            setTimeout(() => playSynthNote(baseFreq * 1.4983, 0.8), 200); // Perfect fifth (+7 semitones)
         }
         
         // Synthesizer Engine
@@ -2273,11 +2439,16 @@
         
         // Test Current Sound (with current knob settings)
         function testCurrentSound() {
-            console.log('🎹 Testing current synth settings...');
-            playSynthNote(261.63, 0.8); // C3
-            setTimeout(() => playSynthNote(329.63, 0.8), 150); // E3
-            setTimeout(() => playSynthNote(392.00, 0.8), 300); // G3
-            setTimeout(() => playSynthNote(523.25, 1.2), 450); // C4
+            const baseFreq = NOTE_FREQUENCIES[currentPitchIndex].freq;
+            const noteName = NOTE_FREQUENCIES[currentPitchIndex].note;
+            
+            console.log('🎹 Testing current synth settings at', noteName, '...');
+            
+            // Play arpeggio: Root - Major 3rd - Perfect 5th - Octave
+            playSynthNote(baseFreq, 0.8); // Root
+            setTimeout(() => playSynthNote(baseFreq * 1.2599, 0.8), 150); // Major third
+            setTimeout(() => playSynthNote(baseFreq * 1.4983, 0.8), 300); // Perfect fifth
+            setTimeout(() => playSynthNote(baseFreq * 2, 1.2), 450); // Octave
         }
         
         // Save Modified Preset
@@ -2292,11 +2463,18 @@
             const currentPreset = selectedPresetIndex >= 0 ? filteredPresets[selectedPresetIndex] : null;
             const presetName = currentPreset ? currentPreset.name + ' (Modified)' : 'Custom Preset';
             
+            const noteData = NOTE_FREQUENCIES[currentPitchIndex];
+            
             const modifiedPreset = {
                 name: presetName,
                 manufacturer: currentPreset ? currentPreset.manufacturer : 'User',
                 category: currentPreset ? currentPreset.category : 'Custom',
                 type: currentPreset ? currentPreset.type : 'analog',
+                pitch: {
+                    note: noteData.note,
+                    frequency: Math.round(noteData.freq * 100) / 100,
+                    semitone: noteData.semitone
+                },
                 filter: {
                     cutoff: Math.round(cutoff),
                     resonance: parseFloat(resonance.toFixed(1))
