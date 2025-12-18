@@ -8,6 +8,9 @@
     <!-- Fonts - Technical Monospace -->
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- i18n Translation System -->
+    <script src="/js/i18n.js"></script>
+    
     <!-- HAOS Knob Component -->
     <script src="/js/components/haos-knob.js"></script>
     
@@ -882,6 +885,13 @@
                 <a href="/modular-workspace" class="nav-link">MODULAR</a>
                 <a href="/builder" class="nav-link">BUILDER</a>
                 <a href="/sounds" class="nav-link">SOUNDS</a>
+                <!-- Language Toggle -->
+                <button id="languageToggle" onclick="toggleLanguage()" 
+                    style="background: linear-gradient(135deg, #FF6B35, #FF8C42); color: white; border: none; border-radius: 8px; padding: 6px 12px; font-family: var(--font-mono); font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; margin-left: 10px;"
+                    onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 15px rgba(255, 107, 53, 0.4)';"
+                    onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                    🇵🇱 PL
+                </button>
             </div>
         </div>
     </nav>
@@ -890,19 +900,19 @@
     <div class="main-content">
         <!-- Hero -->
         <section class="hero">
-            <h1 class="hero-title">TECHNO WORKSPACE</h1>
-            <p class="hero-subtitle">Live Production Studio • 16-Step Sequencer • Real-time Synthesis</p>
-            <button onclick="showKeyboardHelp()" style="margin-top: 10px; padding: 8px 16px; background: rgba(255, 107, 53, 0.1); border: 1px solid var(--border-subtle); border-radius: 20px; color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer;">
+            <h1 class="hero-title" data-i18n="techno-hero-title">TECHNO WORKSPACE</h1>
+            <p class="hero-subtitle" data-i18n="techno-hero-subtitle">Live Production Studio • 16-Step Sequencer • Real-time Synthesis</p>
+            <button onclick="showKeyboardHelp()" style="margin-top: 10px; padding: 8px 16px; background: rgba(255, 107, 53, 0.1); border: 1px solid var(--border-subtle); border-radius: 20px; color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer;" data-i18n="techno-keyboard-shortcuts">
                 ⌨️ KEYBOARD SHORTCUTS
             </button>
         </section>
 
         <!-- Transport Controls -->
         <div class="transport-bar">
-            <button class="transport-btn" id="playBtn">
+            <button class="transport-btn" id="playBtn" data-i18n="techno-play">
                 <span style="margin-right: 8px;">▶</span> PLAY
             </button>
-            <button class="transport-btn" id="stopBtn">
+            <button class="transport-btn" id="stopBtn" data-i18n="techno-stop">
                 <span style="margin-right: 8px;">■</span> STOP
             </button>
             
@@ -1199,7 +1209,7 @@
         <div class="panel">
             <div class="panel-header">
                 <div class="panel-icon">💾</div>
-                <h2 class="panel-title">SYNTH PRESETS</h2>
+                <h2 class="panel-title" data-i18n="techno-preset-browser">📚 PRZEGLĄDARKA PRESETÓW</h2>
             </div>
             
             <!-- Preset Filters -->
@@ -2836,6 +2846,20 @@ EDITING:
         });
 
         console.log('🎹 HAOS Techno Workspace - Ready with Web Audio!');
+    </script>
+    
+    <!-- Initialize i18n Translation System -->
+    <script>
+        // Apply translations on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            translatePage();
+            
+            // Update language toggle button text
+            const langBtn = document.getElementById('languageToggle');
+            if (langBtn) {
+                langBtn.textContent = currentLanguage === 'pl' ? '🇵🇱 PL' : '🇬🇧 EN';
+            }
+        });
     </script>
 </body>
 </html>

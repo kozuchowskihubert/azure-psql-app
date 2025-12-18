@@ -141,6 +141,20 @@ const translations = {
     'dropdown-midigen': 'MIDI GEN',
     'dropdown-midigen-subtitle': 'Kreator Patternów',
     
+    // Techno Workspace
+    'techno-hero-title': 'TECHNO WORKSPACE',
+    'techno-hero-subtitle': 'Studio Produkcji Live • 16-Step Sequencer • Synteza w Czasie Rzeczywistym',
+    'techno-keyboard-shortcuts': '⌨️ SKRÓTY KLAWISZOWE',
+    'techno-play': '▶ PLAY',
+    'techno-stop': '■ STOP',
+    'techno-clear': '🗑️ WYCZYŚĆ',
+    'techno-randomize': '🎲 LOSUJ',
+    'techno-preset-browser': '📚 PRZEGLĄDARKA PRESETÓW',
+    'techno-load-preset': 'Załaduj Preset',
+    'techno-save-pattern': '💾 Zapisz Pattern',
+    'techno-pattern-saved': '✅ Pattern zapisany!',
+    'techno-select-preset': 'Wybierz preset...',
+    
     // Messages & Notifications
     'msg-saved': '✅ Zapisano pomyślnie',
     'msg-loaded': '✅ Wczytano pomyślnie',
@@ -309,6 +323,20 @@ const translations = {
     'dropdown-piano-subtitle': 'Chords & Scales',
     'dropdown-midigen': 'MIDI GEN',
     'dropdown-midigen-subtitle': 'Pattern Creator',
+    
+    // Techno Workspace
+    'techno-hero-title': 'TECHNO WORKSPACE',
+    'techno-hero-subtitle': 'Live Production Studio • 16-Step Sequencer • Real-time Synthesis',
+    'techno-keyboard-shortcuts': '⌨️ KEYBOARD SHORTCUTS',
+    'techno-play': '▶ PLAY',
+    'techno-stop': '■ STOP',
+    'techno-clear': '🗑️ CLEAR',
+    'techno-randomize': '🎲 RANDOMIZE',
+    'techno-preset-browser': '📚 PRESET BROWSER',
+    'techno-load-preset': 'Load Preset',
+    'techno-save-pattern': '💾 Save Pattern',
+    'techno-pattern-saved': '✅ Pattern saved!',
+    'techno-select-preset': 'Select preset...',
     
     // Messages & Notifications
     'msg-saved': '✅ Saved successfully',
