@@ -70,7 +70,7 @@ class HAOSAuthService {
         SELECT 
           s.session_id, s.user_id, s.session_type, s.tier,
           s.access_token, s.refresh_token, s.expires_at,
-          u.email, u.display_name, u.avatar_url
+          u.email, u.display_name, u.avatar_url, u.google_id, u.subscription_tier
         FROM user_sessions s
         LEFT JOIN users u ON s.user_id = u.id
         WHERE s.session_id = $1 AND s.expires_at > NOW()
@@ -83,7 +83,7 @@ class HAOSAuthService {
         id: session.session_id,
         userId: session.user_id,
         type: session.session_type,
-        tier: session.tier,
+        tier: session.subscription_tier || session.tier,
         accessToken: session.access_token,
         refreshToken: session.refresh_token,
         expiresAt: session.expires_at,
@@ -91,7 +91,11 @@ class HAOSAuthService {
           id: session.user_id,
           email: session.email,
           name: session.display_name,
-          avatar: session.avatar_url
+          displayName: session.display_name,
+          avatar: session.avatar_url,
+          avatarUrl: session.avatar_url,
+          googleId: session.google_id,
+          subscriptionTier: session.subscription_tier
         } : null
       };
     } catch (error) {

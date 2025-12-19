@@ -908,8 +908,10 @@
       <!-- User Welcome Section -->
       <div class="account-card" style="margin-bottom: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
         <div style="display: flex; align-items: center; gap: 1.5rem;">
-          <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 28px;">
-            <i class="fas fa-user"></i>
+          <!-- Google Profile Photo or Default Avatar -->
+          <div id="user-avatar-container" style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 32px; overflow: hidden; border: 3px solid rgba(255,255,255,0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            <i class="fas fa-user" id="default-avatar-icon"></i>
+            <img id="user-avatar-photo" src="" alt="Profile" style="display: none; width: 100%; height: 100%; object-fit: cover;">
           </div>
           <div style="flex: 1;">
             <h2 style="margin: 0 0 0.5rem 0; font-size: 1.75rem;">
@@ -922,6 +924,11 @@
             <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">
               <i class="fas fa-crown" style="margin-right: 0.5rem;"></i>
               Tier: <strong><span id="user-display-tier">Free</span></strong>
+            </p>
+            <!-- Google Account Badge -->
+            <p id="google-account-badge" style="margin: 0.5rem 0 0 0; opacity: 0.8; font-size: 0.85rem; display: none;">
+              <i class="fab fa-google" style="margin-right: 0.5rem;"></i>
+              Signed in with Google
             </p>
           </div>
           <div style="text-align: right;">
@@ -1311,6 +1318,27 @@
       // Update tier
       const tier = user.subscription_tier || 'free';
       document.getElementById('user-display-tier').textContent = tier.charAt(0).toUpperCase() + tier.slice(1);
+      
+      // Update Google profile photo
+      const avatarPhoto = document.getElementById('user-avatar-photo');
+      const defaultIcon = document.getElementById('default-avatar-icon');
+      const googleBadge = document.getElementById('google-account-badge');
+      
+      if (user.avatar_url || user.avatarUrl) {
+        const avatarUrl = user.avatar_url || user.avatarUrl;
+        avatarPhoto.src = avatarUrl;
+        avatarPhoto.style.display = 'block';
+        defaultIcon.style.display = 'none';
+        console.log('[Account] Google avatar loaded:', avatarUrl);
+      } else {
+        avatarPhoto.style.display = 'none';
+        defaultIcon.style.display = 'block';
+      }
+      
+      // Show Google badge if user has google_id
+      if (user.google_id || user.googleId) {
+        googleBadge.style.display = 'block';
+      }
       
       // Update member since
       if (user.created_at) {
