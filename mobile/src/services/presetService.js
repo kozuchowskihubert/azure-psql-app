@@ -31,22 +31,63 @@ class PresetService {
   async fetchPresets(filters = {}) {
     try {
       const headers = await this.getAuthHeaders();
-      const params = new URLSearchParams();
       
-      if (filters.category) params.append('category', filters.category);
-      if (filters.workspace) params.append('workspace', filters.workspace);
-      if (filters.search) params.append('search', filters.search);
-      if (filters.featured) params.append('featured', 'true');
-      if (filters.limit) params.append('limit', filters.limit);
-      if (filters.offset) params.append('offset', filters.offset);
-
-      const response = await axios.get(`${API_URL}/presets?${params}`, { headers });
+      // Use /api/studio/presets endpoint which has 50 factory presets
+      const response = await axios.get(`${API_URL}/studio/presets`, { headers });
+      
+      let presets = response.data.presets || [];
+      
+      // Apply client-side filtering
+      if (filters.category) {
+        presets = presets.filter(p => 
+          p.category?.toLowerCase() === filters.category.toLowerCase()
+        );
+      }
+      
+      if (filters.workspace) {
+        // Map workspace to preset type
+        const typeMap = {
+          'TECHNO': ['tb303', 'tr909', 'tr808'],
+          'MODULAR': ['arp2600'],
+          'BUILDER': ['custom']
+        };
+        const types = typeMap[filters.workspace] || [];
+        presets = presets.filter(p => types.includes(p.type));
+      }
+      
+      if (filters.search) {
+        const query = filters.search.toLowerCase();
+        presets = presets.filter(p => 
+          p.name?.toLowerCase().includes(query) ||
+          p.description?.toLowerCase().includes(query) ||
+          p.tags?.some(tag => tag.toLowerCase().includes(query))
+        );
+      }
+      
+      if (filters.featured) {
+        // Mark classics as featured
+        presets = presets.filter(p => p.category === 'Classic');
+      }
+      
+      // Apply pagination
+      if (filters.offset || filters.limit) {
+        const offset = parseInt(filters.offset) || 0;
+        const limit = parseInt(filters.limit) || presets.length;
+        presets = presets.slice(offset, offset + limit);
+      }
+      
+      const result = {
+        success: true,
+        count: presets.length,
+        total: response.data.total || presets.length,
+        presets
+      };
       
       // Cache results
-      this.cachedPresets = response.data;
-      await AsyncStorage.setItem(PRESETS_CACHE_KEY, JSON.stringify(response.data));
+      this.cachedPresets = result;
+      await AsyncStorage.setItem(PRESETS_CACHE_KEY, JSON.stringify(result));
       
-      return response.data;
+      return result;
     } catch (error) {
       console.error('Failed to fetch presets:', error);
       
@@ -71,9 +112,27 @@ class PresetService {
    */
   async getPreset(presetId) {
     try {
+      // First try to find in cached presets
+      if (this.cachedPresets?.presets) {
+        const preset = this.cachedPresets.presets.find(p => p.id === presetId);
+        if (preset) return preset;
+      }
+      
+      // Try downloaded presets
+      const downloaded = await this.getDownloadedPresets();
+      const preset = downloaded.find(p => p.id === presetId);
+      if (preset) return preset;
+      
+      // Fetch from API if not found locally
       const headers = await this.getAuthHeaders();
-      const response = await axios.get(`${API_URL}/presets/${presetId}`, { headers });
-      return response.data;
+      const response = await axios.get(`${API_URL}/studio/presets`, { headers });
+      const foundPreset = response.data.presets?.find(p => p.id === presetId);
+      
+      if (foundPreset) {
+        return foundPreset;
+      }
+      
+      throw new Error('Preset not found');
     } catch (error) {
       console.error('Failed to fetch preset:', error);
       throw error;
