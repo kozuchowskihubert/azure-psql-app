@@ -122,6 +122,41 @@
       background: linear-gradient(135deg, #FF6B35, #D4AF37);
     }
 
+    /* Enhanced Auth Buttons */
+    #sign-in-btn {
+      font-weight: 600;
+      box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    #sign-in-btn:hover {
+      background: rgba(255, 107, 53, 0.3) !important;
+      color: #FF6B35 !important;
+      box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+      transform: translateY(-2px);
+    }
+
+    #sign-out-btn {
+      font-weight: 600;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+    }
+
+    #sign-out-btn:hover {
+      background: rgba(212, 175, 55, 0.3) !important;
+      color: #D4AF37 !important;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+      transform: translateY(-2px);
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+      }
+      50% {
+        box-shadow: 0 0 25px rgba(255, 107, 53, 0.5);
+      }
+    }
+
     /* Container */
     .container {
       position: relative;
@@ -831,6 +866,16 @@
       <a href="/studio.html" class="nav-link">Studio</a>
       <a href="/pricing.html" class="nav-link">Pricing</a>
       <a href="/account.html" class="nav-link active">Account</a>
+      
+      <!-- Dynamic Sign In / Sign Out Button -->
+      <div id="auth-button-container" style="margin-left: 1rem;">
+        <a href="/login.html" id="sign-in-btn" class="nav-link" style="display: none; background: rgba(255, 107, 53, 0.2); color: #FF6B35;">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </a>
+        <button id="sign-out-btn" class="nav-link" style="display: none; background: rgba(212, 175, 55, 0.2); color: #D4AF37; border: none; cursor: pointer;">
+          <i class="fas fa-sign-out-alt"></i> Sign Out
+        </button>
+      </div>
     </nav>
   </header>
 
@@ -1284,6 +1329,68 @@
         tierBadge.style.color = '#90EE90';
       }
     }
+
+    // Update authentication buttons in header
+    function updateAuthButtons(isAuthenticated, user = null) {
+      const signInBtn = document.getElementById('sign-in-btn');
+      const signOutBtn = document.getElementById('sign-out-btn');
+      
+      if (isAuthenticated && user) {
+        // User is logged in - show Sign Out button
+        signInBtn.style.display = 'none';
+        signOutBtn.style.display = 'inline-block';
+        
+        // Add tooltip with user email
+        signOutBtn.title = `Signed in as ${user.email || 'User'}`;
+      } else {
+        // User is not logged in - show Sign In button
+        signInBtn.style.display = 'inline-block';
+        signOutBtn.style.display = 'none';
+      }
+    }
+
+    // Handle sign out
+    async function handleSignOut() {
+      try {
+        console.log('[Account] Signing out...');
+        
+        // Call logout endpoint
+        const response = await fetch('/auth/logout', {
+          method: 'GET',
+          credentials: 'include'
+        });
+        
+        // Clear local storage
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('haos_token');
+        localStorage.removeItem('haos_refresh_token');
+        localStorage.removeItem('userProfile');
+        localStorage.removeItem('haos_user');
+        localStorage.removeItem('oauth_redirect');
+        localStorage.removeItem('oauth_redirect_time');
+        sessionStorage.clear();
+        
+        console.log('[Account] ✅ Signed out successfully');
+        
+        // Redirect to home page
+        window.location.href = '/';
+      } catch (error) {
+        console.error('[Account] Sign out error:', error);
+        // Even if the API call fails, clear local data and redirect
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = '/';
+      }
+    }
+
+    // Attach sign out handler
+    document.addEventListener('DOMContentLoaded', () => {
+      const signOutBtn = document.getElementById('sign-out-btn');
+      if (signOutBtn) {
+        signOutBtn.addEventListener('click', handleSignOut);
+      }
+    });
     
     // State
     let currentUser = null;
@@ -1424,16 +1531,19 @@
           currentUser = data.user;
           localStorage.setItem('userProfile', JSON.stringify(data.user));
           updateUserWelcome(data.user);
+          updateAuthButtons(true, data.user); // Update header buttons
           document.getElementById('account-content').style.display = 'block';
           await loadAccountData();
         } else {
           console.log('[Account] ❌ Not authenticated, showing login prompt');
           console.log('[Account] 💡 Check: https://haos.fm/debug-session.html');
+          updateAuthButtons(false); // Update header buttons
           document.getElementById('not-logged-in').style.display = 'block';
         }
       } catch (error) {
         console.error('Auth check failed:', error);
         document.getElementById('loading').style.display = 'none';
+        updateAuthButtons(false); // Update header buttons
         document.getElementById('not-logged-in').style.display = 'block';
       }
     }
