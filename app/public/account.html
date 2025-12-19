@@ -1588,11 +1588,13 @@
       const priceYearly = sub.price_yearly ? (sub.price_yearly / 100).toFixed(2) : '0';
       const cycle = sub.billing_cycle || 'monthly';
       const price = cycle === 'yearly' ? priceYearly : priceMonthly;
+      const currency = sub.currency || 'PLN';
+      const currencySymbol = currency === 'PLN' ? 'zł' : '$';
       
       document.getElementById('plan-price').innerHTML = 
         planCode === 'free' 
-          ? '<span>$0</span> / month'
-          : `<span>$${price}</span> / ${cycle === 'yearly' ? 'year' : 'month'}`;
+          ? `<span>0 ${currencySymbol}</span> / month`
+          : `<span>${price} ${currencySymbol}</span> / ${cycle === 'yearly' ? 'year' : 'month'}`;
 
       // Update status
       const statusEl = document.getElementById('sub-status');
@@ -1659,7 +1661,6 @@
         basic: {
           tagline: 'For hobbyist producers',
           priceNote: '50% OFF Launch Promo',
-          originalPrice: '19.99',
           highlights: [
             { icon: 'fa-music', text: '25 tracks' },
             { icon: 'fa-sliders-h', text: '100 presets' },
@@ -1672,7 +1673,6 @@
         premium: {
           tagline: 'For serious producers',
           priceNote: '50% OFF Launch Promo - MOST POPULAR',
-          originalPrice: '49.99',
           highlights: [
             { icon: 'fa-infinity', text: '<strong>Unlimited</strong> tracks' },
             { icon: 'fa-infinity', text: '<strong>Unlimited</strong> presets' },
@@ -1686,7 +1686,6 @@
         pro: {
           tagline: 'For professional studios',
           priceNote: '50% OFF Launch Promo',
-          originalPrice: '99.99',
           highlights: [
             { icon: 'fa-check', text: 'Everything in Premium' },
             { icon: 'fa-layer-group', text: '<strong>Stems export</strong>' },
