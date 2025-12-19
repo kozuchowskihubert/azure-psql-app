@@ -131,21 +131,23 @@
             padding-bottom: 40px;
         }
 
-        /* 3D Visualization Container */
-        .visual-3d-container {
+        /* 2D Visualization Container */
+        .visual-container {
             width: 100%;
             max-width: 1200px;
-            height: 400px;
+            height: 300px;
             margin: 0 auto 40px;
             position: relative;
             border-radius: 20px;
             overflow: hidden;
-            background: radial-gradient(ellipse at center, rgba(57, 255, 20, 0.1) 0%, transparent 70%);
-            border: 1px solid var(--border-subtle);
-            box-shadow: inset 0 0 100px rgba(57, 255, 20, 0.1);
+            background: linear-gradient(135deg, rgba(57, 255, 20, 0.05), rgba(5, 5, 8, 0.9));
+            border: 2px solid var(--border-subtle);
+            box-shadow: 
+                inset 0 0 100px rgba(57, 255, 20, 0.1),
+                0 10px 50px rgba(0, 0, 0, 0.5);
         }
 
-        #bassCanvas {
+        #bassVisualizer {
             width: 100%;
             height: 100%;
             display: block;
@@ -153,20 +155,21 @@
 
         .visual-overlay {
             position: absolute;
-            bottom: 20px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(5, 5, 8, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 12px 24px;
+            background: rgba(5, 5, 8, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 12px 28px;
             border-radius: 30px;
-            border: 1px solid var(--border-glow);
+            border: 2px solid var(--border-glow);
             font-family: var(--font-mono);
             font-size: 0.75rem;
             color: var(--accent-green);
             text-transform: uppercase;
             letter-spacing: 2px;
             pointer-events: none;
+            box-shadow: 0 5px 30px var(--accent-green-glow);
         }
 
         /* Hero Section */
@@ -454,10 +457,10 @@
             <p class="hero-subtitle">Professional Bass Synthesizer with WAV/MIDI Export</p>
         </section>
 
-        <!-- 3D Bass Visualization -->
-        <div class="visual-3d-container">
-            <canvas id="bassCanvas"></canvas>
-            <div class="visual-overlay">🎸 3D BASS GUITAR</div>
+        <!-- Bass Frequency Visualizer -->
+        <div class="visual-container">
+            <canvas id="bassVisualizer"></canvas>
+            <div class="visual-overlay">🎸 BASS FREQUENCY ANALYZER</div>
         </div>
 
         <!-- Controls Grid -->
@@ -671,269 +674,239 @@
         </div>
     </main>
 
-    <!-- Three.js for 3D visualization -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-    <!-- 3D Bass Guitar Visualization -->
+    <!-- 2D Bass Frequency Visualizer -->
     <script>
-        // Initialize 3D Bass Guitar
-        const canvas = document.getElementById('bassCanvas');
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x050508);
-        scene.fog = new THREE.Fog(0x050508, 10, 50);
-
-        const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
-        camera.position.set(0, 2, 8);
-        camera.lookAt(0, 0, 0);
-
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-        // Ambient light
-        const ambientLight = new THREE.AmbientLight(0x39ff14, 0.3);
-        scene.add(ambientLight);
-
-        // Green accent lights
-        const spotLight1 = new THREE.SpotLight(0x39ff14, 1.5);
-        spotLight1.position.set(5, 10, 5);
-        spotLight1.castShadow = true;
-        spotLight1.angle = Math.PI / 6;
-        spotLight1.penumbra = 0.5;
-        scene.add(spotLight1);
-
-        const spotLight2 = new THREE.SpotLight(0x4aff14, 1.2);
-        spotLight2.position.set(-5, 8, 3);
-        spotLight2.angle = Math.PI / 5;
-        scene.add(spotLight2);
-
-        // Bass Guitar Body
-        const bodyGeometry = new THREE.BoxGeometry(2.5, 0.3, 1.2);
-        const bodyMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x0a0a0a,
-            metalness: 0.8,
-            roughness: 0.2,
-            clearcoat: 1.0,
-            clearcoatRoughness: 0.1,
-            emissive: 0x39ff14,
-            emissiveIntensity: 0.1
-        });
-        const bassBody = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        bassBody.castShadow = true;
-        bassBody.receiveShadow = true;
-        scene.add(bassBody);
-
-        // Bass Neck
-        const neckGeometry = new THREE.BoxGeometry(4, 0.15, 0.4);
-        const neckMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x2a1810,
-            metalness: 0.3,
-            roughness: 0.7
-        });
-        const bassNeck = new THREE.Mesh(neckGeometry, neckMaterial);
-        bassNeck.position.set(3, 0, 0);
-        bassNeck.castShadow = true;
-        scene.add(bassNeck);
-
-        // Headstock
-        const headstockGeometry = new THREE.BoxGeometry(0.6, 0.2, 0.5);
-        const headstockMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x0a0a0a,
-            metalness: 0.9,
-            roughness: 0.1
-        });
-        const headstock = new THREE.Mesh(headstockGeometry, headstockMaterial);
-        headstock.position.set(5.3, 0, 0);
-        headstock.castShadow = true;
-        scene.add(headstock);
-
-        // Bass Strings (4 strings)
-        const stringMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xc0c0c0,
-            metalness: 1.0,
-            roughness: 0.1,
-            emissive: 0x39ff14,
-            emissiveIntensity: 0.3
-        });
-
-        const strings = [];
-        const stringPositions = [-0.15, -0.05, 0.05, 0.15];
+        // Initialize Bass Visualizer
+        const visualizerCanvas = document.getElementById('bassVisualizer');
+        const ctx = visualizerCanvas.getContext('2d');
         
-        stringPositions.forEach((zPos, index) => {
-            const stringGeometry = new THREE.CylinderGeometry(0.008, 0.008, 6.5, 8);
-            const string = new THREE.Mesh(stringGeometry, stringMaterial.clone());
-            string.rotation.z = Math.PI / 2;
-            string.position.set(1.5, 0, zPos);
-            string.castShadow = true;
-            strings.push(string);
-            scene.add(string);
-        });
-
-        // Pickups
-        const pickupGeometry = new THREE.BoxGeometry(0.8, 0.1, 0.5);
-        const pickupMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x1a1a1a,
-            metalness: 0.9,
-            roughness: 0.3,
-            emissive: 0x39ff14,
-            emissiveIntensity: 0.4
-        });
-        
-        const pickup1 = new THREE.Mesh(pickupGeometry, pickupMaterial);
-        pickup1.position.set(-0.5, 0, 0);
-        scene.add(pickup1);
-
-        const pickup2 = new THREE.Mesh(pickupGeometry, pickupMaterial);
-        pickup2.position.set(0.8, 0, 0);
-        scene.add(pickup2);
-
-        // Bridge
-        const bridgeGeometry = new THREE.BoxGeometry(0.8, 0.12, 1.0);
-        const bridgeMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x808080,
-            metalness: 1.0,
-            roughness: 0.2
-        });
-        const bridge = new THREE.Mesh(bridgeGeometry, bridgeMaterial);
-        bridge.position.set(-1.2, 0, 0);
-        scene.add(bridge);
-
-        // Frets
-        const fretMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xd0d0d0,
-            metalness: 1.0,
-            roughness: 0.1
-        });
-
-        for (let i = 0; i < 20; i++) {
-            const fretGeometry = new THREE.CylinderGeometry(0.015, 0.015, 0.4, 8);
-            const fret = new THREE.Mesh(fretGeometry, fretMaterial);
-            fret.rotation.z = Math.PI / 2;
-            fret.position.set(1 + (i * 0.2), 0.08, 0);
-            scene.add(fret);
+        // Set canvas size
+        function resizeCanvas() {
+            visualizerCanvas.width = visualizerCanvas.clientWidth;
+            visualizerCanvas.height = visualizerCanvas.clientHeight;
         }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-        // Animated particles
-        const particleCount = 100;
-        const particles = new THREE.BufferGeometry();
-        const particlePositions = [];
-        const particleVelocities = [];
-
-        for (let i = 0; i < particleCount; i++) {
-            particlePositions.push(
-                (Math.random() - 0.5) * 15,
-                (Math.random() - 0.5) * 10,
-                (Math.random() - 0.5) * 15
-            );
-            particleVelocities.push(
-                (Math.random() - 0.5) * 0.02,
-                (Math.random() - 0.5) * 0.02,
-                (Math.random() - 0.5) * 0.02
-            );
-        }
-
-        particles.setAttribute('position', new THREE.Float32BufferAttribute(particlePositions, 3));
-        const particleMaterial = new THREE.PointsMaterial({
-            color: 0x39ff14,
-            size: 0.05,
-            transparent: true,
-            opacity: 0.6,
-            blending: THREE.AdditiveBlending
-        });
-        const particleSystem = new THREE.Points(particles, particleMaterial);
-        scene.add(particleSystem);
-
-        // Animation variables
+        // Visualizer state
         let time = 0;
+        let bassFrequencies = new Array(128).fill(0);
+        let particles = [];
+        let wavePoints = [];
         let stringVibrations = [0, 0, 0, 0];
-
-        // String vibration function
-        function vibrateString(stringIndex) {
-            stringVibrations[stringIndex] = 0.3;
+        
+        // Initialize particles
+        for (let i = 0; i < 100; i++) {
+            particles.push({
+                x: Math.random() * visualizerCanvas.width,
+                y: Math.random() * visualizerCanvas.height,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2,
+                size: Math.random() * 2 + 1,
+                alpha: Math.random() * 0.5 + 0.3
+            });
         }
 
-        // Auto-play animation
-        let autoPlayTimer = 0;
-        const autoPlayInterval = 120;
+        // Initialize wave points
+        for (let i = 0; i < 200; i++) {
+            wavePoints.push({
+                x: i * (visualizerCanvas.width / 200),
+                y: visualizerCanvas.height / 2,
+                amplitude: 0,
+                frequency: Math.random() * 0.02 + 0.01
+            });
+        }
+
+        // Simulate bass note trigger
+        function triggerBassNote(frequency = 60, intensity = 0.8) {
+            const index = Math.floor((frequency / 20000) * bassFrequencies.length);
+            bassFrequencies[index] = intensity;
+            
+            // Trigger string vibration
+            const stringIndex = Math.floor(Math.random() * 4);
+            stringVibrations[stringIndex] = 1.0;
+            
+            // Add energy to wave
+            wavePoints.forEach((point, i) => {
+                point.amplitude = Math.sin(i * 0.1) * 50 * intensity;
+            });
+        }
+
+        // Auto-trigger for demo
+        setInterval(() => {
+            const freq = 40 + Math.random() * 80; // Bass frequencies
+            const intensity = 0.5 + Math.random() * 0.5;
+            triggerBassNote(freq, intensity);
+        }, 1500);
 
         // Animation loop
         function animate() {
             requestAnimationFrame(animate);
-            time += 0.01;
-            autoPlayTimer++;
+            time += 0.02;
 
-            // Rotate bass slowly
-            bassBody.rotation.y += 0.003;
-            bassNeck.rotation.y += 0.003;
-            headstock.rotation.y += 0.003;
-            pickup1.rotation.y += 0.003;
-            pickup2.rotation.y += 0.003;
-            bridge.rotation.y += 0.003;
+            const width = visualizerCanvas.width;
+            const height = visualizerCanvas.height;
 
-            // Rotate strings
-            strings.forEach((string, index) => {
-                string.rotation.z = bassBody.rotation.y + Math.PI / 2;
-                string.position.x = 1.5 * Math.cos(bassBody.rotation.y) - stringPositions[index] * Math.sin(bassBody.rotation.y);
-                string.position.z = 1.5 * Math.sin(bassBody.rotation.y) + stringPositions[index] * Math.cos(bassBody.rotation.y);
+            // Clear canvas with fade effect
+            ctx.fillStyle = 'rgba(5, 5, 8, 0.15)';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw gradient background
+            const gradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width / 2);
+            gradient.addColorStop(0, 'rgba(57, 255, 20, 0.05)');
+            gradient.addColorStop(0.5, 'rgba(57, 255, 20, 0.02)');
+            gradient.addColorStop(1, 'rgba(5, 5, 8, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw bass strings (4 horizontal lines)
+            const stringY = [height * 0.3, height * 0.45, height * 0.55, height * 0.7];
+            stringY.forEach((y, index) => {
+                ctx.save();
+                ctx.strokeStyle = `rgba(57, 255, 20, ${0.6 + stringVibrations[index] * 0.4})`;
+                ctx.lineWidth = 2 + stringVibrations[index] * 2;
+                ctx.shadowColor = '#39ff14';
+                ctx.shadowBlur = 10 + stringVibrations[index] * 20;
                 
-                // String vibration
-                if (stringVibrations[index] > 0) {
-                    string.position.y = Math.sin(time * 50) * stringVibrations[index] * 0.1;
-                    stringVibrations[index] *= 0.95;
-                    string.material.emissiveIntensity = 0.8 * stringVibrations[index];
-                } else {
-                    string.position.y = 0;
-                    string.material.emissiveIntensity = 0.3;
+                ctx.beginPath();
+                for (let x = 0; x < width; x += 5) {
+                    const vibration = Math.sin(x * 0.05 + time * 10) * stringVibrations[index] * 10;
+                    ctx.lineTo(x, y + vibration);
                 }
+                ctx.stroke();
+                ctx.restore();
+                
+                // Decay vibration
+                stringVibrations[index] *= 0.95;
             });
 
-            // Auto-play strings
-            if (autoPlayTimer % autoPlayInterval === 0) {
-                const randomString = Math.floor(Math.random() * 4);
-                vibrateString(randomString);
-            }
-
-            // Animate particles
-            const positions = particles.attributes.position.array;
-            for (let i = 0; i < particleCount * 3; i += 3) {
-                positions[i] += particleVelocities[i / 3];
-                positions[i + 1] += particleVelocities[Math.floor(i / 3)] * 0.5;
-                positions[i + 2] += particleVelocities[Math.floor(i / 3)] * 0.7;
-
-                // Reset particles
-                if (Math.abs(positions[i]) > 8 || Math.abs(positions[i + 1]) > 5 || Math.abs(positions[i + 2]) > 8) {
-                    positions[i] = (Math.random() - 0.5) * 2;
-                    positions[i + 1] = (Math.random() - 0.5) * 2;
-                    positions[i + 2] = (Math.random() - 0.5) * 2;
+            // Draw frequency spectrum bars
+            const barWidth = width / bassFrequencies.length;
+            bassFrequencies.forEach((value, i) => {
+                const x = i * barWidth;
+                const barHeight = value * height * 0.4;
+                
+                // Create gradient for bars
+                const barGradient = ctx.createLinearGradient(x, height, x, height - barHeight);
+                barGradient.addColorStop(0, 'rgba(57, 255, 20, 0.8)');
+                barGradient.addColorStop(0.5, 'rgba(74, 255, 20, 0.6)');
+                barGradient.addColorStop(1, 'rgba(57, 255, 20, 0.2)');
+                
+                ctx.fillStyle = barGradient;
+                ctx.fillRect(x, height - barHeight, barWidth - 1, barHeight);
+                
+                // Add glow effect
+                if (value > 0.5) {
+                    ctx.shadowColor = '#39ff14';
+                    ctx.shadowBlur = 15;
+                    ctx.fillRect(x, height - barHeight, barWidth - 1, barHeight);
+                    ctx.shadowBlur = 0;
                 }
+                
+                // Decay frequency
+                bassFrequencies[i] *= 0.92;
+            });
+
+            // Draw waveform
+            ctx.strokeStyle = 'rgba(57, 255, 20, 0.4)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            wavePoints.forEach((point, i) => {
+                point.y = height / 2 + Math.sin(time * 5 + i * point.frequency) * 20 + 
+                         Math.sin(time * 2 + i * 0.02) * point.amplitude;
+                point.amplitude *= 0.96;
+                
+                if (i === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            });
+            ctx.stroke();
+
+            // Draw particles
+            particles.forEach(particle => {
+                // Update particle position
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                
+                // Bounce particles
+                if (particle.x < 0 || particle.x > width) particle.vx *= -1;
+                if (particle.y < 0 || particle.y > height) particle.vy *= -1;
+                
+                // Draw particle
+                ctx.fillStyle = `rgba(57, 255, 20, ${particle.alpha})`;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Connect nearby particles
+                particles.forEach(other => {
+                    const dx = particle.x - other.x;
+                    const dy = particle.y - other.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.strokeStyle = `rgba(57, 255, 20, ${0.1 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particle.x, particle.y);
+                        ctx.lineTo(other.x, other.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+
+            // Draw frequency circles (sub-bass visualization)
+            for (let i = 0; i < 5; i++) {
+                const avgFreq = bassFrequencies.slice(i * 25, (i + 1) * 25).reduce((a, b) => a + b, 0) / 25;
+                const radius = 30 + i * 25 + avgFreq * 50;
+                const alpha = 0.1 + avgFreq * 0.3;
+                
+                ctx.strokeStyle = `rgba(57, 255, 20, ${alpha})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(width / 2, height / 2, radius, 0, Math.PI * 2);
+                ctx.stroke();
             }
-            particles.attributes.position.needsUpdate = true;
 
-            // Pulse lights
-            spotLight1.intensity = 1.5 + Math.sin(time * 2) * 0.3;
-            spotLight2.intensity = 1.2 + Math.cos(time * 2.5) * 0.3;
+            // Draw center bass pulse
+            const centerPulse = bassFrequencies.slice(0, 20).reduce((a, b) => a + b, 0) / 20;
+            if (centerPulse > 0.3) {
+                const pulseSize = 20 + centerPulse * 40;
+                const pulseGradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, pulseSize);
+                pulseGradient.addColorStop(0, `rgba(57, 255, 20, ${centerPulse * 0.8})`);
+                pulseGradient.addColorStop(1, 'rgba(57, 255, 20, 0)');
+                
+                ctx.fillStyle = pulseGradient;
+                ctx.beginPath();
+                ctx.arc(width / 2, height / 2, pulseSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
 
-            renderer.render(scene, camera);
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(57, 255, 20, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 10; i++) {
+                const y = (height / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
         }
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            const width = canvas.clientWidth;
-            const height = canvas.clientHeight;
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
-            renderer.setSize(width, height);
-        });
 
         // Start animation
         animate();
 
-        // Trigger string vibration on note play
+        // Listen for bass notes from the engine
         window.addEventListener('bassNotePlay', (e) => {
-            const stringIndex = e.detail.note % 4;
-            vibrateString(stringIndex);
+            if (e.detail) {
+                triggerBassNote(e.detail.frequency || 60, e.detail.velocity || 0.8);
+            }
         });
+    </script>
+
     </script>
 
     <script src="/js/bass-engine.js"></script>

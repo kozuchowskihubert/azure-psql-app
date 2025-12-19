@@ -86,22 +86,22 @@
       padding: 2rem;
     }
 
-    /* 3D Orchestra Stage */
-    .visual-3d-stage {
+    /* 2D Strings Visualizer */
+    .visual-stage {
       width: 100%;
-      height: 500px;
+      height: 400px;
       margin-bottom: 2rem;
       position: relative;
       border-radius: 20px;
       overflow: hidden;
-      background: linear-gradient(180deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
       border: 2px solid rgba(102, 126, 234, 0.2);
       box-shadow: 
-        inset 0 0 100px rgba(102, 126, 234, 0.1),
-        0 10px 50px rgba(0, 0, 0, 0.5);
+        inset 0 0 80px rgba(102, 126, 234, 0.1),
+        0 10px 40px rgba(0, 0, 0, 0.5);
     }
 
-    #orchestraCanvas {
+    #stringsVisualizer {
       width: 100%;
       height: 100%;
       display: block;
@@ -585,10 +585,10 @@
   </header>
 
   <div class="container">
-    <!-- 3D Orchestra Visualization -->
-    <div class="visual-3d-stage">
-      <canvas id="orchestraCanvas"></canvas>
-      <div class="stage-overlay">🎻 3D ORCHESTRA HALL</div>
+    <!-- 2D Strings Visualizer -->
+    <div class="visual-stage">
+      <canvas id="stringsVisualizer"></canvas>
+      <div class="stage-overlay">🎻 STRINGS SPECTRUM ANALYZER</div>
     </div>
 
     <!-- Orchestra Stage -->
@@ -1248,348 +1248,294 @@
     });
   </script>
 
-  <!-- Three.js for 3D Orchestra -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  
-  <!-- 3D Orchestra Hall Visualization -->
+  <!-- 2D Strings Visualizer -->
   <script>
-    // Initialize 3D Orchestra Scene
-    const orchestraCanvas = document.getElementById('orchestraCanvas');
-    const orchestraScene = new THREE.Scene();
-    orchestraScene.background = new THREE.Color(0x0a0a0a);
-    orchestraScene.fog = new THREE.Fog(0x0a0a0a, 20, 80);
-
-    const orchestraCamera = new THREE.PerspectiveCamera(50, orchestraCanvas.clientWidth / orchestraCanvas.clientHeight, 0.1, 1000);
-    orchestraCamera.position.set(0, 12, 30);
-    orchestraCamera.lookAt(0, 0, 0);
-
-    const orchestraRenderer = new THREE.WebGLRenderer({ canvas: orchestraCanvas, antialias: true, alpha: true });
-    orchestraRenderer.setSize(orchestraCanvas.clientWidth, orchestraCanvas.clientHeight);
-    orchestraRenderer.shadowMap.enabled = true;
-    orchestraRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0x667eea, 0.4);
-    orchestraScene.add(ambientLight);
-
-    const spotLight1 = new THREE.SpotLight(0x667eea, 2);
-    spotLight1.position.set(0, 25, 0);
-    spotLight1.castShadow = true;
-    spotLight1.angle = Math.PI / 3;
-    spotLight1.penumbra = 0.5;
-    spotLight1.shadow.mapSize.width = 2048;
-    spotLight1.shadow.mapSize.height = 2048;
-    orchestraScene.add(spotLight1);
-
-    const spotLight2 = new THREE.SpotLight(0x764ba2, 1.5);
-    spotLight2.position.set(15, 20, 10);
-    spotLight2.angle = Math.PI / 4;
-    orchestraScene.add(spotLight2);
-
-    const spotLight3 = new THREE.SpotLight(0x667eea, 1.5);
-    spotLight3.position.set(-15, 20, 10);
-    spotLight3.angle = Math.PI / 4;
-    orchestraScene.add(spotLight3);
-
-    // Stage floor
-    const stageGeometry = new THREE.CircleGeometry(25, 64);
-    const stageMaterial = new THREE.MeshStandardMaterial({
-      color: 0x1a1a2e,
-      metalness: 0.6,
-      roughness: 0.4,
-      emissive: 0x16213e,
-      emissiveIntensity: 0.2
-    });
-    const stageMesh = new THREE.Mesh(stageGeometry, stageMaterial);
-    stageMesh.rotation.x = -Math.PI / 2;
-    stageMesh.receiveShadow = true;
-    orchestraScene.add(stageMesh);
-
-    // Podium
-    const podiumGeometry = new THREE.CylinderGeometry(1.5, 2, 0.3, 32);
-    const podiumMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x2a2a3e,
-      metalness: 0.8,
-      roughness: 0.2,
-      emissive: 0x667eea,
-      emissiveIntensity: 0.3
-    });
-    const podium = new THREE.Mesh(podiumGeometry, podiumMaterial);
-    podium.position.set(0, 0.15, 12);
-    podium.castShadow = true;
-    podium.receiveShadow = true;
-    orchestraScene.add(podium);
-
-    // Conductor stand
-    const standGeometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 16);
-    const standMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x1a1a2e,
-      metalness: 0.9,
-      roughness: 0.1
-    });
-    const conductorStand = new THREE.Mesh(standGeometry, standMaterial);
-    conductorStand.position.set(0, 1.3, 12);
-    conductorStand.castShadow = true;
-    orchestraScene.add(conductorStand);
-
-    // Music stands
-    const standShelfGeometry = new THREE.BoxGeometry(0.8, 0.02, 0.6);
-    const standShelfMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x2a2a3e,
-      metalness: 0.7,
-      roughness: 0.3
-    });
+    // Initialize Strings Visualizer
+    const stringsCanvas = document.getElementById('stringsVisualizer');
+    const stringsCtx = stringsCanvas.getContext('2d');
     
-    function createMusicStand(x, z) {
-      const group = new THREE.Group();
-      
-      // Stand pole
-      const pole = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.03, 0.03, 1.5, 8),
-        standMaterial
-      );
-      pole.position.y = 0.75;
-      group.add(pole);
-      
-      // Music sheet holder
-      const shelf = new THREE.Mesh(standShelfGeometry, standShelfMaterial);
-      shelf.position.y = 1.5;
-      shelf.rotation.x = -0.3;
-      group.add(shelf);
-      
-      // Floating sheet (glowing)
-      const sheetGeometry = new THREE.PlaneGeometry(0.7, 0.5);
-      const sheetMaterial = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.9,
-        side: THREE.DoubleSide
+    // Set canvas size
+    function resizeStringsCanvas() {
+      stringsCanvas.width = stringsCanvas.clientWidth;
+      stringsCanvas.height = stringsCanvas.clientHeight;
+    }
+    resizeStringsCanvas();
+    window.addEventListener('resize', resizeStringsCanvas);
+
+    // Visualizer state - 4 sections (violins1, violins2, violas, cellos)
+    let time = 0;
+    let sectionFrequencies = {
+      violins1: new Array(64).fill(0),
+      violins2: new Array(64).fill(0),
+      violas: new Array(64).fill(0),
+      cellos: new Array(64).fill(0)
+    };
+    let particles = [];
+    let radialWaves = [];
+    
+    // Initialize particles
+    for (let i = 0; i < 150; i++) {
+      particles.push({
+        x: Math.random() * stringsCanvas.width,
+        y: Math.random() * stringsCanvas.height,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: (Math.random() - 0.5) * 1.5,
+        size: Math.random() * 2.5 + 0.5,
+        alpha: Math.random() * 0.4 + 0.2,
+        hue: Math.random() * 60 + 240 // Purple to blue
       });
-      const sheet = new THREE.Mesh(sheetGeometry, sheetMaterial);
-      sheet.position.y = 1.55;
-      sheet.position.z = 0.2;
-      sheet.rotation.x = -0.3;
-      group.add(sheet);
-      
-      group.position.set(x, 0, z);
-      group.castShadow = true;
-      return group;
     }
 
-    // Create orchestra sections
-    const musicians = [];
-    const instrumentColors = {
-      violin1: 0x667eea,
-      violin2: 0x7b8fd4,
-      viola: 0x8a9ec3,
-      cello: 0x99aeb2,
-      bass: 0xa8bea1
+    // Initialize radial waves
+    for (let i = 0; i < 360; i += 3) {
+      radialWaves.push({
+        angle: i,
+        amplitude: 0,
+        baseRadius: 80
+      });
+    }
+
+    // Section colors
+    const sectionColors = {
+      violins1: { r: 147, g: 51, b: 234 },  // Purple
+      violins2: { r: 102, g: 126, b: 234 }, // Blue
+      violas: { r: 118, g: 75, b: 162 },    // Deep purple
+      cellos: { r: 80, g: 50, b: 140 }      // Indigo
     };
 
-    function createMusician(x, z, instrumentType, scale = 1) {
-      const group = new THREE.Group();
+    // Simulate section trigger
+    function triggerSection(sectionName, frequency = 440, intensity = 0.7) {
+      const freqs = sectionFrequencies[sectionName];
+      if (!freqs) return;
       
-      // Body (simple cylinder)
-      const bodyGeometry = new THREE.CylinderGeometry(0.2 * scale, 0.25 * scale, 0.8 * scale, 16);
-      const bodyMaterial = new THREE.MeshPhysicalMaterial({
-        color: instrumentColors[instrumentType] || 0x667eea,
-        metalness: 0.6,
-        roughness: 0.4,
-        emissive: instrumentColors[instrumentType] || 0x667eea,
-        emissiveIntensity: 0.4
-      });
-      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-      body.position.y = 0.4 * scale;
-      body.castShadow = true;
-      group.add(body);
+      const index = Math.floor((frequency / 4000) * freqs.length);
+      freqs[index] = intensity;
       
-      // Head (sphere)
-      const headGeometry = new THREE.SphereGeometry(0.15 * scale, 16, 16);
-      const headMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xe8d4b4,
-        metalness: 0.2,
-        roughness: 0.8
-      });
-      const head = new THREE.Mesh(headGeometry, headMaterial);
-      head.position.y = 0.95 * scale;
-      head.castShadow = true;
-      group.add(head);
-      
-      // Instrument (bow shape)
-      const instrumentGeometry = new THREE.BoxGeometry(0.05 * scale, 0.6 * scale, 0.1 * scale);
-      const instrumentMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0x8B4513,
-        metalness: 0.7,
-        roughness: 0.3
-      });
-      const instrument = new THREE.Mesh(instrumentGeometry, instrumentMaterial);
-      instrument.position.set(0.3 * scale, 0.5 * scale, 0);
-      instrument.rotation.z = 0.3;
-      instrument.castShadow = true;
-      group.add(instrument);
-      
-      // Music stand
-      const stand = createMusicStand(0, 0.5 * scale);
-      group.add(stand);
-      
-      group.position.set(x, 0, z);
-      
-      // Add animation properties
-      group.userData = {
-        originalY: 0,
-        instrumentType: instrumentType,
-        animationPhase: Math.random() * Math.PI * 2,
-        body: body,
-        instrument: instrument
-      };
-      
-      orchestraScene.add(group);
-      musicians.push(group);
-    }
-
-    // Violins I (left side, front)
-    for (let i = 0; i < 8; i++) {
-      const row = Math.floor(i / 4);
-      const col = i % 4;
-      createMusician(-6 + col * 1.5, -2 + row * 1.5, 'violin1', 0.8);
-    }
-
-    // Violins II (right side, front)
-    for (let i = 0; i < 7; i++) {
-      const row = Math.floor(i / 4);
-      const col = i % 4;
-      createMusician(2 + col * 1.5, -2 + row * 1.5, 'violin2', 0.8);
-    }
-
-    // Violas (center, mid)
-    for (let i = 0; i < 6; i++) {
-      const col = i % 3;
-      const row = Math.floor(i / 3);
-      createMusician(-2.5 + col * 1.5, 2 + row * 1.5, 'viola', 0.85);
-    }
-
-    // Cellos (left-center, back)
-    for (let i = 0; i < 5; i++) {
-      const col = i % 3;
-      const row = Math.floor(i / 3);
-      createMusician(-4 + col * 1.8, 5 + row * 1.8, 'cello', 0.9);
-    }
-
-    // Double Basses (right-back)
-    for (let i = 0; i < 4; i++) {
-      const col = i % 2;
-      const row = Math.floor(i / 2);
-      createMusician(4 + col * 2, 6 + row * 2, 'bass', 1);
-    }
-
-    // Animated light particles
-    const particleCount = 200;
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlePositions = [];
-    const particleColors = [];
-    
-    for (let i = 0; i < particleCount; i++) {
-      particlePositions.push(
-        (Math.random() - 0.5) * 50,
-        Math.random() * 30,
-        (Math.random() - 0.5) * 50
-      );
-      
-      const color = new THREE.Color();
-      color.setHSL(0.6 + Math.random() * 0.1, 0.8, 0.6);
-      particleColors.push(color.r, color.g, color.b);
-    }
-    
-    particlesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(particlePositions, 3));
-    particlesGeometry.setAttribute('color', new THREE.Float32BufferAttribute(particleColors, 3));
-    
-    const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.15,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.7,
-      blending: THREE.AdditiveBlending
-    });
-    
-    const particleSystem = new THREE.Points(particlesGeometry, particlesMaterial);
-    orchestraScene.add(particleSystem);
-
-    // Animation
-    let orchestraTime = 0;
-    
-    function animateOrchestra() {
-      requestAnimationFrame(animateOrchestra);
-      orchestraTime += 0.01;
-
-      // Camera slow orbit
-      orchestraCamera.position.x = Math.sin(orchestraTime * 0.1) * 30;
-      orchestraCamera.position.z = Math.cos(orchestraTime * 0.1) * 30;
-      orchestraCamera.lookAt(0, 2, 0);
-
-      // Animate musicians
-      musicians.forEach((musician, index) => {
-        const phase = musician.userData.animationPhase + orchestraTime;
-        
-        // Gentle swaying
-        musician.position.y = musician.userData.originalY + Math.sin(phase * 2) * 0.05;
-        musician.rotation.y = Math.sin(phase) * 0.05;
-        
-        // Instrument movement (bow motion)
-        if (musician.userData.instrument) {
-          musician.userData.instrument.rotation.z = 0.3 + Math.sin(phase * 3) * 0.2;
-        }
-        
-        // Body breathing
-        if (musician.userData.body) {
-          const scale = 1 + Math.sin(phase * 4) * 0.02;
-          musician.userData.body.scale.y = scale;
-        }
-        
-        // Emissive pulse when "playing"
-        if (isPlaying) {
-          musician.userData.body.material.emissiveIntensity = 0.4 + Math.sin(phase * 5) * 0.2;
-        } else {
-          musician.userData.body.material.emissiveIntensity = 0.2;
-        }
-      });
-
-      // Animate particles
-      const positions = particlesGeometry.attributes.position.array;
-      for (let i = 0; i < particleCount * 3; i += 3) {
-        positions[i + 1] -= 0.02; // Drift down
-        
-        // Reset if too low
-        if (positions[i + 1] < 0) {
-          positions[i + 1] = 30;
-          positions[i] = (Math.random() - 0.5) * 50;
-          positions[i + 2] = (Math.random() - 0.5) * 50;
+      // Add energy to radial waves
+      const sectionIndex = Object.keys(sectionFrequencies).indexOf(sectionName);
+      for (let i = 0; i < radialWaves.length; i++) {
+        if (Math.floor(i / 90) === sectionIndex) {
+          radialWaves[i].amplitude = intensity * 100;
         }
       }
-      particlesGeometry.attributes.position.needsUpdate = true;
-
-      // Pulsing lights
-      spotLight1.intensity = 2 + Math.sin(orchestraTime * 2) * 0.5;
-      spotLight2.intensity = 1.5 + Math.cos(orchestraTime * 2.5) * 0.3;
-      spotLight3.intensity = 1.5 + Math.sin(orchestraTime * 3) * 0.3;
-
-      // Rotate podium slightly
-      podium.rotation.y += 0.002;
-      conductorStand.rotation.y += 0.002;
-
-      orchestraRenderer.render(orchestraScene, orchestraCamera);
     }
 
-    // Handle window resize
-    window.addEventListener('resize', () => {
-      const width = orchestraCanvas.clientWidth;
-      const height = orchestraCanvas.clientHeight;
-      orchestraCamera.aspect = width / height;
-      orchestraCamera.updateProjectionMatrix();
-      orchestraRenderer.setSize(width, height);
-    });
+    // Auto-trigger for demo
+    setInterval(() => {
+      const sections = ['violins1', 'violins2', 'violas', 'cellos'];
+      const section = sections[Math.floor(Math.random() * sections.length)];
+      const freq = 200 + Math.random() * 800;
+      const intensity = 0.4 + Math.random() * 0.6;
+      triggerSection(section, freq, intensity);
+    }, 800);
+
+    // Animation loop
+    function animateStrings() {
+      requestAnimationFrame(animateStrings);
+      time += 0.015;
+
+      const width = stringsCanvas.width;
+      const height = stringsCanvas.height;
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      // Clear canvas with fade effect
+      stringsCtx.fillStyle = 'rgba(10, 10, 10, 0.2)';
+      stringsCtx.fillRect(0, 0, width, height);
+
+      // Draw gradient background
+      const bgGradient = stringsCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, width / 2);
+      bgGradient.addColorStop(0, 'rgba(102, 126, 234, 0.08)');
+      bgGradient.addColorStop(0.5, 'rgba(118, 75, 162, 0.04)');
+      bgGradient.addColorStop(1, 'rgba(10, 10, 10, 0)');
+      stringsCtx.fillStyle = bgGradient;
+      stringsCtx.fillRect(0, 0, width, height);
+
+      // Draw section frequency bars (4 quadrants)
+      const sections = Object.keys(sectionFrequencies);
+      sections.forEach((sectionName, sectionIdx) => {
+        const freqs = sectionFrequencies[sectionName];
+        const color = sectionColors[sectionName];
+        const barCount = freqs.length;
+        
+        // Position each section in a quadrant
+        let startX, startY, barWidth, barHeight;
+        if (sectionIdx === 0) { // Top-left
+          startX = 0;
+          startY = 0;
+          barWidth = (width / 2) / barCount;
+          barHeight = height / 2;
+        } else if (sectionIdx === 1) { // Top-right
+          startX = width / 2;
+          startY = 0;
+          barWidth = (width / 2) / barCount;
+          barHeight = height / 2;
+        } else if (sectionIdx === 2) { // Bottom-left
+          startX = 0;
+          startY = height / 2;
+          barWidth = (width / 2) / barCount;
+          barHeight = height / 2;
+        } else { // Bottom-right
+          startX = width / 2;
+          startY = height / 2;
+          barWidth = (width / 2) / barCount;
+          barHeight = height / 2;
+        }
+
+        freqs.forEach((value, i) => {
+          const x = startX + i * barWidth;
+          const h = value * barHeight * 0.8;
+          const y = sectionIdx < 2 ? startY + barHeight - h : startY;
+          
+          // Create gradient for bars
+          const barGradient = stringsCtx.createLinearGradient(x, y, x, y + h);
+          barGradient.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, ${value * 0.9})`);
+          barGradient.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, ${value * 0.3})`);
+          
+          stringsCtx.fillStyle = barGradient;
+          stringsCtx.fillRect(x, y, barWidth - 1, h);
+          
+          // Glow effect for strong bars
+          if (value > 0.5) {
+            stringsCtx.shadowColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+            stringsCtx.shadowBlur = 10;
+            stringsCtx.fillRect(x, y, barWidth - 1, h);
+            stringsCtx.shadowBlur = 0;
+          }
+          
+          // Decay frequency
+          freqs[i] *= 0.94;
+        });
+      });
+
+      // Draw radial waveform
+      stringsCtx.save();
+      stringsCtx.translate(centerX, centerY);
+      
+      sections.forEach((sectionName, sectionIdx) => {
+        const color = sectionColors[sectionName];
+        stringsCtx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.6)`;
+        stringsCtx.lineWidth = 2;
+        stringsCtx.beginPath();
+        
+        radialWaves.forEach((wave, i) => {
+          if (Math.floor(i / 90) === sectionIdx) {
+            const angle = (wave.angle + time * 20) * Math.PI / 180;
+            const radius = wave.baseRadius + wave.amplitude + Math.sin(time * 3 + i * 0.1) * 20;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            if (i % 90 === 0) {
+              stringsCtx.moveTo(x, y);
+            } else {
+              stringsCtx.lineTo(x, y);
+            }
+            
+            wave.amplitude *= 0.96;
+          }
+        });
+        
+        stringsCtx.closePath();
+        stringsCtx.stroke();
+      });
+      
+      stringsCtx.restore();
+
+      // Draw particles
+      particles.forEach(particle => {
+        // Update particle position
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+        
+        // Bounce particles
+        if (particle.x < 0 || particle.x > width) particle.vx *= -1;
+        if (particle.y < 0 || particle.y > height) particle.vy *= -1;
+        
+        // Draw particle
+        stringsCtx.fillStyle = `hsla(${particle.hue}, 80%, 60%, ${particle.alpha})`;
+        stringsCtx.beginPath();
+        stringsCtx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        stringsCtx.fill();
+        
+        // Connect nearby particles
+        particles.forEach(other => {
+          const dx = particle.x - other.x;
+          const dy = particle.y - other.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < 80) {
+            stringsCtx.strokeStyle = `hsla(${particle.hue}, 80%, 60%, ${0.15 * (1 - distance / 80)})`;
+            stringsCtx.lineWidth = 0.5;
+            stringsCtx.beginPath();
+            stringsCtx.moveTo(particle.x, particle.y);
+            stringsCtx.lineTo(other.x, other.y);
+            stringsCtx.stroke();
+          }
+        });
+      });
+
+      // Draw center pulse (overall activity)
+      let totalActivity = 0;
+      sections.forEach(sectionName => {
+        const avg = sectionFrequencies[sectionName].reduce((a, b) => a + b, 0) / sectionFrequencies[sectionName].length;
+        totalActivity += avg;
+      });
+      totalActivity /= sections.length;
+      
+      if (totalActivity > 0.2) {
+        const pulseSize = 40 + totalActivity * 80;
+        const pulseGradient = stringsCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, pulseSize);
+        pulseGradient.addColorStop(0, `rgba(147, 51, 234, ${totalActivity * 0.7})`);
+        pulseGradient.addColorStop(1, 'rgba(147, 51, 234, 0)');
+        
+        stringsCtx.fillStyle = pulseGradient;
+        stringsCtx.beginPath();
+        stringsCtx.arc(centerX, centerY, pulseSize, 0, Math.PI * 2);
+        stringsCtx.fill();
+      }
+
+      // Draw section dividers
+      stringsCtx.strokeStyle = 'rgba(102, 126, 234, 0.2)';
+      stringsCtx.lineWidth = 1;
+      stringsCtx.beginPath();
+      stringsCtx.moveTo(centerX, 0);
+      stringsCtx.lineTo(centerX, height);
+      stringsCtx.stroke();
+      stringsCtx.beginPath();
+      stringsCtx.moveTo(0, centerY);
+      stringsCtx.lineTo(width, centerY);
+      stringsCtx.stroke();
+
+      // Draw section labels
+      stringsCtx.font = 'bold 14px Inter';
+      stringsCtx.textAlign = 'center';
+      stringsCtx.textBaseline = 'middle';
+      
+      const labels = ['VIOLINS I', 'VIOLINS II', 'VIOLAS', 'CELLOS'];
+      const positions = [
+        { x: width * 0.25, y: 30 },
+        { x: width * 0.75, y: 30 },
+        { x: width * 0.25, y: height - 30 },
+        { x: width * 0.75, y: height - 30 }
+      ];
+      
+      labels.forEach((label, idx) => {
+        const color = Object.values(sectionColors)[idx];
+        stringsCtx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.8)`;
+        stringsCtx.fillText(label, positions[idx].x, positions[idx].y);
+      });
+    }
 
     // Start animation
-    animateOrchestra();
+    animateStrings();
+
+    // Listen for section triggers
+    window.addEventListener('sectionPlay', (e) => {
+      if (e.detail) {
+        triggerSection(e.detail.section || 'violins1', e.detail.frequency || 440, e.detail.velocity || 0.7);
+      }
+    });
   </script>
+
 </body>
 </html>
