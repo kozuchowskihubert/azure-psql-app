@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const API_URL = 'https://haos.fm/api';
+  const USE_MOCK_AUTH = true; // Set to false when backend is available
 
   useEffect(() => {
     checkAuthStatus();
@@ -43,6 +44,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
+    // Mock authentication for testing when backend is unavailable
+    if (USE_MOCK_AUTH) {
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+      const mockUser = {
+        id: 1,
+        email: email,
+        name: email.split('@')[0],
+        subscription: 'free',
+      };
+      setUser(mockUser);
+      await SecureStore.setItemAsync('haos_mock_user', JSON.stringify(mockUser));
+      return { success: true };
+    }
+
+    // Real authentication
     try {
       const response = await axios.post(`${API_URL}/auth/login`, {
         email,
@@ -54,6 +70,12 @@ export const AuthProvider = ({ children }) => {
         setUser(response.data.user);
         return { success: true };
       }
+      
+      // If no sessionId in response, treat as failed
+      return { 
+        success: false, 
+        error: 'Invalid response from server' 
+      };
     } catch (error) {
       return { 
         success: false, 
@@ -74,6 +96,12 @@ export const AuthProvider = ({ children }) => {
         // Auto-login after signup
         return await login(email, password);
       }
+      
+      // If registration didn't succeed
+      return { 
+        success: false, 
+        error: response.data.error || 'Registration failed' 
+      };
     } catch (error) {
       return { 
         success: false, 

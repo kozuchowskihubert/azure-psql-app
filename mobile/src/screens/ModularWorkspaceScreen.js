@@ -262,14 +262,8 @@ export default function ModularWorkspaceScreen({ route }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>ENVELOPE</Text>
           <ADSREnvelope
-            attack={adsr.attack}
-            decay={adsr.decay}
-            sustain={adsr.sustain}
-            release={adsr.release}
-            onAttackChange={(value) => setAdsr({ ...adsr, attack: value })}
-            onDecayChange={(value) => setAdsr({ ...adsr, decay: value })}
-            onSustainChange={(value) => setAdsr({ ...adsr, sustain: value })}
-            onReleaseChange={(value) => setAdsr({ ...adsr, release: value })}
+            values={adsr}
+            onChange={setAdsr}
           />
         </View>
 

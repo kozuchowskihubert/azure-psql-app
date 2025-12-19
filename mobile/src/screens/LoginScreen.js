@@ -9,9 +9,10 @@ import {
   Platform,
   ActivityIndicator,
   Image,
+  ImageBackground,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
+import { COLORS, TYPO, SPACING, RADIUS } from '../styles/HAOSDesignSystem';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -47,19 +48,24 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient
-      colors={['#0a0a0a', '#1a1a1a', '#0a0a0a']}
+    <ImageBackground
+      source={require('../../assets/haos-background.jpg')}
       style={styles.container}
+      imageStyle={styles.backgroundImage}
+      resizeMode="contain"
     >
+        {/* Dark overlay for readability */}
+        <View style={styles.overlay} />
+      
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
         <View style={styles.content}>
-          {/* Logo */}
+          {/* Tagline - Logo is in background */}
           <View style={styles.logoContainer}>
-            <Text style={styles.logo}>HAOS.fm</Text>
             <Text style={styles.tagline}>Professional Music Production</Text>
+            <Text style={styles.subtitle}>🎛️ Techno • House • Electronic</Text>
           </View>
 
           {/* Error Message */}
@@ -100,14 +106,18 @@ export default function LoginScreen({ navigation }) {
 
           {/* Login Button */}
           <TouchableOpacity
-            style={[styles.button, styles.primaryButton]}
+            style={[styles.button, styles.primaryButton, isLoading && styles.buttonDisabled]}
             onPress={handleLogin}
             disabled={isLoading}
+            activeOpacity={0.8}
           >
             {isLoading ? (
               <ActivityIndicator color="#0a0a0a" />
             ) : (
-              <Text style={styles.primaryButtonText}>Sign In</Text>
+              <>
+                <Text style={styles.primaryButtonText}>🚀 Sign In</Text>
+                <Text style={styles.buttonSubtext}>Start producing now</Text>
+              </>
             )}
           </TouchableOpacity>
 
@@ -120,11 +130,15 @@ export default function LoginScreen({ navigation }) {
 
           {/* Google Login Button */}
           <TouchableOpacity
-            style={[styles.button, styles.googleButton]}
+            style={[styles.button, styles.googleButton, isLoading && styles.buttonDisabled]}
             onPress={handleGoogleLogin}
             disabled={isLoading}
+            activeOpacity={0.8}
           >
-            <Text style={styles.googleButtonText}>🇬 Continue with Google</Text>
+            <View style={styles.googleButtonContent}>
+              <Text style={styles.googleIcon}>G</Text>
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </View>
           </TouchableOpacity>
 
           {/* Sign Up Link */}
@@ -136,13 +150,21 @@ export default function LoginScreen({ navigation }) {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000000',
+  },
+  backgroundImage: {
+    transform: [{ scale: 1.5 }],
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
   keyboardView: {
     flex: 1,
@@ -154,96 +176,147 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 48,
-  },
-  logo: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#00ff94',
-    letterSpacing: 2,
+    marginBottom: SPACING.mega,
+    marginTop: SPACING.xxxl,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    paddingVertical: SPACING.xl,
+    paddingHorizontal: SPACING.xl,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 255, 148, 0.2)',
   },
   tagline: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 8,
+    ...TYPO.h3,
+    color: COLORS.textPrimary,
+    textAlign: 'center',
+    textShadowColor: COLORS.primary,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15,
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    ...TYPO.body,
+    color: COLORS.textSecondary,
+    marginTop: SPACING.sm,
+    textAlign: 'center',
+    textShadowColor: '#000000',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   errorContainer: {
-    backgroundColor: '#ff4444',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
+    backgroundColor: COLORS.accentRed,
+    padding: SPACING.md,
+    borderRadius: RADIUS.md,
+    marginBottom: SPACING.base,
   },
   errorText: {
-    color: '#fff',
+    ...TYPO.body,
+    color: COLORS.textPrimary,
     textAlign: 'center',
   },
   inputContainer: {
-    marginBottom: 16,
+    marginBottom: SPACING.base,
   },
   label: {
-    color: '#00ff94',
-    fontSize: 14,
-    marginBottom: 8,
+    ...TYPO.body,
+    color: COLORS.primary,
+    marginBottom: SPACING.sm,
     fontWeight: '600',
+    textShadowColor: COLORS.primary,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   input: {
-    backgroundColor: '#1a1a1a',
-    borderWidth: 1,
-    borderColor: '#333',
-    borderRadius: 8,
-    padding: 16,
-    color: '#fff',
-    fontSize: 16,
+    backgroundColor: 'rgba(26, 26, 26, 0.8)',
+    borderWidth: 2,
+    borderColor: 'rgba(0, 255, 148, 0.3)',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.base,
+    ...TYPO.body,
+    color: COLORS.textPrimary,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
   },
   button: {
-    padding: 16,
-    borderRadius: 8,
+    padding: SPACING.lg,
+    borderRadius: RADIUS.lg,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: SPACING.sm,
+    shadowColor: COLORS.shadowDark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   primaryButton: {
-    backgroundColor: '#00ff94',
+    backgroundColor: COLORS.primary,
+    shadowColor: COLORS.primary,
+    shadowOpacity: 0.5,
   },
   primaryButtonText: {
-    color: '#0a0a0a',
-    fontSize: 16,
+    ...TYPO.h4,
+    color: COLORS.background,
     fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  buttonSubtext: {
+    ...TYPO.caption,
+    color: COLORS.background,
+    marginTop: SPACING.xs,
+    opacity: 0.7,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   googleButton: {
-    backgroundColor: '#1a1a1a',
-    borderWidth: 1,
-    borderColor: '#333',
+    backgroundColor: '#ffffff',
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
+  },
+  googleButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+  },
+  googleIcon: {
+    ...TYPO.h2,
+    fontWeight: 'bold',
+    color: '#4285F4',
   },
   googleButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    ...TYPO.body,
+    color: COLORS.surface,
     fontWeight: '600',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: SPACING.xl,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#333',
+    backgroundColor: COLORS.border,
   },
   dividerText: {
-    color: '#666',
-    paddingHorizontal: 16,
-    fontSize: 12,
+    ...TYPO.caption,
+    color: COLORS.textTertiary,
+    paddingHorizontal: SPACING.base,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
+    marginTop: SPACING.xl,
   },
   footerText: {
-    color: '#666',
+    ...TYPO.body,
+    color: COLORS.textTertiary,
   },
   link: {
-    color: '#00ff94',
+    ...TYPO.body,
+    color: COLORS.primary,
     fontWeight: 'bold',
   },
 });

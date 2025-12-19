@@ -1,22 +1,23 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { WebAudioBridgeComponent } from './src/audio/WebAudioBridge';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import HomeScreen from './src/screens/HomeScreen';
-import WorkspacesScreen from './src/screens/WorkspacesScreen';
-import TechnoWorkspaceScreen from './src/screens/TechnoWorkspaceScreen';
-import ModularWorkspaceScreen from './src/screens/ModularWorkspaceScreen';
-import BuilderWorkspaceScreen from './src/screens/BuilderWorkspaceScreen';
+import StudioScreen from './src/screens/StudioScreen';
+import SynthScreen from './src/screens/SynthScreen';
 import PresetsScreen from './src/screens/PresetsScreen';
 import AccountScreen from './src/screens/AccountScreen';
 import PremiumScreen from './src/screens/PremiumScreen';
+import EffectsControllerEnhanced from './src/components/EffectsControllerEnhanced';
 
 // Context
 import { AuthProvider, useAuth } from './src/context/AuthContext';
@@ -35,41 +36,60 @@ function TabNavigator() {
         tabBarStyle: {
           backgroundColor: '#0a0a0a',
           borderTopColor: '#1a1a1a',
+          height: 70,
         },
         tabBarActiveTintColor: '#00ff94',
         tabBarInactiveTintColor: '#666',
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '600',
+          marginBottom: 5,
+        },
       }}
     >
       <Tab.Screen 
         name="Home" 
         component={HomeScreen}
         options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color }) => <Text style={{ color }}>🏠</Text>,
+          title: 'HOME',
+          tabBarLabel: 'HOME',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>🏠</Text>,
         }}
       />
       <Tab.Screen 
-        name="Workspaces" 
-        component={WorkspacesScreen}
+        name="Studio" 
+        component={StudioScreen}
         options={{
-          tabBarLabel: 'Workspaces',
-          tabBarIcon: ({ color }) => <Text style={{ color }}>🎹</Text>,
+          title: 'STUDIO',
+          tabBarLabel: 'STUDIO',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>🎛️</Text>,
+        }}
+      />
+      <Tab.Screen 
+        name="Synth" 
+        component={SynthScreen}
+        options={{
+          title: 'SYNTH',
+          tabBarLabel: 'SYNTH',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>🎹</Text>,
         }}
       />
       <Tab.Screen 
         name="Presets" 
         component={PresetsScreen}
         options={{
-          tabBarLabel: 'Presets',
-          tabBarIcon: ({ color }) => <Text style={{ color }}>📦</Text>,
+          title: 'PRESETS',
+          tabBarLabel: 'PRESETS',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>📦</Text>,
         }}
       />
       <Tab.Screen 
         name="Account" 
         component={AccountScreen}
         options={{
-          tabBarLabel: 'Account',
-          tabBarIcon: ({ color }) => <Text style={{ color }}>👤</Text>,
+          title: 'ACCOUNT',
+          tabBarLabel: 'ACCOUNT',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>👤</Text>,
         }}
       />
     </Tab.Navigator>
@@ -114,19 +134,19 @@ function AppNavigator() {
             options={{ headerShown: false }}
           />
           <Stack.Screen 
-            name="TechnoWorkspace" 
-            component={TechnoWorkspaceScreen}
-            options={{ title: 'TECHNO Workspace' }}
+            name="Effects" 
+            component={EffectsControllerEnhanced}
+            options={{ 
+              title: '🎛️ EFFECTS',
+              presentation: 'modal',
+            }}
           />
           <Stack.Screen 
-            name="ModularWorkspace" 
-            component={ModularWorkspaceScreen}
-            options={{ title: 'MODULAR Workspace' }}
-          />
-          <Stack.Screen 
-            name="BuilderWorkspace" 
-            component={BuilderWorkspaceScreen}
-            options={{ title: 'BUILDER Workspace' }}
+            name="SynthParams" 
+            component={SynthScreen}
+            options={{ 
+              title: '⚙️ SYNTH PARAMETERS',
+            }}
           />
           <Stack.Screen 
             name="Premium" 
@@ -147,6 +167,8 @@ export default function App() {
           <AppNavigator />
           <StatusBar style="light" />
         </NavigationContainer>
+        {/* Hidden WebView for Web Audio API */}
+        <WebAudioBridgeComponent />
       </AuthProvider>
     </SafeAreaProvider>
   );

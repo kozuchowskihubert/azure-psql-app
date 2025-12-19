@@ -21,6 +21,7 @@ export default function WorkspacesScreen({ navigation }) {
       icon: '🎛️',
       free: true,
       screen: 'TechnoWorkspace',
+      webWorkspace: 'techno', // For WebView full studio
     },
     {
       id: 'modular',
@@ -29,6 +30,7 @@ export default function WorkspacesScreen({ navigation }) {
       icon: '🔌',
       free: false,
       screen: 'ModularWorkspace',
+      webWorkspace: 'modular',
     },
     {
       id: 'builder',
@@ -37,6 +39,7 @@ export default function WorkspacesScreen({ navigation }) {
       icon: '🏗️',
       free: false,
       screen: 'BuilderWorkspace',
+      webWorkspace: 'platform',
     },
   ];
 
@@ -46,6 +49,17 @@ export default function WorkspacesScreen({ navigation }) {
       return;
     }
     navigation.navigate(workspace.screen);
+  };
+
+  // Open full HAOS Studio in WebView (with real audio!)
+  const handleFullStudioPress = (workspace) => {
+    if (!workspace.free && !isPremium) {
+      navigation.navigate('Premium');
+      return;
+    }
+    navigation.navigate('StudioWebView', { 
+      workspace: workspace.webWorkspace || 'techno' 
+    });
   };
 
   return (
@@ -96,13 +110,41 @@ export default function WorkspacesScreen({ navigation }) {
 
               <View style={styles.cardFooter}>
                 {workspace.free || isPremium ? (
-                  <Text style={styles.openButton}>Open →</Text>
+                  <>
+                    <TouchableOpacity 
+                      style={styles.openButtonContainer}
+                      onPress={() => handleWorkspacePress(workspace)}
+                    >
+                      <Text style={styles.openButton}>Open →</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={styles.fullStudioButton}
+                      onPress={() => handleFullStudioPress(workspace)}
+                    >
+                      <Text style={styles.fullStudioText}>🔊 Full Studio</Text>
+                    </TouchableOpacity>
+                  </>
                 ) : (
                   <Text style={styles.upgradeButton}>Upgrade to unlock</Text>
                 )}
               </View>
             </TouchableOpacity>
           ))}
+          
+          {/* Quick access to NATIVE HAOS Studio */}
+          <TouchableOpacity
+            style={styles.studioQuickAccess}
+            onPress={() => navigation.navigate('NativeTechnoWorkspace')}
+          >
+            <Text style={styles.studioQuickIcon}>🎵</Text>
+            <View style={styles.studioQuickContent}>
+              <Text style={styles.studioQuickTitle}>NATIVE STUDIO ✨</Text>
+              <Text style={styles.studioQuickDesc}>
+                16-Step Sequencer • TR-808/909 • TB-303 • Native Audio
+              </Text>
+            </View>
+            <Text style={styles.studioQuickArrow}>→</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </LinearGradient>
@@ -203,15 +245,65 @@ const styles = StyleSheet.create({
     borderTopColor: '#333',
     paddingTop: 16,
     marginTop: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  openButtonContainer: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
   openButton: {
     color: '#00ff94',
     fontSize: 16,
     fontWeight: 'bold',
   },
+  fullStudioButton: {
+    backgroundColor: '#FF6B35',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 6,
+  },
+  fullStudioText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '600',
+  },
   upgradeButton: {
     color: '#ffaa00',
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  studioQuickAccess: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 107, 53, 0.15)',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: '#FF6B35',
+  },
+  studioQuickIcon: {
+    fontSize: 32,
+    marginRight: 12,
+  },
+  studioQuickContent: {
+    flex: 1,
+  },
+  studioQuickTitle: {
+    color: '#FF6B35',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  studioQuickDesc: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 12,
+  },
+  studioQuickArrow: {
+    color: '#FF6B35',
+    fontSize: 24,
     fontWeight: 'bold',
   },
 });

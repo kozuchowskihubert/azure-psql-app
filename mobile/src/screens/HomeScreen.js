@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,24 +6,115 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  ImageBackground,
+  Animated,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
+import { COLORS } from '../styles/HAOSDesignSystem';
 
 export default function HomeScreen({ navigation }) {
   const { user } = useAuth();
 
+  // Animations
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Pulse animation for logo
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Glow animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Fade in animation
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  const glowOpacity = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 1],
+  });
+
   return (
-    <LinearGradient
-      colors={['#0a0a0a', '#1a1a1a', '#0a0a0a']}
+    <ImageBackground
+      source={require('../../assets/thumb-1920-953506.png')}
       style={styles.container}
+      imageStyle={styles.backgroundImage}
+      resizeMode="cover"
     >
-      <ScrollView style={styles.scrollView}>
+      {/* Animated glow overlay */}
+      <Animated.View style={[styles.glowOverlay, { opacity: glowOpacity }]} />
+      
+      {/* Dark overlay for better readability */}
+      <View style={styles.overlay} />
+      
+      {/* Animated particles effect */}
+      <View style={styles.particlesContainer}>
+        {[...Array(20)].map((_, i) => (
+          <View
+            key={i}
+            style={[
+              styles.particle,
+              {
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+              },
+            ]}
+          />
+        ))}
+      </View>
+
+      <Animated.ScrollView style={[styles.scrollView, { opacity: fadeAnim }]}>
         {/* Hero Section */}
         <View style={styles.hero}>
-          <Text style={styles.title}>Welcome to HAOS.fm</Text>
+          <Animated.View
+            style={[
+              {
+                transform: [{ scale: pulseAnim }],
+              },
+            ]}
+          >
+            <Image
+              source={require('../../assets/haos-logo-white.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+          </Animated.View>
+          <Text style={styles.title}>Hardware Analog{'\n'}Oscillator Synthesis</Text>
           <Text style={styles.subtitle}>
-            {user?.display_name ? `Hey ${user.display_name}!` : 'Professional Music Production'}
+            {user?.display_name ? `Welcome back, ${user.display_name}! 👋` : 'Professional Music Production Platform'}
           </Text>
           {user?.subscription_tier && (
             <View style={styles.badge}>
@@ -37,16 +128,16 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.sectionTitle}>Quick Start</Text>
           
           <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate('Workspaces')}
+            style={[styles.card, styles.primaryCard]}
+            onPress={() => navigation.navigate('Studio')}
           >
             <View style={styles.cardIcon}>
-              <Text style={styles.icon}>🎹</Text>
+              <Text style={styles.icon}>🎛️</Text>
             </View>
             <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>Music Workspaces</Text>
+              <Text style={styles.cardTitle}>DAW Studio</Text>
               <Text style={styles.cardDescription}>
-                TECHNO, MODULAR, and BUILDER synths
+                Live sequencer with ARP 2600, Juno-106, and Minimoog
               </Text>
             </View>
             <Text style={styles.arrow}>→</Text>
@@ -87,21 +178,67 @@ export default function HomeScreen({ navigation }) {
           )}
         </View>
 
+        {/* Synth Controls */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🎚️ Synth Parameters</Text>
+          <Text style={styles.sectionSubtitle}>
+            Real-time control over synthesizer parameters
+          </Text>
+
+          <View style={styles.synthControlsGrid}>
+            <TouchableOpacity
+              style={[styles.synthCard, styles.synthCardGreen]}
+              onPress={() => navigation.navigate('Studio', { synthType: 'arp2600' })}
+            >
+              <Text style={styles.synthIcon}>🎹</Text>
+              <Text style={styles.synthName}>ARP 2600</Text>
+              <Text style={styles.synthDescription}>Modular analog</Text>
+              <View style={styles.synthBadge}>
+                <Text style={styles.synthBadgeText}>TECHNO</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.synthCard, styles.synthCardOrange]}
+              onPress={() => navigation.navigate('Studio', { synthType: 'juno106' })}
+            >
+              <Text style={styles.synthIcon}>🎼</Text>
+              <Text style={styles.synthName}>Juno-106</Text>
+              <Text style={styles.synthDescription}>Warm chorus</Text>
+              <View style={[styles.synthBadge, styles.synthBadgeOrange]}>
+                <Text style={styles.synthBadgeText}>HIP-HOP</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.synthCard, styles.synthCardGreen]}
+              onPress={() => navigation.navigate('Studio', { synthType: 'minimoog' })}
+            >
+              <Text style={styles.synthIcon}>🎛️</Text>
+              <Text style={styles.synthName}>Minimoog</Text>
+              <Text style={styles.synthDescription}>Fat bass</Text>
+              <View style={styles.synthBadge}>
+                <Text style={styles.synthBadgeText}>HOUSE</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Features */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Features</Text>
           <View style={styles.featureGrid}>
             <View style={styles.feature}>
               <Text style={styles.featureIcon}>🎛️</Text>
-              <Text style={styles.featureText}>Professional Synths</Text>
+              <Text style={styles.featureText}>Live Controls</Text>
             </View>
             <View style={styles.feature}>
               <Text style={styles.featureIcon}>🎚️</Text>
-              <Text style={styles.featureText}>ADSR Controls</Text>
+              <Text style={styles.featureText}>ADSR Envelope</Text>
             </View>
             <View style={styles.feature}>
-              <Text style={styles.featureIcon}>📊</Text>
-              <Text style={styles.featureText}>Visualizers</Text>
+              <Text style={styles.featureIcon}>�</Text>
+              <Text style={styles.featureText}>Filter Sweep</Text>
             </View>
             <View style={styles.feature}>
               <Text style={styles.featureIcon}>☁️</Text>
@@ -109,8 +246,8 @@ export default function HomeScreen({ navigation }) {
             </View>
           </View>
         </View>
-      </ScrollView>
-    </LinearGradient>
+      </Animated.ScrollView>
+    </ImageBackground>
   );
 }
 
@@ -118,89 +255,159 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  backgroundImage: {
+    opacity: 0.6,
+    tintColor: COLORS.primary,
+  },
+  glowOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255, 107, 53, 0.05)',
+    zIndex: 0,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.70)',
+    zIndex: 1,
+  },
+  particlesContainer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 2,
+    pointerEvents: 'none',
+  },
+  particle: {
+    position: 'absolute',
+    width: 3,
+    height: 3,
+    backgroundColor: COLORS.primary,
+    borderRadius: 1.5,
+    opacity: 0.4,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 6,
+  },
   scrollView: {
     flex: 1,
+    zIndex: 3,
   },
   hero: {
     padding: 24,
     alignItems: 'center',
     marginTop: 20,
   },
+  logoImage: {
+    width: 140,
+    height: 140,
+    marginBottom: 20,
+  },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#00ff94',
+    fontSize: 30,
+    fontWeight: '900',
+    color: COLORS.primary,
     marginBottom: 8,
     textAlign: 'center',
+    letterSpacing: 2,
+    lineHeight: 38,
+    textTransform: 'uppercase',
+    textShadowColor: COLORS.primary,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: COLORS.textSecondary,
     textAlign: 'center',
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
   badge: {
-    backgroundColor: '#00ff94',
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
     marginTop: 12,
   },
   badgeText: {
-    color: '#0a0a0a',
+    color: COLORS.background,
     fontSize: 12,
     fontWeight: 'bold',
+    letterSpacing: 1,
   },
   section: {
     padding: 24,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontSize: 22,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
     marginBottom: 16,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   card: {
-    backgroundColor: '#1a1a1a',
+    backgroundColor: 'rgba(26, 26, 26, 0.85)',
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    padding: 20,
+    marginBottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#333',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  primaryCard: {
+    borderColor: COLORS.primary,
+    backgroundColor: 'rgba(255, 107, 53, 0.1)',
+    shadowColor: COLORS.primary,
+    shadowOpacity: 0.5,
   },
   premiumCard: {
-    borderColor: '#00ff94',
-    backgroundColor: '#0a1a14',
+    borderColor: COLORS.secondary,
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    shadowColor: COLORS.secondary,
+    shadowOpacity: 0.4,
   },
   cardIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#0a0a0a',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 15,
   },
   icon: {
-    fontSize: 24,
+    fontSize: 28,
   },
   cardContent: {
     flex: 1,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 4,
+    marginBottom: 6,
+    letterSpacing: 0.5,
   },
   cardDescription: {
     fontSize: 14,
-    color: '#666',
+    color: '#999',
+    lineHeight: 20,
   },
   arrow: {
-    fontSize: 20,
-    color: '#00ff94',
+    fontSize: 24,
+    color: COLORS.primary,
+    fontWeight: 'bold',
   },
   featureGrid: {
     flexDirection: 'row',
@@ -220,6 +427,65 @@ const styles = StyleSheet.create({
   featureIcon: {
     fontSize: 32,
     marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: COLORS.textTertiary,
+    marginBottom: 20,
+    marginTop: -8,
+    letterSpacing: 0.3,
+  },
+  synthControlsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  synthCard: {
+    width: '48%',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    marginBottom: 16,
+    borderWidth: 3,
+    borderColor: COLORS.primary,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 15,
+  },
+  synthIcon: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+  synthName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  synthDescription: {
+    fontSize: 12,
+    color: '#999',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  synthBadge: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 4,
+  },
+  synthBadgeOrange: {
+    backgroundColor: COLORS.secondary,
+  },
+  synthBadgeText: {
+    color: '#0a0a0a',
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   featureText: {
     color: '#fff',
