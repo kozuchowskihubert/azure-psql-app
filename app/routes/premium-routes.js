@@ -6,10 +6,56 @@
 const express = require('express');
 const router = express.Router();
 const { PremiumService, PLANS, FEATURE_CODES } = require('../services/premium-service');
+const pool = require('../config/database');
 
 // ============================================================================
 // MIDDLEWARE
 // ============================================================================
+
+/**
+ * Load user from session cookie (haos_session)
+ * This middleware populates req.user if a valid session exists
+ */
+const loadUserFromSession = async (req, res, next) => {
+  const sessionId = req.cookies?.haos_session;
+  
+  if (sessionId) {
+    try {
+      const result = await pool.query(`
+        SELECT 
+          us.user_id,
+          us.tier,
+          u.email,
+          u.display_name,
+          u.subscription_tier,
+          u.roles
+        FROM user_sessions us
+        JOIN users u ON us.user_id = u.id
+        WHERE us.session_id = $1
+          AND us.expires_at > NOW()
+          AND us.session_type = 'authenticated'
+      `, [sessionId]);
+      
+      if (result.rows.length > 0) {
+        req.user = {
+          id: result.rows[0].user_id,
+          email: result.rows[0].email,
+          name: result.rows[0].display_name,
+          tier: result.rows[0].subscription_tier || result.rows[0].tier,
+          roles: result.rows[0].roles || ['user']
+        };
+        console.log('[Premium] User authenticated:', req.user.email, 'Tier:', req.user.tier);
+      }
+    } catch (error) {
+      console.error('[Premium] Error loading session:', error.message);
+    }
+  }
+  
+  next();
+};
+
+// Apply session middleware to all premium routes
+router.use(loadUserFromSession);
 
 /**
  * Extract user ID from session (compatible with various auth methods)
