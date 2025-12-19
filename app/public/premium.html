@@ -555,29 +555,39 @@
     <haos-navigation></haos-navigation>
 
     <section class="hero">
+        <!-- Language Switcher -->
+        <div style="position: absolute; top: 20px; right: 30px; display: flex; gap: 10px; z-index: 10;">
+            <button id="lang-en" class="lang-btn active" onclick="switchLanguage('en')" style="padding: 8px 16px; background: rgba(255,107,53,0.2); border: 1px solid rgba(255,107,53,0.3); border-radius: 8px; color: #FF6B35; cursor: pointer; font-family: 'Space Mono', monospace; font-size: 0.9rem;">
+                🇬🇧 EN
+            </button>
+            <button id="lang-pl" class="lang-btn" onclick="switchLanguage('pl')" style="padding: 8px 16px; background: rgba(106,13,173,0.1); border: 1px solid rgba(106,13,173,0.2); border-radius: 8px; color: #6B6B6B; cursor: pointer; font-family: 'Space Mono', monospace; font-size: 0.9rem;">
+                🇵🇱 PL
+            </button>
+        </div>
+
         <div class="hero-badge">
             <span>⭐</span>
-            <span>HAOS.fm Premium</span>
+            <span data-i18n="badge">HAOS.fm Premium</span>
         </div>
-        <h1 class="hero-title">Upgrade Your Sound</h1>
-        <p class="hero-subtitle">Unlock unlimited downloads, exclusive presets, all workspaces, and professional-grade tools for serious producers.</p>
+        <h1 class="hero-title" data-i18n="title">Upgrade Your Sound</h1>
+        <p class="hero-subtitle" data-i18n="subtitle">Unlock unlimited downloads, exclusive presets, all workspaces, and professional-grade tools for serious producers.</p>
         
         <div class="billing-toggle">
-            <span class="billing-label active" data-billing="monthly">Monthly</span>
+            <span class="billing-label active" data-billing="monthly" data-i18n="monthly">Monthly</span>
             <div class="toggle-switch" id="billingToggle"></div>
-            <span class="billing-label" data-billing="yearly">Yearly</span>
-            <span class="save-badge">Save 17%</span>
+            <span class="billing-label" data-billing="yearly" data-i18n="yearly">Yearly</span>
+            <span class="save-badge" data-i18n="save">Save 17%</span>
         </div>
     </section>
 
     <section class="pricing-grid" id="pricingGrid">
         <!-- Free Plan -->
         <div class="pricing-card" data-plan="free">
-            <h3 class="plan-name">Free</h3>
-            <p class="plan-description">Get started with HAOS.fm</p>
+            <h3 class="plan-name" data-i18n="free">Free</h3>
+            <p class="plan-description" data-i18n="freeDesc">Get started with HAOS.fm</p>
             <div class="plan-price">
                 <span class="price-amount">0<span class="price-currency"> PLN</span></span>
-                <span class="price-period">/month</span>
+                <span class="price-period" data-i18n="perMonth">/month</span>
             </div>
             <ul class="plan-features">
                 <li><span class="feature-icon limited">5</span> Preset downloads/day</li>
@@ -589,16 +599,16 @@
                 <li><span class="feature-icon limited">3</span> Saved patches</li>
                 <li><span class="feature-icon yes">✓</span> Community support</li>
             </ul>
-            <button class="plan-cta current" disabled>Current Plan</button>
+            <button class="plan-cta current" disabled data-i18n="currentPlan">Current Plan</button>
         </div>
 
         <!-- Basic Plan -->
         <div class="pricing-card" data-plan="basic">
-            <h3 class="plan-name">Basic</h3>
-            <p class="plan-description">For hobbyist producers</p>
+            <h3 class="plan-name" data-i18n="basic">Basic</h3>
+            <p class="plan-description" data-i18n="basicDesc">For hobbyist producers</p>
             <div class="plan-price">
                 <span class="price-amount"><span class="price-value">29</span><span class="price-currency"> PLN</span></span>
-                <span class="price-period">/month</span>
+                <span class="price-period" data-i18n="perMonth">/month</span>
                 <span class="original-price yearly-price" style="display: none;">290 PLN</span>
             </div>
             <ul class="plan-features">
@@ -611,17 +621,17 @@
                 <li><span class="feature-icon limited">25</span> Saved patches</li>
                 <li><span class="feature-icon yes">✓</span> Email support</li>
             </ul>
-            <button class="plan-cta secondary">Get Basic</button>
+            <button class="plan-cta secondary" data-i18n="getBasic">Get Basic</button>
         </div>
 
         <!-- Premium Plan (Featured) -->
         <div class="pricing-card featured" data-plan="premium">
             <div class="featured-badge">Most Popular</div>
-            <h3 class="plan-name">Premium</h3>
-            <p class="plan-description">For serious producers</p>
+            <h3 class="plan-name" data-i18n="premium">Premium</h3>
+            <p class="plan-description" data-i18n="premiumDesc">For serious producers</p>
             <div class="plan-price">
                 <span class="price-amount"><span class="price-value">49</span><span class="price-currency"> PLN</span></span>
-                <span class="price-period">/month</span>
+                <span class="price-period" data-i18n="perMonth">/month</span>
                 <span class="original-price yearly-price" style="display: none;">490 PLN</span>
             </div>
             <ul class="plan-features">
@@ -634,16 +644,16 @@
                 <li><span class="feature-icon yes">✓</span> 1 GB cloud storage</li>
                 <li><span class="feature-icon yes">✓</span> Priority support</li>
             </ul>
-            <button class="plan-cta primary">Get Premium</button>
+            <button class="plan-cta primary" data-i18n="getPremium">Get Premium</button>
         </div>
 
         <!-- Pro Plan -->
         <div class="pricing-card" data-plan="pro">
-            <h3 class="plan-name">Pro</h3>
-            <p class="plan-description">For professional studios</p>
+            <h3 class="plan-name" data-i18n="pro">Pro</h3>
+            <p class="plan-description" data-i18n="proDesc">For professional studios</p>
             <div class="plan-price">
                 <span class="price-amount"><span class="price-value">99</span><span class="price-currency"> PLN</span></span>
-                <span class="price-period">/month</span>
+                <span class="price-period" data-i18n="perMonth">/month</span>
                 <span class="original-price yearly-price" style="display: none;">990 PLN</span>
             </div>
             <ul class="plan-features">
@@ -656,7 +666,7 @@
                 <li><span class="feature-icon yes">✓</span> Commercial license</li>
                 <li><span class="feature-icon yes">✓</span> Dedicated support</li>
             </ul>
-            <button class="plan-cta secondary">Get Pro</button>
+            <button class="plan-cta secondary" data-i18n="getPro">Get Pro</button>
         </div>
     </section>
 
@@ -942,6 +952,119 @@
                     window.location.href = `/subscription.html`;
                 }
             });
+        });
+
+        // Language switcher
+        const translations = {
+            en: {
+                badge: "HAOS.fm Premium",
+                title: "Upgrade Your Sound",
+                subtitle: "Unlock unlimited downloads, exclusive presets, all workspaces, and professional-grade tools for serious producers.",
+                monthly: "Monthly",
+                yearly: "Yearly",
+                save: "Save 17%",
+                free: "Free",
+                basic: "Basic",
+                premium: "Premium",
+                pro: "Pro",
+                freeDesc: "Get started with HAOS.fm",
+                basicDesc: "For hobbyist producers",
+                premiumDesc: "For serious producers",
+                proDesc: "For professional studios",
+                perMonth: "/month",
+                perYear: "/year",
+                currentPlan: "Current Plan",
+                getBasic: "Get Basic",
+                getPremium: "Get Premium",
+                getPro: "Get Pro",
+                mostPopular: "Most Popular",
+                presetDownloads: "Preset downloads/day",
+                soundsAccess: "SOUNDS page access",
+                technoWorkspace: "TECHNO workspace",
+                modularWorkspace: "MODULAR workspace",
+                builderWorkspace: "BUILDER workspace",
+                exclusivePresets: "Exclusive presets",
+                savedPatches: "Saved patches",
+                communitySupport: "Community support",
+                emailSupport: "Email support",
+                prioritySupport: "Priority support",
+                unlimitedDownloads: "Unlimited downloads",
+                allWorkspaces: "All workspaces",
+                unlimitedPatches: "Unlimited patches",
+                cloudStorage: "1 GB cloud storage",
+                everythingPremium: "Everything in Premium"
+            },
+            pl: {
+                badge: "HAOS.fm Premium",
+                title: "Ulepsz Swój Dźwięk",
+                subtitle: "Odblokuj nieograniczone pobierania, ekskluzywne presety, wszystkie obszary robocze i profesjonalne narzędzia dla poważnych producentów.",
+                monthly: "Miesięcznie",
+                yearly: "Rocznie",
+                save: "Oszczędź 17%",
+                free: "Darmowy",
+                basic: "Podstawowy",
+                premium: "Premium",
+                pro: "Pro",
+                freeDesc: "Rozpocznij z HAOS.fm",
+                basicDesc: "Dla hobbystycznych producentów",
+                premiumDesc: "Dla poważnych producentów",
+                proDesc: "Dla profesjonalnych studiów",
+                perMonth: "/miesiąc",
+                perYear: "/rok",
+                currentPlan: "Aktualny Plan",
+                getBasic: "Wybierz Podstawowy",
+                getPremium: "Wybierz Premium",
+                getPro: "Wybierz Pro",
+                mostPopular: "Najpopularniejszy",
+                presetDownloads: "Pobrań presetów/dzień",
+                soundsAccess: "Dostęp do strony SOUNDS",
+                technoWorkspace: "Obszar roboczy TECHNO",
+                modularWorkspace: "Obszar roboczy MODULAR",
+                builderWorkspace: "Obszar roboczy BUILDER",
+                exclusivePresets: "Ekskluzywne presety",
+                savedPatches: "Zapisane patche",
+                communitySupport: "Wsparcie społeczności",
+                emailSupport: "Wsparcie emailowe",
+                prioritySupport: "Priorytetowe wsparcie",
+                unlimitedDownloads: "Nieograniczone pobierania",
+                allWorkspaces: "Wszystkie obszary robocze",
+                unlimitedPatches: "Nieograniczone patche",
+                cloudStorage: "1 GB w chmurze",
+                everythingPremium: "Wszystko z Premium"
+            }
+        };
+
+        let currentLang = localStorage.getItem('haos_language') || 'en';
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('haos_language', lang);
+            
+            // Update button styles
+            document.getElementById('lang-en').className = 'lang-btn' + (lang === 'en' ? ' active' : '');
+            document.getElementById('lang-en').style.background = lang === 'en' ? 'rgba(255,107,53,0.2)' : 'rgba(106,13,173,0.1)';
+            document.getElementById('lang-en').style.borderColor = lang === 'en' ? 'rgba(255,107,53,0.3)' : 'rgba(106,13,173,0.2)';
+            document.getElementById('lang-en').style.color = lang === 'en' ? '#FF6B35' : '#6B6B6B';
+            
+            document.getElementById('lang-pl').className = 'lang-btn' + (lang === 'pl' ? ' active' : '');
+            document.getElementById('lang-pl').style.background = lang === 'pl' ? 'rgba(255,107,53,0.2)' : 'rgba(106,13,173,0.1)';
+            document.getElementById('lang-pl').style.borderColor = lang === 'pl' ? 'rgba(255,107,53,0.3)' : 'rgba(106,13,173,0.2)';
+            document.getElementById('lang-pl').style.color = lang === 'pl' ? '#FF6B35' : '#6B6B6B';
+            
+            // Update all i18n elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            
+            console.log('[i18n] Language switched to:', lang);
+        }
+
+        // Initialize language on load
+        document.addEventListener('DOMContentLoaded', () => {
+            switchLanguage(currentLang);
         });
 
         // Update current plan badge based on user's actual plan
