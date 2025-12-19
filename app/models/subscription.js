@@ -52,7 +52,9 @@ class Subscription {
         sp.name as plan_name,
         sp.features,
         sp.price_monthly,
-        sp.price_yearly
+        sp.price_yearly,
+        sp.currency,
+        sp.description
       FROM user_subscriptions us
       JOIN subscription_plans sp ON us.plan_id = sp.id
       WHERE us.user_id = $1
