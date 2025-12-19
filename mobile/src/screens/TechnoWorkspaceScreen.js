@@ -12,7 +12,7 @@ import Knob from '../components/Knob';
 import ADSREnvelope from '../components/ADSREnvelope';
 import Keyboard from '../components/Keyboard';
 
-export default function TechnoWorkspaceScreen() {
+export default function TechnoWorkspaceScreen({ route }) {
   const [waveform, setWaveform] = useState('sawtooth');
   const [filter, setFilter] = useState({
     type: 'lowpass',
@@ -26,15 +26,58 @@ export default function TechnoWorkspaceScreen() {
     release: 0.3,
   });
   const [volume, setVolume] = useState(0.3);
+  const [loadedPreset, setLoadedPreset] = useState(null);
 
   useEffect(() => {
     // Initialize audio engine
     audioEngine.initialize();
     
+    // Load preset if passed via navigation
+    if (route?.params?.preset) {
+      loadPreset(route.params.preset);
+    }
+    
     return () => {
       audioEngine.stopAll();
     };
   }, []);
+
+  const loadPreset = (preset) => {
+    if (!preset || !preset.parameters) return;
+    
+    const { parameters } = preset;
+    
+    // Load waveform
+    if (parameters.waveform) {
+      setWaveform(parameters.waveform);
+    }
+    
+    // Load filter
+    if (parameters.filter) {
+      setFilter({
+        type: parameters.filter.type || 'lowpass',
+        frequency: parameters.filter.frequency || 1000,
+        q: parameters.filter.q || 1,
+      });
+    }
+    
+    // Load ADSR
+    if (parameters.adsr) {
+      setAdsr({
+        attack: parameters.adsr.attack || 0.1,
+        decay: parameters.adsr.decay || 0.2,
+        sustain: parameters.adsr.sustain || 0.7,
+        release: parameters.adsr.release || 0.3,
+      });
+    }
+    
+    // Load volume
+    if (parameters.volume !== undefined) {
+      setVolume(parameters.volume);
+    }
+    
+    setLoadedPreset(preset);
+  };
 
   useEffect(() => {
     audioEngine.setADSR(adsr.attack, adsr.decay, adsr.sustain, adsr.release);
@@ -64,7 +107,9 @@ export default function TechnoWorkspaceScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>🎛️ TECHNO</Text>
-          <Text style={styles.subtitle}>Analog Synthesizer</Text>
+          <Text style={styles.subtitle}>
+            {loadedPreset ? `Preset: ${loadedPreset.name}` : 'Analog Synthesizer'}
+          </Text>
         </View>
 
         {/* Waveform Selector */}
