@@ -1,0 +1,12 @@
+--- a/node_modules/react-native-audio-api/android/build.gradle
++++ b/node_modules/react-native-audio-api/android/build.gradle
+@@ -303,7 +303,7 @@
+ 
+ 
+ def assertMinimalReactNativeVersion = task assertMinimalReactNativeVersionTask {
+-    // If you change the minimal React Native version remember to update Compatibility Table in docs
+-    def minimalReactNativeVersion = 76
++    // PATCHED: Changed minimal version from 76 to 74 to work with RN 0.81
++    def minimalReactNativeVersion = 74
+     onlyIf { REACT_NATIVE_MINOR_VERSION < minimalReactNativeVersion }
+     doFirst {
