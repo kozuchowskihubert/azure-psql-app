@@ -130,6 +130,60 @@ class WebAudioSynthBridge {
     });
   }
 
+  // **Enhanced Bass Note Manipulation Methods**
+  
+  /**
+   * Play bass note with slide/portamento
+   * @param {string} note - Note name (e.g. 'C2')
+   * @param {object} options - {velocity, accent, duration, slide, pitchBend, vibrato, subOsc}
+   */
+  playBassSlide(note, options = {}) {
+    const {
+      velocity = 1.0,
+      accent = false,
+      duration = 0.5,
+      slide = 0.1,        // Slide time in seconds
+      pitchBend = 0,      // Pitch bend in semitones
+      vibrato = 0,        // Vibrato depth 0-1
+      subOsc = false,     // Enable sub-oscillator
+    } = options;
+
+    this.sendMessage({
+      type: 'play_bass_slide',
+      note,
+      velocity,
+      accent,
+      duration,
+      slide,
+      pitchBend,
+      vibrato,
+      subOsc,
+    });
+  }
+
+  /**
+   * Play stacked bass note (multiple octaves)
+   * @param {string} note - Base note name
+   * @param {object} options - {velocity, accent, duration, octaves}
+   */
+  playBassStack(note, options = {}) {
+    const {
+      velocity = 1.0,
+      accent = false,
+      duration = 0.5,
+      octaves = 2,        // Number of octaves to stack (1-3)
+    } = options;
+
+    this.sendMessage({
+      type: 'play_bass_stack',
+      note,
+      velocity,
+      accent,
+      duration,
+      octaves,
+    });
+  }
+
   stopAll() {
     this.sendMessage({
       type: 'stop_all',
@@ -1662,6 +1716,230 @@ export const WebAudioBridgeComponent = () => {
       return 440 * Math.pow(2, (midiNote - 69) / 12);
     }
 
+    // **Enhanced Bass Note Manipulation**
+    // State to track active notes for slide/portamento
+    let lastBassNote = null;
+    let lastBassOscillator = null;
+    
+    /**
+     * Play bass note with slide (portamento) from last note
+     * @param {string} note - Note name (e.g. 'C2')
+     * @param {number} velocity - 0-1
+     * @param {boolean} accent - Accent flag
+     * @param {number} duration - Note duration in seconds
+     * @param {number} slide - Slide time in seconds (0 = no slide)
+     * @param {number} pitchBend - Pitch bend in semitones (+/- 12)
+     * @param {number} vibrato - Vibrato depth (0-1)
+     * @param {boolean} subOsc - Enable sub-oscillator (octave down)
+     */
+    function playBassSlide(note, velocity, accent, duration, slide = 0, pitchBend = 0, vibrato = 0, subOsc = false) {
+      if (!audioContext) return;
+
+      try {
+        const targetFreq = noteToFrequency(note);
+        const now = audioContext.currentTime;
+
+        // Main oscillator
+        const osc = audioContext.createOscillator();
+        osc.type = 'sawtooth';
+        
+        // Start from last note if slide is enabled
+        const startFreq = (slide > 0 && lastBassNote) ? 
+          noteToFrequency(lastBassNote) : targetFreq;
+        
+        osc.frequency.setValueAtTime(startFreq, now);
+        
+        // Slide to target frequency
+        if (slide > 0 && startFreq !== targetFreq) {
+          osc.frequency.exponentialRampToValueAtTime(targetFreq, now + slide);
+        }
+        
+        // Apply pitch bend if specified
+        if (pitchBend !== 0) {
+          const bendRatio = Math.pow(2, pitchBend / 12);
+          const endTime = now + duration * 0.8;
+          osc.frequency.exponentialRampToValueAtTime(
+            targetFreq * bendRatio, 
+            endTime
+          );
+          osc.frequency.exponentialRampToValueAtTime(
+            targetFreq, 
+            now + duration
+          );
+        }
+
+        // Add vibrato with LFO
+        let vibratoLFO = null;
+        let vibratoGain = null;
+        if (vibrato > 0) {
+          vibratoLFO = audioContext.createOscillator();
+          vibratoLFO.frequency.value = 5.5; // 5.5 Hz vibrato
+          vibratoGain = audioContext.createGain();
+          vibratoGain.gain.value = vibrato * 15; // Vibrato depth in Hz
+          vibratoLFO.connect(vibratoGain);
+          vibratoGain.connect(osc.frequency);
+          vibratoLFO.start(now);
+          vibratoLFO.stop(now + duration + 0.1);
+        }
+
+        // Sub-oscillator (octave down)
+        let subOsc = null;
+        let subGain = null;
+        if (subOsc) {
+          subOsc = audioContext.createOscillator();
+          subOsc.type = 'sine';
+          subOsc.frequency.value = targetFreq / 2; // One octave down
+          subGain = audioContext.createGain();
+          subGain.gain.value = 0.4; // Blend sub-osc
+        }
+
+        // Resonant filter
+        const filter = audioContext.createBiquadFilter();
+        filter.type = 'lowpass';
+        const baseCutoff = 800 + (accent ? 400 : 0);
+        filter.frequency.value = baseCutoff;
+        filter.Q.value = 8 + (accent ? 4 : 0); // High resonance for bass
+
+        // VCA with envelope
+        const vca = audioContext.createGain();
+        vca.gain.value = 0;
+
+        // Routing
+        const trackRouting = getTrackNodes('bass');
+        osc.connect(filter);
+        if (subOsc) {
+          subOsc.connect(subGain);
+          subGain.connect(filter);
+        }
+        filter.connect(vca);
+        vca.connect(trackRouting.filter);
+
+        // Envelope
+        const accentMult = accent ? 1.5 : 1.0;
+        const peakVolume = velocity * accentMult * 0.6;
+        const filterPeak = baseCutoff + (accent ? 800 : 400);
+
+        // Amplitude envelope (fast attack, medium decay)
+        vca.gain.setValueAtTime(0, now);
+        vca.gain.linearRampToValueAtTime(peakVolume, now + 0.002);
+        vca.gain.exponentialRampToValueAtTime(peakVolume * 0.6, now + 0.1);
+        vca.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        // Filter envelope (punchy bass)
+        filter.frequency.setValueAtTime(filterPeak, now);
+        filter.frequency.exponentialRampToValueAtTime(baseCutoff * 1.5, now + 0.05);
+        filter.frequency.exponentialRampToValueAtTime(baseCutoff, now + 0.2);
+
+        // Start oscillators
+        osc.start(now);
+        if (subOsc) subOsc.start(now);
+        
+        osc.stop(now + duration + 0.1);
+        if (subOsc) subOsc.stop(now + duration + 0.1);
+
+        // Store for next slide
+        lastBassNote = note;
+        lastBassOscillator = osc;
+
+        // Cleanup
+        setTimeout(() => {
+          try {
+            osc.disconnect();
+            if (subOsc) {
+              subOsc.disconnect();
+              subGain.disconnect();
+            }
+            if (vibratoLFO) {
+              vibratoLFO.disconnect();
+              vibratoGain.disconnect();
+            }
+            filter.disconnect();
+            vca.disconnect();
+          } catch (e) {}
+        }, (duration + 0.2) * 1000);
+
+      } catch (error) {
+        console.error('Bass slide error:', error);
+      }
+    }
+
+    /**
+     * Play stacked bass note (multiple octaves)
+     * @param {string} note - Base note
+     * @param {number} velocity - 0-1
+     * @param {boolean} accent - Accent flag
+     * @param {number} duration - Note duration
+     * @param {number} octaves - Number of octaves to stack (1-3)
+     */
+    function playBassStack(note, velocity, accent, duration, octaves = 2) {
+      if (!audioContext) return;
+
+      try {
+        const baseFreq = noteToFrequency(note);
+        const now = audioContext.currentTime;
+
+        const filter = audioContext.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 1200;
+        filter.Q.value = 6;
+
+        const vca = audioContext.createGain();
+        vca.gain.value = 0;
+
+        const trackRouting = getTrackNodes('bass');
+        filter.connect(vca);
+        vca.connect(trackRouting.filter);
+
+        const oscillators = [];
+        
+        // Create stacked oscillators
+        for (let i = 0; i < Math.min(octaves, 3); i++) {
+          const osc = audioContext.createOscillator();
+          osc.type = i === 0 ? 'sawtooth' : 'square';
+          osc.frequency.value = baseFreq * Math.pow(2, i); // Stack octaves up
+          
+          const oscGain = audioContext.createGain();
+          // Lower octaves louder
+          oscGain.gain.value = 1.0 / (i + 1);
+          
+          osc.connect(oscGain);
+          oscGain.connect(filter);
+          oscillators.push({ osc, gain: oscGain });
+        }
+
+        // Envelope
+        const peakVolume = velocity * (accent ? 0.8 : 0.6);
+        vca.gain.setValueAtTime(0, now);
+        vca.gain.linearRampToValueAtTime(peakVolume, now + 0.002);
+        vca.gain.exponentialRampToValueAtTime(peakVolume * 0.7, now + 0.08);
+        vca.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        filter.frequency.setValueAtTime(2000, now);
+        filter.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+
+        // Start all oscillators
+        oscillators.forEach(({ osc }) => {
+          osc.start(now);
+          osc.stop(now + duration + 0.1);
+        });
+
+        // Cleanup
+        setTimeout(() => {
+          try {
+            oscillators.forEach(({ osc, gain }) => {
+              osc.disconnect();
+              gain.disconnect();
+            });
+            filter.disconnect();
+            vca.disconnect();
+          } catch (e) {}
+        }, (duration + 0.2) * 1000);
+
+      } catch (error) {
+        console.error('Bass stack error:', error);
+      }
+    }
+
     function updateParams(params) {
       // Update TB-303 params
       if (params.cutoff !== undefined || params.resonance !== undefined || 
@@ -1704,6 +1982,27 @@ export const WebAudioBridgeComponent = () => {
             break;
           case 'play_note':
             playTB303(message.note, message.velocity, message.accent, message.duration);
+            break;
+          case 'play_bass_slide':
+            playBassSlide(
+              message.note, 
+              message.velocity, 
+              message.accent, 
+              message.duration,
+              message.slide || 0,
+              message.pitchBend || 0,
+              message.vibrato || 0,
+              message.subOsc || false
+            );
+            break;
+          case 'play_bass_stack':
+            playBassStack(
+              message.note,
+              message.velocity,
+              message.accent,
+              message.duration,
+              message.octaves || 2
+            );
             break;
           case 'play_arp2600':
             playARP2600(message.note, message.velocity, message.accent, message.duration);

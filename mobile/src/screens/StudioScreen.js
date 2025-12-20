@@ -9,6 +9,7 @@ import Slider from '@react-native-community/slider';
 import { COLORS, TYPO, SPACING, SHADOW } from '../styles/HAOSDesignSystem';
 import technoWorkspace from '../engine/TechnoWorkspace';
 import { loadPreset, getPresetInfo } from '../engine/WorkspacePresets';
+import bridge from '../audio/WebAudioBridge';
 
 // Note options for pitch selection
 const NOTES = ['C2', 'C#2', 'D2', 'D#2', 'E2', 'F2', 'F#2', 'G2', 'G#2', 'A2', 'A#2', 'B2',
@@ -24,6 +25,94 @@ const STUDIOS = [
   { id: 'house', name: 'HOUSE STUDIO', emoji: '🏠', color: '#00ff94' },         // HAOS Green
   { id: 'ambient', name: 'AMBIENT STUDIO', emoji: '🌊', color: '#ff8800' },     // HAOS Orange
   { id: 'lofi', name: 'LO-FI STUDIO', emoji: '☕', color: '#00ff94' },          // HAOS Green
+];
+
+// Bass Presets - Different vibes for bass synthesis
+const BASS_PRESETS = [
+  {
+    id: 'acid',
+    name: 'ACID 303',
+    emoji: '🔊',
+    color: '#00ff94',
+    description: 'TB-303 style squelch',
+    params: {
+      slide: 0.08,
+      pitchBend: 0,
+      vibrato: 0.3,
+      subOsc: 0,
+      octaves: 1,
+    },
+  },
+  {
+    id: 'sub',
+    name: 'SUB BASS',
+    emoji: '💥',
+    color: '#ff00ff',
+    description: 'Deep sub-bass rumble',
+    params: {
+      slide: 0,
+      pitchBend: 0,
+      vibrato: 0,
+      subOsc: 0.8,
+      octaves: 2,
+    },
+  },
+  {
+    id: 'wobble',
+    name: 'WOBBLE',
+    emoji: '🌊',
+    color: '#00ffff',
+    description: 'Dubstep LFO wobble',
+    params: {
+      slide: 0,
+      pitchBend: -5,
+      vibrato: 0.8,
+      subOsc: 0.6,
+      octaves: 1,
+    },
+  },
+  {
+    id: '808',
+    name: 'TR-808',
+    emoji: '🥁',
+    color: '#ff8800',
+    description: 'Classic 808 boom',
+    params: {
+      slide: 0.02,
+      pitchBend: -12,
+      vibrato: 0,
+      subOsc: 0.9,
+      octaves: 1,
+    },
+  },
+  {
+    id: 'reese',
+    name: 'REESE',
+    emoji: '🎸',
+    color: '#9370DB',
+    description: 'Detuned saw stack',
+    params: {
+      slide: 0.15,
+      pitchBend: 2,
+      vibrato: 0.15,
+      subOsc: 0.3,
+      octaves: 3,
+    },
+  },
+  {
+    id: 'pluck',
+    name: 'PLUCK',
+    emoji: '🎹',
+    color: '#FFD700',
+    description: 'Short percussive bass',
+    params: {
+      slide: 0,
+      pitchBend: 5,
+      vibrato: 0.05,
+      subOsc: 0,
+      octaves: 1,
+    },
+  },
 ];
 
 const StudioScreen = ({ navigation, route }) => {
@@ -46,6 +135,15 @@ const StudioScreen = ({ navigation, route }) => {
   const [synthDecay, setSynthDecay] = useState(0.2);
   const [synthSustain, setSynthSustain] = useState(0.7);
   const [synthRelease, setSynthRelease] = useState(0.3);
+  
+  // Bass modulation controls
+  const [showBassControls, setShowBassControls] = useState(false);
+  const [selectedBassPreset, setSelectedBassPreset] = useState('acid');
+  const [bassSlide, setBassSlide] = useState(0.08);
+  const [bassPitchBend, setBassPitchBend] = useState(0);
+  const [bassVibrato, setBassVibrato] = useState(0.3);
+  const [bassSubOsc, setBassSubOsc] = useState(0);
+  const [bassOctaves, setBassOctaves] = useState(1);
 
   useEffect(() => {
     const initializeWorkspace = async () => {
@@ -152,23 +250,28 @@ const StudioScreen = ({ navigation, route }) => {
   const renderStudioSelector = () => (
     <View style={styles.studioSelector}>
       <View style={styles.selectorHeader}>
-        <Text style={styles.selectorTitle}>SELECT STUDIO</Text>
-        {isLoadingPreset && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="small" color={COLORS.primary} />
-            <Text style={styles.loadingText}>Loading preset...</Text>
-          </View>
-        )}
+        <Text style={styles.selectorTitle}>🎛️ STUDIO PRESETS</Text>
+        <Text style={styles.selectorSubtitle}>Tap to load different genre setups</Text>
       </View>
+      
+      {isLoadingPreset && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>⚡ Loading preset...</Text>
+          <Text style={styles.loadingSubtext}>Configuring synths & patterns</Text>
+        </View>
+      )}
+      
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.studioScroll}>
         {STUDIOS.map((ws) => {
           const presetInfo = getPresetInfo(ws.id);
+          const isActive = selectedWorkspace === ws.id;
           return (
             <TouchableOpacity
               key={ws.id}
               style={[
                 styles.studioCard,
-                selectedWorkspace === ws.id && styles.studioCardActive,
+                isActive && styles.studioCardActive,
                 { borderColor: ws.color },
                 isLoadingPreset && styles.studioCardDisabled
               ]}
@@ -178,7 +281,19 @@ const StudioScreen = ({ navigation, route }) => {
               <Text style={styles.studioEmoji}>{ws.emoji}</Text>
               <Text style={[styles.studioName, { color: ws.color }]}>{ws.name}</Text>
               {presetInfo && (
-                <Text style={styles.studioBPM}>{presetInfo.bpm} BPM</Text>
+                <>
+                  <Text style={styles.studioBPM}>{presetInfo.bpm} BPM</Text>
+                  <View style={styles.presetBadge}>
+                    <Text style={styles.presetBadgeText}>
+                      {presetInfo.synth || 'ARP 2600'}
+                    </Text>
+                  </View>
+                  {isActive && (
+                    <View style={[styles.activeIndicator, { backgroundColor: ws.color }]}>
+                      <Text style={styles.activeIndicatorText}>● ACTIVE</Text>
+                    </View>
+                  )}
+                </>
               )}
             </TouchableOpacity>
           );
@@ -475,6 +590,211 @@ const StudioScreen = ({ navigation, route }) => {
                 />
               </View>
             </View>
+
+            {/* Bass Modulation Section */}
+            <View style={styles.controlSection}>
+              <TouchableOpacity 
+                style={styles.bassModHeader}
+                onPress={() => setShowBassControls(!showBassControls)}
+              >
+                <Text style={styles.controlSectionTitle}>
+                  🎸 BASS MODULATION
+                </Text>
+                <Text style={styles.bassModToggle}>
+                  {showBassControls ? '▼' : '▶'}
+                </Text>
+              </TouchableOpacity>
+
+              {showBassControls && (
+                <View style={styles.bassModContent}>
+                  {/* Bass Preset Selector */}
+                  <View style={styles.bassPresetSection}>
+                    <Text style={styles.bassPresetTitle}>🎛️ BASS PRESETS</Text>
+                    <Text style={styles.bassPresetSubtitle}>Tap to load different bass vibes</Text>
+                    <ScrollView 
+                      horizontal 
+                      showsHorizontalScrollIndicator={false}
+                      style={styles.bassPresetScroll}
+                    >
+                      {BASS_PRESETS.map((preset) => {
+                        const isActive = selectedBassPreset === preset.id;
+                        return (
+                          <TouchableOpacity
+                            key={preset.id}
+                            style={[
+                              styles.bassPresetCard,
+                              isActive && styles.bassPresetCardActive,
+                              { borderColor: preset.color }
+                            ]}
+                            onPress={() => {
+                              setSelectedBassPreset(preset.id);
+                              // Apply preset values
+                              setBassSlide(preset.params.slide);
+                              setBassPitchBend(preset.params.pitchBend);
+                              setBassVibrato(preset.params.vibrato);
+                              setBassSubOsc(preset.params.subOsc);
+                              setBassOctaves(preset.params.octaves);
+                            }}
+                          >
+                            <Text style={styles.bassPresetEmoji}>{preset.emoji}</Text>
+                            <Text style={[styles.bassPresetName, { color: preset.color }]}>
+                              {preset.name}
+                            </Text>
+                            <Text style={styles.bassPresetDesc}>{preset.description}</Text>
+                            {isActive && (
+                              <View style={[styles.bassPresetActive, { backgroundColor: preset.color }]}>
+                                <Text style={styles.bassPresetActiveText}>● ACTIVE</Text>
+                              </View>
+                            )}
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+                  </View>
+
+                  {/* Slide/Portamento */}
+                  <View style={styles.controlRow}>
+                    <Text style={styles.controlLabel}>
+                      Slide: {(bassSlide * 1000).toFixed(0)} ms
+                    </Text>
+                    <Slider
+                      style={styles.slider}
+                      minimumValue={0}
+                      maximumValue={1}
+                      value={bassSlide}
+                      onValueChange={setBassSlide}
+                      minimumTrackTintColor="#00ff94"
+                      maximumTrackTintColor={COLORS.border}
+                      thumbTintColor="#00ff94"
+                    />
+                  </View>
+
+                  {/* Pitch Bend */}
+                  <View style={styles.controlRow}>
+                    <Text style={styles.controlLabel}>
+                      Pitch Bend: {bassPitchBend > 0 ? '+' : ''}{bassPitchBend} semitones
+                    </Text>
+                    <Slider
+                      style={styles.slider}
+                      minimumValue={-12}
+                      maximumValue={12}
+                      value={bassPitchBend}
+                      onValueChange={setBassPitchBend}
+                      minimumTrackTintColor="#ff00ff"
+                      maximumTrackTintColor={COLORS.border}
+                      thumbTintColor="#ff00ff"
+                    />
+                  </View>
+
+                  {/* Vibrato */}
+                  <View style={styles.controlRow}>
+                    <Text style={styles.controlLabel}>
+                      Vibrato: {(bassVibrato * 100).toFixed(0)}%
+                    </Text>
+                    <Slider
+                      style={styles.slider}
+                      minimumValue={0}
+                      maximumValue={1}
+                      value={bassVibrato}
+                      onValueChange={setBassVibrato}
+                      minimumTrackTintColor="#00ffff"
+                      maximumTrackTintColor={COLORS.border}
+                      thumbTintColor="#00ffff"
+                    />
+                  </View>
+
+                  {/* Sub-Oscillator */}
+                  <View style={styles.controlRow}>
+                    <Text style={styles.controlLabel}>
+                      Sub-Osc: {(bassSubOsc * 100).toFixed(0)}%
+                    </Text>
+                    <Slider
+                      style={styles.slider}
+                      minimumValue={0}
+                      maximumValue={1}
+                      value={bassSubOsc}
+                      onValueChange={setBassSubOsc}
+                      minimumTrackTintColor="#ff8800"
+                      maximumTrackTintColor={COLORS.border}
+                      thumbTintColor="#ff8800"
+                    />
+                  </View>
+
+                  {/* Octave Stacking */}
+                  <View style={styles.controlRow}>
+                    <Text style={styles.controlLabel}>
+                      Octave Stack: {Math.round(bassOctaves)} octave{Math.round(bassOctaves) > 1 ? 's' : ''}
+                    </Text>
+                    <Slider
+                      style={styles.slider}
+                      minimumValue={1}
+                      maximumValue={3}
+                      step={1}
+                      value={bassOctaves}
+                      onValueChange={setBassOctaves}
+                      minimumTrackTintColor="#00ff94"
+                      maximumTrackTintColor={COLORS.border}
+                      thumbTintColor="#00ff94"
+                    />
+                  </View>
+
+                  {/* Test Buttons */}
+                  <View style={styles.bassTestButtons}>
+                    <TouchableOpacity
+                      style={[styles.bassTestButton, styles.bassTestAcid]}
+                      onPress={() => {
+                        bridge.playBassSlide('C2', {
+                          velocity: 0.8,
+                          accent: true,
+                          duration: 0.25,
+                          slide: bassSlide,
+                          pitchBend: bassPitchBend,
+                          vibrato: bassVibrato,
+                          subOsc: bassSubOsc > 0.5
+                        });
+                      }}
+                    >
+                      <Text style={styles.bassTestButtonText}>🔊 Test Slide</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.bassTestButton, styles.bassTestStack]}
+                      onPress={() => {
+                        bridge.playBassStack('C1', {
+                          velocity: 0.9,
+                          accent: true,
+                          duration: 1.0,
+                          octaves: Math.round(bassOctaves)
+                        });
+                      }}
+                    >
+                      <Text style={styles.bassTestButtonText}>💥 Test Stack</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.bassTestButton, styles.bassTestWobble]}
+                      onPress={() => {
+                        bridge.playBassSlide('E1', {
+                          velocity: 0.95,
+                          accent: true,
+                          duration: 1.5,
+                          slide: 0,
+                          pitchBend: bassPitchBend,
+                          vibrato: bassVibrato,
+                          subOsc: bassSubOsc > 0.5
+                        });
+                      }}
+                    >
+                      <Text style={styles.bassTestButtonText}>🌊 Test Wobble</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <Text style={styles.bassModHint}>
+                    💡 Adjust sliders above, then press Test buttons to hear changes instantly!
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
         )}
       </View>
@@ -575,22 +895,46 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   studioSelector: {
-    backgroundColor: 'rgba(26, 26, 26, 0.85)',
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    backgroundColor: 'rgba(26, 26, 26, 0.95)',
+    paddingVertical: SPACING.lg,
+    borderBottomWidth: 2,
+    borderBottomColor: 'rgba(0, 255, 148, 0.3)',
+    shadowColor: '#00ff94',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
   },
   selectorHeader: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: SPACING.xs,
+    marginBottom: SPACING.md,
     paddingHorizontal: SPACING.md,
   },
   selectorTitle: {
+    ...TYPO.h3,
+    color: COLORS.primary,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    letterSpacing: 2,
+    marginBottom: 4,
+  },
+  selectorSubtitle: {
     ...TYPO.caption,
     color: COLORS.textSecondary,
     textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+    borderRadius: 12,
   },
   loadingContainer: {
     flexDirection: 'row',
@@ -602,9 +946,17 @@ const styles = StyleSheet.create({
     borderRadius: SPACING.xs,
   },
   loadingText: {
-    ...TYPO.caption,
+    ...TYPO.body,
     color: COLORS.primary,
-    marginLeft: SPACING.xs,
+    marginTop: SPACING.sm,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  loadingSubtext: {
+    ...TYPO.caption,
+    color: COLORS.textSecondary,
+    marginTop: SPACING.xs,
+    fontStyle: 'italic',
   },
   studioScroll: {
     paddingHorizontal: SPACING.md,
@@ -639,6 +991,39 @@ const styles = StyleSheet.create({
     ...TYPO.caption,
     color: COLORS.textSecondary,
     marginTop: SPACING.xs,
+  },
+  presetBadge: {
+    marginTop: SPACING.xs,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 2,
+    backgroundColor: 'rgba(0, 255, 148, 0.15)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 255, 148, 0.3)',
+  },
+  presetBadgeText: {
+    ...TYPO.caption,
+    color: COLORS.primary,
+    fontSize: 9,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  activeIndicator: {
+    marginTop: SPACING.xs,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 2,
+    borderRadius: 12,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+  },
+  activeIndicatorText: {
+    ...TYPO.caption,
+    color: '#000',
+    fontSize: 9,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
   studioArea: {
     flex: 1,
@@ -911,6 +1296,145 @@ const styles = StyleSheet.create({
   slider: {
     width: '100%',
     height: 40,
+  },
+  // Bass Modulation Styles
+  bassModHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: SPACING.sm,
+  },
+  bassModToggle: {
+    ...TYPO.body,
+    color: COLORS.primary,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  bassModContent: {
+    marginTop: SPACING.sm,
+  },
+  bassTestButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: SPACING.lg,
+    marginBottom: SPACING.md,
+  },
+  bassTestButton: {
+    flex: 1,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: 12,
+    borderWidth: 2,
+    marginHorizontal: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  bassTestAcid: {
+    backgroundColor: 'rgba(0, 255, 148, 0.15)',
+    borderColor: '#00ff94',
+    shadowColor: '#00ff94',
+  },
+  bassTestStack: {
+    backgroundColor: 'rgba(255, 0, 255, 0.15)',
+    borderColor: '#ff00ff',
+    shadowColor: '#ff00ff',
+  },
+  bassTestWobble: {
+    backgroundColor: 'rgba(0, 255, 255, 0.15)',
+    borderColor: '#00ffff',
+    shadowColor: '#00ffff',
+  },
+  bassTestButtonText: {
+    ...TYPO.body,
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 11,
+    textAlign: 'center',
+  },
+  bassModHint: {
+    ...TYPO.body,
+    color: COLORS.textSecondary,
+    fontSize: 11,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+  },
+  // Bass Preset Styles
+  bassPresetSection: {
+    marginBottom: SPACING.lg,
+    paddingBottom: SPACING.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 255, 148, 0.2)',
+  },
+  bassPresetTitle: {
+    ...TYPO.body,
+    color: COLORS.primary,
+    fontWeight: 'bold',
+    fontSize: 14,
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  bassPresetSubtitle: {
+    ...TYPO.caption,
+    color: COLORS.textSecondary,
+    fontSize: 11,
+    fontStyle: 'italic',
+    marginBottom: SPACING.md,
+  },
+  bassPresetScroll: {
+    marginTop: SPACING.sm,
+  },
+  bassPresetCard: {
+    width: 110,
+    padding: SPACING.md,
+    marginRight: SPACING.sm,
+    borderRadius: 12,
+    borderWidth: 2,
+    backgroundColor: 'rgba(26, 26, 26, 0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bassPresetCardActive: {
+    backgroundColor: 'rgba(0, 255, 148, 0.1)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+  },
+  bassPresetEmoji: {
+    fontSize: 32,
+    marginBottom: SPACING.xs,
+  },
+  bassPresetName: {
+    ...TYPO.body,
+    fontWeight: 'bold',
+    fontSize: 11,
+    textAlign: 'center',
+    marginBottom: 4,
+    letterSpacing: 0.5,
+  },
+  bassPresetDesc: {
+    ...TYPO.caption,
+    color: COLORS.textSecondary,
+    fontSize: 9,
+    textAlign: 'center',
+    lineHeight: 12,
+  },
+  bassPresetActive: {
+    marginTop: SPACING.xs,
+    paddingHorizontal: SPACING.xs,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  bassPresetActiveText: {
+    ...TYPO.caption,
+    color: '#000',
+    fontSize: 8,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
 });
 
