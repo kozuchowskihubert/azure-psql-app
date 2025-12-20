@@ -1,55 +1,42 @@
-import webAudioBridge from '../audio/WebAudioBridge';
+import nativeAudioContext from '../audio/NativeAudioContext';
 
-export default class ARP2600Bridge {
+class ARP2600Bridge {
   constructor() {
     this.isInitialized = false;
     
-    // ARP 2600 parameters - full modular synthesizer
+    // ARP 2600 parameters - matches NativeAudioContext parameter structure
     this.params = {
-      osc1: 'sawtooth',
-      osc2: 'square',
-      osc2Detune: 0.02,     // Slight detune for thickness
-      filterCutoff: 2000,
-      filterRes: 5,
-      attack: 0.01,
-      decay: 0.3,
-      sustain: 0.7,
-      release: 0.2,
+      osc1Level: 0.5,           // Oscillator 1 level (0-1)
+      osc2Level: 0.3,           // Oscillator 2 level (0-1)
+      detune: 0.005,            // Oscillator 2 detune (0-1, 0.005 = 0.5%)
+      filterCutoff: 2000,       // Filter cutoff Hz (0-10000)
+      filterResonance: 18,      // Filter Q (0-30)
+      envelope: {
+        attack: 0.05,           // Attack time in seconds
+        decay: 0.1,             // Decay time in seconds
+        sustain: 0.7,           // Sustain level (0-1)
+        release: 0.3,           // Release time in seconds
+      }
     };
   }
 
   async init() {
     console.log('ARP2600Bridge: Initializing modular synth...');
     
-    return new Promise((resolve, reject) => {
-      let attempts = 0;
-      const maxAttempts = 50;
-      
-      const checkReady = setInterval(() => {
-        attempts++;
-        if (webAudioBridge.isReady) {
-          clearInterval(checkReady);
-          this.isInitialized = true;
-          
-          // Set ARP 2600 specific parameters
-          this.updateBridgeParams();
-          
-          console.log('ARP2600Bridge: Initialized - dual oscillator modular synth ready');
-          resolve(true);
-        } else if (attempts >= maxAttempts) {
-          clearInterval(checkReady);
-          console.error('ARP2600Bridge: Initialization timeout');
-          reject(new Error('ARP2600Bridge initialization timeout'));
-        }
-      }, 100);
-    });
+    try {
+      await nativeAudioContext.initialize();
+      this.isInitialized = true;
+      console.log('ARP2600Bridge: Initialized - dual oscillator modular synth ready (native audio)');
+      return true;
+    } catch (error) {
+      console.error('ARP2600Bridge: Initialization failed:', error);
+      throw error;
+    }
   }
 
   updateBridgeParams() {
-    webAudioBridge.sendMessage({
-      type: 'update_params',
-      params: this.params
-    });
+    // Log parameters for debugging
+    console.log('ARP2600 params:', JSON.stringify(this.params, null, 2));
   }
 
   playNote(note, options = {}) {
@@ -66,74 +53,69 @@ export default class ARP2600Bridge {
 
     console.log(`🎹 ARP 2600: ${note} (modular synth) velocity=${velocity}, accent=${accent}`);
 
-    webAudioBridge.sendMessage({
-      type: 'play_arp2600',
-      note,
-      velocity,
-      accent,
-      duration,
-    });
+    // Play using native audio with stored parameters
+    nativeAudioContext.playARP2600Note(note, velocity, duration, this.params);
   }
 
-  // Oscillator controls
-  setOsc1Type(type) {
-    if (['sawtooth', 'square', 'triangle', 'sine'].includes(type)) {
-      this.params.osc1 = type;
-      this.updateBridgeParams();
-    }
+  // Oscillator level controls
+  setOsc1Level(level) {
+    this.params.osc1Level = Math.max(0, Math.min(level, 1.0));
+    console.log('ARP2600: Osc1 Level =', this.params.osc1Level);
   }
 
-  setOsc2Type(type) {
-    if (['sawtooth', 'square', 'triangle', 'sine'].includes(type)) {
-      this.params.osc2 = type;
-      this.updateBridgeParams();
-    }
+  setOsc2Level(level) {
+    this.params.osc2Level = Math.max(0, Math.min(level, 1.0));
+    console.log('ARP2600: Osc2 Level =', this.params.osc2Level);
   }
 
-  setOsc2Detune(detune) {
-    this.params.osc2Detune = Math.max(-0.1, Math.min(detune, 0.1));
-    this.updateBridgeParams();
+  setDetune(detune) {
+    this.params.detune = Math.max(0, Math.min(detune, 0.02)); // 0-2% detune
+    console.log('ARP2600: Detune =', (this.params.detune * 100).toFixed(2) + '%');
   }
 
   // Filter controls
   setFilterCutoff(cutoff) {
-    this.params.filterCutoff = Math.max(100, Math.min(cutoff, 8000));
-    this.updateBridgeParams();
+    this.params.filterCutoff = Math.max(100, Math.min(cutoff, 10000));
+    console.log('ARP2600: Filter Cutoff =', this.params.filterCutoff, 'Hz');
   }
 
   setFilterResonance(res) {
-    this.params.filterRes = Math.max(0, Math.min(res, 20));
-    this.updateBridgeParams();
+    this.params.filterResonance = Math.max(0, Math.min(res, 30));
+    console.log('ARP2600: Filter Resonance =', this.params.filterResonance);
   }
 
   // ADSR envelope controls
   setAttack(attack) {
-    this.params.attack = Math.max(0.001, Math.min(attack, 2.0));
-    this.updateBridgeParams();
+    this.params.envelope.attack = Math.max(0.001, Math.min(attack, 2.0));
+    console.log('ARP2600: Attack =', (this.params.envelope.attack * 1000).toFixed(0), 'ms');
   }
 
   setDecay(decay) {
-    this.params.decay = Math.max(0.01, Math.min(decay, 2.0));
-    this.updateBridgeParams();
+    this.params.envelope.decay = Math.max(0.01, Math.min(decay, 2.0));
+    console.log('ARP2600: Decay =', (this.params.envelope.decay * 1000).toFixed(0), 'ms');
   }
 
   setSustain(sustain) {
-    this.params.sustain = Math.max(0, Math.min(sustain, 1.0));
-    this.updateBridgeParams();
+    this.params.envelope.sustain = Math.max(0, Math.min(sustain, 1.0));
+    console.log('ARP2600: Sustain =', this.params.envelope.sustain.toFixed(2));
   }
 
   setRelease(release) {
-    this.params.release = Math.max(0.01, Math.min(release, 3.0));
-    this.updateBridgeParams();
+    this.params.envelope.release = Math.max(0.01, Math.min(release, 5.0));
+    console.log('ARP2600: Release =', (this.params.envelope.release * 1000).toFixed(0), 'ms');
   }
 
   // Unified envelope control
   setEnvelope(attack, decay, sustain, release) {
-    this.params.attack = Math.max(0.001, Math.min(attack, 2.0));
-    this.params.decay = Math.max(0.01, Math.min(decay, 2.0));
-    this.params.sustain = Math.max(0, Math.min(sustain, 1.0));
-    this.params.release = Math.max(0.01, Math.min(release, 3.0));
-    this.updateBridgeParams();
+    this.params.envelope.attack = Math.max(0.001, Math.min(attack, 2.0));
+    this.params.envelope.decay = Math.max(0.01, Math.min(decay, 2.0));
+    this.params.envelope.sustain = Math.max(0, Math.min(sustain, 1.0));
+    this.params.envelope.release = Math.max(0.01, Math.min(release, 5.0));
+    console.log('ARP2600: Envelope ADSR =', 
+                (this.params.envelope.attack * 1000).toFixed(0), 'ms /',
+                (this.params.envelope.decay * 1000).toFixed(0), 'ms /',
+                this.params.envelope.sustain.toFixed(2), '/',
+                (this.params.envelope.release * 1000).toFixed(0), 'ms');
   }
 
   // Convenience methods for StudioScreen
@@ -145,7 +127,28 @@ export default class ARP2600Bridge {
     this.setFilterResonance(value);
   }
 
+  // Preset management
+  getParams() {
+    return { ...this.params, envelope: { ...this.params.envelope } };
+  }
+
+  setParams(params) {
+    if (params.osc1Level !== undefined) this.params.osc1Level = params.osc1Level;
+    if (params.osc2Level !== undefined) this.params.osc2Level = params.osc2Level;
+    if (params.detune !== undefined) this.params.detune = params.detune;
+    if (params.filterCutoff !== undefined) this.params.filterCutoff = params.filterCutoff;
+    if (params.filterResonance !== undefined) this.params.filterResonance = params.filterResonance;
+    if (params.envelope) {
+      this.params.envelope = { ...this.params.envelope, ...params.envelope };
+    }
+    console.log('ARP2600: Parameters loaded from preset');
+  }
+
   stopAll() {
-    webAudioBridge.stopAll();
+    // No-op for native audio (notes automatically stop)
   }
 }
+
+// Export singleton instance
+const arp2600Bridge = new ARP2600Bridge();
+export default arp2600Bridge;

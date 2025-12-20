@@ -32,7 +32,7 @@ const HAOS_COLORS = {
 const StudioSelectorScreen = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnims = useRef(
-    Array(6).fill(0).map(() => new Animated.Value(1))
+    Array(7).fill(0).map(() => new Animated.Value(1))
   ).current;
   
   useEffect(() => {

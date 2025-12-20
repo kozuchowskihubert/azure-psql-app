@@ -4,6 +4,8 @@
  * Features: Dual oscillators, modulation matrix, powerful bass/lead sounds
  */
 
+import nativeAudioContext from '../audio/NativeAudioContext';
+
 class BassArpEngine {
   constructor() {
     this.isInitialized = false;
@@ -128,8 +130,16 @@ class BassArpEngine {
    */
   async initialize() {
     if (this.isInitialized) return;
-    this.isInitialized = true;
-    console.log('✅ BassArpEngine initialized');
+    
+    try {
+      // Initialize native audio context
+      await nativeAudioContext.initialize();
+      this.isInitialized = true;
+      console.log('✅ BassArpEngine initialized');
+    } catch (error) {
+      console.error('BassArpEngine init error:', error);
+      this.isInitialized = true; // Continue anyway
+    }
   }
   
   /**
@@ -170,9 +180,15 @@ class BassArpEngine {
   }
   
   /**
-   * Synthesize voice (simplified for mobile)
+   * Synthesize voice (using native audio)
    */
   _synthesize(voice) {
+    // Use native audio to play TB-303 style bass note
+    const duration = voice.duration ? voice.duration / 1000 : 0.3; // Convert ms to seconds
+    
+    console.log(`🔊 Bass/Arp: ${voice.note} @ ${voice.frequency}Hz`);
+    nativeAudioContext.playTB303Note(voice.note, voice.velocity, duration);
+    
     // Full synthesis chain would include:
     // 1. Generate OSC1 with unison
     // 2. Generate OSC2 with unison + detune

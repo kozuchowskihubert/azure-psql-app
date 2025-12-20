@@ -73,6 +73,9 @@ export default function AnimatedKnob({
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponderCapture: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
+      onPanResponderTerminationRequest: () => false, // Don't allow termination - freeze scroll
       
       onPanResponderGrant: () => {
         lastY.current = 0;
@@ -86,8 +89,8 @@ export default function AnimatedKnob({
       },
       
       onPanResponderMove: (evt, gestureState) => {
-        // Vertical drag changes value
-        const sensitivity = 0.5;
+        // Vertical drag changes value with MUCH higher sensitivity
+        const sensitivity = 10.0; // Increased from 0.5 -> 2.5 -> 10.0 for much better control
         const delta = (lastY.current - gestureState.dy) * sensitivity;
         lastY.current = gestureState.dy;
         
@@ -125,7 +128,7 @@ export default function AnimatedKnob({
   const valueColor = getValueColor();
   
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onStartShouldSetResponder={() => true}>
       {/* Label */}
       <Text style={styles.label}>{label}</Text>
       

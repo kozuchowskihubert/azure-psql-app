@@ -45,7 +45,9 @@ export default function WaveformVisualizer({
       });
       
       return () => {
-        animatedPhase.removeListener(listenerId);
+        if (animatedPhase && typeof animatedPhase.removeListener === 'function') {
+          animatedPhase.removeListener(listenerId);
+        }
       };
     }
   }, [waveform, frequency, amplitude, animated]);

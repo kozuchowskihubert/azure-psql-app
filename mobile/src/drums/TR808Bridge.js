@@ -1,6 +1,6 @@
-import webAudioBridge from '../audio/WebAudioBridge';
+import nativeAudioContext from '../audio/NativeAudioContext';
 
-export default class TR808Bridge {
+class TR808Bridge {
   constructor() {
     this.isInitialized = false;
   }
@@ -8,100 +8,71 @@ export default class TR808Bridge {
   async init() {
     console.log('TR808Bridge: Initializing...');
     
-    // Wait for WebAudio bridge to be ready (but don't fail if timeout)
-    return new Promise((resolve) => {
-      let attempts = 0;
-      const maxAttempts = 50; // 5 seconds
-      
-      const checkReady = setInterval(() => {
-        attempts++;
-        if (webAudioBridge.isReady) {
-          clearInterval(checkReady);
-          this.isInitialized = true;
-          console.log('TR808Bridge: Initialized successfully');
-          resolve(true);
-        } else if (attempts >= maxAttempts) {
-          clearInterval(checkReady);
-          // Don't reject - just mark as initialized anyway
-          // Messages will be queued by WebAudioBridge if not ready
-          this.isInitialized = true;
-          console.warn('TR808Bridge: Initialization timeout, but continuing (messages will be queued)');
-          resolve(true);
-        }
-      }, 100);
-    });
+    try {
+      // Initialize native audio context
+      await nativeAudioContext.initialize();
+      this.isInitialized = true;
+      console.log('TR808Bridge: Initialized successfully with native audio');
+      return true;
+    } catch (error) {
+      console.error('TR808Bridge: Initialization error:', error);
+      this.isInitialized = true; // Continue anyway
+      return true;
+    }
   }
 
   playKick(velocity = 1.0) {
-    console.log(`🥁 TR-808 Kick: velocity=${velocity}`);
-    webAudioBridge.sendMessage({
-      type: 'play_kick',
-      velocity: velocity
-    });
+    console.log(`🥁 TR-808 Kick: velocity=${velocity} (native audio)`);
+    nativeAudioContext.playKick(velocity);
   }
 
   playSnare(velocity = 1.0) {
-    console.log(`🥁 TR-808 Snare: velocity=${velocity}`);
-    webAudioBridge.sendMessage({
-      type: 'play_snare',
-      velocity: velocity
-    });
+    console.log(`🥁 TR-808 Snare: velocity=${velocity} (native audio)`);
+    nativeAudioContext.playSnare(velocity);
   }
 
   playHihat(velocity = 1.0, open = false) {
-    console.log(`🥁 TR-808 Hi-hat: velocity=${velocity}, open=${open}`);
-    webAudioBridge.sendMessage({
-      type: 'play_hihat',
-      velocity: velocity,
-      open: open
-    });
+    console.log(`🥁 TR-808 Hi-hat: velocity=${velocity}, open=${open} (native audio)`);
+    nativeAudioContext.playHihat(velocity, open);
   }
 
   playClap(velocity = 1.0) {
-    console.log(`🥁 TR-808 Clap: velocity=${velocity}`);
-    webAudioBridge.sendMessage({
-      type: 'play_clap',
-      velocity: velocity
-    });
+    console.log(`🥁 TR-808 Clap: velocity=${velocity} (native audio)`);
+    nativeAudioContext.playClap(velocity);
   }
 
-  // Parameter setters for TR-808
+  // Parameter setters for TR-808 (TODO: implement native parameter control)
   setKickPitch(pitch) {
-    webAudioBridge.sendMessage({
-      type: 'update_params',
-      params: { kickPitch: pitch }
-    });
+    console.log('TR-808: setKickPitch', pitch);
+    // TODO: Store parameters for synthesis
   }
 
   setKickDecay(decay) {
-    webAudioBridge.sendMessage({
-      type: 'update_params',
-      params: { kickDecay: decay }
-    });
+    console.log('TR-808: setKickDecay', decay);
+    // TODO: Store parameters for synthesis
   }
 
   setSnareTone(tone) {
-    webAudioBridge.sendMessage({
-      type: 'update_params',
-      params: { snareTone: tone }
-    });
+    console.log('TR-808: setSnareTone', tone);
+    // TODO: Store parameters for synthesis
   }
 
   setSnareNoise(noise) {
-    webAudioBridge.sendMessage({
-      type: 'update_params',
-      params: { snareNoise: noise }
-    });
+    console.log('TR-808: setSnareNoise', noise);
+    // TODO: Store parameters for synthesis
   }
 
   setHihatDecay(decay) {
-    webAudioBridge.sendMessage({
-      type: 'update_params',
-      params: { hihatDecay: decay }
-    });
+    console.log('TR-808: setHihatDecay', decay);
+    // TODO: Store parameters for synthesis
   }
 
   stopAll() {
-    webAudioBridge.stopAll();
+    console.log('TR-808: stopAll');
+    // TODO: Implement stop all voices
   }
 }
+
+// Export a singleton instance
+const tr808Bridge = new TR808Bridge();
+export default tr808Bridge;

@@ -82,6 +82,11 @@ class WebAudioSynthBridge {
     }
   }
 
+  resumeAudio() {
+    // Resume audio context (required for iOS)
+    this.sendMessage({ type: 'resume_audio' });
+  }
+
   playNote(note, options = {}) {
     const {
       velocity = 1.0,

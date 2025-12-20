@@ -624,11 +624,14 @@
             init();
             break;
           case 'resume':
+          case 'resume_audio':
             // Explicit resume command
             if (audioContext) {
               audioContext.resume().then(() => {
-                console.log('🔊 Audio context explicitly resumed');
+                console.log('🔊 Audio context explicitly resumed, state:', audioContext.state);
                 sendMessage({ type: 'audio_resumed', state: audioContext.state });
+              }).catch(err => {
+                console.error('❌ Failed to resume audio:', err);
               });
             }
             break;

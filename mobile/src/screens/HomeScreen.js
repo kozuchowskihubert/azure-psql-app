@@ -15,11 +15,21 @@ import bridge from '../audio/WebAudioBridge';
 export default function HomeScreen({ navigation }) {
   const { user } = useAuth();
   const [isPlaying, setIsPlaying] = useState(false);
+  const audioResumed = useRef(false);
 
   // Animations
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // Resume audio on first user interaction (required for iOS)
+  const handleFirstInteraction = () => {
+    if (!audioResumed.current) {
+      console.log('🔊 First user interaction - resuming audio...');
+      bridge.resumeAudio();
+      audioResumed.current = true;
+    }
+  };
 
   useEffect(() => {
     // Pulse animation for logo
@@ -124,56 +134,139 @@ export default function HomeScreen({ navigation }) {
 
         {/* Quick Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Start</Text>
+          <Text style={styles.sectionTitle}>Main Menu</Text>
           
+          {/* HOME - Dashboard */}
           <TouchableOpacity
-            style={[styles.card, styles.primaryCard, styles.studioCollectionCard]}
-            onPress={() => navigation.navigate('StudioSelector')}
+            style={[styles.card, styles.homeCard]}
+            onPress={() => {
+              handleFirstInteraction();
+              // Already on home, could show stats or scroll to top
+            }}
           >
             <View style={styles.cardIcon}>
-              <Text style={styles.icon}>🎹</Text>
+              <Text style={styles.icon}>🏠</Text>
             </View>
             <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>🌟 STUDIO COLLECTION</Text>
+              <Text style={styles.cardTitle}>HOME</Text>
               <Text style={styles.cardDescription}>
-                7 specialized synthesis studios - Bass, Arp, Wavetable, Orchestral & more
+                Dashboard, stats, and quick overview
+              </Text>
+            </View>
+            <Text style={styles.arrow}>●</Text>
+          </TouchableOpacity>
+          
+          {/* STUDIO - Main Production */}
+          <TouchableOpacity
+            style={[styles.card, styles.primaryCard]}
+            onPress={() => {
+              handleFirstInteraction();
+              navigation.navigate('Studio');
+            }}
+          >
+            <View style={styles.cardIcon}>
+              <Text style={styles.icon}>�️</Text>
+            </View>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>STUDIO</Text>
+              <Text style={styles.cardDescription}>
+                Production studio with sequencer, presets & bass modulation
               </Text>
               <View style={styles.studioBadges}>
-                <Text style={styles.studioBadge}>NEW</Text>
-                <Text style={styles.studioBadge}>7 STUDIOS</Text>
+                <Text style={styles.studioBadge}>MAIN</Text>
               </View>
             </View>
             <Text style={styles.arrow}>→</Text>
           </TouchableOpacity>
           
+          {/* SYNTHESIZERS */}
           <TouchableOpacity
-            style={[styles.card]}
-            onPress={() => navigation.navigate('Studio')}
+            style={[styles.card, styles.synthCard]}
+            onPress={() => {
+              handleFirstInteraction();
+              navigation.navigate('SynthSelector');
+            }}
           >
             <View style={styles.cardIcon}>
-              <Text style={styles.icon}>🎛️</Text>
+              <Text style={styles.icon}>🎹</Text>
             </View>
             <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>DAW Studio</Text>
+              <Text style={styles.cardTitle}>SYNTHESIZERS</Text>
               <Text style={styles.cardDescription}>
-                Live sequencer with ARP 2600, Juno-106, and Minimoog
+                ARP 2600, Juno-106, Minimoog, TB-303, DX7, MS-20, Prophet-5
               </Text>
+              <View style={styles.studioBadges}>
+                <Text style={styles.studioBadge}>8 SYNTHS</Text>
+              </View>
             </View>
             <Text style={styles.arrow}>→</Text>
           </TouchableOpacity>
 
+          {/* DRUM MACHINES */}
           <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate('Presets')}
+            style={[styles.card, styles.drumCard]}
+            onPress={() => {
+              handleFirstInteraction();
+              navigation.navigate('DrumMachines');
+            }}
           >
             <View style={styles.cardIcon}>
-              <Text style={styles.icon}>📦</Text>
+              <Text style={styles.icon}>🥁</Text>
             </View>
             <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>Browse Presets</Text>
+              <Text style={styles.cardTitle}>DRUM MACHINES</Text>
               <Text style={styles.cardDescription}>
-                Download professional synth patches
+                TR-808, TR-909, LinnDrum, CR-78, DMX, Beat Maker
               </Text>
+              <View style={styles.studioBadges}>
+                <Text style={[styles.studioBadge, styles.badge808]}>6 MACHINES</Text>
+              </View>
+            </View>
+            <Text style={styles.arrow}>→</Text>
+          </TouchableOpacity>
+          
+          {/* BASS STUDIO */}
+          <TouchableOpacity
+            style={[styles.card, styles.bassCard]}
+            onPress={() => {
+              handleFirstInteraction();
+              navigation.navigate('BassStudioSelector');
+            }}
+          >
+            <View style={styles.cardIcon}>
+              <Text style={styles.icon}>�</Text>
+            </View>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>BASS STUDIO</Text>
+              <Text style={styles.cardDescription}>
+                Bass modulation: slide, pitch bend, vibrato, sub-osc
+              </Text>
+              <View style={styles.studioBadges}>
+                <Text style={[styles.studioBadge, styles.badgeBass]}>ENHANCED</Text>
+              </View>
+            </View>
+            <Text style={styles.arrow}>→</Text>
+          </TouchableOpacity>
+
+          {/* EFFECTS & MIXER */}
+          <TouchableOpacity
+            style={[styles.card, styles.effectsCard]}
+            onPress={() => {
+              handleFirstInteraction();
+              navigation.navigate('EffectsSelector');
+            }}
+          >
+            <View style={styles.cardIcon}>
+              <Text style={styles.icon}>🎚️</Text>
+            </View>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>EFFECTS</Text>
+              <Text style={styles.cardDescription}>
+                Reverb, delay, distortion, filter, modulation, dynamics & EQ
+              </Text>
+              <View style={styles.studioBadges}>
+                <Text style={styles.studioBadge}>8 EFFECTS</Text>
+              </View>
             </View>
             <Text style={styles.arrow}>→</Text>
           </TouchableOpacity>
@@ -197,6 +290,60 @@ export default function HomeScreen({ navigation }) {
           )}
         </View>
 
+        {/* Drum Machines Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🥁 Drum Machines</Text>
+          <Text style={styles.sectionSubtitle}>
+            Classic Roland rhythm composers with 16-step sequencers
+          </Text>
+
+          <TouchableOpacity
+            style={[styles.card, styles.drumCard808]}
+            onPress={() => {
+              handleFirstInteraction();
+              navigation.navigate('TR808');
+            }}
+          >
+            <View style={styles.cardIcon}>
+              <Text style={styles.icon}>🥁</Text>
+            </View>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>TR-808 Rhythm Composer</Text>
+              <Text style={styles.cardDescription}>
+                Legendary analog drum machine - Warm, punchy classic sound
+              </Text>
+              <View style={styles.studioBadges}>
+                <Text style={[styles.studioBadge, styles.badge808]}>ANALOG</Text>
+                <Text style={[styles.studioBadge, styles.badge808]}>16 STEPS</Text>
+              </View>
+            </View>
+            <Text style={styles.arrow}>→</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.card, styles.drumCard909]}
+            onPress={() => {
+              handleFirstInteraction();
+              navigation.navigate('TR909');
+            }}
+          >
+            <View style={styles.cardIcon}>
+              <Text style={styles.icon}>⚡</Text>
+            </View>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>TR-909 Rhythm Composer</Text>
+              <Text style={styles.cardDescription}>
+                Hybrid digital/analog - Harder techno sound with accent control
+              </Text>
+              <View style={styles.studioBadges}>
+                <Text style={[styles.studioBadge, styles.badge909]}>TECHNO</Text>
+                <Text style={[styles.studioBadge, styles.badge909]}>ACCENT</Text>
+              </View>
+            </View>
+            <Text style={styles.arrow}>→</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Synth Controls */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🎚️ Synth Parameters</Text>
@@ -207,7 +354,10 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.synthControlsGrid}>
             <TouchableOpacity
               style={[styles.synthCard, styles.synthCardGreen]}
-              onPress={() => navigation.navigate('Studio', { synthType: 'arp2600' })}
+              onPress={() => {
+                handleFirstInteraction();
+                navigation.navigate('ARP2600');
+              }}
             >
               <Text style={styles.synthIcon}>🎹</Text>
               <Text style={styles.synthName}>ARP 2600</Text>
@@ -219,7 +369,10 @@ export default function HomeScreen({ navigation }) {
 
             <TouchableOpacity
               style={[styles.synthCard, styles.synthCardOrange]}
-              onPress={() => navigation.navigate('Studio', { synthType: 'juno106' })}
+              onPress={() => {
+                handleFirstInteraction();
+                navigation.navigate('Juno106');
+              }}
             >
               <Text style={styles.synthIcon}>🎼</Text>
               <Text style={styles.synthName}>Juno-106</Text>
@@ -231,7 +384,10 @@ export default function HomeScreen({ navigation }) {
 
             <TouchableOpacity
               style={[styles.synthCard, styles.synthCardGreen]}
-              onPress={() => navigation.navigate('Studio', { synthType: 'minimoog' })}
+              onPress={() => {
+                handleFirstInteraction();
+                navigation.navigate('Minimoog');
+              }}
             >
               <Text style={styles.synthIcon}>🎛️</Text>
               <Text style={styles.synthName}>Minimoog</Text>
@@ -496,15 +652,49 @@ const styles = StyleSheet.create({
   },
   primaryCard: {
     borderColor: COLORS.primary,
-    backgroundColor: 'rgba(0, 255, 148, 0.12)', // HAOS green instead of orange
+    backgroundColor: 'rgba(0, 255, 148, 0.12)', // HAOS green
     shadowColor: COLORS.primary,
     shadowOpacity: 0.6,
+  },
+  homeCard: {
+    borderColor: '#00ff94',
+    backgroundColor: 'rgba(0, 255, 148, 0.08)',
+    shadowColor: '#00ff94',
+    shadowOpacity: 0.4,
+  },
+  synthCard: {
+    borderColor: '#00ffff',
+    backgroundColor: 'rgba(0, 255, 255, 0.08)',
+    shadowColor: '#00ffff',
+    shadowOpacity: 0.4,
+  },
+  drumCard: {
+    borderColor: '#ff8800',
+    backgroundColor: 'rgba(255, 136, 0, 0.08)',
+    shadowColor: '#ff8800',
+    shadowOpacity: 0.4,
+  },
+  bassCard: {
+    borderColor: '#ff00ff',
+    backgroundColor: 'rgba(255, 0, 255, 0.08)',
+    shadowColor: '#ff00ff',
+    shadowOpacity: 0.4,
+  },
+  effectsCard: {
+    borderColor: '#ffff00',
+    backgroundColor: 'rgba(255, 255, 0, 0.08)',
+    shadowColor: '#ffff00',
+    shadowOpacity: 0.3,
   },
   premiumCard: {
     borderColor: COLORS.secondary,
     backgroundColor: 'rgba(212, 175, 55, 0.1)',
     shadowColor: COLORS.secondary,
     shadowOpacity: 0.4,
+  },
+  badgeBass: {
+    backgroundColor: 'rgba(255, 0, 255, 0.2)',
+    borderColor: '#ff00ff',
   },
   cardIcon: {
     width: 56,
@@ -751,5 +941,43 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 8,
     letterSpacing: 1,
+  },
+  // DAW Card Styles
+  dawCard: {
+    backgroundColor: 'rgba(255, 107, 53, 0.15)',
+    borderWidth: 2,
+    borderColor: '#FF6B35',
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.8,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  // Drum Machine Card Styles
+  drumCard808: {
+    backgroundColor: 'rgba(255, 107, 53, 0.12)',
+    borderWidth: 2,
+    borderColor: '#FF6B35',
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  drumCard909: {
+    backgroundColor: 'rgba(0, 217, 255, 0.12)',
+    borderWidth: 2,
+    borderColor: '#00D9FF',
+    shadowColor: '#00D9FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  badge808: {
+    backgroundColor: '#FF6B35',
+  },
+  badge909: {
+    backgroundColor: '#00D9FF',
   },
 });

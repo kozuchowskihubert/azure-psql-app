@@ -32,6 +32,9 @@ const Knob = ({
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponderCapture: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
+      onPanResponderTerminationRequest: () => false, // Don't allow termination
       
       onPanResponderGrant: () => {
         // Light haptic feedback on touch
@@ -45,13 +48,13 @@ const Knob = ({
         const angle = Math.atan2(dy, dx);
         const deltaAngle = angle - lastAngle.current;
         
-        // Sensitivity adjustment
-        const sensitivity = 0.5;
+        // MUCH higher sensitivity for touch control
+        const sensitivity = 8.0; // Increased from 0.5 -> 2.0 -> 8.0
         const delta = -dy * sensitivity;
         
         // Calculate new value
         const range = max - min;
-        const newValue = Math.max(min, Math.min(max, displayValue + (delta / 100) * range));
+        const newValue = Math.max(min, Math.min(max, displayValue + (delta / 20) * range)); // Changed from 100 -> 50 -> 20
         const snappedValue = Math.round(newValue / step) * step;
         
         if (snappedValue !== displayValue) {
@@ -99,7 +102,7 @@ const Knob = ({
   const normalizedValue = (displayValue - min) / (max - min);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onStartShouldSetResponder={() => true}>
       <View
         style={[styles.knobContainer, { width: size, height: size }]}
         {...panResponder.panHandlers}

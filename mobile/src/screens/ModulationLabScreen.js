@@ -54,13 +54,18 @@ const ModulationLabScreen = ({ navigation }) => {
   }, []);
   
   const initializeLab = () => {
-    modulationMatrix.initialize();
+    // Initialize modulation matrix if method exists
+    if (modulationMatrix && typeof modulationMatrix.initialize === 'function') {
+      modulationMatrix.initialize();
+    }
     
     // Load existing modulations
-    const activeModulations = modulationMatrix.getAllModulations();
-    setModulations(activeModulations);
+    if (modulationMatrix && typeof modulationMatrix.getAllModulations === 'function') {
+      const activeModulations = modulationMatrix.getAllModulations();
+      setModulations(activeModulations);
+    }
     
-    if (fadeAnim) {
+    if (fadeAnim && typeof fadeAnim.setValue === 'function') {
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 500,

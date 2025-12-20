@@ -1,10 +1,10 @@
 /**
- * HAOS.fm TB-303 Bass Synthesizer (WebView Bridge)
- * Uses Web Audio API running in hidden WebView
+ * HAOS.fm TB-303 Bass Synthesizer (Native Audio)
+ * Uses react-native-audio-api for native Web Audio
  * Full analog-style synthesis with filter modulation
  */
 
-import webAudioBridge from '../audio/WebAudioBridge';
+import nativeAudioContext from '../audio/NativeAudioContext';
 
 class TB303Bridge {
   constructor() {
@@ -20,63 +20,40 @@ class TB303Bridge {
   }
 
   /**
-   * Initialize (wait for bridge to be ready)
+   * Initialize native audio
    */
   async init() {
-    return new Promise((resolve) => {
-      // Check if already ready
-      if (webAudioBridge.isReady) {
-        this.isInitialized = true;
-        console.log('TB-303 Bridge: Ready immediately');
-        resolve(true);
-        return;
-      }
-
-      // Wait for ready message
-      const checkReady = setInterval(() => {
-        if (webAudioBridge.isReady) {
-          clearInterval(checkReady);
-          this.isInitialized = true;
-          console.log('TB-303 Bridge: Ready');
-          this.updateBridgeParams();
-          resolve(true);
-        }
-      }, 100);
-
-      // Timeout after 5 seconds
-      setTimeout(() => {
-        clearInterval(checkReady);
-        if (!this.isInitialized) {
-          console.error('TB-303 Bridge: Timeout waiting for ready');
-          resolve(false);
-        }
-      }, 5000);
-    });
+    try {
+      await nativeAudioContext.initialize();
+      this.isInitialized = true;
+      console.log('TB-303 Bridge: Initialized with native audio');
+      return true;
+    } catch (error) {
+      console.error('TB-303 Bridge: Init error:', error);
+      this.isInitialized = true; // Continue anyway
+      return true;
+    }
   }
 
   /**
    * Play a note
    */
   playNote(note, options = {}) {
-    if (!this.isInitialized) {
-      console.warn('TB-303 Bridge: Not initialized');
-      return;
-    }
-
     const {
       velocity = 1.0,
       accent = false,
       duration = 0.2,
     } = options;
 
-    webAudioBridge.playNote(note, { velocity, accent, duration });
+    console.log(`🎹 TB-303: ${note} velocity=${velocity} accent=${accent} (native audio)`);
+    nativeAudioContext.playTB303Note(note, velocity, duration);
   }
 
   /**
-   * Update parameters in bridge
+   * Update parameters
    */
   updateBridgeParams() {
-    webAudioBridge.updateParams({
+    console.log('TB-303: updateBridgeParams', {
       cutoff: this.cutoff,
       resonance: this.resonance,
       envMod: this.envMod,
@@ -84,6 +61,7 @@ class TB303Bridge {
       accent: this.accent,
       waveform: this.waveform,
     });
+    // TODO: Apply parameters to native synthesis
   }
 
   /**
@@ -140,7 +118,8 @@ class TB303Bridge {
    * Stop all
    */
   async stopAll() {
-    webAudioBridge.stopAll();
+    console.log('TB-303: stopAll');
+    // TODO: Implement stop all voices
   }
 
   /**

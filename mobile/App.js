@@ -12,12 +12,21 @@ import { WebAudioBridgeComponent } from './src/audio/WebAudioBridge';
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import HomeScreenV2 from './src/screens/HomeScreenV2';  // New enhanced home
 import StudioScreen from './src/screens/StudioScreen';
 import SynthScreen from './src/screens/SynthScreen';
 import PresetsScreen from './src/screens/PresetsScreen';
 import AccountScreen from './src/screens/AccountScreen';
 import PremiumScreen from './src/screens/PremiumScreen';
 import EffectsControllerEnhanced from './src/components/EffectsControllerEnhanced';
+
+// New Navigation Screens
+import WorkspaceScreen from './src/screens/WorkspaceScreen';
+import SynthsScreen from './src/screens/SynthsScreen';
+import InstrumentsScreen from './src/screens/InstrumentsScreen';
+import ModulationScreen from './src/screens/ModulationScreen';
+import PlatformScreen from './src/screens/PlatformScreen';
+import UserAccountScreen from './src/screens/UserAccountScreen';
 
 // New Studio Screens
 import StudioSelectorScreen from './src/screens/StudioSelectorScreen';
@@ -28,6 +37,25 @@ import EnhancedStudioScreen from './src/screens/EnhancedStudioScreen';
 import OrchestralStudioScreen from './src/screens/OrchestralStudioScreen';
 import ModulationLabScreen from './src/screens/ModulationLabScreen';
 import PresetLaboratoryScreen from './src/screens/PresetLaboratoryScreen';
+
+// Selector Screens
+import SynthSelectorScreen from './src/screens/SynthSelectorScreen';
+import DrumMachinesScreen from './src/screens/DrumMachinesScreen';
+import BassStudioSelectorScreen from './src/screens/BassStudioSelectorScreen';
+import EffectsSelectorScreen from './src/screens/EffectsSelectorScreen';
+
+// Drum Machine Screens
+import TR808Screen from './src/screens/TR808Screen';
+import TR909Screen from './src/screens/TR909Screen';
+
+// Synth Screens
+import ARP2600Screen from './src/screens/ARP2600Screen';
+import Juno106Screen from './src/screens/Juno106Screen';
+import MinimoogScreen from './src/screens/MinimoogScreen';
+
+// DAW Screens
+import WorkspaceSelector from './src/screens/WorkspaceSelector';
+import DAWStudio from './src/screens/DAWStudio';
 
 // Context
 import { AuthProvider, useAuth } from './src/context/AuthContext';
@@ -59,7 +87,7 @@ function TabNavigator() {
     >
       <Tab.Screen 
         name="Home" 
-        component={HomeScreen}
+        component={HomeScreenV2}
         options={{
           title: 'HOME',
           tabBarLabel: 'HOME',
@@ -76,30 +104,48 @@ function TabNavigator() {
         }}
       />
       <Tab.Screen 
-        name="Synth" 
-        component={SynthScreen}
+        name="Drums" 
+        component={DrumMachinesScreen}
         options={{
-          title: 'SYNTH',
-          tabBarLabel: 'SYNTH',
+          title: 'DRUMS',
+          tabBarLabel: 'DRUMS',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>🥁</Text>,
+        }}
+      />
+      <Tab.Screen 
+        name="Synths" 
+        component={SynthSelectorScreen}
+        options={{
+          title: 'SYNTHS',
+          tabBarLabel: 'SYNTHS',
           tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>🎹</Text>,
         }}
       />
       <Tab.Screen 
-        name="Presets" 
-        component={PresetsScreen}
+        name="Bass" 
+        component={BassStudioSelectorScreen}
         options={{
-          title: 'PRESETS',
-          tabBarLabel: 'PRESETS',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>📦</Text>,
+          title: 'BASS',
+          tabBarLabel: 'BASS',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>🎸</Text>,
         }}
       />
       <Tab.Screen 
-        name="Account" 
-        component={AccountScreen}
+        name="Effects" 
+        component={EffectsSelectorScreen}
         options={{
-          title: 'ACCOUNT',
-          tabBarLabel: 'ACCOUNT',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>👤</Text>,
+          title: 'EFFECTS',
+          tabBarLabel: 'EFFECTS',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>🎚️</Text>,
+        }}
+      />
+      <Tab.Screen 
+        name="Premium" 
+        component={PremiumScreen}
+        options={{
+          title: 'PREMIUM',
+          tabBarLabel: 'PREMIUM',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>⭐</Text>,
         }}
       />
     </Tab.Navigator>
@@ -167,6 +213,57 @@ function AppNavigator() {
               headerShown: false,
             }}
           />
+          
+          {/* New Enhanced Navigation Screens */}
+          <Stack.Screen 
+            name="WorkspaceScreen" 
+            component={WorkspaceScreen}
+            options={{ 
+              title: 'WORKSPACES',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="SynthsScreen" 
+            component={SynthsScreen}
+            options={{ 
+              title: 'SYNTHESIZERS',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="InstrumentsScreen" 
+            component={InstrumentsScreen}
+            options={{ 
+              title: 'INSTRUMENTS',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="ModulationScreen" 
+            component={ModulationScreen}
+            options={{ 
+              title: 'MODULATION',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="PlatformScreen" 
+            component={PlatformScreen}
+            options={{ 
+              title: 'PLATFORM',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="UserAccountScreen" 
+            component={UserAccountScreen}
+            options={{ 
+              title: 'ACCOUNT',
+              headerShown: false,
+            }}
+          />
+          
           <Stack.Screen 
             name="WavetableStudio" 
             component={WavetableStudioScreen}
@@ -226,6 +323,97 @@ function AppNavigator() {
             name="Premium" 
             component={PremiumScreen}
             options={{ title: 'Go Premium' }}
+          />
+          <Stack.Screen 
+            name="TR808" 
+            component={TR808Screen}
+            options={{ 
+              title: 'TR-808 RHYTHM COMPOSER',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="TR909" 
+            component={TR909Screen}
+            options={{ 
+              title: 'TR-909 RHYTHM COMPOSER',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="ARP2600" 
+            component={ARP2600Screen}
+            options={{ 
+              title: 'ARP 2600',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="Juno106" 
+            component={Juno106Screen}
+            options={{ 
+              title: 'JUNO-106',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="Minimoog" 
+            component={MinimoogScreen}
+            options={{ 
+              title: 'MINIMOOG',
+              headerShown: false,
+            }}
+          />
+          
+          {/* New Selector Screens */}
+          <Stack.Screen 
+            name="SynthSelector" 
+            component={SynthSelectorScreen}
+            options={{ 
+              title: 'SYNTHESIZERS',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="DrumMachines" 
+            component={DrumMachinesScreen}
+            options={{ 
+              title: 'DRUM MACHINES',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="BassStudioSelector" 
+            component={BassStudioSelectorScreen}
+            options={{ 
+              title: 'BASS STUDIO',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="EffectsSelector" 
+            component={EffectsSelectorScreen}
+            options={{ 
+              title: 'EFFECTS',
+              headerShown: false,
+            }}
+          />
+          
+          <Stack.Screen 
+            name="WorkspaceSelector" 
+            component={WorkspaceSelector}
+            options={{ 
+              title: 'SELECT STUDIO WORKSPACE',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="DAWStudio" 
+            component={DAWStudio}
+            options={{ 
+              title: 'DAW STUDIO',
+              headerShown: false,
+            }}
           />
         </>
       )}

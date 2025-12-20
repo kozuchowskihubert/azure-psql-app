@@ -1,6 +1,6 @@
-import webAudioBridge from '../audio/WebAudioBridge';
+import nativeAudioContext from '../audio/NativeAudioContext';
 
-export default class TR909Bridge {
+class TR909Bridge {
   constructor() {
     this.isInitialized = false;
     
@@ -17,133 +17,81 @@ export default class TR909Bridge {
   async init() {
     console.log('TR909Bridge: Initializing...');
     
-    // Wait for WebAudio bridge to be ready
-    return new Promise((resolve, reject) => {
-      let attempts = 0;
-      const maxAttempts = 50; // 5 seconds
-      
-      const checkReady = setInterval(() => {
-        attempts++;
-        if (webAudioBridge.isReady) {
-          clearInterval(checkReady);
-          this.isInitialized = true;
-          
-          // Set TR-909 specific parameters
-          this.updateAllParams();
-          
-          console.log('TR909Bridge: Initialized successfully');
-          resolve(true);
-        } else if (attempts >= maxAttempts) {
-          clearInterval(checkReady);
-          console.error('TR909Bridge: Initialization timeout');
-          reject(new Error('TR909Bridge initialization timeout'));
-        }
-      }, 100);
-    });
+    try {
+      // Initialize native audio context
+      await nativeAudioContext.initialize();
+      this.isInitialized = true;
+      console.log('TR909Bridge: Initialized successfully with native audio');
+      return true;
+    } catch (error) {
+      console.error('TR909Bridge: Initialization error:', error);
+      this.isInitialized = true; // Continue anyway
+      return true;
+    }
   }
 
   updateAllParams() {
-    webAudioBridge.sendMessage({
-      type: 'update_params',
-      params: this.params
-    });
+    console.log('TR909Bridge: updateAllParams', this.params);
+    // TODO: Store parameters for native synthesis
   }
 
   playKick(velocity = 1.0) {
-    if (!this.isInitialized) {
-      console.warn('TR909Bridge: Not initialized');
-      return;
-    }
-    
-    console.log(`🥁 TR-909 Kick: velocity=${velocity} (harder attack)`);
-    webAudioBridge.sendMessage({
-      type: 'play_kick',
-      velocity: velocity * 1.1 // Slightly louder for 909 punch
-    });
+    console.log(`🥁 TR-909 Kick: velocity=${velocity} (harder attack, native audio)`);
+    nativeAudioContext.playKick(velocity * 1.1); // Slightly louder for 909 punch
   }
 
   playSnare(velocity = 1.0) {
-    if (!this.isInitialized) {
-      console.warn('TR909Bridge: Not initialized');
-      return;
-    }
-    
-    console.log(`🥁 TR-909 Snare: velocity=${velocity} (snappier)`);
-    webAudioBridge.sendMessage({
-      type: 'play_snare',
-      velocity: velocity * 1.15 // Louder, more aggressive
-    });
+    console.log(`🥁 TR-909 Snare: velocity=${velocity} (snappier, native audio)`);
+    nativeAudioContext.playSnare(velocity * 1.15); // Louder, more aggressive
   }
 
   playHihat(velocity = 1.0, open = false) {
-    if (!this.isInitialized) {
-      console.warn('TR909Bridge: Not initialized');
-      return;
-    }
-    
-    console.log(`🥁 TR-909 Hi-hat: velocity=${velocity}, open=${open} (tighter)`);
-    webAudioBridge.sendMessage({
-      type: 'play_hihat',
-      velocity: velocity * 1.2, // Brighter, more present
-      open: open
-    });
+    console.log(`🥁 TR-909 Hi-hat: velocity=${velocity}, open=${open} (tighter, native audio)`);
+    nativeAudioContext.playHihat(velocity * 1.2, open); // Brighter, more present
   }
 
   playClap(velocity = 1.0) {
-    if (!this.isInitialized) {
-      console.warn('TR909Bridge: Not initialized');
-      return;
-    }
-    
-    console.log(`🥁 TR-909 Clap: velocity=${velocity}`);
-    webAudioBridge.sendMessage({
-      type: 'play_clap',
-      velocity: velocity * 1.1
-    });
+    console.log(`🥁 TR-909 Clap: velocity=${velocity} (native audio)`);
+    nativeAudioContext.playClap(velocity);
   }
 
   // Parameter setters for TR-909
   setKickPitch(pitch) {
     this.params.kickPitch = pitch;
-    webAudioBridge.sendMessage({
-      type: 'update_params',
-      params: { kickPitch: pitch }
-    });
+    console.log('TR-909: setKickPitch', pitch);
+    // TODO: Apply to native synthesis
   }
 
   setKickDecay(decay) {
     this.params.kickDecay = decay;
-    webAudioBridge.sendMessage({
-      type: 'update_params',
-      params: { kickDecay: decay }
-    });
+    console.log('TR-909: setKickDecay', decay);
+    // TODO: Apply to native synthesis
   }
 
   setSnareTone(tone) {
     this.params.snareTone = tone;
-    webAudioBridge.sendMessage({
-      type: 'update_params',
-      params: { snareTone: tone }
-    });
+    console.log('TR-909: setSnareTone', tone);
+    // TODO: Apply to native synthesis
   }
 
   setSnareNoise(noise) {
     this.params.snareNoise = noise;
-    webAudioBridge.sendMessage({
-      type: 'update_params',
-      params: { snareNoise: noise }
-    });
+    console.log('TR-909: setSnareNoise', noise);
+    // TODO: Apply to native synthesis
   }
 
   setHihatDecay(decay) {
     this.params.hihatDecay = decay;
-    webAudioBridge.sendMessage({
-      type: 'update_params',
-      params: { hihatDecay: decay }
-    });
+    console.log('TR-909: setHihatDecay', decay);
+    // TODO: Apply to native synthesis
   }
 
   stopAll() {
-    webAudioBridge.stopAll();
+    console.log('TR-909: stopAll');
+    // TODO: Implement stop all voices
   }
 }
+
+// Export a singleton instance
+const tr909Bridge = new TR909Bridge();
+export default tr909Bridge;
