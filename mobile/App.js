@@ -19,6 +19,16 @@ import AccountScreen from './src/screens/AccountScreen';
 import PremiumScreen from './src/screens/PremiumScreen';
 import EffectsControllerEnhanced from './src/components/EffectsControllerEnhanced';
 
+// New Studio Screens
+import StudioSelectorScreen from './src/screens/StudioSelectorScreen';
+import BassStudioScreen from './src/screens/BassStudioScreen';
+import ArpStudioScreen from './src/screens/ArpStudioScreen';
+import WavetableStudioScreen from './src/screens/WavetableStudioScreen';
+import EnhancedStudioScreen from './src/screens/EnhancedStudioScreen';
+import OrchestralStudioScreen from './src/screens/OrchestralStudioScreen';
+import ModulationLabScreen from './src/screens/ModulationLabScreen';
+import PresetLaboratoryScreen from './src/screens/PresetLaboratoryScreen';
+
 // Context
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 
@@ -132,6 +142,70 @@ function AppNavigator() {
             name="Main" 
             component={TabNavigator}
             options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="StudioSelector" 
+            component={StudioSelectorScreen}
+            options={{ 
+              title: 'HAOS STUDIOS',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="BassStudio" 
+            component={BassStudioScreen}
+            options={{ 
+              title: 'BASS STUDIO',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="ArpStudio" 
+            component={ArpStudioScreen}
+            options={{ 
+              title: 'ARP STUDIO',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="WavetableStudio" 
+            component={WavetableStudioScreen}
+            options={{ 
+              title: 'WAVETABLE STUDIO',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="EnhancedStudio" 
+            component={EnhancedStudioScreen}
+            options={{ 
+              title: 'ENHANCED STUDIO',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="OrchestralStudio" 
+            component={OrchestralStudioScreen}
+            options={{ 
+              title: 'ORCHESTRAL STUDIO',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="ModulationLab" 
+            component={ModulationLabScreen}
+            options={{ 
+              title: 'MODULATION LAB',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="PresetLab" 
+            component={PresetLaboratoryScreen}
+            options={{ 
+              title: 'ENHANCED STUDIO',
+              headerShown: false,
+            }}
           />
           <Stack.Screen 
             name="Effects" 

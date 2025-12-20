@@ -115,6 +115,202 @@ const BASS_PRESETS = [
   },
 ];
 
+// Synth Presets - For ARP 2600, Juno-106, Minimoog, etc.
+const SYNTH_PRESETS = [
+  {
+    id: 'arp_lead',
+    name: 'ARP LEAD',
+    emoji: '🎹',
+    color: '#00ff94',
+    synth: 'ARP 2600',
+    description: 'Bright analog lead',
+    params: {
+      cutoff: 2500,
+      resonance: 7,
+      attack: 0.01,
+      decay: 0.3,
+      sustain: 0.6,
+      release: 0.5,
+    },
+  },
+  {
+    id: 'arp_bass',
+    name: 'ARP BASS',
+    emoji: '🎛️',
+    color: '#00ff94',
+    synth: 'ARP 2600',
+    description: 'Fat modular bass',
+    params: {
+      cutoff: 800,
+      resonance: 12,
+      attack: 0.001,
+      decay: 0.1,
+      sustain: 0.8,
+      release: 0.2,
+    },
+  },
+  {
+    id: 'juno_pad',
+    name: 'JUNO PAD',
+    emoji: '🎼',
+    color: '#00ff94',
+    synth: 'Juno-106',
+    description: 'Warm chorus pad',
+    params: {
+      cutoff: 3000,
+      resonance: 3,
+      attack: 0.8,
+      decay: 0.5,
+      sustain: 0.7,
+      release: 2.0,
+    },
+  },
+  {
+    id: 'juno_string',
+    name: 'JUNO STRING',
+    emoji: '🎻',
+    color: '#00ff94',
+    synth: 'Juno-106',
+    description: 'Lush string ensemble',
+    params: {
+      cutoff: 2000,
+      resonance: 2,
+      attack: 0.4,
+      decay: 0.3,
+      sustain: 0.9,
+      release: 1.5,
+    },
+  },
+  {
+    id: 'moog_bass',
+    name: 'MOOG BASS',
+    emoji: '💥',
+    color: '#00ff94',
+    synth: 'Minimoog',
+    description: 'Legendary fat bass',
+    params: {
+      cutoff: 600,
+      resonance: 10,
+      attack: 0.001,
+      decay: 0.15,
+      sustain: 0.7,
+      release: 0.3,
+    },
+  },
+  {
+    id: 'moog_lead',
+    name: 'MOOG LEAD',
+    emoji: '🎸',
+    color: '#00ff94',
+    synth: 'Minimoog',
+    description: 'Screaming solo lead',
+    params: {
+      cutoff: 4000,
+      resonance: 8,
+      attack: 0.01,
+      decay: 0.4,
+      sustain: 0.5,
+      release: 0.6,
+    },
+  },
+  {
+    id: 'dx7_bell',
+    name: 'DX7 BELL',
+    emoji: '🔔',
+    color: '#00ff94',
+    synth: 'DX7',
+    description: 'FM electric piano',
+    params: {
+      cutoff: 5000,
+      resonance: 1,
+      attack: 0.001,
+      decay: 1.2,
+      sustain: 0.3,
+      release: 0.8,
+    },
+  },
+  {
+    id: 'dx7_brass',
+    name: 'DX7 BRASS',
+    emoji: '🎺',
+    color: '#00ff94',
+    synth: 'DX7',
+    description: 'FM brass stab',
+    params: {
+      cutoff: 3500,
+      resonance: 4,
+      attack: 0.02,
+      decay: 0.2,
+      sustain: 0.8,
+      release: 0.4,
+    },
+  },
+  {
+    id: 'ms20_acid',
+    name: 'MS-20 ACID',
+    emoji: '🔊',
+    color: '#00ff94',
+    synth: 'MS-20',
+    description: 'Squelchy filter sweep',
+    params: {
+      cutoff: 1500,
+      resonance: 15,
+      attack: 0.001,
+      decay: 0.2,
+      sustain: 0.5,
+      release: 0.3,
+    },
+  },
+  {
+    id: 'ms20_bass',
+    name: 'MS-20 BASS',
+    emoji: '💣',
+    color: '#00ff94',
+    synth: 'MS-20',
+    description: 'Aggressive bass',
+    params: {
+      cutoff: 700,
+      resonance: 12,
+      attack: 0.001,
+      decay: 0.1,
+      sustain: 0.8,
+      release: 0.2,
+    },
+  },
+  {
+    id: 'prophet_lead',
+    name: 'PROPHET LEAD',
+    emoji: '✨',
+    color: '#00ff94',
+    synth: 'Prophet-5',
+    description: 'Vintage poly lead',
+    params: {
+      cutoff: 3000,
+      resonance: 6,
+      attack: 0.01,
+      decay: 0.3,
+      sustain: 0.6,
+      release: 0.7,
+    },
+  },
+  {
+    id: 'prophet_bass',
+    name: 'PROPHET BASS',
+    emoji: '🎚️',
+    color: '#00ff94',
+    synth: 'Prophet-5',
+    description: 'Thick poly bass',
+    params: {
+      cutoff: 800,
+      resonance: 9,
+      attack: 0.001,
+      decay: 0.2,
+      sustain: 0.7,
+      release: 0.4,
+    },
+  },
+];
+
 const StudioScreen = ({ navigation, route }) => {
   const [selectedWorkspace, setSelectedWorkspace] = useState('techno');
   const [isPlaying, setIsPlaying] = useState(false);
@@ -129,6 +325,7 @@ const StudioScreen = ({ navigation, route }) => {
   
   // Synth parameter controls - start expanded if coming from Home
   const [showSynthControls, setShowSynthControls] = useState(!!route?.params?.synthType);
+  const [selectedSynthPreset, setSelectedSynthPreset] = useState('arp_lead');
   const [synthCutoff, setSynthCutoff] = useState(1000);
   const [synthResonance, setSynthResonance] = useState(5);
   const [synthAttack, setSynthAttack] = useState(0.01);
@@ -485,6 +682,53 @@ const StudioScreen = ({ navigation, route }) => {
 
         {showSynthControls && (
           <View style={styles.synthControlsContent}>
+            {/* Synth Presets */}
+            <View style={styles.presetSection}>
+              <Text style={styles.bassPresetTitle}>🎹 SYNTH PRESETS</Text>
+              <Text style={styles.bassPresetSubtitle}>Classic synth sounds from legendary machines</Text>
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                style={styles.bassPresetScroll}
+              >
+                {SYNTH_PRESETS.map((preset) => {
+                  const isActive = selectedSynthPreset === preset.id;
+                  return (
+                    <TouchableOpacity
+                      key={preset.id}
+                      style={[
+                        styles.bassPresetCard,
+                        isActive && styles.bassPresetCardActive,
+                        { borderColor: preset.color }
+                      ]}
+                      onPress={() => {
+                        setSelectedSynthPreset(preset.id);
+                        // Apply preset values
+                        setSynthCutoff(preset.params.cutoff);
+                        setSynthResonance(preset.params.resonance);
+                        setSynthAttack(preset.params.attack);
+                        setSynthDecay(preset.params.decay);
+                        setSynthSustain(preset.params.sustain);
+                        setSynthRelease(preset.params.release);
+                      }}
+                    >
+                      <Text style={styles.bassPresetEmoji}>{preset.emoji}</Text>
+                      <Text style={[styles.bassPresetName, { color: preset.color }]}>
+                        {preset.name}
+                      </Text>
+                      <Text style={styles.bassPresetDesc}>{preset.synth}</Text>
+                      <Text style={styles.bassPresetDesc}>{preset.description}</Text>
+                      {isActive && (
+                        <View style={[styles.bassPresetActive, { backgroundColor: preset.color }]}>
+                          <Text style={styles.bassPresetActiveText}>● ACTIVE</Text>
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+
             {/* Filter Section */}
             <View style={styles.controlSection}>
               <Text style={styles.controlSectionTitle}>FILTER</Text>

@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  ImageBackground,
   Animated,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
@@ -69,21 +68,13 @@ export default function HomeScreen({ navigation }) {
   });
 
   return (
-    <ImageBackground
-      source={require('../../assets/dark-fantasy-battle.jpg')}
-      style={styles.container}
-      imageStyle={styles.backgroundImage}
-      resizeMode="cover"
-    >
-      {/* Animated glow overlay */}
+    <View style={styles.container}>
+      {/* Animated green glow overlay */}
       <Animated.View style={[styles.glowOverlay, { opacity: glowOpacity }]} />
       
-      {/* Dark overlay for better readability */}
-      <View style={styles.overlay} />
-      
-      {/* Animated particles effect */}
+      {/* Animated green particles effect */}
       <View style={styles.particlesContainer}>
-        {[...Array(20)].map((_, i) => (
+        {[...Array(30)].map((_, i) => (
           <View
             key={i}
             style={[
@@ -130,7 +121,27 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.sectionTitle}>Quick Start</Text>
           
           <TouchableOpacity
-            style={[styles.card, styles.primaryCard]}
+            style={[styles.card, styles.primaryCard, styles.studioCollectionCard]}
+            onPress={() => navigation.navigate('StudioSelector')}
+          >
+            <View style={styles.cardIcon}>
+              <Text style={styles.icon}>🎹</Text>
+            </View>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>🌟 STUDIO COLLECTION</Text>
+              <Text style={styles.cardDescription}>
+                7 specialized synthesis studios - Bass, Arp, Wavetable, Orchestral & more
+              </Text>
+              <View style={styles.studioBadges}>
+                <Text style={styles.studioBadge}>NEW</Text>
+                <Text style={styles.studioBadge}>7 STUDIOS</Text>
+              </View>
+            </View>
+            <Text style={styles.arrow}>→</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[styles.card]}
             onPress={() => navigation.navigate('Studio')}
           >
             <View style={styles.cardIcon}>
@@ -207,7 +218,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.synthIcon}>🎼</Text>
               <Text style={styles.synthName}>Juno-106</Text>
               <Text style={styles.synthDescription}>Warm chorus</Text>
-              <View style={[styles.synthBadge, styles.synthBadgeOrange]}>
+              <View style={styles.synthBadge}>
                 <Text style={styles.synthBadgeText}>HIP-HOP</Text>
               </View>
             </TouchableOpacity>
@@ -366,27 +377,19 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
       </Animated.ScrollView>
-    </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  backgroundImage: {
-    opacity: 0.6,
-    tintColor: COLORS.primary,
+    backgroundColor: '#0a0a0a', // Pure dark background
   },
   glowOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255, 107, 53, 0.05)',
+    backgroundColor: 'rgba(0, 255, 148, 0.05)', // Stronger HAOS green glow
     zIndex: 0,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.70)',
-    zIndex: 1,
   },
   particlesContainer: {
     ...StyleSheet.absoluteFillObject,
@@ -395,15 +398,15 @@ const styles = StyleSheet.create({
   },
   particle: {
     position: 'absolute',
-    width: 3,
-    height: 3,
+    width: 4,
+    height: 4,
     backgroundColor: COLORS.primary,
-    borderRadius: 1.5,
-    opacity: 0.4,
+    borderRadius: 2,
+    opacity: 0.6, // More visible
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
-    shadowRadius: 6,
+    shadowRadius: 10, // Bigger glow
   },
   scrollView: {
     flex: 1,
@@ -413,6 +416,9 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
     marginTop: 20,
+    backgroundColor: 'rgba(0, 255, 148, 0.03)', // Subtle green background
+    borderRadius: 20,
+    marginHorizontal: 16,
   },
   logoImage: {
     width: 240,
@@ -421,7 +427,7 @@ const styles = StyleSheet.create({
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
-    shadowRadius: 30,
+    shadowRadius: 40, // Bigger green glow
   },
   title: {
     fontSize: 30,
@@ -434,7 +440,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     textShadowColor: COLORS.primary,
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 20,
+    textShadowRadius: 30, // More intense green glow
   },
   subtitle: {
     fontSize: 16,
@@ -484,9 +490,9 @@ const styles = StyleSheet.create({
   },
   primaryCard: {
     borderColor: COLORS.primary,
-    backgroundColor: 'rgba(255, 107, 53, 0.1)',
+    backgroundColor: 'rgba(0, 255, 148, 0.12)', // HAOS green instead of orange
     shadowColor: COLORS.primary,
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.6,
   },
   premiumCard: {
     borderColor: COLORS.secondary,
@@ -577,6 +583,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 15,
   },
+  synthCardGreen: {
+    backgroundColor: 'rgba(0, 255, 148, 0.08)',
+    borderColor: COLORS.primary,
+    shadowColor: COLORS.primary,
+  },
+  synthCardOrange: {
+    backgroundColor: 'rgba(0, 255, 148, 0.08)', // Changed to green!
+    borderColor: COLORS.primary, // Changed to green!
+    shadowColor: COLORS.primary,
+  },
   synthIcon: {
     fontSize: 48,
     marginBottom: 12,
@@ -630,37 +646,45 @@ const styles = StyleSheet.create({
   },
   bassCard: {
     width: '48%',
-    backgroundColor: 'rgba(26, 26, 26, 0.9)',
+    backgroundColor: 'rgba(0, 255, 148, 0.08)', // Green tint base
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
     alignItems: 'center',
-    borderWidth: 2,
-    shadowColor: '#000',
+    borderWidth: 3, // Thicker border
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
+    shadowOpacity: 0.8, // Stronger shadow
+    shadowRadius: 15, // Bigger glow
     elevation: 8,
   },
   bassCardAcid: {
     borderColor: COLORS.primary,
-    backgroundColor: 'rgba(0, 255, 148, 0.1)',
+    backgroundColor: 'rgba(0, 255, 148, 0.15)', // More intense green
     shadowColor: COLORS.primary,
+    shadowOpacity: 1,
+    shadowRadius: 20,
   },
   bassCardSub: {
-    borderColor: '#ff00ff',
-    backgroundColor: 'rgba(255, 0, 255, 0.1)',
-    shadowColor: '#ff00ff',
+    borderColor: COLORS.primary, // Changed to green
+    backgroundColor: 'rgba(0, 255, 148, 0.12)',
+    shadowColor: COLORS.primary,
+    shadowOpacity: 1,
+    shadowRadius: 20,
   },
   bassCardWobble: {
-    borderColor: '#00ffff',
-    backgroundColor: 'rgba(0, 255, 255, 0.1)',
-    shadowColor: '#00ffff',
+    borderColor: COLORS.primary, // Changed to green
+    backgroundColor: 'rgba(0, 255, 148, 0.12)',
+    shadowColor: COLORS.primary,
+    shadowOpacity: 1,
+    shadowRadius: 20,
   },
   bassCard808: {
-    borderColor: COLORS.secondary,
-    backgroundColor: 'rgba(255, 136, 0, 0.1)',
-    shadowColor: COLORS.secondary,
+    borderColor: COLORS.primary, // Changed to green
+    backgroundColor: 'rgba(0, 255, 148, 0.12)',
+    shadowColor: COLORS.primary,
+    shadowOpacity: 1,
+    shadowRadius: 20,
   },
   bassIcon: {
     fontSize: 40,
@@ -695,5 +719,31 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#ccc',
     lineHeight: 20,
+  },
+  // Studio Collection Card Styles
+  studioCollectionCard: {
+    backgroundColor: 'rgba(0, 255, 148, 0.15)',
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.8,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  studioBadges: {
+    flexDirection: 'row',
+    marginTop: 8,
+    gap: 8,
+  },
+  studioBadge: {
+    backgroundColor: COLORS.primary,
+    color: '#0a0a0a',
+    fontSize: 10,
+    fontWeight: 'bold',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    letterSpacing: 1,
   },
 });
