@@ -46,24 +46,30 @@ const PresetLaboratoryScreen = ({ navigation }) => {
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const morphAnim = useRef(new Animated.Value(0.5)).current;
+  const [isInitialized, setIsInitialized] = useState(false);
   
   useEffect(() => {
     initializeLab();
   }, []);
   
   useEffect(() => {
-    animateMorph();
-  }, [morphAmount]);
+    if (isInitialized && morphAnim) {
+      animateMorph();
+    }
+  }, [morphAmount, isInitialized]);
   
   const initializeLab = async () => {
     await presetManager.initialize();
     loadPresets();
+    setIsInitialized(true);
     
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
+    if (fadeAnim) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }
   };
   
   const loadPresets = async () => {
@@ -78,12 +84,14 @@ const PresetLaboratoryScreen = ({ navigation }) => {
   };
   
   const animateMorph = () => {
-    Animated.spring(morphAnim, {
-      toValue: morphAmount,
-      tension: 50,
-      friction: 7,
-      useNativeDriver: true,
-    }).start();
+    if (morphAnim && typeof morphAnim.setValue === 'function') {
+      Animated.spring(morphAnim, {
+        toValue: morphAmount,
+        tension: 50,
+        friction: 7,
+        useNativeDriver: true,
+      }).start();
+    }
   };
   
   const selectPresetA = (preset) => {

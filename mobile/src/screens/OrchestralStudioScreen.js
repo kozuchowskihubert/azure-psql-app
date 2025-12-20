@@ -60,11 +60,13 @@ const OrchestralStudioScreen = ({ navigation }) => {
     virtualInstruments.setInstrument('violin');
     virtualInstruments.setArticulation('sustain');
     
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
+    if (fadeAnim) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }
   };
   
   const selectInstrument = (instrument) => {
