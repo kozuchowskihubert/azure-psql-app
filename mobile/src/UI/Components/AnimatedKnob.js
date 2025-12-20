@@ -57,13 +57,15 @@ export default function AnimatedKnob({
   
   // Update rotation when value changes
   useEffect(() => {
-    const angle = valueToAngle(currentValue);
-    Animated.spring(rotation, {
-      toValue: angle,
-      useNativeDriver: true,
-      tension: 100,
-      friction: 10,
-    }).start();
+    if (rotation && typeof rotation.setValue === 'function') {
+      const angle = valueToAngle(currentValue);
+      Animated.spring(rotation, {
+        toValue: angle,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 10,
+      }).start();
+    }
   }, [currentValue]);
   
   // Pan responder for touch control
@@ -75,10 +77,12 @@ export default function AnimatedKnob({
       onPanResponderGrant: () => {
         lastY.current = 0;
         // Scale up on touch
-        Animated.spring(scale, {
-          toValue: 1.1,
-          useNativeDriver: true,
-        }).start();
+        if (scale && typeof scale.setValue === 'function') {
+          Animated.spring(scale, {
+            toValue: 1.1,
+            useNativeDriver: true,
+          }).start();
+        }
       },
       
       onPanResponderMove: (evt, gestureState) => {
@@ -99,10 +103,12 @@ export default function AnimatedKnob({
       
       onPanResponderRelease: () => {
         // Scale back to normal
-        Animated.spring(scale, {
-          toValue: 1,
-          useNativeDriver: true,
-        }).start();
+        if (scale && typeof scale.setValue === 'function') {
+          Animated.spring(scale, {
+            toValue: 1,
+            useNativeDriver: true,
+          }).start();
+        }
       },
     })
   ).current;

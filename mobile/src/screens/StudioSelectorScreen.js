@@ -146,18 +146,21 @@ const StudioSelectorScreen = ({ navigation }) => {
   };
   
   const animatePress = (index) => {
-    Animated.sequence([
-      Animated.timing(scaleAnims[index], {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnims[index], {
-        toValue: 1,
-        friction: 5,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    const anim = scaleAnims[index];
+    if (anim && typeof anim.setValue === 'function') {
+      Animated.sequence([
+        Animated.timing(anim, {
+          toValue: 0.95,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.spring(anim, {
+          toValue: 1,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
   };
   
   return (

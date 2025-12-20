@@ -149,18 +149,21 @@ const ArpStudioScreen = ({ navigation }) => {
     const note = activeNotes[noteIndex];
     
     // Animate step
-    Animated.sequence([
-      Animated.timing(stepAnimations[currentStep % 8], {
-        toValue: 1.2,
-        duration: 50,
-        useNativeDriver: true,
-      }),
-      Animated.timing(stepAnimations[currentStep % 8], {
-        toValue: 1,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    const stepAnim = stepAnimations[currentStep % 8];
+    if (stepAnim && typeof stepAnim.setValue === 'function') {
+      Animated.sequence([
+        Animated.timing(stepAnim, {
+          toValue: 1.2,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(stepAnim, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
     
     // Play note
     bassArpEngine.playNote(note.note, note.velocity, 200);

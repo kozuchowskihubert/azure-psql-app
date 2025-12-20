@@ -105,18 +105,20 @@ export default function EnhancedStudioScreen({ navigation }) {
       setActiveNotes([...activeNotes, { note, id: voiceId }]);
       
       // Trigger animation
-      Animated.sequence([
-        Animated.timing(animatedValue, {
-          toValue: 1,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(animatedValue, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      if (animatedValue && typeof animatedValue.setValue === 'function') {
+        Animated.sequence([
+          Animated.timing(animatedValue, {
+            toValue: 1,
+            duration: 50,
+            useNativeDriver: true,
+          }),
+          Animated.timing(animatedValue, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
     }
   };
   

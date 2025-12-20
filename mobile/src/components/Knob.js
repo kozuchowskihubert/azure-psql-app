@@ -71,12 +71,14 @@ const Knob = ({
           const normalizedValue = (snappedValue - min) / (max - min);
           const rotationDegrees = -135 + (normalizedValue * 270); // -135° to +135°
           
-          Animated.spring(rotation, {
-            toValue: rotationDegrees,
-            useNativeDriver: true,
-            tension: 40,
-            friction: 8,
-          }).start();
+          if (rotation && typeof rotation.setValue === 'function') {
+            Animated.spring(rotation, {
+              toValue: rotationDegrees,
+              useNativeDriver: true,
+              tension: 40,
+              friction: 8,
+            }).start();
+          }
         }
         
         lastAngle.current = angle;
