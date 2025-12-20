@@ -4,8 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HAOS.fm Web Audio Bridge</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #000;
+      color: #0f0;
+    }
+    button {
+      background: #0f0;
+      color: #000;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    button:active {
+      background: #0c0;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
 </head>
 <body>
+  <h1>🎵 HAOS.fm Audio Bridge</h1>
+  <button onclick="testAudio()">🔊 TEST AUDIO</button>
+  <button onclick="testKick()">🥁 TEST KICK</button>
+  <div id="status"></div>
+  
   <script>
     // HAOS.fm Web Audio Bridge
     // This runs inside a WebView and provides Web Audio API to React Native
@@ -576,9 +609,28 @@
       try {
         console.log('📨 WebView received message type:', message.type);
         
+        // Always try to resume audio context on any message
+        if (audioContext && audioContext.state === 'suspended') {
+          console.log('🔊 Attempting to resume audio context...');
+          audioContext.resume().then(() => {
+            console.log('✅ Audio context resumed, state:', audioContext.state);
+          }).catch(err => {
+            console.error('❌ Failed to resume audio context:', err);
+          });
+        }
+        
         switch (message.type) {
           case 'init':
             init();
+            break;
+          case 'resume':
+            // Explicit resume command
+            if (audioContext) {
+              audioContext.resume().then(() => {
+                console.log('🔊 Audio context explicitly resumed');
+                sendMessage({ type: 'audio_resumed', state: audioContext.state });
+              });
+            }
             break;
           case 'play_note':
             playTB303(message.note, message.velocity, message.accent, message.duration);
@@ -635,6 +687,75 @@
 
     // Signal ready
     sendMessage({ type: 'ready' });
+    
+    // ====== TEST FUNCTIONS FOR DEBUGGING ======
+    function updateStatus(msg) {
+      const status = document.getElementById('status');
+      if (status) {
+        status.innerHTML = `<div>${new Date().toLocaleTimeString()}: ${msg}</div>` + status.innerHTML;
+      }
+      console.log('🔊', msg);
+    }
+    
+    function testAudio() {
+      updateStatus('🔊 Test Audio button clicked');
+      
+      if (!audioContext) {
+        updateStatus('❌ Audio context not initialized - initializing now...');
+        init();
+        setTimeout(testAudio, 500);
+        return;
+      }
+      
+      updateStatus(`Audio context state: ${audioContext.state}`);
+      
+      if (audioContext.state === 'suspended') {
+        updateStatus('⏳ Resuming suspended audio context...');
+        audioContext.resume().then(() => {
+          updateStatus(`✅ Audio resumed! State: ${audioContext.state}`);
+          playTestBeep();
+        }).catch(err => {
+          updateStatus(`❌ Resume failed: ${err.message}`);
+        });
+      } else {
+        playTestBeep();
+      }
+    }
+    
+    function playTestBeep() {
+      updateStatus('🎵 Playing test beep...');
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      
+      osc.frequency.value = 440; // A4
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      
+      gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      
+      osc.start(audioContext.currentTime);
+      osc.stop(audioContext.currentTime + 0.5);
+      
+      updateStatus('✅ Beep scheduled!');
+    }
+    
+    function testKick() {
+      updateStatus('🥁 Test kick button clicked');
+      if (!audioContext) {
+        init();
+        setTimeout(testKick, 500);
+        return;
+      }
+      
+      if (audioContext.state === 'suspended') {
+        audioContext.resume().then(() => {
+          playKick(1.0);
+        });
+      } else {
+        playKick(1.0);
+      }
+    }
   </script>
 </body>
 </html>

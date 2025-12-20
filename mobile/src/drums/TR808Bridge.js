@@ -8,8 +8,8 @@ export default class TR808Bridge {
   async init() {
     console.log('TR808Bridge: Initializing...');
     
-    // Wait for WebAudio bridge to be ready
-    return new Promise((resolve, reject) => {
+    // Wait for WebAudio bridge to be ready (but don't fail if timeout)
+    return new Promise((resolve) => {
       let attempts = 0;
       const maxAttempts = 50; // 5 seconds
       
@@ -22,19 +22,17 @@ export default class TR808Bridge {
           resolve(true);
         } else if (attempts >= maxAttempts) {
           clearInterval(checkReady);
-          console.error('TR808Bridge: Initialization timeout');
-          reject(new Error('TR808Bridge initialization timeout'));
+          // Don't reject - just mark as initialized anyway
+          // Messages will be queued by WebAudioBridge if not ready
+          this.isInitialized = true;
+          console.warn('TR808Bridge: Initialization timeout, but continuing (messages will be queued)');
+          resolve(true);
         }
       }, 100);
     });
   }
 
   playKick(velocity = 1.0) {
-    if (!this.isInitialized) {
-      console.warn('TR808Bridge: Not initialized');
-      return;
-    }
-    
     console.log(`🥁 TR-808 Kick: velocity=${velocity}`);
     webAudioBridge.sendMessage({
       type: 'play_kick',
@@ -43,11 +41,6 @@ export default class TR808Bridge {
   }
 
   playSnare(velocity = 1.0) {
-    if (!this.isInitialized) {
-      console.warn('TR808Bridge: Not initialized');
-      return;
-    }
-    
     console.log(`🥁 TR-808 Snare: velocity=${velocity}`);
     webAudioBridge.sendMessage({
       type: 'play_snare',
@@ -56,11 +49,6 @@ export default class TR808Bridge {
   }
 
   playHihat(velocity = 1.0, open = false) {
-    if (!this.isInitialized) {
-      console.warn('TR808Bridge: Not initialized');
-      return;
-    }
-    
     console.log(`🥁 TR-808 Hi-hat: velocity=${velocity}, open=${open}`);
     webAudioBridge.sendMessage({
       type: 'play_hihat',
@@ -70,11 +58,6 @@ export default class TR808Bridge {
   }
 
   playClap(velocity = 1.0) {
-    if (!this.isInitialized) {
-      console.warn('TR808Bridge: Not initialized');
-      return;
-    }
-    
     console.log(`🥁 TR-808 Clap: velocity=${velocity}`);
     webAudioBridge.sendMessage({
       type: 'play_clap',

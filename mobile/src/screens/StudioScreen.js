@@ -4,7 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, ActivityIndicator, ImageBackground, Modal, Slider } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, ActivityIndicator, ImageBackground, Modal } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { COLORS, TYPO, SPACING, SHADOW } from '../styles/HAOSDesignSystem';
 import technoWorkspace from '../engine/TechnoWorkspace';
 import { loadPreset, getPresetInfo } from '../engine/WorkspacePresets';
@@ -102,6 +103,14 @@ const StudioScreen = ({ navigation, route }) => {
       workspace.stop();
       setIsPlaying(false);
     } else {
+      // Resume audio context before playing (critical for iOS)
+      // MUST happen synchronously within user gesture handler
+      if (workspace.webAudioBridge) {
+        console.log('🔊 Resuming audio before play...');
+        workspace.webAudioBridge.sendMessage({ type: 'resume' });
+      }
+      
+      // Start playing immediately (audio context will resume from the message above)
       workspace.play();
       setIsPlaying(true);
     }

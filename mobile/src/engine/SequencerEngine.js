@@ -8,7 +8,7 @@
 class SequencerEngine {
   constructor() {
     // Track definitions - MUST be defined first before createEmptyPattern()
-    this.tracks = ['kick', 'snare', 'hihat', 'clap', 'bass'];
+    this.tracks = ['kick', 'snare', 'hihat', 'clap', 'bass', 'synth'];
     
     // Timing
     this.bpm = 120;
