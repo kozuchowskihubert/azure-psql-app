@@ -29,7 +29,7 @@ export default function WaveformVisualizer({
   useEffect(() => {
     generateWaveform();
     
-    if (animated) {
+    if (animated && animatedPhase && typeof animatedPhase.setValue === 'function') {
       // Animate phase for moving waveform
       Animated.loop(
         Animated.timing(animatedPhase, {
