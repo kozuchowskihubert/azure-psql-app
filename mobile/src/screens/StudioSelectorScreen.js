@@ -36,20 +36,24 @@ const StudioSelectorScreen = ({ navigation }) => {
   ).current;
   
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 600,
-      useNativeDriver: true,
-    }).start();
+    if (fadeAnim) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }).start();
+    }
     
     // Stagger animate studio cards
     scaleAnims.forEach((anim, index) => {
-      Animated.spring(anim, {
-        toValue: 1,
-        delay: index * 100,
-        useNativeDriver: true,
-        friction: 8,
-      }).start();
+      if (anim && typeof anim.setValue === 'function') {
+        Animated.spring(anim, {
+          toValue: 1,
+          delay: index * 100,
+          useNativeDriver: true,
+          friction: 8,
+        }).start();
+      }
     });
   }, []);
   

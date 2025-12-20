@@ -89,11 +89,13 @@ const WavetableStudioScreen = ({ navigation }) => {
     await wavetableEngine.initialize();
     wavetableEngine.setWavetable('analog');
     
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
+    if (fadeAnim) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }
   };
   
   const selectWavetable = (name) => {
@@ -101,18 +103,20 @@ const WavetableStudioScreen = ({ navigation }) => {
     wavetableEngine.setWavetable(name);
     
     // Animate wavetable morph
-    Animated.sequence([
-      Animated.timing(morphAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(morphAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    if (morphAnim) {
+      Animated.sequence([
+        Animated.timing(morphAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(morphAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
   };
   
   const updateParameter = (param, value) => {

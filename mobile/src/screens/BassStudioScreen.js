@@ -88,11 +88,13 @@ const BassStudioScreen = ({ navigation }) => {
     await bassArpEngine.initialize();
     loadPreset('subQuake');
     
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
+    if (fadeAnim) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }
   };
   
   const loadPreset = (presetName) => {
