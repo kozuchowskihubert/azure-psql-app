@@ -111,7 +111,7 @@ const SYNTHS = [
     gradient: [COLORS.green, '#00FF00'],
     features: ['Bass Focus', 'Presets', 'Modulation', 'Effects'],
     specs: 'Slide • Bend • Vibrato • Sub-Osc',
-    screen: 'Studio',
+    screen: 'BassStudio',
     params: {}
   },
 ];
