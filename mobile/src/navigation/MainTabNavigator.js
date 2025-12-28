@@ -8,13 +8,13 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-// Import new screen structure
-import CreatorScreen from './CreatorScreen';
-import StudioScreen from './StudioScreen';
-import InstrumentsScreen from './InstrumentsScreen';
-import SoundsScreen from './SoundsScreen';
-import DocuScreen from './DocuScreen';
-import AccountScreen from './AccountScreen';
+// Import screen structure
+import CreatorScreen from '../screens/CreatorScreen';
+import StudioScreenNew from '../screens/StudioScreenNew';
+import InstrumentsScreen from '../screens/InstrumentsScreen';
+import SoundsScreen from '../screens/SoundsScreen';
+import DocuScreen from '../screens/DocuScreen';
+import AccountScreen from '../screens/AccountScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -105,7 +105,7 @@ function MainTabNavigator({ route }) {
       />
       <Tab.Screen
         name="Studio"
-        component={StudioScreen}
+        component={StudioScreenNew}
         options={{
           tabBarLabel: 'STUDIO',
           title: 'HAOS STUDIO',
