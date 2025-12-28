@@ -89,7 +89,10 @@ export default function BassStudioScreen({ navigation }) {
   const handlePresetSelect = (presetId) => {
     setActivePreset(presetId);
     if (audioEngine.current) {
-      audioEngine.current.loadPreset(presetId);
+      // Small delay to ensure audio engine is fully initialized
+      setTimeout(() => {
+        audioEngine.current.loadPreset(presetId);
+      }, 100);
     }
   };
 

@@ -17,6 +17,7 @@ import minimoogBridge from '../synths/MinimoogBridge';
 import nativeAudioContext from '../audio/NativeAudioContext';
 import Knob from '../components/Knob';
 import Oscilloscope from '../components/Oscilloscope';
+import UniversalSequencer from '../components/UniversalSequencer';
 import { Animated } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -61,6 +62,10 @@ const MinimoogScreen = ({ navigation }) => {
   const [release, setRelease] = useState(0.5);
   const [activeNotes, setActiveNotes] = useState(new Set());
   const [waveformData, setWaveformData] = useState([]);
+  
+  // Sequencer state
+  const [sequencerPlaying, setSequencerPlaying] = useState(false);
+  const [bpm, setBpm] = useState(120);
   
   // Filter ladder animation (4 poles)
   const filterPoleAnims = useRef([
@@ -135,6 +140,17 @@ const MinimoogScreen = ({ navigation }) => {
       newSet.delete(note);
       return newSet;
     });
+  };
+  
+  // Sequencer note playback handler
+  const handleSequencerNote = (midiNote) => {
+    // Convert MIDI note to frequency
+    const frequency = 440 * Math.pow(2, (midiNote - 69) / 12);
+    const noteName = `MIDI${midiNote}`;
+    
+    // Play the note through minimoog
+    minimoogBridge.playNote(midiNote, { velocity: 0.8, duration: 0.25 });
+    console.log(`🎹 Sequencer → Minimoog: ${noteName} (${frequency.toFixed(2)}Hz)`);
   };
 
   // Parameter change handlers (update state + bridge)
@@ -245,36 +261,54 @@ const MinimoogScreen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={osc1Level}
-                onChange={handleOsc1LevelChange}
+                min={0}
+                max={1}
+                step={0.01}
+                unit="%"
+                onChange={(val) => {
+                  setOsc1Level(val);
+                  minimoogBridge.setOsc1Level(val);
+                }}
                 label="OSC 1"
                 color={HAOS_COLORS.blue}
                 size={70}
               />
-              <Text style={styles.knobValue}>{(osc1Level * 100).toFixed(0)}%</Text>
               <Text style={styles.oscLabel}>Sawtooth</Text>
             </View>
             
             <View style={styles.knobContainer}>
               <Knob
                 value={osc2Level}
-                onChange={handleOsc2LevelChange}
+                min={0}
+                max={1}
+                step={0.01}
+                unit="%"
+                onChange={(val) => {
+                  setOsc2Level(val);
+                  minimoogBridge.setOsc2Level(val);
+                }}
                 label="OSC 2"
                 color={HAOS_COLORS.blue}
                 size={70}
               />
-              <Text style={styles.knobValue}>{(osc2Level * 100).toFixed(0)}%</Text>
               <Text style={styles.oscLabel}>Square -1oct</Text>
             </View>
             
             <View style={styles.knobContainer}>
               <Knob
                 value={osc3Level}
-                onChange={handleOsc3LevelChange}
+                min={0}
+                max={1}
+                step={0.01}
+                unit="%"
+                onChange={(val) => {
+                  setOsc3Level(val);
+                  minimoogBridge.setOsc3Level(val);
+                }}
                 label="OSC 3"
                 color={HAOS_COLORS.blue}
                 size={70}
               />
-              <Text style={styles.knobValue}>{(osc3Level * 100).toFixed(0)}%</Text>
               <Text style={styles.oscLabel}>Triangle -2oct</Text>
             </View>
           </View>
@@ -331,24 +365,36 @@ const MinimoogScreen = ({ navigation }) => {
           <View style={styles.controlsRow}>
             <View style={styles.knobContainer}>
               <Knob
-                value={filterCutoff / 5000}
-                onChange={handleFilterCutoffChange}
+                value={filterCutoff}
+                min={20}
+                max={5000}
+                step={10}
+                unit=" Hz"
+                onChange={(val) => {
+                  setFilterCutoff(val);
+                  minimoogBridge.setFilterCutoff(val);
+                }}
                 label="CUTOFF"
                 color={HAOS_COLORS.red}
                 size={85}
               />
-              <Text style={styles.knobValue}>{filterCutoff.toFixed(0)} Hz</Text>
             </View>
             
             <View style={styles.knobContainer}>
               <Knob
-                value={filterResonance / 20}
-                onChange={handleFilterResonanceChange}
+                value={filterResonance}
+                min={0}
+                max={20}
+                step={0.1}
+                unit=""
+                onChange={(val) => {
+                  setFilterResonance(val);
+                  minimoogBridge.setFilterResonance(val);
+                }}
                 label="RESONANCE"
                 color={HAOS_COLORS.red}
                 size={85}
               />
-              <Text style={styles.knobValue}>Q: {filterResonance.toFixed(1)}</Text>
             </View>
           </View>
           <Text style={styles.sectionInfo}>
@@ -390,46 +436,105 @@ const MinimoogScreen = ({ navigation }) => {
           <View style={styles.controlsRow}>
             <View style={styles.knobContainer}>
               <Knob
-                value={attack / 2}
-                onChange={handleAttackChange}
+                value={attack}
+                min={0.001}
+                max={2}
+                step={0.001}
+                unit=" s"
+                onChange={(val) => {
+                  setAttack(val);
+                  minimoogBridge.setAttack(val);
+                }}
                 label="ATTACK"
                 color={HAOS_COLORS.cyan}
                 size={60}
               />
-              <Text style={styles.knobValue}>{(attack * 1000).toFixed(0)}ms</Text>
             </View>
             
             <View style={styles.knobContainer}>
               <Knob
-                value={decay / 2}
-                onChange={handleDecayChange}
+                value={decay}
+                min={0.001}
+                max={2}
+                step={0.001}
+                unit=" s"
+                onChange={(val) => {
+                  setDecay(val);
+                  minimoogBridge.setDecay(val);
+                }}
                 label="DECAY"
                 color={HAOS_COLORS.cyan}
                 size={60}
               />
-              <Text style={styles.knobValue}>{(decay * 1000).toFixed(0)}ms</Text>
             </View>
             
             <View style={styles.knobContainer}>
               <Knob
                 value={sustain}
-                onChange={handleSustainChange}
+                min={0}
+                max={1}
+                step={0.01}
+                unit="%"
+                onChange={(val) => {
+                  setSustain(val);
+                  minimoogBridge.setSustain(val);
+                }}
                 label="SUSTAIN"
                 color={HAOS_COLORS.cyan}
                 size={60}
               />
-              <Text style={styles.knobValue}>{(sustain * 100).toFixed(0)}%</Text>
             </View>
             
             <View style={styles.knobContainer}>
               <Knob
-                value={release / 5}
-                onChange={handleReleaseChange}
+                value={release}
+                min={0.001}
+                max={5}
+                step={0.001}
+                unit=" s"
+                onChange={(val) => {
+                  setRelease(val);
+                  minimoogBridge.setRelease(val);
+                }}
                 label="RELEASE"
                 color={HAOS_COLORS.cyan}
                 size={60}
               />
-              <Text style={styles.knobValue}>{(release * 1000).toFixed(0)}ms</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Universal Sequencer */}
+        <UniversalSequencer
+          isPlaying={sequencerPlaying}
+          bpm={bpm}
+          onPlayNote={handleSequencerNote}
+          color={HAOS_COLORS.cyan}
+          title="MINIMOOG SEQUENCER"
+        />
+        
+        {/* Sequencer Controls */}
+        <View style={styles.section}>
+          <View style={styles.controlsRow}>
+            <TouchableOpacity
+              onPress={() => setSequencerPlaying(!sequencerPlaying)}
+              style={[styles.transportButton, sequencerPlaying && styles.transportButtonActive]}
+            >
+              <Text style={styles.transportButtonText}>
+                {sequencerPlaying ? '⏸ STOP' : '▶ PLAY'}
+              </Text>
+            </TouchableOpacity>
+            
+            <View style={styles.bpmControl}>
+              <Text style={styles.label}>BPM: {bpm}</Text>
+              <View style={styles.bpmButtons}>
+                <TouchableOpacity onPress={() => setBpm(Math.max(60, bpm - 5))} style={styles.bpmButton}>
+                  <Text style={styles.bpmButtonText}>-</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setBpm(Math.min(200, bpm + 5))} style={styles.bpmButton}>
+                  <Text style={styles.bpmButtonText}>+</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
@@ -739,6 +844,51 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: HAOS_COLORS.silver,
     textAlign: 'center',
+  },
+  transportButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0, 217, 255, 0.2)',
+    borderWidth: 2,
+    borderColor: HAOS_COLORS.cyan,
+    marginRight: 12,
+  },
+  transportButtonActive: {
+    backgroundColor: HAOS_COLORS.cyan,
+  },
+  transportButtonText: {
+    color: HAOS_COLORS.cyan,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  bpmControl: {
+    alignItems: 'center',
+  },
+  label: {
+    color: HAOS_COLORS.silver,
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  bpmButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  bpmButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 217, 255, 0.2)',
+    borderWidth: 2,
+    borderColor: HAOS_COLORS.cyan,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bpmButtonText: {
+    color: HAOS_COLORS.cyan,
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });
 
