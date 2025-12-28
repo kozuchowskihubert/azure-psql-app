@@ -226,7 +226,7 @@ const Juno106Screen = ({ navigation }) => {
           }
         }}
         source={require('../../assets/audio-engine.html')}
-        style={{ width: 0, height: 0, opacity: 0, position: 'absolute' }}
+        style={{ width: 0, height: 0, opacity: 0, position: 'absolute', pointerEvents: 'none' }}
         onMessage={(event) => webAudioBridge.onMessage(event)}
         onLoad={() => webAudioBridge.initAudio()}
         javaScriptEnabled={true}
