@@ -1,109 +1,250 @@
 /**
- * HAOS.fm Instruments Screen
- * Virtual Instruments: Drums, Piano, Guitar, Bass, Strings
+ * HAOS.fm Instruments Screen - REFACTORED
+ * 4 Categories: SYNTHESIZERS, DRUM MACHINES, SAMPLERS, ORCHESTRAL
+ * Based on instruments.html and modular-workspace.html design
+ * Date: December 28, 2025
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { COLORS, GRADIENTS } from '../styles/colors';
+import { TYPOGRAPHY } from '../styles/typography';
+import CircuitBoardBackground from '../components/CircuitBoardBackground';
 
-const COLORS = {
-  bgDark: '#0A0A0A',
-  textPrimary: '#F4E8D8',
-  textSecondary: 'rgba(244, 232, 216, 0.7)',
-  green: '#39FF14',
-};
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = (width - 60) / 2; // 2 columns with padding
 
-const INSTRUMENTS = [
-  {
-    id: 'drums',
-    name: 'DRUM MACHINES',
-    description: 'TR-808, TR-909 & more',
-    icon: '🥁',
-    gradient: ['#FF0066', '#FF3399'],
-    count: '2 Machines',
+// 4 Main Categories
+const CATEGORIES = [
+  { 
+    id: 'synths', 
+    name: 'SYNTHS', 
+    icon: '🎹', 
+    count: 8,
+    color: COLORS.cyan,
+    gradient: GRADIENTS.synths,
   },
-  {
-    id: 'piano',
-    name: 'PIANO',
-    description: 'Virtual piano with MIDI',
-    icon: '🎹',
-    gradient: ['#FFD700', '#FFAA00'],
-    count: 'Coming Soon',
+  { 
+    id: 'drums', 
+    name: 'DRUMS', 
+    icon: '🥁', 
+    count: 6,
+    color: COLORS.orange,
+    gradient: GRADIENTS.drums,
   },
-  {
-    id: 'guitar',
-    name: 'GUITAR',
-    description: 'Electric & acoustic',
-    icon: '🎸',
-    gradient: ['#FF8800', '#FFAA00'],
-    count: 'Coming Soon',
+  { 
+    id: 'samplers', 
+    name: 'SAMPLERS', 
+    icon: '📀', 
+    count: 4,
+    color: COLORS.purple,
+    gradient: GRADIENTS.samplers,
   },
-  {
-    id: 'bass',
-    name: 'BASS',
-    description: 'Bass Studio synthesizer',
-    icon: '🎸',
-    gradient: ['#39FF14', '#4AFF14'],
-    count: '1 Studio',
-  },
-  {
-    id: 'strings',
-    name: 'STRINGS',
-    description: 'Orchestral strings',
-    icon: '🎻',
-    gradient: ['#8B5CF6', '#A855F7'],
-    count: 'Coming Soon',
+  { 
+    id: 'orchestral', 
+    name: 'ORCH', 
+    icon: '🎻', 
+    count: 5,
+    color: COLORS.gold,
+    gradient: GRADIENTS.orchestral,
   },
 ];
 
-export default function InstrumentsScreen({ navigation }) {
+// Instrument Library
+const INSTRUMENTS = {
+  synths: [
+    { id: 'arp2600', name: 'ARP 2600', screen: 'ARP2600', emoji: '🎛️', color: COLORS.cyan },
+    { id: 'juno106', name: 'JUNO-106', screen: 'Juno106', emoji: '🎹', color: COLORS.cyan },
+    { id: 'minimoog', name: 'MINIMOOG', screen: 'Minimoog', emoji: '🔊', color: COLORS.cyan },
+    { id: 'tb303', name: 'TB-303', screen: 'TB303', emoji: '🧪', color: COLORS.cyan },
+    { id: 'dx7', name: 'DX7', screen: 'DX7', emoji: '✨', color: COLORS.cyan },
+    { id: 'ms20', name: 'MS-20', screen: 'MS20', emoji: '⚡', color: COLORS.cyan },
+    { id: 'prophet5', name: 'PROPHET-5', screen: 'Prophet5', emoji: '👑', color: COLORS.cyan },
+    { id: 'bass', name: 'BASS STUDIO', screen: 'BassStudio', emoji: '🎸', color: COLORS.cyan },
+  ],
+  drums: [
+    { id: 'tr808', name: 'TR-808', screen: 'TR808', emoji: '🥁', color: COLORS.orange },
+    { id: 'tr909', name: 'TR-909', screen: 'TR909', emoji: '🎼', color: COLORS.orange },
+    { id: 'linndrum', name: 'LINNDRUM', screen: 'LinnDrum', emoji: '🎛️', color: COLORS.orange },
+    { id: 'cr78', name: 'CR-78', screen: 'CR78', emoji: '📻', color: COLORS.orange },
+    { id: 'dmx', name: 'OBERHEIM DMX', screen: 'DMX', emoji: '🎚️', color: COLORS.orange },
+    { id: 'beatmaker', name: 'BEAT MAKER', screen: 'BeatMaker', emoji: '✨', color: COLORS.orange },
+  ],
+  samplers: [
+    { id: 'samples', name: 'SAMPLE LIBRARY', screen: null, emoji: '📚', color: COLORS.purple },
+    { id: 'vocsampler', name: 'VOCAL SAMPLER', screen: 'Vocals', emoji: '�', color: COLORS.purple },
+    { id: 'drumsampler', name: 'DRUM SAMPLER', screen: null, emoji: '🥁', color: COLORS.purple },
+    { id: 'looper', name: 'LOOP STATION', screen: null, emoji: '🔁', color: COLORS.purple },
+  ],
+  orchestral: [
+    { id: 'strings', name: 'STRINGS', screen: 'Violin', emoji: '🎻', color: COLORS.gold },
+    { id: 'piano', name: 'PIANO', screen: 'Piano', emoji: '🎹', color: COLORS.gold },
+    { id: 'brass', name: 'BRASS', screen: null, emoji: '�', color: COLORS.gold },
+    { id: 'woodwinds', name: 'WOODWINDS', screen: null, emoji: '🎷', color: COLORS.gold },
+    { id: 'choir', name: 'CHOIR', screen: null, emoji: '👥', color: COLORS.gold },
+  ],
+};
+
+export default function InstrumentsScreen({ navigation, route }) {
+  const [activeCategory, setActiveCategory] = useState('synths');
+  const persona = route?.params?.persona || 'producer';
+
+  const handleInstrumentPress = (instrument) => {
+    if (instrument.screen) {
+      // Navigate to specific instrument screen
+      navigation.navigate(instrument.screen);
+    } else {
+      // Coming soon - show ModularSynth as placeholder
+      navigation.navigate('ModularSynth', { 
+        synthType: instrument.name,
+        fromInstruments: true 
+      });
+    }
+  };
+
+  const currentInstruments = INSTRUMENTS[activeCategory];
+
   return (
     <View style={styles.container}>
+      {/* Circuit Board Background */}
+      <CircuitBoardBackground density="medium" animated={true} />
+      
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <Text style={styles.headerIcon}>🎹</Text>
-          <Text style={styles.headerTitle}>INSTRUMENTS</Text>
-          <Text style={styles.headerSubtitle}>Virtual Instruments</Text>
+        <View style={styles.logoContainer}>
+          <Text style={styles.logo}>HAOS</Text>
+          <Text style={styles.logoDot}>.fm</Text>
         </View>
+        <Text style={styles.headerTitle}>INSTRUMENTS</Text>
+        <TouchableOpacity style={styles.settingsButton}>
+          <Text style={styles.settingsIcon}>⚙️</Text>
+        </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {INSTRUMENTS.map((instrument) => (
+      {/* Category Tabs */}
+      <View style={styles.categoryTabs}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabsContent}
+        >
+          {CATEGORIES.map((category) => (
+            <TouchableOpacity
+              key={category.id}
+              activeOpacity={0.7}
+              onPress={() => setActiveCategory(category.id)}
+              style={[
+                styles.categoryTab,
+                activeCategory === category.id && styles.categoryTabActive,
+              ]}
+            >
+              <LinearGradient
+                colors={activeCategory === category.id ? category.gradient : [COLORS.grayDark, COLORS.grayDark]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.tabGradient}
+              >
+                <Text style={styles.tabEmoji}>{category.icon}</Text>
+                <Text style={[
+                  styles.tabName,
+                  activeCategory === category.id && styles.tabNameActive
+                ]}>
+                  {category.name}
+                </Text>
+                <View style={[
+                  styles.tabBadge,
+                  { backgroundColor: category.color }
+                ]}>
+                  <Text style={styles.tabBadgeText}>{category.count}</Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      {/* Instruments Grid */}
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.instrumentsGrid}
+        showsVerticalScrollIndicator={false}
+      >
+        {currentInstruments.map((instrument, index) => (
           <TouchableOpacity
             key={instrument.id}
-            activeOpacity={0.9}
-            style={styles.card}
+            activeOpacity={0.8}
+            onPress={() => handleInstrumentPress(instrument)}
+            style={[
+              styles.instrumentCard,
+              { marginRight: (index % 2 === 0) ? 10 : 0 }
+            ]}
           >
             <LinearGradient
-              colors={[`${instrument.gradient[0]}20`, `${instrument.gradient[1]}10`]}
+              colors={[COLORS.bgCard, COLORS.bgDark]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.cardGradient}
             >
-              <View style={[styles.cardBorder, { borderColor: `${instrument.gradient[0]}50` }]} />
-              <Text style={styles.icon}>{instrument.icon}</Text>
-              <Text style={[styles.name, { color: instrument.gradient[0] }]}>
-                {instrument.name}
-              </Text>
-              <Text style={styles.description}>{instrument.description}</Text>
-              <Text style={styles.count}>{instrument.count}</Text>
+              {/* Card border */}
+              <View style={[styles.cardBorder, { borderColor: instrument.color }]} />
+              
+              {/* Instrument emoji */}
+              <View style={[styles.emojiCircle, { backgroundColor: `${instrument.color}20` }]}>
+                <Text style={styles.instrumentEmoji}>{instrument.emoji}</Text>
+              </View>
+              
+              {/* Instrument name */}
+              <Text style={styles.instrumentName}>{instrument.name}</Text>
+              
+              {/* Status indicator */}
+              {instrument.screen ? (
+                <View style={styles.availableBadge}>
+                  <View style={styles.availableDot} />
+                  <Text style={styles.availableText}>AVAILABLE</Text>
+                </View>
+              ) : (
+                <View style={styles.comingSoonBadge}>
+                  <Text style={styles.comingSoonText}>SOON</Text>
+                </View>
+              )}
             </LinearGradient>
           </TouchableOpacity>
         ))}
+        
+        {/* Add Custom Instrument Card */}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={[styles.instrumentCard, styles.addCard]}
+        >
+          <LinearGradient
+            colors={['rgba(255, 107, 53, 0.1)', 'rgba(255, 107, 53, 0.05)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.cardGradient}
+          >
+            <View style={[styles.cardBorder, { borderColor: COLORS.orange, borderStyle: 'dashed' }]} />
+            <Text style={styles.addIcon}>+</Text>
+            <Text style={styles.addText}>ADD CUSTOM</Text>
+            <Text style={styles.addSubtext}>Import your own</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       </ScrollView>
+
+      {/* Info Panel */}
+      <View style={styles.infoPanel}>
+        <Text style={styles.infoIcon}>💡</Text>
+        <Text style={styles.infoText}>
+          Tap any instrument to open its studio. All instruments feature real-time synthesis.
+        </Text>
+      </View>
     </View>
   );
 }
@@ -113,58 +254,108 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.bgDark,
   },
+  // Header
   header: {
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    marginBottom: 15,
-  },
-  backArrow: {
-    fontSize: 28,
-    color: COLORS.green,
-  },
-  headerContent: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
-  headerIcon: {
-    fontSize: 48,
-    marginBottom: 10,
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  logo: {
+    ...TYPOGRAPHY.h2,
+    color: COLORS.textPrimary,
+  },
+  logoDot: {
+    ...TYPOGRAPHY.h2,
+    color: COLORS.orange,
   },
   headerTitle: {
-    fontFamily: 'System',
-    fontSize: 32,
-    fontWeight: '900',
+    ...TYPOGRAPHY.h2,
     color: COLORS.textPrimary,
-    letterSpacing: 2,
-    marginBottom: 5,
   },
-  headerSubtitle: {
-    fontFamily: 'System',
-    fontSize: 13,
+  settingsButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingsIcon: {
+    fontSize: 24,
+  },
+  // Category Tabs
+  categoryTabs: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  tabsContent: {
+    paddingHorizontal: 20,
+  },
+  categoryTab: {
+    marginRight: 12,
+  },
+  categoryTabActive: {
+    // Active state handled by gradient
+  },
+  tabGradient: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  tabEmoji: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  tabName: {
+    ...TYPOGRAPHY.label,
     color: COLORS.textSecondary,
-    letterSpacing: 1,
+    marginRight: 8,
   },
+  tabNameActive: {
+    color: COLORS.textPrimary,
+  },
+  tabBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  tabBadgeText: {
+    ...TYPOGRAPHY.tiny,
+    color: COLORS.bgDark,
+    fontWeight: 'bold',
+  },
+  // Instruments Grid
   scrollView: {
     flex: 1,
   },
-  scrollContent: {
+  instrumentsGrid: {
     padding: 20,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
-  card: {
-    marginBottom: 16,
+  instrumentCard: {
+    width: CARD_WIDTH,
+    height: CARD_WIDTH * 1.2,
+    marginBottom: 15,
   },
   cardGradient: {
+    flex: 1,
     borderRadius: 16,
-    padding: 20,
+    padding: 15,
+    justifyContent: 'space-between',
     position: 'relative',
-    minHeight: 140,
   },
   cardBorder: {
     position: 'absolute',
@@ -175,27 +366,86 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 2,
   },
-  icon: {
-    fontSize: 48,
+  emojiCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 10,
   },
-  name: {
-    fontFamily: 'System',
-    fontSize: 24,
-    fontWeight: '900',
-    letterSpacing: 1,
-    marginBottom: 6,
+  instrumentEmoji: {
+    fontSize: 32,
   },
-  description: {
-    fontFamily: 'System',
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: 8,
+  instrumentName: {
+    ...TYPOGRAPHY.h3,
+    color: COLORS.textPrimary,
+    fontSize: 16,
+    marginBottom: 5,
   },
-  count: {
-    fontFamily: 'System',
-    fontSize: 12,
+  availableBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  availableDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.green,
+    marginRight: 6,
+  },
+  availableText: {
+    ...TYPOGRAPHY.tiny,
+    color: COLORS.green,
+  },
+  comingSoonBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    backgroundColor: COLORS.orangeTransparent,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  comingSoonText: {
+    ...TYPOGRAPHY.tiny,
+    color: COLORS.orange,
+  },
+  // Add Custom Card
+  addCard: {
+    borderStyle: 'dashed',
+  },
+  addIcon: {
+    fontSize: 48,
+    color: COLORS.orange,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  addText: {
+    ...TYPOGRAPHY.bodyBold,
+    color: COLORS.orange,
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  addSubtext: {
+    ...TYPOGRAPHY.caption,
     color: COLORS.textSecondary,
-    fontStyle: 'italic',
+    textAlign: 'center',
+  },
+  // Info Panel
+  infoPanel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: COLORS.bgCard,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  infoIcon: {
+    fontSize: 20,
+    marginRight: 10,
+  },
+  infoText: {
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textSecondary,
+    flex: 1,
   },
 });

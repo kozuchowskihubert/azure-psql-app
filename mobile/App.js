@@ -8,6 +8,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { WebAudioBridgeComponent } from './src/audio/WebAudioBridge';
 
+// NEW REFACTOR - SSO Persona & Main Navigation
+import WelcomeScreen from './src/screens/WelcomeScreen';
+import MainTabNavigator from './src/navigation/MainTabNavigator';
+import CreatorScreen from './src/screens/CreatorScreen';
+
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
@@ -70,6 +75,7 @@ import VocalsScreen from './src/screens/VocalsScreen';
 import ARP2600Screen from './src/screens/ARP2600Screen';
 import Juno106Screen from './src/screens/Juno106Screen';
 import MinimoogScreen from './src/screens/MinimoogScreen';
+import ModularSynthScreen from './src/screens/ModularSynthScreen';
 
 // DAW Screens
 import WorkspaceSelector from './src/screens/WorkspaceSelector';
@@ -83,7 +89,8 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function TabNavigator() {
+// OLD TAB NAVIGATOR - Deprecated (kept for backward compatibility)
+function TabNavigatorOld() {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -172,10 +179,27 @@ function TabNavigator() {
   );
 }
 
+// NEW APP NAVIGATOR - Refactored Flow
 function AppNavigator() {
+  const [welcomeCompleted, setWelcomeCompleted] = useState(null);
   const { user, isLoading } = useAuth();
 
-  if (isLoading) {
+  // Check if user has completed welcome persona selection
+  useEffect(() => {
+    checkWelcomeStatus();
+  }, []);
+
+  const checkWelcomeStatus = async () => {
+    try {
+      const completed = await AsyncStorage.getItem('welcomeCompleted');
+      setWelcomeCompleted(completed === 'true');
+    } catch (error) {
+      console.log('Error checking welcome status:', error);
+      setWelcomeCompleted(false);
+    }
+  };
+
+  if (isLoading || welcomeCompleted === null) {
     return null; // Or a loading screen
   }
 
@@ -183,12 +207,32 @@ function AppNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#0a0a0a',
+          backgroundColor: '#050508', // HAOS dark background
         },
-        headerTintColor: '#00ff94',
-        cardStyle: { backgroundColor: '#0a0a0a' },
+        headerTintColor: '#FF6B35', // HAOS orange
+        cardStyle: { backgroundColor: '#050508' },
       }}
     >
+      {/* NEW FLOW: Welcome Screen First (SSO Persona Selection) */}
+      {!welcomeCompleted ? (
+        <Stack.Screen 
+          name="Welcome" 
+          component={WelcomeScreen}
+          options={{ headerShown: false }}
+          listeners={{
+            focus: () => checkWelcomeStatus(), // Recheck when screen focuses
+          }}
+        />
+      ) : null}
+      
+      {/* MAIN APP - 6 Tab Navigation */}
+      <Stack.Screen 
+        name="Main" 
+        component={MainTabNavigator}
+        options={{ headerShown: false }}
+      />
+      
+      {/* OLD FLOW - Kept for Legacy Support */}
       {!user ? (
         <>
           <Stack.Screen 
@@ -204,9 +248,10 @@ function AppNavigator() {
         </>
       ) : (
         <>
+          {/* LEGACY TAB NAVIGATOR - For backward compatibility */}
           <Stack.Screen 
-            name="Main" 
-            component={TabNavigator}
+            name="MainOld" 
+            component={TabNavigatorOld}
             options={{ headerShown: false }}
           />
           <Stack.Screen 
@@ -547,9 +592,17 @@ function AppNavigator() {
           />
           <Stack.Screen 
             name="ModularSynth" 
-            component={ModularWorkspaceScreen}
+            component={ModularSynthScreen}
             options={{ 
               title: 'MODULAR SYNTH',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="ModularWorkspace" 
+            component={ModularWorkspaceScreen}
+            options={{ 
+              title: 'MODULAR WORKSPACE',
               headerShown: false,
             }}
           />
