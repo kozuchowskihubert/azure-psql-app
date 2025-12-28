@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HAOS Audio Engine</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      font-size: 10px;
+    }
+    #status {
+      padding: 4px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.9);
+      border-bottom: 1px solid #0f0;
+    }
+  </style>
+</head>
+<body>
+  <div id="status">🎵 HAOS Audio Engine v1.0</div>
+  
+  <script>
+    console.log('🎵 HAOS Audio Engine loading...');
+    
+    // ========================================
+    // AUDIO CONTEXT & NODES
+    // ========================================
+    
+    let audioContext;
+    let masterGain;
+    let filterNode;
+    let distortionNode;
+    let reverbNode;
+    let dryGain;
+    let wetGain;
+    let analyserNode;
+    let delayNode;
+    let feedbackGain;
+    let compressorNode;
+    
+    // Waveform update interval
+    let waveformInterval = null;
+    
+    // Synth parameters
+    let synthParams = {
+      cutoff: 1000,
+      resonance: 5,
+      attack: 0.01,
+      release: 0.1,
+      distortion: 0,
+      reverb: 0,
+      waveform: 'sawtooth',
+    };
+    
+    // Drum parameters
+    let kickParams = {
+      pitch: 150,
+      decay: 0.3,
+    };
+    
+    let snareParams = {
+      tone: 0.2,
+    };
+    
+    let hihatParams = {
+      decay: 0.05,
+    };
+    
+    // ========================================
+    // INITIALIZATION
+    // ========================================
+    
+    function initAudio() {
+      if (audioContext) {
+        console.log('✅ Audio already initialized');
+        return;
+      }
+      
+      try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log('✅ AudioContext created');
+        
+        // Master gain
+        masterGain = audioContext.createGain();
+        masterGain.gain.value = 0.7;
+        
+        // Filter (lowpass)
+        filterNode = audioContext.createBiquadFilter();
+        filterNode.type = 'lowpass';
+        filterNode.frequency.value = synthParams.cutoff;
+        filterNode.Q.value = synthParams.resonance;
+        
+        // Distortion
+        distortionNode = audioContext.createWaveShaper();
+        distortionNode.curve = makeDistortionCurve(0);
+        distortionNode.oversample = '4x';
+        
+        // Reverb (convolver)
+        reverbNode = audioContext.createConvolver();
+        createReverbImpulse();
+        
+        // Dry/Wet mix for reverb
+        dryGain = audioContext.createGain();
+        wetGain = audioContext.createGain();
+        dryGain.gain.value = 1;
+        wetGain.gain.value = 0;
+        
+        // Delay
+        delayNode = audioContext.createDelay(2.0);
+        feedbackGain = audioContext.createGain();
+        delayNode.delayTime.value = 0.5;
+        feedbackGain.gain.value = 0.4;
+        
+        // Compressor
+        compressorNode = audioContext.createDynamicsCompressor();
+        compressorNode.threshold.value = -24;
+        compressorNode.knee.value = 30;
+        compressorNode.ratio.value = 12;
+        compressorNode.attack.value = 0.003;
+        compressorNode.release.value = 0.25;
+        
+        // Analyser for visualization
+        analyserNode = audioContext.createAnalyser();
+        analyserNode.fftSize = 2048;
+        analyserNode.smoothingTimeConstant = 0.8;
+        
+        // Connect chain: filter → distortion → (dry + reverb) → compressor → master → analyser → destination
+        filterNode.connect(distortionNode);
+        distortionNode.connect(dryGain);
+        distortionNode.connect(reverbNode);
+        reverbNode.connect(wetGain);
+        dryGain.connect(compressorNode);
+        wetGain.connect(compressorNode);
+        compressorNode.connect(masterGain);
+        masterGain.connect(analyserNode);
+        analyserNode.connect(audioContext.destination);
+        
+        console.log('✅ Audio engine initialized');
+        updateStatus('✅ Audio Ready');
+        
+        // Notify React Native that we're ready
+        sendMessage('ready', { sampleRate: audioContext.sampleRate });
+        
+      } catch (error) {
+        console.error('❌ Audio initialization failed:', error);
+        updateStatus('❌ Audio Failed');
+        sendMessage('error', { message: error.message });
+      }
+    }
+    
+    // ========================================
+    // DISTORTION CURVE
+    // ========================================
+    
+    function makeDistortionCurve(amount) {
+      const samples = 44100;
+      const curve = new Float32Array(samples);
+      const deg = Math.PI / 180;
+      
+      for (let i = 0; i < samples; i++) {
+        const x = (i * 2) / samples - 1;
+        curve[i] = ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
+      }
+      
+      return curve;
+    }
+    
+    // ========================================
+    // REVERB IMPULSE RESPONSE
+    // ========================================
+    
+    function createReverbImpulse() {
+      const duration = 2;
+      const decay = 2;
+      const rate = audioContext.sampleRate;
+      const length = rate * duration;
+      const impulse = audioContext.createBuffer(2, length, rate);
+      
+      for (let channel = 0; channel < 2; channel++) {
+        const channelData = impulse.getChannelData(channel);
+        for (let i = 0; i < length; i++) {
+          channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+        }
+      }
+      
+      reverbNode.buffer = impulse;
+      console.log('✅ Reverb impulse created');
+    }
+    
+    // ========================================
+    // DRUM SYNTHESIS
+    // ========================================
+    
+    function playKick(params = {}) {
+      initAudio();
+      
+      const pitch = params.pitch || kickParams.pitch;
+      const decay = params.decay || kickParams.decay;
+      
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(pitch, audioContext.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.1);
+      
+      gain.gain.setValueAtTime(1, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + decay);
+      
+      osc.connect(gain);
+      gain.connect(filterNode);
+      
+      osc.start(audioContext.currentTime);
+      osc.stop(audioContext.currentTime + decay);
+      
+      console.log('🥁 Kick', { pitch, decay });
+      sendMessage('soundPlayed', { sound: 'kick', pitch, decay });
+    }
+    
+    function playSnare(params = {}) {
+      initAudio();
+      
+      const tone = params.tone || snareParams.tone;
+      
+      // Noise component
+      const noise = audioContext.createBufferSource();
+      const buffer = audioContext.createBuffer(1, audioContext.sampleRate * tone, audioContext.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < buffer.length; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      noise.buffer = buffer;
+      
+      const gain = audioContext.createGain();
+      gain.gain.setValueAtTime(0.5, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + tone);
+      
+      noise.connect(gain);
+      gain.connect(filterNode);
+      
+      noise.start(audioContext.currentTime);
+      
+      console.log('🥁 Snare', { tone });
+      sendMessage('soundPlayed', { sound: 'snare', tone });
+    }
+    
+    function playHiHat(params = {}) {
+      initAudio();
+      
+      const decay = params.decay || hihatParams.decay;
+      
+      // High-frequency noise
+      const noise = audioContext.createBufferSource();
+      const buffer = audioContext.createBuffer(1, audioContext.sampleRate * decay, audioContext.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < buffer.length; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      noise.buffer = buffer;
+      
+      // High-pass filter
+      const highpass = audioContext.createBiquadFilter();
+      highpass.type = 'highpass';
+      highpass.frequency.value = 7000;
+      
+      const gain = audioContext.createGain();
+      gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + decay);
+      
+      noise.connect(highpass);
+      highpass.connect(gain);
+      gain.connect(filterNode);
+      
+      noise.start(audioContext.currentTime);
+      
+      console.log('🔔 HiHat', { decay });
+      sendMessage('soundPlayed', { sound: 'hihat', decay });
+    }
+    
+    function playClap() {
+      initAudio();
+      
+      // Multiple short noise bursts
+      const times = [0, 0.015, 0.030];
+      times.forEach(offset => {
+        const noise = audioContext.createBufferSource();
+        const buffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.05, audioContext.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < buffer.length; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        noise.buffer = buffer;
+        
+        const gain = audioContext.createGain();
+        gain.gain.setValueAtTime(0.4, audioContext.currentTime + offset);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + offset + 0.05);
+        
+        noise.connect(gain);
+        gain.connect(filterNode);
+        noise.start(audioContext.currentTime + offset);
+      });
+      
+      console.log('👏 Clap');
+      sendMessage('soundPlayed', { sound: 'clap' });
+    }
+    
+    // ========================================
+    // BASS/SYNTH SYNTHESIS
+    // ========================================
+    
+    function playBass(params = {}) {
+      initAudio();
+      
+      const frequency = params.frequency || 130.81;
+      const duration = params.duration || 0.2;
+      
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      
+      osc.type = synthParams.waveform;
+      osc.frequency.value = frequency;
+      
+      const attack = synthParams.attack;
+      const release = synthParams.release;
+      
+      gain.gain.setValueAtTime(0, audioContext.currentTime);
+      gain.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + attack);
+      gain.gain.setValueAtTime(0.5, audioContext.currentTime + duration - release);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+      
+      osc.connect(gain);
+      gain.connect(filterNode);
+      
+      osc.start(audioContext.currentTime);
+      osc.stop(audioContext.currentTime + duration);
+      
+      console.log('🎸 Bass', { frequency, duration });
+      sendMessage('soundPlayed', { sound: 'bass', frequency, duration });
+    }
+    
+    function playSynthNote(params = {}) {
+      initAudio();
+      
+      const frequency = params.frequency || 440;
+      const duration = params.duration || 0.5;
+      
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      
+      osc.type = synthParams.waveform;
+      osc.frequency.value = frequency;
+      
+      const attack = synthParams.attack;
+      const release = synthParams.release;
+      
+      gain.gain.setValueAtTime(0, audioContext.currentTime);
+      gain.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + attack);
+      gain.gain.setValueAtTime(0.3, audioContext.currentTime + duration - release);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+      
+      osc.connect(gain);
+      gain.connect(filterNode);
+      
+      osc.start(audioContext.currentTime);
+      osc.stop(audioContext.currentTime + duration);
+      
+      console.log('🎹 Synth', { frequency, duration });
+      sendMessage('soundPlayed', { sound: 'synth', frequency, duration });
+    }
+    
+    // ========================================
+    // EFFECTS CONTROL
+    // ========================================
+    
+    function setFilter(params = {}) {
+      initAudio();
+      filterNode.type = params.type || 'lowpass';
+      filterNode.frequency.value = params.frequency || 1000;
+      filterNode.Q.value = params.Q || 5;
+      console.log('🎚️ Filter', params);
+    }
+    
+    function setDistortion(params = {}) {
+      initAudio();
+      const amount = params.amount || 0;
+      synthParams.distortion = amount;
+      distortionNode.curve = makeDistortionCurve(amount / 100 * 50);
+      console.log('⚡ Distortion', amount);
+    }
+    
+    function setReverb(params = {}) {
+      initAudio();
+      const amount = params.amount || 0;
+      synthParams.reverb = amount;
+      const wetAmount = amount / 100;
+      wetGain.gain.value = wetAmount;
+      dryGain.gain.value = 1 - (wetAmount * 0.5);
+      console.log('🌊 Reverb', amount);
+    }
+    
+    function setDelay(params = {}) {
+      initAudio();
+      delayNode.delayTime.value = params.time || 0.5;
+      feedbackGain.gain.value = params.feedback || 0.4;
+      console.log('🔁 Delay', params);
+    }
+    
+    function setCompression(params = {}) {
+      initAudio();
+      compressorNode.threshold.value = params.threshold || -24;
+      compressorNode.ratio.value = params.ratio || 12;
+      compressorNode.attack.value = params.attack || 0.003;
+      compressorNode.release.value = params.release || 0.25;
+      console.log('📦 Compression', params);
+    }
+    
+    // ========================================
+    // SYNTH PARAMETERS
+    // ========================================
+    
+    function updateSynthParam(params = {}) {
+      const { param, value } = params;
+      if (synthParams.hasOwnProperty(param)) {
+        synthParams[param] = value;
+        console.log(`🎛️ ${param}: ${value}`);
+        
+        // Update audio nodes
+        if (param === 'cutoff' && filterNode) {
+          filterNode.frequency.value = value;
+        } else if (param === 'resonance' && filterNode) {
+          filterNode.Q.value = value;
+        } else if (param === 'distortion' && distortionNode) {
+          distortionNode.curve = makeDistortionCurve(value / 100 * 50);
+        } else if (param === 'reverb' && wetGain && dryGain) {
+          const wetAmount = value / 100;
+          wetGain.gain.value = wetAmount;
+          dryGain.gain.value = 1 - (wetAmount * 0.5);
+        }
+      }
+    }
+    
+    function setADSR(params = {}) {
+      synthParams.attack = params.attack || 0.01;
+      synthParams.decay = params.decay || 0.1;
+      synthParams.sustain = params.sustain || 0.7;
+      synthParams.release = params.release || 0.1;
+      console.log('📈 ADSR', params);
+    }
+    
+    function setWaveform(params = {}) {
+      synthParams.waveform = params.waveform || 'sawtooth';
+      console.log('〰️ Waveform', params.waveform);
+    }
+    
+    // ========================================
+    // VISUALIZATION
+    // ========================================
+    
+    function getWaveform() {
+      if (!analyserNode) {
+        initAudio();
+      }
+      
+      const bufferLength = analyserNode.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      analyserNode.getByteTimeDomainData(dataArray);
+      
+      // Downsample to 50 bars for mobile
+      const bars = 50;
+      const step = Math.floor(bufferLength / bars);
+      const waveform = [];
+      
+      for (let i = 0; i < bars; i++) {
+        const index = i * step;
+        const normalized = (dataArray[index] - 128) / 128;
+        waveform.push(Math.abs(normalized));
+      }
+      
+      sendMessage('waveform', { data: waveform });
+    }
+    
+    function getAudioLevel() {
+      if (!analyserNode) {
+        initAudio();
+        sendMessage('audioLevel', { db: -Infinity });
+        return;
+      }
+      
+      const bufferLength = analyserNode.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      analyserNode.getByteTimeDomainData(dataArray);
+      
+      // Calculate RMS
+      let sum = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        const normalized = (dataArray[i] - 128) / 128;
+        sum += normalized * normalized;
+      }
+      const rms = Math.sqrt(sum / bufferLength);
+      const db = rms > 0 ? 20 * Math.log10(rms) : -Infinity;
+      
+      sendMessage('audioLevel', { db, rms });
+    }
+    
+    function startWaveformUpdates(params = {}) {
+      const interval = params.interval || 50;
+      
+      if (waveformInterval) {
+        clearInterval(waveformInterval);
+      }
+      
+      waveformInterval = setInterval(() => {
+        getWaveform();
+        getAudioLevel();
+      }, interval);
+      
+      console.log('📊 Waveform updates started', interval + 'ms');
+    }
+    
+    function stopWaveformUpdates() {
+      if (waveformInterval) {
+        clearInterval(waveformInterval);
+        waveformInterval = null;
+        console.log('📊 Waveform updates stopped');
+      }
+    }
+    
+    // ========================================
+    // MASTER CONTROLS
+    // ========================================
+    
+    function setMasterVolume(params = {}) {
+      initAudio();
+      masterGain.gain.value = params.volume || 0.7;
+      console.log('🔊 Master volume', params.volume);
+    }
+    
+    // ========================================
+    // COMMUNICATION
+    // ========================================
+    
+    function sendMessage(type, payload = {}) {
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type, payload }));
+      } else {
+        console.log('📤', type, payload);
+      }
+    }
+    
+    function updateStatus(text) {
+      document.getElementById('status').textContent = text;
+    }
+    
+    // ========================================
+    // COMMAND PROCESSOR
+    // ========================================
+    
+    window.processCommand = function(message) {
+      try {
+        const { command, params } = message;
+        console.log('📥 Command:', command, params);
+        
+        switch (command) {
+          case 'initAudio':
+            initAudio();
+            break;
+          case 'setMasterVolume':
+            setMasterVolume(params);
+            break;
+          case 'playKick':
+            playKick(params);
+            break;
+          case 'playSnare':
+            playSnare(params);
+            break;
+          case 'playHiHat':
+            playHiHat(params);
+            break;
+          case 'playClap':
+            playClap();
+            break;
+          case 'playBass':
+            playBass(params);
+            break;
+          case 'playSynthNote':
+            playSynthNote(params);
+            break;
+          case 'setFilter':
+            setFilter(params);
+            break;
+          case 'setDistortion':
+            setDistortion(params);
+            break;
+          case 'setReverb':
+            setReverb(params);
+            break;
+          case 'setDelay':
+            setDelay(params);
+            break;
+          case 'setCompression':
+            setCompression(params);
+            break;
+          case 'updateSynthParam':
+            updateSynthParam(params);
+            break;
+          case 'setADSR':
+            setADSR(params);
+            break;
+          case 'setWaveform':
+            setWaveform(params);
+            break;
+          case 'getWaveform':
+            getWaveform();
+            break;
+          case 'getAudioLevel':
+            getAudioLevel();
+            break;
+          case 'startWaveformUpdates':
+            startWaveformUpdates(params);
+            break;
+          case 'stopWaveformUpdates':
+            stopWaveformUpdates();
+            break;
+          default:
+            console.warn('⚠️ Unknown command:', command);
+        }
+      } catch (error) {
+        console.error('❌ Command error:', error);
+        sendMessage('error', { message: error.message, command: message.command });
+      }
+    };
+    
+    // ========================================
+    // AUTO-INIT
+    // ========================================
+    
+    // Auto-initialize on load
+    window.addEventListener('load', () => {
+      console.log('🎵 Audio engine loaded');
+      updateStatus('⏳ Loading...');
+      
+      // Small delay to ensure everything is ready
+      setTimeout(() => {
+        initAudio();
+      }, 100);
+    });
+    
+    console.log('✅ Audio engine script loaded');
+  </script>
+</body>
+</html>
