@@ -14,7 +14,7 @@ import StudioScreenNew from '../screens/StudioScreenNew';
 import InstrumentsScreen from '../screens/InstrumentsScreen';
 import SoundsScreen from '../screens/SoundsScreen';
 import DocuScreen from '../screens/DocuScreen';
-import AccountScreen from '../screens/AccountScreen';
+import AccountScreenNew from '../screens/AccountScreenNew';
 
 const Tab = createBottomTabNavigator();
 
@@ -137,7 +137,7 @@ function MainTabNavigator({ route }) {
       />
       <Tab.Screen
         name="Account"
-        component={AccountScreen}
+        component={AccountScreenNew}
         options={{
           tabBarLabel: 'ACCOUNT',
           title: 'ACCOUNT',
