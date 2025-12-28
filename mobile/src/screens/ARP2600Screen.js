@@ -17,6 +17,7 @@ import arp2600Bridge from '../synths/ARP2600Bridge';
 import nativeAudioContext from '../audio/NativeAudioContext';
 import Knob from '../components/Knob';
 import Oscilloscope from '../components/Oscilloscope';
+import UniversalSequencer from '../components/UniversalSequencer';
 
 const { width } = Dimensions.get('window');
 
@@ -58,6 +59,10 @@ const ARP2600Screen = ({ navigation }) => {
   const [release, setRelease] = useState(0.3);
   const [activeNotes, setActiveNotes] = useState(new Set());
   const [waveformData, setWaveformData] = useState([]);
+  
+  // Sequencer state
+  const [sequencerPlaying, setSequencerPlaying] = useState(false);
+  const [bpm, setBpm] = useState(120);
   
   // Modulation parameters (for LFO and noise)
   const [lfoRate, setLFORate] = useState(5.0);
@@ -161,6 +166,17 @@ const ARP2600Screen = ({ navigation }) => {
       newSet.delete(note);
       return newSet;
     });
+  };
+
+  // Sequencer note handler
+  const handleSequencerNote = (midiNote) => {
+    // Convert MIDI note to frequency
+    const frequency = 440 * Math.pow(2, (midiNote - 69) / 12);
+    const noteName = `MIDI${midiNote}`;
+    
+    // Play note through ARP2600 bridge
+    arp2600Bridge.playNote(midiNote, 1.0, 0.25);
+    console.log(`🎵 Sequencer: MIDI ${midiNote} @ ${frequency.toFixed(2)}Hz`);
   };
 
   // Knob change handlers - update both state and bridge
@@ -785,6 +801,48 @@ const ARP2600Screen = ({ navigation }) => {
           </Text>
         </View>
 
+        {/* Universal Sequencer */}
+        <UniversalSequencer
+          isPlaying={sequencerPlaying}
+          bpm={bpm}
+          onPlayNote={handleSequencerNote}
+          color={HAOS_COLORS.orange}
+          title="ARP 2600 SEQUENCER"
+        />
+
+        {/* Sequencer Controls */}
+        <View style={styles.section}>
+          <View style={styles.sequencerControls}>
+            <TouchableOpacity
+              onPress={() => setSequencerPlaying(!sequencerPlaying)}
+              style={[styles.transportButton, sequencerPlaying && styles.transportButtonActive]}
+            >
+              <Text style={styles.transportButtonText}>
+                {sequencerPlaying ? '⏸ STOP' : '▶ PLAY'}
+              </Text>
+            </TouchableOpacity>
+            
+            <View style={styles.bpmControl}>
+              <Text style={styles.bpmLabel}>BPM</Text>
+              <View style={styles.bpmButtons}>
+                <TouchableOpacity
+                  onPress={() => setBpm(Math.max(60, bpm - 5))}
+                  style={styles.bpmButton}
+                >
+                  <Text style={styles.bpmButtonText}>−</Text>
+                </TouchableOpacity>
+                <Text style={styles.bpmValue}>{bpm}</Text>
+                <TouchableOpacity
+                  onPress={() => setBpm(Math.min(200, bpm + 5))}
+                  style={styles.bpmButton}
+                >
+                  <Text style={styles.bpmButtonText}>+</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+
         {/* Keyboard */}
         <View style={styles.keyboardSection}>
           <Text style={styles.sectionTitle}>🎹 KEYBOARD</Text>
@@ -802,6 +860,7 @@ const ARP2600Screen = ({ navigation }) => {
             🎸 Classic modular synth • Aggressive resonant filter • Perfect for techno leads
           </Text>
         </View>
+
       </ScrollView>
     </View>
   );
@@ -1150,6 +1209,69 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: 'bold',
     letterSpacing: 1,
+  },
+  sequencerControls: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: 'rgba(255,107,53,0.1)',
+    borderRadius: 12,
+    marginTop: 8,
+  },
+  transportButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(0,255,148,0.2)',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'rgba(0,255,148,0.3)',
+  },
+  transportButtonActive: {
+    backgroundColor: 'rgba(0,255,148,0.3)',
+    borderColor: '#00ff94',
+  },
+  transportButtonText: {
+    color: '#00ff94',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  bpmControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  bpmLabel: {
+    color: HAOS_COLORS.orange,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  bpmButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  bpmButton: {
+    width: 36,
+    height: 36,
+    backgroundColor: 'rgba(255,107,53,0.2)',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'rgba(255,107,53,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bpmButtonText: {
+    color: HAOS_COLORS.orange,
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  bpmValue: {
+    color: HAOS_COLORS.orange,
+    fontSize: 24,
+    fontWeight: 'bold',
+    minWidth: 60,
+    textAlign: 'center',
   },
 });
 

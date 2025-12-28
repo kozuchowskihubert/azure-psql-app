@@ -10,6 +10,8 @@ import {
   StyleSheet,
   PanResponder,
   Animated,
+  TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
@@ -25,6 +27,8 @@ const Knob = ({
   unit = '',
 }) => {
   const [displayValue, setDisplayValue] = useState(value);
+  const [isEditingValue, setIsEditingValue] = useState(false);
+  const [inputValue, setInputValue] = useState(String(value));
   const rotation = useRef(new Animated.Value(0)).current;
   const lastAngle = useRef(0);
 
@@ -48,13 +52,13 @@ const Knob = ({
         const angle = Math.atan2(dy, dx);
         const deltaAngle = angle - lastAngle.current;
         
-        // MUCH higher sensitivity for touch control
-        const sensitivity = 8.0; // Increased from 0.5 -> 2.0 -> 8.0
+        // Lower sensitivity for finer control
+        const sensitivity = 2.5; // Reduced from 8.0 for more precise adjustments
         const delta = -dy * sensitivity;
         
-        // Calculate new value
+        // Calculate new value with finer granularity
         const range = max - min;
-        const newValue = Math.max(min, Math.min(max, displayValue + (delta / 20) * range)); // Changed from 100 -> 50 -> 20
+        const newValue = Math.max(min, Math.min(max, displayValue + (delta / 50) * range)); // Changed from 20 -> 50 for finer control
         const snappedValue = Math.round(newValue / step) * step;
         
         if (snappedValue !== displayValue) {
@@ -93,6 +97,36 @@ const Knob = ({
       },
     })
   ).current;
+
+  const handleManualInput = () => {
+    const numValue = parseFloat(inputValue);
+    if (!isNaN(numValue)) {
+      const clampedValue = Math.max(min, Math.min(max, numValue));
+      const snappedValue = Math.round(clampedValue / step) * step;
+      setDisplayValue(snappedValue);
+      setInputValue(String(snappedValue));
+      
+      if (onChange) {
+        onChange(snappedValue);
+      }
+      
+      // Update rotation
+      const normalizedValue = (snappedValue - min) / (max - min);
+      const rotationDegrees = -135 + (normalizedValue * 270);
+      Animated.spring(rotation, {
+        toValue: rotationDegrees,
+        useNativeDriver: true,
+        tension: 40,
+        friction: 8,
+      }).start();
+      
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } else {
+      // Reset to current value if invalid
+      setInputValue(String(displayValue));
+    }
+    setIsEditingValue(false);
+  };
 
   const rotateInterpolate = rotation.interpolate({
     inputRange: [-135, 135],
@@ -166,10 +200,28 @@ const Knob = ({
       {/* Label */}
       <Text style={styles.label}>{label}</Text>
       
-      {/* Value display */}
-      <Text style={[styles.value, { color }]}>
-        {displayValue.toFixed(step < 1 ? 1 : 0)}{unit}
-      </Text>
+      {/* Value display or input */}
+      {isEditingValue ? (
+        <TextInput
+          style={[styles.valueInput, { color, borderColor: color }]}
+          value={inputValue}
+          onChangeText={setInputValue}
+          onBlur={handleManualInput}
+          onSubmitEditing={handleManualInput}
+          keyboardType="decimal-pad"
+          selectTextOnFocus
+          autoFocus
+        />
+      ) : (
+        <TouchableOpacity onPress={() => {
+          setIsEditingValue(true);
+          setInputValue(String(displayValue));
+        }}>
+          <Text style={[styles.value, { color }]}>
+            {displayValue.toFixed(step < 1 ? 1 : 0)}{unit}
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -213,6 +265,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 4,
+  },
+  valueInput: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderWidth: 2,
+    borderRadius: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    minWidth: 60,
+    textAlign: 'center',
   },
 });
 
