@@ -7,6 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import UniversalSequencer from '../components/UniversalSequencer';
 import ML185Sequencer from '../sequencer/ML185Sequencer';
 import Keyboard from '../components/Keyboard';
+import nativeAudioContext from '../audio/NativeAudioContext';
 import {
   View,
   Text,
@@ -31,19 +32,22 @@ const HAOS_COLORS = {
   mediumGray: '#2a2a2a',
 };
 
-// Dummy Prophet5Bridge for playNote (replace with real bridge if available)
+// Prophet5 audio bridge using nativeAudioContext
 const prophet5Bridge = {
   playNote: (midi, velocity = 1.0, duration = 0.3) => {
-    // TODO: Replace with real Prophet5 audio engine/bridge
-    if (global.nativeAudioContext && global.nativeAudioContext.playNote) {
-      global.nativeAudioContext.playNote(midi, velocity, duration);
-    } else {
-      console.log('Prophet5 playNote:', midi, velocity, duration);
-    }
+    nativeAudioContext.playNote(midi, velocity, duration);
   },
 };
 
 const Prophet5Screen = ({ navigation }) => {
+  // Initialize audio on mount
+  useEffect(() => {
+    console.log('🎹 Prophet5Screen: Initializing audio...');
+    nativeAudioContext.initialize().catch(err => {
+      console.error('❌ Prophet5Screen: Audio init failed:', err);
+    });
+  }, []);
+
   // Sequencer state
   const [isSequencerPlaying, setIsSequencerPlaying] = useState(false);
   const [sequencerBpm, setSequencerBpm] = useState(120);

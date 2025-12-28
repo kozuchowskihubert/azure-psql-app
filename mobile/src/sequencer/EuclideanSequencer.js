@@ -64,7 +64,7 @@ const EuclideanSequencer = ({
   maxSteps = 16,
 }) => {
   const [steps, setSteps] = useState(16);
-  const [pulses, setPulses] = useState(4);
+  const [pulses, setPulses] = useState(8); // Start with 8 pulses for demo
   const [rotation, setRotation] = useState(0);
   const [currentStep, setCurrentStep] = useState(-1);
   const [pattern, setPattern] = useState([]);
@@ -77,6 +77,7 @@ const EuclideanSequencer = ({
   useEffect(() => {
     const newPattern = generateEuclideanPattern(steps, pulses, rotation);
     setPattern(newPattern);
+    console.log(`🔄 Euclidean pattern generated: ${pulses} pulses in ${steps} steps`, newPattern);
   }, [steps, pulses, rotation]);
 
   // Sequencer engine
@@ -90,7 +91,11 @@ const EuclideanSequencer = ({
     let stepIndex = 0;
 
     const timer = setInterval(() => {
-      if (pattern[stepIndex] && onStepTrigger) {
+      const isHit = pattern[stepIndex];
+      console.log(`🎵 Euclidean Step ${stepIndex}: ${isHit ? 'HIT' : 'rest'}`);
+      
+      if (isHit && onStepTrigger) {
+        console.log(`🎹 Euclidean Triggering: MIDI 60, vel=0.8, dur=0.2s`);
         onStepTrigger({
           note: 60,
           velocity: 0.8,

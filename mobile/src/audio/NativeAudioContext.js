@@ -722,6 +722,79 @@ class NativeAudioContextManager {
   }
 
   /**
+   * Play a note with MIDI number (for sequencers and keyboards)
+   * @param {number} midi - MIDI note number (0-127)
+   * @param {number} velocity - Note velocity (0-1)
+   * @param {number} duration - Note duration in seconds
+   */
+  playNote(midi, velocity = 0.8, duration = 0.5) {
+    if (!this.isInitialized) {
+      console.warn('⚠️ Audio context not initialized, initializing now...');
+      this.initialize().then(() => {
+        this.playNoteInternal(midi, velocity, duration);
+      }).catch(err => {
+        console.error('❌ Failed to initialize audio for playNote:', err);
+      });
+      return;
+    }
+    
+    this.playNoteInternal(midi, velocity, duration);
+  }
+
+  playNoteInternal(midi, velocity, duration) {
+    if (!this.audioContext) {
+      console.error('❌ Audio context is null');
+      return;
+    }
+
+    try {
+      const now = this.audioContext.currentTime;
+      
+      // Convert MIDI to frequency: f = 440 * 2^((midi - 69) / 12)
+      const frequency = 440 * Math.pow(2, (midi - 69) / 12);
+      
+      // Create oscillator with simple synth sound
+      const osc = this.audioContext.createOscillator();
+      osc.type = 'sawtooth'; // Rich harmonic content
+      osc.frequency.value = frequency;
+      
+      // Create filter for more musical sound
+      const filter = this.audioContext.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = frequency * 4; // Follow pitch
+      filter.Q.value = 5;
+      
+      // Create gain envelope (ADSR-like)
+      const gainNode = this.audioContext.createGain();
+      const attack = 0.01;
+      const decay = 0.1;
+      const sustain = 0.6;
+      const release = 0.3;
+      
+      // Envelope
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(velocity * 0.5, now + attack);
+      gainNode.gain.linearRampToValueAtTime(velocity * sustain * 0.5, now + attack + decay);
+      gainNode.gain.setValueAtTime(velocity * sustain * 0.5, now + duration);
+      gainNode.gain.linearRampToValueAtTime(0.001, now + duration + release);
+      
+      // Connect audio graph
+      osc.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(this.masterGain);
+      
+      // Start and stop
+      osc.start(now);
+      osc.stop(now + duration + release);
+      
+      console.log(`🎹 playNote: MIDI ${midi} @ ${frequency.toFixed(2)}Hz, vel=${velocity.toFixed(2)}, dur=${duration.toFixed(2)}s`);
+      
+    } catch (error) {
+      console.error('❌ playNote error:', error);
+    }
+  }
+
+  /**
    * Convert note name to frequency
    */
   noteToFrequency(note) {

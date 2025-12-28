@@ -41,13 +41,14 @@ const ML185Sequencer = ({
   title = 'ML-185 SEQUENCER',
 }) => {
   // Step data: each step has velocity, gate, probability, and note
+  // Initialize with a demo pattern (steps 0, 4, 8, 12 active)
   const [stepData, setStepData] = useState(
     Array(steps).fill(null).map((_, i) => ({
-      active: false,
+      active: i % 4 === 0, // Every 4th step active by default
       velocity: 100,
       gate: 50,
       probability: 100,
-      note: 60, // Middle C
+      note: 60 + (i % 4) * 2, // Vary notes slightly
     }))
   );
 
@@ -90,9 +91,13 @@ const ML185Sequencer = ({
       // Check if step should trigger (based on probability)
       const shouldTrigger = step.active && (Math.random() * 100 <= step.probability);
 
+      console.log(`🎵 ML185 Step ${stepIndex}: active=${step.active}, shouldTrigger=${shouldTrigger}, note=${step.note}`);
+
       if (shouldTrigger && onStepTrigger) {
         // Calculate actual gate length in ms
         const gateDuration = (getStepDuration(stepIndex) * step.gate) / 100;
+        
+        console.log(`🎹 ML185 Triggering: MIDI ${step.note}, vel=${step.velocity / 100}, dur=${(gateDuration / 1000).toFixed(3)}s`);
         
         onStepTrigger({
           note: step.note,

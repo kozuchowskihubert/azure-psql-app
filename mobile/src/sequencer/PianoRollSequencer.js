@@ -67,9 +67,16 @@ const PianoRollSequencer = ({
   steps = 16,
 }) => {
   // Grid: 2D array [note][step] = velocity or null
-  const [grid, setGrid] = useState(
-    NOTES.map(() => Array(steps).fill(null))
-  );
+  // Initialize with a demo melody
+  const [grid, setGrid] = useState(() => {
+    const initialGrid = NOTES.map(() => Array(steps).fill(null));
+    // Add a simple demo melody (C4-E4-G4-C5 pattern)
+    initialGrid[12][0] = 0.8; // C4 at step 0
+    initialGrid[8][4] = 0.8;  // E4 at step 4
+    initialGrid[5][8] = 0.8;  // G4 at step 8
+    initialGrid[0][12] = 0.8; // C5 at step 12
+    return initialGrid;
+  });
   const [currentStep, setCurrentStep] = useState(-1);
   const [selectedTool, setSelectedTool] = useState('draw'); // 'draw', 'erase'
 
@@ -96,9 +103,12 @@ const PianoRollSequencer = ({
         }))
         .filter(note => note.velocity !== null);
 
+      console.log(`🎵 Piano Roll Step ${stepIndex}: ${activeNotes.length} notes`);
+
       // Trigger all active notes
       if (activeNotes.length > 0 && onStepTrigger) {
         activeNotes.forEach(note => {
+          console.log(`🎹 Piano Roll Triggering: MIDI ${note.midi}, vel=${note.velocity.toFixed(2)}, dur=0.25s`);
           onStepTrigger({
             note: note.midi,
             velocity: note.velocity,
