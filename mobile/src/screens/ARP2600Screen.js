@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import arp2600Bridge from '../synths/ARP2600Bridge';
 import nativeAudioContext from '../audio/NativeAudioContext';
 import Knob from '../components/Knob';
+import Oscilloscope from '../components/Oscilloscope';
 
 const { width } = Dimensions.get('window');
 
@@ -56,6 +57,64 @@ const ARP2600Screen = ({ navigation }) => {
   const [sustain, setSustain] = useState(0.7);
   const [release, setRelease] = useState(0.3);
   const [activeNotes, setActiveNotes] = useState(new Set());
+  const [waveformData, setWaveformData] = useState([]);
+  
+  // Modulation parameters (for LFO and noise)
+  const [lfoRate, setLFORate] = useState(5.0);
+  const [lfoDepth, setLFODepth] = useState(0.5);
+  const [noiseLevel, setNoiseLevel] = useState(0.3);
+  
+  // Patch Bay System (inspired by Behringer 2600 HTML)
+  const [patchMode, setPatchMode] = useState(false);
+  const [selectedPatch, setSelectedPatch] = useState(null);
+  const [patches, setPatches] = useState([
+    // Default patches (pre-patched like ARP 2600)
+    { from: 'vco1-saw', to: 'vcf', color: '#FF6B35' },
+    { from: 'vco2-saw', to: 'vcf', color: '#00D9FF' },
+    { from: 'adsr', to: 'vca', color: '#00ff94' },
+  ]);
+  
+  // Enhanced patch points with waveform-specific outputs
+  const patchPoints = {
+    // Oscillator Outputs (Waveform-Specific)
+    'vco1-saw': { type: 'output', label: 'VCO1 SAW', color: '#FF6B35', icon: '📐' },
+    'vco1-pulse': { type: 'output', label: 'VCO1 PULSE', color: '#FF8C5A', icon: '⬜' },
+    'vco2-saw': { type: 'output', label: 'VCO2 SAW', color: '#00D9FF', icon: '📐' },
+    'vco2-tri': { type: 'output', label: 'VCO2 TRI', color: '#5AE4FF', icon: '△' },
+    'vco3-sine': { type: 'output', label: 'VCO3 SINE', color: '#FFD700', icon: '〰️' },
+    
+    // Modulation Outputs
+    adsr: { type: 'output', label: 'ADSR ENV', color: '#00ff94', icon: '📈' },
+    lfo: { type: 'output', label: 'LFO', color: '#9D4EDD', icon: '🌀' },
+    
+    // Noise Outputs (Separate White/Pink)
+    'noise-white': { type: 'output', label: 'WHITE NOISE', color: '#B0B0B0', icon: '❄️' },
+    'noise-pink': { type: 'output', label: 'PINK NOISE', color: '#FFB6D9', icon: '🌸' },
+    
+    // Input Destinations (Audio Paths)
+    vcf: { type: 'input', label: 'VCF AUDIO', color: '#00ff94', icon: '🎚️' },
+    vca: { type: 'input', label: 'VCA AUDIO', color: '#00ff94', icon: '🔊' },
+    'mixer-in': { type: 'input', label: 'MIXER IN', color: '#FFB347', icon: '🎛️' },
+    
+    // Input Destinations (CV Modulation)
+    'vcf-cv': { type: 'input', label: 'VCF CV', color: '#5AFF5A', icon: '⚡' },
+    'vca-cv': { type: 'input', label: 'VCA CV', color: '#5AFF5A', icon: '⚡' },
+    'fm1': { type: 'input', label: 'VCO1 FM', color: '#FF6B35', icon: '🎵' },
+    'fm2': { type: 'input', label: 'VCO2 FM', color: '#00D9FF', icon: '🎵' },
+    'ringMod': { type: 'input', label: 'RING MOD', color: '#FF006E', icon: '💍' },
+  };
+  
+  // Generate waveform data based on current parameters
+  const updateWaveform = () => {
+    const points = 100;
+    const data = Array.from({ length: points }, (_, i) => {
+      // Combine saw and square waves based on oscillator levels
+      const sawWave = (2 * (i / points) - 1) * osc1Level;
+      const squareWave = (Math.sin((i / points) * Math.PI * 8) > 0 ? 1 : -1) * osc2Level;
+      return sawWave + squareWave;
+    });
+    setWaveformData(data);
+  };
 
   useEffect(() => {
     initializeSynth();
@@ -64,6 +123,18 @@ const ARP2600Screen = ({ navigation }) => {
       activeNotes.forEach(note => stopNote(note));
     };
   }, []);
+  
+  // Update waveform when oscillator parameters change
+  useEffect(() => {
+    updateWaveform();
+  }, [osc1Level, osc2Level, osc2Detune]);
+  
+  // Update audio routing when patches change
+  useEffect(() => {
+    if (arp2600Bridge.isInitialized) {
+      arp2600Bridge.updatePatchRouting(patches);
+    }
+  }, [patches]);
 
   const initializeSynth = async () => {
     try {
@@ -142,6 +213,232 @@ const ARP2600Screen = ({ navigation }) => {
     const releaseTime = value * 5; // Knob 0-1, time 0-5s
     setRelease(releaseTime);
     arp2600Bridge.setRelease(releaseTime);
+  };
+  
+  // Modulation handlers
+  const handleLFORateChange = (value) => {
+    const rate = value * 20; // 0-20 Hz
+    setLFORate(rate);
+    arp2600Bridge.setLFORate(rate);
+  };
+  
+  const handleLFODepthChange = (value) => {
+    setLFODepth(value);
+    arp2600Bridge.setLFODepth(value);
+  };
+  
+  const handleNoiseLevelChange = (value) => {
+    setNoiseLevel(value);
+    arp2600Bridge.setNoiseLevel(value);
+  };
+  
+  // Patch Bay Functions (inspired by Behringer 2600 HTML interactive patching)
+  const handlePatchPointPress = (pointId) => {
+    if (!patchMode) return;
+    
+    const point = patchPoints[pointId];
+    
+    if (!selectedPatch) {
+      // First selection - must be an output
+      if (point.type === 'output') {
+        setSelectedPatch({ from: pointId, fromLabel: point.label, fromColor: point.color });
+      }
+    } else {
+      // Second selection - must be an input
+      if (point.type === 'input') {
+        // Create patch
+        const newPatch = {
+          from: selectedPatch.from,
+          to: pointId,
+          color: selectedPatch.fromColor,
+          id: Date.now(),
+        };
+        
+        setPatches(prev => [...prev, newPatch]);
+        applyPatchRouting(newPatch);
+        setSelectedPatch(null);
+      } else {
+        // If output selected again, change selection
+        setSelectedPatch({ from: pointId, fromLabel: point.label, fromColor: point.color });
+      }
+    }
+  };
+  
+  const removePatch = (patchId) => {
+    setPatches(prev => prev.filter(p => p.id !== patchId));
+  };
+  
+  const clearAllPatches = () => {
+    setPatches([]);
+    setSelectedPatch(null);
+  };
+  
+  const applyPatchRouting = (patch) => {
+    // Enhanced audio routing with waveform-specific logic (from Behringer 2600 HTML)
+    console.log(`🔌 Patched: ${patch.from} → ${patch.to}`);
+    
+    // Waveform-specific routing logic
+    switch (`${patch.from}-${patch.to}`) {
+      // VCO1 Sawtooth → Audio Paths
+      case 'vco1-saw-vcf':
+        console.log('📐 VCO1 SAW → Filter (bright, buzzy tone)');
+        const saw1Level = Math.min(1.0, osc1Level * 1.1);
+        setOsc1Level(saw1Level);
+        arp2600Bridge.setOsc1Level(saw1Level);
+        break;
+        
+      case 'vco1-saw-mixer-in':
+        console.log('📐 VCO1 SAW → Mixer (bypass filter)');
+        const mixerSaw1 = Math.min(1.0, osc1Level * 1.2);
+        setOsc1Level(mixerSaw1);
+        arp2600Bridge.setOsc1Level(mixerSaw1);
+        break;
+        
+      // VCO1 Pulse → Audio Paths
+      case 'vco1-pulse-vcf':
+        console.log('⬜ VCO1 PULSE → Filter (hollow, woody tone)');
+        const pulse1Level = Math.min(1.0, osc1Level * 0.9);
+        setOsc1Level(pulse1Level);
+        arp2600Bridge.setOsc1Level(pulse1Level);
+        // Could adjust filter for pulse character
+        const pulseCutoff = Math.min(10000, filterCutoff * 1.2);
+        setFilterCutoff(pulseCutoff);
+        arp2600Bridge.setCutoff(pulseCutoff);
+        break;
+        
+      // VCO2 Sawtooth → Audio Paths
+      case 'vco2-saw-vcf':
+        console.log('📐 VCO2 SAW → Filter');
+        const saw2Level = Math.min(1.0, osc2Level * 1.1);
+        setOsc2Level(saw2Level);
+        arp2600Bridge.setOsc2Level(saw2Level);
+        break;
+        
+      // VCO2 Triangle → Audio Paths
+      case 'vco2-tri-vcf':
+        console.log('△ VCO2 TRI → Filter (pure, flute-like)');
+        const tri2Level = Math.min(1.0, osc2Level * 0.8);
+        setOsc2Level(tri2Level);
+        arp2600Bridge.setOsc2Level(tri2Level);
+        // Reduce filter resonance for purity
+        const triRes = Math.max(1, filterResonance * 0.7);
+        setFilterResonance(triRes);
+        arp2600Bridge.setResonance(triRes);
+        break;
+        
+      // VCO3 Sine (LFO as audio)
+      case 'vco3-sine-vcf':
+        console.log('〰️ VCO3 SINE → Filter (sub-bass)');
+        const vco3Level = Math.min(1.0, osc2Level + 0.3);
+        setOsc2Level(vco3Level);
+        arp2600Bridge.setOsc2Level(vco3Level);
+        break;
+        
+      // LFO → FM Modulation (Vibrato/FM Synthesis)
+      case 'lfo-fm1':
+        console.log('🌀 LFO → VCO1 FM (vibrato)');
+        const fm1Detune = Math.min(0.02, osc2Detune * 2);
+        setOsc2Detune(fm1Detune);
+        arp2600Bridge.setDetune(fm1Detune);
+        break;
+        
+      case 'lfo-fm2':
+        console.log('🌀 LFO → VCO2 FM (vibrato)');
+        const fm2Detune = Math.min(0.02, osc2Detune * 1.5);
+        setOsc2Detune(fm2Detune);
+        arp2600Bridge.setDetune(fm2Detune);
+        break;
+        
+      // LFO → CV Modulation
+      case 'lfo-vcf-cv':
+        console.log('🌀 LFO → VCF CV (filter sweep)');
+        const lfoFilterCutoff = Math.min(10000, filterCutoff * 1.4);
+        setFilterCutoff(lfoFilterCutoff);
+        arp2600Bridge.setCutoff(lfoFilterCutoff);
+        break;
+        
+      case 'lfo-vca-cv':
+        console.log('🌀 LFO → VCA CV (tremolo)');
+        const tremoloLevel = Math.max(0.3, osc1Level * 0.85);
+        setOsc1Level(tremoloLevel);
+        arp2600Bridge.setOsc1Level(tremoloLevel);
+        break;
+        
+      // ADSR → CV Modulation
+      case 'adsr-vcf-cv':
+        console.log('📈 ADSR → VCF CV (envelope filter)');
+        const adsrCutoff = Math.min(10000, filterCutoff * 1.5);
+        setFilterCutoff(adsrCutoff);
+        arp2600Bridge.setCutoff(adsrCutoff);
+        break;
+        
+      case 'adsr-fm1':
+        console.log('📈 ADSR → VCO1 FM (envelope pitch bend)');
+        const adsrDetune1 = Math.min(0.02, osc2Detune * 1.3);
+        setOsc2Detune(adsrDetune1);
+        arp2600Bridge.setDetune(adsrDetune1);
+        break;
+        
+      case 'adsr-fm2':
+        console.log('📈 ADSR → VCO2 FM (envelope pitch bend)');
+        const adsrDetune2 = Math.min(0.02, osc2Detune * 1.2);
+        setOsc2Detune(adsrDetune2);
+        arp2600Bridge.setDetune(adsrDetune2);
+        break;
+        
+      // Ring Modulation
+      case 'vco1-saw-ringMod':
+      case 'vco1-pulse-ringMod':
+      case 'vco2-saw-ringMod':
+      case 'vco2-tri-ringMod':
+        console.log('💍 Ring Modulation active (metallic, bell-like)');
+        const ringOsc1 = Math.min(1.0, osc1Level * 1.3);
+        const ringOsc2 = Math.min(1.0, osc2Level * 1.3);
+        setOsc1Level(ringOsc1);
+        setOsc2Level(ringOsc2);
+        arp2600Bridge.setOsc1Level(ringOsc1);
+        arp2600Bridge.setOsc2Level(ringOsc2);
+        const ringRes = Math.min(30, filterResonance * 1.5);
+        setFilterResonance(ringRes);
+        arp2600Bridge.setResonance(ringRes);
+        break;
+        
+      // White Noise → Audio Paths
+      case 'noise-white-vcf':
+        console.log('❄️ WHITE NOISE → Filter (bright noise)');
+        const whiteNoiseOsc1 = osc1Level * 0.6;
+        const whiteNoiseOsc2 = osc2Level * 0.6;
+        setOsc1Level(whiteNoiseOsc1);
+        setOsc2Level(whiteNoiseOsc2);
+        arp2600Bridge.setOsc1Level(whiteNoiseOsc1);
+        arp2600Bridge.setOsc2Level(whiteNoiseOsc2);
+        arp2600Bridge.setNoiseLevel(0.5);
+        break;
+        
+      case 'noise-white-mixer-in':
+        console.log('❄️ WHITE NOISE → Mixer (full spectrum)');
+        arp2600Bridge.setNoiseLevel(0.6);
+        break;
+        
+      // Pink Noise → Audio Paths
+      case 'noise-pink-vcf':
+        console.log('🌸 PINK NOISE → Filter (warm noise)');
+        const pinkNoiseOsc1 = osc1Level * 0.7;
+        const pinkNoiseOsc2 = osc2Level * 0.7;
+        setOsc1Level(pinkNoiseOsc1);
+        setOsc2Level(pinkNoiseOsc2);
+        arp2600Bridge.setOsc1Level(pinkNoiseOsc1);
+        arp2600Bridge.setOsc2Level(pinkNoiseOsc2);
+        arp2600Bridge.setNoiseLevel(0.4);
+        // Lower filter cutoff for pink character
+        const pinkCutoff = Math.max(100, filterCutoff * 0.7);
+        setFilterCutoff(pinkCutoff);
+        arp2600Bridge.setCutoff(pinkCutoff);
+        break;
+        
+      default:
+        console.log(`⚠️ Unknown patch: ${patch.from} → ${patch.to}`);
+    }
   };
 
   const renderKey = (noteData, index) => {
@@ -233,6 +530,20 @@ const ARP2600Screen = ({ navigation }) => {
           <Text style={styles.sectionInfo}>
             Dual oscillator: Sawtooth + Square wave with detune
           </Text>
+          
+          {/* Oscilloscope Waveform Display */}
+          <View style={styles.oscilloscopeContainer}>
+            <Text style={styles.oscilloscopeLabel}>WAVEFORM</Text>
+            <Oscilloscope
+              waveformData={waveformData}
+              width={width - 80}
+              height={100}
+              color={HAOS_COLORS.orange}
+              backgroundColor="rgba(0,0,0,0.7)"
+              lineWidth={2}
+              showGrid={true}
+            />
+          </View>
         </View>
 
         {/* Filter Section */}
@@ -314,6 +625,160 @@ const ARP2600Screen = ({ navigation }) => {
               <Text style={styles.knobValue}>{(release * 1000).toFixed(0)}ms</Text>
             </View>
           </View>
+        </View>
+
+        {/* Modulation Section (LFO & Noise) */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🌀 MODULATION</Text>
+          <View style={styles.controlsRow}>
+            <View style={styles.knobContainer}>
+              <Knob
+                value={lfoRate / 20}
+                onValueChange={handleLFORateChange}
+                label="LFO RATE"
+                color="#9D4EDD"
+                size={65}
+              />
+              <Text style={styles.knobValue}>{lfoRate.toFixed(1)} Hz</Text>
+            </View>
+            
+            <View style={styles.knobContainer}>
+              <Knob
+                value={lfoDepth}
+                onValueChange={handleLFODepthChange}
+                label="LFO DEPTH"
+                color="#9D4EDD"
+                size={65}
+              />
+              <Text style={styles.knobValue}>{(lfoDepth * 100).toFixed(0)}%</Text>
+            </View>
+            
+            <View style={styles.knobContainer}>
+              <Knob
+                value={noiseLevel}
+                onValueChange={handleNoiseLevelChange}
+                label="NOISE"
+                color="#6B6B6B"
+                size={65}
+              />
+              <Text style={styles.knobValue}>{(noiseLevel * 100).toFixed(0)}%</Text>
+            </View>
+          </View>
+          <Text style={styles.sectionInfo}>
+            LFO for vibrato/tremolo • White noise generator • Patch to FM inputs
+          </Text>
+        </View>
+
+        {/* Patch Bay Section (Behringer 2600 inspired) */}
+        <View style={styles.section}>
+          <View style={styles.patchHeader}>
+            <Text style={styles.sectionTitle}>🔌 PATCH BAY</Text>
+            <TouchableOpacity
+              style={[styles.patchModeBtn, patchMode && styles.patchModeBtnActive]}
+              onPress={() => {
+                setPatchMode(!patchMode);
+                setSelectedPatch(null);
+              }}
+            >
+              <Text style={[styles.patchModeBtnText, patchMode && styles.patchModeBtnTextActive]}>
+                {patchMode ? '✓ PATCHING' : 'TAP TO PATCH'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          
+          {patchMode && (
+            <Text style={styles.patchInfo}>
+              {selectedPatch 
+                ? `🔗 ${selectedPatch.fromLabel} selected → Tap an INPUT to connect`
+                : '📍 Tap an OUTPUT to start patching'}
+            </Text>
+          )}
+          
+          {/* Patch Points Grid */}
+          <View style={styles.patchGrid}>
+            {/* Outputs Column */}
+            <View style={styles.patchColumn}>
+              <Text style={styles.patchColumnTitle}>OUTPUTS</Text>
+              {Object.entries(patchPoints)
+                .filter(([_, point]) => point.type === 'output')
+                .map(([id, point]) => (
+                  <TouchableOpacity
+                    key={id}
+                    style={[
+                      styles.patchPoint,
+                      styles.patchOutput,
+                      { borderColor: point.color },
+                      selectedPatch?.from === id && styles.patchPointSelected,
+                    ]}
+                    onPress={() => handlePatchPointPress(id)}
+                  >
+                    <View style={[styles.patchJack, { backgroundColor: point.color }]} />
+                    <View style={styles.patchLabelContainer}>
+                      <Text style={styles.patchIcon}>{point.icon}</Text>
+                      <Text style={styles.patchLabel}>{point.label}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+            </View>
+            
+            {/* Inputs Column */}
+            <View style={styles.patchColumn}>
+              <Text style={styles.patchColumnTitle}>INPUTS</Text>
+              {Object.entries(patchPoints)
+                .filter(([_, point]) => point.type === 'input')
+                .map(([id, point]) => (
+                  <TouchableOpacity
+                    key={id}
+                    style={[
+                      styles.patchPoint,
+                      styles.patchInput,
+                      { borderColor: point.color },
+                    ]}
+                    onPress={() => handlePatchPointPress(id)}
+                  >
+                    <View style={styles.patchLabelContainer}>
+                      <Text style={styles.patchIcon}>{point.icon}</Text>
+                      <Text style={styles.patchLabel}>{point.label}</Text>
+                    </View>
+                    <View style={[styles.patchJack, { backgroundColor: point.color }]} />
+                  </TouchableOpacity>
+                ))}
+            </View>
+          </View>
+          
+          {/* Active Patches */}
+          {patches.length > 0 && (
+            <View style={styles.patchesContainer}>
+              <Text style={styles.patchesTitle}>📡 ACTIVE PATCHES ({patches.length})</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {patches.map((patch) => (
+                  <View key={patch.id} style={styles.patchCable}>
+                    <View style={[styles.patchCableStart, { backgroundColor: patch.color }]} />
+                    <View style={[styles.patchCableBody, { backgroundColor: patch.color }]} />
+                    <View style={[styles.patchCableEnd, { backgroundColor: patch.color }]} />
+                    <Text style={styles.patchCableLabel}>
+                      {patchPoints[patch.from].label} → {patchPoints[patch.to].label}
+                    </Text>
+                    {patch.id && (
+                      <TouchableOpacity
+                        style={styles.patchRemoveBtn}
+                        onPress={() => removePatch(patch.id)}
+                      >
+                        <Text style={styles.patchRemoveText}>✕</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                ))}
+              </ScrollView>
+              <TouchableOpacity style={styles.clearPatchesBtn} onPress={clearAllPatches}>
+                <Text style={styles.clearPatchesText}>🗑️ Clear All Patches</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          
+          <Text style={styles.sectionInfo}>
+            86 patch points • 3 VCOs • Ring Mod • S&H • Modular routing
+          </Text>
         </View>
 
         {/* Keyboard */}
@@ -406,6 +871,22 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontStyle: 'italic',
   },
+  oscilloscopeContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: 'rgba(255,107,53,0.1)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,107,53,0.3)',
+  },
+  oscilloscopeLabel: {
+    fontSize: 12,
+    color: HAOS_COLORS.orange,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginBottom: 10,
+  },
   controlsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -486,6 +967,185 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: HAOS_COLORS.silver,
     textAlign: 'center',
+  },
+  // Patch Bay Styles (Behringer 2600 inspired)
+  patchHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  patchModeBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(0,217,255,0.1)',
+    borderWidth: 2,
+    borderColor: HAOS_COLORS.cyan,
+    borderRadius: 8,
+  },
+  patchModeBtnActive: {
+    backgroundColor: HAOS_COLORS.cyan,
+  },
+  patchModeBtnText: {
+    color: HAOS_COLORS.cyan,
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  patchModeBtnTextActive: {
+    color: HAOS_COLORS.dark,
+  },
+  patchInfo: {
+    fontSize: 11,
+    color: HAOS_COLORS.orange,
+    marginBottom: 12,
+    padding: 8,
+    backgroundColor: 'rgba(255,107,53,0.1)',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,107,53,0.3)',
+    textAlign: 'center',
+  },
+  patchGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 12,
+  },
+  patchColumn: {
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  patchColumnTitle: {
+    fontSize: 10,
+    color: HAOS_COLORS.silver,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  patchPoint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    marginVertical: 4,
+    borderRadius: 8,
+    borderWidth: 2,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  patchOutput: {
+    justifyContent: 'flex-start',
+  },
+  patchInput: {
+    justifyContent: 'flex-end',
+  },
+  patchPointSelected: {
+    backgroundColor: 'rgba(0,217,255,0.2)',
+    shadowColor: HAOS_COLORS.cyan,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  patchJack: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#000',
+  },
+  patchLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  patchIcon: {
+    fontSize: 14,
+    marginRight: 4,
+  },
+  patchLabel: {
+    fontSize: 9,
+    color: '#fff',
+    fontWeight: 'bold',
+    flex: 1,
+  },
+  patchesContainer: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: 'rgba(0,217,255,0.05)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0,217,255,0.2)',
+  },
+  patchesTitle: {
+    fontSize: 11,
+    color: HAOS_COLORS.cyan,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    letterSpacing: 1,
+  },
+  patchCable: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginRight: 16,
+    padding: 12,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    minWidth: 120,
+  },
+  patchCableStart: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginBottom: 4,
+  },
+  patchCableBody: {
+    width: 4,
+    height: 30,
+    borderRadius: 2,
+    marginBottom: 4,
+  },
+  patchCableEnd: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginBottom: 8,
+  },
+  patchCableLabel: {
+    fontSize: 9,
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  patchRemoveBtn: {
+    marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(255,0,0,0.2)',
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255,0,0,0.5)',
+  },
+  patchRemoveText: {
+    color: '#ff0000',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  clearPatchesBtn: {
+    marginTop: 12,
+    padding: 10,
+    backgroundColor: 'rgba(255,0,0,0.1)',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,0,0,0.3)',
+    alignItems: 'center',
+  },
+  clearPatchesText: {
+    color: '#ff6b6b',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
 });
 

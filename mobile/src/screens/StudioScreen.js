@@ -391,6 +391,29 @@ const StudioScreen = ({ navigation, route }) => {
     };
   }, [route?.params?.synthType]);
 
+  // Bass preset loading from BassSelectorScreen
+  useEffect(() => {
+    const preset = route?.params?.preset;
+    const presetName = route?.params?.presetName;
+    
+    if (preset && presetName) {
+      console.log(`🎸 Loading bass preset: ${presetName}`);
+      console.log('Preset values:', preset);
+      
+      // Apply preset values with small delay for smooth transition
+      setTimeout(() => {
+        setBassSlide(preset.slide || 0.08);
+        setBassPitchBend(preset.pitchBend || 0);
+        setBassVibrato(preset.vibrato || 0.3);
+        setBassSubOsc(preset.subOsc || 0);
+        setBassOctaves(preset.octaves || 1);
+        setSelectedBassPreset(presetName.toLowerCase().replace(' bass', ''));
+        setShowBassControls(true); // Auto-expand bass controls
+        console.log(`✅ Bass preset "${presetName}" loaded successfully`);
+      }, 100);
+    }
+  }, [route?.params?.preset, route?.params?.presetName]);
+
   const handlePlayPause = () => {
     if (!workspace) return;
 
@@ -841,9 +864,18 @@ const StudioScreen = ({ navigation, route }) => {
                 style={styles.bassModHeader}
                 onPress={() => setShowBassControls(!showBassControls)}
               >
-                <Text style={styles.controlSectionTitle}>
-                  🎸 BASS MODULATION
-                </Text>
+                <View style={styles.bassHeaderContent}>
+                  <Text style={styles.controlSectionTitle}>
+                    🎸 BASS MODULATION
+                  </Text>
+                  {route?.params?.presetName && (
+                    <View style={styles.loadedPresetBadge}>
+                      <Text style={styles.loadedPresetText}>
+                        ✨ {route.params.presetName}
+                      </Text>
+                    </View>
+                  )}
+                </View>
                 <Text style={styles.bassModToggle}>
                   {showBassControls ? '▼' : '▶'}
                 </Text>
@@ -1547,6 +1579,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: SPACING.sm,
+  },
+  bassHeaderContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  loadedPresetBadge: {
+    backgroundColor: 'rgba(255, 20, 147, 0.2)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FF1493',
+  },
+  loadedPresetText: {
+    ...TYPO.caption,
+    color: '#FF1493',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   bassModToggle: {
     ...TYPO.body,

@@ -1,6 +1,6 @@
 /**
- * HAOS.fm Effects Selector Screen
- * Modern card-based selector for audio effects
+ * HAOS.fm Drum Machines Selector Screen
+ * Modern card-based selector for drum machines
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -18,158 +18,103 @@ import { COLORS, TYPO, SPACING } from '../styles/HAOSDesignSystem';
 
 const { width } = Dimensions.get('window');
 
-const EFFECTS = [
+const DRUM_MACHINES = [
   {
-    id: 'reverb',
-    name: 'REVERB',
-    emoji: '🌊',
-    description: 'Space and ambience simulation',
+    id: 'tr808',
+    name: 'TR-808',
+    emoji: '🥁',
+    description: 'The legendary rhythm composer',
+    color: '#FF8800',
+    gradient: ['#FF8800', '#FFAA00'],
+    specs: {
+      sounds: '11 Analog',
+      sequencer: '16 Steps',
+      pattern: '32 Patterns',
+      special: 'Analog Drums',
+    },
+    features: ['Kick', 'Snare', 'Toms', 'Cowbell', 'Claps'],
+    screen: 'TR808',
+    year: '1980',
+    bpm: '40-240 BPM',
+  },
+  {
+    id: 'tr909',
+    name: 'TR-909',
+    emoji: '🎛️',
+    description: 'Hybrid analog/digital powerhouse',
     color: '#00D9FF',
     gradient: ['#00D9FF', '#0088FF'],
-    params: {
-      roomSize: 'Variable',
-      decay: '0.1-10s',
-      predelay: '0-100ms',
-      damping: 'Hi/Lo Cut',
+    specs: {
+      sounds: '11 Hybrid',
+      sequencer: '16 Steps',
+      pattern: '32 Patterns',
+      special: 'MIDI Sync',
     },
-    features: ['Room', 'Hall', 'Plate', 'Spring'],
-    types: ['ROOM', 'HALL', 'PLATE', 'SPRING', 'SHIMMER'],
-    screen: 'Effects',
-    category: 'SPACE',
+    features: ['Kick', 'Snare', 'Hats', 'Ride', 'Crash'],
+    screen: 'TR909',
+    year: '1983',
+    bpm: '30-240 BPM',
   },
   {
-    id: 'delay',
-    name: 'DELAY',
-    emoji: '⏱️',
-    description: 'Echoes and rhythmic repeats',
+    id: 'linndrum',
+    name: 'LINNDRUM',
+    emoji: '💿',
+    description: '80s digital samples perfection',
     color: '#8B5CF6',
     gradient: ['#8B5CF6', '#A855F7'],
-    params: {
-      time: '1-2000ms',
-      feedback: '0-100%',
-      sync: 'BPM Locked',
-      filter: 'Lo/Hi Pass',
+    specs: {
+      sounds: '15 Sampled',
+      sequencer: '16 Steps',
+      pattern: 'Real-time',
+      special: 'Digital Samples',
     },
-    features: ['Ping-Pong', 'Tape', 'Digital', 'Analog'],
-    types: ['STEREO', 'PING-PONG', 'TAPE', 'MULTI-TAP'],
-    screen: 'Effects',
-    category: 'TIME',
+    features: ['Digital', 'Punchy', 'Tunable', 'Clean'],
+    screen: 'LinnDrum',
+    year: '1982',
+    bpm: '40-250 BPM',
   },
   {
-    id: 'chorus',
-    name: 'CHORUS',
-    emoji: '🎭',
-    description: 'Rich stereo widening effect',
-    color: '#FF69B4',
-    gradient: ['#FF69B4', '#FF1493'],
-    params: {
-      depth: '0-100%',
-      rate: '0.1-10 Hz',
-      voices: '2-8',
-      mix: '0-100%',
+    id: 'dmx',
+    name: 'OBERHEIM DMX',
+    emoji: '⚡',
+    description: 'Hip-hop drum machine classic',
+    color: '#FF1493',
+    gradient: ['#FF1493', '#FF69B4'],
+    specs: {
+      sounds: '16 Sampled',
+      sequencer: '16 Steps',
+      pattern: 'Programmable',
+      special: 'Wide Tuning',
     },
-    features: ['Wide', 'Ensemble', 'Detune', 'Stereo'],
-    types: ['CLASSIC', 'ENSEMBLE', 'DIMENSION-D'],
-    screen: 'Effects',
-    category: 'MODULATION',
+    features: ['Hip-Hop', 'Boom-Bap', 'Fat', 'Vintage'],
+    screen: 'DMX',
+    year: '1981',
+    bpm: '30-240 BPM',
   },
   {
-    id: 'filter',
-    name: 'FILTER',
-    emoji: '🎛️',
-    description: 'Frequency shaping and sweeps',
-    color: '#00FF88',
-    gradient: ['#00FF88', '#00CC66'],
-    params: {
-      cutoff: '20Hz-20kHz',
-      resonance: '0-100%',
-      type: 'LP/HP/BP/Notch',
-      slope: '12-48 dB/oct',
-    },
-    features: ['Lowpass', 'Highpass', 'Bandpass', 'Notch'],
-    types: ['LP24', 'HP24', 'BP12', 'NOTCH', 'COMB'],
-    screen: 'Effects',
-    category: 'FILTER',
-  },
-  {
-    id: 'distortion',
-    name: 'DISTORTION',
-    emoji: '🔥',
-    description: 'Harmonic saturation and grit',
-    color: '#FF4500',
-    gradient: ['#FF4500', '#FF6347'],
-    params: {
-      drive: '0-100%',
-      tone: 'Dark-Bright',
-      type: 'Soft/Hard',
-      output: '-∞ to +12dB',
-    },
-    features: ['Overdrive', 'Fuzz', 'Bitcrush', 'Saturation'],
-    types: ['SOFT', 'HARD', 'FUZZ', 'BITCRUSH', 'TUBE'],
-    screen: 'Effects',
-    category: 'DYNAMICS',
-  },
-  {
-    id: 'compressor',
-    name: 'COMPRESSOR',
-    emoji: '📊',
-    description: 'Dynamic range control',
+    id: 'cr78',
+    name: 'ROLAND CR-78',
+    emoji: '🎵',
+    description: 'First programmable rhythm box',
     color: '#FFD700',
     gradient: ['#FFD700', '#FFA500'],
-    params: {
-      ratio: '1:1 to ∞:1',
-      threshold: '-60 to 0dB',
-      attack: '0.1-100ms',
-      release: '10-1000ms',
+    specs: {
+      sounds: '34 Presets',
+      sequencer: 'Pattern Bank',
+      pattern: '34 Rhythms',
+      special: 'Metal Mode',
     },
-    features: ['Peak', 'RMS', 'Sidechain', 'Makeup'],
-    types: ['PEAK', 'RMS', 'VCA', 'OPTICAL', 'FET'],
-    screen: 'Effects',
-    category: 'DYNAMICS',
-  },
-  {
-    id: 'eq',
-    name: 'EQUALIZER',
-    emoji: '📈',
-    description: 'Precise frequency control',
-    color: '#32CD32',
-    gradient: ['#32CD32', '#228B22'],
-    params: {
-      bands: '3 / 8 / 31',
-      range: '20Hz-20kHz',
-      gain: '±24dB',
-      q: '0.1-10',
-    },
-    features: ['Lo-Shelf', 'Hi-Shelf', 'Parametric', 'Notch'],
-    types: ['3-BAND', '8-BAND', 'PARAMETRIC', 'GRAPHIC'],
-    screen: 'Effects',
-    category: 'TONE',
-  },
-  {
-    id: 'master',
-    name: 'MASTER FX',
-    emoji: '🎚️',
-    description: 'Final stage processing chain',
-    color: '#FFFFFF',
-    gradient: ['#666666', '#999999'],
-    params: {
-      limiter: 'Brick Wall',
-      stereo: 'Width Control',
-      analyzer: 'Spectrum/FFT',
-      output: '-∞ to +12dB',
-    },
-    features: ['Limiter', 'Stereo', 'Analyzer', 'Dither'],
-    types: ['LIMITER', 'MAXIMIZER', 'IMAGING', 'METERING'],
-    screen: 'Effects',
-    category: 'MASTER',
+    features: ['Presets', 'Vintage', 'Disco', 'Metal'],
+    screen: 'CR78',
+    year: '1978',
+    bpm: '40-200 BPM',
   },
 ];
 
-
-export default function EffectsSelectorScreen({ navigation }) {
-  const [selectedEffect, setSelectedEffect] = useState(null);
+export default function DrumsSelectorScreen({ navigation }) {
+  const [selectedDrum, setSelectedDrum] = useState(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnims = useRef(EFFECTS.map(() => new Animated.Value(50))).current;
+  const slideAnims = useRef(DRUM_MACHINES.map(() => new Animated.Value(50))).current;
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -191,11 +136,11 @@ export default function EffectsSelectorScreen({ navigation }) {
     ).start();
   }, []);
 
-  const handleEffectSelect = (effect) => {
-    setSelectedEffect(effect.id);
+  const handleDrumSelect = (drum) => {
+    setSelectedDrum(drum.id);
     setTimeout(() => {
-      navigation.navigate(effect.screen, { effectId: effect.id });
-      setSelectedEffect(null);
+      navigation.navigate(drum.screen);
+      setSelectedDrum(null);
     }, 200);
   };
 
@@ -210,20 +155,20 @@ export default function EffectsSelectorScreen({ navigation }) {
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>🎚️ EFFECTS RACK</Text>
-          <Text style={styles.headerSubtitle}>Studio-grade processing</Text>
+          <Text style={styles.headerTitle}>🥁 DRUM MACHINES</Text>
+          <Text style={styles.headerSubtitle}>Classic rhythm composers</Text>
         </View>
       </View>
 
-      {/* Effects Grid */}
+      {/* Drums Grid */}
       <Animated.ScrollView 
         style={[styles.scrollView, { opacity: fadeAnim }]}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {EFFECTS.map((effect, index) => (
+        {DRUM_MACHINES.map((drum, index) => (
           <Animated.View
-            key={effect.id}
+            key={drum.id}
             style={[
               styles.cardWrapper,
               {
@@ -233,52 +178,48 @@ export default function EffectsSelectorScreen({ navigation }) {
           >
             <TouchableOpacity
               activeOpacity={0.9}
-              onPress={() => handleEffectSelect(effect)}
+              onPress={() => handleDrumSelect(drum)}
               style={[
                 styles.card,
-                selectedEffect === effect.id && styles.cardPressed,
+                selectedDrum === drum.id && styles.cardPressed,
               ]}
             >
               <LinearGradient
-                colors={effect.gradient}
+                colors={drum.gradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.cardGradient}
               >
                 {/* Card Header */}
                 <View style={styles.cardHeader}>
-                  <Text style={styles.effectEmoji}>{effect.emoji}</Text>
-                  <View style={styles.categoryBadge}>
-                    <Text style={styles.categoryText}>{effect.category}</Text>
+                  <Text style={styles.drumEmoji}>{drum.emoji}</Text>
+                  <View style={styles.yearBadge}>
+                    <Text style={styles.yearText}>{drum.year}</Text>
                   </View>
                 </View>
 
-                {/* Effect Name */}
-                <Text style={styles.effectName}>{effect.name}</Text>
-                <Text style={styles.effectDescription}>{effect.description}</Text>
+                {/* Drum Name */}
+                <Text style={styles.drumName}>{drum.name}</Text>
+                <Text style={styles.drumDescription}>{drum.description}</Text>
 
-                {/* Parameters Grid */}
-                <View style={styles.paramsGrid}>
-                  {Object.entries(effect.params).map(([key, value]) => (
-                    <View key={key} style={styles.paramItem}>
-                      <Text style={styles.paramLabel}>{key.toUpperCase()}</Text>
-                      <Text style={styles.paramValue}>{value}</Text>
-                    </View>
-                  ))}
+                {/* BPM Range */}
+                <View style={styles.bpmBadge}>
+                  <Text style={styles.bpmText}>{drum.bpm}</Text>
                 </View>
 
-                {/* Types Pills */}
-                <View style={styles.typesRow}>
-                  {effect.types.map((type) => (
-                    <View key={type} style={styles.typePill}>
-                      <Text style={styles.typeText}>{type}</Text>
+                {/* Specs Grid */}
+                <View style={styles.specsGrid}>
+                  {Object.entries(drum.specs).map(([key, value]) => (
+                    <View key={key} style={styles.specItem}>
+                      <Text style={styles.specLabel}>{key.toUpperCase()}</Text>
+                      <Text style={styles.specValue}>{value}</Text>
                     </View>
                   ))}
                 </View>
 
                 {/* Features Pills */}
                 <View style={styles.featuresRow}>
-                  {effect.features.map((feature) => (
+                  {drum.features.map((feature) => (
                     <View key={feature} style={styles.featurePill}>
                       <Text style={styles.featureText}>{feature}</Text>
                     </View>
@@ -300,7 +241,6 @@ export default function EffectsSelectorScreen({ navigation }) {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -313,27 +253,27 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 215, 0, 0.2)',
+    borderBottomColor: 'rgba(255, 136, 0, 0.2)',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    backgroundColor: 'rgba(255, 136, 0, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
   },
   backIcon: {
     fontSize: 24,
-    color: '#FFD700',
+    color: '#FF8800',
   },
   headerContent: {
     flex: 1,
   },
   headerTitle: {
     ...TYPO.h2,
-    color: '#FFD700',
+    color: '#FF8800',
     fontWeight: 'bold',
     letterSpacing: 2,
     marginBottom: 4,
@@ -373,13 +313,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  effectEmoji: {
+  drumEmoji: {
     fontSize: 56,
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
   },
-  categoryBadge: {
+  yearBadge: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -387,13 +327,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  categoryText: {
+  yearText: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 'bold',
     letterSpacing: 1,
   },
-  effectName: {
+  drumName: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
@@ -403,19 +343,35 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
-  effectDescription: {
+  drumDescription: {
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: 16,
+    marginBottom: 12,
     lineHeight: 22,
   },
-  paramsGrid: {
+  bpmBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  bpmText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  specsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 16,
     gap: 12,
   },
-  paramItem: {
+  specItem: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -424,37 +380,17 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.15)',
     minWidth: '47%',
   },
-  paramLabel: {
+  specLabel: {
     fontSize: 10,
     color: 'rgba(255, 255, 255, 0.6)',
     marginBottom: 4,
     fontWeight: '600',
     letterSpacing: 0.5,
   },
-  paramValue: {
+  specValue: {
     fontSize: 13,
     color: '#fff',
     fontWeight: 'bold',
-  },
-  typesRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 12,
-  },
-  typePill: {
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
-  },
-  typeText: {
-    fontSize: 10,
-    color: '#fff',
-    fontWeight: 'bold',
-    letterSpacing: 0.5,
   },
   featuresRow: {
     flexDirection: 'row',
@@ -494,4 +430,3 @@ const styles = StyleSheet.create({
     height: 40,
   },
 });
-

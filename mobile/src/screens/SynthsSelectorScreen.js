@@ -1,6 +1,7 @@
 /**
- * HAOS.fm Effects Selector Screen
- * Modern card-based selector for audio effects
+ * HAOS.fm Synthesizers Selector Screen
+ * Modern card-based selector for all synth engines
+ * Style inspired by WorkspaceSelector
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -18,166 +19,159 @@ import { COLORS, TYPO, SPACING } from '../styles/HAOSDesignSystem';
 
 const { width } = Dimensions.get('window');
 
-const EFFECTS = [
+const SYNTHS = [
   {
-    id: 'reverb',
-    name: 'REVERB',
-    emoji: '🌊',
-    description: 'Space and ambience simulation',
+    id: 'arp2600',
+    name: 'ARP 2600',
+    emoji: '🎛️',
+    description: 'Legendary semi-modular synthesizer',
     color: '#00D9FF',
     gradient: ['#00D9FF', '#0088FF'],
-    params: {
-      roomSize: 'Variable',
-      decay: '0.1-10s',
-      predelay: '0-100ms',
-      damping: 'Hi/Lo Cut',
+    specs: {
+      oscillators: '3 VCOs',
+      filter: 'Lowpass 24dB',
+      modulation: 'Ring Mod + S&H',
+      special: 'Patch Bay',
     },
-    features: ['Room', 'Hall', 'Plate', 'Spring'],
-    types: ['ROOM', 'HALL', 'PLATE', 'SPRING', 'SHIMMER'],
-    screen: 'Effects',
-    category: 'SPACE',
+    features: ['Semi-Modular', 'Patch Cables', 'Ring Mod', 'Filter FM'],
+    screen: 'ARP2600',
+    year: '1971',
   },
   {
-    id: 'delay',
-    name: 'DELAY',
-    emoji: '⏱️',
-    description: 'Echoes and rhythmic repeats',
+    id: 'juno106',
+    name: 'JUNO-106',
+    emoji: '🎹',
+    description: 'Classic polyphonic with chorus',
     color: '#8B5CF6',
     gradient: ['#8B5CF6', '#A855F7'],
-    params: {
-      time: '1-2000ms',
-      feedback: '0-100%',
-      sync: 'BPM Locked',
-      filter: 'Lo/Hi Pass',
+    specs: {
+      oscillators: '6-Voice DCO',
+      filter: 'Roland Lowpass',
+      modulation: 'LFO + PWM',
+      special: 'Chorus',
     },
-    features: ['Ping-Pong', 'Tape', 'Digital', 'Analog'],
-    types: ['STEREO', 'PING-PONG', 'TAPE', 'MULTI-TAP'],
-    screen: 'Effects',
-    category: 'TIME',
+    features: ['Polyphonic', 'Chorus', 'PWM', '6 Voices'],
+    screen: 'Juno106',
+    year: '1984',
   },
   {
-    id: 'chorus',
-    name: 'CHORUS',
-    emoji: '🎭',
-    description: 'Rich stereo widening effect',
-    color: '#FF69B4',
-    gradient: ['#FF69B4', '#FF1493'],
-    params: {
-      depth: '0-100%',
-      rate: '0.1-10 Hz',
-      voices: '2-8',
-      mix: '0-100%',
+    id: 'minimoog',
+    name: 'MINIMOOG',
+    emoji: '🔊',
+    description: 'The king of bass and leads',
+    color: '#FF6B35',
+    gradient: ['#FF6B35', '#FFAA00'],
+    specs: {
+      oscillators: '3 VCOs',
+      filter: 'Moog Ladder 24dB',
+      modulation: 'LFO + Glide',
+      special: 'Analog Warmth',
     },
-    features: ['Wide', 'Ensemble', 'Detune', 'Stereo'],
-    types: ['CLASSIC', 'ENSEMBLE', 'DIMENSION-D'],
-    screen: 'Effects',
-    category: 'MODULATION',
+    features: ['Monophonic', 'Fat Bass', 'Glide', 'Ladder Filter'],
+    screen: 'Minimoog',
+    year: '1970',
   },
   {
-    id: 'filter',
-    name: 'FILTER',
-    emoji: '🎛️',
-    description: 'Frequency shaping and sweeps',
-    color: '#00FF88',
-    gradient: ['#00FF88', '#00CC66'],
-    params: {
-      cutoff: '20Hz-20kHz',
-      resonance: '0-100%',
-      type: 'LP/HP/BP/Notch',
-      slope: '12-48 dB/oct',
+    id: 'tb303',
+    name: 'TB-303',
+    emoji: '🧪',
+    description: 'Iconic acid bass machine',
+    color: '#39FF14',
+    gradient: ['#39FF14', '#4AFF14'],
+    specs: {
+      oscillators: '1 VCO',
+      filter: 'Resonant 18dB',
+      modulation: 'Envelope Mod',
+      special: 'Accent + Slide',
     },
-    features: ['Lowpass', 'Highpass', 'Bandpass', 'Notch'],
-    types: ['LP24', 'HP24', 'BP12', 'NOTCH', 'COMB'],
-    screen: 'Effects',
-    category: 'FILTER',
+    features: ['Acid Bass', 'Sequencer', 'Accent', 'Slide'],
+    screen: 'TB303',
+    year: '1982',
   },
   {
-    id: 'distortion',
-    name: 'DISTORTION',
-    emoji: '🔥',
-    description: 'Harmonic saturation and grit',
-    color: '#FF4500',
-    gradient: ['#FF4500', '#FF6347'],
-    params: {
-      drive: '0-100%',
-      tone: 'Dark-Bright',
-      type: 'Soft/Hard',
-      output: '-∞ to +12dB',
+    id: 'dx7',
+    name: 'YAMAHA DX7',
+    emoji: '✨',
+    description: 'Digital FM synthesis legend',
+    color: '#FF1493',
+    gradient: ['#FF1493', '#FF69B4'],
+    specs: {
+      oscillators: '6 Operators',
+      filter: 'FM Algorithms',
+      modulation: '32 Algorithms',
+      special: 'Digital FM',
     },
-    features: ['Overdrive', 'Fuzz', 'Bitcrush', 'Saturation'],
-    types: ['SOFT', 'HARD', 'FUZZ', 'BITCRUSH', 'TUBE'],
-    screen: 'Effects',
-    category: 'DYNAMICS',
+    features: ['FM Synthesis', '6 OP', 'Digital', 'Bright'],
+    screen: 'DX7',
+    year: '1983',
   },
   {
-    id: 'compressor',
-    name: 'COMPRESSOR',
-    emoji: '📊',
-    description: 'Dynamic range control',
+    id: 'ms20',
+    name: 'KORG MS-20',
+    emoji: '⚡',
+    description: 'Aggressive semi-modular synth',
     color: '#FFD700',
     gradient: ['#FFD700', '#FFA500'],
-    params: {
-      ratio: '1:1 to ∞:1',
-      threshold: '-60 to 0dB',
-      attack: '0.1-100ms',
-      release: '10-1000ms',
+    specs: {
+      oscillators: '2 VCOs',
+      filter: 'HPF + LPF',
+      modulation: 'Patch Bay',
+      special: 'Self-Oscillation',
     },
-    features: ['Peak', 'RMS', 'Sidechain', 'Makeup'],
-    types: ['PEAK', 'RMS', 'VCA', 'OPTICAL', 'FET'],
-    screen: 'Effects',
-    category: 'DYNAMICS',
+    features: ['Semi-Modular', 'Dual Filter', 'Aggressive', 'Patch'],
+    screen: 'MS20',
+    year: '1978',
   },
   {
-    id: 'eq',
-    name: 'EQUALIZER',
-    emoji: '📈',
-    description: 'Precise frequency control',
-    color: '#32CD32',
-    gradient: ['#32CD32', '#228B22'],
-    params: {
-      bands: '3 / 8 / 31',
-      range: '20Hz-20kHz',
-      gain: '±24dB',
-      q: '0.1-10',
+    id: 'prophet5',
+    name: 'PROPHET-5',
+    emoji: '👑',
+    description: 'First programmable polysynth',
+    color: '#4169E1',
+    gradient: ['#4169E1', '#1E90FF'],
+    specs: {
+      oscillators: '5-Voice Poly',
+      filter: 'Curtis Lowpass',
+      modulation: 'Poly-Mod',
+      special: 'Programmable',
     },
-    features: ['Lo-Shelf', 'Hi-Shelf', 'Parametric', 'Notch'],
-    types: ['3-BAND', '8-BAND', 'PARAMETRIC', 'GRAPHIC'],
-    screen: 'Effects',
-    category: 'TONE',
+    features: ['Polyphonic', '5 Voices', 'Curtis', 'Vintage'],
+    screen: 'Prophet5',
+    year: '1978',
   },
   {
-    id: 'master',
-    name: 'MASTER FX',
-    emoji: '🎚️',
-    description: 'Final stage processing chain',
-    color: '#FFFFFF',
-    gradient: ['#666666', '#999999'],
-    params: {
-      limiter: 'Brick Wall',
-      stereo: 'Width Control',
-      analyzer: 'Spectrum/FFT',
-      output: '-∞ to +12dB',
+    id: 'bass-studio',
+    name: 'BASS STUDIO',
+    emoji: '🎸',
+    description: 'Professional bass synthesis',
+    color: '#00FF94',
+    gradient: ['#00FF94', '#00FF00'],
+    specs: {
+      oscillators: 'Multi-Mode',
+      filter: 'Resonant Multi',
+      modulation: 'Full ADSR',
+      special: 'Bass Focus',
     },
-    features: ['Limiter', 'Stereo', 'Analyzer', 'Dither'],
-    types: ['LIMITER', 'MAXIMIZER', 'IMAGING', 'METERING'],
-    screen: 'Effects',
-    category: 'MASTER',
+    features: ['Slide', 'Bend', 'Vibrato', 'Sub-Osc'],
+    screen: 'Studio',
+    year: '2025',
   },
 ];
 
-
-export default function EffectsSelectorScreen({ navigation }) {
-  const [selectedEffect, setSelectedEffect] = useState(null);
+export default function SynthsSelectorScreen({ navigation }) {
+  const [selectedSynth, setSelectedSynth] = useState(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnims = useRef(EFFECTS.map(() => new Animated.Value(50))).current;
+  const slideAnims = useRef(SYNTHS.map(() => new Animated.Value(50))).current;
 
   useEffect(() => {
+    // Fade in animation
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 600,
       useNativeDriver: true,
     }).start();
 
+    // Stagger slide animations
     Animated.stagger(
       80,
       slideAnims.map((anim) =>
@@ -191,11 +185,11 @@ export default function EffectsSelectorScreen({ navigation }) {
     ).start();
   }, []);
 
-  const handleEffectSelect = (effect) => {
-    setSelectedEffect(effect.id);
+  const handleSynthSelect = (synth) => {
+    setSelectedSynth(synth.id);
     setTimeout(() => {
-      navigation.navigate(effect.screen, { effectId: effect.id });
-      setSelectedEffect(null);
+      navigation.navigate(synth.screen);
+      setSelectedSynth(null);
     }, 200);
   };
 
@@ -210,20 +204,20 @@ export default function EffectsSelectorScreen({ navigation }) {
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>🎚️ EFFECTS RACK</Text>
-          <Text style={styles.headerSubtitle}>Studio-grade processing</Text>
+          <Text style={styles.headerTitle}>🎹 SYNTHESIZERS</Text>
+          <Text style={styles.headerSubtitle}>Choose your hardware</Text>
         </View>
       </View>
 
-      {/* Effects Grid */}
+      {/* Synths Grid */}
       <Animated.ScrollView 
         style={[styles.scrollView, { opacity: fadeAnim }]}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {EFFECTS.map((effect, index) => (
+        {SYNTHS.map((synth, index) => (
           <Animated.View
-            key={effect.id}
+            key={synth.id}
             style={[
               styles.cardWrapper,
               {
@@ -233,52 +227,43 @@ export default function EffectsSelectorScreen({ navigation }) {
           >
             <TouchableOpacity
               activeOpacity={0.9}
-              onPress={() => handleEffectSelect(effect)}
+              onPress={() => handleSynthSelect(synth)}
               style={[
                 styles.card,
-                selectedEffect === effect.id && styles.cardPressed,
+                selectedSynth === synth.id && styles.cardPressed,
               ]}
             >
               <LinearGradient
-                colors={effect.gradient}
+                colors={synth.gradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.cardGradient}
               >
                 {/* Card Header */}
                 <View style={styles.cardHeader}>
-                  <Text style={styles.effectEmoji}>{effect.emoji}</Text>
-                  <View style={styles.categoryBadge}>
-                    <Text style={styles.categoryText}>{effect.category}</Text>
+                  <Text style={styles.synthEmoji}>{synth.emoji}</Text>
+                  <View style={styles.yearBadge}>
+                    <Text style={styles.yearText}>{synth.year}</Text>
                   </View>
                 </View>
 
-                {/* Effect Name */}
-                <Text style={styles.effectName}>{effect.name}</Text>
-                <Text style={styles.effectDescription}>{effect.description}</Text>
+                {/* Synth Name */}
+                <Text style={styles.synthName}>{synth.name}</Text>
+                <Text style={styles.synthDescription}>{synth.description}</Text>
 
-                {/* Parameters Grid */}
-                <View style={styles.paramsGrid}>
-                  {Object.entries(effect.params).map(([key, value]) => (
-                    <View key={key} style={styles.paramItem}>
-                      <Text style={styles.paramLabel}>{key.toUpperCase()}</Text>
-                      <Text style={styles.paramValue}>{value}</Text>
-                    </View>
-                  ))}
-                </View>
-
-                {/* Types Pills */}
-                <View style={styles.typesRow}>
-                  {effect.types.map((type) => (
-                    <View key={type} style={styles.typePill}>
-                      <Text style={styles.typeText}>{type}</Text>
+                {/* Specs Grid */}
+                <View style={styles.specsGrid}>
+                  {Object.entries(synth.specs).map(([key, value]) => (
+                    <View key={key} style={styles.specItem}>
+                      <Text style={styles.specLabel}>{key.toUpperCase()}</Text>
+                      <Text style={styles.specValue}>{value}</Text>
                     </View>
                   ))}
                 </View>
 
                 {/* Features Pills */}
                 <View style={styles.featuresRow}>
-                  {effect.features.map((feature) => (
+                  {synth.features.map((feature) => (
                     <View key={feature} style={styles.featurePill}>
                       <Text style={styles.featureText}>{feature}</Text>
                     </View>
@@ -294,12 +279,12 @@ export default function EffectsSelectorScreen({ navigation }) {
           </Animated.View>
         ))}
 
+        {/* Bottom Padding */}
         <View style={styles.bottomPadding} />
       </Animated.ScrollView>
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -313,27 +298,27 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 215, 0, 0.2)',
+    borderBottomColor: 'rgba(0, 255, 148, 0.2)',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    backgroundColor: 'rgba(0, 255, 148, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
   },
   backIcon: {
     fontSize: 24,
-    color: '#FFD700',
+    color: COLORS.primary,
   },
   headerContent: {
     flex: 1,
   },
   headerTitle: {
     ...TYPO.h2,
-    color: '#FFD700',
+    color: COLORS.primary,
     fontWeight: 'bold',
     letterSpacing: 2,
     marginBottom: 4,
@@ -373,13 +358,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  effectEmoji: {
+  synthEmoji: {
     fontSize: 56,
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
   },
-  categoryBadge: {
+  yearBadge: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -387,13 +372,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  categoryText: {
+  yearText: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 'bold',
     letterSpacing: 1,
   },
-  effectName: {
+  synthName: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
@@ -403,19 +388,19 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
-  effectDescription: {
+  synthDescription: {
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: 16,
+    marginBottom: 20,
     lineHeight: 22,
   },
-  paramsGrid: {
+  specsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 16,
     gap: 12,
   },
-  paramItem: {
+  specItem: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -424,37 +409,17 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.15)',
     minWidth: '47%',
   },
-  paramLabel: {
+  specLabel: {
     fontSize: 10,
     color: 'rgba(255, 255, 255, 0.6)',
     marginBottom: 4,
     fontWeight: '600',
     letterSpacing: 0.5,
   },
-  paramValue: {
+  specValue: {
     fontSize: 13,
     color: '#fff',
     fontWeight: 'bold',
-  },
-  typesRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 12,
-  },
-  typePill: {
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
-  },
-  typeText: {
-    fontSize: 10,
-    color: '#fff',
-    fontWeight: 'bold',
-    letterSpacing: 0.5,
   },
   featuresRow: {
     flexDirection: 'row',
@@ -494,4 +459,3 @@ const styles = StyleSheet.create({
     height: 40,
   },
 });
-

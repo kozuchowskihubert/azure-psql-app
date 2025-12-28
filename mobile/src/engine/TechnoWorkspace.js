@@ -6,13 +6,13 @@
 
 import { Audio } from 'expo-av';
 import sequencerEngine from './SequencerEngine';
-import TR808Bridge from '../drums/TR808Bridge';
-import TR909Bridge from '../drums/TR909Bridge';
-import TB303Bridge from '../synths/TB303Bridge';
-import TD3Bridge from '../synths/TD3Bridge';
-import ARP2600Bridge from '../synths/ARP2600Bridge';
-import Juno106Bridge from '../synths/Juno106Bridge';
-import MinimoogBridge from '../synths/MinimoogBridge';
+import tr808Bridge from '../drums/TR808Bridge';
+import tr909Bridge from '../drums/TR909Bridge';
+import TB303Bridge from '../synths/TB303Bridge';  // Class export
+import TD3Bridge from '../synths/TD3Bridge';      // Class export
+import arp2600Bridge from '../synths/ARP2600Bridge';
+import juno106Bridge from '../synths/Juno106Bridge';
+import minimoogBridge from '../synths/MinimoogBridge';
 
 class TechnoWorkspace {
   constructor() {
@@ -27,12 +27,18 @@ class TechnoWorkspace {
     // Synth selection  
     this.activeSynthSwitch = 'arp2600'; // 'arp2600', 'juno106', 'minimoog', etc.
     
-    // Synthesizers
-    this.tb303 = null;
-    this.arp2600 = null;
-    this.td3 = null;
-    this.juno106 = null;
-    this.minimoog = null;
+    // Use singleton instances for drums
+    this.tr808 = tr808Bridge;
+    this.tr909 = tr909Bridge;
+    
+    // Create instances for TB303 and TD3 (class exports)
+    this.tb303 = new TB303Bridge();
+    this.td3 = new TD3Bridge();
+    
+    // Use singleton instances for other synths
+    this.arp2600 = arp2600Bridge;
+    this.juno106 = juno106Bridge;
+    this.minimoog = minimoogBridge;
     
     // Track volumes
     this.volumes = {
@@ -69,41 +75,48 @@ class TechnoWorkspace {
         shouldDuckAndroid: true,
       });
       
-      // Initialize drum machines (Web Audio Bridge)
+      // Initialize drum machines (using singleton instances)
       console.log('🥁 Initializing TR-808 drum machine...');
-      this.tr808 = new TR808Bridge();
-      await this.tr808.init();
+      if (!this.tr808.isInitialized) {
+        await this.tr808.init();
+      }
       console.log('✅ TR-808 Bridge initialized (classic 808 sound)');
       
       console.log('🥁 Initializing TR-909 drum machine...');
-      this.tr909 = new TR909Bridge();
-      await this.tr909.init();
+      if (!this.tr909.isInitialized) {
+        await this.tr909.init();
+      }
       console.log('✅ TR-909 Bridge initialized (harder techno sound)');
       
-      // Initialize synthesizers (Web Audio Bridge)
+      // Initialize synthesizers (using singleton instances)
       console.log('🎹 Initializing TB-303 bass...');
-      this.tb303 = new TB303Bridge();
-      await this.tb303.init();
+      if (!this.tb303.isInitialized) {
+        await this.tb303.init();
+      }
       console.log('✅ TB-303 Bridge initialized (classic acid bass)');
       
       console.log('🎹 Initializing TD-3 bass...');
-      this.td3 = new TD3Bridge();
-      await this.td3.init();
+      if (!this.td3.isInitialized) {
+        await this.td3.init();
+      }
       console.log('✅ TD-3 Bridge initialized (aggressive acid bass)');
       
       console.log('🎹 Initializing ARP 2600 modular synth...');
-      this.arp2600 = new ARP2600Bridge();
-      await this.arp2600.init();
+      if (!this.arp2600.isInitialized) {
+        await this.arp2600.init();
+      }
       console.log('✅ ARP 2600 Bridge initialized (dual-oscillator modular synth)');
       
       console.log('🎹 Initializing Juno-106 synth...');
-      this.juno106 = new Juno106Bridge();
-      await this.juno106.init();
+      if (!this.juno106.isInitialized) {
+        await this.juno106.init();
+      }
       console.log('✅ Juno-106 Bridge initialized (warm chorus ensemble)');
       
       console.log('🎹 Initializing Minimoog synth...');
-      this.minimoog = new MinimoogBridge();
-      await this.minimoog.init();
+      if (!this.minimoog.isInitialized) {
+        await this.minimoog.init();
+      }
       console.log('✅ Minimoog Bridge initialized (fat analog bass/lead)');
       
       // Setup sequencer callbacks

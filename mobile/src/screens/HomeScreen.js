@@ -184,7 +184,7 @@ export default function HomeScreen({ navigation }) {
             style={[styles.card, styles.synthCard]}
             onPress={() => {
               handleFirstInteraction();
-              navigation.navigate('SynthSelector');
+              navigation.navigate('SynthsSelector');
             }}
           >
             <View style={styles.cardIcon}>
@@ -207,7 +207,7 @@ export default function HomeScreen({ navigation }) {
             style={[styles.card, styles.drumCard]}
             onPress={() => {
               handleFirstInteraction();
-              navigation.navigate('DrumMachines');
+              navigation.navigate('DrumsSelector');
             }}
           >
             <View style={styles.cardIcon}>
@@ -230,7 +230,7 @@ export default function HomeScreen({ navigation }) {
             style={[styles.card, styles.bassCard]}
             onPress={() => {
               handleFirstInteraction();
-              navigation.navigate('BassStudioSelector');
+              navigation.navigate('BassSelector');
             }}
           >
             <View style={styles.cardIcon}>

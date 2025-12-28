@@ -4,7 +4,7 @@ class ARP2600Bridge {
   constructor() {
     this.isInitialized = false;
     
-    // ARP 2600 parameters - matches NativeAudioContext parameter structure
+    // ARP 2600 enhanced parameters with waveform-specific routing
     this.params = {
       osc1Level: 0.5,           // Oscillator 1 level (0-1)
       osc2Level: 0.3,           // Oscillator 2 level (0-1)
@@ -16,6 +16,38 @@ class ARP2600Bridge {
         decay: 0.1,             // Decay time in seconds
         sustain: 0.7,           // Sustain level (0-1)
         release: 0.3,           // Release time in seconds
+      },
+      // Enhanced Patch Bay Routing (Waveform-Specific)
+      routing: {
+        // VCO1 Waveform Routing
+        'vco1-saw': { to: [], level: 0.5 },          // VCO1 Sawtooth
+        'vco1-pulse': { to: [], level: 0.4 },        // VCO1 Pulse
+        // VCO2 Waveform Routing
+        'vco2-saw': { to: [], level: 0.3 },          // VCO2 Sawtooth
+        'vco2-tri': { to: [], level: 0.3 },          // VCO2 Triangle
+        // VCO3 (LFO as audio)
+        'vco3-sine': { to: [], level: 0.2 },         // VCO3 Sine
+        // Modulation Sources
+        adsr: { to: ['vca'], level: 1.0 },           // ADSR default to VCA
+        lfo: { to: [], level: 0.5 },                 // LFO modulation
+        // Noise Sources
+        'noise-white': { to: [], level: 0.3 },       // White noise
+        'noise-pink': { to: [], level: 0.3 },        // Pink noise
+        // Legacy routing flags (for compatibility)
+        vco1ToFilter: true,
+        vco2ToFilter: true,
+        vco3ToFilter: false,
+        noiseToFilter: false,
+        lfoToFM1: false,
+        lfoToFM2: false,
+        adsrToVCA: true,
+        ringModActive: false,
+      },
+      // Modulation amounts
+      modulation: {
+        lfoRate: 5.0,           // LFO rate in Hz (0.1-20)
+        lfoDepth: 0.5,          // LFO modulation depth (0-1)
+        noiseLevel: 0.3,        // Noise generator level (0-1)
       }
     };
   }
@@ -125,6 +157,121 @@ class ARP2600Bridge {
 
   setResonance(value) {
     this.setFilterResonance(value);
+  }
+  
+  // Enhanced Patch Bay Routing with Waveform-Specific Logic
+  updatePatchRouting(patches) {
+    // Reset all waveform-specific routing
+    this.params.routing['vco1-saw'].to = [];
+    this.params.routing['vco1-pulse'].to = [];
+    this.params.routing['vco2-saw'].to = [];
+    this.params.routing['vco2-tri'].to = [];
+    this.params.routing['vco3-sine'].to = [];
+    this.params.routing.adsr.to = [];
+    this.params.routing.lfo.to = [];
+    this.params.routing['noise-white'].to = [];
+    this.params.routing['noise-pink'].to = [];
+    
+    // Reset legacy flags
+    this.params.routing.vco1ToFilter = false;
+    this.params.routing.vco2ToFilter = false;
+    this.params.routing.vco3ToFilter = false;
+    this.params.routing.noiseToFilter = false;
+    this.params.routing.lfoToFM1 = false;
+    this.params.routing.lfoToFM2 = false;
+    this.params.routing.adsrToVCA = false;
+    this.params.routing.ringModActive = false;
+    
+    // Apply patches with waveform-specific routing
+    patches.forEach(patch => {
+      const routeKey = `${patch.from}-${patch.to}`;
+      const source = this.params.routing[patch.from];
+      
+      if (source) {
+        // Add destination to source's routing array
+        if (!source.to.includes(patch.to)) {
+          source.to.push(patch.to);
+        }
+      }
+      
+      // Also set legacy flags for backward compatibility
+      switch (routeKey) {
+        case 'vco1-saw-vcf':
+        case 'vco1-pulse-vcf':
+          this.params.routing.vco1ToFilter = true;
+          console.log('📐 ARP2600: VCO1', patch.from.includes('saw') ? 'SAW' : 'PULSE', '→ Filter');
+          break;
+        case 'vco2-saw-vcf':
+        case 'vco2-tri-vcf':
+          this.params.routing.vco2ToFilter = true;
+          console.log('📐 ARP2600: VCO2', patch.from.includes('saw') ? 'SAW' : 'TRI', '→ Filter');
+          break;
+        case 'vco3-sine-vcf':
+          this.params.routing.vco3ToFilter = true;
+          console.log('〰️ ARP2600: VCO3 SINE → Filter');
+          break;
+        case 'noise-white-vcf':
+          this.params.routing.noiseToFilter = true;
+          console.log('❄️ ARP2600: WHITE NOISE → Filter');
+          break;
+        case 'noise-pink-vcf':
+          this.params.routing.noiseToFilter = true;
+          console.log('🌸 ARP2600: PINK NOISE → Filter');
+          break;
+        case 'lfo-fm1':
+          this.params.routing.lfoToFM1 = true;
+          console.log('🌀 ARP2600: LFO → VCO1 FM');
+          break;
+        case 'lfo-fm2':
+          this.params.routing.lfoToFM2 = true;
+          console.log('🌀 ARP2600: LFO → VCO2 FM');
+          break;
+        case 'lfo-vcf-cv':
+          console.log('🌀 ARP2600: LFO → VCF CV (filter sweep)');
+          break;
+        case 'lfo-vca-cv':
+          console.log('🌀 ARP2600: LFO → VCA CV (tremolo)');
+          break;
+        case 'adsr-vca':
+          this.params.routing.adsrToVCA = true;
+          console.log('📈 ARP2600: ADSR → VCA');
+          break;
+        case 'adsr-vcf-cv':
+          console.log('📈 ARP2600: ADSR → VCF CV (envelope filter)');
+          break;
+        case 'vco1-saw-ringMod':
+        case 'vco1-pulse-ringMod':
+        case 'vco2-saw-ringMod':
+        case 'vco2-tri-ringMod':
+          this.params.routing.ringModActive = true;
+          console.log('💍 ARP2600: Ring Modulation active');
+          break;
+      }
+    });
+    
+    console.log('🔌 ARP2600: Enhanced routing updated');
+    console.log('   VCO1-SAW →', this.params.routing['vco1-saw'].to.join(', ') || 'none');
+    console.log('   VCO1-PULSE →', this.params.routing['vco1-pulse'].to.join(', ') || 'none');
+    console.log('   VCO2-SAW →', this.params.routing['vco2-saw'].to.join(', ') || 'none');
+    console.log('   VCO2-TRI →', this.params.routing['vco2-tri'].to.join(', ') || 'none');
+    console.log('   VCO3-SINE →', this.params.routing['vco3-sine'].to.join(', ') || 'none');
+    console.log('   LFO →', this.params.routing.lfo.to.join(', ') || 'none');
+    console.log('   ADSR →', this.params.routing.adsr.to.join(', ') || 'none');
+  }
+  
+  setLFORate(rate) {
+    this.params.modulation.lfoRate = Math.max(0.1, Math.min(rate, 20));
+    console.log('ARP2600: LFO Rate =', this.params.modulation.lfoRate.toFixed(1), 'Hz');
+  }
+  
+  setLFODepth(depth) {
+    this.params.modulation.lfoDepth = Math.max(0, Math.min(depth, 1));
+    console.log('ARP2600: LFO Depth =', (this.params.modulation.lfoDepth * 100).toFixed(0), '%');
+  }
+  
+  setNoiseLevel(level) {
+    this.params.modulation.noiseLevel = Math.max(0, Math.min(level, 1));
+    console.log('ARP2600: Noise Level =', (this.params.modulation.noiseLevel * 100).toFixed(0), '%');
   }
 
   // Preset management

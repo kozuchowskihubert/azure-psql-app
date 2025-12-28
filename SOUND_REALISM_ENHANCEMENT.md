@@ -13,7 +13,7 @@ Significantly enhanced the realism of all instruments in the Beat Maker with imp
 
 ### **Kick Drum** - Professional 3-Layer Synthesis
 **Before**: Simple sine wave with pitch sweep  
-**After**: Multi-layered acoustic kick drum
+**After**: Multi-layered acou3stic kick drum
 
 **Layers:**
 1. **Main Body** (150 Hz → 50 Hz → 40 Hz)

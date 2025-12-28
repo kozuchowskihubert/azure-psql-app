@@ -577,6 +577,151 @@ class NativeAudioContextManager {
   }
 
   /**
+   * Play a bass note with professional synthesis
+   * @param {number} frequency - Note frequency in Hz
+   * @param {number} velocity - Note velocity (0-1)
+   * @param {number} duration - Note duration in seconds
+   * @param {object} params - Bass synthesis parameters
+   * @param {number} params.osc1Level - Oscillator 1 level (0-1)
+   * @param {number} params.osc2Level - Oscillator 2 level (0-1)
+   * @param {number} params.detune - Detune amount in cents (0-50)
+   * @param {number} params.cutoff - Filter cutoff frequency (50-5000 Hz)
+   * @param {number} params.resonance - Filter resonance Q (0-20)
+   * @param {number} params.envAmount - Filter envelope amount (0-1)
+   * @param {number} params.attack - Attack time in seconds
+   * @param {number} params.decay - Decay time in seconds
+   * @param {number} params.sustain - Sustain level (0-1)
+   * @param {number} params.release - Release time in seconds
+   * @param {number} params.distortion - Distortion amount (0-100)
+   */
+  playBassNote(frequency, velocity = 1.0, duration = 1.0, params = {}) {
+    if (!this.isInitialized) return;
+
+    try {
+      // Extract parameters with defaults
+      const {
+        osc1Level = 0.8,
+        osc2Level = 0.6,
+        detune = 5,
+        cutoff = 1000,
+        resonance = 5,
+        envAmount = 0.5,
+        attack = 0.01,
+        decay = 0.3,
+        sustain = 0.7,
+        release = 0.5,
+        distortion = 20,
+      } = params;
+
+      const now = this.audioContext.currentTime;
+      const envelope = { attack, decay, sustain, release };
+      
+      // Dual oscillator bass (Sawtooth + Sub)
+      const osc1 = this.audioContext.createOscillator();
+      osc1.type = 'sawtooth';
+      osc1.frequency.value = frequency;
+      
+      const osc2 = this.audioContext.createOscillator();
+      osc2.type = 'sawtooth';
+      osc2.frequency.value = frequency * (1 + detune / 100); // Detune in cents
+      
+      // Oscillator gains
+      const osc1Gain = this.audioContext.createGain();
+      osc1Gain.gain.value = osc1Level * 0.5; // Scale down to prevent clipping
+      
+      const osc2Gain = this.audioContext.createGain();
+      osc2Gain.gain.value = osc2Level * 0.5;
+      
+      // Moog-style ladder filter
+      const filter = this.audioContext.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.Q.value = resonance;
+      
+      // Filter envelope modulation
+      const filterStart = Math.max(50, cutoff * 0.5);
+      const filterPeak = Math.min(5000, cutoff * (1 + envAmount * 3));
+      const filterSustain = cutoff;
+      
+      filter.frequency.setValueAtTime(filterStart, now);
+      filter.frequency.exponentialRampToValueAtTime(filterPeak, now + envelope.attack);
+      filter.frequency.exponentialRampToValueAtTime(filterSustain, now + envelope.attack + envelope.decay);
+      
+      // Waveshaper for distortion
+      const waveshaper = this.audioContext.createWaveShaper();
+      if (distortion > 0) {
+        const curve = new Float32Array(256);
+        const deg = distortion / 100;
+        for (let i = 0; i < 256; i++) {
+          const x = (i / 128) - 1;
+          curve[i] = Math.tanh(x * (1 + deg * 10)) * (1 / (1 + deg * 0.3));
+        }
+        waveshaper.curve = curve;
+        waveshaper.oversample = '2x';
+      }
+      
+      // VCA with ADSR envelope
+      const gainNode = this.audioContext.createGain();
+      gainNode.gain.setValueAtTime(0, now);
+      
+      // Attack
+      gainNode.gain.linearRampToValueAtTime(velocity * 0.7, now + envelope.attack);
+      // Decay to sustain
+      gainNode.gain.linearRampToValueAtTime(velocity * 0.7 * envelope.sustain, now + envelope.attack + envelope.decay);
+      // Hold sustain
+      gainNode.gain.setValueAtTime(velocity * 0.7 * envelope.sustain, now + duration);
+      // Release
+      gainNode.gain.linearRampToValueAtTime(0, now + duration + envelope.release);
+      
+      // Connect audio graph: OSC -> OSC_GAIN -> FILTER -> WAVESHAPER -> GAIN -> OUTPUT
+      osc1.connect(osc1Gain);
+      osc2.connect(osc2Gain);
+      osc1Gain.connect(filter);
+      osc2Gain.connect(filter);
+      
+      if (distortion > 0) {
+        filter.connect(waveshaper);
+        waveshaper.connect(gainNode);
+      } else {
+        filter.connect(gainNode);
+      }
+      
+      gainNode.connect(this.audioContext.destination);
+      
+      // Start oscillators
+      osc1.start(now);
+      osc2.start(now);
+      
+      // Stop oscillators after duration + release
+      const stopTime = now + duration + envelope.release;
+      osc1.stop(stopTime);
+      osc2.stop(stopTime);
+      
+      console.log('🔊 Bass note played:', frequency.toFixed(2), 'Hz',
+        `OSC[${osc1Level.toFixed(2)},${osc2Level.toFixed(2)}]`,
+        `Detune[${detune}¢]`,
+        `Filter[${cutoff}Hz,Q${resonance},Env${(envAmount * 100).toFixed(0)}%]`,
+        `ADSR[${attack.toFixed(3)}/${decay.toFixed(3)}/${sustain.toFixed(2)}/${release.toFixed(3)}]`,
+        `Dist[${distortion.toFixed(0)}%]`);
+      
+      // Return node references for real-time parameter updates
+      return {
+        osc1,
+        osc2,
+        osc1Gain,
+        osc2Gain,
+        filter,
+        gainNode,
+        waveshaper: distortion > 0 ? waveshaper : null,
+        stopTime,
+        startTime: now
+      };
+    } catch (error) {
+      console.error('Bass play error:', error);
+      return null;
+    }
+  }
+
+  /**
    * Convert note name to frequency
    */
   noteToFrequency(note) {

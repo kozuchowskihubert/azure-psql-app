@@ -3,7 +3,7 @@
  * Professional bass synthesizer with dual oscillators, filter, ADSR, and effects
  */
 
-import { NativeAudioContext } from '../audio/NativeAudioContext';
+import nativeAudioContext from './NativeAudioContext';
 
 // Bass presets matching web version
 const PRESETS = {
@@ -174,16 +174,16 @@ export default class BassAudioEngine {
     if (this.isInitialized) return;
 
     try {
-      this.context = NativeAudioContext;
+      this.context = nativeAudioContext;
       await this.context.initialize();
       this.isInitialized = true;
       
       // Load default preset
       this.loadPreset(this.currentPreset);
       
-      console.log('Bass Audio Engine initialized');
+      console.log('✅ Bass Audio Engine initialized');
     } catch (error) {
-      console.error('Failed to initialize Bass Audio Engine:', error);
+      console.error('❌ Failed to initialize Bass Audio Engine:', error);
     }
   }
 
@@ -191,20 +191,88 @@ export default class BassAudioEngine {
     if (PRESETS[presetId]) {
       this.currentPreset = presetId;
       this.params = { ...PRESETS[presetId] };
-      console.log(`Loaded preset: ${PRESETS[presetId].name}`);
+      console.log(`✅ Loaded preset: ${PRESETS[presetId].name}`);
+      
+      // Play a demo note to preview the preset sound
+      this.playPresetDemo();
     }
+  }
+  
+  playPresetDemo() {
+    if (!this.isInitialized || !this.context) {
+      console.warn('Bass engine not initialized - cannot play demo');
+      return;
+    }
+    
+    // Play a single bass note (E1 - MIDI 40) to preview the sound
+    console.log(`🎸 Playing demo note for ${this.params.name} preset`);
+    this.playNote(40, 0.8, 1.5); // E1, velocity 0.8, duration 1.5 seconds
   }
 
   setParameter(param, value) {
     if (this.params.hasOwnProperty(param)) {
       this.params[param] = value;
       
-      // Update active voices if needed
+      // Update active voices with real-time parameter changes (like hardware!)
+      const now = this.context.audioContext.currentTime;
       this.voices.forEach(voice => {
         if (voice.params && voice.params[param] !== undefined) {
           voice.params[param] = value;
         }
+        
+        // Update live Web Audio nodes for real-time response
+        if (voice.nodes) {
+          try {
+            switch (param) {
+              case 'cutoff':
+                if (voice.nodes.filter) {
+                  // Smooth transition to new cutoff frequency
+                  voice.nodes.filter.frequency.setTargetAtTime(value, now, 0.01);
+                }
+                break;
+                
+              case 'resonance':
+                if (voice.nodes.filter) {
+                  // Smooth transition to new resonance
+                  voice.nodes.filter.Q.setTargetAtTime(value, now, 0.01);
+                }
+                break;
+                
+              case 'osc1Level':
+                if (voice.nodes.osc1Gain) {
+                  // Smooth transition to new oscillator 1 level
+                  voice.nodes.osc1Gain.gain.setTargetAtTime(value, now, 0.01);
+                }
+                break;
+                
+              case 'osc2Level':
+                if (voice.nodes.osc2Gain) {
+                  // Smooth transition to new oscillator 2 level
+                  voice.nodes.osc2Gain.gain.setTargetAtTime(value, now, 0.01);
+                }
+                break;
+                
+              case 'detune':
+                if (voice.nodes.osc2) {
+                  // Update oscillator 2 detune immediately
+                  voice.nodes.osc2.detune.setValueAtTime(value, now);
+                }
+                break;
+                
+              // ADSR parameters affect next notes only (can't change envelope mid-flight)
+              // distortion, chorus, compression require rebuilding audio graph
+              
+              default:
+                // Parameter doesn't support real-time updates
+                break;
+            }
+          } catch (error) {
+            console.warn(`Failed to update ${param} in real-time:`, error);
+          }
+        }
       });
+      
+      console.log(`🎛️ Parameter updated: ${param} = ${value.toFixed(3)} [${this.voices.length} active voices]`);
     }
   }
 
@@ -275,13 +343,15 @@ export default class BassAudioEngine {
       velocity,
       params: { ...this.params },
       startTime: Date.now(),
+      nodes: null, // Will store Web Audio nodes for real-time updates
     };
 
     // Play through native audio context
     try {
       // Use the bass synthesis method if available
       if (this.context.playBassNote) {
-        this.context.playBassNote(frequency, velocity, duration, this.params);
+        const nodes = this.context.playBassNote(frequency, velocity, duration, this.params);
+        voice.nodes = nodes; // Store node references
       } else {
         // Fallback to basic note playback
         this.context.playNote(midiNote, velocity, duration);

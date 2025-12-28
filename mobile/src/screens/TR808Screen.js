@@ -12,6 +12,7 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
+  Slider,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import tr808Bridge from '../drums/TR808Bridge';
@@ -54,10 +55,29 @@ const TR808Screen = ({ navigation }) => {
     cymbal: 0.6,
     tom: 0.7,
   });
+  
+  // Per-voice envelope controls (decay & tone)
+  const [envelopes, setEnvelopes] = useState({
+    kick: { decay: 0.5, tone: 0.5 },      // Decay: 50ms-1s, Tone: pitch
+    snare: { decay: 0.3, tone: 0.6 },     // Decay: 30ms-500ms, Tone: snappy
+    hihat: { decay: 0.2, tone: 0.7 },     // Decay: 20ms-300ms, Tone: bright
+    clap: { decay: 0.25, tone: 0.5 },     // Decay: fixed, Tone: reverb
+    rimshot: { decay: 0.15, tone: 0.8 },  // Decay: 15ms-200ms, Tone: metallic
+    cowbell: { decay: 0.4, tone: 0.6 },   // Decay: 40ms-800ms, Tone: pitch
+    cymbal: { decay: 0.6, tone: 0.5 },    // Decay: 60ms-2s, Tone: brightness
+    tom: { decay: 0.45, tone: 0.4 },      // Decay: 45ms-900ms, Tone: pitch
+  });
+  
+  const [showEnvelopes, setShowEnvelopes] = useState(false);
 
   const stepRefs = useRef({});
   const intervalRef = useRef(null);
   const ledAnim = useRef(new Animated.Value(0)).current;
+  
+  // Visual enhancement animations
+  const stepGlowAnims = useRef(
+    Array(16).fill(0).map(() => new Animated.Value(0))
+  ).current;
 
   useEffect(() => {
     initializeDrums();
@@ -104,6 +124,16 @@ const TR808Screen = ({ navigation }) => {
       ),
     }));
   };
+  
+  const updateEnvelope = (drum, param, value) => {
+    setEnvelopes(prev => ({
+      ...prev,
+      [drum]: {
+        ...prev[drum],
+        [param]: value,
+      },
+    }));
+  };
 
   const playSequence = async () => {
     if (isPlaying) {
@@ -122,6 +152,20 @@ const TR808Screen = ({ navigation }) => {
     intervalRef.current = setInterval(() => {
       setCurrentStep(prev => {
         const nextStep = (prev + 1) % 16;
+        
+        // Trigger glow animation for current step
+        Animated.sequence([
+          Animated.timing(stepGlowAnims[nextStep], {
+            toValue: 1,
+            duration: 50,
+            useNativeDriver: true,
+          }),
+          Animated.timing(stepGlowAnims[nextStep], {
+            toValue: 0,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+        ]).start();
         
         // Play active instruments
         Object.keys(pattern).forEach(instrument => {
@@ -183,21 +227,51 @@ const TR808Screen = ({ navigation }) => {
   const renderStepButton = (instrument, step) => {
     const isActive = pattern[instrument][step];
     const isCurrent = step === currentStep && isPlaying;
+    const glowOpacity = stepGlowAnims[step];
     
     return (
-      <TouchableOpacity
-        key={`${instrument}-${step}`}
-        style={[
-          styles.stepButton,
-          isActive && styles.stepButtonActive,
-          isCurrent && styles.stepButtonCurrent,
-        ]}
-        onPress={() => toggleStep(instrument, step)}
-      >
-        {isCurrent && (
-          <View style={styles.stepIndicator} />
+      <View key={`${instrument}-${step}`} style={styles.stepWrapper}>
+        {/* Glow ring for current step */}
+        {isCurrent && isActive && (
+          <Animated.View
+            style={[
+              styles.stepGlowRing,
+              {
+                opacity: glowOpacity,
+                transform: [{
+                  scale: glowOpacity.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.3],
+                  }),
+                }],
+              },
+            ]}
+          />
         )}
-      </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[
+            styles.stepButton,
+            isActive && styles.stepButtonActive,
+            isCurrent && styles.stepButtonCurrent,
+            isActive && isCurrent && styles.stepButtonPlaying,
+          ]}
+          onPress={() => toggleStep(instrument, step)}
+        >
+          {/* Velocity indicator bar for active steps */}
+          {isActive && (
+            <View
+              style={[
+                styles.velocityBar,
+                {
+                  height: `${levels[instrument] * 100}%`,
+                  backgroundColor: isCurrent ? HAOS_COLORS.orange : HAOS_COLORS.green,
+                },
+              ]}
+            />
+          )}
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -259,6 +333,22 @@ const TR808Screen = ({ navigation }) => {
               <Text style={styles.controlLabel}>TEMPO</Text>
               <View style={styles.bpmDisplay}>
                 <Text style={styles.bpmText}>{bpm}</Text>
+                {isPlaying && (
+                  <Animated.View
+                    style={[
+                      styles.tempoPulse,
+                      {
+                        opacity: ledAnim,
+                        transform: [{
+                          scale: ledAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0.8, 1.2],
+                          }),
+                        }],
+                      },
+                    ]}
+                  />
+                )}
               </View>
               <View style={styles.bpmButtons}>
                 <TouchableOpacity
@@ -398,12 +488,28 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: HAOS_COLORS.orange,
     marginBottom: 8,
+    position: 'relative',
+    minWidth: 80,
+    alignItems: 'center',
   },
   bpmText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: HAOS_COLORS.orange,
     fontFamily: 'monospace',
+  },
+  tempoPulse: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: HAOS_COLORS.led,
+    shadowColor: HAOS_COLORS.led,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 6,
   },
   bpmButtons: {
     flexDirection: 'row',
@@ -502,30 +608,62 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flex: 1,
   },
+  stepWrapper: {
+    position: 'relative',
+    marginRight: 2,
+  },
+  stepGlowRing: {
+    position: 'absolute',
+    top: -3,
+    left: -3,
+    right: -3,
+    bottom: -3,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: HAOS_COLORS.orange,
+    shadowColor: HAOS_COLORS.orange,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+  },
   stepButton: {
     width: 16,
     height: 32,
     backgroundColor: '#1a1a1a',
     borderWidth: 1,
     borderColor: '#333',
-    marginRight: 2,
     borderRadius: 2,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    position: 'relative',
   },
   stepButtonActive: {
-    backgroundColor: HAOS_COLORS.orange,
-    borderColor: HAOS_COLORS.orange,
+    backgroundColor: HAOS_COLORS.green,
+    borderColor: HAOS_COLORS.green,
+    shadowColor: HAOS_COLORS.green,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
   },
   stepButtonCurrent: {
-    borderColor: HAOS_COLORS.green,
+    borderColor: HAOS_COLORS.orange,
     borderWidth: 2,
   },
-  stepIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  stepButtonPlaying: {
+    backgroundColor: HAOS_COLORS.orange,
+    shadowColor: HAOS_COLORS.orange,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+  },
+  velocityBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: HAOS_COLORS.green,
+    borderRadius: 2,
   },
   levelSlider: {
     width: 40,

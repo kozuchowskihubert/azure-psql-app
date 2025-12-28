@@ -1,6 +1,6 @@
 /**
- * HAOS.fm Effects Selector Screen
- * Modern card-based selector for audio effects
+ * HAOS.fm Bass Studio Selector Screen
+ * Modern card-based selector for bass presets
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -18,158 +18,157 @@ import { COLORS, TYPO, SPACING } from '../styles/HAOSDesignSystem';
 
 const { width } = Dimensions.get('window');
 
-const EFFECTS = [
+const BASS_PRESETS = [
   {
-    id: 'reverb',
-    name: 'REVERB',
-    emoji: '🌊',
-    description: 'Space and ambience simulation',
-    color: '#00D9FF',
-    gradient: ['#00D9FF', '#0088FF'],
-    params: {
-      roomSize: 'Variable',
-      decay: '0.1-10s',
-      predelay: '0-100ms',
-      damping: 'Hi/Lo Cut',
-    },
-    features: ['Room', 'Hall', 'Plate', 'Spring'],
-    types: ['ROOM', 'HALL', 'PLATE', 'SPRING', 'SHIMMER'],
-    screen: 'Effects',
-    category: 'SPACE',
-  },
-  {
-    id: 'delay',
-    name: 'DELAY',
-    emoji: '⏱️',
-    description: 'Echoes and rhythmic repeats',
-    color: '#8B5CF6',
-    gradient: ['#8B5CF6', '#A855F7'],
-    params: {
-      time: '1-2000ms',
-      feedback: '0-100%',
-      sync: 'BPM Locked',
-      filter: 'Lo/Hi Pass',
-    },
-    features: ['Ping-Pong', 'Tape', 'Digital', 'Analog'],
-    types: ['STEREO', 'PING-PONG', 'TAPE', 'MULTI-TAP'],
-    screen: 'Effects',
-    category: 'TIME',
-  },
-  {
-    id: 'chorus',
-    name: 'CHORUS',
-    emoji: '🎭',
-    description: 'Rich stereo widening effect',
-    color: '#FF69B4',
-    gradient: ['#FF69B4', '#FF1493'],
-    params: {
-      depth: '0-100%',
-      rate: '0.1-10 Hz',
-      voices: '2-8',
-      mix: '0-100%',
-    },
-    features: ['Wide', 'Ensemble', 'Detune', 'Stereo'],
-    types: ['CLASSIC', 'ENSEMBLE', 'DIMENSION-D'],
-    screen: 'Effects',
-    category: 'MODULATION',
-  },
-  {
-    id: 'filter',
-    name: 'FILTER',
-    emoji: '🎛️',
-    description: 'Frequency shaping and sweeps',
+    id: 'acid',
+    name: 'ACID BASS',
+    emoji: '🧪',
+    description: 'Classic TB-303 squelchy acid lines',
     color: '#00FF88',
     gradient: ['#00FF88', '#00CC66'],
     params: {
-      cutoff: '20Hz-20kHz',
-      resonance: '0-100%',
-      type: 'LP/HP/BP/Notch',
-      slope: '12-48 dB/oct',
+      slide: '80ms',
+      pitchBend: '±12',
+      vibrato: '30%',
+      subOsc: '40%',
     },
-    features: ['Lowpass', 'Highpass', 'Bandpass', 'Notch'],
-    types: ['LP24', 'HP24', 'BP12', 'NOTCH', 'COMB'],
-    screen: 'Effects',
-    category: 'FILTER',
+    features: ['Resonance', 'Slide', 'Accent', 'Decay'],
+    values: {
+      slide: 0.08,
+      pitchBend: 0,
+      vibrato: 0.3,
+      subOsc: 0.4,
+      octaves: 1,
+    },
+    year: '1982',
+    genre: 'TECHNO • ACID',
   },
   {
-    id: 'distortion',
-    name: 'DISTORTION',
-    emoji: '🔥',
-    description: 'Harmonic saturation and grit',
-    color: '#FF4500',
-    gradient: ['#FF4500', '#FF6347'],
+    id: 'sub',
+    name: 'SUB BASS',
+    emoji: '💥',
+    description: 'Deep rumbling sub frequencies',
+    color: '#FF1493',
+    gradient: ['#FF1493', '#8B008B'],
     params: {
-      drive: '0-100%',
-      tone: 'Dark-Bright',
-      type: 'Soft/Hard',
-      output: '-∞ to +12dB',
+      slide: '20ms',
+      pitchBend: '±2',
+      vibrato: '5%',
+      subOsc: '100%',
     },
-    features: ['Overdrive', 'Fuzz', 'Bitcrush', 'Saturation'],
-    types: ['SOFT', 'HARD', 'FUZZ', 'BITCRUSH', 'TUBE'],
-    screen: 'Effects',
-    category: 'DYNAMICS',
+    features: ['Deep', 'Clean', 'Tight', 'Power'],
+    values: {
+      slide: 0.02,
+      pitchBend: 0,
+      vibrato: 0.05,
+      subOsc: 1.0,
+      octaves: 3,
+    },
+    year: '2025',
+    genre: 'DUB • TRAP',
   },
   {
-    id: 'compressor',
-    name: 'COMPRESSOR',
-    emoji: '📊',
-    description: 'Dynamic range control',
+    id: 'wobble',
+    name: 'WOBBLE BASS',
+    emoji: '🌊',
+    description: 'Dubstep LFO modulated madness',
+    color: '#00D9FF',
+    gradient: ['#00D9FF', '#0088FF'],
+    params: {
+      slide: '40ms',
+      pitchBend: '±5',
+      vibrato: '80%',
+      subOsc: '60%',
+    },
+    features: ['LFO', 'Wide', 'Powerful', 'Movement'],
+    values: {
+      slide: 0.04,
+      pitchBend: -5,
+      vibrato: 0.8,
+      subOsc: 0.6,
+      octaves: 2,
+    },
+    year: '2010',
+    genre: 'DUBSTEP • BASS',
+  },
+  {
+    id: '808',
+    name: '808 BASS',
+    emoji: '🥁',
+    description: 'Punchy trap 808 sub kicks',
+    color: '#FF8800',
+    gradient: ['#FF8800', '#FFAA00'],
+    params: {
+      slide: '10ms',
+      pitchBend: '±1',
+      vibrato: '0%',
+      subOsc: '80%',
+    },
+    features: ['Punchy', 'Tight', 'Clean', 'Attack'],
+    values: {
+      slide: 0.01,
+      pitchBend: 0,
+      vibrato: 0,
+      subOsc: 0.8,
+      octaves: 1,
+    },
+    year: '1980',
+    genre: 'TRAP • HIP-HOP',
+  },
+  {
+    id: 'reese',
+    name: 'REESE BASS',
+    emoji: '🎸',
+    description: 'Detuned wide DnB growl',
+    color: '#8B5CF6',
+    gradient: ['#8B5CF6', '#A855F7'],
+    params: {
+      slide: '60ms',
+      pitchBend: '±8',
+      vibrato: '50%',
+      subOsc: '70%',
+    },
+    features: ['Detune', 'Wide', 'Growl', 'Movement'],
+    values: {
+      slide: 0.06,
+      pitchBend: 0,
+      vibrato: 0.5,
+      subOsc: 0.7,
+      octaves: 2,
+    },
+    year: '1992',
+    genre: 'DnB • JUNGLE',
+  },
+  {
+    id: 'pluck',
+    name: 'PLUCK BASS',
+    emoji: '⚡',
+    description: 'Fast attack funk bass lines',
     color: '#FFD700',
     gradient: ['#FFD700', '#FFA500'],
     params: {
-      ratio: '1:1 to ∞:1',
-      threshold: '-60 to 0dB',
-      attack: '0.1-100ms',
-      release: '10-1000ms',
+      slide: '5ms',
+      pitchBend: '±3',
+      vibrato: '15%',
+      subOsc: '20%',
     },
-    features: ['Peak', 'RMS', 'Sidechain', 'Makeup'],
-    types: ['PEAK', 'RMS', 'VCA', 'OPTICAL', 'FET'],
-    screen: 'Effects',
-    category: 'DYNAMICS',
-  },
-  {
-    id: 'eq',
-    name: 'EQUALIZER',
-    emoji: '📈',
-    description: 'Precise frequency control',
-    color: '#32CD32',
-    gradient: ['#32CD32', '#228B22'],
-    params: {
-      bands: '3 / 8 / 31',
-      range: '20Hz-20kHz',
-      gain: '±24dB',
-      q: '0.1-10',
+    features: ['Fast', 'Bright', 'Percussive', 'Funk'],
+    values: {
+      slide: 0.005,
+      pitchBend: 0,
+      vibrato: 0.15,
+      subOsc: 0.2,
+      octaves: 1,
     },
-    features: ['Lo-Shelf', 'Hi-Shelf', 'Parametric', 'Notch'],
-    types: ['3-BAND', '8-BAND', 'PARAMETRIC', 'GRAPHIC'],
-    screen: 'Effects',
-    category: 'TONE',
-  },
-  {
-    id: 'master',
-    name: 'MASTER FX',
-    emoji: '🎚️',
-    description: 'Final stage processing chain',
-    color: '#FFFFFF',
-    gradient: ['#666666', '#999999'],
-    params: {
-      limiter: 'Brick Wall',
-      stereo: 'Width Control',
-      analyzer: 'Spectrum/FFT',
-      output: '-∞ to +12dB',
-    },
-    features: ['Limiter', 'Stereo', 'Analyzer', 'Dither'],
-    types: ['LIMITER', 'MAXIMIZER', 'IMAGING', 'METERING'],
-    screen: 'Effects',
-    category: 'MASTER',
+    year: '1975',
+    genre: 'FUNK • DISCO',
   },
 ];
 
-
-export default function EffectsSelectorScreen({ navigation }) {
-  const [selectedEffect, setSelectedEffect] = useState(null);
+export default function BassSelectorScreen({ navigation }) {
+  const [selectedBass, setSelectedBass] = useState(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnims = useRef(EFFECTS.map(() => new Animated.Value(50))).current;
+  const slideAnims = useRef(BASS_PRESETS.map(() => new Animated.Value(50))).current;
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -191,11 +190,15 @@ export default function EffectsSelectorScreen({ navigation }) {
     ).start();
   }, []);
 
-  const handleEffectSelect = (effect) => {
-    setSelectedEffect(effect.id);
+  const handleBassSelect = (bass) => {
+    setSelectedBass(bass.id);
     setTimeout(() => {
-      navigation.navigate(effect.screen, { effectId: effect.id });
-      setSelectedEffect(null);
+      // Navigate to TB-303 screen with preset applied
+      navigation.navigate('TB303', { 
+        preset: bass.values,
+        presetName: bass.name 
+      });
+      setSelectedBass(null);
     }, 200);
   };
 
@@ -210,20 +213,20 @@ export default function EffectsSelectorScreen({ navigation }) {
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>🎚️ EFFECTS RACK</Text>
-          <Text style={styles.headerSubtitle}>Studio-grade processing</Text>
+          <Text style={styles.headerTitle}>🎸 BASS STUDIO</Text>
+          <Text style={styles.headerSubtitle}>Professional bass presets</Text>
         </View>
       </View>
 
-      {/* Effects Grid */}
+      {/* Bass Presets Grid */}
       <Animated.ScrollView 
         style={[styles.scrollView, { opacity: fadeAnim }]}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {EFFECTS.map((effect, index) => (
+        {BASS_PRESETS.map((bass, index) => (
           <Animated.View
-            key={effect.id}
+            key={bass.id}
             style={[
               styles.cardWrapper,
               {
@@ -233,33 +236,38 @@ export default function EffectsSelectorScreen({ navigation }) {
           >
             <TouchableOpacity
               activeOpacity={0.9}
-              onPress={() => handleEffectSelect(effect)}
+              onPress={() => handleBassSelect(bass)}
               style={[
                 styles.card,
-                selectedEffect === effect.id && styles.cardPressed,
+                selectedBass === bass.id && styles.cardPressed,
               ]}
             >
               <LinearGradient
-                colors={effect.gradient}
+                colors={bass.gradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.cardGradient}
               >
                 {/* Card Header */}
                 <View style={styles.cardHeader}>
-                  <Text style={styles.effectEmoji}>{effect.emoji}</Text>
-                  <View style={styles.categoryBadge}>
-                    <Text style={styles.categoryText}>{effect.category}</Text>
+                  <Text style={styles.bassEmoji}>{bass.emoji}</Text>
+                  <View style={styles.yearBadge}>
+                    <Text style={styles.yearText}>{bass.year}</Text>
                   </View>
                 </View>
 
-                {/* Effect Name */}
-                <Text style={styles.effectName}>{effect.name}</Text>
-                <Text style={styles.effectDescription}>{effect.description}</Text>
+                {/* Bass Name */}
+                <Text style={styles.bassName}>{bass.name}</Text>
+                <Text style={styles.bassDescription}>{bass.description}</Text>
+
+                {/* Genre Badge */}
+                <View style={styles.genreBadge}>
+                  <Text style={styles.genreText}>{bass.genre}</Text>
+                </View>
 
                 {/* Parameters Grid */}
                 <View style={styles.paramsGrid}>
-                  {Object.entries(effect.params).map(([key, value]) => (
+                  {Object.entries(bass.params).map(([key, value]) => (
                     <View key={key} style={styles.paramItem}>
                       <Text style={styles.paramLabel}>{key.toUpperCase()}</Text>
                       <Text style={styles.paramValue}>{value}</Text>
@@ -267,18 +275,9 @@ export default function EffectsSelectorScreen({ navigation }) {
                   ))}
                 </View>
 
-                {/* Types Pills */}
-                <View style={styles.typesRow}>
-                  {effect.types.map((type) => (
-                    <View key={type} style={styles.typePill}>
-                      <Text style={styles.typeText}>{type}</Text>
-                    </View>
-                  ))}
-                </View>
-
                 {/* Features Pills */}
                 <View style={styles.featuresRow}>
-                  {effect.features.map((feature) => (
+                  {bass.features.map((feature) => (
                     <View key={feature} style={styles.featurePill}>
                       <Text style={styles.featureText}>{feature}</Text>
                     </View>
@@ -287,7 +286,7 @@ export default function EffectsSelectorScreen({ navigation }) {
 
                 {/* Launch Button */}
                 <View style={styles.launchButton}>
-                  <Text style={styles.launchText}>LAUNCH →</Text>
+                  <Text style={styles.launchText}>LOAD PRESET →</Text>
                 </View>
               </LinearGradient>
             </TouchableOpacity>
@@ -299,7 +298,6 @@ export default function EffectsSelectorScreen({ navigation }) {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -313,27 +311,27 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 215, 0, 0.2)',
+    borderBottomColor: 'rgba(255, 20, 147, 0.2)',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    backgroundColor: 'rgba(255, 20, 147, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
   },
   backIcon: {
     fontSize: 24,
-    color: '#FFD700',
+    color: '#FF1493',
   },
   headerContent: {
     flex: 1,
   },
   headerTitle: {
     ...TYPO.h2,
-    color: '#FFD700',
+    color: '#FF1493',
     fontWeight: 'bold',
     letterSpacing: 2,
     marginBottom: 4,
@@ -373,13 +371,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  effectEmoji: {
+  bassEmoji: {
     fontSize: 56,
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
   },
-  categoryBadge: {
+  yearBadge: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -387,13 +385,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  categoryText: {
+  yearText: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 'bold',
     letterSpacing: 1,
   },
-  effectName: {
+  bassName: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
@@ -403,11 +401,27 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
-  effectDescription: {
+  bassDescription: {
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: 16,
+    marginBottom: 12,
     lineHeight: 22,
+  },
+  genreBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  genreText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
   paramsGrid: {
     flexDirection: 'row',
@@ -435,26 +449,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#fff',
     fontWeight: 'bold',
-  },
-  typesRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 12,
-  },
-  typePill: {
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
-  },
-  typeText: {
-    fontSize: 10,
-    color: '#fff',
-    fontWeight: 'bold',
-    letterSpacing: 0.5,
   },
   featuresRow: {
     flexDirection: 'row',
@@ -494,4 +488,3 @@ const styles = StyleSheet.create({
     height: 40,
   },
 });
-

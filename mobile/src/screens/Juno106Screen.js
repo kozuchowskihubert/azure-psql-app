@@ -16,6 +16,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import juno106Bridge from '../synths/Juno106Bridge';
 import nativeAudioContext from '../audio/NativeAudioContext';
 import Knob from '../components/Knob';
+import Oscilloscope from '../components/Oscilloscope';
+import { Animated } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -55,6 +57,41 @@ const Juno106Screen = ({ navigation }) => {
   const [sustain, setSustain] = useState(0.8);
   const [release, setRelease] = useState(0.4);
   const [activeNotes, setActiveNotes] = useState(new Set());
+  const [waveformData, setWaveformData] = useState([]);
+  
+  // Animation for chorus effect
+  const chorusAnim = useRef(new Animated.Value(0)).current;
+  
+  // Generate waveform data with chorus effect
+  const updateWaveform = () => {
+    const points = 100;
+    const data = Array.from({ length: points }, (_, i) => {
+      // Sawtooth wave with chorus modulation
+      const phase = i / points;
+      const sawWave = 2 * phase - 1;
+      const chorusMod = Math.sin(phase * Math.PI * 6) * chorusDepth * 100;
+      return sawWave + chorusMod;
+    });
+    setWaveformData(data);
+  };
+  
+  // Chorus animation loop
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(chorusAnim, {
+          toValue: 1,
+          duration: 2000 / (chorusDepth * 1000 + 1),
+          useNativeDriver: true,
+        }),
+        Animated.timing(chorusAnim, {
+          toValue: 0,
+          duration: 2000 / (chorusDepth * 1000 + 1),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [chorusDepth]);
 
   useEffect(() => {
     initializeSynth();
@@ -62,6 +99,11 @@ const Juno106Screen = ({ navigation }) => {
       activeNotes.forEach(note => stopNote(note));
     };
   }, []);
+  
+  // Update waveform when parameters change
+  useEffect(() => {
+    updateWaveform();
+  }, [filterCutoff, chorusDepth]);
 
   const initializeSynth = async () => {
     try {
@@ -200,6 +242,50 @@ const Juno106Screen = ({ navigation }) => {
           <Text style={styles.sectionInfo}>
             Triple oscillator chorus (3 detuned sawtooths) for warm, thick sound
           </Text>
+          
+          {/* Oscilloscope Waveform Display */}
+          <View style={styles.oscilloscopeContainer}>
+            <Text style={styles.oscilloscopeLabel}>WAVEFORM</Text>
+            <Oscilloscope
+              waveformData={waveformData}
+              width={width - 80}
+              height={100}
+              color={HAOS_COLORS.purple}
+              backgroundColor="rgba(0,0,0,0.7)"
+              lineWidth={2}
+              showGrid={true}
+            />
+          </View>
+          
+          {/* Chorus Depth Visualizer */}
+          <View style={styles.chorusViz}>
+            <Text style={styles.chorusVizLabel}>CHORUS DEPTH</Text>
+            <View style={styles.chorusWaves}>
+              {[0, 1, 2].map((i) => (
+                <Animated.View
+                  key={i}
+                  style={[
+                    styles.chorusWave,
+                    {
+                      opacity: chorusAnim.interpolate({
+                        inputRange: [0, 0.5, 1],
+                        outputRange: i === 1 ? [1, 0.5, 1] : [0.4, 0.8, 0.4],
+                      }),
+                      transform: [{
+                        translateX: chorusAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [-10 * i, 10 * i],
+                        }),
+                      }],
+                    },
+                  ]}
+                >
+                  <View style={[styles.chorusCircle, { backgroundColor: HAOS_COLORS.purple }]} />
+                </Animated.View>
+              ))}
+            </View>
+            <Text style={styles.chorusVizValue}>{(chorusDepth * 1000).toFixed(2)} cents</Text>
+          </View>
         </View>
 
         {/* Filter Section */}
@@ -231,6 +317,23 @@ const Juno106Screen = ({ navigation }) => {
           <Text style={styles.sectionInfo}>
             Gentle resonant lowpass filter (Q=2) for smooth, warm tone
           </Text>
+          
+          {/* Filter Cutoff Visualizer */}
+          <View style={styles.filterViz}>
+            <Text style={styles.filterVizLabel}>FILTER CUTOFF</Text>
+            <View style={styles.filterBar}>
+              <View
+                style={[
+                  styles.filterLevel,
+                  {
+                    height: `${(filterCutoff / 5000) * 100}%`,
+                    backgroundColor: HAOS_COLORS.pink,
+                  },
+                ]}
+              />
+            </View>
+            <Text style={styles.filterVizValue}>{filterCutoff.toFixed(0)} Hz</Text>
+          </View>
         </View>
 
         {/* Envelope Section */}
@@ -372,6 +475,110 @@ const styles = StyleSheet.create({
     color: HAOS_COLORS.silver,
     marginTop: 12,
     fontStyle: 'italic',
+  },
+  oscilloscopeContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: 'rgba(157,78,221,0.1)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(157,78,221,0.3)',
+  },
+  oscilloscopeLabel: {
+    fontSize: 12,
+    color: HAOS_COLORS.purple,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginBottom: 10,
+  },
+  chorusViz: {
+    marginTop: 20,
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(157,78,221,0.1)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(157,78,221,0.3)',
+  },
+  chorusVizLabel: {
+    fontSize: 12,
+    color: HAOS_COLORS.purple,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginBottom: 15,
+  },
+  chorusWaves: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 60,
+    width: 200,
+  },
+  chorusWave: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chorusCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    shadowColor: HAOS_COLORS.purple,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  chorusVizValue: {
+    fontSize: 14,
+    color: HAOS_COLORS.purple,
+    fontWeight: 'bold',
+    marginTop: 15,
+    fontFamily: 'monospace',
+  },
+  filterViz: {
+    marginTop: 20,
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(255,0,110,0.1)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,0,110,0.3)',
+  },
+  filterVizLabel: {
+    fontSize: 12,
+    color: HAOS_COLORS.pink,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginBottom: 15,
+  },
+  filterBar: {
+    width: 60,
+    height: 200,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 8,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+    borderWidth: 2,
+    borderColor: 'rgba(255,0,110,0.3)',
+  },
+  filterLevel: {
+    width: '100%',
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
+    shadowColor: HAOS_COLORS.pink,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  filterVizValue: {
+    fontSize: 14,
+    color: HAOS_COLORS.pink,
+    fontWeight: 'bold',
+    marginTop: 15,
+    fontFamily: 'monospace',
   },
   controlsRow: {
     flexDirection: 'row',

@@ -58,6 +58,11 @@ const TR909Screen = ({ navigation }) => {
 
   const intervalRef = useRef(null);
   const lcdAnim = useRef(new Animated.Value(0)).current;
+  
+  // Visual enhancement animations
+  const stepGlowAnims = useRef(
+    Array(16).fill(0).map(() => new Animated.Value(0))
+  ).current;
 
   useEffect(() => {
     initializeDrums();
@@ -131,6 +136,20 @@ const TR909Screen = ({ navigation }) => {
         const hasAccent = accent[nextStep];
         const accentMultiplier = hasAccent ? 1.3 : 1.0;
         
+        // Trigger glow animation for current step
+        Animated.sequence([
+          Animated.timing(stepGlowAnims[nextStep], {
+            toValue: 1,
+            duration: 50,
+            useNativeDriver: true,
+          }),
+          Animated.timing(stepGlowAnims[nextStep], {
+            toValue: 0,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+        ]).start();
+        
         // Play active instruments
         Object.keys(pattern).forEach(instrument => {
           if (pattern[instrument][nextStep]) {
@@ -200,23 +219,78 @@ const TR909Screen = ({ navigation }) => {
     const isActive = pattern[instrument][step];
     const isCurrent = step === currentStep && isPlaying;
     const hasAccent = accent[step];
+    const glowOpacity = stepGlowAnims[step];
     
     return (
-      <TouchableOpacity
-        key={`${instrument}-${step}`}
-        style={[
-          styles.stepButton,
-          isActive && styles.stepButtonActive,
-          isCurrent && styles.stepButtonCurrent,
-          hasAccent && isActive && styles.stepButtonAccent,
-        ]}
-        onPress={() => toggleStep(instrument, step)}
-        onLongPress={() => toggleAccent(step)}
-      >
-        {isCurrent && (
-          <View style={[styles.stepIndicator, hasAccent && styles.stepIndicatorAccent]} />
+      <View key={`${instrument}-${step}`} style={styles.stepWrapper}>
+        {/* Glow ring for current step */}
+        {isCurrent && isActive && (
+          <Animated.View
+            style={[
+              styles.stepGlowRing,
+              {
+                opacity: glowOpacity,
+                transform: [{
+                  scale: glowOpacity.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.3],
+                  }),
+                }],
+              },
+            ]}
+          />
         )}
-      </TouchableOpacity>
+        
+        {/* Accent glow ring (cyan) */}
+        {isCurrent && isActive && hasAccent && (
+          <Animated.View
+            style={[
+              styles.accentGlowRing,
+              {
+                opacity: glowOpacity.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 0.8],
+                }),
+              },
+            ]}
+          />
+        )}
+        
+        <TouchableOpacity
+          style={[
+            styles.stepButton,
+            isActive && styles.stepButtonActive,
+            isCurrent && styles.stepButtonCurrent,
+            hasAccent && isActive && styles.stepButtonAccent,
+            isActive && isCurrent && styles.stepButtonPlaying,
+          ]}
+          onPress={() => toggleStep(instrument, step)}
+          onLongPress={() => toggleAccent(step)}
+        >
+          {/* Velocity indicator bar for active steps */}
+          {isActive && (
+            <View
+              style={[
+                styles.velocityBar,
+                {
+                  height: `${levels[instrument] * 100}%`,
+                  backgroundColor: isCurrent 
+                    ? (hasAccent ? HAOS_COLORS.cyan : HAOS_COLORS.blue) 
+                    : HAOS_COLORS.cyan,
+                },
+              ]}
+            />
+          )}
+          
+          {/* Accent indicator dot */}
+          {hasAccent && isActive && (
+            <View style={[
+              styles.accentDot,
+              isCurrent && styles.accentDotActive,
+            ]} />
+          )}
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -292,6 +366,22 @@ const TR909Screen = ({ navigation }) => {
               <Text style={styles.controlLabel}>TEMPO</Text>
               <View style={styles.bpmDisplay}>
                 <Text style={styles.bpmText}>{bpm}</Text>
+                {isPlaying && (
+                  <Animated.View
+                    style={[
+                      styles.tempoPulse,
+                      {
+                        opacity: lcdAnim,
+                        transform: [{
+                          scale: lcdAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0.8, 1.2],
+                          }),
+                        }],
+                      },
+                    ]}
+                  />
+                )}
               </View>
               <View style={styles.bpmButtons}>
                 <TouchableOpacity
@@ -476,12 +566,28 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: HAOS_COLORS.cyan,
     marginBottom: 8,
+    position: 'relative',
+    minWidth: 80,
+    alignItems: 'center',
   },
   bpmText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: HAOS_COLORS.cyan,
     fontFamily: 'monospace',
+  },
+  tempoPulse: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: HAOS_COLORS.lcd,
+    shadowColor: HAOS_COLORS.lcd,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 6,
   },
   bpmButtons: {
     flexDirection: 'row',
@@ -623,20 +729,57 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flex: 1,
   },
+  stepWrapper: {
+    position: 'relative',
+    marginRight: 2,
+  },
+  stepGlowRing: {
+    position: 'absolute',
+    top: -3,
+    left: -3,
+    right: -3,
+    bottom: -3,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: HAOS_COLORS.blue,
+    shadowColor: HAOS_COLORS.blue,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+  },
+  accentGlowRing: {
+    position: 'absolute',
+    top: -5,
+    left: -5,
+    right: -5,
+    bottom: -5,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: HAOS_COLORS.cyan,
+    shadowColor: HAOS_COLORS.cyan,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 12,
+  },
   stepButton: {
     width: 16,
     height: 32,
     backgroundColor: '#1a1a1a',
     borderWidth: 1,
     borderColor: '#333',
-    marginRight: 2,
     borderRadius: 3,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    position: 'relative',
   },
   stepButtonActive: {
     backgroundColor: HAOS_COLORS.cyan,
     borderColor: HAOS_COLORS.cyan,
+    shadowColor: HAOS_COLORS.cyan,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
   },
   stepButtonAccent: {
     backgroundColor: HAOS_COLORS.red,
@@ -646,14 +789,36 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     borderWidth: 2,
   },
-  stepIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#fff',
+  stepButtonPlaying: {
+    backgroundColor: HAOS_COLORS.blue,
+    shadowColor: HAOS_COLORS.blue,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
   },
-  stepIndicatorAccent: {
+  velocityBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: HAOS_COLORS.cyan,
+    borderRadius: 2,
+  },
+  accentDot: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
     backgroundColor: HAOS_COLORS.red,
+  },
+  accentDotActive: {
+    backgroundColor: HAOS_COLORS.cyan,
+    shadowColor: HAOS_COLORS.cyan,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
   },
   levelSlider: {
     width: 40,

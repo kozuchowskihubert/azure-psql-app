@@ -16,6 +16,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import minimoogBridge from '../synths/MinimoogBridge';
 import nativeAudioContext from '../audio/NativeAudioContext';
 import Knob from '../components/Knob';
+import Oscilloscope from '../components/Oscilloscope';
+import { Animated } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -58,6 +60,43 @@ const MinimoogScreen = ({ navigation }) => {
   const [sustain, setSustain] = useState(0.7);
   const [release, setRelease] = useState(0.5);
   const [activeNotes, setActiveNotes] = useState(new Set());
+  const [waveformData, setWaveformData] = useState([]);
+  
+  // Filter ladder animation (4 poles)
+  const filterPoleanims = useRef([
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+  ]).current;
+  
+  // Generate waveform data from 3 oscillators
+  const updateWaveform = () => {
+    const points = 100;
+    const data = Array.from({ length: points }, (_, i) => {
+      const phase = i / points;
+      // OSC1: Sawtooth
+      const osc1 = (2 * phase - 1) * osc1Level;
+      // OSC2: Triangle
+      const osc2 = (Math.abs((phase * 4) % 2 - 1) * 2 - 1) * osc2Level;
+      // OSC3: Square
+      const osc3 = (Math.sin(phase * Math.PI * 8) > 0 ? 1 : -1) * osc3Level;
+      return osc1 + osc2 + osc3;
+    });
+    setWaveformData(data);
+  };
+  
+  // Animate filter ladder based on cutoff
+  useEffect(() => {
+    const cutoffRatio = filterCutoff / 5000;
+    filterPoleAnims.forEach((anim, index) => {
+      Animated.timing(anim, {
+        toValue: cutoffRatio * (4 - index) / 4,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    });
+  }, [filterCutoff]);
 
   useEffect(() => {
     initializeSynth();
@@ -65,6 +104,11 @@ const MinimoogScreen = ({ navigation }) => {
       activeNotes.forEach(note => stopNote(note));
     };
   }, []);
+  
+  // Update waveform when oscillator levels change
+  useEffect(() => {
+    updateWaveform();
+  }, [osc1Level, osc2Level, osc3Level]);
 
   const initializeSynth = async () => {
     try {
@@ -237,6 +281,48 @@ const MinimoogScreen = ({ navigation }) => {
           <Text style={styles.sectionInfo}>
             Triple oscillator fat sound: Saw + Square (-1 octave) + Sub bass (-2 octaves)
           </Text>
+          
+          {/* Oscilloscope Waveform Display */}
+          <View style={styles.oscilloscopeContainer}>
+            <Text style={styles.oscilloscopeLabel}>WAVEFORM OUTPUT</Text>
+            <Oscilloscope
+              waveformData={waveformData}
+              width={width - 80}
+              height={100}
+              color={HAOS_COLORS.blue}
+              backgroundColor="rgba(0,0,0,0.7)"
+              lineWidth={2}
+              showGrid={true}
+            />
+          </View>
+          
+          {/* Oscillator Mix Meters */}
+          <View style={styles.oscMixContainer}>
+            <Text style={styles.oscMixLabel}>OSCILLATOR MIX</Text>
+            <View style={styles.mixMeters}>
+              {[
+                { label: 'OSC 1', level: osc1Level, color: HAOS_COLORS.blue },
+                { label: 'OSC 2', level: osc2Level, color: HAOS_COLORS.cyan },
+                { label: 'OSC 3', level: osc3Level, color: HAOS_COLORS.green },
+              ].map((osc, i) => (
+                <View key={i} style={styles.meterColumn}>
+                  <Text style={styles.meterLabel}>{osc.label}</Text>
+                  <View style={styles.meterBar}>
+                    <View
+                      style={[
+                        styles.meterLevel,
+                        {
+                          height: `${osc.level * 100}%`,
+                          backgroundColor: osc.color,
+                        },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.meterValue}>{(osc.level * 100).toFixed(0)}%</Text>
+                </View>
+              ))}
+            </View>
+          </View>
         </View>
 
         {/* Filter Section */}
@@ -268,6 +354,34 @@ const MinimoogScreen = ({ navigation }) => {
           <Text style={styles.sectionInfo}>
             Legendary 24dB/octave ladder filter with Moog character (Q=8)
           </Text>
+          
+          {/* Filter Ladder Visualization */}
+          <View style={styles.filterLadderContainer}>
+            <Text style={styles.filterLadderLabel}>4-POLE LADDER FILTER</Text>
+            <View style={styles.filterLadder}>
+              {filterPoleAnims.map((anim, index) => (
+                <View key={index} style={styles.filterPole}>
+                  <Text style={styles.poleLabel}>POLE {index + 1}</Text>
+                  <Animated.View
+                    style={[
+                      styles.poleLevel,
+                      {
+                        backgroundColor: anim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['rgba(255,0,51,0.2)', HAOS_COLORS.red],
+                        }),
+                        opacity: anim,
+                      },
+                    ]}
+                  />
+                  <Text style={styles.poleDb}>-6dB</Text>
+                </View>
+              ))}
+            </View>
+            <Text style={styles.filterLadderValue}>
+              Cutoff: {filterCutoff.toFixed(0)} Hz | -24dB/oct slope
+            </Text>
+          </View>
         </View>
 
         {/* Envelope Section */}
@@ -409,6 +523,136 @@ const styles = StyleSheet.create({
     color: HAOS_COLORS.silver,
     marginTop: 12,
     fontStyle: 'italic',
+  },
+  oscilloscopeContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: 'rgba(0,102,255,0.1)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0,102,255,0.3)',
+  },
+  oscilloscopeLabel: {
+    fontSize: 12,
+    color: HAOS_COLORS.blue,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginBottom: 10,
+  },
+  oscMixContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(0,102,255,0.1)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0,102,255,0.3)',
+  },
+  oscMixLabel: {
+    fontSize: 12,
+    color: HAOS_COLORS.blue,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginBottom: 15,
+  },
+  mixMeters: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  meterColumn: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  meterLabel: {
+    fontSize: 11,
+    color: HAOS_COLORS.silver,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  meterBar: {
+    width: 50,
+    height: 150,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 8,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  meterLevel: {
+    width: '100%',
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  meterValue: {
+    fontSize: 12,
+    color: HAOS_COLORS.cyan,
+    fontWeight: 'bold',
+    marginTop: 10,
+    fontFamily: 'monospace',
+  },
+  filterLadderContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(255,0,51,0.1)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,0,51,0.3)',
+  },
+  filterLadderLabel: {
+    fontSize: 12,
+    color: HAOS_COLORS.red,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginBottom: 15,
+  },
+  filterLadder: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  filterPole: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  poleLabel: {
+    fontSize: 10,
+    color: HAOS_COLORS.silver,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  poleLevel: {
+    width: 60,
+    height: 80,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'rgba(255,0,51,0.5)',
+    shadowColor: HAOS_COLORS.red,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  poleDb: {
+    fontSize: 10,
+    color: HAOS_COLORS.red,
+    fontWeight: 'bold',
+    marginTop: 8,
+    fontFamily: 'monospace',
+  },
+  filterLadderValue: {
+    fontSize: 12,
+    color: HAOS_COLORS.red,
+    fontWeight: 'bold',
+    marginTop: 15,
+    fontFamily: 'monospace',
   },
   controlsRow: {
     flexDirection: 'row',

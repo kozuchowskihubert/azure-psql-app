@@ -5,14 +5,18 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import audioEngine from '../services/audioEngine';
+import technoWorkspace from '../engine/TechnoWorkspace';
 import Knob from '../components/Knob';
 import ADSREnvelope from '../components/ADSREnvelope';
 import Keyboard from '../components/Keyboard';
 
-export default function TechnoWorkspaceScreen({ route }) {
+export default function TechnoWorkspaceScreen({ route, navigation }) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [error, setError] = useState(null);
   const [waveform, setWaveform] = useState('sawtooth');
   const [filter, setFilter] = useState({
     type: 'lowpass',
@@ -29,18 +33,45 @@ export default function TechnoWorkspaceScreen({ route }) {
   const [loadedPreset, setLoadedPreset] = useState(null);
 
   useEffect(() => {
-    // Initialize audio engine
-    audioEngine.initialize();
-    
-    // Load preset if passed via navigation
-    if (route?.params?.preset) {
-      loadPreset(route.params.preset);
-    }
+    initializeWorkspace();
     
     return () => {
-      audioEngine.stopAll();
+      if (technoWorkspace && technoWorkspace.isInitialized) {
+        technoWorkspace.stop();
+      }
     };
   }, []);
+
+  const initializeWorkspace = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      console.log('🎛️ Initializing Techno Workspace...');
+      
+      if (!technoWorkspace.isInitialized) {
+        const success = await technoWorkspace.init();
+        
+        if (!success) {
+          throw new Error('Failed to initialize Techno Workspace');
+        }
+      }
+      
+      setIsInitialized(true);
+      console.log('✅ Techno Workspace initialized successfully');
+      
+      // Load preset if passed via navigation
+      if (route?.params?.preset) {
+        loadPreset(route.params.preset);
+      }
+      
+    } catch (err) {
+      console.error('❌ Techno Workspace initialization error:', err);
+      setError(err.message || 'Failed to initialize workspace');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const loadPreset = (preset) => {
     if (!preset || !preset.parameters) return;
@@ -80,26 +111,82 @@ export default function TechnoWorkspaceScreen({ route }) {
   };
 
   useEffect(() => {
-    audioEngine.setADSR(adsr.attack, adsr.decay, adsr.sustain, adsr.release);
-  }, [adsr]);
+    if (isInitialized && technoWorkspace.tb303) {
+      // TB303Bridge has individual setter methods, not setADSR
+      technoWorkspace.tb303.setDecay(adsr.decay);
+      // Note: TB303 doesn't use full ADSR, only decay parameter
+    }
+  }, [adsr, isInitialized]);
 
   useEffect(() => {
-    audioEngine.setFilter(filter.type, filter.frequency, filter.q);
-  }, [filter]);
+    if (isInitialized && technoWorkspace.tb303) {
+      // TB303Bridge has setCutoff and setResonance, not setFilter
+      technoWorkspace.tb303.setCutoff(filter.frequency);
+      technoWorkspace.tb303.setResonance(filter.q);
+    }
+  }, [filter, isInitialized]);
 
   useEffect(() => {
-    audioEngine.setMasterVolume(volume);
-  }, [volume]);
+    if (isInitialized) {
+      technoWorkspace.masterVolume = volume;
+    }
+  }, [volume, isInitialized]);
 
   const handleNotePress = (frequency) => {
-    audioEngine.playNote(frequency, waveform);
+    if (!isInitialized || !technoWorkspace.tb303) {
+      console.warn('Workspace not ready');
+      return;
+    }
+    
+    // TB303Bridge.playNote expects note and options
+    technoWorkspace.tb303.playNote(frequency, {
+      velocity: volume,
+      duration: 0.3,
+    });
   };
 
   const handleNoteRelease = () => {
-    audioEngine.stopNote();
+    // TB303Bridge doesn't have stopNote - notes auto-release based on duration
+    // No action needed on release
   };
 
   const waveforms = ['sine', 'square', 'sawtooth', 'triangle'];
+
+  if (isLoading) {
+    return (
+      <LinearGradient colors={['#0a0a0a', '#1a1a1a', '#0a0a0a']} style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#00ff94" />
+          <Text style={styles.loadingText}>Initializing Techno Workspace...</Text>
+          <Text style={styles.loadingSubtext}>Loading TB-303, TR-909, and synths</Text>
+        </View>
+      </LinearGradient>
+    );
+  }
+
+  if (error) {
+    return (
+      <LinearGradient colors={['#0a0a0a', '#1a1a1a', '#0a0a0a']} style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorIcon}>⚠️</Text>
+          <Text style={styles.errorTitle}>Initialization Failed</Text>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity 
+            style={styles.retryButton} 
+            onPress={initializeWorkspace}
+          >
+            <Text style={styles.retryText}>TRY AGAIN</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.backText}>← GO BACK</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient colors={['#0a0a0a', '#1a1a1a', '#0a0a0a']} style={styles.container}>
@@ -194,6 +281,66 @@ export default function TechnoWorkspaceScreen({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  loadingText: {
+    color: '#00ff94',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 16,
+  },
+  loadingSubtext: {
+    color: '#666',
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  errorIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  errorTitle: {
+    color: '#ff6b35',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  errorText: {
+    color: '#666',
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  retryButton: {
+    backgroundColor: '#00ff94',
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  retryText: {
+    color: '#0a0a0a',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  backButton: {
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+  },
+  backText: {
+    color: '#666',
+    fontSize: 14,
   },
   scrollView: {
     flex: 1,

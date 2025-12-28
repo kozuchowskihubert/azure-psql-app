@@ -39,14 +39,32 @@ import ModulationLabScreen from './src/screens/ModulationLabScreen';
 import PresetLaboratoryScreen from './src/screens/PresetLaboratoryScreen';
 
 // Selector Screens
-import SynthSelectorScreen from './src/screens/SynthSelectorScreen';
-import DrumMachinesScreen from './src/screens/DrumMachinesScreen';
-import BassStudioSelectorScreen from './src/screens/BassStudioSelectorScreen';
+import SynthsSelectorScreen from './src/screens/SynthsSelectorScreen';
+import DrumsSelectorScreen from './src/screens/DrumsSelectorScreen';
+import BassSelectorScreen from './src/screens/BassSelectorScreen';
 import EffectsSelectorScreen from './src/screens/EffectsSelectorScreen';
+import DrumMachinesScreen from './src/screens/DrumMachinesScreen';
+import BeatMakerScreen from './src/screens/BeatMakerScreen';
 
 // Drum Machine Screens
 import TR808Screen from './src/screens/TR808Screen';
 import TR909Screen from './src/screens/TR909Screen';
+
+// Synth Screens (Phase 1)
+import DX7Screen from './src/screens/DX7Screen';
+import MS20Screen from './src/screens/MS20Screen';
+import Prophet5Screen from './src/screens/Prophet5Screen';
+import TB303Screen from './src/screens/TB303Screen';
+
+// Drum Machine Screens (Phase 2)
+import LinnDrumScreen from './src/screens/LinnDrumScreen';
+import CR78Screen from './src/screens/CR78Screen';
+import DMXScreen from './src/screens/DMXScreen';
+
+// New Instrument Screens (Phase 3)
+import PianoScreen from './src/screens/PianoScreen';
+import ViolinScreen from './src/screens/ViolinScreen';
+import VocalsScreen from './src/screens/VocalsScreen';
 
 // Synth Screens
 import ARP2600Screen from './src/screens/ARP2600Screen';
@@ -56,6 +74,8 @@ import MinimoogScreen from './src/screens/MinimoogScreen';
 // DAW Screens
 import WorkspaceSelector from './src/screens/WorkspaceSelector';
 import DAWStudio from './src/screens/DAWStudio';
+import TechnoWorkspaceScreen from './src/screens/TechnoWorkspaceScreen';
+import ModularWorkspaceScreen from './src/screens/ModularWorkspaceScreen';
 
 // Context
 import { AuthProvider, useAuth } from './src/context/AuthContext';
@@ -105,7 +125,7 @@ function TabNavigator() {
       />
       <Tab.Screen 
         name="Drums" 
-        component={DrumMachinesScreen}
+        component={DrumsSelectorScreen}
         options={{
           title: 'DRUMS',
           tabBarLabel: 'DRUMS',
@@ -114,7 +134,7 @@ function TabNavigator() {
       />
       <Tab.Screen 
         name="Synths" 
-        component={SynthSelectorScreen}
+        component={SynthsSelectorScreen}
         options={{
           title: 'SYNTHS',
           tabBarLabel: 'SYNTHS',
@@ -123,7 +143,7 @@ function TabNavigator() {
       />
       <Tab.Screen 
         name="Bass" 
-        component={BassStudioSelectorScreen}
+        component={BassSelectorScreen}
         options={{
           title: 'BASS',
           tabBarLabel: 'BASS',
@@ -367,24 +387,24 @@ function AppNavigator() {
           
           {/* New Selector Screens */}
           <Stack.Screen 
-            name="SynthSelector" 
-            component={SynthSelectorScreen}
+            name="SynthsSelector" 
+            component={SynthsSelectorScreen}
             options={{ 
               title: 'SYNTHESIZERS',
               headerShown: false,
             }}
           />
           <Stack.Screen 
-            name="DrumMachines" 
-            component={DrumMachinesScreen}
+            name="DrumsSelector" 
+            component={DrumsSelectorScreen}
             options={{ 
               title: 'DRUM MACHINES',
               headerShown: false,
             }}
           />
           <Stack.Screen 
-            name="BassStudioSelector" 
-            component={BassStudioSelectorScreen}
+            name="BassSelector" 
+            component={BassSelectorScreen}
             options={{ 
               title: 'BASS STUDIO',
               headerShown: false,
@@ -395,6 +415,108 @@ function AppNavigator() {
             component={EffectsSelectorScreen}
             options={{ 
               title: 'EFFECTS',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="DrumMachines" 
+            component={DrumMachinesScreen}
+            options={{ 
+              title: 'DRUM MACHINES OLD',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="BeatMaker" 
+            component={BeatMakerScreen}
+            options={{ 
+              title: 'BEAT MAKER',
+              headerShown: false,
+            }}
+          />
+          
+          {/* Phase 1: New Synth Screens */}
+          <Stack.Screen 
+            name="DX7" 
+            component={DX7Screen}
+            options={{ 
+              title: 'DX7 FM SYNTHESIS',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="MS20" 
+            component={MS20Screen}
+            options={{ 
+              title: 'MS-20 SEMI-MODULAR',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="Prophet5" 
+            component={Prophet5Screen}
+            options={{ 
+              title: 'PROPHET-5',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="TB303" 
+            component={TB303Screen}
+            options={{ 
+              title: 'TB-303 BASS LINE',
+              headerShown: false,
+            }}
+          />
+          
+          {/* Phase 2: Drum Machine Screens */}
+          <Stack.Screen 
+            name="LinnDrum" 
+            component={LinnDrumScreen}
+            options={{ 
+              title: 'LINNDRUM',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="CR78" 
+            component={CR78Screen}
+            options={{ 
+              title: 'CR-78 COMPURHYTHM',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="DMX" 
+            component={DMXScreen}
+            options={{ 
+              title: 'OBERHEIM DMX',
+              headerShown: false,
+            }}
+          />
+          
+          {/* Phase 3: New Instrument Screens */}
+          <Stack.Screen 
+            name="Piano" 
+            component={PianoScreen}
+            options={{ 
+              title: 'PIANO',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="Violin" 
+            component={ViolinScreen}
+            options={{ 
+              title: 'VIOLIN',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="Vocals" 
+            component={VocalsScreen}
+            options={{ 
+              title: 'VOCALS - AUTOTUNE',
               headerShown: false,
             }}
           />
@@ -412,6 +534,22 @@ function AppNavigator() {
             component={DAWStudio}
             options={{ 
               title: 'DAW STUDIO',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="TechnoWorkspace" 
+            component={TechnoWorkspaceScreen}
+            options={{ 
+              title: 'TECHNO WORKSPACE',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="ModularSynth" 
+            component={ModularWorkspaceScreen}
+            options={{ 
+              title: 'MODULAR SYNTH',
               headerShown: false,
             }}
           />
