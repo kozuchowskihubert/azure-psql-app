@@ -489,7 +489,11 @@ const ARP2600Screen = ({ navigation }) => {
           <Text style={styles.badgeText}>TECHNO</Text>
         </View>
       </LinearGradient>
-      <ScrollView style={styles.content}>
+      <ScrollView 
+        style={styles.content}
+        scrollEnabled={true}
+        nestedScrollEnabled={false}
+      >
         {/* Oscillator Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🌊 OSCILLATORS</Text>
@@ -497,7 +501,7 @@ const ARP2600Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={osc1Level}
-                onValueChange={handleOsc1LevelChange}
+                onChange={handleOsc1LevelChange}
                 label="OSC 1"
                 color={HAOS_COLORS.orange}
                 size={70}
@@ -508,7 +512,7 @@ const ARP2600Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={osc2Level}
-                onValueChange={handleOsc2LevelChange}
+                onChange={handleOsc2LevelChange}
                 label="OSC 2"
                 color={HAOS_COLORS.orange}
                 size={70}
@@ -519,7 +523,7 @@ const ARP2600Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={osc2Detune * 200}
-                onValueChange={handleDetuneChange}
+                onChange={handleDetuneChange}
                 label="DETUNE"
                 color={HAOS_COLORS.cyan}
                 size={70}
@@ -553,7 +557,7 @@ const ARP2600Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={filterCutoff / 10000}
-                onValueChange={handleFilterCutoffChange}
+                onChange={handleFilterCutoffChange}
                 label="CUTOFF"
                 color={HAOS_COLORS.green}
                 size={80}
@@ -564,7 +568,7 @@ const ARP2600Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={filterResonance / 30}
-                onValueChange={handleFilterResonanceChange}
+                onChange={handleFilterResonanceChange}
                 label="RESONANCE"
                 color={HAOS_COLORS.green}
                 size={80}
@@ -584,7 +588,7 @@ const ARP2600Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={attack / 2}
-                onValueChange={handleAttackChange}
+                onChange={handleAttackChange}
                 label="ATTACK"
                 color={HAOS_COLORS.cyan}
                 size={60}
@@ -595,7 +599,7 @@ const ARP2600Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={decay / 2}
-                onValueChange={handleDecayChange}
+                onChange={handleDecayChange}
                 label="DECAY"
                 color={HAOS_COLORS.cyan}
                 size={60}
@@ -606,7 +610,7 @@ const ARP2600Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={sustain}
-                onValueChange={handleSustainChange}
+                onChange={handleSustainChange}
                 label="SUSTAIN"
                 color={HAOS_COLORS.cyan}
                 size={60}
@@ -617,7 +621,7 @@ const ARP2600Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={release / 5}
-                onValueChange={handleReleaseChange}
+                onChange={handleReleaseChange}
                 label="RELEASE"
                 color={HAOS_COLORS.cyan}
                 size={60}
@@ -634,7 +638,7 @@ const ARP2600Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={lfoRate / 20}
-                onValueChange={handleLFORateChange}
+                onChange={handleLFORateChange}
                 label="LFO RATE"
                 color="#9D4EDD"
                 size={65}
@@ -645,7 +649,7 @@ const ARP2600Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={lfoDepth}
-                onValueChange={handleLFODepthChange}
+                onChange={handleLFODepthChange}
                 label="LFO DEPTH"
                 color="#9D4EDD"
                 size={65}
@@ -656,7 +660,7 @@ const ARP2600Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={noiseLevel}
-                onValueChange={handleNoiseLevelChange}
+                onChange={handleNoiseLevelChange}
                 label="NOISE"
                 color="#6B6B6B"
                 size={65}

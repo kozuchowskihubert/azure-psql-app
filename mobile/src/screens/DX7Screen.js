@@ -218,7 +218,7 @@ const DX7Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={99}
               value={currentOp.level}
-              onValueChange={(val) => updateOperator(selectedOperator - 1, 'level', Math.round(val))}
+              onChange={(val) => updateOperator(selectedOperator - 1, 'level', Math.round(val))}
               minimumTrackTintColor={HAOS_COLORS.cyan}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.cyan}
@@ -235,7 +235,7 @@ const DX7Screen = ({ navigation }) => {
               maximumValue={16.0}
               step={0.5}
               value={currentOp.ratio}
-              onValueChange={(val) => updateOperator(selectedOperator - 1, 'ratio', val)}
+              onChange={(val) => updateOperator(selectedOperator - 1, 'ratio', val)}
               minimumTrackTintColor={HAOS_COLORS.cyan}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.cyan}
@@ -252,7 +252,7 @@ const DX7Screen = ({ navigation }) => {
               maximumValue={7}
               step={1}
               value={currentOp.detune}
-              onValueChange={(val) => updateOperator(selectedOperator - 1, 'detune', val)}
+              onChange={(val) => updateOperator(selectedOperator - 1, 'detune', val)}
               minimumTrackTintColor={HAOS_COLORS.cyan}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.cyan}
@@ -275,7 +275,7 @@ const DX7Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={99}
               value={currentOp.attack}
-              onValueChange={(val) => updateOperator(selectedOperator - 1, 'attack', Math.round(val))}
+              onChange={(val) => updateOperator(selectedOperator - 1, 'attack', Math.round(val))}
               minimumTrackTintColor={HAOS_COLORS.blue}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.blue}
@@ -290,7 +290,7 @@ const DX7Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={99}
               value={currentOp.decay}
-              onValueChange={(val) => updateOperator(selectedOperator - 1, 'decay', Math.round(val))}
+              onChange={(val) => updateOperator(selectedOperator - 1, 'decay', Math.round(val))}
               minimumTrackTintColor={HAOS_COLORS.blue}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.blue}
@@ -305,7 +305,7 @@ const DX7Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={99}
               value={currentOp.sustain}
-              onValueChange={(val) => updateOperator(selectedOperator - 1, 'sustain', Math.round(val))}
+              onChange={(val) => updateOperator(selectedOperator - 1, 'sustain', Math.round(val))}
               minimumTrackTintColor={HAOS_COLORS.blue}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.blue}
@@ -320,7 +320,7 @@ const DX7Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={99}
               value={currentOp.release}
-              onValueChange={(val) => updateOperator(selectedOperator - 1, 'release', Math.round(val))}
+              onChange={(val) => updateOperator(selectedOperator - 1, 'release', Math.round(val))}
               minimumTrackTintColor={HAOS_COLORS.blue}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.blue}
@@ -344,7 +344,7 @@ const DX7Screen = ({ navigation }) => {
               maximumValue={10}
               step={0.1}
               value={lfo.rate}
-              onValueChange={(val) => setLfo(prev => ({ ...prev, rate: val }))}
+              onChange={(val) => setLfo(prev => ({ ...prev, rate: val }))}
               minimumTrackTintColor={HAOS_COLORS.green}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.green}
@@ -359,7 +359,7 @@ const DX7Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={lfo.depth}
-              onValueChange={(val) => setLfo(prev => ({ ...prev, depth: Math.round(val) }))}
+              onChange={(val) => setLfo(prev => ({ ...prev, depth: Math.round(val) }))}
               minimumTrackTintColor={HAOS_COLORS.green}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.green}

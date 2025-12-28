@@ -154,7 +154,7 @@ const PianoScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={volume}
-              onValueChange={setVolume}
+              onChange={setVolume}
               minimumTrackTintColor={currentPiano.color}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={currentPiano.color}
@@ -169,7 +169,7 @@ const PianoScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={reverb}
-              onValueChange={setReverb}
+              onChange={setReverb}
               minimumTrackTintColor={currentPiano.color}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={currentPiano.color}
@@ -184,7 +184,7 @@ const PianoScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={brightness}
-              onValueChange={setBrightness}
+              onChange={setBrightness}
               minimumTrackTintColor={currentPiano.color}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={currentPiano.color}
@@ -199,7 +199,7 @@ const PianoScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={127}
               value={velocity}
-              onValueChange={setVelocity}
+              onChange={setVelocity}
               minimumTrackTintColor={currentPiano.color}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={currentPiano.color}
@@ -231,7 +231,7 @@ const PianoScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={attack}
-              onValueChange={setAttack}
+              onChange={setAttack}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -246,7 +246,7 @@ const PianoScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={release}
-              onValueChange={setRelease}
+              onChange={setRelease}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -262,7 +262,7 @@ const PianoScreen = ({ navigation }) => {
               maximumValue={50}
               step={1}
               value={detune}
-              onValueChange={setDetune}
+              onChange={setDetune}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"

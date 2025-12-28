@@ -17,6 +17,8 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Slider from '@react-native-community/slider';
+import nativeAudioContext from '../audio/NativeAudioContext';
+import * as Haptics from 'expo-haptics';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -80,31 +82,93 @@ const BeatMakerScreen = ({ navigation }) => {
     
     const interval = (60 / bpm) * 250; // 16th notes
     const timer = setInterval(() => {
-      setCurrentStep(prev => (prev + 1) % 16);
-      
-      // Animate step indicator
-      Animated.sequence([
-        Animated.timing(stepAnimRef, {
-          toValue: 1.2,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(stepAnimRef, {
-          toValue: 1,
-          duration: 100,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      setCurrentStep(prev => {
+        const nextStep = (prev + 1) % 16;
+        
+        // Play sounds for active steps
+        Object.keys(pattern).forEach(track => {
+          if (pattern[track][nextStep] && instruments[track] && instruments[track].enabled && !instruments[track].muted) {
+            playTrackSound(track, instruments[track].volume);
+          }
+        });
+        
+        // Animate step indicator
+        Animated.sequence([
+          Animated.timing(stepAnimRef, {
+            toValue: 1.2,
+            duration: 50,
+            useNativeDriver: true,
+          }),
+          Animated.timing(stepAnimRef, {
+            toValue: 1,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+        ]).start();
+        
+        return nextStep;
+      });
     }, interval);
     
     return () => clearInterval(timer);
-  }, [isPlaying, bpm]);
+  }, [isPlaying, bpm, pattern, instruments]);
   
   const toggleStep = (track, step) => {
     setPattern(prev => ({
       ...prev,
       [track]: prev[track].map((val, i) => i === step ? !val : val),
     }));
+  };
+  
+  // Play sound for a specific track
+  const playTrackSound = (track, volume = 0.8) => {
+    if (!nativeAudioContext) return;
+    
+    try {
+      // Haptic feedback
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      
+      switch (track) {
+        case 'kick':
+          // Play kick drum (low frequency, short decay)
+          nativeAudioContext.playDrumSound('kick', volume, 0.3);
+          break;
+        case 'snare':
+          // Play snare drum (mid frequency, crisp)
+          nativeAudioContext.playDrumSound('snare', volume, 0.2);
+          break;
+        case 'hihat':
+          // Play hi-hat (high frequency, very short)
+          nativeAudioContext.playDrumSound('hihat', volume, 0.1);
+          break;
+        case 'clap':
+          // Play clap (mid-high frequency, medium decay)
+          nativeAudioContext.playDrumSound('clap', volume, 0.15);
+          break;
+        case 'bass':
+          // Play bass note (E1 - MIDI 40)
+          nativeAudioContext.playNote(40, volume, 0.25);
+          break;
+        case 'synth':
+          // Play synth note (C3 - MIDI 60)
+          nativeAudioContext.playNote(60, volume, 0.25);
+          break;
+        case 'piano':
+          // Play piano note (E3 - MIDI 64)
+          nativeAudioContext.playNote(64, volume, 0.3);
+          break;
+        case 'violin':
+          // Play violin note (A3 - MIDI 69)
+          nativeAudioContext.playNote(69, volume, 0.5);
+          break;
+        case 'vocals':
+          // Play vocal note (C4 - MIDI 72)
+          nativeAudioContext.playNote(72, volume, 0.4);
+          break;
+      }
+    } catch (error) {
+      console.warn('Error playing track sound:', track, error);
+    }
   };
   
   const toggleInstrument = (instrument) => {
@@ -245,7 +309,7 @@ const BeatMakerScreen = ({ navigation }) => {
               minimumValue={60}
               maximumValue={200}
               value={bpm}
-              onValueChange={setBpm}
+              onChange={setBpm}
               minimumTrackTintColor={HAOS_COLORS.green}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.green}
@@ -294,7 +358,7 @@ const BeatMakerScreen = ({ navigation }) => {
               <Text style={styles.controlLabel}>Enable</Text>
               <Switch
                 value={instruments[selectedInstrument].enabled}
-                onValueChange={() => toggleInstrument(selectedInstrument)}
+                onChange={() => toggleInstrument(selectedInstrument)}
                 trackColor={{ false: HAOS_COLORS.mediumGray, true: selectedConfig.color }}
                 thumbColor={instruments[selectedInstrument].enabled ? '#fff' : '#ccc'}
               />
@@ -307,7 +371,7 @@ const BeatMakerScreen = ({ navigation }) => {
                 minimumValue={0}
                 maximumValue={1}
                 value={instruments[selectedInstrument].volume}
-                onValueChange={(val) => setInstrumentVolume(selectedInstrument, val)}
+                onChange={(val) => setInstrumentVolume(selectedInstrument, val)}
                 minimumTrackTintColor={selectedConfig.color}
                 maximumTrackTintColor={HAOS_COLORS.mediumGray}
                 thumbTintColor={selectedConfig.color}
@@ -321,7 +385,7 @@ const BeatMakerScreen = ({ navigation }) => {
               <Text style={styles.controlLabel}>Mute</Text>
               <Switch
                 value={instruments[selectedInstrument].muted}
-                onValueChange={() => toggleMute(selectedInstrument)}
+                onChange={() => toggleMute(selectedInstrument)}
                 trackColor={{ false: HAOS_COLORS.mediumGray, true: HAOS_COLORS.red }}
                 thumbColor={instruments[selectedInstrument].muted ? '#fff' : '#ccc'}
               />
@@ -333,7 +397,7 @@ const BeatMakerScreen = ({ navigation }) => {
                 <Text style={styles.controlLabel}>Autotune</Text>
                 <Switch
                   value={instruments.vocals.autotune}
-                  onValueChange={toggleAutotune}
+                  onChange={toggleAutotune}
                   trackColor={{ false: HAOS_COLORS.mediumGray, true: HAOS_COLORS.purple }}
                   thumbColor={instruments.vocals.autotune ? '#fff' : '#ccc'}
                 />

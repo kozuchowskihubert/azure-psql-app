@@ -309,7 +309,7 @@ export default function EnhancedStudioScreen({ navigation }) {
                 minimumValue={0}
                 maximumValue={1}
                 value={typeof params[key] === 'number' ? params[key] / 10 : 0.5}
-                onValueChange={(value) => {
+                onChange={(value) => {
                   bassArpEngine.setParameter(key, value * 10);
                 }}
                 minimumTrackTintColor={COLORS.accentGreen}

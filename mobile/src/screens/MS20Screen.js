@@ -141,7 +141,7 @@ const MS20Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={vco1Pitch}
-              onValueChange={setVco1Pitch}
+              onChange={setVco1Pitch}
               minimumTrackTintColor={HAOS_COLORS.yellow}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.yellow}
@@ -179,7 +179,7 @@ const MS20Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={vco1PWM}
-              onValueChange={setVco1PWM}
+              onChange={setVco1PWM}
               minimumTrackTintColor={HAOS_COLORS.yellow}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.yellow}
@@ -202,7 +202,7 @@ const MS20Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={vco2Pitch}
-              onValueChange={setVco2Pitch}
+              onChange={setVco2Pitch}
               minimumTrackTintColor={HAOS_COLORS.orange}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.orange}
@@ -260,7 +260,7 @@ const MS20Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={hpfCutoff}
-              onValueChange={setHpfCutoff}
+              onChange={setHpfCutoff}
               minimumTrackTintColor={HAOS_COLORS.cyan}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.cyan}
@@ -275,7 +275,7 @@ const MS20Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={hpfPeak}
-              onValueChange={setHpfPeak}
+              onChange={setHpfPeak}
               minimumTrackTintColor={HAOS_COLORS.cyan}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.cyan}
@@ -298,7 +298,7 @@ const MS20Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={lpfCutoff}
-              onValueChange={setLpfCutoff}
+              onChange={setLpfCutoff}
               minimumTrackTintColor={HAOS_COLORS.green}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.green}
@@ -313,7 +313,7 @@ const MS20Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={lpfPeak}
-              onValueChange={setLpfPeak}
+              onChange={setLpfPeak}
               minimumTrackTintColor={HAOS_COLORS.green}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.green}
@@ -333,7 +333,7 @@ const MS20Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={attack}
-              onValueChange={setAttack}
+              onChange={setAttack}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -348,7 +348,7 @@ const MS20Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={decay}
-              onValueChange={setDecay}
+              onChange={setDecay}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -363,7 +363,7 @@ const MS20Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={sustain}
-              onValueChange={setSustain}
+              onChange={setSustain}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -378,7 +378,7 @@ const MS20Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={release}
-              onValueChange={setRelease}
+              onChange={setRelease}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"

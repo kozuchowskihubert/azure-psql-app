@@ -231,7 +231,7 @@ const Juno106Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={chorusDepth * 200}
-                onValueChange={handleChorusDepthChange}
+                onChange={handleChorusDepthChange}
                 label="DEPTH"
                 color={HAOS_COLORS.purple}
                 size={80}
@@ -295,7 +295,7 @@ const Juno106Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={filterCutoff / 5000}
-                onValueChange={handleFilterCutoffChange}
+                onChange={handleFilterCutoffChange}
                 label="CUTOFF"
                 color={HAOS_COLORS.pink}
                 size={80}
@@ -306,7 +306,7 @@ const Juno106Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={filterResonance / 10}
-                onValueChange={handleFilterResonanceChange}
+                onChange={handleFilterResonanceChange}
                 label="RESONANCE"
                 color={HAOS_COLORS.pink}
                 size={80}
@@ -343,7 +343,7 @@ const Juno106Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={attack / 2}
-                onValueChange={handleAttackChange}
+                onChange={handleAttackChange}
                 label="ATTACK"
                 color={HAOS_COLORS.cyan}
                 size={60}
@@ -354,7 +354,7 @@ const Juno106Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={decay / 2}
-                onValueChange={handleDecayChange}
+                onChange={handleDecayChange}
                 label="DECAY"
                 color={HAOS_COLORS.cyan}
                 size={60}
@@ -365,7 +365,7 @@ const Juno106Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={sustain}
-                onValueChange={handleSustainChange}
+                onChange={handleSustainChange}
                 label="SUSTAIN"
                 color={HAOS_COLORS.cyan}
                 size={60}
@@ -376,7 +376,7 @@ const Juno106Screen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={release / 5}
-                onValueChange={handleReleaseChange}
+                onChange={handleReleaseChange}
                 label="RELEASE"
                 color={HAOS_COLORS.cyan}
                 size={60}

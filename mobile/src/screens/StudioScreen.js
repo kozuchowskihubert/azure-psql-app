@@ -765,7 +765,7 @@ const StudioScreen = ({ navigation, route }) => {
                   minimumValue={100}
                   maximumValue={10000}
                   value={synthCutoff}
-                  onValueChange={(value) => updateSynthParam('cutoff', value)}
+                  onChange={(value) => updateSynthParam('cutoff', value)}
                   minimumTrackTintColor={COLORS.primary}
                   maximumTrackTintColor={COLORS.border}
                   thumbTintColor={COLORS.primary}
@@ -781,7 +781,7 @@ const StudioScreen = ({ navigation, route }) => {
                   minimumValue={0}
                   maximumValue={20}
                   value={synthResonance}
-                  onValueChange={(value) => updateSynthParam('resonance', value)}
+                  onChange={(value) => updateSynthParam('resonance', value)}
                   minimumTrackTintColor={COLORS.primary}
                   maximumTrackTintColor={COLORS.border}
                   thumbTintColor={COLORS.primary}
@@ -802,7 +802,7 @@ const StudioScreen = ({ navigation, route }) => {
                   minimumValue={0.001}
                   maximumValue={2}
                   value={synthAttack}
-                  onValueChange={(value) => updateSynthParam('attack', value)}
+                  onChange={(value) => updateSynthParam('attack', value)}
                   minimumTrackTintColor={COLORS.accent}
                   maximumTrackTintColor={COLORS.border}
                   thumbTintColor={COLORS.accent}
@@ -818,7 +818,7 @@ const StudioScreen = ({ navigation, route }) => {
                   minimumValue={0.01}
                   maximumValue={2}
                   value={synthDecay}
-                  onValueChange={(value) => updateSynthParam('decay', value)}
+                  onChange={(value) => updateSynthParam('decay', value)}
                   minimumTrackTintColor={COLORS.accent}
                   maximumTrackTintColor={COLORS.border}
                   thumbTintColor={COLORS.accent}
@@ -834,7 +834,7 @@ const StudioScreen = ({ navigation, route }) => {
                   minimumValue={0}
                   maximumValue={1}
                   value={synthSustain}
-                  onValueChange={(value) => updateSynthParam('sustain', value)}
+                  onChange={(value) => updateSynthParam('sustain', value)}
                   minimumTrackTintColor={COLORS.accent}
                   maximumTrackTintColor={COLORS.border}
                   thumbTintColor={COLORS.accent}
@@ -850,7 +850,7 @@ const StudioScreen = ({ navigation, route }) => {
                   minimumValue={0.01}
                   maximumValue={5}
                   value={synthRelease}
-                  onValueChange={(value) => updateSynthParam('release', value)}
+                  onChange={(value) => updateSynthParam('release', value)}
                   minimumTrackTintColor={COLORS.accent}
                   maximumTrackTintColor={COLORS.border}
                   thumbTintColor={COLORS.accent}
@@ -938,7 +938,7 @@ const StudioScreen = ({ navigation, route }) => {
                       minimumValue={0}
                       maximumValue={1}
                       value={bassSlide}
-                      onValueChange={setBassSlide}
+                      onChange={setBassSlide}
                       minimumTrackTintColor="#00ff94"
                       maximumTrackTintColor={COLORS.border}
                       thumbTintColor="#00ff94"
@@ -955,7 +955,7 @@ const StudioScreen = ({ navigation, route }) => {
                       minimumValue={-12}
                       maximumValue={12}
                       value={bassPitchBend}
-                      onValueChange={setBassPitchBend}
+                      onChange={setBassPitchBend}
                       minimumTrackTintColor="#ff00ff"
                       maximumTrackTintColor={COLORS.border}
                       thumbTintColor="#ff00ff"
@@ -972,7 +972,7 @@ const StudioScreen = ({ navigation, route }) => {
                       minimumValue={0}
                       maximumValue={1}
                       value={bassVibrato}
-                      onValueChange={setBassVibrato}
+                      onChange={setBassVibrato}
                       minimumTrackTintColor="#00ffff"
                       maximumTrackTintColor={COLORS.border}
                       thumbTintColor="#00ffff"
@@ -989,7 +989,7 @@ const StudioScreen = ({ navigation, route }) => {
                       minimumValue={0}
                       maximumValue={1}
                       value={bassSubOsc}
-                      onValueChange={setBassSubOsc}
+                      onChange={setBassSubOsc}
                       minimumTrackTintColor="#ff8800"
                       maximumTrackTintColor={COLORS.border}
                       thumbTintColor="#ff8800"
@@ -1007,7 +1007,7 @@ const StudioScreen = ({ navigation, route }) => {
                       maximumValue={3}
                       step={1}
                       value={bassOctaves}
-                      onValueChange={setBassOctaves}
+                      onChange={setBassOctaves}
                       minimumTrackTintColor="#00ff94"
                       maximumTrackTintColor={COLORS.border}
                       thumbTintColor="#00ff94"

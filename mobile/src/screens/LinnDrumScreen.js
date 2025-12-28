@@ -214,7 +214,7 @@ const LinnDrumScreen = ({ navigation }) => {
               minimumValue={60}
               maximumValue={200}
               value={tempo}
-              onValueChange={setTempo}
+              onChange={setTempo}
               minimumTrackTintColor={HAOS_COLORS.purple}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.purple}
@@ -247,7 +247,7 @@ const LinnDrumScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={swing}
-              onValueChange={setSwing}
+              onChange={setSwing}
               minimumTrackTintColor={HAOS_COLORS.purple}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.purple}
@@ -306,7 +306,7 @@ const LinnDrumScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={currentParams.volume}
-              onValueChange={(val) => updateSoundParam(selectedSound, 'volume', val)}
+              onChange={(val) => updateSoundParam(selectedSound, 'volume', val)}
               minimumTrackTintColor={currentSound.color}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={currentSound.color}
@@ -322,7 +322,7 @@ const LinnDrumScreen = ({ navigation }) => {
               maximumValue={12}
               step={1}
               value={currentParams.tuning}
-              onValueChange={(val) => updateSoundParam(selectedSound, 'tuning', val)}
+              onChange={(val) => updateSoundParam(selectedSound, 'tuning', val)}
               minimumTrackTintColor={currentSound.color}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={currentSound.color}

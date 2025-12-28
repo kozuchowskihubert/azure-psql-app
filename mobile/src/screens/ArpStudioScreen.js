@@ -295,7 +295,7 @@ const ArpStudioScreen = ({ navigation }) => {
               <Text style={styles.sectionTitle}>🎹 ARPEGGIATOR</Text>
               <Switch
                 value={arpSettings.enabled}
-                onValueChange={(val) => updateArpSetting('enabled', val)}
+                onChange={(val) => updateArpSetting('enabled', val)}
                 trackColor={{ false: HAOS_COLORS.mediumGray, true: HAOS_COLORS.green }}
                 thumbColor={arpSettings.enabled ? HAOS_COLORS.green : '#f4f3f4'}
               />

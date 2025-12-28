@@ -275,7 +275,7 @@ const VocalsScreen = ({ navigation }) => {
                   minimumValue={0}
                   maximumValue={100}
                   value={retuneSpeed}
-                  onValueChange={setRetuneSpeed}
+                  onChange={setRetuneSpeed}
                   minimumTrackTintColor={HAOS_COLORS.cyan}
                   maximumTrackTintColor={HAOS_COLORS.mediumGray}
                   thumbTintColor={HAOS_COLORS.cyan}
@@ -297,7 +297,7 @@ const VocalsScreen = ({ navigation }) => {
                   minimumValue={0}
                   maximumValue={100}
                   value={humanize}
-                  onValueChange={setHumanize}
+                  onChange={setHumanize}
                   minimumTrackTintColor={HAOS_COLORS.cyan}
                   maximumTrackTintColor={HAOS_COLORS.mediumGray}
                   thumbTintColor={HAOS_COLORS.cyan}
@@ -327,7 +327,7 @@ const VocalsScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={inputGain}
-              onValueChange={setInputGain}
+              onChange={setInputGain}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -342,7 +342,7 @@ const VocalsScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={outputVolume}
-              onValueChange={setOutputVolume}
+              onChange={setOutputVolume}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -357,7 +357,7 @@ const VocalsScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={reverb}
-              onValueChange={setReverb}
+              onChange={setReverb}
               minimumTrackTintColor={HAOS_COLORS.cyan}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.cyan}
@@ -372,7 +372,7 @@ const VocalsScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={delay}
-              onValueChange={setDelay}
+              onChange={setDelay}
               minimumTrackTintColor={HAOS_COLORS.cyan}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.cyan}
@@ -396,7 +396,7 @@ const VocalsScreen = ({ navigation }) => {
               maximumValue={12}
               step={1}
               value={formantShift}
-              onValueChange={setFormantShift}
+              onChange={setFormantShift}
               minimumTrackTintColor={HAOS_COLORS.pink}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.pink}
@@ -418,7 +418,7 @@ const VocalsScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={throatLength}
-              onValueChange={setThroatLength}
+              onChange={setThroatLength}
               minimumTrackTintColor={HAOS_COLORS.pink}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.pink}
@@ -433,7 +433,7 @@ const VocalsScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={breathiness}
-              onValueChange={setBreathiness}
+              onChange={setBreathiness}
               minimumTrackTintColor={HAOS_COLORS.pink}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.pink}

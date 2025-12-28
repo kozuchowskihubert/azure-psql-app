@@ -348,7 +348,7 @@ const TB303Screen = ({ navigation, route }) => {
               minimumValue={60}
               maximumValue={180}
               value={tempo}
-              onValueChange={setTempo}
+              onChange={setTempo}
               minimumTrackTintColor={HAOS_COLORS.green}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.green}
@@ -429,7 +429,7 @@ const TB303Screen = ({ navigation, route }) => {
               minimumValue={0}
               maximumValue={100}
               value={tuning}
-              onValueChange={setTuning}
+              onChange={setTuning}
               minimumTrackTintColor={HAOS_COLORS.green}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.green}
@@ -492,7 +492,7 @@ const TB303Screen = ({ navigation, route }) => {
               minimumValue={0}
               maximumValue={100}
               value={cutoff}
-              onValueChange={setCutoff}
+              onChange={setCutoff}
               minimumTrackTintColor={HAOS_COLORS.lime}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.lime}
@@ -507,7 +507,7 @@ const TB303Screen = ({ navigation, route }) => {
               minimumValue={0}
               maximumValue={100}
               value={resonance}
-              onValueChange={setResonance}
+              onChange={setResonance}
               minimumTrackTintColor={HAOS_COLORS.lime}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.lime}
@@ -522,7 +522,7 @@ const TB303Screen = ({ navigation, route }) => {
               minimumValue={0}
               maximumValue={100}
               value={envMod}
-              onValueChange={setEnvMod}
+              onChange={setEnvMod}
               minimumTrackTintColor={HAOS_COLORS.lime}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.lime}
@@ -537,7 +537,7 @@ const TB303Screen = ({ navigation, route }) => {
               minimumValue={0}
               maximumValue={100}
               value={decay}
-              onValueChange={setDecay}
+              onChange={setDecay}
               minimumTrackTintColor={HAOS_COLORS.lime}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.lime}

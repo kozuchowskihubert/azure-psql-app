@@ -102,7 +102,7 @@ const Knob = ({
   const normalizedValue = (displayValue - min) / (max - min);
 
   return (
-    <View style={styles.container} onStartShouldSetResponder={() => true}>
+    <View style={styles.container}>
       <View
         style={[styles.knobContainer, { width: size, height: size }]}
         {...panResponder.panHandlers}

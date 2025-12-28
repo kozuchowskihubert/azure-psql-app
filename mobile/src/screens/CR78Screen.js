@@ -178,7 +178,7 @@ const CR78Screen = ({ navigation }) => {
               minimumValue={60}
               maximumValue={200}
               value={tempo}
-              onValueChange={setTempo}
+              onChange={setTempo}
               minimumTrackTintColor={HAOS_COLORS.green}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.green}
@@ -205,7 +205,7 @@ const CR78Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={accentLevel}
-              onValueChange={setAccentLevel}
+              onChange={setAccentLevel}
               minimumTrackTintColor={HAOS_COLORS.lime}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.lime}
@@ -312,7 +312,7 @@ const CR78Screen = ({ navigation }) => {
                     minimumValue={0}
                     maximumValue={100}
                     value={volumes[inst.id]}
-                    onValueChange={(val) => updateVolume(inst.id, val)}
+                    onChange={(val) => updateVolume(inst.id, val)}
                     minimumTrackTintColor={inst.color}
                     maximumTrackTintColor={HAOS_COLORS.mediumGray}
                     thumbTintColor={inst.color}

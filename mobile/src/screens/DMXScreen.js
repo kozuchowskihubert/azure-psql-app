@@ -211,7 +211,7 @@ const DMXScreen = ({ navigation }) => {
               minimumValue={60}
               maximumValue={160}
               value={tempo}
-              onValueChange={setTempo}
+              onChange={setTempo}
               minimumTrackTintColor={HAOS_COLORS.red}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.red}
@@ -238,7 +238,7 @@ const DMXScreen = ({ navigation }) => {
               minimumValue={50}
               maximumValue={75}
               value={swing}
-              onValueChange={setSwing}
+              onChange={setSwing}
               minimumTrackTintColor={HAOS_COLORS.orange}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.orange}
@@ -294,7 +294,7 @@ const DMXScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={currentParams.volume}
-              onValueChange={(val) => updateSoundParam(selectedSound, 'volume', val)}
+              onChange={(val) => updateSoundParam(selectedSound, 'volume', val)}
               minimumTrackTintColor={currentSound.color}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={currentSound.color}
@@ -310,7 +310,7 @@ const DMXScreen = ({ navigation }) => {
               maximumValue={24}
               step={1}
               value={currentParams.tune}
-              onValueChange={(val) => updateSoundParam(selectedSound, 'tune', val)}
+              onChange={(val) => updateSoundParam(selectedSound, 'tune', val)}
               minimumTrackTintColor={currentSound.color}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={currentSound.color}

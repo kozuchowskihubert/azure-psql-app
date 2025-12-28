@@ -152,7 +152,7 @@ export default function ModularWorkspaceScreen({ route }) {
             <Knob
               label="Level"
               value={osc1Level}
-              onValueChange={setOsc1Level}
+              onChange={setOsc1Level}
               min={0}
               max={1}
               size={80}
@@ -193,7 +193,7 @@ export default function ModularWorkspaceScreen({ route }) {
             <Knob
               label="Detune"
               value={osc2Detune}
-              onValueChange={setOsc2Detune}
+              onChange={setOsc2Detune}
               min={-50}
               max={50}
               size={80}
@@ -201,7 +201,7 @@ export default function ModularWorkspaceScreen({ route }) {
             <Knob
               label="Level"
               value={osc2Level}
-              onValueChange={setOsc2Level}
+              onChange={setOsc2Level}
               min={0}
               max={1}
               size={80}
@@ -242,7 +242,7 @@ export default function ModularWorkspaceScreen({ route }) {
             <Knob
               label="Cutoff"
               value={filterFrequency}
-              onValueChange={setFilterFrequency}
+              onChange={setFilterFrequency}
               min={20}
               max={20000}
               size={80}
@@ -250,7 +250,7 @@ export default function ModularWorkspaceScreen({ route }) {
             <Knob
               label="Resonance"
               value={filterQ}
-              onValueChange={setFilterQ}
+              onChange={setFilterQ}
               min={0.1}
               max={20}
               size={80}
@@ -274,7 +274,7 @@ export default function ModularWorkspaceScreen({ route }) {
             <Knob
               label="Volume"
               value={volume}
-              onValueChange={setVolume}
+              onChange={setVolume}
               min={0}
               max={1}
               size={100}

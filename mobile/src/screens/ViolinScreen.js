@@ -160,7 +160,7 @@ const ViolinScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={volume}
-              onValueChange={setVolume}
+              onChange={setVolume}
               minimumTrackTintColor={currentArticulation.color}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={currentArticulation.color}
@@ -175,7 +175,7 @@ const ViolinScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={reverb}
-              onValueChange={setReverb}
+              onChange={setReverb}
               minimumTrackTintColor={currentArticulation.color}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={currentArticulation.color}
@@ -190,7 +190,7 @@ const ViolinScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={brightness}
-              onValueChange={setBrightness}
+              onChange={setBrightness}
               minimumTrackTintColor={currentArticulation.color}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={currentArticulation.color}
@@ -211,7 +211,7 @@ const ViolinScreen = ({ navigation }) => {
               maximumValue={10}
               step={0.1}
               value={vibratoRate}
-              onValueChange={setVibratoRate}
+              onChange={setVibratoRate}
               minimumTrackTintColor={HAOS_COLORS.orange}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.orange}
@@ -226,7 +226,7 @@ const ViolinScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={vibratoDepth}
-              onValueChange={setVibratoDepth}
+              onChange={setVibratoDepth}
               minimumTrackTintColor={HAOS_COLORS.orange}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.orange}
@@ -241,7 +241,7 @@ const ViolinScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={127}
               value={expression}
-              onValueChange={setExpression}
+              onChange={setExpression}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -256,7 +256,7 @@ const ViolinScreen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={bowPressure}
-              onValueChange={setBowPressure}
+              onChange={setBowPressure}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -298,7 +298,7 @@ const ViolinScreen = ({ navigation }) => {
                   maximumValue={16}
                   step={1}
                   value={ensembleSize}
-                  onValueChange={setEnsembleSize}
+                  onChange={setEnsembleSize}
                   minimumTrackTintColor={HAOS_COLORS.orange}
                   maximumTrackTintColor={HAOS_COLORS.mediumGray}
                   thumbTintColor={HAOS_COLORS.orange}
@@ -313,7 +313,7 @@ const ViolinScreen = ({ navigation }) => {
                   minimumValue={0}
                   maximumValue={100}
                   value={stereoWidth}
-                  onValueChange={setStereoWidth}
+                  onChange={setStereoWidth}
                   minimumTrackTintColor={HAOS_COLORS.orange}
                   maximumTrackTintColor={HAOS_COLORS.mediumGray}
                   thumbTintColor={HAOS_COLORS.orange}

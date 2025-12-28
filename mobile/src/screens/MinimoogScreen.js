@@ -63,7 +63,7 @@ const MinimoogScreen = ({ navigation }) => {
   const [waveformData, setWaveformData] = useState([]);
   
   // Filter ladder animation (4 poles)
-  const filterPoleanims = useRef([
+  const filterPoleAnims = useRef([
     new Animated.Value(0),
     new Animated.Value(0),
     new Animated.Value(0),
@@ -245,7 +245,7 @@ const MinimoogScreen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={osc1Level}
-                onValueChange={handleOsc1LevelChange}
+                onChange={handleOsc1LevelChange}
                 label="OSC 1"
                 color={HAOS_COLORS.blue}
                 size={70}
@@ -257,7 +257,7 @@ const MinimoogScreen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={osc2Level}
-                onValueChange={handleOsc2LevelChange}
+                onChange={handleOsc2LevelChange}
                 label="OSC 2"
                 color={HAOS_COLORS.blue}
                 size={70}
@@ -269,7 +269,7 @@ const MinimoogScreen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={osc3Level}
-                onValueChange={handleOsc3LevelChange}
+                onChange={handleOsc3LevelChange}
                 label="OSC 3"
                 color={HAOS_COLORS.blue}
                 size={70}
@@ -332,7 +332,7 @@ const MinimoogScreen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={filterCutoff / 5000}
-                onValueChange={handleFilterCutoffChange}
+                onChange={handleFilterCutoffChange}
                 label="CUTOFF"
                 color={HAOS_COLORS.red}
                 size={85}
@@ -343,7 +343,7 @@ const MinimoogScreen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={filterResonance / 20}
-                onValueChange={handleFilterResonanceChange}
+                onChange={handleFilterResonanceChange}
                 label="RESONANCE"
                 color={HAOS_COLORS.red}
                 size={85}
@@ -391,7 +391,7 @@ const MinimoogScreen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={attack / 2}
-                onValueChange={handleAttackChange}
+                onChange={handleAttackChange}
                 label="ATTACK"
                 color={HAOS_COLORS.cyan}
                 size={60}
@@ -402,7 +402,7 @@ const MinimoogScreen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={decay / 2}
-                onValueChange={handleDecayChange}
+                onChange={handleDecayChange}
                 label="DECAY"
                 color={HAOS_COLORS.cyan}
                 size={60}
@@ -413,7 +413,7 @@ const MinimoogScreen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={sustain}
-                onValueChange={handleSustainChange}
+                onChange={handleSustainChange}
                 label="SUSTAIN"
                 color={HAOS_COLORS.cyan}
                 size={60}
@@ -424,7 +424,7 @@ const MinimoogScreen = ({ navigation }) => {
             <View style={styles.knobContainer}>
               <Knob
                 value={release / 5}
-                onValueChange={handleReleaseChange}
+                onChange={handleReleaseChange}
                 label="RELEASE"
                 color={HAOS_COLORS.cyan}
                 size={60}

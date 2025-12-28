@@ -191,7 +191,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={vcoAFreq}
-              onValueChange={setVcoAFreq}
+              onChange={setVcoAFreq}
               minimumTrackTintColor={HAOS_COLORS.cyan}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.cyan}
@@ -229,7 +229,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={vcoAPW}
-              onValueChange={setVcoAPW}
+              onChange={setVcoAPW}
               minimumTrackTintColor={HAOS_COLORS.cyan}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.cyan}
@@ -252,7 +252,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={vcoBFreq}
-              onValueChange={setVcoBFreq}
+              onChange={setVcoBFreq}
               minimumTrackTintColor={HAOS_COLORS.blue}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.blue}
@@ -307,7 +307,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={mixerA}
-              onValueChange={setMixerA}
+              onChange={setMixerA}
               minimumTrackTintColor={HAOS_COLORS.cyan}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.cyan}
@@ -322,7 +322,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={mixerB}
-              onValueChange={setMixerB}
+              onChange={setMixerB}
               minimumTrackTintColor={HAOS_COLORS.blue}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.blue}
@@ -345,7 +345,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={cutoff}
-              onValueChange={setCutoff}
+              onChange={setCutoff}
               minimumTrackTintColor={HAOS_COLORS.purple}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.purple}
@@ -360,7 +360,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={resonance}
-              onValueChange={setResonance}
+              onChange={setResonance}
               minimumTrackTintColor={HAOS_COLORS.purple}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.purple}
@@ -375,7 +375,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={envAmount}
-              onValueChange={setEnvAmount}
+              onChange={setEnvAmount}
               minimumTrackTintColor={HAOS_COLORS.purple}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.purple}
@@ -399,7 +399,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={polyModFilter}
-              onValueChange={setPolyModFilter}
+              onChange={setPolyModFilter}
               minimumTrackTintColor={HAOS_COLORS.pink}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.pink}
@@ -414,7 +414,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={polyModOscB}
-              onValueChange={setPolyModOscB}
+              onChange={setPolyModOscB}
               minimumTrackTintColor={HAOS_COLORS.pink}
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor={HAOS_COLORS.pink}
@@ -434,7 +434,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={ampAttack}
-              onValueChange={setAmpAttack}
+              onChange={setAmpAttack}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -449,7 +449,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={ampDecay}
-              onValueChange={setAmpDecay}
+              onChange={setAmpDecay}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -464,7 +464,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={ampSustain}
-              onValueChange={setAmpSustain}
+              onChange={setAmpSustain}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -479,7 +479,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={ampRelease}
-              onValueChange={setAmpRelease}
+              onChange={setAmpRelease}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -499,7 +499,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={filterAttack}
-              onValueChange={setFilterAttack}
+              onChange={setFilterAttack}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -514,7 +514,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={filterDecay}
-              onValueChange={setFilterDecay}
+              onChange={setFilterDecay}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -529,7 +529,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={filterSustain}
-              onValueChange={setFilterSustain}
+              onChange={setFilterSustain}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"
@@ -544,7 +544,7 @@ const Prophet5Screen = ({ navigation }) => {
               minimumValue={0}
               maximumValue={100}
               value={filterRelease}
-              onValueChange={setFilterRelease}
+              onChange={setFilterRelease}
               minimumTrackTintColor="#fff"
               maximumTrackTintColor={HAOS_COLORS.mediumGray}
               thumbTintColor="#fff"

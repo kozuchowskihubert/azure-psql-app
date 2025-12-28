@@ -184,7 +184,7 @@ export default function BuilderWorkspaceScreen({ route }) {
             <Knob
               label="Hz"
               value={frequency}
-              onValueChange={setFrequency}
+              onChange={setFrequency}
               min={20}
               max={20000}
               size={100}
@@ -200,7 +200,7 @@ export default function BuilderWorkspaceScreen({ route }) {
             <Knob
               label="Decay"
               value={decay}
-              onValueChange={setDecay}
+              onChange={setDecay}
               min={0.01}
               max={3}
               size={90}
@@ -208,7 +208,7 @@ export default function BuilderWorkspaceScreen({ route }) {
             <Knob
               label="Punch"
               value={punch}
-              onValueChange={setPunch}
+              onChange={setPunch}
               min={0}
               max={1}
               size={90}
@@ -223,7 +223,7 @@ export default function BuilderWorkspaceScreen({ route }) {
             <Knob
               label="Distortion"
               value={distortion}
-              onValueChange={setDistortion}
+              onChange={setDistortion}
               min={0}
               max={1}
               size={90}
@@ -231,7 +231,7 @@ export default function BuilderWorkspaceScreen({ route }) {
             <Knob
               label="Volume"
               value={volume}
-              onValueChange={setVolume}
+              onChange={setVolume}
               min={0}
               max={1}
               size={90}
