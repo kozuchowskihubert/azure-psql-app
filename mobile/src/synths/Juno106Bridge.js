@@ -3,7 +3,8 @@
  * Warm chorus ensemble sound
  */
 
-import nativeAudioContext from '../audio/NativeAudioContext';
+import webAudioBridge from '../services/WebAudioBridge';
+import * as Haptics from 'expo-haptics';
 
 class Juno106Bridge {
   constructor() {
@@ -27,14 +28,31 @@ class Juno106Bridge {
     console.log('Juno106Bridge: Initializing warm chorus synth...');
     
     try {
-      await nativeAudioContext.initialize();
+      // WebAudioBridge will be initialized by the screen's WebView
       this.isInitialized = true;
-      console.log('Juno106Bridge: Initialized - warm chorus ensemble ready (native audio)');
+      console.log('Juno106Bridge: Initialized - warm chorus ensemble ready (WebAudio)');
       return true;
     } catch (error) {
       console.error('Juno106Bridge: Initialization failed:', error);
       return false;
     }
+  }
+
+  noteToFrequency(note) {
+    const noteMap = {
+      'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
+      'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
+    };
+    
+    const match = note.match(/^([A-G]#?)(\d)$/);
+    if (!match) return 440;
+    
+    const [, noteName, octaveStr] = match;
+    const octave = parseInt(octaveStr);
+    const semitone = noteMap[noteName];
+    const midiNote = (octave + 1) * 12 + semitone;
+    
+    return 440 * Math.pow(2, (midiNote - 69) / 12);
   }
 
   playNote(note, options = {}) {
@@ -47,10 +65,21 @@ class Juno106Bridge {
     const accent = options.accent || false;
     const duration = options.duration || 0.4;
 
-    console.log(`🎹 Juno-106: ${note} vel=${velocity.toFixed(2)} accent=${accent}`);
+    const frequency = this.noteToFrequency(note);
+    console.log(`🎹 Juno-106: ${note} (${frequency.toFixed(2)}Hz) vel=${velocity.toFixed(2)} (WebAudio)`);
 
-    // Play using native audio with stored parameters
-    nativeAudioContext.playJuno106Note(note, velocity, duration, this.params);
+    // Play using WebAudioBridge
+    if (webAudioBridge.isReady) {
+      webAudioBridge.playJuno106(
+        frequency,
+        duration,
+        velocity,
+        true // chorus enabled
+      );
+    } else {
+      // Fallback to haptics
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
   }
 
   setCutoff(value) {

@@ -1,4 +1,5 @@
-import nativeAudioContext from '../audio/NativeAudioContext';
+import webAudioBridge from '../services/WebAudioBridge';
+import * as Haptics from 'expo-haptics';
 
 class ARP2600Bridge {
   constructor() {
@@ -9,7 +10,7 @@ class ARP2600Bridge {
       osc1Level: 0.5,           // Oscillator 1 level (0-1)
       osc2Level: 0.3,           // Oscillator 2 level (0-1)
       detune: 0.005,            // Oscillator 2 detune (0-1, 0.005 = 0.5%)
-      filterCutoff: 2000,       // Filter cutoff Hz (0-10000)
+      filterCutoff: 2000,        // Filter cutoff Hz (0-10000)
       filterResonance: 18,      // Filter Q (0-30)
       envelope: {
         attack: 0.05,           // Attack time in seconds
@@ -56,9 +57,9 @@ class ARP2600Bridge {
     console.log('ARP2600Bridge: Initializing modular synth...');
     
     try {
-      await nativeAudioContext.initialize();
+      // WebAudioBridge will be initialized by the screen's WebView
       this.isInitialized = true;
-      console.log('ARP2600Bridge: Initialized - dual oscillator modular synth ready (native audio)');
+      console.log('ARP2600Bridge: Initialized - dual oscillator modular synth ready (WebAudio)');
       return true;
     } catch (error) {
       console.error('ARP2600Bridge: Initialization failed:', error);
@@ -69,6 +70,24 @@ class ARP2600Bridge {
   updateBridgeParams() {
     // Log parameters for debugging
     console.log('ARP2600 params:', JSON.stringify(this.params, null, 2));
+  }
+
+  noteToFrequency(note) {
+    const noteMap = {
+      'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
+      'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
+    };
+    
+    const match = note.match(/^([A-G]#?)(\d)$/);
+    if (!match) return 440; // Default to A4
+    
+    const [, noteName, octaveStr] = match;
+    const octave = parseInt(octaveStr);
+    const semitone = noteMap[noteName];
+    const midiNote = (octave + 1) * 12 + semitone;
+    
+    // A4 (440 Hz) is MIDI note 69
+    return 440 * Math.pow(2, (midiNote - 69) / 12);
   }
 
   playNote(note, options = {}) {
@@ -83,10 +102,21 @@ class ARP2600Bridge {
       duration = 0.3,
     } = options;
 
-    console.log(`🎹 ARP 2600: ${note} (modular synth) velocity=${velocity}, accent=${accent}`);
+    const frequency = this.noteToFrequency(note);
+    console.log(`🎹 ARP 2600: ${note} (${frequency.toFixed(2)}Hz) velocity=${velocity}, accent=${accent} (WebAudio)`);
 
-    // Play using native audio with stored parameters
-    nativeAudioContext.playARP2600Note(note, velocity, duration, this.params);
+    // Play using WebAudioBridge
+    if (webAudioBridge.isReady) {
+      webAudioBridge.playARP2600(
+        frequency,
+        duration,
+        velocity,
+        this.params.detune
+      );
+    } else {
+      // Fallback to haptics
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
   }
 
   // Oscillator level controls
