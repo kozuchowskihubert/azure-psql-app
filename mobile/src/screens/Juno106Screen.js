@@ -12,9 +12,10 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
 import juno106Bridge from '../synths/Juno106Bridge';
-import nativeAudioContext from '../audio/NativeAudioContext';
+import webAudioBridge from '../services/WebAudioBridge';
 import Knob from '../components/Knob';
 import Oscilloscope from '../components/Oscilloscope';
 import UniversalSequencer from '../components/UniversalSequencer';
@@ -217,6 +218,23 @@ const Juno106Screen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* Hidden WebView for audio-engine.html */}
+      <WebView
+        ref={(ref) => {
+          if (ref && !webAudioBridge.isReady) {
+            webAudioBridge.setWebViewRef(ref);
+          }
+        }}
+        source={require('../../assets/audio-engine.html')}
+        style={{ width: 0, height: 0, opacity: 0, position: 'absolute' }}
+        onMessage={(event) => webAudioBridge.onMessage(event)}
+        onLoad={() => webAudioBridge.initAudio()}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        mediaPlaybackRequiresUserAction={false}
+        allowsInlineMediaPlayback={true}
+      />
+
       {/* Header */}
       <LinearGradient
         colors={[HAOS_COLORS.dark, HAOS_COLORS.metal, HAOS_COLORS.dark]}

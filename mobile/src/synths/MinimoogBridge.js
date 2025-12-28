@@ -3,7 +3,8 @@
  * Fat analog bass/lead sound
  */
 
-import nativeAudioContext from '../audio/NativeAudioContext';
+import webAudioBridge from '../services/WebAudioBridge';
+import * as Haptics from 'expo-haptics';
 
 class MinimoogBridge {
   constructor() {
@@ -25,33 +26,52 @@ class MinimoogBridge {
     };
   }
 
+  // Convert note name to frequency
+  noteToFrequency(note) {
+    const noteMap = {
+      'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
+      'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
+    };
+    
+    const match = note.match(/^([A-G]#?)(\d)$/);
+    if (!match) return 440;
+    
+    const [, noteName, octaveStr] = match;
+    const octave = parseInt(octaveStr);
+    const semitone = noteMap[noteName];
+    const midiNote = (octave + 1) * 12 + semitone;
+    
+    return 440 * Math.pow(2, (midiNote - 69) / 12);
+  }
+
   async init() {
     console.log('MinimoogBridge: Initializing fat analog synth...');
-    
-    try {
-      await nativeAudioContext.initialize();
-      this.isInitialized = true;
-      console.log('✅ Minimoog synth initialized (native audio)');
-      return true;
-    } catch (error) {
-      console.error('❌ Minimoog initialization failed:', error);
-      return false;
-    }
+    this.isInitialized = true;
+    console.log('✅ Minimoog synth initialized (web audio bridge)');
+    return true;
   }
 
   playNote(note, options = {}) {
-    if (!this.isInitialized) {
-      console.warn('MinimoogBridge: Not ready');
-      return;
-    }
-
     const velocity = options.velocity !== undefined ? options.velocity : 1.0;
     const duration = options.duration || 0.5;
+    const frequency = this.noteToFrequency(note);
 
-    console.log(`🎹 Minimoog: ${note} vel=${velocity.toFixed(2)} (native audio)`);
+    console.log(`🎹 Minimoog: ${note} (${frequency.toFixed(1)}Hz) vel=${velocity.toFixed(2)}`);
 
-    // Play using native audio with parameters
-    nativeAudioContext.playMinimoogNote(note, velocity, duration, this.params);
+    // Play using WebAudioBridge with Minimoog parameters
+    if (webAudioBridge.isReady) {
+      webAudioBridge.playMinimoog(
+        frequency,
+        duration,
+        velocity,
+        this.params.filterCutoff,
+        this.params.filterResonance
+      );
+    } else {
+      // Haptic fallback if audio not ready
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      console.log('⚠️  Minimoog: Audio bridge not ready, haptic feedback only');
+    }
   }
 
   // Oscillator level setters

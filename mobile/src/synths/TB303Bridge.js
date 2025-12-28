@@ -4,7 +4,8 @@
  * Full analog-style synthesis with filter modulation
  */
 
-import nativeAudioContext from '../audio/NativeAudioContext';
+import webAudioBridge from '../services/WebAudioBridge';
+import * as Haptics from 'expo-haptics';
 
 class TB303Bridge {
   constructor() {
@@ -19,20 +20,31 @@ class TB303Bridge {
     this.waveform = 'sawtooth';
   }
 
+  // Convert note name to frequency
+  noteToFrequency(note) {
+    const noteMap = {
+      'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
+      'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
+    };
+    
+    const match = note.match(/^([A-G]#?)(\d)$/);
+    if (!match) return 440;
+    
+    const [, noteName, octaveStr] = match;
+    const octave = parseInt(octaveStr);
+    const semitone = noteMap[noteName];
+    const midiNote = (octave + 1) * 12 + semitone;
+    
+    return 440 * Math.pow(2, (midiNote - 69) / 12);
+  }
+
   /**
    * Initialize native audio
    */
   async init() {
-    try {
-      await nativeAudioContext.initialize();
-      this.isInitialized = true;
-      console.log('TB-303 Bridge: Initialized with native audio');
-      return true;
-    } catch (error) {
-      console.error('TB-303 Bridge: Init error:', error);
-      this.isInitialized = true; // Continue anyway
-      return true;
-    }
+    this.isInitialized = true;
+    console.log('TB-303 Bridge: Initialized with web audio bridge');
+    return true;
   }
 
   /**
@@ -43,10 +55,32 @@ class TB303Bridge {
       velocity = 1.0,
       accent = false,
       duration = 0.2,
+      slideFrom = null,
     } = options;
 
-    console.log(`🎹 TB-303: ${note} velocity=${velocity} accent=${accent} (native audio)`);
-    nativeAudioContext.playTB303Note(note, velocity, duration);
+    const frequency = this.noteToFrequency(note);
+    const slideFromFreq = slideFrom ? this.noteToFrequency(slideFrom) : null;
+
+    console.log(`🎹 TB-303: ${note} (${frequency.toFixed(1)}Hz) velocity=${velocity} accent=${accent}`);
+
+    // Play using WebAudioBridge with TB-303 parameters
+    if (webAudioBridge.isReady) {
+      webAudioBridge.playTB303(
+        frequency,
+        duration,
+        velocity,
+        this.cutoff,
+        this.resonance,
+        this.envMod,
+        accent,
+        slideFromFreq,
+        this.waveform
+      );
+    } else {
+      // Haptic fallback if audio not ready
+      Haptics.impactAsync(accent ? Haptics.ImpactFeedbackStyle.Heavy : Haptics.ImpactFeedbackStyle.Medium);
+      console.log('⚠️  TB-303: Audio bridge not ready, haptic feedback only');
+    }
   }
 
   /**
@@ -61,20 +95,8 @@ class TB303Bridge {
       accent: this.accent,
       waveform: this.waveform,
     });
-    // Apply parameters to native synthesis if method exists
-    if (typeof nativeAudioContext.setTB303Params === 'function') {
-      nativeAudioContext.setTB303Params({
-        cutoff: this.cutoff,
-        resonance: this.resonance,
-        envMod: this.envMod,
-        decay: this.decay,
-        accent: this.accent,
-        waveform: this.waveform,
-      });
-    } else {
-      // If not implemented, log a warning
-      console.warn('NativeAudioContext.setTB303Params not implemented. TB-303 params not applied.');
-    }
+    // Parameters are passed per-note to WebAudioBridge
+    // No global parameter setting needed
   }
 
   /**

@@ -13,9 +13,11 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
 import Slider from '@react-native-community/slider';
 import TB303Bridge from '../synths/TB303Bridge';
+import webAudioBridge from '../services/WebAudioBridge';
 
 const tb303 = new TB303Bridge();
 
@@ -315,6 +317,23 @@ const TB303Screen = ({ navigation, route }) => {
   
   return (
     <View style={styles.container}>
+      {/* Hidden WebView for audio-engine.html */}
+      <WebView
+        ref={(ref) => {
+          if (ref && !webAudioBridge.isReady) {
+            webAudioBridge.setWebViewRef(ref);
+          }
+        }}
+        source={require('../../assets/audio-engine.html')}
+        style={{ width: 0, height: 0, opacity: 0, position: 'absolute' }}
+        onMessage={(event) => webAudioBridge.onMessage(event)}
+        onLoad={() => webAudioBridge.initAudio()}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        mediaPlaybackRequiresUserAction={false}
+        allowsInlineMediaPlayback={true}
+      />
+
       {/* Header */}
       <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
         <TouchableOpacity 
