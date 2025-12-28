@@ -17,6 +17,8 @@ import juno106Bridge from '../synths/Juno106Bridge';
 import nativeAudioContext from '../audio/NativeAudioContext';
 import Knob from '../components/Knob';
 import Oscilloscope from '../components/Oscilloscope';
+import UniversalSequencer from '../components/UniversalSequencer';
+import PianoRollSequencer from '../sequencer/PianoRollSequencer';
 import { Animated } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -58,6 +60,10 @@ const Juno106Screen = ({ navigation }) => {
   const [release, setRelease] = useState(0.4);
   const [activeNotes, setActiveNotes] = useState(new Set());
   const [waveformData, setWaveformData] = useState([]);
+  
+  // Sequencer state
+  const [sequencerPlaying, setSequencerPlaying] = useState(false);
+  const [bpm, setBpm] = useState(120);
   
   // Animation for chorus effect
   const chorusAnim = useRef(new Animated.Value(0)).current;
@@ -130,6 +136,13 @@ const Juno106Screen = ({ navigation }) => {
       newSet.delete(note);
       return newSet;
     });
+  };
+
+  // Sequencer note handler
+  const handleSequencerNote = (midiNote) => {
+    const frequency = 440 * Math.pow(2, (midiNote - 69) / 12);
+    juno106Bridge.playNote(midiNote, 1.0, 0.25);
+    console.log(`🎵 Juno-106 Sequencer: MIDI ${midiNote} @ ${frequency.toFixed(2)}Hz`);
   };
 
   // Knob change handlers - update both state and bridge
@@ -382,6 +395,50 @@ const Juno106Screen = ({ navigation }) => {
                 size={60}
               />
               <Text style={styles.knobValue}>{(release * 1000).toFixed(0)}ms</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Piano Roll Sequencer */}
+        <PianoRollSequencer
+          isPlaying={sequencerPlaying}
+          bpm={bpm}
+          onStepTrigger={(data) => {
+            juno106Bridge.playNote(data.note, data.velocity, data.duration);
+          }}
+          color={HAOS_COLORS.purple}
+          title="JUNO-106 PIANO ROLL"
+        />
+
+        {/* Sequencer Controls */}
+        <View style={styles.section}>
+          <View style={styles.sequencerControls}>
+            <TouchableOpacity
+              onPress={() => setSequencerPlaying(!sequencerPlaying)}
+              style={[styles.transportButton, sequencerPlaying && styles.transportButtonActive]}
+            >
+              <Text style={styles.transportButtonText}>
+                {sequencerPlaying ? '⏸ STOP' : '▶ PLAY'}
+              </Text>
+            </TouchableOpacity>
+            
+            <View style={styles.bpmControl}>
+              <Text style={styles.bpmLabel}>BPM</Text>
+              <View style={styles.bpmButtons}>
+                <TouchableOpacity
+                  onPress={() => setBpm(Math.max(60, bpm - 5))}
+                  style={styles.bpmButton}
+                >
+                  <Text style={styles.bpmButtonText}>−</Text>
+                </TouchableOpacity>
+                <Text style={styles.bpmValue}>{bpm}</Text>
+                <TouchableOpacity
+                  onPress={() => setBpm(Math.min(200, bpm + 5))}
+                  style={styles.bpmButton}
+                >
+                  <Text style={styles.bpmButtonText}>+</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>

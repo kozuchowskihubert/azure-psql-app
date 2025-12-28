@@ -4,6 +4,9 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import UniversalSequencer from '../components/UniversalSequencer';
+import ML185Sequencer from '../sequencer/ML185Sequencer';
+import Keyboard from '../components/Keyboard';
 import {
   View,
   Text,
@@ -28,7 +31,38 @@ const HAOS_COLORS = {
   mediumGray: '#2a2a2a',
 };
 
+// Dummy Prophet5Bridge for playNote (replace with real bridge if available)
+const prophet5Bridge = {
+  playNote: (midi, velocity = 1.0, duration = 0.3) => {
+    // TODO: Replace with real Prophet5 audio engine/bridge
+    if (global.nativeAudioContext && global.nativeAudioContext.playNote) {
+      global.nativeAudioContext.playNote(midi, velocity, duration);
+    } else {
+      console.log('Prophet5 playNote:', midi, velocity, duration);
+    }
+  },
+};
+
 const Prophet5Screen = ({ navigation }) => {
+  // Sequencer state
+  const [isSequencerPlaying, setIsSequencerPlaying] = useState(false);
+  const [sequencerBpm, setSequencerBpm] = useState(120);
+
+  // Keyboard octave
+  const [keyboardOctave, setKeyboardOctave] = useState(4);
+  // Handle sequencer note trigger
+  const handleSequencerNote = (midi) => {
+    prophet5Bridge.playNote(midi, 1.0, 0.3);
+  };
+
+  // Handle keyboard note trigger
+  const handleKeyboardNote = (freq, note) => {
+    // Convert freq to closest MIDI note (C4=60, freq=261.63)
+    // This is a rough mapping for demo; replace with proper mapping if needed
+    let midi = 69 + 12 * Math.log2(freq / 440);
+    midi = Math.round(midi);
+    prophet5Bridge.playNote(midi, 1.0, 0.3);
+  };
   // Voice mode
   const [voices, setVoices] = useState(5);
   const [unisonMode, setUnisonMode] = useState(false);
@@ -143,6 +177,36 @@ const Prophet5Screen = ({ navigation }) => {
       </Animated.View>
       
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* ML-185 Advanced Sequencer */}
+        <ML185Sequencer
+          isPlaying={isSequencerPlaying}
+          bpm={sequencerBpm}
+          onStepTrigger={(data) => {
+            prophet5Bridge.playNote(data.note, data.velocity, data.duration);
+          }}
+          color={HAOS_COLORS.cyan}
+          title="ML-185 ADVANCED SEQUENCER"
+        />
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 20, marginBottom: 8 }}>
+          <TouchableOpacity
+            style={{ backgroundColor: isSequencerPlaying ? HAOS_COLORS.cyan : '#222', padding: 10, borderRadius: 8, marginRight: 10 }}
+            onPress={() => setIsSequencerPlaying(!isSequencerPlaying)}
+          >
+            <Text style={{ color: isSequencerPlaying ? '#000' : HAOS_COLORS.cyan, fontWeight: 'bold' }}>{isSequencerPlaying ? 'Stop' : 'Play'}</Text>
+          </TouchableOpacity>
+          <Text style={{ color: '#fff', marginRight: 8 }}>BPM</Text>
+          <Slider
+            style={{ flex: 1 }}
+            minimumValue={60}
+            maximumValue={180}
+            value={sequencerBpm}
+            onValueChange={setSequencerBpm}
+            minimumTrackTintColor={HAOS_COLORS.cyan}
+            maximumTrackTintColor="#444"
+            thumbTintColor={HAOS_COLORS.cyan}
+          />
+          <Text style={{ color: HAOS_COLORS.cyan, width: 40, textAlign: 'right' }}>{Math.round(sequencerBpm)}</Text>
+        </View>
         {/* Voice Display */}
         <View style={styles.voiceDisplay}>
           <Text style={styles.voiceTitle}>VOICES</Text>
@@ -589,6 +653,30 @@ const Prophet5Screen = ({ navigation }) => {
         </View>
         
         <View style={{ height: 40 }} />
+
+        {/* Keyboard */}
+        <View style={{ marginHorizontal: 20, marginBottom: 24 }}>
+          <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18, marginBottom: 8 }}>🎹 KEYBOARD</Text>
+          <Keyboard
+            onNotePress={handleKeyboardNote}
+            octave={keyboardOctave}
+          />
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 8 }}>
+            <TouchableOpacity
+              style={{ backgroundColor: '#222', padding: 8, borderRadius: 6, marginHorizontal: 8 }}
+              onPress={() => setKeyboardOctave(o => Math.max(1, o - 1))}
+            >
+              <Text style={{ color: '#00ff94', fontWeight: 'bold' }}>-</Text>
+            </TouchableOpacity>
+            <Text style={{ color: '#fff', fontSize: 16, marginHorizontal: 8 }}>Octave: {keyboardOctave}</Text>
+            <TouchableOpacity
+              style={{ backgroundColor: '#222', padding: 8, borderRadius: 6, marginHorizontal: 8 }}
+              onPress={() => setKeyboardOctave(o => Math.min(7, o + 1))}
+            >
+              <Text style={{ color: '#00ff94', fontWeight: 'bold' }}>+</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </ScrollView>
     </View>
   );

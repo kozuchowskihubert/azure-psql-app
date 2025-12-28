@@ -18,6 +18,7 @@ import nativeAudioContext from '../audio/NativeAudioContext';
 import Knob from '../components/Knob';
 import Oscilloscope from '../components/Oscilloscope';
 import UniversalSequencer from '../components/UniversalSequencer';
+import EuclideanSequencer from '../sequencer/EuclideanSequencer';
 import { Animated } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -504,13 +505,15 @@ const MinimoogScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Universal Sequencer */}
-        <UniversalSequencer
+        {/* Euclidean Rhythm Sequencer */}
+        <EuclideanSequencer
           isPlaying={sequencerPlaying}
           bpm={bpm}
-          onPlayNote={handleSequencerNote}
-          color={HAOS_COLORS.cyan}
-          title="MINIMOOG SEQUENCER"
+          onStepTrigger={(data) => {
+            minimoogBridge.playNote(data.note, data.velocity, data.duration);
+          }}
+          color={HAOS_COLORS.green}
+          title="EUCLIDEAN RHYTHM SEQUENCER"
         />
         
         {/* Sequencer Controls */}

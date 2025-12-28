@@ -192,21 +192,55 @@ export default class BassAudioEngine {
       this.currentPreset = presetId;
       this.params = { ...PRESETS[presetId] };
       console.log(`✅ Loaded preset: ${PRESETS[presetId].name}`);
+      console.log(`📊 Preset params:`, JSON.stringify(this.params, null, 2));
       
       // Play a demo note to preview the preset sound
       this.playPresetDemo();
+    } else {
+      console.warn(`❌ Preset not found: ${presetId}`);
     }
   }
   
   playPresetDemo() {
-    if (!this.isInitialized || !this.context) {
-      console.warn('Bass engine not initialized - cannot play demo');
+    if (!this.isInitialized) {
+      console.warn('⚠️ Bass engine not initialized - initializing now...');
+      this.initialize().then(() => {
+        this.playPresetDemoInternal();
+      });
       return;
     }
     
+    this.playPresetDemoInternal();
+  }
+
+  playPresetDemoInternal() {
+    if (!this.context) {
+      console.error('❌ Audio context is null - cannot play demo');
+      return;
+    }
+    
+    // Stop any currently playing voices first
+    this.voices.forEach(voice => {
+      if (voice.stopTime) {
+        try {
+          voice.stopTime();
+        } catch (e) {
+          console.warn('Failed to stop voice:', e);
+        }
+      }
+    });
+    this.voices = [];
+    
     // Play a single bass note (E1 - MIDI 40) to preview the sound
     console.log(`🎸 Playing demo note for ${this.params.name} preset`);
-    this.playNote(40, 0.8, 1.5); // E1, velocity 0.8, duration 1.5 seconds
+    console.log(`🔊 Volume levels: OSC1=${this.params.osc1Level}, OSC2=${this.params.osc2Level}`);
+    
+    try {
+      this.playNote(40, 0.9, 1.8); // E1, higher velocity 0.9, longer duration 1.8 seconds
+      console.log('✅ Demo note triggered successfully');
+    } catch (error) {
+      console.error('❌ Error playing demo note:', error);
+    }
   }
 
   setParameter(param, value) {
@@ -323,7 +357,13 @@ export default class BassAudioEngine {
   }
 
   playNote(midiNote, velocity = 0.8, duration = 1.0) {
-    if (!this.isInitialized || !this.context) return;
+    if (!this.isInitialized || !this.context) {
+      console.error('❌ Cannot play note - engine not initialized or context is null');
+      console.log('isInitialized:', this.isInitialized, 'context:', this.context);
+      return;
+    }
+
+    console.log(`🎵 playNote called: MIDI ${midiNote}, velocity ${velocity}, duration ${duration}s`);
 
     // Remove oldest voice if max voices reached
     if (this.voices.length >= this.maxVoices) {
@@ -335,6 +375,7 @@ export default class BassAudioEngine {
 
     // Convert MIDI note to frequency
     const frequency = 440 * Math.pow(2, (midiNote - 69) / 12);
+    console.log(`🎵 Converted MIDI ${midiNote} to frequency ${frequency.toFixed(2)} Hz`);
 
     // Create voice with parameters
     const voice = {
@@ -348,13 +389,35 @@ export default class BassAudioEngine {
 
     // Play through native audio context
     try {
+      console.log(`🔊 Attempting to play bass note with params:`, {
+        frequency: frequency.toFixed(2),
+        velocity,
+        duration,
+        osc1Level: this.params.osc1Level,
+        osc2Level: this.params.osc2Level,
+        cutoff: this.params.cutoff,
+        resonance: this.params.resonance,
+      });
+
       // Use the bass synthesis method if available
       if (this.context.playBassNote) {
+        console.log('✅ Using playBassNote method');
         const nodes = this.context.playBassNote(frequency, velocity, duration, this.params);
         voice.nodes = nodes; // Store node references
+        
+        if (nodes) {
+          console.log('✅ Bass note nodes created successfully');
+        } else {
+          console.warn('⚠️ playBassNote returned null nodes');
+        }
       } else {
+        console.warn('⚠️ playBassNote not available, using fallback playNote');
         // Fallback to basic note playback
-        this.context.playNote(midiNote, velocity, duration);
+        if (this.context.playNote) {
+          this.context.playNote(midiNote, velocity, duration);
+        } else {
+          console.error('❌ No playNote method available on context');
+        }
       }
 
       this.voices.push(voice);

@@ -16,6 +16,7 @@ import {
   PanResponder,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import Bass2DVisualizer from '../components/Bass2DVisualizer';
 import BassAudioEngine from '../audio/BassAudioEngine';
 
@@ -74,12 +75,18 @@ export default function BassStudioScreen({ navigation }) {
   });
 
   useEffect(() => {
+    console.log('🎸 BassStudioScreen mounted, initializing audio engine...');
     if (!audioEngine.current) {
       audioEngine.current = new BassAudioEngine();
     }
-    audioEngine.current.initialize();
+    audioEngine.current.initialize().then(() => {
+      console.log('✅ BassStudioScreen: Audio engine initialized successfully');
+    }).catch((error) => {
+      console.error('❌ BassStudioScreen: Failed to initialize audio engine:', error);
+    });
     
     return () => {
+      console.log('🎸 BassStudioScreen unmounting, cleaning up audio engine...');
       if (audioEngine.current) {
         audioEngine.current.cleanup();
       }
@@ -87,12 +94,24 @@ export default function BassStudioScreen({ navigation }) {
   }, []);
 
   const handlePresetSelect = (presetId) => {
+    console.log(`🎛️ Preset selected: ${presetId}`);
     setActivePreset(presetId);
+    
+    // Haptic feedback
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    
     if (audioEngine.current) {
-      // Small delay to ensure audio engine is fully initialized
-      setTimeout(() => {
+      console.log('✅ Audio engine available, loading preset...');
+      // Immediate load without delay for better UX
+      audioEngine.current.loadPreset(presetId);
+    } else {
+      console.error('❌ Audio engine is null!');
+      // Try to reinitialize
+      audioEngine.current = new BassAudioEngine();
+      audioEngine.current.initialize().then(() => {
+        console.log('✅ Audio engine reinitialized, loading preset...');
         audioEngine.current.loadPreset(presetId);
-      }, 100);
+      });
     }
   };
 

@@ -61,7 +61,20 @@ class TB303Bridge {
       accent: this.accent,
       waveform: this.waveform,
     });
-    // TODO: Apply parameters to native synthesis
+    // Apply parameters to native synthesis if method exists
+    if (typeof nativeAudioContext.setTB303Params === 'function') {
+      nativeAudioContext.setTB303Params({
+        cutoff: this.cutoff,
+        resonance: this.resonance,
+        envMod: this.envMod,
+        decay: this.decay,
+        accent: this.accent,
+        waveform: this.waveform,
+      });
+    } else {
+      // If not implemented, log a warning
+      console.warn('NativeAudioContext.setTB303Params not implemented. TB-303 params not applied.');
+    }
   }
 
   /**

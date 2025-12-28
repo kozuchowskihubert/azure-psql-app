@@ -20,6 +20,7 @@ export default function PremiumScreen() {
         'SOUNDS page access',
         'TECHNO workspace',
         '25 saved patches',
+        'Basic synths access',
         'Email support',
       ],
     },
@@ -31,11 +32,17 @@ export default function PremiumScreen() {
       featured: true,
       features: [
         'Unlimited downloads',
-        'All workspaces',
-        'MODULAR workspace',
-        'BUILDER workspace',
-        'Exclusive presets',
-        'Unlimited patches',
+        'All workspaces unlocked',
+        'All synths: Minimoog, ARP2600, Juno106, Prophet5, TB-303',
+        'Universal sequencer on all synths',
+        'On-screen keyboards',
+        'Bass Studio with 8 presets',
+        'Beat Maker with full production',
+        'Drum machines: TR-808, TR-909, CR-78, LinnDrum',
+        'MODULAR & BUILDER workspaces',
+        'Exclusive presets library',
+        'Unlimited patches & saves',
+        'Fine-control knobs with manual input',
         '1 GB cloud storage',
         'Priority support',
       ],
@@ -47,11 +54,15 @@ export default function PremiumScreen() {
       period: 'month',
       features: [
         'Everything in Premium',
+        'DAW Studio integration',
+        'Advanced effects routing',
+        '3D visualization',
         '10 GB cloud storage',
         'Collaboration tools',
-        'Advanced export options',
-        'API access',
+        'Advanced export: WAV, MIDI, stems',
+        'API access for developers',
         'Dedicated support',
+        'Early access to new synths',
       ],
     },
   ];
@@ -68,10 +79,10 @@ export default function PremiumScreen() {
     >
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <Text style={styles.badge}>⭐ PREMIUM</Text>
-          <Text style={styles.title}>Upgrade Your Sound</Text>
+          <Text style={styles.badge}>⭐ HAOS.fm PREMIUM</Text>
+          <Text style={styles.title}>Unlock Professional Sound Design</Text>
           <Text style={styles.subtitle}>
-            Unlock unlimited downloads and access to all professional tools
+            Get full access to all legendary synths, sequencers, and professional production tools
           </Text>
         </View>
 
@@ -131,7 +142,9 @@ export default function PremiumScreen() {
           <Text style={styles.footerText}>
             • Cancel anytime{'\n'}
             • 7-day money-back guarantee{'\n'}
-            • Prices in PLN (Polish Złoty)
+            • Prices in PLN (Polish Złoty){'\n'}
+            • All synths include: Fine-control knobs, Manual value input, Universal sequencer, On-screen keyboard{'\n'}
+            • New features added regularly
           </Text>
         </View>
       </ScrollView>
