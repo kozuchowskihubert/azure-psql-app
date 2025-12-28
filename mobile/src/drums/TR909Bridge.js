@@ -1,4 +1,5 @@
-import nativeAudioContext from '../audio/NativeAudioContext';
+import webAudioBridge from '../services/WebAudioBridge';
+import * as Haptics from 'expo-haptics';
 
 class TR909Bridge {
   constructor() {
@@ -18,10 +19,13 @@ class TR909Bridge {
     console.log('TR909Bridge: Initializing...');
     
     try {
-      // Initialize native audio context
-      await nativeAudioContext.initialize();
+      // Wait for WebAudioBridge to be ready
+      if (!webAudioBridge.isReady) {
+        console.log('TR909Bridge: Waiting for WebAudioBridge...');
+        // WebView will be initialized by the screen component
+      }
       this.isInitialized = true;
-      console.log('TR909Bridge: Initialized successfully with native audio');
+      console.log('TR909Bridge: Initialized successfully with WebAudioBridge');
       return true;
     } catch (error) {
       console.error('TR909Bridge: Initialization error:', error);
@@ -32,27 +36,53 @@ class TR909Bridge {
 
   updateAllParams() {
     console.log('TR909Bridge: updateAllParams', this.params);
-    // TODO: Store parameters for native synthesis
+    // Parameters are stored and will be used in play methods
   }
 
   playKick(velocity = 1.0) {
-    console.log(`🥁 TR-909 Kick: velocity=${velocity} (harder attack, native audio)`);
-    nativeAudioContext.playKick(velocity * 1.1); // Slightly louder for 909 punch
+    console.log(`🥁 TR-909 Kick: velocity=${velocity} (harder attack, WebAudio)`);
+    if (webAudioBridge.isReady) {
+      webAudioBridge.playKick({
+        pitch: this.params.kickPitch,
+        decay: this.params.kickDecay,
+        velocity: velocity * 1.1, // Slightly louder for 909 punch
+      });
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    }
   }
 
   playSnare(velocity = 1.0) {
-    console.log(`🥁 TR-909 Snare: velocity=${velocity} (snappier, native audio)`);
-    nativeAudioContext.playSnare(velocity * 1.15); // Louder, more aggressive
+    console.log(`🥁 TR-909 Snare: velocity=${velocity} (snappier, WebAudio)`);
+    if (webAudioBridge.isReady) {
+      webAudioBridge.playSnare({
+        tone: this.params.snareTone,
+        velocity: velocity * 1.15, // Louder, more aggressive
+      });
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
   }
 
   playHihat(velocity = 1.0, open = false) {
-    console.log(`🥁 TR-909 Hi-hat: velocity=${velocity}, open=${open} (tighter, native audio)`);
-    nativeAudioContext.playHihat(velocity * 1.2, open); // Brighter, more present
+    console.log(`🥁 TR-909 Hi-hat: velocity=${velocity}, open=${open} (tighter, WebAudio)`);
+    if (webAudioBridge.isReady) {
+      webAudioBridge.playHiHat({
+        decay: open ? 0.2 : this.params.hihatDecay,
+        velocity: velocity * 1.2, // Brighter, more present
+      });
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
   }
 
   playClap(velocity = 1.0) {
-    console.log(`🥁 TR-909 Clap: velocity=${velocity} (native audio)`);
-    nativeAudioContext.playClap(velocity);
+    console.log(`🥁 TR-909 Clap: velocity=${velocity} (WebAudio)`);
+    if (webAudioBridge.isReady) {
+      webAudioBridge.playClap();
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
   }
 
   // Parameter setters for TR-909

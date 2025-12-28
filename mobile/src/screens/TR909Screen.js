@@ -13,9 +13,10 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
 import tr909Bridge from '../drums/TR909Bridge';
-import nativeAudioContext from '../audio/NativeAudioContext';
+import webAudioBridge from '../services/WebAudioBridge';
 
 const { width } = Dimensions.get('window');
 
@@ -124,9 +125,6 @@ const TR909Screen = ({ navigation }) => {
       return;
     }
 
-    // Resume audio context before starting (iOS requirement)
-    await nativeAudioContext.resume();
-
     setIsPlaying(true);
     const stepTime = (60 / bpm) * 250; // 16th notes
 
@@ -163,9 +161,6 @@ const TR909Screen = ({ navigation }) => {
   };
 
   const playDrum = async (drum, velocity) => {
-    // Resume audio context if suspended (iOS requirement)
-    await nativeAudioContext.resume();
-    
     switch (drum) {
       case 'kick':
         tr909Bridge.playKick(velocity);
@@ -328,6 +323,33 @@ const TR909Screen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* Hidden WebView for Web Audio */}
+      <WebView
+        ref={(ref) => {
+          if (ref && !webAudioBridge.isReady) {
+            console.log('TR-909: Setting WebView ref');
+            webAudioBridge.setWebViewRef(ref);
+          }
+        }}
+        source={require('../../assets/audio-engine.html')}
+        style={{ width: 0, height: 0, opacity: 0, position: 'absolute' }}
+        onMessage={(event) => {
+          webAudioBridge.onMessage(event);
+        }}
+        onLoad={() => {
+          console.log('TR-909: WebView loaded, initializing audio...');
+          webAudioBridge.initAudio();
+        }}
+        onError={(syntheticEvent) => {
+          const { nativeEvent } = syntheticEvent;
+          console.error('TR-909: WebView error', nativeEvent);
+        }}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        mediaPlaybackRequiresUserAction={false}
+        allowsInlineMediaPlayback={true}
+      />
+      
       {/* Header */}
       <LinearGradient
         colors={[HAOS_COLORS.dark, HAOS_COLORS.metal, HAOS_COLORS.dark]}

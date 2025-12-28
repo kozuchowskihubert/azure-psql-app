@@ -1,18 +1,25 @@
-import nativeAudioContext from '../audio/NativeAudioContext';
+import webAudioBridge from '../services/WebAudioBridge';
+import * as Haptics from 'expo-haptics';
 
 class TR808Bridge {
   constructor() {
     this.isInitialized = false;
+    this.kickParams = { pitch: 150, decay: 0.3 };
+    this.snareParams = { tone: 0.2 };
+    this.hihatParams = { decay: 0.05 };
   }
 
   async init() {
     console.log('TR808Bridge: Initializing...');
     
     try {
-      // Initialize native audio context
-      await nativeAudioContext.initialize();
+      // Wait for WebAudioBridge to be ready
+      if (!webAudioBridge.isReady) {
+        console.log('TR808Bridge: Waiting for WebAudioBridge...');
+        // WebView will be initialized by the screen component
+      }
       this.isInitialized = true;
-      console.log('TR808Bridge: Initialized successfully with native audio');
+      console.log('TR808Bridge: Initialized successfully with WebAudioBridge');
       return true;
     } catch (error) {
       console.error('TR808Bridge: Initialization error:', error);
@@ -22,23 +29,50 @@ class TR808Bridge {
   }
 
   playKick(velocity = 1.0) {
-    console.log(`🥁 TR-808 Kick: velocity=${velocity} (native audio)`);
-    nativeAudioContext.playKick(velocity);
+    console.log(`🥁 TR-808 Kick: velocity=${velocity} (WebAudio)`);
+    if (webAudioBridge.isReady) {
+      webAudioBridge.playKick({
+        ...this.kickParams,
+        velocity,
+      });
+    } else {
+      // Fallback to haptics
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    }
   }
 
   playSnare(velocity = 1.0) {
-    console.log(`🥁 TR-808 Snare: velocity=${velocity} (native audio)`);
-    nativeAudioContext.playSnare(velocity);
+    console.log(`🥁 TR-808 Snare: velocity=${velocity} (WebAudio)`);
+    if (webAudioBridge.isReady) {
+      webAudioBridge.playSnare({
+        ...this.snareParams,
+        velocity,
+      });
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
   }
 
   playHihat(velocity = 1.0, open = false) {
-    console.log(`🥁 TR-808 Hi-hat: velocity=${velocity}, open=${open} (native audio)`);
-    nativeAudioContext.playHihat(velocity, open);
+    console.log(`🥁 TR-808 Hi-hat: velocity=${velocity}, open=${open} (WebAudio)`);
+    if (webAudioBridge.isReady) {
+      webAudioBridge.playHiHat({
+        ...this.hihatParams,
+        decay: open ? 0.2 : this.hihatParams.decay,
+        velocity,
+      });
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
   }
 
   playClap(velocity = 1.0) {
-    console.log(`🥁 TR-808 Clap: velocity=${velocity} (native audio)`);
-    nativeAudioContext.playClap(velocity);
+    console.log(`🥁 TR-808 Clap: velocity=${velocity} (WebAudio)`);
+    if (webAudioBridge.isReady) {
+      webAudioBridge.playClap();
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
   }
 
   // Parameter setters for TR-808 (TODO: implement native parameter control)
