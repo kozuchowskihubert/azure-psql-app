@@ -179,6 +179,64 @@ class WebAudioBridge {
     this.sendCommand('playSynthNote', { frequency, duration });
   }
   
+  // ========================================
+  // CLASSIC SYNTHESIZERS
+  // ========================================
+  
+  /**
+   * Play ARP 2600 note (3-oscillator semi-modular synth)
+   * @param {number} frequency - Note frequency in Hz
+   * @param {number} duration - Note duration in seconds
+   * @param {number} velocity - Velocity 0-1
+   * @param {number} detune - Oscillator detune amount (default 0.02)
+   */
+  playARP2600(frequency, duration = 0.5, velocity = 1.0, detune = 0.02) {
+    this.sendCommand('playARP2600', { frequency, duration, velocity, detune });
+  }
+  
+  /**
+   * Play Juno-106 note (DCO synth with chorus)
+   * @param {number} frequency - Note frequency in Hz
+   * @param {number} duration - Note duration in seconds
+   * @param {number} velocity - Velocity 0-1
+   * @param {boolean} chorus - Enable chorus effect (default true)
+   */
+  playJuno106(frequency, duration = 0.5, velocity = 1.0, chorus = true) {
+    this.sendCommand('playJuno106', { frequency, duration, velocity, chorus });
+  }
+  
+  /**
+   * Play Minimoog note (3-oscillator analog legend)
+   * @param {number} frequency - Note frequency in Hz
+   * @param {number} duration - Note duration in seconds
+   * @param {number} velocity - Velocity 0-1
+   */
+  playMinimoog(frequency, duration = 0.5, velocity = 1.0) {
+    this.sendCommand('playMinimoog', { frequency, duration, velocity });
+  }
+  
+  /**
+   * Play TB-303 note (acid bass line)
+   * @param {number} frequency - Note frequency in Hz
+   * @param {number} duration - Note duration in seconds
+   * @param {number} velocity - Velocity 0-1
+   * @param {boolean} accent - Accent note (louder, brighter)
+   * @param {boolean} slide - Slide from previous note
+   * @param {number} slideFrom - Frequency to slide from
+   * @param {string} waveform - 'sawtooth' or 'square'
+   */
+  playTB303(frequency, duration = 0.2, velocity = 1.0, accent = false, slide = false, slideFrom = null, waveform = 'sawtooth') {
+    this.sendCommand('playTB303', { 
+      frequency, 
+      duration, 
+      velocity, 
+      accent, 
+      slide, 
+      slideFrom: slideFrom || frequency,
+      waveform 
+    });
+  }
+  
   /**
    * Stop all notes
    */

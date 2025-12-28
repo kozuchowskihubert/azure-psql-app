@@ -377,6 +377,352 @@
     }
     
     // ========================================
+    // CLASSIC SYNTHESIZER ENGINES
+    // ========================================
+    
+    /**
+     * ARP 2600 - Semi-modular 3-oscillator synth
+     * Features: Dual VCO + LFO, 24dB ladder filter, ring mod capability
+     */
+    function playARP2600(params = {}) {
+      initAudio();
+      
+      const frequency = params.frequency || 440;
+      const duration = params.duration || 0.5;
+      const velocity = params.velocity || 1.0;
+      const detune = params.detune || 0.02; // Slight detune for thickness
+      
+      const now = audioContext.currentTime;
+      
+      // VCO 1 (Sawtooth - bright)
+      const vco1 = audioContext.createOscillator();
+      vco1.type = 'sawtooth';
+      vco1.frequency.value = frequency;
+      vco1.detune.value = -detune * 100; // Cents
+      
+      // VCO 2 (Square - harmonics)
+      const vco2 = audioContext.createOscillator();
+      vco2.type = 'square';
+      vco2.frequency.value = frequency;
+      vco2.detune.value = detune * 100; // Opposite detune for width
+      
+      // LFO for vibrato
+      const lfo = audioContext.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 5; // 5Hz vibrato
+      
+      const lfoGain = audioContext.createGain();
+      lfoGain.gain.value = 10; // Vibrato depth
+      
+      lfo.connect(lfoGain);
+      lfoGain.connect(vco1.frequency);
+      lfoGain.connect(vco2.frequency);
+      
+      // Mixer
+      const vco1Gain = audioContext.createGain();
+      const vco2Gain = audioContext.createGain();
+      vco1Gain.gain.value = 0.4;
+      vco2Gain.gain.value = 0.3;
+      
+      // 24dB Ladder filter (Moog-style)
+      const arpFilter = audioContext.createBiquadFilter();
+      arpFilter.type = 'lowpass';
+      arpFilter.frequency.value = 2000;
+      arpFilter.Q.value = 8; // High resonance
+      
+      // Filter envelope modulation
+      const filterEnvAmount = 1500;
+      arpFilter.frequency.setValueAtTime(800, now);
+      arpFilter.frequency.exponentialRampToValueAtTime(2000 + filterEnvAmount, now + 0.05);
+      arpFilter.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
+      arpFilter.frequency.setValueAtTime(1200, now + duration - 0.1);
+      arpFilter.frequency.exponentialRampToValueAtTime(800, now + duration);
+      
+      // VCA with ADSR
+      const vca = audioContext.createGain();
+      vca.gain.setValueAtTime(0, now);
+      vca.gain.linearRampToValueAtTime(velocity * 0.7, now + 0.01); // Attack
+      vca.gain.exponentialRampToValueAtTime(velocity * 0.5, now + 0.1); // Decay
+      vca.gain.setValueAtTime(velocity * 0.5, now + duration - 0.2); // Sustain
+      vca.gain.exponentialRampToValueAtTime(0.01, now + duration); // Release
+      
+      // Connect audio graph
+      vco1.connect(vco1Gain);
+      vco2.connect(vco2Gain);
+      vco1Gain.connect(arpFilter);
+      vco2Gain.connect(arpFilter);
+      arpFilter.connect(vca);
+      vca.connect(filterNode);
+      
+      // Start oscillators
+      vco1.start(now);
+      vco2.start(now);
+      lfo.start(now);
+      
+      // Stop oscillators
+      vco1.stop(now + duration);
+      vco2.stop(now + duration);
+      lfo.stop(now + duration);
+      
+      console.log('🎛️ ARP 2600', { frequency, duration, velocity });
+      sendMessage('soundPlayed', { sound: 'arp2600', frequency, duration });
+    }
+    
+    /**
+     * Roland Juno-106 - DCO synth with chorus
+     * Features: DCO + Sub osc, HPF + VCF, built-in chorus
+     */
+    function playJuno106(params = {}) {
+      initAudio();
+      
+      const frequency = params.frequency || 440;
+      const duration = params.duration || 0.5;
+      const velocity = params.velocity || 1.0;
+      const chorusEnabled = params.chorus !== false; // Default on
+      
+      const now = audioContext.currentTime;
+      
+      // DCO (Digitally Controlled Oscillator - more stable than VCO)
+      const dco = audioContext.createOscillator();
+      dco.type = 'sawtooth';
+      dco.frequency.value = frequency;
+      
+      // Sub oscillator (1 octave down)
+      const sub = audioContext.createOscillator();
+      sub.type = 'square';
+      sub.frequency.value = frequency / 2;
+      
+      // Mixer
+      const dcoGain = audioContext.createGain();
+      const subGain = audioContext.createGain();
+      dcoGain.gain.value = 0.6;
+      subGain.gain.value = 0.3;
+      
+      // HPF (High-pass filter before VCF)
+      const hpf = audioContext.createBiquadFilter();
+      hpf.type = 'highpass';
+      hpf.frequency.value = 50; // Remove subsonic rumble
+      hpf.Q.value = 0.7;
+      
+      // VCF (Low-pass filter with resonance)
+      const vcf = audioContext.createBiquadFilter();
+      vcf.type = 'lowpass';
+      vcf.frequency.value = 1500;
+      vcf.Q.value = 5;
+      
+      // Filter envelope
+      vcf.frequency.setValueAtTime(800, now);
+      vcf.frequency.exponentialRampToValueAtTime(3000, now + 0.05);
+      vcf.frequency.exponentialRampToValueAtTime(1500, now + 0.15);
+      vcf.frequency.setValueAtTime(1500, now + duration - 0.1);
+      
+      // VCA
+      const vca = audioContext.createGain();
+      vca.gain.setValueAtTime(0, now);
+      vca.gain.linearRampToValueAtTime(velocity * 0.5, now + 0.02);
+      vca.gain.exponentialRampToValueAtTime(velocity * 0.4, now + 0.1);
+      vca.gain.setValueAtTime(velocity * 0.4, now + duration - 0.15);
+      vca.gain.exponentialRampToValueAtTime(0.01, now + duration);
+      
+      // Chorus effect (iconic Juno sound)
+      let chorusOutput = vca;
+      if (chorusEnabled) {
+        // Chorus I (subtle)
+        const chorus1Delay = audioContext.createDelay();
+        chorus1Delay.delayTime.value = 0.02;
+        
+        const chorus1LFO = audioContext.createOscillator();
+        chorus1LFO.type = 'sine';
+        chorus1LFO.frequency.value = 0.7; // Hz
+        
+        const chorus1LFOGain = audioContext.createGain();
+        chorus1LFOGain.gain.value = 0.002; // Depth
+        
+        chorus1LFO.connect(chorus1LFOGain);
+        chorus1LFOGain.connect(chorus1Delay.delayTime);
+        
+        const chorusMix = audioContext.createGain();
+        chorusMix.gain.value = 0.5;
+        
+        vca.connect(chorus1Delay);
+        chorus1Delay.connect(chorusMix);
+        vca.connect(chorusMix); // Dry signal
+        
+        chorus1LFO.start(now);
+        chorus1LFO.stop(now + duration);
+        
+        chorusOutput = chorusMix;
+      }
+      
+      // Connect audio graph
+      dco.connect(dcoGain);
+      sub.connect(subGain);
+      dcoGain.connect(hpf);
+      subGain.connect(hpf);
+      hpf.connect(vcf);
+      vcf.connect(vca);
+      chorusOutput.connect(filterNode);
+      
+      // Start oscillators
+      dco.start(now);
+      sub.start(now);
+      
+      // Stop oscillators
+      dco.stop(now + duration);
+      sub.stop(now + duration);
+      
+      console.log('🎹 Juno-106', { frequency, duration, chorus: chorusEnabled });
+      sendMessage('soundPlayed', { sound: 'juno106', frequency, duration });
+    }
+    
+    /**
+     * Minimoog Model D - 3-oscillator analog legend
+     * Features: 3 VCO with 5 waveforms each, 24dB ladder filter, fat sound
+     */
+    function playMinimoog(params = {}) {
+      initAudio();
+      
+      const frequency = params.frequency || 440;
+      const duration = params.duration || 0.5;
+      const velocity = params.velocity || 1.0;
+      
+      const now = audioContext.currentTime;
+      
+      // OSC 1 (Triangle - fundamental)
+      const osc1 = audioContext.createOscillator();
+      osc1.type = 'triangle';
+      osc1.frequency.value = frequency;
+      
+      // OSC 2 (Sawtooth - harmonics)
+      const osc2 = audioContext.createOscillator();
+      osc2.type = 'sawtooth';
+      osc2.frequency.value = frequency;
+      osc2.detune.value = -5; // Slight detune for width
+      
+      // OSC 3 (Square - octave down for bass)
+      const osc3 = audioContext.createOscillator();
+      osc3.type = 'square';
+      osc3.frequency.value = frequency / 2; // One octave down
+      
+      // Mixer (classic Minimoog balance)
+      const osc1Gain = audioContext.createGain();
+      const osc2Gain = audioContext.createGain();
+      const osc3Gain = audioContext.createGain();
+      osc1Gain.gain.value = 0.3;
+      osc2Gain.gain.value = 0.4;
+      osc3Gain.gain.value = 0.25;
+      
+      // 24dB Ladder filter (THE Moog sound)
+      const moogFilter = audioContext.createBiquadFilter();
+      moogFilter.type = 'lowpass';
+      moogFilter.frequency.value = 1200;
+      moogFilter.Q.value = 10; // High resonance for that "screaming" sound
+      
+      // Filter contour (envelope)
+      const filterEnvAmount = 2000;
+      moogFilter.frequency.setValueAtTime(600, now);
+      moogFilter.frequency.exponentialRampToValueAtTime(2600, now + 0.03); // Fast attack
+      moogFilter.frequency.exponentialRampToValueAtTime(1400, now + 0.12); // Decay
+      moogFilter.frequency.setValueAtTime(1400, now + duration - 0.15); // Sustain
+      moogFilter.frequency.exponentialRampToValueAtTime(600, now + duration); // Release
+      
+      // VCA with classic Minimoog envelope
+      const vca = audioContext.createGain();
+      vca.gain.setValueAtTime(0, now);
+      vca.gain.linearRampToValueAtTime(velocity * 0.8, now + 0.01); // Fast attack
+      vca.gain.exponentialRampToValueAtTime(velocity * 0.6, now + 0.08); // Decay
+      vca.gain.setValueAtTime(velocity * 0.6, now + duration - 0.2); // Sustain
+      vca.gain.exponentialRampToValueAtTime(0.01, now + duration); // Release
+      
+      // Connect audio graph
+      osc1.connect(osc1Gain);
+      osc2.connect(osc2Gain);
+      osc3.connect(osc3Gain);
+      osc1Gain.connect(moogFilter);
+      osc2Gain.connect(moogFilter);
+      osc3Gain.connect(moogFilter);
+      moogFilter.connect(vca);
+      vca.connect(filterNode);
+      
+      // Start oscillators
+      osc1.start(now);
+      osc2.start(now);
+      osc3.start(now);
+      
+      // Stop oscillators
+      osc1.stop(now + duration);
+      osc2.stop(now + duration);
+      osc3.stop(now + duration);
+      
+      console.log('🎹 Minimoog', { frequency, duration, velocity });
+      sendMessage('soundPlayed', { sound: 'minimoog', frequency, duration });
+    }
+    
+    /**
+     * Roland TB-303 - Acid bass line machine
+     * Features: Single VCO, resonant filter, accent, slide (glide)
+     */
+    function playTB303(params = {}) {
+      initAudio();
+      
+      const frequency = params.frequency || 110;
+      const duration = params.duration || 0.2;
+      const velocity = params.velocity || 1.0;
+      const accent = params.accent || false;
+      const slide = params.slide || false;
+      const slideFrom = params.slideFrom || frequency;
+      
+      const now = audioContext.currentTime;
+      
+      // VCO (Sawtooth or Square)
+      const vco = audioContext.createOscillator();
+      vco.type = params.waveform || 'sawtooth';
+      
+      // Slide (glide) effect
+      if (slide && slideFrom !== frequency) {
+        vco.frequency.setValueAtTime(slideFrom, now);
+        vco.frequency.exponentialRampToValueAtTime(frequency, now + 0.05); // 50ms slide
+      } else {
+        vco.frequency.value = frequency;
+      }
+      
+      // 24dB resonant filter (THE 303 sound)
+      const filter = audioContext.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.Q.value = 15; // Extreme resonance for acid squelch
+      
+      // Filter envelope (short, snappy)
+      const baseFreq = accent ? 800 : 500;
+      const envAmount = accent ? 3000 : 1500;
+      filter.frequency.setValueAtTime(baseFreq, now);
+      filter.frequency.exponentialRampToValueAtTime(baseFreq + envAmount, now + 0.015);
+      filter.frequency.exponentialRampToValueAtTime(baseFreq + envAmount * 0.3, now + 0.08);
+      filter.frequency.setValueAtTime(baseFreq + envAmount * 0.3, now + duration - 0.05);
+      filter.frequency.exponentialRampToValueAtTime(baseFreq, now + duration);
+      
+      // VCA with accent
+      const vca = audioContext.createGain();
+      const maxGain = accent ? velocity * 0.8 : velocity * 0.5;
+      vca.gain.setValueAtTime(0, now);
+      vca.gain.linearRampToValueAtTime(maxGain, now + 0.005); // Ultra-fast attack
+      vca.gain.exponentialRampToValueAtTime(maxGain * 0.7, now + 0.04);
+      vca.gain.setValueAtTime(maxGain * 0.7, now + duration - 0.05);
+      vca.gain.exponentialRampToValueAtTime(0.01, now + duration);
+      
+      // Connect audio graph
+      vco.connect(filter);
+      filter.connect(vca);
+      vca.connect(filterNode);
+      
+      // Start oscillator
+      vco.start(now);
+      vco.stop(now + duration);
+      
+      console.log('🎸 TB-303', { frequency, duration, accent, slide });
+      sendMessage('soundPlayed', { sound: 'tb303', frequency, duration, accent, slide });
+    }
+    
+    // ========================================
     // EFFECTS CONTROL
     // ========================================
     
@@ -592,6 +938,18 @@
             break;
           case 'playSynthNote':
             playSynthNote(params);
+            break;
+          case 'playARP2600':
+            playARP2600(params);
+            break;
+          case 'playJuno106':
+            playJuno106(params);
+            break;
+          case 'playMinimoog':
+            playMinimoog(params);
+            break;
+          case 'playTB303':
+            playTB303(params);
             break;
           case 'setFilter':
             setFilter(params);
