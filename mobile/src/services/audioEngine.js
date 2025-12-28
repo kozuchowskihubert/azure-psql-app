@@ -332,6 +332,73 @@ class AudioEngine {
     console.log('🔇 All sounds stopped');
   }
 
+  // ========================================
+  // CLASSIC SYNTHESIZERS
+  // ========================================
+
+  /**
+   * Play ARP 2600 note (3-oscillator semi-modular)
+   * @param {number} frequency - Note frequency in Hz
+   * @param {number} duration - Note duration in seconds (default 0.5)
+   * @param {number} velocity - Velocity 0-1 (default 1.0)
+   * @param {number} detune - Oscillator detune (default 0.02)
+   */
+  async playARP2600(frequency, duration = 0.5, velocity = 1.0, detune = 0.02) {
+    if (this.useWebAudio && webAudioBridge.isReady) {
+      webAudioBridge.playARP2600(frequency, duration, velocity, detune);
+    } else {
+      // Fallback to haptic based on frequency
+      await this.triggerHaptic(frequency);
+    }
+  }
+
+  /**
+   * Play Juno-106 note (DCO with chorus)
+   * @param {number} frequency - Note frequency in Hz
+   * @param {number} duration - Note duration in seconds (default 0.5)
+   * @param {number} velocity - Velocity 0-1 (default 1.0)
+   * @param {boolean} chorus - Enable chorus (default true)
+   */
+  async playJuno106(frequency, duration = 0.5, velocity = 1.0, chorus = true) {
+    if (this.useWebAudio && webAudioBridge.isReady) {
+      webAudioBridge.playJuno106(frequency, duration, velocity, chorus);
+    } else {
+      await this.triggerHaptic(frequency);
+    }
+  }
+
+  /**
+   * Play Minimoog note (3-oscillator analog)
+   * @param {number} frequency - Note frequency in Hz
+   * @param {number} duration - Note duration in seconds (default 0.5)
+   * @param {number} velocity - Velocity 0-1 (default 1.0)
+   */
+  async playMinimoog(frequency, duration = 0.5, velocity = 1.0) {
+    if (this.useWebAudio && webAudioBridge.isReady) {
+      webAudioBridge.playMinimoog(frequency, duration, velocity);
+    } else {
+      await this.triggerHaptic(frequency);
+    }
+  }
+
+  /**
+   * Play TB-303 note (acid bass line)
+   * @param {number} frequency - Note frequency in Hz
+   * @param {number} duration - Note duration in seconds (default 0.2)
+   * @param {number} velocity - Velocity 0-1 (default 1.0)
+   * @param {boolean} accent - Accent note (default false)
+   * @param {boolean} slide - Slide effect (default false)
+   * @param {number} slideFrom - Frequency to slide from
+   * @param {string} waveform - 'sawtooth' or 'square' (default 'sawtooth')
+   */
+  async playTB303(frequency, duration = 0.2, velocity = 1.0, accent = false, slide = false, slideFrom = null, waveform = 'sawtooth') {
+    if (this.useWebAudio && webAudioBridge.isReady) {
+      webAudioBridge.playTB303(frequency, duration, velocity, accent, slide, slideFrom, waveform);
+    } else {
+      await this.triggerHaptic(frequency);
+    }
+  }
+
   // Frequency helper methods
   noteToFrequency(note) {
     const notes = {
