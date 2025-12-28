@@ -211,6 +211,72 @@ const TR808Screen = ({ navigation }) => {
     }
   };
 
+  // Classic TR-808 Presets
+  const PRESETS = {
+    'Basic Rock': {
+      kick: [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+      clap: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      rimshot: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cowbell: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cymbal: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+    },
+    'House': {
+      kick: [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hihat: [0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],
+      clap: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      rimshot: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cowbell: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cymbal: [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+    },
+    'Techno': {
+      kick: [1,0,0,0, 1,0,1,0, 1,0,0,0, 1,0,1,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hihat: [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
+      clap: [0,0,0,0, 1,0,0,1, 0,0,0,0, 1,0,0,0],
+      rimshot: [0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0],
+      cowbell: [0,0,1,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],
+      cymbal: [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+    },
+    'Hip Hop': {
+      kick: [1,0,0,0, 0,0,1,0, 0,0,0,0, 1,0,0,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+      clap: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      rimshot: [0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0],
+      cowbell: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cymbal: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],
+    },
+    'Electro': {
+      kick: [1,0,0,1, 0,0,1,0, 1,0,0,1, 0,0,1,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hihat: [0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],
+      clap: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      rimshot: [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,1,0,0],
+      cowbell: [0,1,0,0, 0,1,0,0, 0,1,0,0, 0,1,0,0],
+      cymbal: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,1,0],
+    },
+  };
+
+  const loadPreset = (presetName) => {
+    const preset = PRESETS[presetName];
+    if (!preset) return;
+    
+    const newPattern = {};
+    Object.keys(preset).forEach(instrument => {
+      newPattern[instrument] = preset[instrument].map(v => v === 1);
+    });
+    setPattern(newPattern);
+    console.log(`🥁 Loaded TR-808 preset: ${presetName}`);
+  };
+
   const clearPattern = () => {
     setPattern({
       kick: Array(16).fill(false),
@@ -382,6 +448,22 @@ const TR808Screen = ({ navigation }) => {
               <Text style={styles.clearButtonText}>CLEAR</Text>
             </TouchableOpacity>
           </View>
+        </View>
+
+        {/* Preset Selector */}
+        <View style={styles.presetsContainer}>
+          <Text style={styles.presetsTitle}>🎵 CLASSIC PATTERNS</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetsScroll}>
+            {Object.keys(PRESETS).map((presetName) => (
+              <TouchableOpacity
+                key={presetName}
+                style={styles.presetButton}
+                onPress={() => loadPreset(presetName)}
+              >
+                <Text style={styles.presetButtonText}>{presetName}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
 
         {/* Pattern Editor */}
@@ -683,6 +765,39 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 12,
     color: HAOS_COLORS.silver,
+    textAlign: 'center',
+  },
+  presetsContainer: {
+    padding: 16,
+    backgroundColor: 'rgba(255,107,53,0.1)',
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
+  presetsTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: HAOS_COLORS.orange,
+    marginBottom: 12,
+    letterSpacing: 1,
+  },
+  presetsScroll: {
+    flexDirection: 'row',
+  },
+  presetButton: {
+    backgroundColor: 'rgba(255,107,53,0.2)',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: HAOS_COLORS.orange,
+    marginRight: 10,
+    minWidth: 100,
+  },
+  presetButtonText: {
+    color: HAOS_COLORS.orange,
+    fontSize: 13,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
 });
