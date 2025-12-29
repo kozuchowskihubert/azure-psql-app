@@ -1,16 +1,101 @@
 /**
- * HAOS.fm Python Audio Engine Client
+ * HAOS.fm Professional Audio Engine
+ * ===================================
  * Uses bundled WAV samples for instant offline playback
- * Falls back to Python backend for synth sounds
+ * 50+ professional samples: drums, bass, synths, FX
+ * Falls back to Python backend for real-time synthesis
  */
 
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
 
-// Bundled drum samples (pre-generated WAV files)
+// ============================================
+// BUNDLED SAMPLES LIBRARY
+// ============================================
+
+// KICKS - 12 variations with different envelopes, drives, reverbs
+const KICK_SAMPLES = {
+  // Classic 808 variations
+  '808_soft': require('../../assets/sounds/drums/kicks/kick_808_soft.wav'),
+  '808_hard': require('../../assets/sounds/drums/kicks/kick_808_hard.wav'),
+  '808_long': require('../../assets/sounds/drums/kicks/kick_808_long.wav'),
+  '808_short': require('../../assets/sounds/drums/kicks/kick_808_short.wav'),
+  // 909 variations
+  '909_punchy': require('../../assets/sounds/drums/kicks/kick_909_punchy.wav'),
+  '909_tight': require('../../assets/sounds/drums/kicks/kick_909_tight.wav'),
+  // Sub bass kicks
+  'sub_deep': require('../../assets/sounds/drums/kicks/kick_sub_deep.wav'),
+  'sub_rumble': require('../../assets/sounds/drums/kicks/kick_sub_rumble.wav'),
+  // Distorted/driven kicks
+  'distorted_heavy': require('../../assets/sounds/drums/kicks/kick_distorted_heavy.wav'),
+  'distorted_gritty': require('../../assets/sounds/drums/kicks/kick_distorted_gritty.wav'),
+  // Reverb kicks
+  'reverb_hall': require('../../assets/sounds/drums/kicks/kick_reverb_hall.wav'),
+  'reverb_room': require('../../assets/sounds/drums/kicks/kick_reverb_room.wav'),
+};
+
+// SNARES - 8 variations
+const SNARE_SAMPLES = {
+  '808_tight': require('../../assets/sounds/drums/snares/snare_808_tight.wav'),
+  '808_fat': require('../../assets/sounds/drums/snares/snare_808_fat.wav'),
+  '808_bright': require('../../assets/sounds/drums/snares/snare_808_bright.wav'),
+  '909_punchy': require('../../assets/sounds/drums/snares/snare_909_punchy.wav'),
+  '909_long': require('../../assets/sounds/drums/snares/snare_909_long.wav'),
+  'clap_layer': require('../../assets/sounds/drums/snares/snare_clap_layer.wav'),
+  'clap_tight': require('../../assets/sounds/drums/snares/snare_clap_tight.wav'),
+  'rimshot': require('../../assets/sounds/drums/snares/snare_rimshot.wav'),
+};
+
+// HI-HATS - White noise based, 8 variations
+const HIHAT_SAMPLES = {
+  'closed_tight': require('../../assets/sounds/drums/hihats/hihat_closed_tight.wav'),
+  'closed_medium': require('../../assets/sounds/drums/hihats/hihat_closed_medium.wav'),
+  'closed_soft': require('../../assets/sounds/drums/hihats/hihat_closed_soft.wav'),
+  'open_short': require('../../assets/sounds/drums/hihats/hihat_open_short.wav'),
+  'open_long': require('../../assets/sounds/drums/hihats/hihat_open_long.wav'),
+  'pedal': require('../../assets/sounds/drums/hihats/hihat_pedal.wav'),
+  'sizzle': require('../../assets/sounds/drums/hihats/hihat_sizzle.wav'),
+  'sizzle_long': require('../../assets/sounds/drums/hihats/hihat_sizzle_long.wav'),
+};
+
+// BASS - 10 variations including arpeggios
+const BASS_SAMPLES = {
+  'sub_C1': require('../../assets/sounds/bass/bass_sub_C1.wav'),
+  'sub_E1': require('../../assets/sounds/bass/bass_sub_E1.wav'),
+  'sub_G1': require('../../assets/sounds/bass/bass_sub_G1.wav'),
+  'growl_low': require('../../assets/sounds/bass/bass_growl_low.wav'),
+  'growl_mid': require('../../assets/sounds/bass/bass_growl_mid.wav'),
+  'acid_C2': require('../../assets/sounds/bass/bass_acid_C2.wav'),
+  'acid_E2': require('../../assets/sounds/bass/bass_acid_E2.wav'),
+  'acid_G2': require('../../assets/sounds/bass/bass_acid_G2.wav'),
+  'arpeggio_120bpm': require('../../assets/sounds/bass/bass_arpeggio_120bpm.wav'),
+  'arpeggio_140bpm': require('../../assets/sounds/bass/bass_arpeggio_140bpm.wav'),
+};
+
+// SYNTHS - 8 variations
+const SYNTH_SAMPLES = {
+  'pad_A3': require('../../assets/sounds/synths/synth_pad_A3.wav'),
+  'pad_C4': require('../../assets/sounds/synths/synth_pad_C4.wav'),
+  'pad_E4': require('../../assets/sounds/synths/synth_pad_E4.wav'),
+  'lead_A4': require('../../assets/sounds/synths/synth_lead_A4.wav'),
+  'lead_C5': require('../../assets/sounds/synths/synth_lead_C5.wav'),
+  'stab_Am': require('../../assets/sounds/synths/synth_stab_Am.wav'),
+  'stab_C': require('../../assets/sounds/synths/synth_stab_C.wav'),
+  'stab_F': require('../../assets/sounds/synths/synth_stab_F.wav'),
+};
+
+// FX - 4 variations
+const FX_SAMPLES = {
+  'riser_4bar': require('../../assets/sounds/fx/fx_riser_4bar.wav'),
+  'riser_8bar': require('../../assets/sounds/fx/fx_riser_8bar.wav'),
+  'impact_short': require('../../assets/sounds/fx/fx_impact_short.wav'),
+  'impact_long': require('../../assets/sounds/fx/fx_impact_long.wav'),
+};
+
+// Legacy drum samples (backward compatibility)
 const DRUM_SAMPLES = {
-  // Kicks
+  // Kicks (map to new samples)
   kick_808: require('../../assets/sounds/drums/kick_808.wav'),
   kick_808_punchy: require('../../assets/sounds/drums/kick_808_punchy.wav'),
   kick_909: require('../../assets/sounds/drums/kick_909.wav'),
@@ -40,6 +125,17 @@ const DRUM_SAMPLES = {
   shaker: require('../../assets/sounds/drums/shaker.wav'),
 };
 
+// Combined sample library for easy access
+const ALL_SAMPLES = {
+  kicks: KICK_SAMPLES,
+  snares: SNARE_SAMPLES,
+  hihats: HIHAT_SAMPLES,
+  bass: BASS_SAMPLES,
+  synths: SYNTH_SAMPLES,
+  fx: FX_SAMPLES,
+  drums: DRUM_SAMPLES, // Legacy
+};
+
 class PythonAudioEngine {
   constructor() {
     // Backend URL - for synth sounds only (drums use local samples)
@@ -49,7 +145,10 @@ class PythonAudioEngine {
     this.soundCache = new Map();
     this.loadedSamples = {}; // Pre-loaded Audio.Sound objects for instant playback
     this.currentSounds = [];
-    this.maxCachedSounds = 20;
+    this.maxCachedSounds = 50; // Increased for larger library
+    
+    // Sample categories for easy access
+    this.sampleLibrary = ALL_SAMPLES;
     
     // Audio engine parameters
     this.kickParams = {
@@ -161,19 +260,29 @@ class PythonAudioEngine {
 
   /**
    * Play a bundled sample (instant, no network latency)
+   * @param {string} sampleName - Name of the sample
+   * @param {object} category - Sample category object (KICK_SAMPLES, SNARE_SAMPLES, etc.)
    */
-  async playSample(sampleName) {
+  async playSample(sampleName, category = DRUM_SAMPLES) {
     try {
+      const cacheKey = `${sampleName}_${Object.keys(category)[0] || 'default'}`;
+      
       // If sample is preloaded, replay it
-      if (this.loadedSamples[sampleName]) {
-        const sound = this.loadedSamples[sampleName];
+      if (this.loadedSamples[cacheKey]) {
+        const sound = this.loadedSamples[cacheKey];
         await sound.setPositionAsync(0);
         await sound.playAsync();
         return sound;
       }
       
-      // Otherwise, load and play on demand
-      const sample = DRUM_SAMPLES[sampleName];
+      // Try to find sample in provided category first
+      let sample = category[sampleName];
+      
+      // Fallback to DRUM_SAMPLES for backward compatibility
+      if (!sample) {
+        sample = DRUM_SAMPLES[sampleName];
+      }
+      
       if (!sample) {
         console.warn(`⚠️ Unknown sample: ${sampleName}`);
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -195,6 +304,75 @@ class PythonAudioEngine {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       return null;
     }
+  }
+
+  // ============================================
+  // EXTENDED SAMPLE PLAYBACK METHODS
+  // ============================================
+
+  /**
+   * Play kick with variant selection
+   * @param {string} variant - '808_soft', '808_hard', '909_punchy', 'sub_deep', 'reverb_hall', etc.
+   */
+  async playKickVariant(variant = '808_soft') {
+    return this.playSample(variant, KICK_SAMPLES);
+  }
+
+  /**
+   * Play snare with variant selection
+   * @param {string} variant - '808_tight', '909_punchy', 'clap_layer', 'rimshot', etc.
+   */
+  async playSnareVariant(variant = '808_tight') {
+    return this.playSample(variant, SNARE_SAMPLES);
+  }
+
+  /**
+   * Play hi-hat with variant selection
+   * @param {string} variant - 'closed_tight', 'open_long', 'sizzle', etc.
+   */
+  async playHiHatVariant(variant = 'closed_tight') {
+    return this.playSample(variant, HIHAT_SAMPLES);
+  }
+
+  /**
+   * Play bass sample
+   * @param {string} variant - 'sub_C1', 'growl_low', 'acid_C2', 'arpeggio_120bpm', etc.
+   */
+  async playBass(variant = 'sub_C1') {
+    return this.playSample(variant, BASS_SAMPLES);
+  }
+
+  /**
+   * Play synth sample
+   * @param {string} variant - 'pad_A3', 'lead_A4', 'stab_Am', etc.
+   */
+  async playSynth(variant = 'pad_A3') {
+    return this.playSample(variant, SYNTH_SAMPLES);
+  }
+
+  /**
+   * Play FX sample
+   * @param {string} variant - 'riser_4bar', 'impact_short', etc.
+   */
+  async playFX(variant = 'riser_4bar') {
+    return this.playSample(variant, FX_SAMPLES);
+  }
+
+  /**
+   * Get available samples for a category
+   * @param {string} category - 'kicks', 'snares', 'hihats', 'bass', 'synths', 'fx'
+   */
+  getSampleList(category) {
+    const categories = {
+      kicks: Object.keys(KICK_SAMPLES),
+      snares: Object.keys(SNARE_SAMPLES),
+      hihats: Object.keys(HIHAT_SAMPLES),
+      bass: Object.keys(BASS_SAMPLES),
+      synths: Object.keys(SYNTH_SAMPLES),
+      fx: Object.keys(FX_SAMPLES),
+      drums: Object.keys(DRUM_SAMPLES),
+    };
+    return categories[category] || [];
   }
 
   /**

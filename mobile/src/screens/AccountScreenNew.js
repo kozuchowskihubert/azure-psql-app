@@ -299,8 +299,8 @@ export default function AccountScreenNew({ navigation }) {
 
         {/* Version Info */}
         <View style={styles.versionContainer}>
-          <Text style={styles.versionText}>HAOS.fm Mobile v1.6.0</Text>
-          <Text style={styles.versionText}>Build 7 • iOS</Text>
+          <Text style={styles.versionText}>HAOS.fm Mobile v1.7.0</Text>
+          <Text style={styles.versionText}>Build 13 • iOS</Text>
         </View>
 
         {/* Logout Button */}

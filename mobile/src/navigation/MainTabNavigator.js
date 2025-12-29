@@ -1,8 +1,7 @@
 /**
  * HAOS.fm V3 Navigation Structure
  * Main Tabs: CREATE / STUDIO / LIBRARY / ACCOUNT
- * CREATOR Theme - Gold/Silver/Orange Design
- * Mobile DAW Interface - No Cut-off Icons/Labels
+ * CREATE tab includes nested Stack Navigator for all instruments
  */
 
 console.log('🧭 MainTabNavigator loading...');
@@ -10,29 +9,34 @@ console.log('🧭 MainTabNavigator loading...');
 import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 console.log('🧭 MainTabNavigator about to import screens...');
 
-// Import screen structure
+// Main Tab Screens
 import CreatorScreen from '../screens/CreatorScreen';
-
-console.log('✅ CreatorScreen imported');
-
 import StudioScreenNew from '../screens/StudioScreenNew';
-
-console.log('✅ StudioScreenNew imported');
-
 import LibraryScreen from '../screens/LibraryScreen';
-
-console.log('✅ LibraryScreen imported');
-
 import AccountScreenNew from '../screens/AccountScreenNew';
 
-console.log('✅ AccountScreenNew imported');
-console.log('🎉 MainTabNavigator all screens imported!');
+// Instrument Screens (nested inside Create tab)
+import ARP2600Screen from '../screens/ARP2600Screen';
+import ViolinScreen from '../screens/ViolinScreen';
+import BassStudioScreen from '../screens/BassStudioScreen';
+import BeatMakerScreen from '../screens/BeatMakerScreen';
+import DAWStudio from '../screens/DAWStudio';
+import TR808Screen from '../screens/TR808Screen';
+import TR909Screen from '../screens/TR909Screen';
+import Juno106Screen from '../screens/Juno106Screen';
+import MinimoogScreen from '../screens/MinimoogScreen';
+import TB303Screen from '../screens/TB303Screen';
+import ModularSynthScreen from '../screens/ModularSynthScreen';
+
+console.log('✅ All screens imported');
 
 const Tab = createBottomTabNavigator();
+const CreateStack = createStackNavigator();
 
 // HAOS V3 CREATOR Color System
 const COLORS = {
@@ -73,6 +77,105 @@ const TabIcon = ({ name, color, focused }) => {
     </View>
   );
 };
+
+// CREATE Tab Stack Navigator - contains all instrument screens
+function CreateStackNavigator() {
+  return (
+    <CreateStack.Navigator
+      screenOptions={{
+        headerStyle: { 
+          backgroundColor: '#000000',
+          shadowColor: 'transparent',
+          elevation: 0,
+        },
+        headerTintColor: '#D4AF37',
+        headerTitleStyle: {
+          fontWeight: '700',
+          fontSize: 16,
+          letterSpacing: 1,
+        },
+        cardStyle: { backgroundColor: '#000000' },
+      }}
+    >
+      {/* Main Create/Instruments Screen */}
+      <CreateStack.Screen 
+        name="CreatorHome" 
+        component={CreatorScreen}
+        options={{ headerShown: false }}
+      />
+      
+      {/* SYNTHS */}
+      <CreateStack.Screen 
+        name="ARP2600Complete" 
+        component={ARP2600Screen}
+        options={{ title: 'ARP 2600', headerShown: true }}
+      />
+      <CreateStack.Screen 
+        name="Juno106" 
+        component={Juno106Screen}
+        options={{ title: 'JUNO-106', headerShown: true }}
+      />
+      <CreateStack.Screen 
+        name="Minimoog" 
+        component={MinimoogScreen}
+        options={{ title: 'MINIMOOG', headerShown: true }}
+      />
+      <CreateStack.Screen 
+        name="TB303" 
+        component={TB303Screen}
+        options={{ title: 'TB-303', headerShown: true }}
+      />
+      <CreateStack.Screen 
+        name="ModularSynth" 
+        component={ModularSynthScreen}
+        options={{ title: 'MODULAR', headerShown: true }}
+      />
+      
+      {/* INSTRUMENTS */}
+      <CreateStack.Screen 
+        name="Violin" 
+        component={ViolinScreen}
+        options={{ title: 'VIOLIN', headerShown: true }}
+      />
+      <CreateStack.Screen 
+        name="Piano" 
+        component={ViolinScreen}
+        options={{ title: 'PIANO', headerShown: true }}
+      />
+      
+      {/* DRUMS */}
+      <CreateStack.Screen 
+        name="BeatMaker" 
+        component={BeatMakerScreen}
+        options={{ title: 'BEAT MAKER', headerShown: true }}
+      />
+      <CreateStack.Screen 
+        name="TR808" 
+        component={TR808Screen}
+        options={{ title: 'TR-808', headerShown: true }}
+      />
+      <CreateStack.Screen 
+        name="TR909" 
+        component={TR909Screen}
+        options={{ title: 'TR-909', headerShown: true }}
+      />
+      
+      {/* BASS */}
+      <CreateStack.Screen 
+        name="BassStudio" 
+        component={BassStudioScreen}
+        options={{ title: 'BASS STUDIO', headerShown: true }}
+      />
+      
+      {/* PRODUCTION */}
+      <CreateStack.Screen 
+        name="DAWStudio" 
+        component={DAWStudio}
+        options={{ title: 'DAW STUDIO', headerShown: true }}
+      />
+    </CreateStack.Navigator>
+  );
+}
 
 function MainTabNavigator({ route }) {
   const { initialRoute = 'Create', persona = 'musician' } = route.params || {};
@@ -116,7 +219,7 @@ function MainTabNavigator({ route }) {
     >
       <Tab.Screen
         name="Create"
-        component={CreatorScreen}
+        component={CreateStackNavigator}
         options={{
           tabBarLabel: 'CREATE',
           title: 'HAOS CREATE',
