@@ -114,12 +114,21 @@ const StudioScreenNew = ({ navigation }) => {
   const [currentStep, setCurrentStep] = useState(-1);
   const [bpm, setBpm] = useState(120);
   
-  // Multi-track patterns - separate pattern for each drum sound
+  // Multi-track patterns - drums, synths, and bass
   const [patterns, setPatterns] = useState({
+    // Drums
     kick: Array(16).fill(0),
     snare: Array(16).fill(0),
     hihat: Array(16).fill(0),
     clap: Array(16).fill(0),
+    // Synths
+    arp2600: Array(16).fill(0),
+    juno106: Array(16).fill(0),
+    minimoog: Array(16).fill(0),
+    tb303: Array(16).fill(0),
+    // Bass
+    bass808: Array(16).fill(0),
+    bassReese: Array(16).fill(0),
   });
   
   const [selectedTrack, setSelectedTrack] = useState('kick'); // Which track is being edited
@@ -198,6 +207,7 @@ const StudioScreenNew = ({ navigation }) => {
       const velocity = isAccent ? 1.0 : 0.75;
       
       // Play all active tracks at this step using PythonAudioEngine
+      // DRUMS
       if (patterns.kick[step] === 1) {
         pythonAudioEngine.playKick(velocity).catch(() => {});
       }
@@ -210,6 +220,36 @@ const StudioScreenNew = ({ navigation }) => {
       }
       if (patterns.clap[step] === 1) {
         pythonAudioEngine.playClap(velocity).catch(() => {});
+      }
+      
+      // SYNTHS - C3 note, short duration
+      const synthNote = 48; // C3
+      const synthFreq = 440 * Math.pow(2, (synthNote - 69) / 12);
+      const synthDur = 0.2;
+      
+      if (patterns.arp2600[step] === 1) {
+        pythonAudioEngine.playARP2600(synthFreq, synthDur, velocity, 0.02).catch(() => {});
+      }
+      if (patterns.juno106[step] === 1) {
+        pythonAudioEngine.playJuno106(synthFreq, synthDur, velocity).catch(() => {});
+      }
+      if (patterns.minimoog[step] === 1) {
+        pythonAudioEngine.playMinimoog(synthFreq, synthDur, velocity).catch(() => {});
+      }
+      if (patterns.tb303[step] === 1) {
+        pythonAudioEngine.playTB303(synthFreq, synthDur, velocity, false, false, null, 'sawtooth').catch(() => {});
+      }
+      
+      // BASS - Low C (C2)
+      const bassNote = 36; // C2
+      const bassFreq = 440 * Math.pow(2, (bassNote - 69) / 12);
+      const bassDur = 0.25;
+      
+      if (patterns.bass808[step] === 1) {
+        pythonAudioEngine.playBass808(bassFreq, bassDur, velocity).catch(() => {});
+      }
+      if (patterns.bassReese[step] === 1) {
+        pythonAudioEngine.playReeseBass(bassFreq, bassDur, velocity).catch(() => {});
       }
       
       step = (step + 1) % 16;
@@ -300,12 +340,9 @@ const StudioScreenNew = ({ navigation }) => {
   const toggleStep = (index) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setPatterns(prev => {
-      const newPatterns = {
-        kick: [...prev.kick],
-        snare: [...prev.snare],
-        hihat: [...prev.hihat],
-        clap: [...prev.clap],
-      };
+      const newPatterns = { ...prev };
+      // Deep copy the array for the selected track
+      newPatterns[selectedTrack] = [...prev[selectedTrack]];
       newPatterns[selectedTrack][index] = newPatterns[selectedTrack][index] === 1 ? 0 : 1;
       return newPatterns;
     });
@@ -319,10 +356,19 @@ const StudioScreenNew = ({ navigation }) => {
   const clearPattern = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setPatterns({
+      // Drums
       kick: Array(16).fill(0),
       snare: Array(16).fill(0),
       hihat: Array(16).fill(0),
       clap: Array(16).fill(0),
+      // Synths
+      arp2600: Array(16).fill(0),
+      juno106: Array(16).fill(0),
+      minimoog: Array(16).fill(0),
+      tb303: Array(16).fill(0),
+      // Bass
+      bass808: Array(16).fill(0),
+      bassReese: Array(16).fill(0),
     });
     setIsPlaying(false);
   };
@@ -338,6 +384,14 @@ const StudioScreenNew = ({ navigation }) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectedSound(sound);
     setSoundCategory(category);
+    // Auto-select first track of this category
+    if (category === 'drums') {
+      setSelectedTrack('kick');
+    } else if (category === 'synths') {
+      setSelectedTrack('arp2600');
+    } else if (category === 'bass') {
+      setSelectedTrack('bass808');
+    }
   };
 
   return (
@@ -392,7 +446,13 @@ const StudioScreenNew = ({ navigation }) => {
               <TouchableOpacity
                 key={cat}
                 style={[styles.categoryTab, soundCategory === cat && styles.categoryTabActive]}
-                onPress={() => setSoundCategory(cat)}
+                onPress={() => {
+                  setSoundCategory(cat);
+                  // Auto-select first track of this category
+                  if (cat === 'drums') setSelectedTrack('kick');
+                  else if (cat === 'synths') setSelectedTrack('arp2600');
+                  else if (cat === 'bass') setSelectedTrack('bass808');
+                }}
               >
                 <Text style={[styles.categoryTabText, soundCategory === cat && styles.categoryTabTextActive]}>
                   {cat.toUpperCase()}
@@ -417,25 +477,57 @@ const StudioScreenNew = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Track Selector */}
+        {/* Track Selector - Dynamic based on category */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🥁 Track</Text>
-          <View style={styles.trackSelector}>
-            {['kick', 'snare', 'hihat', 'clap'].map((track) => (
-              <TouchableOpacity
-                key={track}
-                style={[styles.trackButton, selectedTrack === track && styles.trackButtonActive]}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  setSelectedTrack(track);
-                }}
-              >
-                <Text style={[styles.trackButtonText, selectedTrack === track && styles.trackButtonTextActive]}>
-                  {track.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          <Text style={styles.sectionTitle}>
+            {soundCategory === 'drums' ? '🥁' : soundCategory === 'synths' ? '🎛️' : '🎸'} Track
+          </Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.trackSelector}>
+              {soundCategory === 'drums' && ['kick', 'snare', 'hihat', 'clap'].map((track) => (
+                <TouchableOpacity
+                  key={track}
+                  style={[styles.trackButton, selectedTrack === track && styles.trackButtonActive]}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setSelectedTrack(track);
+                  }}
+                >
+                  <Text style={[styles.trackButtonText, selectedTrack === track && styles.trackButtonTextActive]}>
+                    {track.toUpperCase()}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+              {soundCategory === 'synths' && ['arp2600', 'juno106', 'minimoog', 'tb303'].map((track) => (
+                <TouchableOpacity
+                  key={track}
+                  style={[styles.trackButton, selectedTrack === track && styles.trackButtonActive]}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setSelectedTrack(track);
+                  }}
+                >
+                  <Text style={[styles.trackButtonText, selectedTrack === track && styles.trackButtonTextActive]}>
+                    {track.toUpperCase()}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+              {soundCategory === 'bass' && ['bass808', 'bassReese'].map((track) => (
+                <TouchableOpacity
+                  key={track}
+                  style={[styles.trackButton, selectedTrack === track && styles.trackButtonActive]}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setSelectedTrack(track);
+                  }}
+                >
+                  <Text style={[styles.trackButtonText, selectedTrack === track && styles.trackButtonTextActive]}>
+                    {track === 'bass808' ? '808' : 'REESE'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
         </View>
 
         {/* 16-Step Sequencer */}

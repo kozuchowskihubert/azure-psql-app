@@ -7,7 +7,14 @@
 
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, Dimensions } from 'react-native';
-import { COLORS } from '../styles/colors';
+
+// Local colors to avoid initialization timing issues
+const COLORS = {
+  bgDark: '#050508',
+  circuitLine: 'rgba(255, 107, 53, 0.15)',
+  orange: '#FF6B35',
+  orangeGlow: 'rgba(255, 107, 53, 0.4)',
+};
 
 const { width, height } = Dimensions.get('window');
 

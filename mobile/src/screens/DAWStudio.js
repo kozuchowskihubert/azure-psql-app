@@ -13,13 +13,18 @@ import {
   Dimensions,
   StatusBar,
 } from 'react-native';
-import { COLORS, TYPO, SPACING } from '../styles/HAOSDesignSystem';
 import HAOSHeader from '../components/HAOSHeader';
 import { HAOS_COLORS } from '../styles/HAOSTheme';
 import ArrangementView from '../components/ArrangementView';
 import audioRoutingEngine from '../audio/AudioRoutingEngine';
 import nativeAudioContext from '../audio/NativeAudioContext';
 import * as Haptics from 'expo-haptics';
+
+// Local colors to avoid initialization timing issues
+const COLORS = {
+  cyan: '#00D9FF',
+  orange: '#FF6B35',
+};
 
 const { width, height } = Dimensions.get('window');
 

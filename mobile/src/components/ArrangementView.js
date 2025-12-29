@@ -5,8 +5,14 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, PanResponder } from 'react-native';
-import { COLORS, TYPO } from '../styles/HAOSDesignSystem';
 import audioRoutingEngine from '../audio/AudioRoutingEngine';
+
+// Local colors to avoid initialization timing issues
+const COLORS = {
+  background: '#0a0a0a',
+  orange: '#FF6B35',
+  cyan: '#00D9FF',
+};
 
 const { width } = Dimensions.get('window');
 
