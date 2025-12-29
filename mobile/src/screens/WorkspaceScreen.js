@@ -33,7 +33,7 @@ const WORKSPACES = [
     name: 'HAOS STUDIO',
     description: 'Complete production environment',
     icon: '🎹',
-    gradient: [COLORS.orange, '#FFAA00'],
+    gradient: ['#FF6B35', '#FFAA00'],
     features: ['Full DAW', 'Mixer', 'Arrangement', 'Automation'],
     screen: 'DAWStudio'
   },
@@ -216,7 +216,7 @@ export default function WorkspaceScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgDark,
+    backgroundColor: '#000000',
   },
   header: {
     paddingTop: 60,
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 28,
-    color: COLORS.orange,
+    color: '#FF6B35',
   },
   headerContent: {
     alignItems: 'center',
@@ -246,14 +246,14 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 32,
     fontWeight: '900',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
     letterSpacing: 2,
     marginBottom: 5,
   },
   headerSubtitle: {
     fontFamily: 'System',
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     letterSpacing: 1,
   },
   scrollView: {
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   workspaceDescription: {
     fontFamily: 'System',
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     marginBottom: 15,
     lineHeight: 20,
   },

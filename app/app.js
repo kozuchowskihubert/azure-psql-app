@@ -649,6 +649,21 @@ try {
 }
 
 /**
+ * Radio API
+ * Azure Blob Storage based radio channels with audio streaming
+ * - Channel management
+ * - Track playlists per genre
+ * - Admin upload/delete capabilities
+ */
+try {
+  const radioRoutes = require('./routes/radio');
+  app.use('/api/radio', radioRoutes);
+  console.log('✓ Radio API enabled (Azure Blob Storage)');
+} catch (error) {
+  console.log('⚠ Radio routes not available:', error.message);
+}
+
+/**
  * DAW Studio API
  * Digital Audio Workstation - Projects, tracks, patterns, presets
  * - Project management with BPM, time signature, key

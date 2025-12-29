@@ -194,6 +194,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: COLORS.bgDark,
+    pointerEvents: 'none', // Allow touches to pass through to content below
   },
   gradientOverlay: {
     position: 'absolute',

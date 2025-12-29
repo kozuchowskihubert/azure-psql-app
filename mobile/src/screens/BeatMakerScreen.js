@@ -1,7 +1,6 @@
 /**
  * HAOS.fm Beat Maker - Complete Production Studio
- * Drums, Bass, Synths, Piano, Violin, Vocals with Autotune
- * Matching beat-maker.html functionality
+ * HAOS Themed Design
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -14,27 +13,16 @@ import {
   Animated,
   Dimensions,
   Switch,
+  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Slider from '@react-native-community/slider';
 import nativeAudioContext from '../audio/NativeAudioContext';
 import * as Haptics from 'expo-haptics';
+import HAOSHeader from '../components/HAOSHeader';
+import { HAOS_COLORS, HAOS_GRADIENTS } from '../styles/HAOSTheme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-const HAOS_COLORS = {
-  green: '#00ff94',
-  cyan: '#00ffff',
-  orange: '#ff8800',
-  purple: '#8B5CF6',
-  pink: '#ff00ff',
-  yellow: '#FFD700',
-  blue: '#00D9FF',
-  red: '#ff0044',
-  dark: '#0a0a0a',
-  darkGray: '#1a1a1a',
-  mediumGray: '#2a2a2a',
-};
 
 const BeatMakerScreen = ({ navigation }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -276,20 +264,20 @@ const BeatMakerScreen = ({ navigation }) => {
   
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <Text style={styles.headerIcon}>🎛️</Text>
-          <Text style={styles.headerTitle}>BEAT MAKER</Text>
-          <Text style={styles.headerSubtitle}>Complete Production Studio</Text>
-        </View>
-      </Animated.View>
+      <StatusBar barStyle="light-content" />
+      <HAOSHeader
+        title="BEAT MAKER"
+        navigation={navigation}
+        showBack={true}
+        rightButtons={[
+          {
+            icon: '🎛️',
+            onPress: () => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            },
+          },
+        ]}
+      />
       
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Transport Controls */}
@@ -483,54 +471,7 @@ const BeatMakerScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: HAOS_COLORS.dark,
-  },
-  header: {
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    backgroundColor: HAOS_COLORS.darkGray,
-    borderBottomWidth: 2,
-    borderBottomColor: HAOS_COLORS.green,
-  },
-  backButton: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: HAOS_COLORS.green,
-  },
-  backIcon: {
-    fontSize: 24,
-    color: HAOS_COLORS.green,
-    fontWeight: 'bold',
-  },
-  headerContent: {
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  headerIcon: {
-    fontSize: 48,
-    marginBottom: 10,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    letterSpacing: 2,
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: HAOS_COLORS.green,
-    letterSpacing: 1,
-    fontWeight: '600',
+    backgroundColor: HAOS_COLORS.background,
   },
   scrollView: {
     flex: 1,
@@ -540,18 +481,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 20,
-    backgroundColor: HAOS_COLORS.darkGray,
+    backgroundColor: HAOS_COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: HAOS_COLORS.mediumGray,
+    borderBottomColor: HAOS_COLORS.border,
   },
   playButton: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: HAOS_COLORS.green,
+    backgroundColor: HAOS_COLORS.gold,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: HAOS_COLORS.green,
+    shadowColor: HAOS_COLORS.gold,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.5,
     shadowRadius: 8,
@@ -571,13 +512,13 @@ const styles = StyleSheet.create({
   },
   bpmLabel: {
     fontSize: 12,
-    color: HAOS_COLORS.green,
+    color: HAOS_COLORS.gold,
     fontWeight: '600',
     marginBottom: 4,
   },
   bpmValue: {
     fontSize: 24,
-    color: '#fff',
+    color: HAOS_COLORS.textPrimary,
     fontWeight: 'bold',
     marginBottom: 4,
   },
@@ -588,18 +529,18 @@ const styles = StyleSheet.create({
   clearButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: HAOS_COLORS.red,
+    backgroundColor: HAOS_COLORS.error,
     borderRadius: 8,
   },
   clearButtonText: {
     fontSize: 14,
-    color: '#fff',
+    color: HAOS_COLORS.textPrimary,
     fontWeight: 'bold',
   },
   instrumentTabs: {
-    backgroundColor: HAOS_COLORS.darkGray,
+    backgroundColor: HAOS_COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: HAOS_COLORS.mediumGray,
+    borderBottomColor: HAOS_COLORS.border,
   },
   instrumentTab: {
     paddingHorizontal: 20,

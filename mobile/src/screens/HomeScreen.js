@@ -271,6 +271,30 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.arrow}>→</Text>
           </TouchableOpacity>
 
+          {/* RADIO - Azure Blob Storage */}
+          <TouchableOpacity
+            style={[styles.card, styles.radioCard]}
+            onPress={() => {
+              handleFirstInteraction();
+              navigation.navigate('Radio');
+            }}
+          >
+            <View style={styles.cardIcon}>
+              <Text style={styles.icon}>📻</Text>
+            </View>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>RADIO</Text>
+              <Text style={styles.cardDescription}>
+                Streaming channels from Azure Blob Storage - Electronic music 24/7
+              </Text>
+              <View style={styles.studioBadges}>
+                <Text style={[styles.studioBadge, styles.badgeRadio]}>LIVE</Text>
+                <Text style={[styles.studioBadge, styles.badgeRadio]}>AZURE</Text>
+              </View>
+            </View>
+            <Text style={styles.arrow}>→</Text>
+          </TouchableOpacity>
+
           {user?.subscription_tier === 'free' && (
             <TouchableOpacity
               style={[styles.card, styles.premiumCard]}
@@ -562,10 +586,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 4,
     height: 4,
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#00FF94', // COLORS.primary
     borderRadius: 2,
     opacity: 0.6, // More visible
-    shadowColor: COLORS.primary,
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 10, // Bigger glow
@@ -586,7 +610,7 @@ const styles = StyleSheet.create({
     width: 240,
     height: 240,
     marginBottom: 20,
-    shadowColor: COLORS.primary,
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 40, // Bigger green glow
@@ -594,32 +618,32 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 30,
     fontWeight: '900',
-    color: COLORS.primary,
+    color: '#00FF94', // COLORS.primary
     marginBottom: 8,
     textAlign: 'center',
     letterSpacing: 2,
     lineHeight: 38,
     textTransform: 'uppercase',
-    textShadowColor: COLORS.primary,
+    textShadowColor: '#00FF94', // COLORS.primary
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 30, // More intense green glow
   },
   subtitle: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)', // COLORS.textSecondary
     textAlign: 'center',
     fontWeight: '600',
     letterSpacing: 0.5,
   },
   badge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#00FF94', // COLORS.primary
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
     marginTop: 12,
   },
   badgeText: {
-    color: COLORS.background,
+    color: '#0a0a0a', // COLORS.background
     fontSize: 12,
     fontWeight: 'bold',
     letterSpacing: 1,
@@ -630,7 +654,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF', // COLORS.textPrimary
     marginBottom: 16,
     letterSpacing: 1,
     textTransform: 'uppercase',
@@ -651,9 +675,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   primaryCard: {
-    borderColor: COLORS.primary,
+    borderColor: '#00FF94', // COLORS.primary
     backgroundColor: 'rgba(0, 255, 148, 0.12)', // HAOS green
-    shadowColor: COLORS.primary,
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOpacity: 0.6,
   },
   homeCard: {
@@ -686,15 +710,25 @@ const styles = StyleSheet.create({
     shadowColor: '#ffff00',
     shadowOpacity: 0.3,
   },
+  radioCard: {
+    borderColor: '#00ff94',
+    backgroundColor: 'rgba(0, 255, 148, 0.1)',
+    shadowColor: '#00ff94',
+    shadowOpacity: 0.5,
+  },
   premiumCard: {
-    borderColor: COLORS.secondary,
+    borderColor: '#D4AF37', // COLORS.secondary
     backgroundColor: 'rgba(212, 175, 55, 0.1)',
-    shadowColor: COLORS.secondary,
+    shadowColor: '#D4AF37', // COLORS.secondary
     shadowOpacity: 0.4,
   },
   badgeBass: {
     backgroundColor: 'rgba(255, 0, 255, 0.2)',
     borderColor: '#ff00ff',
+  },
+  badgeRadio: {
+    backgroundColor: 'rgba(0, 255, 148, 0.2)',
+    borderColor: '#00ff94',
   },
   cardIcon: {
     width: 56,
@@ -705,8 +739,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 16,
     borderWidth: 2,
-    borderColor: COLORS.primary,
-    shadowColor: COLORS.primary,
+    borderColor: '#00FF94', // COLORS.primary
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 15,
@@ -731,7 +765,7 @@ const styles = StyleSheet.create({
   },
   arrow: {
     fontSize: 24,
-    color: COLORS.primary,
+    color: '#00FF94', // COLORS.primary
     fontWeight: 'bold',
   },
   featureGrid: {
@@ -755,7 +789,7 @@ const styles = StyleSheet.create({
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: COLORS.textTertiary,
+    color: 'rgba(255, 255, 255, 0.5)', // COLORS.textTertiary
     marginBottom: 20,
     marginTop: -8,
     letterSpacing: 0.3,
@@ -773,21 +807,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
     borderWidth: 3,
-    borderColor: COLORS.primary,
-    shadowColor: COLORS.primary,
+    borderColor: '#00FF94', // COLORS.primary
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 15,
   },
   synthCardGreen: {
     backgroundColor: 'rgba(0, 255, 148, 0.08)',
-    borderColor: COLORS.primary,
-    shadowColor: COLORS.primary,
+    borderColor: '#00FF94', // COLORS.primary
+    shadowColor: '#00FF94', // COLORS.primary
   },
   synthCardOrange: {
     backgroundColor: 'rgba(0, 255, 148, 0.08)', // Changed to green!
-    borderColor: COLORS.primary, // Changed to green!
-    shadowColor: COLORS.primary,
+    borderColor: '#00FF94', // COLORS.primary - Changed to green!
+    shadowColor: '#00FF94', // COLORS.primary
   },
   synthIcon: {
     fontSize: 48,
@@ -807,14 +841,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   synthBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#00FF94', // COLORS.primary
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
     marginTop: 4,
   },
   synthBadgeOrange: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: '#D4AF37', // COLORS.secondary
   },
   synthBadgeText: {
     color: '#0a0a0a',
@@ -848,37 +882,37 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     alignItems: 'center',
     borderWidth: 3, // Thicker border
-    shadowColor: COLORS.primary,
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.8, // Stronger shadow
     shadowRadius: 15, // Bigger glow
     elevation: 8,
   },
   bassCardAcid: {
-    borderColor: COLORS.primary,
+    borderColor: '#00FF94', // COLORS.primary
     backgroundColor: 'rgba(0, 255, 148, 0.15)', // More intense green
-    shadowColor: COLORS.primary,
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOpacity: 1,
     shadowRadius: 20,
   },
   bassCardSub: {
-    borderColor: COLORS.primary, // Changed to green
+    borderColor: '#00FF94', // COLORS.primary - Changed to green
     backgroundColor: 'rgba(0, 255, 148, 0.12)',
-    shadowColor: COLORS.primary,
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOpacity: 1,
     shadowRadius: 20,
   },
   bassCardWobble: {
-    borderColor: COLORS.primary, // Changed to green
+    borderColor: '#00FF94', // COLORS.primary - Changed to green
     backgroundColor: 'rgba(0, 255, 148, 0.12)',
-    shadowColor: COLORS.primary,
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOpacity: 1,
     shadowRadius: 20,
   },
   bassCard808: {
-    borderColor: COLORS.primary, // Changed to green
+    borderColor: '#00FF94', // COLORS.primary - Changed to green
     backgroundColor: 'rgba(0, 255, 148, 0.12)',
-    shadowColor: COLORS.primary,
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOpacity: 1,
     shadowRadius: 20,
   },
@@ -908,7 +942,7 @@ const styles = StyleSheet.create({
   bassInfoTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: '#00FF94', // COLORS.primary
     marginBottom: 8,
   },
   bassInfoText: {
@@ -920,8 +954,8 @@ const styles = StyleSheet.create({
   studioCollectionCard: {
     backgroundColor: 'rgba(0, 255, 148, 0.15)',
     borderWidth: 2,
-    borderColor: COLORS.primary,
-    shadowColor: COLORS.primary,
+    borderColor: '#00FF94', // COLORS.primary
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.8,
     shadowRadius: 20,
@@ -933,7 +967,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   studioBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#00FF94', // COLORS.primary
     color: '#0a0a0a',
     fontSize: 10,
     fontWeight: 'bold',

@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.cardBg,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
     padding: 20,
   },
   waveformContainer: {

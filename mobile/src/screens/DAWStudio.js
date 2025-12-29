@@ -1,14 +1,25 @@
 /**
  * HAOS.fm DAW Studio Screen
- * Complete DAW with arrangement, mixer, routing, and all instruments
+ * HAOS Themed Design
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  ScrollView, 
+  Dimensions,
+  StatusBar,
+} from 'react-native';
 import { COLORS, TYPO, SPACING } from '../styles/HAOSDesignSystem';
+import HAOSHeader from '../components/HAOSHeader';
+import { HAOS_COLORS } from '../styles/HAOSTheme';
 import ArrangementView from '../components/ArrangementView';
 import audioRoutingEngine from '../audio/AudioRoutingEngine';
 import nativeAudioContext from '../audio/NativeAudioContext';
+import * as Haptics from 'expo-haptics';
 
 const { width, height } = Dimensions.get('window');
 
@@ -209,16 +220,20 @@ export default function DAWStudio({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backBtnText}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>🎹 DAW STUDIO</Text>
-        <View style={styles.headerInfo}>
-          <Text style={styles.headerInfoText}>{bpm} BPM</Text>
-        </View>
-      </View>
+      <StatusBar barStyle="light-content" />
+      <HAOSHeader
+        title="DAW STUDIO"
+        navigation={navigation}
+        showBack={true}
+        rightButtons={[
+          {
+            icon: '🎹',
+            onPress: () => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            },
+          },
+        ]}
+      />
 
       {/* View Tabs */}
       <View style={styles.tabs}>
@@ -255,46 +270,18 @@ export default function DAWStudio({ navigation }) {
   );
 }
 
+console.log('🎬 DAWStudio about to create styles, HAOS_COLORS:', !!HAOS_COLORS);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: SPACING.md,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,107,53,0.3)',
-  },
-  backBtn: {
-    padding: SPACING.sm,
-    marginRight: SPACING.sm,
-  },
-  backBtnText: {
-    fontSize: 24,
-    color: COLORS.orange,
-  },
-  headerTitle: {
-    ...TYPO.heading,
-    fontSize: 18,
-    color: COLORS.orange,
-    flex: 1,
-  },
-  headerInfo: {
-    alignItems: 'flex-end',
-  },
-  headerInfoText: {
-    ...TYPO.mono,
-    fontSize: 14,
-    color: COLORS.cyan,
+    backgroundColor: HAOS_COLORS.background,
   },
   tabs: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: HAOS_COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,107,53,0.3)',
+    borderBottomColor: HAOS_COLORS.border,
   },
   tab: {
     flex: 1,
@@ -306,8 +293,8 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   tabActive: {
-    borderBottomColor: COLORS.orange,
-    backgroundColor: 'rgba(255,107,53,0.1)',
+    borderBottomColor: HAOS_COLORS.gold,
+    backgroundColor: 'rgba(212,175,55,0.1)',
   },
   tabIcon: {
     fontSize: 16,
@@ -316,10 +303,10 @@ const styles = StyleSheet.create({
   tabText: {
     ...TYPO.label,
     fontSize: 11,
-    color: 'rgba(255,255,255,0.5)',
+    color: HAOS_COLORS.textSecondary,
   },
   tabTextActive: {
-    color: COLORS.orange,
+    color: HAOS_COLORS.gold,
     fontWeight: 'bold',
   },
   content: {
@@ -333,12 +320,12 @@ const styles = StyleSheet.create({
   loadingText: {
     ...TYPO.body,
     fontSize: 16,
-    color: COLORS.orange,
+    color: HAOS_COLORS.gold,
   },
   sectionTitle: {
     ...TYPO.heading,
     fontSize: 24,
-    color: COLORS.orange,
+    color: HAOS_COLORS.gold,
     padding: SPACING.lg,
     textAlign: 'center',
   },

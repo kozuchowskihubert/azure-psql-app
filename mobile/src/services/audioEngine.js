@@ -76,13 +76,9 @@ class AudioEngine {
         staysActiveInBackground: true,
       });
 
-      // Initialize WebAudio if available
-      if (webAudioBridge.isReady) {
-        webAudioBridge.initAudio();
-        console.log('✅ Audio engine initialized (WebAudio)');
-      } else {
-        console.log('⚠️ WebAudio not ready, will use haptics');
-      }
+      // Initialize WebAudio - bridge will queue command if not ready yet
+      webAudioBridge.initAudio();
+      console.log('✅ Audio engine initialized - WebAudio init requested');
 
       this.isInitialized = true;
       console.log('✅ Audio engine initialized');
@@ -137,7 +133,7 @@ class AudioEngine {
   setOscillator(waveform) {
     this.waveform = waveform;
     // Update WebAudio waveform if available
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.setWaveform(waveform);
     }
   }
@@ -145,7 +141,7 @@ class AudioEngine {
   setADSR(attack, decay, sustain, release) {
     this.adsr = { attack, decay, sustain, release };
     // Update WebAudio ADSR if available
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.setADSR(attack, decay, sustain, release);
     }
   }
@@ -155,7 +151,7 @@ class AudioEngine {
     this.filterFreq = frequency;
     this.filterQ = q;
     // Update WebAudio filter if available
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.setFilter(type, frequency, q);
     }
   }
@@ -163,7 +159,7 @@ class AudioEngine {
   setVolume(volume) {
     this.masterVolume = Math.max(0, Math.min(1, volume));
     // Update WebAudio volume if available
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.setMasterVolume(this.masterVolume);
     }
   }
@@ -176,7 +172,7 @@ class AudioEngine {
    * Set distortion amount (0-100)
    */
   setDistortion(amount) {
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.setDistortion(amount);
     }
   }
@@ -185,7 +181,7 @@ class AudioEngine {
    * Set reverb amount (0-100)
    */
   setReverb(amount) {
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.setReverb(amount);
     }
   }
@@ -194,7 +190,7 @@ class AudioEngine {
    * Set delay parameters
    */
   setDelay(time, feedback, mix) {
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.setDelay(time, feedback, mix);
     }
   }
@@ -203,7 +199,7 @@ class AudioEngine {
    * Set compression parameters
    */
   setCompression(threshold, ratio, attack, release) {
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.setCompression(threshold, ratio, attack, release);
     }
   }
@@ -212,7 +208,7 @@ class AudioEngine {
    * Set BPM for sequencer
    */
   setBPM(bpm) {
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.setBPM(bpm);
     }
   }
@@ -221,7 +217,7 @@ class AudioEngine {
    * Start waveform visualization updates
    */
   startWaveformUpdates(interval = 50) {
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.startWaveformUpdates(interval);
     }
   }
@@ -230,7 +226,7 @@ class AudioEngine {
    * Stop waveform visualization updates
    */
   stopWaveformUpdates() {
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.stopWaveformUpdates();
     }
   }
@@ -284,7 +280,7 @@ class AudioEngine {
     const noteName = this.frequencyToNote(frequency);
     console.log(`🎹 Playing: ${noteName} (${Math.round(frequency)}Hz)`);
     
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       // Use WebAudio for real synthesis
       if (duration > 0) {
         webAudioBridge.playSynthNote(frequency, duration);
@@ -305,7 +301,7 @@ class AudioEngine {
       console.log(`🎹 Released note`);
       
       // Stop WebAudio note if available
-      if (this.useWebAudio && webAudioBridge.isReady) {
+      if (this.useWebAudio) {
         webAudioBridge.stopAllNotes();
       }
       
@@ -325,7 +321,7 @@ class AudioEngine {
     await this.stopNote();
     
     // Stop all WebAudio if available
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.stopAllNotes();
     }
     
@@ -344,7 +340,7 @@ class AudioEngine {
    * @param {number} detune - Oscillator detune (default 0.02)
    */
   async playARP2600(frequency, duration = 0.5, velocity = 1.0, detune = 0.02) {
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.playARP2600(frequency, duration, velocity, detune);
     } else {
       // Fallback to haptic based on frequency
@@ -360,7 +356,7 @@ class AudioEngine {
    * @param {boolean} chorus - Enable chorus (default true)
    */
   async playJuno106(frequency, duration = 0.5, velocity = 1.0, chorus = true) {
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.playJuno106(frequency, duration, velocity, chorus);
     } else {
       await this.triggerHaptic(frequency);
@@ -374,7 +370,7 @@ class AudioEngine {
    * @param {number} velocity - Velocity 0-1 (default 1.0)
    */
   async playMinimoog(frequency, duration = 0.5, velocity = 1.0) {
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.playMinimoog(frequency, duration, velocity);
     } else {
       await this.triggerHaptic(frequency);
@@ -392,7 +388,7 @@ class AudioEngine {
    * @param {string} waveform - 'sawtooth' or 'square' (default 'sawtooth')
    */
   async playTB303(frequency, duration = 0.2, velocity = 1.0, accent = false, slide = false, slideFrom = null, waveform = 'sawtooth') {
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.playTB303(frequency, duration, velocity, accent, slide, slideFrom, waveform);
     } else {
       await this.triggerHaptic(frequency);
@@ -425,8 +421,8 @@ class AudioEngine {
   // Drum methods for sequencer
   async playKick(velocity = 1.0) {
     console.log('🥁 Kick');
-    if (this.useWebAudio && webAudioBridge.isReady) {
-      // Use WebAudio for real synthesis
+    if (this.useWebAudio) {
+      // Use WebAudio for real synthesis (bridge queues if not ready)
       webAudioBridge.playKick({
         ...this.kickParams,
         velocity
@@ -439,8 +435,8 @@ class AudioEngine {
 
   async playSnare(velocity = 1.0) {
     console.log('🥁 Snare');
-    if (this.useWebAudio && webAudioBridge.isReady) {
-      // Use WebAudio for real synthesis
+    if (this.useWebAudio) {
+      // Use WebAudio for real synthesis (bridge queues if not ready)
       webAudioBridge.playSnare({
         ...this.snareParams,
         velocity
@@ -453,7 +449,7 @@ class AudioEngine {
 
   async playHiHat(velocity = 1.0) {
     console.log('🔔 HiHat');
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       // Use WebAudio for real synthesis
       webAudioBridge.playHiHat({
         ...this.hihatParams,
@@ -467,7 +463,7 @@ class AudioEngine {
 
   async playClap(velocity = 1.0) {
     console.log('👏 Clap');
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       // Use WebAudio for real synthesis
       webAudioBridge.playClap({ velocity });
     } else {
@@ -480,7 +476,7 @@ class AudioEngine {
     this.stopAll();
     
     // Dispose WebAudio if available
-    if (this.useWebAudio && webAudioBridge.isReady) {
+    if (this.useWebAudio) {
       webAudioBridge.dispose();
     }
     

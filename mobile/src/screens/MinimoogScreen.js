@@ -11,16 +11,16 @@ import {
   ScrollView,
   StyleSheet,
   Dimensions,
+  Animated,
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { WebView } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
 import minimoogBridge from '../synths/MinimoogBridge';
 import webAudioBridge from '../services/WebAudioBridge';
-import Knob from '../components/Knob';
 import Oscilloscope from '../components/Oscilloscope';
 import UniversalSequencer from '../components/UniversalSequencer';
 import EuclideanSequencer from '../sequencer/EuclideanSequencer';
-import { Animated } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -236,7 +236,7 @@ const MinimoogScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Hidden WebView for audio-engine.html */}
+      {/* Hidden WebView for audio-engine.html - DISABLED FOR LAYOUT FIX
       <WebView
         ref={(ref) => {
           if (ref && !webAudioBridge.isReady) {
@@ -244,7 +244,7 @@ const MinimoogScreen = ({ navigation }) => {
           }
         }}
         source={require('../../assets/audio-engine.html')}
-        style={{ width: 0, height: 0, opacity: 0, position: 'absolute', pointerEvents: 'none' }}
+        style={{ width: 1, height: 1, opacity: 0, position: 'absolute', top: -1000, left: -1000, pointerEvents: 'none' }}
         onMessage={(event) => webAudioBridge.onMessage(event)}
         onLoad={() => webAudioBridge.initAudio()}
         javaScriptEnabled={true}
@@ -252,6 +252,7 @@ const MinimoogScreen = ({ navigation }) => {
         mediaPlaybackRequiresUserAction={false}
         allowsInlineMediaPlayback={true}
       />
+      */}
 
       {/* Header */}
       <LinearGradient
@@ -290,7 +291,7 @@ const MinimoogScreen = ({ navigation }) => {
                 }}
                 label="OSC 1"
                 color={HAOS_COLORS.blue}
-                size={70}
+                size={KNOB_SIZE}
               />
               <Text style={styles.oscLabel}>Sawtooth</Text>
             </View>
@@ -308,7 +309,7 @@ const MinimoogScreen = ({ navigation }) => {
                 }}
                 label="OSC 2"
                 color={HAOS_COLORS.blue}
-                size={70}
+                size={KNOB_SIZE}
               />
               <Text style={styles.oscLabel}>Square -1oct</Text>
             </View>
@@ -326,7 +327,7 @@ const MinimoogScreen = ({ navigation }) => {
                 }}
                 label="OSC 3"
                 color={HAOS_COLORS.blue}
-                size={70}
+                size={KNOB_SIZE}
               />
               <Text style={styles.oscLabel}>Triangle -2oct</Text>
             </View>
@@ -591,7 +592,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 60,
+    paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 20,
     borderBottomWidth: 2,
@@ -606,10 +607,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 20,
     fontWeight: 'bold',
     color: HAOS_COLORS.blue,
-    letterSpacing: 4,
+    letterSpacing: 2,
   },
   subtitle: {
     fontSize: 12,

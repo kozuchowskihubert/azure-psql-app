@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: 'rgba(212, 175, 55, 0.3)',
   },
   backButton: {
     padding: 8,
@@ -604,7 +604,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 8,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: 'rgba(212, 175, 55, 0.3)',
   },
   playButton: {
     width: 60,
@@ -634,7 +634,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
   },
   paramButtonText: {
     color: COLORS.text,
@@ -663,7 +663,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: 'rgba(212, 175, 55, 0.3)',
     gap: 8,
   },
   bankButton: {
@@ -673,7 +673,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surfaceLight,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
   },
   bankButtonActive: {
     backgroundColor: COLORS.primary,
@@ -758,14 +758,14 @@ const styles = StyleSheet.create({
   },
   stepBeat: {
     borderLeftWidth: 1,
-    borderLeftColor: COLORS.border,
+    borderLeftColor: 'rgba(212, 175, 55, 0.3)',
   },
   
   // Presets
   presetSection: {
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: 'rgba(212, 175, 55, 0.3)',
   },
   sectionTitle: {
     color: COLORS.textDim,
@@ -784,7 +784,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surfaceLight,
     marginHorizontal: 4,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
   },
   presetButtonActive: {
     backgroundColor: COLORS.primary,
@@ -811,7 +811,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
   },
   statusItem: {
     flexDirection: 'row',

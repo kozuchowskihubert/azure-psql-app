@@ -14,25 +14,17 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Slider from '@react-native-community/slider';
+import InstrumentControl from '../components/InstrumentControl';
+import { HAOS_COLORS } from '../styles/HAOSTheme';
+import { INSTRUMENT_COLORS, CONTROL_TYPES } from '../styles/InstrumentTheme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const HAOS_COLORS = {
-  orange: '#ff8800',
-  red: '#ff0066',
-  yellow: '#ffcc00',
-  pink: '#ff00ff',
-  dark: '#0a0a0a',
-  darkGray: '#1a1a1a',
-  mediumGray: '#2a2a2a',
-};
-
 const ARTICULATIONS = [
-  { id: 'sustain', name: 'SUSTAIN', color: '#ff8800', icon: '🎻', description: 'Smooth, legato bowing' },
-  { id: 'staccato', name: 'STACCATO', color: '#ff0066', icon: '⚡', description: 'Short, detached notes' },
-  { id: 'pizzicato', name: 'PIZZICATO', color: '#ffcc00', icon: '✨', description: 'Plucked strings' },
-  { id: 'tremolo', name: 'TREMOLO', color: '#ff00ff', icon: '💫', description: 'Rapid bow movement' },
+  { id: 'sustain', name: 'SUSTAIN', color: INSTRUMENT_COLORS.violin.primary, icon: '🎻', description: 'Smooth, legato bowing' },
+  { id: 'staccato', name: 'STACCATO', color: INSTRUMENT_COLORS.violin.accent, icon: '⚡', description: 'Short, detached notes' },
+  { id: 'pizzicato', name: 'PIZZICATO', color: INSTRUMENT_COLORS.violin.highlight, icon: '✨', description: 'Plucked strings' },
+  { id: 'tremolo', name: 'TREMOLO', color: INSTRUMENT_COLORS.violin.secondary, icon: '💫', description: 'Rapid bow movement' },
 ];
 
 const ViolinScreen = ({ navigation }) => {
@@ -151,118 +143,88 @@ const ViolinScreen = ({ navigation }) => {
           colors={[currentArticulation.color + '30', currentArticulation.color + '10']}
           style={styles.section}
         >
-          <Text style={styles.sectionTitle}>MAIN CONTROLS</Text>
+          <Text style={[styles.sectionTitle, { color: CONTROL_TYPES.filter.color }]}>
+            {CONTROL_TYPES.filter.emoji} MAIN CONTROLS
+          </Text>
           
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>VOLUME</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={100}
-              value={volume}
-              onChange={setVolume}
-              minimumTrackTintColor={currentArticulation.color}
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor={currentArticulation.color}
-            />
-            <Text style={styles.controlValue}>{Math.round(volume)}</Text>
-          </View>
+          <InstrumentControl
+            label="VOLUME"
+            value={volume}
+            min={0}
+            max={100}
+            unit=""
+            color={currentArticulation.color}
+            onValueChange={setVolume}
+          />
           
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>REVERB</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={100}
-              value={reverb}
-              onChange={setReverb}
-              minimumTrackTintColor={currentArticulation.color}
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor={currentArticulation.color}
-            />
-            <Text style={styles.controlValue}>{Math.round(reverb)}%</Text>
-          </View>
+          <InstrumentControl
+            label="REVERB"
+            value={reverb}
+            min={0}
+            max={100}
+            unit="%"
+            color={currentArticulation.color}
+            onValueChange={setReverb}
+          />
           
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>BRIGHTNESS</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={100}
-              value={brightness}
-              onChange={setBrightness}
-              minimumTrackTintColor={currentArticulation.color}
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor={currentArticulation.color}
-            />
-            <Text style={styles.controlValue}>{Math.round(brightness)}</Text>
-          </View>
+          <InstrumentControl
+            label="BRIGHTNESS"
+            value={brightness}
+            min={0}
+            max={100}
+            unit=""
+            color={currentArticulation.color}
+            onValueChange={setBrightness}
+          />
         </LinearGradient>
         
         {/* Expression */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>EXPRESSION</Text>
+          <Text style={[styles.sectionTitle, { color: CONTROL_TYPES.modulation.color }]}>
+            {CONTROL_TYPES.modulation.emoji} EXPRESSION
+          </Text>
           
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>VIBRATO RATE</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={10}
-              step={0.1}
-              value={vibratoRate}
-              onChange={setVibratoRate}
-              minimumTrackTintColor={HAOS_COLORS.orange}
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor={HAOS_COLORS.orange}
-            />
-            <Text style={styles.controlValue}>{vibratoRate.toFixed(1)} Hz</Text>
-          </View>
+          <InstrumentControl
+            label="VIBRATO RATE"
+            value={vibratoRate}
+            min={0}
+            max={10}
+            step={0.1}
+            unit=" Hz"
+            color={INSTRUMENT_COLORS.violin.primary}
+            onValueChange={setVibratoRate}
+            formatValue={(val) => val.toFixed(1)}
+          />
           
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>VIBRATO DEPTH</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={100}
-              value={vibratoDepth}
-              onChange={setVibratoDepth}
-              minimumTrackTintColor={HAOS_COLORS.orange}
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor={HAOS_COLORS.orange}
-            />
-            <Text style={styles.controlValue}>{Math.round(vibratoDepth)}%</Text>
-          </View>
+          <InstrumentControl
+            label="VIBRATO DEPTH"
+            value={vibratoDepth}
+            min={0}
+            max={100}
+            unit="%"
+            color={INSTRUMENT_COLORS.violin.primary}
+            onValueChange={setVibratoDepth}
+          />
           
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>EXPRESSION</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={127}
-              value={expression}
-              onChange={setExpression}
-              minimumTrackTintColor="#fff"
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor="#fff"
-            />
-            <Text style={styles.controlValue}>{Math.round(expression)}</Text>
-          </View>
+          <InstrumentControl
+            label="EXPRESSION"
+            value={expression}
+            min={0}
+            max={127}
+            unit=""
+            color="#fff"
+            onValueChange={setExpression}
+          />
           
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>BOW PRESSURE</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={100}
-              value={bowPressure}
-              onChange={setBowPressure}
-              minimumTrackTintColor="#fff"
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor="#fff"
-            />
-            <Text style={styles.controlValue}>{Math.round(bowPressure)}</Text>
-          </View>
+          <InstrumentControl
+            label="BOW PRESSURE"
+            value={bowPressure}
+            min={0}
+            max={100}
+            unit=""
+            color="#fff"
+            onValueChange={setBowPressure}
+          />
         </View>
         
         {/* Ensemble Mode */}
@@ -287,39 +249,29 @@ const ViolinScreen = ({ navigation }) => {
           
           {ensembleMode && (
             <LinearGradient
-              colors={['rgba(255,136,0,0.2)', 'rgba(255,136,0,0.05)']}
+              colors={['rgba(212,175,55,0.2)', 'rgba(212,175,55,0.05)']}
               style={styles.ensembleControls}
             >
-              <View style={styles.controlRow}>
-                <Text style={styles.controlLabel}>SIZE</Text>
-                <Slider
-                  style={styles.slider}
-                  minimumValue={2}
-                  maximumValue={16}
-                  step={1}
-                  value={ensembleSize}
-                  onChange={setEnsembleSize}
-                  minimumTrackTintColor={HAOS_COLORS.orange}
-                  maximumTrackTintColor={HAOS_COLORS.mediumGray}
-                  thumbTintColor={HAOS_COLORS.orange}
-                />
-                <Text style={styles.controlValue}>{ensembleSize}</Text>
-              </View>
+              <InstrumentControl
+                label="SIZE"
+                value={ensembleSize}
+                min={2}
+                max={16}
+                step={1}
+                unit=""
+                color={INSTRUMENT_COLORS.violin.primary}
+                onValueChange={setEnsembleSize}
+              />
               
-              <View style={styles.controlRow}>
-                <Text style={styles.controlLabel}>STEREO WIDTH</Text>
-                <Slider
-                  style={styles.slider}
-                  minimumValue={0}
-                  maximumValue={100}
-                  value={stereoWidth}
-                  onChange={setStereoWidth}
-                  minimumTrackTintColor={HAOS_COLORS.orange}
-                  maximumTrackTintColor={HAOS_COLORS.mediumGray}
-                  thumbTintColor={HAOS_COLORS.orange}
-                />
-                <Text style={styles.controlValue}>{Math.round(stereoWidth)}%</Text>
-              </View>
+              <InstrumentControl
+                label="STEREO WIDTH"
+                value={stereoWidth}
+                min={0}
+                max={100}
+                unit="%"
+                color={INSTRUMENT_COLORS.violin.primary}
+                onValueChange={setStereoWidth}
+              />
             </LinearGradient>
           )}
         </View>
@@ -328,10 +280,10 @@ const ViolinScreen = ({ navigation }) => {
         <View style={styles.infoSection}>
           <Text style={styles.infoTitle}>🎻 VIOLIN TECHNIQUES</Text>
           <Text style={styles.infoText}>
-            <Text style={{ fontWeight: 'bold', color: HAOS_COLORS.orange }}>SUSTAIN:</Text> Smooth legato bowing{'\n'}
-            <Text style={{ fontWeight: 'bold', color: HAOS_COLORS.red }}>STACCATO:</Text> Short detached notes{'\n'}
-            <Text style={{ fontWeight: 'bold', color: HAOS_COLORS.yellow }}>PIZZICATO:</Text> Plucked strings{'\n'}
-            <Text style={{ fontWeight: 'bold', color: HAOS_COLORS.pink }}>TREMOLO:</Text> Rapid bow movement{'\n'}
+            <Text style={{ fontWeight: 'bold', color: INSTRUMENT_COLORS.violin.primary }}>SUSTAIN:</Text> Smooth legato bowing{'\n'}
+            <Text style={{ fontWeight: 'bold', color: INSTRUMENT_COLORS.violin.accent }}>STACCATO:</Text> Short detached notes{'\n'}
+            <Text style={{ fontWeight: 'bold', color: INSTRUMENT_COLORS.violin.highlight }}>PIZZICATO:</Text> Plucked strings{'\n'}
+            <Text style={{ fontWeight: 'bold', color: INSTRUMENT_COLORS.violin.secondary }}>TREMOLO:</Text> Rapid bow movement{'\n'}
             {'\n'}
             • Vibrato for expressive playing{'\n'}
             • Bow pressure control{'\n'}
@@ -355,9 +307,9 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
-    backgroundColor: HAOS_COLORS.darkGray,
+    backgroundColor: HAOS_COLORS.backgroundSecondary,
     borderBottomWidth: 2,
-    borderBottomColor: HAOS_COLORS.orange,
+    borderBottomColor: INSTRUMENT_COLORS.violin.primary,
   },
   backButton: {
     position: 'absolute',
@@ -370,11 +322,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: HAOS_COLORS.orange,
+    borderColor: INSTRUMENT_COLORS.violin.primary,
   },
   backIcon: {
     fontSize: 24,
-    color: HAOS_COLORS.orange,
+    color: INSTRUMENT_COLORS.violin.primary,
     fontWeight: 'bold',
   },
   headerContent: {
@@ -394,7 +346,7 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 12,
-    color: HAOS_COLORS.orange,
+    color: INSTRUMENT_COLORS.violin.primary,
     letterSpacing: 1,
     fontWeight: '600',
   },
@@ -403,9 +355,9 @@ const styles = StyleSheet.create({
   },
   articulationSelector: {
     padding: 20,
-    backgroundColor: HAOS_COLORS.darkGray,
+    backgroundColor: HAOS_COLORS.backgroundSecondary,
     borderBottomWidth: 1,
-    borderBottomColor: HAOS_COLORS.mediumGray,
+    borderBottomColor: HAOS_COLORS.border,
   },
   articulationButton: {
     flexDirection: 'row',
@@ -452,29 +404,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: 15,
   },
-  controlRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  controlLabel: {
-    fontSize: 12,
-    color: '#fff',
-    fontWeight: 'bold',
-    width: 120,
-    letterSpacing: 0.5,
-  },
-  slider: {
-    flex: 1,
-    marginHorizontal: 10,
-  },
-  controlValue: {
-    fontSize: 14,
-    color: '#fff',
-    fontWeight: 'bold',
-    width: 70,
-    textAlign: 'right',
-  },
   ensembleSection: {
     margin: 20,
   },
@@ -485,11 +414,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: 'rgba(0,0,0,0.5)',
     borderWidth: 2,
-    borderColor: HAOS_COLORS.orange,
+    borderColor: INSTRUMENT_COLORS.violin.primary,
     marginBottom: 15,
   },
   ensembleToggleActive: {
-    backgroundColor: 'rgba(255,136,0,0.2)',
+    backgroundColor: 'rgba(212,175,55,0.2)',
   },
   ensembleIcon: {
     fontSize: 32,
@@ -500,13 +429,13 @@ const styles = StyleSheet.create({
   },
   ensembleTitle: {
     fontSize: 16,
-    color: HAOS_COLORS.orange,
+    color: INSTRUMENT_COLORS.violin.primary,
     fontWeight: 'bold',
     letterSpacing: 1,
     marginBottom: 4,
   },
   ensembleTitleActive: {
-    color: HAOS_COLORS.orange,
+    color: INSTRUMENT_COLORS.violin.primary,
   },
   ensembleSubtitle: {
     fontSize: 12,
@@ -516,19 +445,19 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: HAOS_COLORS.orange,
+    borderColor: INSTRUMENT_COLORS.violin.primary,
   },
   infoSection: {
     margin: 20,
     padding: 20,
     borderRadius: 16,
-    backgroundColor: 'rgba(255,136,0,0.1)',
+    backgroundColor: 'rgba(212,175,55,0.1)',
     borderWidth: 1,
-    borderColor: HAOS_COLORS.orange,
+    borderColor: INSTRUMENT_COLORS.violin.primary,
   },
   infoTitle: {
     fontSize: 18,
-    color: HAOS_COLORS.orange,
+    color: INSTRUMENT_COLORS.violin.primary,
     fontWeight: 'bold',
     letterSpacing: 1,
     marginBottom: 15,

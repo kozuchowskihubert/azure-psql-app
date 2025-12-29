@@ -1,37 +1,135 @@
 /**
  * HAOS.fm TR-808 Drum Machine
- * Visual recreation of the legendary Roland TR-808
+ * HAOS Themed Design
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  Animated,
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  ScrollView, 
+  StyleSheet, 
+  Animated, 
   Dimensions,
-  Slider,
+  StatusBar,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Slider from '@react-native-community/slider';
+import * as Haptics from 'expo-haptics';
+
+// HAOS Components & Theme
+import HAOSHeader from '../components/HAOSHeader';
+import { HAOS_COLORS, HAOS_GRADIENTS } from '../styles/HAOSTheme';
+
+// Design System & Components (Legacy)
+import { COLORS, SPACING, TYPOGRAPHY, RADIUS, commonStyles } from '../styles/SynthDesignSystem';
+import SynthSection from '../components/SynthSection';
+import SynthSlider from '../components/SynthSlider';
+import ParameterGroup from '../components/ParameterGroup';
+
+// Services & Bridges
 import tr808Bridge from '../drums/TR808Bridge';
 import webAudioBridge from '../services/WebAudioBridge';
 
 const { width } = Dimensions.get('window');
 
-const HAOS_COLORS = {
-  green: '#00ff94',
-  orange: '#FF6B35',
-  red: '#FF0000',
-  dark: '#0a0a0a',
-  metal: '#2a2a2a',
-  silver: '#c0c0c0',
-  led: '#ff0033',
+const DRUMS = [
+  { id: 'kick', label: 'BASS DRUM', color: HAOS_COLORS.gold },
+  { id: 'snare', label: 'SNARE', color: HAOS_COLORS.gold },
+  { id: 'hihat', label: 'CLOSED HH', color: HAOS_COLORS.orange },
+  { id: 'clap', label: 'HAND CLAP', color: HAOS_COLORS.silver },
+  { id: 'rimshot', label: 'RIM SHOT', color: HAOS_COLORS.silver },
+  { id: 'cowbell', label: 'COWBELL', color: HAOS_COLORS.orange },
+  { id: 'cymbal', label: 'CYMBAL', color: HAOS_COLORS.orange },
+  { id: 'tom', label: 'LOW TOM', color: HAOS_COLORS.gold },
+];
+
+const PRESETS = {
+  'Basic': {
+    bpm: 120,
+    pattern: {
+      kick: [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+      clap: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      rimshot: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cowbell: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cymbal: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+    },
+  },
+  'Hip Hop': {
+    bpm: 90,
+    pattern: {
+      kick: [1,0,0,0, 0,0,1,0, 0,0,0,0, 1,0,0,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+      clap: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      rimshot: [0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0],
+      cowbell: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cymbal: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],
+    },
+  },
+  'Electro': {
+    bpm: 110,
+    pattern: {
+      kick: [1,0,0,1, 0,0,1,0, 1,0,0,1, 0,0,1,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hihat: [0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],
+      clap: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      rimshot: [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,1,0,0],
+      cowbell: [0,1,0,0, 0,1,0,0, 0,1,0,0, 0,1,0,0],
+      cymbal: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,1,0],
+    },
+  },
+  'House': {
+    bpm: 128,
+    pattern: {
+      kick: [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hihat: [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
+      clap: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      rimshot: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cowbell: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cymbal: [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+    },
+  },
+  'Techno': {
+    bpm: 135,
+    pattern: {
+      kick: [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+      snare: [0,0,0,0, 1,0,0,1, 0,0,0,0, 1,0,0,1],
+      hihat: [0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],
+      clap: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      rimshot: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cowbell: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cymbal: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,0,0],
+    },
+  },
+  'Breaks': {
+    bpm: 160,
+    pattern: {
+      kick: [1,0,0,0, 0,0,1,0, 0,1,0,0, 1,0,0,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,1, 1,0,0,0],
+      hihat: [1,0,1,0, 1,0,1,1, 1,0,1,0, 1,0,1,0],
+      clap: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      rimshot: [0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0],
+      cowbell: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      cymbal: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],
+    },
+  },
 };
 
 const TR808Screen = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+  
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [bpm, setBpm] = useState(120);
@@ -56,29 +154,18 @@ const TR808Screen = ({ navigation }) => {
     cymbal: 0.6,
     tom: 0.7,
   });
-  
-  // Per-voice envelope controls (decay & tone)
-  const [envelopes, setEnvelopes] = useState({
-    kick: { decay: 0.5, tone: 0.5 },      // Decay: 50ms-1s, Tone: pitch
-    snare: { decay: 0.3, tone: 0.6 },     // Decay: 30ms-500ms, Tone: snappy
-    hihat: { decay: 0.2, tone: 0.7 },     // Decay: 20ms-300ms, Tone: bright
-    clap: { decay: 0.25, tone: 0.5 },     // Decay: fixed, Tone: reverb
-    rimshot: { decay: 0.15, tone: 0.8 },  // Decay: 15ms-200ms, Tone: metallic
-    cowbell: { decay: 0.4, tone: 0.6 },   // Decay: 40ms-800ms, Tone: pitch
-    cymbal: { decay: 0.6, tone: 0.5 },    // Decay: 60ms-2s, Tone: brightness
-    tom: { decay: 0.45, tone: 0.4 },      // Decay: 45ms-900ms, Tone: pitch
-  });
-  
-  const [showEnvelopes, setShowEnvelopes] = useState(false);
 
-  const stepRefs = useRef({});
+  // Sound parameters
+  const [kickPitch, setKickPitch] = useState(150);
+  const [kickDecay, setKickDecay] = useState(0.3);
+  const [snareTone, setSnareTone] = useState(0.2);
+  const [hihatDecay, setHihatDecay] = useState(0.05);
+
   const intervalRef = useRef(null);
+  const scheduleAheadTime = useRef(0.1); // How far ahead to schedule audio (100ms)
+  const nextNoteTime = useRef(0.0); // When the next note is due
+  const timerID = useRef(null);
   const ledAnim = useRef(new Animated.Value(0)).current;
-  
-  // Visual enhancement animations
-  const stepGlowAnims = useRef(
-    Array(16).fill(0).map(() => new Animated.Value(0))
-  ).current;
 
   useEffect(() => {
     initializeDrums();
@@ -87,6 +174,9 @@ const TR808Screen = ({ navigation }) => {
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+      }
+      if (timerID.current) {
+        clearTimeout(timerID.current);
       }
     };
   }, []);
@@ -125,151 +215,101 @@ const TR808Screen = ({ navigation }) => {
       ),
     }));
   };
-  
-  const updateEnvelope = (drum, param, value) => {
-    setEnvelopes(prev => ({
-      ...prev,
-      [drum]: {
-        ...prev[drum],
-        [param]: value,
-      },
-    }));
+
+  const playDrum = (drum, velocity = 1.0) => {
+    if (tr808Bridge && tr808Bridge[`play${drum.charAt(0).toUpperCase() + drum.slice(1)}`]) {
+      tr808Bridge[`play${drum.charAt(0).toUpperCase() + drum.slice(1)}`](velocity);
+      console.log(`🥁 Playing ${drum} @ ${Math.round(velocity * 100)}%`);
+    }
   };
 
   const playSequence = async () => {
     if (isPlaying) {
-      clearInterval(intervalRef.current);
+      // Stop playback
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      if (timerID.current) {
+        clearTimeout(timerID.current);
+      }
       setIsPlaying(false);
       setCurrentStep(0);
       return;
     }
 
+    // Start playback with accurate scheduling
     setIsPlaying(true);
-    const stepTime = (60 / bpm) * 250; // 16th notes
+    nextNoteTime.current = Date.now() / 1000; // Convert to seconds
+    scheduleNote();
+  };
 
-    intervalRef.current = setInterval(() => {
-      setCurrentStep(prev => {
-        const nextStep = (prev + 1) % 16;
-        
-        // Trigger glow animation for current step
-        Animated.sequence([
-          Animated.timing(stepGlowAnims[nextStep], {
-            toValue: 1,
-            duration: 50,
-            useNativeDriver: true,
-          }),
-          Animated.timing(stepGlowAnims[nextStep], {
-            toValue: 0,
-            duration: 150,
-            useNativeDriver: true,
-          }),
-        ]).start();
-        
-        // Play active instruments
-        Object.keys(pattern).forEach(instrument => {
-          if (pattern[instrument][nextStep]) {
-            playDrum(instrument, levels[instrument]);
-          }
-        });
-        
-        return nextStep;
+  const scheduleNote = () => {
+    if (!isPlaying) return;
+
+    const stepDuration = (60 / bpm) / 4; // Duration of 16th note in seconds
+    const currentTime = Date.now() / 1000;
+
+    // Schedule notes that need to play in the next 100ms
+    while (nextNoteTime.current < currentTime + scheduleAheadTime.current) {
+      const step = currentStep;
+      
+      // Schedule audio playback
+      DRUMS.forEach(({ id }) => {
+        if (pattern[id][step]) {
+          playDrum(id, levels[id]);
+        }
       });
-    }, stepTime);
-  };
-
-  const playDrum = async (drum, velocity) => {
-    switch (drum) {
-      case 'kick':
-        tr808Bridge.playKick(velocity);
-        break;
-      case 'snare':
-        tr808Bridge.playSnare(velocity);
-        break;
-      case 'hihat':
-        tr808Bridge.playHihat(velocity, false);
-        break;
-      case 'clap':
-        tr808Bridge.playClap(velocity);
-        break;
-      case 'rimshot':
-        tr808Bridge.playSnare(velocity * 0.5); // Simulated
-        break;
-      case 'cowbell':
-        tr808Bridge.playHihat(velocity, true); // Simulated
-        break;
-      case 'cymbal':
-        tr808Bridge.playHihat(velocity * 1.2, true);
-        break;
-      case 'tom':
-        tr808Bridge.playKick(velocity * 0.8); // Simulated
-        break;
+      
+      // Update visual step indicator
+      setCurrentStep((prev) => (prev + 1) % 16);
+      
+      // Calculate next note time
+      nextNoteTime.current += stepDuration;
     }
+
+    // Schedule next scheduling call (every 25ms for smooth updates)
+    timerID.current = setTimeout(scheduleNote, 25);
   };
 
-  // Classic TR-808 Presets
-  const PRESETS = {
-    'Basic Rock': {
-      kick: [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
-      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-      hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-      clap: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-      rimshot: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-      cowbell: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-      cymbal: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-      tom: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-    },
-    'House': {
-      kick: [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
-      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-      hihat: [0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],
-      clap: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-      rimshot: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-      cowbell: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-      cymbal: [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
-      tom: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-    },
-    'Techno': {
-      kick: [1,0,0,0, 1,0,1,0, 1,0,0,0, 1,0,1,0],
-      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-      hihat: [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
-      clap: [0,0,0,0, 1,0,0,1, 0,0,0,0, 1,0,0,0],
-      rimshot: [0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0],
-      cowbell: [0,0,1,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],
-      cymbal: [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
-      tom: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-    },
-    'Hip Hop': {
-      kick: [1,0,0,0, 0,0,1,0, 0,0,0,0, 1,0,0,0],
-      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-      hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-      clap: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-      rimshot: [0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0],
-      cowbell: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-      cymbal: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-      tom: [0,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],
-    },
-    'Electro': {
-      kick: [1,0,0,1, 0,0,1,0, 1,0,0,1, 0,0,1,0],
-      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-      hihat: [0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],
-      clap: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-      rimshot: [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,1,0,0],
-      cowbell: [0,1,0,0, 0,1,0,0, 0,1,0,0, 0,1,0,0],
-      cymbal: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-      tom: [0,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,1,0],
-    },
-  };
+  // Update playSequence to use new scheduler when BPM changes
+  useEffect(() => {
+    if (isPlaying) {
+      // Restart with new BPM
+      const wasPlaying = isPlaying;
+      setIsPlaying(false);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      if (timerID.current) {
+        clearTimeout(timerID.current);
+      }
+      if (wasPlaying) {
+        setTimeout(() => {
+          setIsPlaying(true);
+          nextNoteTime.current = Date.now() / 1000;
+          scheduleNote();
+        }, 10);
+      }
+    }
+  }, [bpm]);
 
   const loadPreset = (presetName) => {
     const preset = PRESETS[presetName];
     if (!preset) return;
     
+    if (preset.bpm) {
+      setBpm(preset.bpm);
+    }
+    
+    const patternData = preset.pattern || preset;
     const newPattern = {};
-    Object.keys(preset).forEach(instrument => {
-      newPattern[instrument] = preset[instrument].map(v => v === 1);
+    Object.keys(patternData).forEach(instrument => {
+      if (Array.isArray(patternData[instrument])) {
+        newPattern[instrument] = patternData[instrument].map(v => v === 1);
+      }
     });
     setPattern(newPattern);
-    console.log(`🥁 Loaded TR-808 preset: ${presetName}`);
+    console.log(`🥁 Loaded preset: ${presetName}`);
   };
 
   const clearPattern = () => {
@@ -285,155 +325,99 @@ const TR808Screen = ({ navigation }) => {
     });
   };
 
+  const updateLevel = (drum, value) => {
+    setLevels(prev => ({
+      ...prev,
+      [drum]: value,
+    }));
+  };
+
   const renderStepButton = (instrument, step) => {
     const isActive = pattern[instrument][step];
     const isCurrent = step === currentStep && isPlaying;
-    const glowOpacity = stepGlowAnims[step];
     
     return (
-      <View key={`${instrument}-${step}`} style={styles.stepWrapper}>
-        {/* Glow ring for current step */}
-        {isCurrent && isActive && (
-          <Animated.View
+      <TouchableOpacity
+        key={`${instrument}-${step}`}
+        style={[
+          styles.stepButton,
+          isActive && styles.stepButtonActive,
+          isCurrent && styles.stepButtonCurrent,
+          isActive && isCurrent && styles.stepButtonPlaying,
+        ]}
+        onPress={() => toggleStep(instrument, step)}
+      >
+        {isActive && (
+          <View
             style={[
-              styles.stepGlowRing,
+              styles.velocityBar,
               {
-                opacity: glowOpacity,
-                transform: [{
-                  scale: glowOpacity.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.3],
-                  }),
-                }],
+                height: `${levels[instrument] * 100}%`,
+                backgroundColor: isCurrent ? COLORS.primary : COLORS.accent,
               },
             ]}
           />
         )}
-        
-        <TouchableOpacity
-          style={[
-            styles.stepButton,
-            isActive && styles.stepButtonActive,
-            isCurrent && styles.stepButtonCurrent,
-            isActive && isCurrent && styles.stepButtonPlaying,
-          ]}
-          onPress={() => toggleStep(instrument, step)}
-        >
-          {/* Velocity indicator bar for active steps */}
-          {isActive && (
-            <View
-              style={[
-                styles.velocityBar,
-                {
-                  height: `${levels[instrument] * 100}%`,
-                  backgroundColor: isCurrent ? HAOS_COLORS.orange : HAOS_COLORS.green,
-                },
-              ]}
-            />
-          )}
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
-  const renderInstrumentRow = (name, label, color) => {
-    return (
-      <View key={name} style={styles.instrumentRow}>
-        <View style={styles.instrumentLabel}>
-          <Text style={[styles.instrumentText, { color }]}>{label}</Text>
-          <TouchableOpacity
-            style={styles.playButton}
-            onPress={() => playDrum(name, levels[name])}
-          >
-            <Text style={styles.playButtonText}>▶</Text>
-          </TouchableOpacity>
-        </View>
-        
-        <View style={styles.stepsContainer}>
-          {Array(16).fill(0).map((_, i) => renderStepButton(name, i))}
-        </View>
-        
-        <View style={styles.levelSlider}>
-          <Text style={styles.levelText}>{Math.round(levels[name] * 100)}</Text>
-        </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
   return (
     <View style={styles.container}>
-      {/* Hidden WebView for Web Audio */}
-      <WebView
-        ref={(ref) => {
-          if (ref && !webAudioBridge.isReady) {
-            console.log('TR-808: Setting WebView ref');
-            webAudioBridge.setWebViewRef(ref);
-          }
-        }}
-        source={require('../../assets/audio-engine.html')}
-        style={{ width: 0, height: 0, opacity: 0, position: 'absolute', pointerEvents: 'none' }}
-        onMessage={(event) => {
-          webAudioBridge.onMessage(event);
-        }}
-        onLoad={() => {
-          console.log('TR-808: WebView loaded, initializing audio...');
-          webAudioBridge.initAudio();
-        }}
-        onError={(syntheticEvent) => {
-          const { nativeEvent } = syntheticEvent;
-          console.error('TR-808: WebView error', nativeEvent);
-        }}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        mediaPlaybackRequiresUserAction={false}
-        allowsInlineMediaPlayback={true}
-      />
+      <StatusBar barStyle="light-content" />
       
-      {/* Header */}
-      <LinearGradient
-        colors={[HAOS_COLORS.dark, HAOS_COLORS.metal]}
-        style={styles.header}
-      >
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Back</Text>
-        </TouchableOpacity>
-        
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>TR-808</Text>
-          <Text style={styles.subtitle}>RHYTHM COMPOSER</Text>
-        </View>
-        
-        <Animated.View 
-          style={[
-            styles.powerLed,
-            {
-              opacity: isPlaying ? ledAnim : 0.3,
-            },
-          ]}
+      {/* Hidden WebView */}
+      <View style={{ height: 0, overflow: 'hidden' }}>
+        <WebView
+          ref={(ref) => {
+            if (ref && !webAudioBridge.isReady) {
+              webAudioBridge.setWebViewRef(ref);
+            }
+          }}
+          source={require('../../assets/audio-engine.html')}
+          style={{ width: 1, height: 1, opacity: 0 }}
+          onMessage={(event) => webAudioBridge.onMessage(event)}
+          onLoad={() => webAudioBridge.initAudio()}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          mediaPlaybackRequiresUserAction={false}
+          allowsInlineMediaPlayback={true}
         />
-      </LinearGradient>
+      </View>
 
-      <ScrollView style={styles.content}>
-        {/* Control Panel */}
-        <View style={styles.controlPanel}>
-          <View style={styles.controlRow}>
-            <View style={styles.control}>
-              <Text style={styles.controlLabel}>TEMPO</Text>
+      <HAOSHeader
+        title="TR-808"
+        navigation={navigation}
+        showBack={true}
+        rightButtons={[
+          {
+            icon: '🥁',
+            onPress: () => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            },
+          },
+        ]}
+      />
+
+      {/* Main Content */}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Transport Controls */}
+        <SynthSection title="TRANSPORT" icon="⏯️" subtitle="Tempo control & sequencer transport">
+          <View style={styles.transportRow}>
+            {/* BPM Display */}
+            <View style={styles.bpmContainer}>
+              <Text style={styles.bpmLabel}>TEMPO</Text>
               <View style={styles.bpmDisplay}>
                 <Text style={styles.bpmText}>{bpm}</Text>
                 {isPlaying && (
                   <Animated.View
                     style={[
                       styles.tempoPulse,
-                      {
-                        opacity: ledAnim,
-                        transform: [{
-                          scale: ledAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0.8, 1.2],
-                          }),
-                        }],
-                      },
+                      { opacity: ledAnim },
                     ]}
                   />
                 )}
@@ -443,7 +427,7 @@ const TR808Screen = ({ navigation }) => {
                   style={styles.bpmButton}
                   onPress={() => setBpm(Math.max(40, bpm - 5))}
                 >
-                  <Text style={styles.bpmButtonText}>-</Text>
+                  <Text style={styles.bpmButtonText}>−</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.bpmButton}
@@ -454,27 +438,116 @@ const TR808Screen = ({ navigation }) => {
               </View>
             </View>
 
+            {/* Play/Stop Button */}
             <TouchableOpacity
               style={[styles.mainButton, isPlaying && styles.mainButtonActive]}
               onPress={playSequence}
             >
               <Text style={styles.mainButtonText}>
-                {isPlaying ? '■ STOP' : '▶ START'}
+                {isPlaying ? '■' : '▶'}
+              </Text>
+              <Text style={styles.mainButtonLabel}>
+                {isPlaying ? 'STOP' : 'START'}
               </Text>
             </TouchableOpacity>
 
+            {/* Clear Button */}
             <TouchableOpacity
               style={styles.clearButton}
               onPress={clearPattern}
             >
-              <Text style={styles.clearButtonText}>CLEAR</Text>
+              <Text style={styles.clearButtonText}>✕</Text>
+              <Text style={styles.clearButtonLabel}>CLEAR</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </SynthSection>
 
-        {/* Preset Selector */}
-        <View style={styles.presetsContainer}>
-          <Text style={styles.presetsTitle}>🎵 CLASSIC PATTERNS</Text>
+        {/* Sound Parameters */}
+        <SynthSection title="SOUND PARAMETERS" icon="🎛️" subtitle="Tune each drum voice">
+          <View style={styles.parameterGrid}>
+            {/* Kick Parameters */}
+            <View style={styles.parameterSection}>
+              <Text style={styles.parameterTitle}>KICK DRUM</Text>
+              <View style={styles.parameterRow}>
+                <Text style={styles.parameterLabel}>Pitch: {kickPitch}Hz</Text>
+                <Slider
+                  style={styles.parameterSlider}
+                  minimumValue={50}
+                  maximumValue={300}
+                  value={kickPitch}
+                  onValueChange={(val) => {
+                    setKickPitch(Math.round(val));
+                    tr808Bridge.setKickPitch(Math.round(val));
+                  }}
+                  minimumTrackTintColor={COLORS.accent}
+                  maximumTrackTintColor={COLORS.inactive}
+                  thumbTintColor={COLORS.accent}
+                />
+              </View>
+              <View style={styles.parameterRow}>
+                <Text style={styles.parameterLabel}>Decay: {kickDecay.toFixed(2)}s</Text>
+                <Slider
+                  style={styles.parameterSlider}
+                  minimumValue={0.1}
+                  maximumValue={1.0}
+                  value={kickDecay}
+                  onValueChange={(val) => {
+                    setKickDecay(val);
+                    tr808Bridge.setKickDecay(val);
+                  }}
+                  minimumTrackTintColor={COLORS.accent}
+                  maximumTrackTintColor={COLORS.inactive}
+                  thumbTintColor={COLORS.accent}
+                />
+              </View>
+            </View>
+
+            {/* Snare Parameters */}
+            <View style={styles.parameterSection}>
+              <Text style={styles.parameterTitle}>SNARE DRUM</Text>
+              <View style={styles.parameterRow}>
+                <Text style={styles.parameterLabel}>Tone: {(snareTone * 100).toFixed(0)}%</Text>
+                <Slider
+                  style={styles.parameterSlider}
+                  minimumValue={0}
+                  maximumValue={1}
+                  value={snareTone}
+                  onValueChange={(val) => {
+                    setSnareTone(val);
+                    tr808Bridge.setSnareTone(val);
+                  }}
+                  minimumTrackTintColor={COLORS.accent}
+                  maximumTrackTintColor={COLORS.inactive}
+                  thumbTintColor={COLORS.accent}
+                />
+              </View>
+            </View>
+
+            {/* Hi-hat Parameters */}
+            <View style={styles.parameterSection}>
+              <Text style={styles.parameterTitle}>HI-HAT</Text>
+              <View style={styles.parameterRow}>
+                <Text style={styles.parameterLabel}>Decay: {(hihatDecay * 1000).toFixed(0)}ms</Text>
+                <Slider
+                  style={styles.parameterSlider}
+                  minimumValue={0.02}
+                  maximumValue={0.2}
+                  value={hihatDecay}
+                  onValueChange={(val) => {
+                    setHihatDecay(val);
+                    tr808Bridge.setHihatDecay(val);
+                  }}
+                  minimumTrackTintColor={COLORS.accent}
+                  maximumTrackTintColor={COLORS.inactive}
+                  thumbTintColor={COLORS.accent}
+                />
+              </View>
+            </View>
+          </View>
+        </SynthSection>
+
+        {/* Presets */}
+        <SynthSection title="PATTERNS" icon="🎵" subtitle="Classic 808 grooves">
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetsScroll}>
             {Object.keys(PRESETS).map((presetName) => (
               <TouchableOpacity
@@ -486,12 +559,13 @@ const TR808Screen = ({ navigation }) => {
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </View>
+        </SynthSection>
 
-        {/* Pattern Editor */}
-        <View style={styles.patternEditor}>
+        {/* Sequencer Grid */}
+        <SynthSection title="SEQUENCER" icon="🎹" subtitle="16-step pattern editor">
+          {/* Step Numbers */}
           <View style={styles.stepNumbers}>
-            <View style={styles.instrumentLabel} />
+            <View style={styles.instrumentLabelSpace} />
             {Array(16).fill(0).map((_, i) => (
               <View key={i} style={styles.stepNumber}>
                 <Text style={styles.stepNumberText}>{i + 1}</Text>
@@ -499,22 +573,43 @@ const TR808Screen = ({ navigation }) => {
             ))}
           </View>
 
-          {renderInstrumentRow('kick', 'BASS DRUM', HAOS_COLORS.orange)}
-          {renderInstrumentRow('snare', 'SNARE', HAOS_COLORS.orange)}
-          {renderInstrumentRow('hihat', 'CLOSED HH', HAOS_COLORS.green)}
-          {renderInstrumentRow('clap', 'HAND CLAP', HAOS_COLORS.orange)}
-          {renderInstrumentRow('rimshot', 'RIM SHOT', HAOS_COLORS.orange)}
-          {renderInstrumentRow('cowbell', 'COWBELL', HAOS_COLORS.green)}
-          {renderInstrumentRow('cymbal', 'CYMBAL', HAOS_COLORS.green)}
-          {renderInstrumentRow('tom', 'LOW TOM', HAOS_COLORS.orange)}
-        </View>
+          {/* Instrument Rows */}
+          {DRUMS.map(({ id, label, color }) => (
+            <View key={id} style={styles.instrumentRow}>
+              {/* Label & Preview */}
+              <View style={styles.instrumentLabel}>
+                <TouchableOpacity
+                  style={styles.previewButton}
+                  onPress={() => playDrum(id, levels[id])}
+                >
+                  <Text style={styles.previewIcon}>▶</Text>
+                </TouchableOpacity>
+                <Text style={[styles.instrumentText, { color }]}>{label}</Text>
+              </View>
+              
+              {/* Steps */}
+              <View style={styles.stepsContainer}>
+                {Array(16).fill(0).map((_, i) => renderStepButton(id, i))}
+              </View>
+            </View>
+          ))}
+        </SynthSection>
 
-        {/* Footer Info */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            🥁 Classic analog drum machine • Legendary 808 sound
-          </Text>
-        </View>
+        {/* Mixer Levels */}
+        <SynthSection title="MIXER" icon="🎚️" subtitle="Individual voice levels">
+          <ParameterGroup>
+            {DRUMS.map(({ id, label, color }) => (
+              <SynthSlider
+                key={id}
+                label={label}
+                value={levels[id]}
+                onValueChange={(value) => updateLevel(id, value)}
+                unit="%"
+                color={color}
+              />
+            ))}
+          </ParameterGroup>
+        </SynthSection>
       </ScrollView>
     </View>
   );
@@ -523,83 +618,53 @@ const TR808Screen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: HAOS_COLORS.dark,
+    backgroundColor: HAOS_COLORS.background,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomWidth: 2,
-    borderBottomColor: HAOS_COLORS.orange,
-  },
-  backButton: {
-    color: HAOS_COLORS.green,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  titleContainer: {
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: HAOS_COLORS.orange,
-    letterSpacing: 4,
-  },
-  subtitle: {
-    fontSize: 10,
-    color: HAOS_COLORS.silver,
-    letterSpacing: 2,
-    marginTop: 2,
-  },
-  powerLed: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: HAOS_COLORS.led,
-  },
-  content: {
+  scrollView: {
     flex: 1,
   },
-  controlPanel: {
-    padding: 20,
-    backgroundColor: HAOS_COLORS.metal,
-    borderBottomWidth: 2,
-    borderBottomColor: HAOS_COLORS.orange,
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 100,
   },
-  controlRow: {
+  hiddenWebView: {
+    width: 1,
+    height: 1,
+    opacity: 0,
+    position: 'absolute',
+    top: -1000,
+    left: -1000,
+    pointerEvents: 'none',
+  },
+  transportRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: SPACING.md,
   },
-  control: {
+  bpmContainer: {
     alignItems: 'center',
   },
-  controlLabel: {
-    fontSize: 10,
-    color: HAOS_COLORS.silver,
-    letterSpacing: 1,
-    marginBottom: 8,
+  bpmLabel: {
+    ...TYPOGRAPHY.label,
+    color: HAOS_COLORS.gold,
+    marginBottom: SPACING.xs,
   },
   bpmDisplay: {
-    backgroundColor: '#000',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 4,
+    backgroundColor: HAOS_COLORS.surface,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.md,
     borderWidth: 2,
-    borderColor: HAOS_COLORS.orange,
-    marginBottom: 8,
-    position: 'relative',
+    borderColor: HAOS_COLORS.gold,
+    marginBottom: SPACING.sm,
     minWidth: 80,
     alignItems: 'center',
+    position: 'relative',
   },
   bpmText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: HAOS_COLORS.orange,
+    ...TYPOGRAPHY.h1,
+    color: HAOS_COLORS.gold,
     fontFamily: 'monospace',
   },
   tempoPulse: {
@@ -609,218 +674,204 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: HAOS_COLORS.led,
-    shadowColor: HAOS_COLORS.led,
+    backgroundColor: HAOS_COLORS.orange,
+    shadowColor: HAOS_COLORS.orange,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 6,
   },
   bpmButtons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: SPACING.sm,
   },
   bpmButton: {
-    backgroundColor: HAOS_COLORS.orange,
+    backgroundColor: HAOS_COLORS.surface,
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: RADIUS.round,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   bpmButtonText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
+    ...TYPOGRAPHY.h2,
+    color: COLORS.textPrimary,
   },
   mainButton: {
-    backgroundColor: HAOS_COLORS.green,
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: HAOS_COLORS.green,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 120,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
   },
   mainButtonActive: {
-    backgroundColor: HAOS_COLORS.red,
-    borderColor: HAOS_COLORS.red,
+    backgroundColor: COLORS.error,
+    shadowColor: COLORS.error,
   },
   mainButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-    letterSpacing: 2,
+    ...TYPOGRAPHY.h1,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.xs,
+  },
+  mainButtonLabel: {
+    ...TYPOGRAPHY.label,
+    color: COLORS.textPrimary,
   },
   clearButton: {
-    backgroundColor: '#333',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#555',
+    backgroundColor: COLORS.surfaceLight,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   clearButtonText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: HAOS_COLORS.silver,
-    letterSpacing: 1,
+    ...TYPOGRAPHY.h2,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.xs,
   },
-  patternEditor: {
-    padding: 10,
+  clearButtonLabel: {
+    ...TYPOGRAPHY.label,
+    color: COLORS.textSecondary,
+  },
+  presetsScroll: {
+    paddingVertical: SPACING.sm,
+  },
+  presetButton: {
+    backgroundColor: COLORS.surfaceLight,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.lg,
+    marginRight: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  presetButtonText: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.textPrimary,
+    fontWeight: 'bold',
   },
   stepNumbers: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: SPACING.sm,
+    paddingLeft: SPACING.sm,
   },
-  instrumentLabel: {
+  instrumentLabelSpace: {
     width: 100,
-    justifyContent: 'center',
-    paddingRight: 8,
   },
   stepNumber: {
-    width: 16,
+    width: 18,
     alignItems: 'center',
-    marginRight: 2,
+    marginHorizontal: 1,
   },
   stepNumberText: {
-    fontSize: 8,
-    color: HAOS_COLORS.silver,
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textMuted,
+    fontSize: 9,
   },
   instrumentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: SPACING.sm,
+    paddingLeft: SPACING.sm,
   },
-  instrumentText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    letterSpacing: 0.5,
+  instrumentLabel: {
+    width: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
   },
-  playButton: {
-    marginTop: 4,
-    backgroundColor: '#333',
+  previewButton: {
     width: 24,
     height: 24,
-    borderRadius: 12,
+    borderRadius: RADIUS.sm,
+    backgroundColor: COLORS.surfaceLight,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
-  playButtonText: {
+  previewIcon: {
+    color: COLORS.primary,
     fontSize: 10,
-    color: HAOS_COLORS.green,
+  },
+  instrumentText: {
+    ...TYPOGRAPHY.caption,
+    fontWeight: 'bold',
+    fontSize: 9,
+    letterSpacing: 0.5,
   },
   stepsContainer: {
     flexDirection: 'row',
     flex: 1,
   },
-  stepWrapper: {
-    position: 'relative',
-    marginRight: 2,
-  },
-  stepGlowRing: {
-    position: 'absolute',
-    top: -3,
-    left: -3,
-    right: -3,
-    bottom: -3,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: HAOS_COLORS.orange,
-    shadowColor: HAOS_COLORS.orange,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
-  },
   stepButton: {
-    width: 16,
-    height: 32,
-    backgroundColor: '#1a1a1a',
+    width: 18,
+    height: 28,
+    backgroundColor: COLORS.surface,
+    marginHorizontal: 1,
+    borderRadius: RADIUS.sm,
     borderWidth: 1,
-    borderColor: '#333',
-    borderRadius: 2,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
+    borderColor: COLORS.border,
     overflow: 'hidden',
-    position: 'relative',
+    justifyContent: 'flex-end',
   },
   stepButtonActive: {
-    backgroundColor: HAOS_COLORS.green,
-    borderColor: HAOS_COLORS.green,
-    shadowColor: HAOS_COLORS.green,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 4,
+    backgroundColor: COLORS.surfaceLight,
+    borderColor: COLORS.accent,
   },
   stepButtonCurrent: {
-    borderColor: HAOS_COLORS.orange,
+    borderColor: COLORS.primary,
     borderWidth: 2,
   },
   stepButtonPlaying: {
-    backgroundColor: HAOS_COLORS.orange,
-    shadowColor: HAOS_COLORS.orange,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryDark,
   },
   velocityBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: HAOS_COLORS.green,
-    borderRadius: 2,
+    width: '100%',
+    backgroundColor: COLORS.accent,
+    borderTopLeftRadius: RADIUS.sm,
+    borderTopRightRadius: RADIUS.sm,
   },
-  levelSlider: {
-    width: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 8,
+  // Parameter controls
+  parameterGrid: {
+    gap: SPACING.lg,
   },
-  levelText: {
-    fontSize: 10,
-    color: HAOS_COLORS.green,
-    fontFamily: 'monospace',
+  parameterSection: {
+    backgroundColor: COLORS.backgroundLight,
+    padding: SPACING.md,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
-  footer: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    color: HAOS_COLORS.silver,
-    textAlign: 'center',
-  },
-  presetsContainer: {
-    padding: 16,
-    backgroundColor: 'rgba(255,107,53,0.1)',
-    borderRadius: 12,
-    marginHorizontal: 16,
-    marginBottom: 16,
-  },
-  presetsTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: HAOS_COLORS.orange,
-    marginBottom: 12,
+  parameterTitle: {
+    ...TYPOGRAPHY.label,
+    color: COLORS.accent,
+    marginBottom: SPACING.sm,
     letterSpacing: 1,
   },
-  presetsScroll: {
-    flexDirection: 'row',
+  parameterRow: {
+    marginBottom: SPACING.sm,
   },
-  presetButton: {
-    backgroundColor: 'rgba(255,107,53,0.2)',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: HAOS_COLORS.orange,
-    marginRight: 10,
-    minWidth: 100,
+  parameterLabel: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
   },
-  presetButtonText: {
-    color: HAOS_COLORS.orange,
-    fontSize: 13,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  parameterSlider: {
+    width: '100%',
+    height: 40,
   },
 });
 

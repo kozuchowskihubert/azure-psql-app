@@ -15,7 +15,8 @@ import {
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Knob from '../components/Knob';
+import Slider from '@react-native-community/slider';
+// import Knob from '../components/Knob'; // REMOVED - Using Sliders instead
 
 const { width } = Dimensions.get('window');
 
@@ -309,23 +310,13 @@ const ModularSynthScreen = ({ route, navigation }) => {
 
           <View style={styles.knobGrid}>
             <View style={styles.knobContainer}>
-              <Knob
-                value={cutoff / 10000}
-                onValueChange={(value) => setCutoff(value * 10000)}
-                size={80}
-                color={config.color}
-              />
+              {/* TODO: Replace with Slider */}
               <Text style={styles.knobLabel}>CUTOFF</Text>
               <Text style={styles.knobValue}>{Math.round(cutoff)} Hz</Text>
             </View>
 
             <View style={styles.knobContainer}>
-              <Knob
-                value={resonance / 30}
-                onValueChange={(value) => setResonance(value * 30)}
-                size={80}
-                color={config.color}
-              />
+              {/* TODO: Replace with Slider */}
               <Text style={styles.knobLabel}>RESONANCE</Text>
               <Text style={styles.knobValue}>{resonance.toFixed(1)}</Text>
             </View>
@@ -343,45 +334,25 @@ const ModularSynthScreen = ({ route, navigation }) => {
 
           <View style={styles.knobGrid}>
             <View style={styles.knobContainer}>
-              <Knob
-                value={attack / 2}
-                onValueChange={(value) => setAttack(value * 2)}
-                size={70}
-                color={HAOS_COLORS.green}
-              />
+              {/* TODO: Replace with Slider */}
               <Text style={styles.knobLabel}>ATTACK</Text>
               <Text style={styles.knobValue}>{(attack * 1000).toFixed(0)} ms</Text>
             </View>
 
             <View style={styles.knobContainer}>
-              <Knob
-                value={decay / 2}
-                onValueChange={(value) => setDecay(value * 2)}
-                size={70}
-                color={HAOS_COLORS.green}
-              />
+              {/* TODO: Replace with Slider */}
               <Text style={styles.knobLabel}>DECAY</Text>
               <Text style={styles.knobValue}>{(decay * 1000).toFixed(0)} ms</Text>
             </View>
 
             <View style={styles.knobContainer}>
-              <Knob
-                value={sustain}
-                onValueChange={setSustain}
-                size={70}
-                color={HAOS_COLORS.green}
-              />
+              {/* TODO: Replace with Slider */}
               <Text style={styles.knobLabel}>SUSTAIN</Text>
               <Text style={styles.knobValue}>{(sustain * 100).toFixed(0)}%</Text>
             </View>
 
             <View style={styles.knobContainer}>
-              <Knob
-                value={release / 5}
-                onValueChange={(value) => setRelease(value * 5)}
-                size={70}
-                color={HAOS_COLORS.green}
-              />
+              {/* TODO: Replace with Slider */}
               <Text style={styles.knobLabel}>RELEASE</Text>
               <Text style={styles.knobValue}>{(release * 1000).toFixed(0)} ms</Text>
             </View>
@@ -399,23 +370,13 @@ const ModularSynthScreen = ({ route, navigation }) => {
 
           <View style={styles.knobGrid}>
             <View style={styles.knobContainer}>
-              <Knob
-                value={distortion / 100}
-                onValueChange={(value) => setDistortion(value * 100)}
-                size={80}
-                color={HAOS_COLORS.orange}
-              />
+              {/* TODO: Replace with Slider */}
               <Text style={styles.knobLabel}>DISTORTION</Text>
               <Text style={styles.knobValue}>{distortion.toFixed(0)}%</Text>
             </View>
 
             <View style={styles.knobContainer}>
-              <Knob
-                value={reverb / 100}
-                onValueChange={(value) => setReverb(value * 100)}
-                size={80}
-                color={HAOS_COLORS.cyan}
-              />
+              {/* TODO: Replace with Slider */}
               <Text style={styles.knobLabel}>REVERB</Text>
               <Text style={styles.knobValue}>{reverb.toFixed(0)}%</Text>
             </View>

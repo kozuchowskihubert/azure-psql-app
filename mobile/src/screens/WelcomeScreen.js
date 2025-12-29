@@ -42,7 +42,7 @@ const PERSONAS = [
     emoji: '🎹',
     description: 'Create music, compose tracks',
     route: 'Creator', // CREATOR (STUDIO)
-    gradient: [COLORS.orange, COLORS.orangeLight],
+    gradient: ['#FF6B35', '#FF8C5A'], // orange to orangeLight
     features: ['Live Recording', 'MIDI Tools', 'Real-time FX'],
   },
   {
@@ -51,7 +51,7 @@ const PERSONAS = [
     emoji: '🎛️',
     description: 'Mix, master, produce beats',
     route: 'Instruments', // INSTRUMENTS
-    gradient: [COLORS.orangeDark, COLORS.orange],
+    gradient: ['#CC5529', '#FF6B35'], // orangeDark to orange
     features: ['Virtual Instruments', 'Synthesizers', 'Drum Machines'],
   },
   {
@@ -60,7 +60,7 @@ const PERSONAS = [
     emoji: '✨',
     description: 'Explore sounds, discover presets',
     route: 'Sounds', // PRESETS (SOUNDS)
-    gradient: [COLORS.gray, COLORS.grayLight],
+    gradient: ['#808080', '#A0A0A0'], // gray to grayLight
     features: ['Preset Library', 'Sound Browser', 'Quick Jams'],
   },
 ];
@@ -197,7 +197,7 @@ const WelcomeScreen = ({ navigation }) => {
                 {/* Border Glow */}
                 <View style={[
                   styles.cardBorder,
-                  { borderColor: isSelected ? persona.gradient[0] : COLORS.border }
+                  { borderColor: isSelected ? persona.gradient[0] : 'rgba(212, 175, 55, 0.3)' }
                 ]} />
               </LinearGradient>
             </TouchableOpacity>
@@ -228,7 +228,7 @@ const WelcomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgDark,
+    backgroundColor: '#000000',
     paddingTop: 60,
     paddingBottom: 40,
     paddingHorizontal: 20,
@@ -244,8 +244,8 @@ const styles = StyleSheet.create({
   circuitLine: {
     position: 'absolute',
     height: 2,
-    backgroundColor: COLORS.orange,
-    shadowColor: COLORS.orange,
+    backgroundColor: '#FF6B35',
+    shadowColor: '#FF6B35',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
@@ -262,18 +262,18 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 48,
     fontWeight: '900',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
     letterSpacing: 4,
   },
   logoSubtext: {
     fontSize: 32,
     fontWeight: '300',
-    color: COLORS.orange,
+    color: '#FF6B35',
     marginLeft: 4,
   },
   tagline: {
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     letterSpacing: 3,
     fontWeight: '600',
   },
@@ -284,13 +284,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '900',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
     letterSpacing: 2,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
   },
   personasContainer: {
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   },
   personaDescription: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
     marginBottom: 12,
   },
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 12,
     right: 12,
-    backgroundColor: COLORS.orange,
+    backgroundColor: '#FF6B35',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,
@@ -383,23 +383,23 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 107, 53, 0.1)',
     borderRadius: 15,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
     alignItems: 'center',
   },
   ssoText: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.orange,
+    color: '#FF6B35',
     letterSpacing: 1,
   },
   ssoSubtext: {
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     marginTop: 4,
   },
   version: {
     fontSize: 10,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
     marginTop: 20,
     opacity: 0.5,

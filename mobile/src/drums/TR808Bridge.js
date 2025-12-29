@@ -69,36 +69,81 @@ class TR808Bridge {
   playClap(velocity = 1.0) {
     console.log(`🥁 TR-808 Clap: velocity=${velocity} (WebAudio)`);
     if (webAudioBridge.isReady) {
-      webAudioBridge.playClap();
+      webAudioBridge.playClap({ velocity });
     } else {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
   }
 
-  // Parameter setters for TR-808 (TODO: implement native parameter control)
+  playRimshot(velocity = 1.0) {
+    console.log(`🥁 TR-808 Rimshot: velocity=${velocity} (WebAudio)`);
+    if (webAudioBridge.isReady) {
+      // Rimshot uses a pitched noise with fast decay
+      webAudioBridge.playSnare({
+        tone: 0.8,
+        pitch: 800,
+        decay: 0.08,
+        velocity,
+      });
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  }
+
+  playCowbell(velocity = 1.0) {
+    console.log(`🥁 TR-808 Cowbell: velocity=${velocity} (WebAudio)`);
+    if (webAudioBridge.isReady) {
+      // Cowbell uses oscillators in the classic 540Hz/800Hz band
+      webAudioBridge.sendCommand('playCowbell', { velocity });
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  }
+
+  playCymbal(velocity = 1.0) {
+    console.log(`🥁 TR-808 Cymbal: velocity=${velocity} (WebAudio)`);
+    if (webAudioBridge.isReady) {
+      // Cymbal uses bandpass-filtered noise
+      webAudioBridge.sendCommand('playCymbal', { velocity });
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  }
+
+  playTom(velocity = 1.0) {
+    console.log(`🥁 TR-808 Tom: velocity=${velocity} (WebAudio)`);
+    if (webAudioBridge.isReady) {
+      // Tom uses pitched oscillator with decay
+      webAudioBridge.sendCommand('playTom', { velocity, pitch: 120, decay: 0.4 });
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+  }
+
+  // Parameter setters for TR-808
   setKickPitch(pitch) {
     console.log('TR-808: setKickPitch', pitch);
-    // TODO: Store parameters for synthesis
+    this.kickParams.pitch = pitch;
   }
 
   setKickDecay(decay) {
     console.log('TR-808: setKickDecay', decay);
-    // TODO: Store parameters for synthesis
+    this.kickParams.decay = decay;
   }
 
   setSnareTone(tone) {
     console.log('TR-808: setSnareTone', tone);
-    // TODO: Store parameters for synthesis
+    this.snareParams.tone = tone;
   }
 
   setSnareNoise(noise) {
     console.log('TR-808: setSnareNoise', noise);
-    // TODO: Store parameters for synthesis
+    this.snareParams.noise = noise;
   }
 
   setHihatDecay(decay) {
     console.log('TR-808: setHihatDecay', decay);
-    // TODO: Store parameters for synthesis
+    this.hihatParams.decay = decay;
   }
 
   stopAll() {

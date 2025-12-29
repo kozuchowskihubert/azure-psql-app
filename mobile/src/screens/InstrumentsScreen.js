@@ -13,6 +13,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  InteractionManager,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, GRADIENTS } from '../styles/colors';
@@ -65,10 +66,12 @@ const INSTRUMENTS = {
     { id: 'juno106', name: 'JUNO-106', screen: 'Juno106', emoji: '🎹', color: COLORS.cyan },
     { id: 'minimoog', name: 'MINIMOOG', screen: 'Minimoog', emoji: '🔊', color: COLORS.cyan },
     { id: 'tb303', name: 'TB-303', screen: 'TB303', emoji: '🧪', color: COLORS.cyan },
+    { id: 'td3', name: 'TD-3', screen: 'TD3', emoji: '🔊', color: COLORS.cyan },
     { id: 'dx7', name: 'DX7', screen: 'DX7', emoji: '✨', color: COLORS.cyan },
     { id: 'ms20', name: 'MS-20', screen: 'MS20', emoji: '⚡', color: COLORS.cyan },
     { id: 'prophet5', name: 'PROPHET-5', screen: 'Prophet5', emoji: '👑', color: COLORS.cyan },
     { id: 'bass', name: 'BASS STUDIO', screen: 'BassStudio', emoji: '🎸', color: COLORS.cyan },
+    { id: 'radio', name: 'RADIO', screen: 'Radio', emoji: '📻', color: COLORS.orange },
   ],
   drums: [
     { id: 'tr808', name: 'TR-808', screen: 'TR808', emoji: '🥁', color: COLORS.orange },
@@ -98,16 +101,23 @@ export default function InstrumentsScreen({ navigation, route }) {
   const persona = route?.params?.persona || 'producer';
 
   const handleInstrumentPress = (instrument) => {
-    if (instrument.screen) {
-      // Navigate to specific instrument screen
-      navigation.navigate(instrument.screen);
-    } else {
-      // Coming soon - show ModularSynth as placeholder
-      navigation.navigate('ModularSynth', { 
-        synthType: instrument.name,
-        fromInstruments: true 
-      });
-    }
+    // Use InteractionManager to ensure all animations complete before navigation
+    InteractionManager.runAfterInteractions(() => {
+      try {
+        if (instrument.screen) {
+          // Navigate to specific instrument screen
+          navigation.navigate(instrument.screen);
+        } else {
+          // Coming soon - show ModularSynth as placeholder
+          navigation.navigate('ModularSynth', { 
+            synthType: instrument.name,
+            fromInstruments: true 
+          });
+        }
+      } catch (error) {
+        console.log('Navigation error:', error);
+      }
+    });
   };
 
   const currentInstruments = INSTRUMENTS[activeCategory];

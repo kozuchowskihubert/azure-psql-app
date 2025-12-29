@@ -11,16 +11,16 @@ import {
   ScrollView,
   StyleSheet,
   Dimensions,
+  Animated,
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { WebView } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
 import juno106Bridge from '../synths/Juno106Bridge';
 import webAudioBridge from '../services/WebAudioBridge';
-import Knob from '../components/Knob';
 import Oscilloscope from '../components/Oscilloscope';
 import UniversalSequencer from '../components/UniversalSequencer';
 import PianoRollSequencer from '../sequencer/PianoRollSequencer';
-import { Animated } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -218,7 +218,7 @@ const Juno106Screen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Hidden WebView for audio-engine.html */}
+      {/* Hidden WebView for audio-engine.html - DISABLED FOR LAYOUT FIX
       <WebView
         ref={(ref) => {
           if (ref && !webAudioBridge.isReady) {
@@ -226,7 +226,7 @@ const Juno106Screen = ({ navigation }) => {
           }
         }}
         source={require('../../assets/audio-engine.html')}
-        style={{ width: 0, height: 0, opacity: 0, position: 'absolute', pointerEvents: 'none' }}
+        style={{ width: 1, height: 1, opacity: 0, position: 'absolute', top: -1000, left: -1000, pointerEvents: 'none' }}
         onMessage={(event) => webAudioBridge.onMessage(event)}
         onLoad={() => webAudioBridge.initAudio()}
         javaScriptEnabled={true}
@@ -234,6 +234,7 @@ const Juno106Screen = ({ navigation }) => {
         mediaPlaybackRequiresUserAction={false}
         allowsInlineMediaPlayback={true}
       />
+      */}
 
       {/* Header */}
       <LinearGradient
@@ -265,7 +266,7 @@ const Juno106Screen = ({ navigation }) => {
                 onChange={handleChorusDepthChange}
                 label="DEPTH"
                 color={HAOS_COLORS.purple}
-                size={80}
+                size={KNOB_SIZE}
               />
               <Text style={styles.knobValue}>{(chorusDepth * 1000).toFixed(1)}¢</Text>
             </View>
@@ -329,7 +330,7 @@ const Juno106Screen = ({ navigation }) => {
                 onChange={handleFilterCutoffChange}
                 label="CUTOFF"
                 color={HAOS_COLORS.pink}
-                size={80}
+                size={KNOB_SIZE}
               />
               <Text style={styles.knobValue}>{filterCutoff.toFixed(0)} Hz</Text>
             </View>
@@ -340,7 +341,7 @@ const Juno106Screen = ({ navigation }) => {
                 onChange={handleFilterResonanceChange}
                 label="RESONANCE"
                 color={HAOS_COLORS.pink}
-                size={80}
+                size={KNOB_SIZE}
               />
               <Text style={styles.knobValue}>Q: {filterResonance.toFixed(1)}</Text>
             </View>
@@ -492,7 +493,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 60,
+    paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 20,
     borderBottomWidth: 2,
@@ -507,10 +508,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 20,
     fontWeight: 'bold',
     color: HAOS_COLORS.purple,
-    letterSpacing: 4,
+    letterSpacing: 2,
   },
   subtitle: {
     fontSize: 10,

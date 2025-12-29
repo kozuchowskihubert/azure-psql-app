@@ -176,53 +176,57 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: SPACING.mega,
-    marginTop: SPACING.xxxl,
+    marginBottom: 80, // SPACING.mega
+    marginTop: 56, // SPACING.xxxl
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    paddingVertical: SPACING.xl,
-    paddingHorizontal: SPACING.xl,
-    borderRadius: RADIUS.xl,
+    paddingVertical: 32, // SPACING.xl
+    paddingHorizontal: 32, // SPACING.xl
+    borderRadius: 24, // RADIUS.xl
     borderWidth: 1,
     borderColor: 'rgba(0, 255, 148, 0.2)',
   },
   tagline: {
-    ...TYPO.h3,
-    color: COLORS.textPrimary,
+    fontSize: 32, // TYPO.h3
+    lineHeight: 40,
+    color: '#FFFFFF', // COLORS.textPrimary
     textAlign: 'center',
-    textShadowColor: COLORS.primary,
+    textShadowColor: '#00FF94', // COLORS.primary
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 15,
     fontWeight: 'bold',
   },
   subtitle: {
-    ...TYPO.body,
-    color: COLORS.textSecondary,
-    marginTop: SPACING.sm,
+    fontSize: 16, // TYPO.body
+    lineHeight: 24,
+    color: 'rgba(255, 255, 255, 0.7)', // COLORS.textSecondary
+    marginTop: 8, // SPACING.sm
     textAlign: 'center',
     textShadowColor: '#000000',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
   errorContainer: {
-    backgroundColor: COLORS.accentRed,
-    padding: SPACING.md,
-    borderRadius: RADIUS.md,
-    marginBottom: SPACING.base,
+    backgroundColor: '#FF3B30', // COLORS.accentRed
+    padding: 16, // SPACING.md
+    borderRadius: 12, // RADIUS.md
+    marginBottom: 20, // SPACING.base
   },
   errorText: {
-    ...TYPO.body,
-    color: COLORS.textPrimary,
+    fontSize: 16, // TYPO.body
+    lineHeight: 24,
+    color: '#FFFFFF', // COLORS.textPrimary
     textAlign: 'center',
   },
   inputContainer: {
-    marginBottom: SPACING.base,
+    marginBottom: 20, // SPACING.base
   },
   label: {
-    ...TYPO.body,
-    color: COLORS.primary,
-    marginBottom: SPACING.sm,
+    fontSize: 16, // TYPO.body
+    lineHeight: 24,
+    color: '#00FF94', // COLORS.primary
+    marginBottom: 8, // SPACING.sm
     fontWeight: '600',
-    textShadowColor: COLORS.primary,
+    textShadowColor: '#00FF94', // COLORS.primary
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 10,
   },
@@ -230,41 +234,44 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(26, 26, 26, 0.8)',
     borderWidth: 2,
     borderColor: 'rgba(0, 255, 148, 0.3)',
-    borderRadius: RADIUS.lg,
-    padding: SPACING.base,
-    ...TYPO.body,
-    color: COLORS.textPrimary,
-    shadowColor: COLORS.primary,
+    borderRadius: 16, // RADIUS.lg
+    padding: 20, // SPACING.base
+    fontSize: 16, // TYPO.body
+    lineHeight: 24,
+    color: '#FFFFFF', // COLORS.textPrimary
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.2,
     shadowRadius: 10,
   },
   button: {
-    padding: SPACING.lg,
-    borderRadius: RADIUS.lg,
+    padding: 24, // SPACING.lg
+    borderRadius: 16, // RADIUS.lg
     alignItems: 'center',
-    marginTop: SPACING.sm,
-    shadowColor: COLORS.shadowDark,
+    marginTop: 8, // SPACING.sm
+    shadowColor: '#000000', // COLORS.shadowDark
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
   },
   primaryButton: {
-    backgroundColor: COLORS.primary,
-    shadowColor: COLORS.primary,
+    backgroundColor: '#00FF94', // COLORS.primary
+    shadowColor: '#00FF94', // COLORS.primary
     shadowOpacity: 0.5,
   },
   primaryButtonText: {
-    ...TYPO.h4,
-    color: COLORS.background,
+    fontSize: 24, // TYPO.h4
+    lineHeight: 32,
+    color: '#0a0a0a', // COLORS.background
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   buttonSubtext: {
-    ...TYPO.caption,
-    color: COLORS.background,
-    marginTop: SPACING.xs,
+    fontSize: 12, // TYPO.caption
+    lineHeight: 16,
+    color: '#0a0a0a', // COLORS.background
+    marginTop: 4, // SPACING.xs
     opacity: 0.7,
   },
   buttonDisabled: {
@@ -278,45 +285,49 @@ const styles = StyleSheet.create({
   googleButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.md,
+    gap: 16, // SPACING.md
   },
   googleIcon: {
-    ...TYPO.h2,
+    fontSize: 40, // TYPO.h2
     fontWeight: 'bold',
     color: '#4285F4',
   },
   googleButtonText: {
-    ...TYPO.body,
-    color: COLORS.surface,
+    fontSize: 16, // TYPO.body
+    lineHeight: 24,
+    color: '#1a1a1a', // COLORS.surface
     fontWeight: '600',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: SPACING.xl,
+    marginVertical: 32, // SPACING.xl
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', // COLORS.border
   },
   dividerText: {
-    ...TYPO.caption,
-    color: COLORS.textTertiary,
-    paddingHorizontal: SPACING.base,
+    fontSize: 12, // TYPO.caption
+    lineHeight: 16,
+    color: 'rgba(255, 255, 255, 0.5)', // COLORS.textTertiary
+    paddingHorizontal: 20, // SPACING.base
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: SPACING.xl,
+    marginTop: 32, // SPACING.xl
   },
   footerText: {
-    ...TYPO.body,
-    color: COLORS.textTertiary,
+    fontSize: 16, // TYPO.body
+    lineHeight: 24,
+    color: 'rgba(255, 255, 255, 0.5)', // COLORS.textTertiary
   },
   link: {
-    ...TYPO.body,
-    color: COLORS.primary,
+    fontSize: 16, // TYPO.body
+    lineHeight: 24,
+    color: '#00FF94', // COLORS.primary
     fontWeight: 'bold',
   },
 });

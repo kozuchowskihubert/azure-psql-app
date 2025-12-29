@@ -4,6 +4,8 @@
  * Based on web DAW Studio interface
  */
 
+console.log('🎨 HAOSDesignSystem loading...');
+
 // Color Palette
 export const COLORS = {
   // Primary (Orange Theme from Web)
@@ -55,6 +57,8 @@ export const COLORS = {
   shadowDark: '#000000',
 };
 
+console.log('✅ COLORS exported:', !!COLORS, 'Keys:', Object.keys(COLORS).length);
+
 // Typography
 export const TYPOGRAPHY = {
   // Font Families (HAOS Brand Fonts)
@@ -105,6 +109,8 @@ export const TYPOGRAPHY = {
   },
 };
 
+console.log('✅ TYPOGRAPHY exported');
+
 // Spacing System (8px base)
 export const SPACING = {
   xs: 4,
@@ -132,21 +138,21 @@ export const RADIUS = {
 export const SHADOWS = {
   // Standard shadows
   small: {
-    shadowColor: COLORS.shadowDark,
+    shadowColor: '#000000',  // '#000000'
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 2,
   },
   medium: {
-    shadowColor: COLORS.shadowDark,
+    shadowColor: '#000000',  // '#000000'
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
   },
   large: {
-    shadowColor: COLORS.shadowDark,
+    shadowColor: '#000000',  // '#000000'
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4,
     shadowRadius: 16,
@@ -155,21 +161,21 @@ export const SHADOWS = {
   
   // Glow effects
   glowPrimary: {
-    shadowColor: COLORS.shadowPrimary,
+    shadowColor: '#00ff94',  // '#00ff94'
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 20,
     elevation: 10,
   },
   glowPrimaryStrong: {
-    shadowColor: COLORS.shadowPrimary,
+    shadowColor: '#00ff94',  // '#00ff94'
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 30,
     elevation: 15,
   },
   glowPrimarySubtle: {
-    shadowColor: COLORS.shadowPrimary,
+    shadowColor: '#00ff94',  // '#00ff94'
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -181,16 +187,16 @@ export const SHADOWS = {
 export const BUTTONS = {
   // Primary Action Button (Cyan)
   primary: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#FF6B35',
     paddingVertical: SPACING.base,
     paddingHorizontal: SPACING.xl,
     borderRadius: RADIUS.lg,
     ...SHADOWS.medium,
-    shadowColor: COLORS.shadowPrimary,
+    shadowColor: '#00ff94',
     shadowOpacity: 0.5,
   },
   primaryText: {
-    color: COLORS.background,
+    color: '#0a0a0a',
     fontSize: TYPOGRAPHY.fontSize.lg,
     fontWeight: TYPOGRAPHY.fontWeight.bold,
     letterSpacing: TYPOGRAPHY.letterSpacing.wide,
@@ -203,11 +209,11 @@ export const BUTTONS = {
     paddingHorizontal: SPACING.xl,
     borderRadius: RADIUS.lg,
     borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: '#FF6B35',
     ...SHADOWS.small,
   },
   secondaryText: {
-    color: COLORS.primary,
+    color: '#FF6B35',
     fontSize: TYPOGRAPHY.fontSize.lg,
     fontWeight: TYPOGRAPHY.fontWeight.semibold,
     letterSpacing: TYPOGRAPHY.letterSpacing.wide,
@@ -215,15 +221,15 @@ export const BUTTONS = {
   
   // Tertiary Button (Ghost)
   tertiary: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.lg,
     borderRadius: RADIUS.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
   },
   tertiaryText: {
-    color: COLORS.textSecondary,
+    color: '#F4E8D8',
     fontSize: TYPOGRAPHY.fontSize.base,
     fontWeight: TYPOGRAPHY.fontWeight.medium,
   },
@@ -233,9 +239,9 @@ export const BUTTONS = {
     width: 48,
     height: 48,
     borderRadius: RADIUS.md,
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -245,14 +251,14 @@ export const BUTTONS = {
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
     borderRadius: RADIUS.sm,
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
   },
   smallText: {
     fontSize: TYPOGRAPHY.fontSize.sm,
     fontWeight: TYPOGRAPHY.fontWeight.semibold,
-    color: COLORS.textSecondary,
+    color: '#F4E8D8',
   },
   
   // Toggle Button (Active/Inactive)
@@ -265,22 +271,22 @@ export const BUTTONS = {
     alignItems: 'center',
   },
   toggleActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: '#FF6B35',
+    borderColor: '#FF6B35',
   },
   toggleInactive: {
-    backgroundColor: COLORS.surface,
-    borderColor: COLORS.border,
+    backgroundColor: '#1a1a1a',
+    borderColor: '#333333',
   },
   toggleText: {
     fontSize: TYPOGRAPHY.fontSize.sm,
     fontWeight: TYPOGRAPHY.fontWeight.bold,
   },
   toggleTextActive: {
-    color: COLORS.background,
+    color: '#0a0a0a',
   },
   toggleTextInactive: {
-    color: COLORS.textTertiary,
+    color: '#6B6B6B',
   },
 };
 
@@ -288,49 +294,49 @@ export const BUTTONS = {
 export const CARDS = {
   // Standard Card
   standard: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
     ...SHADOWS.small,
   },
   
   // Elevated Card
   elevated: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
     ...SHADOWS.medium,
   },
   
   // Interactive Card (clickable)
   interactive: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
     ...SHADOWS.medium,
   },
   interactiveActive: {
-    borderColor: COLORS.primary,
+    borderColor: '#FF6B35',
     ...SHADOWS.glowPrimarySubtle,
   },
   
   // Instrument Card
   instrument: {
-    backgroundColor: COLORS.surfaceDark,
+    backgroundColor: '#0f0f0f',
     borderRadius: RADIUS.xl,
     padding: SPACING.xl,
     borderWidth: 2,
-    borderColor: COLORS.borderLight,
+    borderColor: '#444444',
     ...SHADOWS.large,
   },
   instrumentActive: {
-    borderColor: COLORS.primary,
+    borderColor: '#FF6B35',
     ...SHADOWS.glowPrimary,
   },
 };
@@ -339,23 +345,23 @@ export const CARDS = {
 export const INPUTS = {
   // Standard Text Input
   standard: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
     borderRadius: RADIUS.md,
     paddingVertical: SPACING.base,
     paddingHorizontal: SPACING.base,
-    color: COLORS.textPrimary,
+    color: '#ffffff',
     fontSize: TYPOGRAPHY.fontSize.base,
   },
   standardFocused: {
-    borderColor: COLORS.primary,
+    borderColor: '#FF6B35',
     borderWidth: 2,
   },
   
   // Label
   label: {
-    color: COLORS.primary,
+    color: '#FF6B35',
     fontSize: TYPOGRAPHY.fontSize.sm,
     fontWeight: TYPOGRAPHY.fontWeight.semibold,
     marginBottom: SPACING.sm,
@@ -367,19 +373,19 @@ export const INPUTS = {
 export const SLIDERS = {
   track: {
     height: 4,
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     borderRadius: RADIUS.full,
   },
   trackActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#FF6B35',
   },
   thumb: {
     width: 20,
     height: 20,
     borderRadius: RADIUS.full,
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#FF6B35',
     borderWidth: 2,
-    borderColor: COLORS.background,
+    borderColor: '#0a0a0a',
     ...SHADOWS.glowPrimarySubtle,
   },
 };
@@ -396,30 +402,30 @@ export const KNOBS = {
     width: 60,
     height: 60,
     borderRadius: RADIUS.full,
-    backgroundColor: COLORS.surfaceDark,
+    backgroundColor: '#0f0f0f',
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
     ...SHADOWS.medium,
   },
   outerActive: {
-    borderColor: COLORS.primary,
+    borderColor: '#FF6B35',
     ...SHADOWS.glowPrimarySubtle,
   },
   indicator: {
     width: 4,
     height: 20,
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#FF6B35',
     borderRadius: RADIUS.sm,
   },
   label: {
     fontSize: TYPOGRAPHY.fontSize.xs,
-    color: COLORS.textTertiary,
+    color: '#6B6B6B',
     marginTop: SPACING.xs,
     textAlign: 'center',
   },
   value: {
     fontSize: TYPOGRAPHY.fontSize.sm,
-    color: COLORS.primary,
+    color: '#FF6B35',
     fontWeight: TYPOGRAPHY.fontWeight.bold,
     marginTop: SPACING.xs,
     textAlign: 'center',
@@ -434,7 +440,7 @@ export const TRANSPORT = {
     justifyContent: 'center',
     gap: SPACING.md,
     paddingVertical: SPACING.lg,
-    backgroundColor: COLORS.surfaceDark,
+    backgroundColor: '#0f0f0f',
     borderRadius: RADIUS.lg,
   },
   
@@ -443,13 +449,13 @@ export const TRANSPORT = {
     width: 56,
     height: 56,
     borderRadius: RADIUS.full,
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#FF6B35',
     alignItems: 'center',
     justifyContent: 'center',
     ...SHADOWS.glowPrimary,
   },
   playButtonActive: {
-    backgroundColor: COLORS.accentRed,
+    backgroundColor: '#8B2635',
     ...SHADOWS.large,
   },
   
@@ -458,15 +464,15 @@ export const TRANSPORT = {
     width: 48,
     height: 48,
     borderRadius: RADIUS.md,
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
     alignItems: 'center',
     justifyContent: 'center',
   },
   secondaryButtonActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.surfaceLight,
+    borderColor: '#FF6B35',
+    backgroundColor: '#242424',
   },
 };
 
@@ -476,24 +482,24 @@ export const SEQUENCER = {
     width: 40,
     height: 40,
     borderRadius: RADIUS.sm,
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: '#FF6B35',
+    borderColor: '#FF6B35',
     ...SHADOWS.glowPrimarySubtle,
   },
   stepPlaying: {
     borderWidth: 3,
-    borderColor: COLORS.accentYellow,
+    borderColor: '#D4AF37',
   },
   stepAccent: {
-    backgroundColor: COLORS.accentOrange,
-    borderColor: COLORS.accentOrange,
+    backgroundColor: '#FF6B35',
+    borderColor: '#FF6B35',
   },
 };
 
@@ -501,39 +507,39 @@ export const SEQUENCER = {
 export const MIXER = {
   channel: {
     width: 80,
-    backgroundColor: COLORS.surfaceDark,
+    backgroundColor: '#0f0f0f',
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
     alignItems: 'center',
   },
   channelActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.surface,
+    borderColor: '#FF6B35',
+    backgroundColor: '#1a1a1a',
   },
   
   fader: {
     width: 40,
     height: 200,
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     borderRadius: RADIUS.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
   },
   
   meter: {
     width: 8,
     height: 200,
-    backgroundColor: COLORS.surfaceDark,
+    backgroundColor: '#0f0f0f',
     borderRadius: RADIUS.sm,
     overflow: 'hidden',
   },
   meterFill: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#FF6B35',
   },
   meterPeak: {
-    backgroundColor: COLORS.accentRed,
+    backgroundColor: '#8B2635',
   },
 };
 
@@ -543,34 +549,34 @@ export const PRESETS = {
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.lg,
     borderRadius: RADIUS.md,
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
     marginRight: SPACING.md,
   },
   categoryActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: '#FF6B35',
+    borderColor: '#FF6B35',
   },
   categoryText: {
     fontSize: TYPOGRAPHY.fontSize.sm,
     fontWeight: TYPOGRAPHY.fontWeight.semibold,
-    color: COLORS.textSecondary,
+    color: '#F4E8D8',
   },
   categoryTextActive: {
-    color: COLORS.background,
+    color: '#0a0a0a',
   },
   
   presetCard: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1a1a1a',
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#333333',
   },
   presetCardActive: {
-    borderColor: COLORS.primary,
+    borderColor: '#FF6B35',
     borderWidth: 2,
     ...SHADOWS.glowPrimarySubtle,
   },
@@ -628,7 +634,7 @@ export const TYPO = {
     fontWeight: TYPOGRAPHY.fontWeight.bold,
     lineHeight: TYPOGRAPHY.lineHeight.tight * TYPOGRAPHY.fontSize.xxxl,
     letterSpacing: TYPOGRAPHY.letterSpacing.wider,
-    color: COLORS.primary,
+    color: '#FF6B35',
     textTransform: 'uppercase',
   },
   displayLarge: {
@@ -637,7 +643,7 @@ export const TYPO = {
     fontWeight: TYPOGRAPHY.fontWeight.heavy,
     lineHeight: TYPOGRAPHY.lineHeight.tight * TYPOGRAPHY.fontSize.mega,
     letterSpacing: TYPOGRAPHY.letterSpacing.widest,
-    color: COLORS.primary,
+    color: '#FF6B35',
     textTransform: 'uppercase',
   },
   mono: {
@@ -645,57 +651,65 @@ export const TYPO = {
     fontSize: TYPOGRAPHY.fontSize.sm,
     fontWeight: TYPOGRAPHY.fontWeight.regular,
     letterSpacing: TYPOGRAPHY.letterSpacing.normal,
-    color: COLORS.textSecondary,
+    color: '#F4E8D8',
   },
   h1: {
     fontSize: TYPOGRAPHY.fontSize.xxxl,
     fontWeight: TYPOGRAPHY.fontWeight.bold,
     lineHeight: TYPOGRAPHY.lineHeight.tight * TYPOGRAPHY.fontSize.xxxl,
     letterSpacing: TYPOGRAPHY.letterSpacing.wide,
-    color: COLORS.textPrimary,
+    color: '#ffffff',
   },
   h2: {
     fontSize: TYPOGRAPHY.fontSize.xxl,
     fontWeight: TYPOGRAPHY.fontWeight.bold,
     lineHeight: TYPOGRAPHY.lineHeight.tight * TYPOGRAPHY.fontSize.xxl,
     letterSpacing: TYPOGRAPHY.letterSpacing.normal,
-    color: COLORS.textPrimary,
+    color: '#ffffff',
   },
   h3: {
     fontSize: TYPOGRAPHY.fontSize.xl,
     fontWeight: TYPOGRAPHY.fontWeight.semibold,
     lineHeight: TYPOGRAPHY.lineHeight.normal * TYPOGRAPHY.fontSize.xl,
     letterSpacing: TYPOGRAPHY.letterSpacing.normal,
-    color: COLORS.textPrimary,
+    color: '#ffffff',
   },
   h4: {
     fontSize: TYPOGRAPHY.fontSize.lg,
     fontWeight: TYPOGRAPHY.fontWeight.semibold,
     lineHeight: TYPOGRAPHY.lineHeight.normal * TYPOGRAPHY.fontSize.lg,
-    color: COLORS.textPrimary,
+    color: '#ffffff',
   },
   body: {
     fontSize: TYPOGRAPHY.fontSize.base,
     fontWeight: TYPOGRAPHY.fontWeight.regular,
     lineHeight: TYPOGRAPHY.lineHeight.normal * TYPOGRAPHY.fontSize.base,
-    color: COLORS.textPrimary,
+    color: '#ffffff',
   },
   caption: {
     fontSize: TYPOGRAPHY.fontSize.sm,
     fontWeight: TYPOGRAPHY.fontWeight.regular,
     lineHeight: TYPOGRAPHY.lineHeight.normal * TYPOGRAPHY.fontSize.sm,
-    color: COLORS.textSecondary,
+    color: '#F4E8D8',
   },
   small: {
     fontSize: TYPOGRAPHY.fontSize.xs,
     fontWeight: TYPOGRAPHY.fontWeight.regular,
-    color: COLORS.textSecondary,
+    color: '#F4E8D8',
   },
 };
+
+console.log('✅ TYPO exported');
 
 // Shadow alias for convenience (SHADOW = SHADOWS)
 export const SHADOW = SHADOWS;
 
+console.log('✅ SHADOW exported');
+
+/*
+ * Default export temporarily disabled due to module initialization issue
+ * All exports are available as named imports
+ *
 export default {
   COLORS,
   TYPOGRAPHY,
@@ -718,3 +732,6 @@ export default {
   createButtonStyle,
   createCardStyle,
 };
+*/
+
+console.log('🎉 HAOSDesignSystem module loading complete!');

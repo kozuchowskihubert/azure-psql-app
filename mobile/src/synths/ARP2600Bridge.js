@@ -9,7 +9,9 @@ class ARP2600Bridge {
     this.params = {
       osc1Level: 0.5,           // Oscillator 1 level (0-1)
       osc2Level: 0.3,           // Oscillator 2 level (0-1)
+      osc3Level: 0.0,           // Oscillator 3 level (0-1) - off by default
       detune: 0.005,            // Oscillator 2 detune (0-1, 0.005 = 0.5%)
+      osc3Detune: -12,          // Oscillator 3 pitch in semitones (-24 to +24)
       filterCutoff: 2000,        // Filter cutoff Hz (0-10000)
       filterResonance: 18,      // Filter Q (0-30)
       envelope: {
@@ -26,8 +28,10 @@ class ARP2600Bridge {
         // VCO2 Waveform Routing
         'vco2-saw': { to: [], level: 0.3 },          // VCO2 Sawtooth
         'vco2-tri': { to: [], level: 0.3 },          // VCO2 Triangle
-        // VCO3 (LFO as audio)
+        // VCO3 (LFO as audio) - can be low frequency or audio rate
         'vco3-sine': { to: [], level: 0.2 },         // VCO3 Sine
+        'vco3-tri': { to: [], level: 0.2 },          // VCO3 Triangle
+        'vco3-saw': { to: [], level: 0.2 },          // VCO3 Saw
         // Modulation Sources
         adsr: { to: ['vca'], level: 1.0 },           // ADSR default to VCA
         lfo: { to: [], level: 0.5 },                 // LFO modulation
@@ -73,6 +77,12 @@ class ARP2600Bridge {
   }
 
   noteToFrequency(note) {
+    // If note is already a number (MIDI note), convert directly to frequency
+    if (typeof note === 'number') {
+      return 440 * Math.pow(2, (note - 69) / 12);
+    }
+    
+    // If note is a string, parse it
     const noteMap = {
       'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
       'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
@@ -103,18 +113,40 @@ class ARP2600Bridge {
     } = options;
 
     const frequency = this.noteToFrequency(note);
-    console.log(`🎹 ARP 2600: ${note} (${frequency.toFixed(2)}Hz) velocity=${velocity}, accent=${accent} (WebAudio)`);
+    
+    // Ensure envelope values are valid numbers
+    const envelope = {
+      attack: Number(this.params.envelope.attack) || 0.05,
+      decay: Number(this.params.envelope.decay) || 0.1,
+      sustain: Number(this.params.envelope.sustain) || 0.7,
+      release: Number(this.params.envelope.release) || 0.3,
+    };
+    
+    console.log(`🎹 ARP 2600: ${note} (${frequency.toFixed(2)}Hz) velocity=${velocity}, accent=${accent}`, 
+      `envelope: A=${envelope.attack}s D=${envelope.decay}s S=${envelope.sustain} R=${envelope.release}s`);
 
-    // Play using WebAudioBridge
+    // Play using WebAudioBridge with ALL current parameters
     if (webAudioBridge.isReady) {
       webAudioBridge.playARP2600(
         frequency,
         duration,
         velocity,
-        this.params.detune
+        this.params.detune,
+        {
+          osc1Level: this.params.osc1Level,
+          osc2Level: this.params.osc2Level,
+          osc3Level: this.params.osc3Level,
+          osc3Detune: this.params.osc3Detune,
+          filterCutoff: this.params.filterCutoff,
+          filterResonance: this.params.filterResonance,
+          attack: envelope.attack,
+          decay: envelope.decay,
+          sustain: envelope.sustain,
+          release: envelope.release,
+        }
       );
     } else {
-      // Fallback to haptics
+      console.warn('⚠️ WebAudioBridge not ready, using haptics fallback');
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
   }
@@ -130,9 +162,19 @@ class ARP2600Bridge {
     console.log('ARP2600: Osc2 Level =', this.params.osc2Level);
   }
 
+  setOsc3Level(level) {
+    this.params.osc3Level = Math.max(0, Math.min(level, 1.0));
+    console.log('ARP2600: Osc3 Level =', this.params.osc3Level);
+  }
+
   setDetune(detune) {
     this.params.detune = Math.max(0, Math.min(detune, 0.02)); // 0-2% detune
     console.log('ARP2600: Detune =', (this.params.detune * 100).toFixed(2) + '%');
+  }
+
+  setOsc3Detune(semitones) {
+    this.params.osc3Detune = Math.max(-24, Math.min(semitones, 24)); // -24 to +24 semitones
+    console.log('ARP2600: VCO3 Pitch =', this.params.osc3Detune.toFixed(1), 'semitones');
   }
 
   // Filter controls

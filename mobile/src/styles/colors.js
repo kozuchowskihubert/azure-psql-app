@@ -56,50 +56,52 @@ export const COLORS = {
   white30: 'rgba(255, 255, 255, 0.3)',
 };
 
+console.log('✅ colors.js COLORS exported:', !!COLORS, 'Keys:', Object.keys(COLORS).length);
+
 // Gradients
 export const GRADIENTS = {
   // Persona Card Gradients
-  musician: [COLORS.orange, COLORS.orangeLight],
-  producer: [COLORS.orangeDark, COLORS.orange],
-  adventurer: [COLORS.gray, COLORS.grayLight],
+  musician: ['#FF6B35', '#FF8C5A'],
+  producer: ['#CC5529', '#FF6B35'],
+  adventurer: ['#808080', '#A0A0A0'],
   
   // UI Element Gradients
-  primaryButton: [COLORS.orange, COLORS.orangeDark],
-  secondaryButton: [COLORS.gray, COLORS.grayDark],
+  primaryButton: ['#FF6B35', '#CC5529'],
+  secondaryButton: ['#808080', '#404040'],
   panel: ['rgba(15, 15, 20, 0.8)', 'rgba(10, 10, 15, 0.9)'],
   
   // Category Gradients
-  synths: [COLORS.cyan, '#00A8CC'],
-  drums: [COLORS.orange, COLORS.orangeDark],
-  samplers: [COLORS.purple, '#6B46C1'],
-  orchestral: [COLORS.gold, '#FFB700'],
+  synths: ['#00D9FF', '#00A8CC'],
+  drums: ['#FF6B35', '#CC5529'],
+  samplers: ['#8B5CF6', '#6B46C1'],
+  orchestral: ['#FFD700', '#FFB700'],
 };
 
 // Shadow Styles
 export const SHADOWS = {
   small: {
-    shadowColor: COLORS.orange,
+    shadowColor: '#FF6B35',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
   },
   medium: {
-    shadowColor: COLORS.orange,
+    shadowColor: '#FF6B35',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
   },
   large: {
-    shadowColor: COLORS.orange,
+    shadowColor: '#FF6B35',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4,
     shadowRadius: 16,
     elevation: 10,
   },
   glow: {
-    shadowColor: COLORS.orangeGlow,
+    shadowColor: 'rgba(255, 107, 53, 0.4)',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 12,
@@ -111,27 +113,27 @@ export const SHADOWS = {
 export const BORDERS = {
   thin: {
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(255, 107, 53, 0.2)',
   },
   medium: {
     borderWidth: 2,
-    borderColor: COLORS.orange,
+    borderColor: '#FF6B35',
   },
   thick: {
     borderWidth: 3,
-    borderColor: COLORS.orange,
+    borderColor: '#FF6B35',
   },
   subtle: {
     borderWidth: 1,
-    borderColor: COLORS.borderGray,
+    borderColor: 'rgba(128, 128, 128, 0.3)',
   },
 };
 
 // Glass Morphism Style (for panels)
 export const GLASS_PANEL = {
-  backgroundColor: COLORS.bgCard,
+  backgroundColor: 'rgba(15, 15, 20, 0.8)',
   borderWidth: 1,
-  borderColor: COLORS.border,
+  borderColor: 'rgba(255, 107, 53, 0.2)',
   backdropFilter: 'blur(10px)', // Note: May need native implementation
   ...SHADOWS.medium,
 };
@@ -143,3 +145,4 @@ export default {
   BORDERS,
   GLASS_PANEL,
 };
+

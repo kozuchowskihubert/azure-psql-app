@@ -8,8 +8,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Slider from '@react-native-community/slider';
 import technoWorkspace from '../engine/TechnoWorkspace';
-import Knob from '../components/Knob';
 import ADSREnvelope from '../components/ADSREnvelope';
 import Keyboard from '../components/Keyboard';
 
@@ -228,39 +228,50 @@ export default function TechnoWorkspaceScreen({ route, navigation }) {
         {/* Filter Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>FILTER</Text>
-          <View style={styles.knobRow}>
-            <Knob
-              label="Cutoff"
+          
+          <View style={styles.controlRow}>
+            <Text style={styles.controlLabel}>Cutoff</Text>
+            <Slider
+              style={styles.slider}
               value={filter.frequency}
-              min={20}
-              max={20000}
-              step={10}
-              size={80}
-              color="#00ff94"
-              unit=" Hz"
-              onChange={(val) => setFilter({ ...filter, frequency: val })}
+              onValueChange={(val) => setFilter({ ...filter, frequency: val })}
+              minimumValue={20}
+              maximumValue={20000}
+              minimumTrackTintColor="#00ff94"
+              maximumTrackTintColor="#333"
+              thumbTintColor="#00ff94"
             />
-            <Knob
-              label="Resonance"
+            <Text style={styles.controlValue}>{Math.round(filter.frequency)} Hz</Text>
+          </View>
+          
+          <View style={styles.controlRow}>
+            <Text style={styles.controlLabel}>Resonance</Text>
+            <Slider
+              style={styles.slider}
               value={filter.q}
-              min={0.1}
-              max={20}
-              step={0.1}
-              size={80}
-              color="#00ff94"
-              onChange={(val) => setFilter({ ...filter, q: val })}
+              onValueChange={(val) => setFilter({ ...filter, q: val })}
+              minimumValue={0.1}
+              maximumValue={20}
+              minimumTrackTintColor="#00ff94"
+              maximumTrackTintColor="#333"
+              thumbTintColor="#00ff94"
             />
-            <Knob
-              label="Volume"
-              value={volume * 100}
-              min={0}
-              max={100}
-              step={1}
-              size={80}
-              color="#00ff94"
-              unit="%"
-              onChange={(val) => setVolume(val / 100)}
+            <Text style={styles.controlValue}>{filter.q.toFixed(1)}</Text>
+          </View>
+          
+          <View style={styles.controlRow}>
+            <Text style={styles.controlLabel}>Volume</Text>
+            <Slider
+              style={styles.slider}
+              value={volume}
+              onValueChange={setVolume}
+              minimumValue={0}
+              maximumValue={1}
+              minimumTrackTintColor="#00ff94"
+              maximumTrackTintColor="#333"
+              thumbTintColor="#00ff94"
             />
+            <Text style={styles.controlValue}>{Math.round(volume * 100)}%</Text>
           </View>
         </View>
 
@@ -395,6 +406,31 @@ const styles = StyleSheet.create({
   },
   waveformTextActive: {
     color: '#0a0a0a',
+  },
+  controlRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 12,
+  },
+  controlLabel: {
+    color: '#00ff94',
+    fontSize: 12,
+    fontWeight: '600',
+    width: 70,
+    textTransform: 'uppercase',
+  },
+  slider: {
+    flex: 1,
+    height: 40,
+  },
+  controlValue: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '600',
+    width: 60,
+    textAlign: 'right',
+    fontFamily: 'Menlo',
   },
   knobRow: {
     flexDirection: 'row',

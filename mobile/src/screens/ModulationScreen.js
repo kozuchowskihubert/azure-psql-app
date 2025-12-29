@@ -207,7 +207,7 @@ export default function ModulationScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgDark,
+    backgroundColor: '#000000',
   },
   header: {
     paddingTop: 60,
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 32,
     fontWeight: '900',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
     letterSpacing: 2,
     marginBottom: 5,
   },
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     letterSpacing: 1,
   },
   scrollView: {
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
     letterSpacing: 1.5,
   },
   sourceCard: {
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   sourceRate: {
     fontFamily: 'System',
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   activeIndicator: {
     width: 12,
@@ -336,14 +336,14 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
     marginBottom: 4,
     textAlign: 'center',
   },
   targetCurrent: {
     fontFamily: 'System',
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   effectCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     marginBottom: 4,
   },
   effectNameEnabled: {
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   effectParams: {
     fontFamily: 'System',
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   effectToggle: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 11,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
     letterSpacing: 1,
   },
   infoSection: {
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
   infoText: {
     fontFamily: 'System',
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     lineHeight: 20,
     marginBottom: 8,
   },

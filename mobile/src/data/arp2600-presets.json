@@ -1,0 +1,731 @@
+{
+  "Classic Lead": {
+    "name": "Classic Lead",
+    "description": "Rich, fat lead sound",
+    "category": "Lead",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "VCO2_SAW", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 440,
+      "vco1_tune": 0,
+      "vco1_pulseWidth": 50,
+      "vco2_freq": 440,
+      "vco2_tune": 0.005,
+      "vco2_pulseWidth": 50,
+      "vco3_freq": 110,
+      "vcf_cutoff": 2000,
+      "vcf_resonance": 18,
+      "vcf_envAmount": 0.6,
+      "attack": 0.01,
+      "decay": 0.3,
+      "sustain": 0.7,
+      "release": 0.5
+    }
+  },
+  "Bass Monster": {
+    "name": "Bass Monster",
+    "description": "Deep, powerful bass",
+    "category": "Bass",
+    "patches": [
+      { "from": "VCO1_PULSE", "to": "VCF_IN" },
+      { "from": "VCO3_SINE", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 110,
+      "vco1_tune": 0,
+      "vco1_pulseWidth": 30,
+      "vco3_freq": 55,
+      "vcf_cutoff": 800,
+      "vcf_resonance": 25,
+      "vcf_envAmount": 0.8,
+      "attack": 0.005,
+      "decay": 0.4,
+      "sustain": 0.3,
+      "release": 0.2
+    }
+  },
+  "Pad Strings": {
+    "name": "Pad Strings",
+    "description": "Lush, evolving pad",
+    "category": "Pad",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "VCO2_SINE", "to": "VCF_IN" },
+      { "from": "VCO3_TRI", "to": "VCF_IN" },
+      { "from": "LFO_TRI", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 220,
+      "vco2_freq": 220.5,
+      "vco3_freq": 440,
+      "vcf_cutoff": 3000,
+      "vcf_resonance": 10,
+      "vcf_envAmount": 0.3,
+      "lfo_rate": 0.5,
+      "attack": 0.8,
+      "decay": 1.0,
+      "sustain": 0.8,
+      "release": 2.0
+    }
+  },
+  "Sync Lead": {
+    "name": "Sync Lead",
+    "description": "Hard sync aggressive lead",
+    "category": "Lead",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCO2_SYNC" },
+      { "from": "VCO2_SAW", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCO2_FM" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 220,
+      "vco2_freq": 440,
+      "vcf_cutoff": 4000,
+      "vcf_resonance": 20,
+      "vcf_envAmount": 0.7,
+      "attack": 0.01,
+      "decay": 0.2,
+      "sustain": 0.5,
+      "release": 0.3
+    }
+  },
+  "Ring Mod FX": {
+    "name": "Ring Mod FX",
+    "description": "Metallic ring modulation",
+    "category": "FX",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "RING_MOD_X" },
+      { "from": "VCO2_SINE", "to": "RING_MOD_Y" },
+      { "from": "RING_MOD_OUT", "to": "VCF_IN" },
+      { "from": "LFO_SQUARE", "to": "VCO2_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 330,
+      "vco2_freq": 440,
+      "vcf_cutoff": 5000,
+      "vcf_resonance": 15,
+      "lfo_rate": 8,
+      "attack": 0.01,
+      "decay": 0.5,
+      "sustain": 0.2,
+      "release": 0.4
+    }
+  },
+  "Acid Squelch": {
+    "name": "Acid Squelch",
+    "description": "303-style acid bass",
+    "category": "Bass",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 110,
+      "vcf_cutoff": 400,
+      "vcf_resonance": 28,
+      "vcf_envAmount": 0.95,
+      "attack": 0.001,
+      "decay": 0.15,
+      "sustain": 0,
+      "release": 0.05
+    }
+  },
+  "Techno Kick": {
+    "name": "Techno Kick",
+    "description": "Hard punchy techno kick",
+    "category": "Percussion",
+    "patches": [
+      { "from": "VCO1_SINE", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCO1_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 65,
+      "vcf_cutoff": 300,
+      "vcf_resonance": 3,
+      "attack": 0.001,
+      "decay": 0.25,
+      "sustain": 0,
+      "release": 0.05
+    }
+  },
+  "Industrial Screech": {
+    "name": "Industrial Screech",
+    "description": "Aggressive high-pitched screech",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "NOISE_WHITE", "to": "VCF_IN" },
+      { "from": "LFO_SAW", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 2000,
+      "vcf_cutoff": 8000,
+      "vcf_resonance": 28,
+      "lfo_rate": 16,
+      "attack": 0.001,
+      "decay": 0.08,
+      "sustain": 0,
+      "release": 0.05
+    }
+  },
+  "Techno Stab": {
+    "name": "Techno Stab",
+    "description": "Classic rave stab chord",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "VCO2_PULSE", "to": "VCF_IN" },
+      { "from": "VCO3_SAW", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 220,
+      "vco2_freq": 330,
+      "vco3_freq": 440,
+      "vcf_cutoff": 6000,
+      "vcf_resonance": 22,
+      "vcf_envAmount": 0.9,
+      "attack": 0.001,
+      "decay": 0.12,
+      "sustain": 0,
+      "release": 0.08
+    }
+  },
+  "Hi-Hat Closed": {
+    "name": "Hi-Hat Closed",
+    "description": "Closed hi-hat percussion",
+    "category": "Percussion",
+    "patches": [
+      { "from": "NOISE_WHITE", "to": "VCF_IN" },
+      { "from": "VCO1_PULSE", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 5000,
+      "vcf_cutoff": 12000,
+      "vcf_resonance": 15,
+      "attack": 0.001,
+      "decay": 0.03,
+      "sustain": 0,
+      "release": 0.02
+    }
+  },
+  "Hi-Hat Open": {
+    "name": "Hi-Hat Open",
+    "description": "Open hi-hat percussion",
+    "category": "Percussion",
+    "patches": [
+      { "from": "NOISE_WHITE", "to": "VCF_IN" },
+      { "from": "VCO1_PULSE", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 5000,
+      "vcf_cutoff": 15000,
+      "vcf_resonance": 18,
+      "attack": 0.001,
+      "decay": 0.15,
+      "sustain": 0,
+      "release": 0.2
+    }
+  },
+  "Snare Analog": {
+    "name": "Snare Analog",
+    "description": "Analog snare drum",
+    "category": "Percussion",
+    "patches": [
+      { "from": "NOISE_WHITE", "to": "VCF_IN" },
+      { "from": "VCO1_SINE", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 200,
+      "vcf_cutoff": 5000,
+      "vcf_resonance": 12,
+      "vcf_envAmount": 0.7,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0,
+      "release": 0.05
+    }
+  },
+  "Rim Shot": {
+    "name": "Rim Shot",
+    "description": "Sharp rim shot percussion",
+    "category": "Percussion",
+    "patches": [
+      { "from": "NOISE_WHITE", "to": "VCF_IN" },
+      { "from": "VCO1_TRI", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 800,
+      "vcf_cutoff": 6000,
+      "vcf_resonance": 20,
+      "attack": 0.001,
+      "decay": 0.02,
+      "sustain": 0,
+      "release": 0.01
+    }
+  },
+  "Techno Bass 1": {
+    "name": "Techno Bass 1",
+    "description": "Rolling techno bassline",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "VCO2_PULSE", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 110,
+      "vco2_freq": 110,
+      "vco2_pulseWidth": 20,
+      "vcf_cutoff": 600,
+      "vcf_resonance": 24,
+      "vcf_envAmount": 0.75,
+      "attack": 0.001,
+      "decay": 0.2,
+      "sustain": 0.4,
+      "release": 0.1
+    }
+  },
+  "Techno Bass 2": {
+    "name": "Techno Bass 2",
+    "description": "Deep rolling sub bass",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SINE", "to": "VCF_IN" },
+      { "from": "VCO2_SAW", "to": "VCF_IN" },
+      { "from": "LFO_TRI", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 55,
+      "vco2_freq": 110,
+      "vcf_cutoff": 400,
+      "vcf_resonance": 20,
+      "lfo_rate": 8,
+      "attack": 0.01,
+      "decay": 0.3,
+      "sustain": 0.6,
+      "release": 0.15
+    }
+  },
+  "Techno Lead 1": {
+    "name": "Techno Lead 1",
+    "description": "Bright techno lead",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "VCO2_PULSE", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 440,
+      "vco2_freq": 440,
+      "vco2_pulseWidth": 40,
+      "vcf_cutoff": 4000,
+      "vcf_resonance": 20,
+      "vcf_envAmount": 0.6,
+      "attack": 0.005,
+      "decay": 0.2,
+      "sustain": 0.7,
+      "release": 0.3
+    }
+  },
+  "Techno Lead 2": {
+    "name": "Techno Lead 2",
+    "description": "Aggressive saw lead",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "VCO2_SAW", "to": "VCF_IN" },
+      { "from": "VCO3_SAW", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 440,
+      "vco2_freq": 439,
+      "vco3_freq": 441,
+      "vcf_cutoff": 3500,
+      "vcf_resonance": 22,
+      "vcf_envAmount": 0.7,
+      "attack": 0.01,
+      "decay": 0.25,
+      "sustain": 0.8,
+      "release": 0.4
+    }
+  },
+  "Techno Pad 1": {
+    "name": "Techno Pad 1",
+    "description": "Dark evolving pad",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "VCO2_PULSE", "to": "VCF_IN" },
+      { "from": "LFO_SINE", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 110,
+      "vco2_freq": 110.5,
+      "vco2_pulseWidth": 30,
+      "vcf_cutoff": 1200,
+      "vcf_resonance": 18,
+      "lfo_rate": 0.3,
+      "attack": 1.5,
+      "decay": 1.0,
+      "sustain": 0.9,
+      "release": 2.5
+    }
+  },
+  "Techno Pad 2": {
+    "name": "Techno Pad 2",
+    "description": "Bright atmospheric pad",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "VCO2_TRI", "to": "VCF_IN" },
+      { "from": "VCO3_SINE", "to": "VCF_IN" },
+      { "from": "LFO_TRI", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 220,
+      "vco2_freq": 330,
+      "vco3_freq": 440,
+      "vcf_cutoff": 2500,
+      "vcf_resonance": 12,
+      "lfo_rate": 0.4,
+      "attack": 1.2,
+      "decay": 0.8,
+      "sustain": 0.85,
+      "release": 2.0
+    }
+  },
+  "Zap FX": {
+    "name": "Zap FX",
+    "description": "Laser zap effect",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCO1_FM" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 1500,
+      "vcf_cutoff": 8000,
+      "vcf_resonance": 25,
+      "vcf_envAmount": 0.95,
+      "attack": 0.001,
+      "decay": 0.15,
+      "sustain": 0,
+      "release": 0.05
+    }
+  },
+  "Sweep Rise": {
+    "name": "Sweep Rise",
+    "description": "Upward filter sweep",
+    "category": "Techno",
+    "patches": [
+      { "from": "NOISE_WHITE", "to": "VCF_IN" },
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 110,
+      "vcf_cutoff": 200,
+      "vcf_resonance": 28,
+      "vcf_envAmount": 0.99,
+      "attack": 0.8,
+      "decay": 0.5,
+      "sustain": 0.3,
+      "release": 0.3
+    }
+  },
+  "Pluck Sequence": {
+    "name": "Pluck Sequence",
+    "description": "Sharp plucked for sequences",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_PULSE", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 440,
+      "vco1_pulseWidth": 15,
+      "vcf_cutoff": 3500,
+      "vcf_resonance": 22,
+      "vcf_envAmount": 0.8,
+      "attack": 0.001,
+      "decay": 0.15,
+      "sustain": 0,
+      "release": 0.08
+    }
+  },
+  "Clap Analog": {
+    "name": "Clap Analog",
+    "description": "Analog hand clap",
+    "category": "Percussion",
+    "patches": [
+      { "from": "NOISE_WHITE", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vcf_cutoff": 3000,
+      "vcf_resonance": 8,
+      "vcf_envAmount": 0.5,
+      "attack": 0.001,
+      "decay": 0.08,
+      "sustain": 0,
+      "release": 0.05
+    }
+  },
+  "Tom Low": {
+    "name": "Tom Low",
+    "description": "Low tom percussion",
+    "category": "Percussion",
+    "patches": [
+      { "from": "VCO1_SINE", "to": "VCF_IN" },
+      { "from": "NOISE_PINK", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCO1_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 120,
+      "vcf_cutoff": 800,
+      "vcf_resonance": 10,
+      "attack": 0.001,
+      "decay": 0.3,
+      "sustain": 0,
+      "release": 0.1
+    }
+  },
+  "Tom Mid": {
+    "name": "Tom Mid",
+    "description": "Mid tom percussion",
+    "category": "Percussion",
+    "patches": [
+      { "from": "VCO1_SINE", "to": "VCF_IN" },
+      { "from": "NOISE_PINK", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCO1_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 180,
+      "vcf_cutoff": 1200,
+      "vcf_resonance": 10,
+      "attack": 0.001,
+      "decay": 0.25,
+      "sustain": 0,
+      "release": 0.08
+    }
+  },
+  "Tom High": {
+    "name": "Tom High",
+    "description": "High tom percussion",
+    "category": "Percussion",
+    "patches": [
+      { "from": "VCO1_SINE", "to": "VCF_IN" },
+      { "from": "NOISE_PINK", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCO1_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 260,
+      "vcf_cutoff": 1800,
+      "vcf_resonance": 10,
+      "attack": 0.001,
+      "decay": 0.2,
+      "sustain": 0,
+      "release": 0.06
+    }
+  },
+  "Techno Hoover": {
+    "name": "Techno Hoover",
+    "description": "Classic Hoover sound",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "VCO2_SAW", "to": "VCF_IN" },
+      { "from": "LFO_SAW", "to": "VCO2_FM" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 220,
+      "vco2_freq": 220.5,
+      "vcf_cutoff": 3000,
+      "vcf_resonance": 24,
+      "lfo_rate": 6,
+      "attack": 0.01,
+      "decay": 0.3,
+      "sustain": 0.7,
+      "release": 0.4
+    }
+  },
+  "Wobble Techno": {
+    "name": "Wobble Techno",
+    "description": "LFO wobble bass",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "VCO2_PULSE", "to": "VCF_IN" },
+      { "from": "LFO_SINE", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 110,
+      "vco2_freq": 110,
+      "vco2_pulseWidth": 30,
+      "vcf_cutoff": 1500,
+      "vcf_resonance": 26,
+      "lfo_rate": 4,
+      "attack": 0.01,
+      "decay": 0.2,
+      "sustain": 0.8,
+      "release": 0.1
+    }
+  },
+  "Chord Stab Hard": {
+    "name": "Chord Stab Hard",
+    "description": "Hard chord stab",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "VCO2_SAW", "to": "VCF_IN" },
+      { "from": "VCO3_SAW", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 220,
+      "vco2_freq": 277,
+      "vco3_freq": 330,
+      "vcf_cutoff": 5500,
+      "vcf_resonance": 20,
+      "vcf_envAmount": 0.85,
+      "attack": 0.001,
+      "decay": 0.15,
+      "sustain": 0,
+      "release": 0.1
+    }
+  },
+  "Chord Stab Soft": {
+    "name": "Chord Stab Soft",
+    "description": "Soft chord stab",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_PULSE", "to": "VCF_IN" },
+      { "from": "VCO2_TRI", "to": "VCF_IN" },
+      { "from": "VCO3_SINE", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 220,
+      "vco2_freq": 277,
+      "vco3_freq": 330,
+      "vcf_cutoff": 3000,
+      "vcf_resonance": 12,
+      "vcf_envAmount": 0.6,
+      "attack": 0.005,
+      "decay": 0.25,
+      "sustain": 0.2,
+      "release": 0.3
+    }
+  },
+  "Metal Screech": {
+    "name": "Metal Screech",
+    "description": "Metallic screech FX",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "RING_MOD_X" },
+      { "from": "VCO2_PULSE", "to": "RING_MOD_Y" },
+      { "from": "RING_MOD_OUT", "to": "VCF_IN" },
+      { "from": "LFO_SQUARE", "to": "VCO2_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 1200,
+      "vco2_freq": 1800,
+      "vcf_cutoff": 10000,
+      "vcf_resonance": 25,
+      "lfo_rate": 12,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0,
+      "release": 0.05
+    }
+  },
+  "Drone Industrial": {
+    "name": "Drone Industrial",
+    "description": "Dark industrial drone",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_SAW", "to": "VCF_IN" },
+      { "from": "VCO2_PULSE", "to": "VCF_IN" },
+      { "from": "NOISE_PINK", "to": "VCF_IN" },
+      { "from": "LFO_SINE", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 55,
+      "vco2_freq": 55.5,
+      "vco2_pulseWidth": 20,
+      "vcf_cutoff": 600,
+      "vcf_resonance": 22,
+      "lfo_rate": 0.2,
+      "attack": 2.0,
+      "decay": 1.5,
+      "sustain": 0.95,
+      "release": 3.0
+    }
+  },
+  "Arp Sequence": {
+    "name": "Arp Sequence",
+    "description": "Fast arpeggio sequence",
+    "category": "Techno",
+    "patches": [
+      { "from": "VCO1_PULSE", "to": "VCF_IN" },
+      { "from": "VCO2_SAW", "to": "VCF_IN" },
+      { "from": "ADSR_OUT", "to": "VCF_FM" },
+      { "from": "ADSR_OUT", "to": "VCA_IN" }
+    ],
+    "parameters": {
+      "vco1_freq": 880,
+      "vco2_freq": 880,
+      "vco1_pulseWidth": 25,
+      "vcf_cutoff": 4500,
+      "vcf_resonance": 18,
+      "vcf_envAmount": 0.7,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.1,
+      "release": 0.05
+    }
+  }
+}

@@ -12,26 +12,24 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
+  StatusBar,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
 import Slider from '@react-native-community/slider';
+import * as Haptics from 'expo-haptics';
+
+// HAOS Components & Theme
+import HAOSHeader from '../components/HAOSHeader';
+import { HAOS_COLORS, HAOS_GRADIENTS } from '../styles/HAOSTheme';
+
+// Bridges
 import TB303Bridge from '../synths/TB303Bridge';
 import webAudioBridge from '../services/WebAudioBridge';
 
 const tb303 = new TB303Bridge();
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-const HAOS_COLORS = {
-  green: '#00ff94',
-  lime: '#88ff00',
-  yellow: '#ffff00',
-  orange: '#ff8800',
-  dark: '#0a0a0a',
-  darkGray: '#1a1a1a',
-  mediumGray: '#2a2a2a',
-};
 
 const TB303Screen = ({ navigation, route }) => {
   // Oscillator
@@ -317,7 +315,7 @@ const TB303Screen = ({ navigation, route }) => {
   
   return (
     <View style={styles.container}>
-      {/* Hidden WebView for audio-engine.html */}
+      {/* Hidden WebView for audio-engine.html - DISABLED FOR LAYOUT FIX
       <WebView
         ref={(ref) => {
           if (ref && !webAudioBridge.isReady) {
@@ -325,7 +323,7 @@ const TB303Screen = ({ navigation, route }) => {
           }
         }}
         source={require('../../assets/audio-engine.html')}
-        style={{ width: 0, height: 0, opacity: 0, position: 'absolute', pointerEvents: 'none' }}
+        style={{ width: 1, height: 1, opacity: 0, position: 'absolute', top: -1000, left: -1000, pointerEvents: 'none' }}
         onMessage={(event) => webAudioBridge.onMessage(event)}
         onLoad={() => webAudioBridge.initAudio()}
         javaScriptEnabled={true}
@@ -333,21 +331,24 @@ const TB303Screen = ({ navigation, route }) => {
         mediaPlaybackRequiresUserAction={false}
         allowsInlineMediaPlayback={true}
       />
+      */}
 
-      {/* Header */}
-      <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <Text style={styles.headerIcon}>🔊</Text>
-          <Text style={styles.headerTitle}>TB-303</Text>
-          <Text style={styles.headerSubtitle}>BASS LINE ACID MACHINE</Text>
-        </View>
-      </Animated.View>
+      {/* HAOS Header */}
+      <StatusBar barStyle="light-content" />
+      <HAOSHeader
+        title="TB-303"
+        subtitle="BASS LINE"
+        navigation={navigation}
+        showBack={true}
+        rightButtons={[
+          {
+            icon: '🔊',
+            onPress: () => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            },
+          },
+        ]}
+      />
       
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Transport */}
@@ -724,63 +725,16 @@ const TB303Screen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: HAOS_COLORS.dark,
-  },
-  header: {
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    backgroundColor: HAOS_COLORS.darkGray,
-    borderBottomWidth: 2,
-    borderBottomColor: HAOS_COLORS.green,
-  },
-  backButton: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: HAOS_COLORS.green,
-  },
-  backIcon: {
-    fontSize: 24,
-    color: HAOS_COLORS.green,
-    fontWeight: 'bold',
-  },
-  headerContent: {
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  headerIcon: {
-    fontSize: 48,
-    marginBottom: 10,
-  },
-  headerTitle: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#fff',
-    letterSpacing: 3,
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: HAOS_COLORS.green,
-    letterSpacing: 1,
-    fontWeight: '600',
+    backgroundColor: HAOS_COLORS.background,
   },
   scrollView: {
     flex: 1,
   },
   transport: {
-    backgroundColor: HAOS_COLORS.darkGray,
+    backgroundColor: HAOS_COLORS.surface,
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: HAOS_COLORS.mediumGray,
+    borderBottomColor: HAOS_COLORS.gold,
   },
   playButton: {
     flexDirection: 'row',
@@ -790,11 +744,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: 'rgba(0,0,0,0.5)',
     borderWidth: 2,
-    borderColor: HAOS_COLORS.green,
+    borderColor: HAOS_COLORS.gold,
     marginBottom: 15,
   },
   playButtonActive: {
-    backgroundColor: HAOS_COLORS.green,
+    backgroundColor: HAOS_COLORS.gold,
   },
   playIcon: {
     fontSize: 24,
@@ -1179,7 +1133,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   presetIcon: {
-    fontSize: 32,
+    fontSize: 20,
     marginBottom: 8,
   },
   presetText: {

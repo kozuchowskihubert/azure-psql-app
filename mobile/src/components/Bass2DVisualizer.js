@@ -137,7 +137,7 @@ const Bass2DVisualizer = forwardRef(({ isPlaying, audioEngine }, ref) => {
     <View style={styles.container}>
       <Svg width={SCREEN_WIDTH} height={250} style={styles.svg}>
         {/* Background */}
-        <Rect x={0} y={0} width={SCREEN_WIDTH} height={250} fill={COLORS.bgDark} />
+        <Rect x={0} y={0} width={SCREEN_WIDTH} height={250} fill={'#000000'} />
 
         {/* Grid lines */}
         {Array.from({ length: 10 }, (_, i) => {
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    backgroundColor: COLORS.bgDark,
+    backgroundColor: '#000000',
   },
   svg: {
     flex: 1,

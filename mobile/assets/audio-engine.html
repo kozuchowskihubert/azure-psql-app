@@ -202,8 +202,16 @@
     function playKick(params = {}) {
       initAudio();
       
+      // Resume audio context if suspended (required on iOS)
+      if (audioContext.state === 'suspended') {
+        audioContext.resume().then(() => {
+          console.log('✅ AudioContext resumed');
+        });
+      }
+      
       const pitch = params.pitch || kickParams.pitch;
       const decay = params.decay || kickParams.decay;
+      const velocity = params.velocity !== undefined ? params.velocity : 1.0;
       
       const osc = audioContext.createOscillator();
       const gain = audioContext.createGain();
@@ -212,7 +220,7 @@
       osc.frequency.setValueAtTime(pitch, audioContext.currentTime);
       osc.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.1);
       
-      gain.gain.setValueAtTime(1, audioContext.currentTime);
+      gain.gain.setValueAtTime(velocity, audioContext.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + decay);
       
       osc.connect(gain);
@@ -221,14 +229,20 @@
       osc.start(audioContext.currentTime);
       osc.stop(audioContext.currentTime + decay);
       
-      console.log('🥁 Kick', { pitch, decay });
-      sendMessage('soundPlayed', { sound: 'kick', pitch, decay });
+      console.log('🥁 Kick', { pitch, decay, velocity });
+      sendMessage('soundPlayed', { sound: 'kick', pitch, decay, velocity });
     }
     
     function playSnare(params = {}) {
       initAudio();
       
+      // Resume audio context if suspended (required on iOS)
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+      
       const tone = params.tone || snareParams.tone;
+      const velocity = params.velocity !== undefined ? params.velocity : 1.0;
       
       // Noise component
       const noise = audioContext.createBufferSource();
@@ -240,7 +254,7 @@
       noise.buffer = buffer;
       
       const gain = audioContext.createGain();
-      gain.gain.setValueAtTime(0.5, audioContext.currentTime);
+      gain.gain.setValueAtTime(0.5 * velocity, audioContext.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + tone);
       
       noise.connect(gain);
@@ -248,14 +262,20 @@
       
       noise.start(audioContext.currentTime);
       
-      console.log('🥁 Snare', { tone });
-      sendMessage('soundPlayed', { sound: 'snare', tone });
+      console.log('🥁 Snare', { tone, velocity });
+      sendMessage('soundPlayed', { sound: 'snare', tone, velocity });
     }
     
     function playHiHat(params = {}) {
       initAudio();
       
+      // Resume audio context if suspended (required on iOS)
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+      
       const decay = params.decay || hihatParams.decay;
+      const velocity = params.velocity !== undefined ? params.velocity : 1.0;
       
       // High-frequency noise
       const noise = audioContext.createBufferSource();
@@ -272,7 +292,7 @@
       highpass.frequency.value = 7000;
       
       const gain = audioContext.createGain();
-      gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gain.gain.setValueAtTime(0.3 * velocity, audioContext.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + decay);
       
       noise.connect(highpass);
@@ -281,8 +301,8 @@
       
       noise.start(audioContext.currentTime);
       
-      console.log('🔔 HiHat', { decay });
-      sendMessage('soundPlayed', { sound: 'hihat', decay });
+      console.log('🔔 HiHat', { decay, velocity });
+      sendMessage('soundPlayed', { sound: 'hihat', decay, velocity });
     }
     
     function playClap() {
@@ -310,6 +330,139 @@
       
       console.log('👏 Clap');
       sendMessage('soundPlayed', { sound: 'clap' });
+    }
+    
+    function playCowbell(params = {}) {
+      initAudio();
+      
+      const velocity = params.velocity || 1.0;
+      
+      // Classic TR-808 Cowbell: Two square waves at 540Hz and 800Hz
+      const osc1 = audioContext.createOscillator();
+      const osc2 = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const bandpass = audioContext.createBiquadFilter();
+      
+      osc1.type = 'square';
+      osc1.frequency.value = 540;
+      osc2.type = 'square';
+      osc2.frequency.value = 800;
+      
+      bandpass.type = 'bandpass';
+      bandpass.frequency.value = 800;
+      bandpass.Q.value = 1.0;
+      
+      const now = audioContext.currentTime;
+      gain.gain.setValueAtTime(0.3 * velocity, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(bandpass);
+      bandpass.connect(filterNode);
+      
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.5);
+      osc2.stop(now + 0.5);
+      
+      console.log('🔔 Cowbell', { velocity });
+      sendMessage('soundPlayed', { sound: 'cowbell', velocity });
+    }
+    
+    function playCymbal(params = {}) {
+      initAudio();
+      
+      const velocity = params.velocity || 1.0;
+      
+      // TR-808 Cymbal: Multiple metallic oscillators
+      const oscillators = [
+        { freq: 296, amp: 0.15 },
+        { freq: 414, amp: 0.15 },
+        { freq: 587, amp: 0.12 },
+        { freq: 845, amp: 0.10 },
+        { freq: 1108, amp: 0.08 },
+        { freq: 1316, amp: 0.05 }
+      ];
+      
+      const now = audioContext.currentTime;
+      const masterGain = audioContext.createGain();
+      const highpass = audioContext.createBiquadFilter();
+      
+      highpass.type = 'highpass';
+      highpass.frequency.value = 4000;
+      highpass.Q.value = 1.0;
+      
+      masterGain.gain.setValueAtTime(0.2 * velocity, now);
+      masterGain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+      
+      oscillators.forEach(({ freq, amp }) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        
+        osc.type = 'square';
+        osc.frequency.value = freq;
+        gain.gain.value = amp;
+        
+        osc.connect(gain);
+        gain.connect(masterGain);
+        
+        osc.start(now);
+        osc.stop(now + 1.2);
+      });
+      
+      masterGain.connect(highpass);
+      highpass.connect(filterNode);
+      
+      console.log('🥁 Cymbal', { velocity });
+      sendMessage('soundPlayed', { sound: 'cymbal', velocity });
+    }
+    
+    function playTom(params = {}) {
+      initAudio();
+      
+      const velocity = params.velocity || 1.0;
+      const pitch = params.pitch || 120;
+      const decay = params.decay || 0.4;
+      
+      // Tom: Pitched oscillator with fast pitch decay
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const noise = audioContext.createBufferSource();
+      const noiseGain = audioContext.createGain();
+      
+      const now = audioContext.currentTime;
+      
+      // Tone oscillator
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(pitch * 2, now);
+      osc.frequency.exponentialRampToValueAtTime(pitch, now + 0.05);
+      
+      gain.gain.setValueAtTime(0.7 * velocity, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + decay);
+      
+      // Add some noise for attack
+      const buffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < buffer.length; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.1;
+      }
+      noise.buffer = buffer;
+      
+      noiseGain.gain.setValueAtTime(0.3 * velocity, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+      
+      osc.connect(gain);
+      noise.connect(noiseGain);
+      gain.connect(filterNode);
+      noiseGain.connect(filterNode);
+      
+      osc.start(now);
+      noise.start(now);
+      osc.stop(now + decay);
+      
+      console.log('🥁 Tom', { pitch, decay, velocity });
+      sendMessage('soundPlayed', { sound: 'tom', pitch, decay, velocity });
     }
     
     // ========================================
@@ -392,6 +545,18 @@
       const velocity = params.velocity || 1.0;
       const detune = params.detune || 0.02; // Slight detune for thickness
       
+      // Get parameters from UI (with fallbacks to defaults)
+      const osc1Level = params.osc1Level !== undefined ? params.osc1Level : 0.5;
+      const osc2Level = params.osc2Level !== undefined ? params.osc2Level : 0.5;
+      const osc3Level = params.osc3Level !== undefined ? params.osc3Level : 0.0;
+      const osc3Detune = params.osc3Detune !== undefined ? params.osc3Detune : -12;
+      const filterCutoff = params.filterCutoff !== undefined ? params.filterCutoff : 2000;
+      const filterResonance = params.filterResonance !== undefined ? params.filterResonance : 18;
+      const attack = params.attack !== undefined ? params.attack : 0.05;
+      const decay = params.decay !== undefined ? params.decay : 0.1;
+      const sustain = params.sustain !== undefined ? params.sustain : 0.7;
+      const release = params.release !== undefined ? params.release : 0.3;
+      
       const now = audioContext.currentTime;
       
       // VCO 1 (Sawtooth - bright)
@@ -406,6 +571,11 @@
       vco2.frequency.value = frequency;
       vco2.detune.value = detune * 100; // Opposite detune for width
       
+      // VCO 3 (Sine - sub bass or high pitch based on osc3Detune)
+      const vco3 = audioContext.createOscillator();
+      vco3.type = 'sine';
+      vco3.frequency.value = frequency * Math.pow(2, osc3Detune / 12); // Semitones to frequency ratio
+      
       // LFO for vibrato
       const lfo = audioContext.createOscillator();
       lfo.type = 'sine';
@@ -418,51 +588,59 @@
       lfoGain.connect(vco1.frequency);
       lfoGain.connect(vco2.frequency);
       
-      // Mixer
+      // Mixer with UI-controlled levels
       const vco1Gain = audioContext.createGain();
       const vco2Gain = audioContext.createGain();
-      vco1Gain.gain.value = 0.4;
-      vco2Gain.gain.value = 0.3;
+      const vco3Gain = audioContext.createGain();
+      vco1Gain.gain.value = osc1Level * velocity;
+      vco2Gain.gain.value = osc2Level * velocity;
+      vco3Gain.gain.value = osc3Level * velocity;
       
-      // 24dB Ladder filter (Moog-style)
+      // 24dB Ladder filter (Moog-style) with UI-controlled cutoff and resonance
       const arpFilter = audioContext.createBiquadFilter();
       arpFilter.type = 'lowpass';
-      arpFilter.frequency.value = 2000;
-      arpFilter.Q.value = 8; // High resonance
+      arpFilter.frequency.value = filterCutoff;
+      arpFilter.Q.value = filterResonance; // UI-controlled resonance
       
-      // Filter envelope modulation
-      const filterEnvAmount = 1500;
-      arpFilter.frequency.setValueAtTime(800, now);
-      arpFilter.frequency.exponentialRampToValueAtTime(2000 + filterEnvAmount, now + 0.05);
-      arpFilter.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
-      arpFilter.frequency.setValueAtTime(1200, now + duration - 0.1);
-      arpFilter.frequency.exponentialRampToValueAtTime(800, now + duration);
+      // Filter envelope modulation with UI-controlled envelope
+      const filterEnvAmount = filterCutoff * 0.5; // Envelope modulates up to 50% of cutoff
+      arpFilter.frequency.setValueAtTime(filterCutoff * 0.4, now);
+      arpFilter.frequency.exponentialRampToValueAtTime(filterCutoff + filterEnvAmount, now + attack);
+      arpFilter.frequency.exponentialRampToValueAtTime(filterCutoff * (0.4 + sustain * 0.6), now + attack + decay);
+      arpFilter.frequency.setValueAtTime(filterCutoff * (0.4 + sustain * 0.6), now + duration - release);
+      arpFilter.frequency.exponentialRampToValueAtTime(filterCutoff * 0.4, now + duration);
       
-      // VCA with ADSR
+      // VCA (Voltage Controlled Amplifier) with UI-controlled ADSR envelope
       const vca = audioContext.createGain();
+      const maxVelocity = velocity * 0.7;
+      const sustainLevel = maxVelocity * sustain;
       vca.gain.setValueAtTime(0, now);
-      vca.gain.linearRampToValueAtTime(velocity * 0.7, now + 0.01); // Attack
-      vca.gain.exponentialRampToValueAtTime(velocity * 0.5, now + 0.1); // Decay
-      vca.gain.setValueAtTime(velocity * 0.5, now + duration - 0.2); // Sustain
-      vca.gain.exponentialRampToValueAtTime(0.01, now + duration); // Release
+      vca.gain.linearRampToValueAtTime(maxVelocity, now + attack); // Attack
+      vca.gain.exponentialRampToValueAtTime(Math.max(sustainLevel, 0.01), now + attack + decay); // Decay
+      vca.gain.setValueAtTime(Math.max(sustainLevel, 0.01), now + duration - release); // Sustain
+      vca.gain.exponentialRampToValueAtTime(0.01, now + duration + release); // Release
       
-      // Connect audio graph
+      // Connect audio graph (including VCO3)
       vco1.connect(vco1Gain);
       vco2.connect(vco2Gain);
+      vco3.connect(vco3Gain);
       vco1Gain.connect(arpFilter);
       vco2Gain.connect(arpFilter);
+      vco3Gain.connect(arpFilter);
       arpFilter.connect(vca);
       vca.connect(filterNode);
       
       // Start oscillators
       vco1.start(now);
       vco2.start(now);
+      vco3.start(now);
       lfo.start(now);
       
       // Stop oscillators
-      vco1.stop(now + duration);
-      vco2.stop(now + duration);
-      lfo.stop(now + duration);
+      vco1.stop(now + duration + release);
+      vco2.stop(now + duration + release);
+      vco3.stop(now + duration + release);
+      lfo.stop(now + duration + release);
       
       console.log('🎛️ ARP 2600', { frequency, duration, velocity });
       sendMessage('soundPlayed', { sound: 'arp2600', frequency, duration });
@@ -932,6 +1110,15 @@
             break;
           case 'playClap':
             playClap();
+            break;
+          case 'playCowbell':
+            playCowbell(params);
+            break;
+          case 'playCymbal':
+            playCymbal(params);
+            break;
+          case 'playTom':
+            playTom(params);
             break;
           case 'playBass':
             playBass(params);

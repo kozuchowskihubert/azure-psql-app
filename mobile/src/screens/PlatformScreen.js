@@ -31,7 +31,7 @@ const PLATFORM_FEATURES = [
     id: 'studios',
     name: 'Production Studios',
     icon: '🎹',
-    color: COLORS.orange,
+    color: '#FF6B35',
     stats: '7 Studios',
     description: 'Professional production environments',
     items: ['DAW Studio', 'Bass Studio', 'Arp Studio', 'Wavetable', 'Orchestral', 'Modulation Lab', 'Preset Lab'],
@@ -208,7 +208,7 @@ export default function PlatformScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgDark,
+    backgroundColor: '#000000',
   },
   header: {
     paddingTop: 60,
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 32,
     fontWeight: '900',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
     letterSpacing: 2,
     marginBottom: 5,
   },
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     letterSpacing: 1,
   },
   scrollView: {
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontFamily: 'System',
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
   },
   featureCard: {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   featureDescription: {
     fontFamily: 'System',
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   featureStats: {
     paddingHorizontal: 12,
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   featureItemText: {
     fontFamily: 'System',
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   infoCard: {
     backgroundColor: 'rgba(0, 217, 255, 0.05)',
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   infoText: {
     fontFamily: 'System',
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     lineHeight: 20,
     marginBottom: 12,
   },
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   infoFeatureText: {
     fontFamily: 'System',
     fontSize: 13,
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
   },
   actionsCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
     marginBottom: 16,
     letterSpacing: 1,
   },
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
   },
   actionArrow: {
     fontSize: 20,

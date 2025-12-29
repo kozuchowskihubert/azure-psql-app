@@ -43,7 +43,7 @@ const NAVIGATION_SECTIONS = [
     title: 'WORKSPACES',
     subtitle: 'Production Environments',
     icon: '🎬',
-    gradient: [COLORS.orange, '#FFAA00'],
+    gradient: ['#FF6B35', '#FFAA00'],
     screen: 'WorkspaceScreen',
     description: 'DAW, Techno, Modular & Beat Making'
   },
@@ -289,7 +289,7 @@ export default function HomeScreenV2({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgDark,
+    backgroundColor: '#000000',
   },
   scrollView: {
     flex: 1,
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 48,
     fontWeight: '900',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
     letterSpacing: 3,
     marginBottom: 8,
     textShadowColor: 'rgba(255, 107, 53, 0.5)',
@@ -323,14 +323,14 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 11,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     letterSpacing: 2,
     textAlign: 'center',
   },
   heroWelcome: {
     fontFamily: 'System',
     fontSize: 14,
-    color: COLORS.green,
+    color: '#00FF94', // COLORS.green
     marginTop: 15,
     fontWeight: '500',
   },
@@ -384,14 +384,14 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     marginBottom: 8,
     letterSpacing: 0.5,
   },
   cardDescription: {
     fontFamily: 'System',
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     lineHeight: 18,
   },
   cardArrow: {
@@ -421,13 +421,13 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 28,
     fontWeight: '900',
-    color: COLORS.orange,
+    color: '#FF6B35',
     marginBottom: 4,
   },
   statLabel: {
     fontFamily: 'System',
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
   },
   statDivider: {

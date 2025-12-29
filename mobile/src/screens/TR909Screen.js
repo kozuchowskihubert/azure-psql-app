@@ -1,36 +1,92 @@
 /**
  * HAOS.fm TR-909 Drum Machine
- * Visual recreation of the legendary Roland TR-909
+ * HAOS Themed Design
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  ScrollView, 
+  StyleSheet, 
   Animated,
-  Dimensions,
+  StatusBar,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
+
+// HAOS Components & Theme
+import HAOSHeader from '../components/HAOSHeader';
+import { HAOS_COLORS, HAOS_GRADIENTS } from '../styles/HAOSTheme';
+
+// Design System & Components (Legacy)
+import { COLORS, SPACING, TYPOGRAPHY, RADIUS, commonStyles } from '../styles/SynthDesignSystem';
+import SynthSection from '../components/SynthSection';
+import SynthSlider from '../components/SynthSlider';
+import ParameterGroup from '../components/ParameterGroup';
+
+// Services & Bridges
 import tr909Bridge from '../drums/TR909Bridge';
 import webAudioBridge from '../services/WebAudioBridge';
 
-const { width } = Dimensions.get('window');
+const DRUMS = [
+  { id: 'kick', label: 'BASS DRUM', color: HAOS_COLORS.gold },
+  { id: 'snare', label: 'SNARE', color: HAOS_COLORS.gold },
+  { id: 'hihat', label: 'CLOSED HH', color: HAOS_COLORS.orange },
+  { id: 'clap', label: 'HAND CLAP', color: HAOS_COLORS.silver },
+  { id: 'rim', label: 'RIM SHOT', color: HAOS_COLORS.silver },
+  { id: 'crash', label: 'CRASH', color: HAOS_COLORS.orange },
+  { id: 'ride', label: 'RIDE', color: HAOS_COLORS.orange },
+  { id: 'tom', label: 'TOM', color: HAOS_COLORS.gold },
+];
 
-const HAOS_COLORS = {
-  cyan: '#00D9FF',
-  blue: '#0066FF',
-  red: '#FF0000',
-  dark: '#0a0a0a',
-  metal: '#1a1a1a',
-  silver: '#c0c0c0',
-  lcd: '#00ff00',
+const PRESETS = {
+  'Techno': {
+    bpm: 135,
+    pattern: {
+      kick: [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+      clap: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      rim: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      ride: [0,0,0,1, 0,0,0,1, 0,0,0,1, 0,0,0,1],
+      tom: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+    },
+  },
+  'House': {
+    bpm: 128,
+    pattern: {
+      kick: [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hihat: [0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],
+      clap: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      rim: [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],
+      crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      ride: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,1,0],
+    },
+  },
+  'Trance': {
+    bpm: 140,
+    pattern: {
+      kick: [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hihat: [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
+      clap: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      rim: [0,0,0,1, 0,0,0,1, 0,0,0,1, 0,0,0,1],
+      crash: [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
+      ride: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      tom: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],
+    },
+  },
 };
 
 const TR909Screen = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+  
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [bpm, setBpm] = useState(135);
@@ -58,12 +114,10 @@ const TR909Screen = ({ navigation }) => {
   });
 
   const intervalRef = useRef(null);
+  const scheduleAheadTime = useRef(0.1);
+  const nextNoteTime = useRef(0.0);
+  const timerID = useRef(null);
   const lcdAnim = useRef(new Animated.Value(0)).current;
-  
-  // Visual enhancement animations
-  const stepGlowAnims = useRef(
-    Array(16).fill(0).map(() => new Animated.Value(0))
-  ).current;
 
   useEffect(() => {
     initializeDrums();
@@ -72,6 +126,9 @@ const TR909Screen = ({ navigation }) => {
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+      }
+      if (timerID.current) {
+        clearTimeout(timerID.current);
       }
     };
   }, []);
@@ -117,76 +174,88 @@ const TR909Screen = ({ navigation }) => {
     ));
   };
 
+  const playDrum = (drum, velocity = 1.0, hasAccent = false) => {
+    const finalVelocity = hasAccent ? velocity * 1.3 : velocity;
+    if (tr909Bridge && tr909Bridge[`play${drum.charAt(0).toUpperCase() + drum.slice(1)}`]) {
+      tr909Bridge[`play${drum.charAt(0).toUpperCase() + drum.slice(1)}`](finalVelocity);
+      console.log(`🥁 Playing ${drum} @ ${Math.round(finalVelocity * 100)}%`);
+    }
+  };
+
   const playSequence = async () => {
     if (isPlaying) {
-      clearInterval(intervalRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      if (timerID.current) {
+        clearTimeout(timerID.current);
+      }
       setIsPlaying(false);
       setCurrentStep(0);
       return;
     }
 
     setIsPlaying(true);
-    const stepTime = (60 / bpm) * 250; // 16th notes
-
-    intervalRef.current = setInterval(() => {
-      setCurrentStep(prev => {
-        const nextStep = (prev + 1) % 16;
-        const hasAccent = accent[nextStep];
-        const accentMultiplier = hasAccent ? 1.3 : 1.0;
-        
-        // Trigger glow animation for current step
-        Animated.sequence([
-          Animated.timing(stepGlowAnims[nextStep], {
-            toValue: 1,
-            duration: 50,
-            useNativeDriver: true,
-          }),
-          Animated.timing(stepGlowAnims[nextStep], {
-            toValue: 0,
-            duration: 150,
-            useNativeDriver: true,
-          }),
-        ]).start();
-        
-        // Play active instruments
-        Object.keys(pattern).forEach(instrument => {
-          if (pattern[instrument][nextStep]) {
-            playDrum(instrument, levels[instrument] * accentMultiplier);
-          }
-        });
-        
-        return nextStep;
-      });
-    }, stepTime);
+    nextNoteTime.current = Date.now() / 1000;
+    scheduleNote();
   };
 
-  const playDrum = async (drum, velocity) => {
-    switch (drum) {
-      case 'kick':
-        tr909Bridge.playKick(velocity);
-        break;
-      case 'snare':
-        tr909Bridge.playSnare(velocity);
-        break;
-      case 'hihat':
-        tr909Bridge.playHihat(velocity, false);
-        break;
-      case 'clap':
-        tr909Bridge.playClap(velocity);
-        break;
-      case 'rim':
-        tr909Bridge.playSnare(velocity * 0.4); // Simulated
-        break;
-      case 'crash':
-        tr909Bridge.playHihat(velocity * 1.5, true);
-        break;
-      case 'ride':
-        tr909Bridge.playHihat(velocity * 0.9, true);
-        break;
-      case 'tom':
-        tr909Bridge.playKick(velocity * 0.7); // Simulated
-        break;
+  const scheduleNote = () => {
+    if (!isPlaying) return;
+
+    const stepDuration = (60 / bpm) / 4;
+    const currentTime = Date.now() / 1000;
+
+    while (nextNoteTime.current < currentTime + scheduleAheadTime.current) {
+      const step = currentStep;
+      const hasAccent = accent[step];
+      
+      DRUMS.forEach(({ id }) => {
+        if (pattern[id][step]) {
+          playDrum(id, levels[id], hasAccent);
+        }
+      });
+      
+      setCurrentStep((prev) => (prev + 1) % 16);
+      nextNoteTime.current += stepDuration;
     }
+
+    timerID.current = setTimeout(scheduleNote, 25);
+  };
+
+  useEffect(() => {
+    if (isPlaying) {
+      const wasPlaying = isPlaying;
+      setIsPlaying(false);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timerID.current) clearTimeout(timerID.current);
+      if (wasPlaying) {
+        setTimeout(() => {
+          setIsPlaying(true);
+          nextNoteTime.current = Date.now() / 1000;
+          scheduleNote();
+        }, 10);
+      }
+    }
+  }, [bpm]);
+
+  const loadPreset = (presetName) => {
+    const preset = PRESETS[presetName];
+    if (!preset) return;
+    
+    if (preset.bpm) {
+      setBpm(preset.bpm);
+    }
+    
+    const patternData = preset.pattern || preset;
+    const newPattern = {};
+    Object.keys(patternData).forEach(instrument => {
+      if (Array.isArray(patternData[instrument])) {
+        newPattern[instrument] = patternData[instrument].map(v => v === 1);
+      }
+    });
+    setPattern(newPattern);
+    console.log(`🥁 Loaded preset: ${presetName}`);
   };
 
   const clearPattern = () => {
@@ -203,10 +272,10 @@ const TR909Screen = ({ navigation }) => {
     setAccent(Array(16).fill(false));
   };
 
-  const fillPattern = (instrument) => {
-    setPattern(prev => ({
+  const updateLevel = (drum, value) => {
+    setLevels(prev => ({
       ...prev,
-      [instrument]: Array(16).fill(true),
+      [drum]: value,
     }));
   };
 
@@ -214,193 +283,95 @@ const TR909Screen = ({ navigation }) => {
     const isActive = pattern[instrument][step];
     const isCurrent = step === currentStep && isPlaying;
     const hasAccent = accent[step];
-    const glowOpacity = stepGlowAnims[step];
     
     return (
-      <View key={`${instrument}-${step}`} style={styles.stepWrapper}>
-        {/* Glow ring for current step */}
-        {isCurrent && isActive && (
-          <Animated.View
+      <TouchableOpacity
+        key={`${instrument}-${step}`}
+        style={[
+          styles.stepButton,
+          isActive && styles.stepButtonActive,
+          isCurrent && styles.stepButtonCurrent,
+          isActive && isCurrent && styles.stepButtonPlaying,
+          hasAccent && isActive && styles.stepButtonAccent,
+        ]}
+        onPress={() => toggleStep(instrument, step)}
+      >
+        {isActive && (
+          <View
             style={[
-              styles.stepGlowRing,
+              styles.velocityBar,
               {
-                opacity: glowOpacity,
-                transform: [{
-                  scale: glowOpacity.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.3],
-                  }),
-                }],
+                height: `${levels[instrument] * 100}%`,
+                backgroundColor: hasAccent 
+                  ? COLORS.warning 
+                  : (isCurrent ? COLORS.accent : COLORS.success),
               },
             ]}
           />
         )}
-        
-        {/* Accent glow ring (cyan) */}
-        {isCurrent && isActive && hasAccent && (
-          <Animated.View
-            style={[
-              styles.accentGlowRing,
-              {
-                opacity: glowOpacity.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 0.8],
-                }),
-              },
-            ]}
-          />
-        )}
-        
-        <TouchableOpacity
-          style={[
-            styles.stepButton,
-            isActive && styles.stepButtonActive,
-            isCurrent && styles.stepButtonCurrent,
-            hasAccent && isActive && styles.stepButtonAccent,
-            isActive && isCurrent && styles.stepButtonPlaying,
-          ]}
-          onPress={() => toggleStep(instrument, step)}
-          onLongPress={() => toggleAccent(step)}
-        >
-          {/* Velocity indicator bar for active steps */}
-          {isActive && (
-            <View
-              style={[
-                styles.velocityBar,
-                {
-                  height: `${levels[instrument] * 100}%`,
-                  backgroundColor: isCurrent 
-                    ? (hasAccent ? HAOS_COLORS.cyan : HAOS_COLORS.blue) 
-                    : HAOS_COLORS.cyan,
-                },
-              ]}
-            />
-          )}
-          
-          {/* Accent indicator dot */}
-          {hasAccent && isActive && (
-            <View style={[
-              styles.accentDot,
-              isCurrent && styles.accentDotActive,
-            ]} />
-          )}
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
-  const renderInstrumentRow = (name, label, color) => {
-    return (
-      <View key={name} style={styles.instrumentRow}>
-        <View style={styles.instrumentLabel}>
-          <Text style={[styles.instrumentText, { color }]}>{label}</Text>
-          <View style={styles.instrumentButtons}>
-            <TouchableOpacity
-              style={styles.playButton}
-              onPress={() => playDrum(name, levels[name])}
-            >
-              <Text style={styles.playButtonText}>▶</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.fillButton}
-              onPress={() => fillPattern(name)}
-            >
-              <Text style={styles.fillButtonText}>■</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        
-        <View style={styles.stepsContainer}>
-          {Array(16).fill(0).map((_, i) => renderStepButton(name, i))}
-        </View>
-        
-        <View style={styles.levelSlider}>
-          <Text style={styles.levelText}>{Math.round(levels[name] * 100)}</Text>
-        </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
   return (
-    <View style={styles.container}>
-      {/* Hidden WebView for Web Audio */}
-      <WebView
-        ref={(ref) => {
-          if (ref && !webAudioBridge.isReady) {
-            console.log('TR-909: Setting WebView ref');
-            webAudioBridge.setWebViewRef(ref);
-          }
-        }}
-        source={require('../../assets/audio-engine.html')}
-        style={{ width: 0, height: 0, opacity: 0, position: 'absolute', pointerEvents: 'none' }}
-        onMessage={(event) => {
-          webAudioBridge.onMessage(event);
-        }}
-        onLoad={() => {
-          console.log('TR-909: WebView loaded, initializing audio...');
-          webAudioBridge.initAudio();
-        }}
-        onError={(syntheticEvent) => {
-          const { nativeEvent } = syntheticEvent;
-          console.error('TR-909: WebView error', nativeEvent);
-        }}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        mediaPlaybackRequiresUserAction={false}
-        allowsInlineMediaPlayback={true}
-      />
-      
-      {/* Header */}
-      <LinearGradient
-        colors={[HAOS_COLORS.dark, HAOS_COLORS.metal, HAOS_COLORS.dark]}
-        style={styles.header}
-      >
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Back</Text>
-        </TouchableOpacity>
-        
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>TR-909</Text>
-          <Text style={styles.subtitle}>RHYTHM COMPOSER</Text>
-          <Animated.View 
-            style={[
-              styles.lcdDisplay,
-              { opacity: lcdAnim },
-            ]}
-          >
-            <Text style={styles.lcdText}>
-              {isPlaying ? `♪ ${bpm} BPM` : 'READY'}
-            </Text>
-          </Animated.View>
-        </View>
-        
-        <View style={styles.statusLeds}>
-          <View style={[styles.statusLed, isPlaying && styles.statusLedActive]} />
-          <Text style={styles.statusLabel}>RUN</Text>
-        </View>
-      </LinearGradient>
+    <View style={commonStyles.container}>
+      {/* Hidden WebView */}
+      <View style={{ height: 0, overflow: 'hidden' }}>
+        <WebView
+          ref={(ref) => {
+            if (ref && !webAudioBridge.isReady) {
+              webAudioBridge.setWebViewRef(ref);
+            }
+          }}
+          source={require('../../assets/audio-engine.html')}
+          style={{ width: 1, height: 1, opacity: 0 }}
+          onMessage={(event) => webAudioBridge.onMessage(event)}
+          onLoad={() => webAudioBridge.initAudio()}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          mediaPlaybackRequiresUserAction={false}
+          allowsInlineMediaPlayback={true}
+        />
+      </View>
 
-      <ScrollView style={styles.content}>
-        {/* Control Panel */}
-        <View style={styles.controlPanel}>
-          <View style={styles.controlRow}>
-            <View style={styles.control}>
-              <Text style={styles.controlLabel}>TEMPO</Text>
+      {/* HAOS Header */}
+      <StatusBar barStyle="light-content" />
+      <HAOSHeader
+        title="TR-909"
+        navigation={navigation}
+        showBack={true}
+        rightButtons={[
+          {
+            icon: '🥁',
+            onPress: () => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            },
+          },
+        ]}
+      />
+
+      {/* Main Content */}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: insets.top + 70, paddingBottom: insets.bottom + 120 },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Transport Controls */}
+        <SynthSection title="TRANSPORT" icon="⏯️" subtitle="Tempo control & sequencer transport">
+          <View style={styles.transportRow}>
+            {/* BPM Display */}
+            <View style={styles.bpmContainer}>
+              <Text style={styles.bpmLabel}>TEMPO</Text>
               <View style={styles.bpmDisplay}>
                 <Text style={styles.bpmText}>{bpm}</Text>
                 {isPlaying && (
                   <Animated.View
                     style={[
                       styles.tempoPulse,
-                      {
-                        opacity: lcdAnim,
-                        transform: [{
-                          scale: lcdAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0.8, 1.2],
-                          }),
-                        }],
-                      },
+                      { opacity: lcdAnim },
                     ]}
                   />
                 )}
@@ -410,73 +381,133 @@ const TR909Screen = ({ navigation }) => {
                   style={styles.bpmButton}
                   onPress={() => setBpm(Math.max(40, bpm - 5))}
                 >
-                  <Text style={styles.bpmButtonText}>-</Text>
+                  <Text style={styles.bpmButtonText}>−</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.bpmButton}
-                  onPress={() => setBpm(Math.min(260, bpm + 5))}
+                  onPress={() => setBpm(Math.min(240, bpm + 5))}
                 >
                   <Text style={styles.bpmButtonText}>+</Text>
                 </TouchableOpacity>
               </View>
             </View>
 
-            <View style={styles.mainControls}>
-              <TouchableOpacity
-                style={[styles.mainButton, isPlaying && styles.mainButtonActive]}
-                onPress={playSequence}
-              >
-                <Text style={styles.mainButtonText}>
-                  {isPlaying ? '■' : '▶'}
-                </Text>
-              </TouchableOpacity>
+            {/* Play/Stop Button */}
+            <TouchableOpacity
+              style={[styles.mainButton, isPlaying && styles.mainButtonActive]}
+              onPress={playSequence}
+            >
+              <Text style={styles.mainButtonText}>
+                {isPlaying ? '■' : '▶'}
+              </Text>
+              <Text style={styles.mainButtonLabel}>
+                {isPlaying ? 'STOP' : 'START'}
+              </Text>
+            </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.clearButton}
-                onPress={clearPattern}
-              >
-                <Text style={styles.clearButtonText}>CLR</Text>
-              </TouchableOpacity>
-            </View>
+            {/* Clear Button */}
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={clearPattern}
+            >
+              <Text style={styles.clearButtonText}>✕</Text>
+              <Text style={styles.clearButtonLabel}>CLEAR</Text>
+            </TouchableOpacity>
           </View>
+        </SynthSection>
 
-          <View style={styles.infoPanel}>
-            <Text style={styles.infoText}>
-              💡 Long press step for ACCENT
-            </Text>
-          </View>
-        </View>
+        {/* Presets */}
+        <SynthSection title="PATTERNS" icon="🎵" subtitle="Classic 909 grooves">
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetsScroll}>
+            {Object.keys(PRESETS).map((presetName) => (
+              <TouchableOpacity
+                key={presetName}
+                style={styles.presetButton}
+                onPress={() => loadPreset(presetName)}
+              >
+                <Text style={styles.presetButtonText}>{presetName}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </SynthSection>
 
-        {/* Pattern Editor */}
-        <View style={styles.patternEditor}>
+        {/* Sequencer Grid */}
+        <SynthSection title="SEQUENCER" icon="🎹" subtitle="16-step pattern editor with accent">
+          {/* Step Numbers */}
           <View style={styles.stepNumbers}>
-            <View style={styles.instrumentLabel} />
+            <View style={styles.instrumentLabelSpace} />
             {Array(16).fill(0).map((_, i) => (
               <View key={i} style={styles.stepNumber}>
                 <Text style={styles.stepNumberText}>{i + 1}</Text>
-                {accent[i] && (
-                  <View style={styles.accentDot} />
-                )}
               </View>
             ))}
           </View>
 
-          {renderInstrumentRow('kick', 'BASS DRUM', HAOS_COLORS.cyan)}
-          {renderInstrumentRow('snare', 'SNARE', HAOS_COLORS.cyan)}
-          {renderInstrumentRow('hihat', 'HI-HAT', HAOS_COLORS.blue)}
-          {renderInstrumentRow('clap', 'HAND CLAP', HAOS_COLORS.cyan)}
-          {renderInstrumentRow('rim', 'RIM SHOT', HAOS_COLORS.cyan)}
-          {renderInstrumentRow('crash', 'CRASH', HAOS_COLORS.blue)}
-          {renderInstrumentRow('ride', 'RIDE', HAOS_COLORS.blue)}
-          {renderInstrumentRow('tom', 'TOM', HAOS_COLORS.cyan)}
-        </View>
+          {/* Accent Row */}
+          <View style={styles.instrumentRow}>
+            <View style={styles.instrumentLabel}>
+              <View style={styles.previewButton}>
+                <Text style={styles.previewIcon}>⚡</Text>
+              </View>
+              <Text style={[styles.instrumentText, { color: COLORS.warning }]}>ACCENT</Text>
+            </View>
+            
+            <View style={styles.stepsContainer}>
+              {Array(16).fill(0).map((_, i) => (
+                <TouchableOpacity
+                  key={`accent-${i}`}
+                  style={[
+                    styles.stepButton,
+                    accent[i] && styles.stepButtonAccent,
+                    i === currentStep && isPlaying && styles.stepButtonCurrent,
+                  ]}
+                  onPress={() => toggleAccent(i)}
+                >
+                  {accent[i] && (
+                    <View style={[styles.velocityBar, { backgroundColor: COLORS.warning, height: '100%' }]} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
 
-        {/* Footer Info */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            🎛️ Digital/analog hybrid drum machine • Techno legend
-          </Text>
-        </View>
+          {/* Instrument Rows */}
+          {DRUMS.map(({ id, label, color }) => (
+            <View key={id} style={styles.instrumentRow}>
+              {/* Label & Preview */}
+              <View style={styles.instrumentLabel}>
+                <TouchableOpacity
+                  style={styles.previewButton}
+                  onPress={() => playDrum(id, levels[id])}
+                >
+                  <Text style={styles.previewIcon}>▶</Text>
+                </TouchableOpacity>
+                <Text style={[styles.instrumentText, { color }]}>{label}</Text>
+              </View>
+              
+              {/* Steps */}
+              <View style={styles.stepsContainer}>
+                {Array(16).fill(0).map((_, i) => renderStepButton(id, i))}
+              </View>
+            </View>
+          ))}
+        </SynthSection>
+
+        {/* Mixer Levels */}
+        <SynthSection title="MIXER" icon="🎚️" subtitle="Individual voice levels">
+          <ParameterGroup>
+            {DRUMS.map(({ id, label, color }) => (
+              <SynthSlider
+                key={id}
+                label={label}
+                value={levels[id]}
+                onValueChange={(value) => updateLevel(id, value)}
+                unit="%"
+                color={color}
+              />
+            ))}
+          </ParameterGroup>
+        </SynthSection>
       </ScrollView>
     </View>
   );
@@ -485,117 +516,52 @@ const TR909Screen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: HAOS_COLORS.dark,
+    backgroundColor: HAOS_COLORS.background,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomWidth: 2,
-    borderBottomColor: HAOS_COLORS.cyan,
-  },
-  backButton: {
-    color: HAOS_COLORS.cyan,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  titleContainer: {
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: HAOS_COLORS.cyan,
-    letterSpacing: 4,
-  },
-  subtitle: {
-    fontSize: 10,
-    color: HAOS_COLORS.silver,
-    letterSpacing: 2,
-    marginTop: 2,
-  },
-  lcdDisplay: {
-    backgroundColor: '#000',
-    paddingHorizontal: 20,
-    paddingVertical: 6,
-    borderRadius: 4,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: HAOS_COLORS.lcd,
-  },
-  lcdText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: HAOS_COLORS.lcd,
-    fontFamily: 'monospace',
-    letterSpacing: 2,
-  },
-  statusLeds: {
-    alignItems: 'center',
-  },
-  statusLed: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#333',
-    borderWidth: 1,
-    borderColor: HAOS_COLORS.red,
-    marginBottom: 4,
-  },
-  statusLedActive: {
-    backgroundColor: HAOS_COLORS.red,
-    shadowColor: HAOS_COLORS.red,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
-  },
-  statusLabel: {
-    fontSize: 8,
-    color: HAOS_COLORS.silver,
-    letterSpacing: 1,
-  },
-  content: {
+  scrollView: {
     flex: 1,
   },
-  controlPanel: {
-    padding: 20,
-    backgroundColor: HAOS_COLORS.metal,
-    borderBottomWidth: 2,
-    borderBottomColor: HAOS_COLORS.cyan,
+  scrollContent: {
+    paddingHorizontal: SPACING.lg,
   },
-  controlRow: {
+  hiddenWebView: {
+    width: 1,
+    height: 1,
+    opacity: 0,
+    position: 'absolute',
+    top: -1000,
+    left: -1000,
+    pointerEvents: 'none',
+  },
+  transportRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: SPACING.md,
   },
-  control: {
+  bpmContainer: {
     alignItems: 'center',
   },
-  controlLabel: {
-    fontSize: 10,
-    color: HAOS_COLORS.silver,
-    letterSpacing: 1,
-    marginBottom: 8,
+  bpmLabel: {
+    ...TYPOGRAPHY.label,
+    color: HAOS_COLORS.gold,
+    marginBottom: SPACING.xs,
   },
   bpmDisplay: {
-    backgroundColor: '#000',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 4,
+    backgroundColor: HAOS_COLORS.surface,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.md,
     borderWidth: 2,
-    borderColor: HAOS_COLORS.cyan,
-    marginBottom: 8,
-    position: 'relative',
+    borderColor: HAOS_COLORS.gold,
+    marginBottom: SPACING.sm,
     minWidth: 80,
     alignItems: 'center',
+    position: 'relative',
   },
   bpmText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: HAOS_COLORS.cyan,
+    ...TYPOGRAPHY.h1,
+    color: HAOS_COLORS.gold,
     fontFamily: 'monospace',
   },
   tempoPulse: {
@@ -605,262 +571,179 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: HAOS_COLORS.lcd,
-    shadowColor: HAOS_COLORS.lcd,
+    backgroundColor: HAOS_COLORS.orange,
+    shadowColor: HAOS_COLORS.orange,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 6,
   },
   bpmButtons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: SPACING.sm,
   },
   bpmButton: {
-    backgroundColor: HAOS_COLORS.cyan,
+    backgroundColor: HAOS_COLORS.surface,
     width: 40,
     height: 40,
-    borderRadius: 4,
+    borderRadius: RADIUS.round,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: HAOS_COLORS.gold,
   },
   bpmButtonText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  mainControls: {
-    flexDirection: 'row',
-    gap: 12,
+    ...TYPOGRAPHY.h2,
+    color: HAOS_COLORS.gold,
   },
   mainButton: {
-    backgroundColor: HAOS_COLORS.blue,
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    backgroundColor: HAOS_COLORS.gold,
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: HAOS_COLORS.cyan,
+    minWidth: 120,
+    shadowColor: HAOS_COLORS.gold,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
   },
   mainButtonActive: {
-    backgroundColor: HAOS_COLORS.red,
-    borderColor: HAOS_COLORS.red,
+    backgroundColor: HAOS_COLORS.orange,
+    shadowColor: HAOS_COLORS.orange,
   },
   mainButtonText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
+    ...TYPOGRAPHY.h1,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.xs,
+  },
+  mainButtonLabel: {
+    ...TYPOGRAPHY.label,
+    color: COLORS.textPrimary,
   },
   clearButton: {
-    backgroundColor: '#333',
-    width: 60,
-    height: 60,
-    borderRadius: 4,
+    backgroundColor: HAOS_COLORS.surface,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#555',
+    borderWidth: 1,
+    borderColor: HAOS_COLORS.gold,
   },
   clearButtonText: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    ...TYPOGRAPHY.h2,
+    color: HAOS_COLORS.gold,
+    marginBottom: SPACING.xs,
+  },
+  clearButtonLabel: {
+    ...TYPOGRAPHY.label,
     color: HAOS_COLORS.silver,
-    letterSpacing: 1,
   },
-  infoPanel: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: '#000',
-    borderRadius: 4,
+  presetsScroll: {
+    paddingVertical: SPACING.sm,
+  },
+  presetButton: {
+    backgroundColor: HAOS_COLORS.surface,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.lg,
+    marginRight: SPACING.sm,
     borderWidth: 1,
-    borderColor: HAOS_COLORS.cyan,
+    borderColor: HAOS_COLORS.gold,
   },
-  infoText: {
-    fontSize: 11,
-    color: HAOS_COLORS.cyan,
-    textAlign: 'center',
-  },
-  patternEditor: {
-    padding: 10,
+  presetButtonText: {
+    ...TYPOGRAPHY.body,
+    color: HAOS_COLORS.gold,
+    fontWeight: 'bold',
   },
   stepNumbers: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: SPACING.sm,
+    paddingLeft: SPACING.sm,
   },
-  instrumentLabel: {
+  instrumentLabelSpace: {
     width: 100,
-    justifyContent: 'center',
-    paddingRight: 8,
   },
   stepNumber: {
-    width: 16,
+    width: 18,
     alignItems: 'center',
-    marginRight: 2,
+    marginHorizontal: 1,
   },
   stepNumberText: {
-    fontSize: 8,
+    ...TYPOGRAPHY.caption,
     color: HAOS_COLORS.silver,
-  },
-  accentDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: HAOS_COLORS.red,
-    marginTop: 2,
+    fontSize: 9,
   },
   instrumentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: SPACING.sm,
+    paddingLeft: SPACING.sm,
+  },
+  instrumentLabel: {
+    width: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+  },
+  previewButton: {
+    width: 24,
+    height: 24,
+    borderRadius: RADIUS.sm,
+    backgroundColor: HAOS_COLORS.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: HAOS_COLORS.gold,
+  },
+  previewIcon: {
+    color: HAOS_COLORS.gold,
+    fontSize: 10,
   },
   instrumentText: {
-    fontSize: 11,
+    ...TYPOGRAPHY.caption,
     fontWeight: 'bold',
+    fontSize: 9,
     letterSpacing: 0.5,
-  },
-  instrumentButtons: {
-    flexDirection: 'row',
-    marginTop: 4,
-    gap: 4,
-  },
-  playButton: {
-    backgroundColor: '#333',
-    width: 24,
-    height: 24,
-    borderRadius: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  playButtonText: {
-    fontSize: 10,
-    color: HAOS_COLORS.cyan,
-  },
-  fillButton: {
-    backgroundColor: '#333',
-    width: 24,
-    height: 24,
-    borderRadius: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fillButtonText: {
-    fontSize: 10,
-    color: HAOS_COLORS.blue,
   },
   stepsContainer: {
     flexDirection: 'row',
     flex: 1,
   },
-  stepWrapper: {
-    position: 'relative',
-    marginRight: 2,
-  },
-  stepGlowRing: {
-    position: 'absolute',
-    top: -3,
-    left: -3,
-    right: -3,
-    bottom: -3,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: HAOS_COLORS.blue,
-    shadowColor: HAOS_COLORS.blue,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
-  },
-  accentGlowRing: {
-    position: 'absolute',
-    top: -5,
-    left: -5,
-    right: -5,
-    bottom: -5,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: HAOS_COLORS.cyan,
-    shadowColor: HAOS_COLORS.cyan,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 12,
-  },
   stepButton: {
-    width: 16,
-    height: 32,
-    backgroundColor: '#1a1a1a',
+    width: 18,
+    height: 28,
+    backgroundColor: HAOS_COLORS.surface,
+    marginHorizontal: 1,
+    borderRadius: RADIUS.sm,
     borderWidth: 1,
-    borderColor: '#333',
-    borderRadius: 3,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
+    borderColor: HAOS_COLORS.gold,
     overflow: 'hidden',
-    position: 'relative',
+    justifyContent: 'flex-end',
   },
   stepButtonActive: {
-    backgroundColor: HAOS_COLORS.cyan,
-    borderColor: HAOS_COLORS.cyan,
-    shadowColor: HAOS_COLORS.cyan,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 4,
-  },
-  stepButtonAccent: {
-    backgroundColor: HAOS_COLORS.red,
-    borderColor: HAOS_COLORS.red,
+    backgroundColor: HAOS_COLORS.surface,
+    borderColor: HAOS_COLORS.orange,
   },
   stepButtonCurrent: {
-    borderColor: '#fff',
+    borderColor: HAOS_COLORS.gold,
     borderWidth: 2,
   },
   stepButtonPlaying: {
-    backgroundColor: HAOS_COLORS.blue,
-    shadowColor: HAOS_COLORS.blue,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
+    borderColor: HAOS_COLORS.gold,
+    backgroundColor: HAOS_COLORS.primaryDark,
+  },
+  stepButtonAccent: {
+    borderColor: HAOS_COLORS.orange,
+    borderWidth: 2,
   },
   velocityBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: HAOS_COLORS.cyan,
-    borderRadius: 2,
-  },
-  accentDot: {
-    position: 'absolute',
-    top: 2,
-    right: 2,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: HAOS_COLORS.red,
-  },
-  accentDotActive: {
-    backgroundColor: HAOS_COLORS.cyan,
-    shadowColor: HAOS_COLORS.cyan,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 4,
-  },
-  levelSlider: {
-    width: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 8,
-  },
-  levelText: {
-    fontSize: 10,
-    color: HAOS_COLORS.cyan,
-    fontFamily: 'monospace',
-  },
-  footer: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    color: HAOS_COLORS.silver,
-    textAlign: 'center',
+    width: '100%',
+    backgroundColor: HAOS_COLORS.orange,
+    borderTopLeftRadius: RADIUS.sm,
+    borderTopRightRadius: RADIUS.sm,
   },
 });
 

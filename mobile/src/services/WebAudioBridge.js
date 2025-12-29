@@ -47,22 +47,35 @@ class WebAudioBridge {
    * Send command to WebView
    */
   sendCommand(command, params = {}) {
-    if (!this.webViewRef || !this.webViewRef.current) {
+    // Handle both direct ref and ref.current patterns
+    const webView = this.webViewRef?.current || this.webViewRef;
+    
+    if (!webView) {
       console.warn('⚠️ WebView not ready, queueing command:', command);
       this.commandQueue.push({ command, params });
       return;
     }
     
     const message = JSON.stringify({ command, params });
+    // Escape single quotes and backslashes in JSON string
+    const escapedMessage = message.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const js = `
-      if (window.processCommand) {
-        window.processCommand(${message});
-      } else {
-        console.error('processCommand not available');
-      }
+      (function() {
+        try {
+          if (window.processCommand) {
+            const msg = JSON.parse('${escapedMessage}');
+            window.processCommand(msg);
+          } else {
+            console.error('processCommand not available');
+          }
+        } catch(e) {
+          console.error('sendCommand error:', e);
+        }
+      })();
+      true;
     `;
     
-    this.webViewRef.current.injectJavaScript(js);
+    webView.injectJavaScript(js);
     console.log(`🌉 → WebView: ${command}`, params);
   }
   
@@ -190,8 +203,14 @@ class WebAudioBridge {
    * @param {number} velocity - Velocity 0-1
    * @param {number} detune - Oscillator detune amount (default 0.02)
    */
-  playARP2600(frequency, duration = 0.5, velocity = 1.0, detune = 0.02) {
-    this.sendCommand('playARP2600', { frequency, duration, velocity, detune });
+  playARP2600(frequency, duration = 0.5, velocity = 1.0, detune = 0.02, params = {}) {
+    this.sendCommand('playARP2600', { 
+      frequency, 
+      duration, 
+      velocity, 
+      detune,
+      ...params  // Pass all extra parameters (osc1Level, osc2Level, filterCutoff, etc.)
+    });
   }
   
   /**
@@ -237,6 +256,48 @@ class WebAudioBridge {
     });
   }
   
+  /**
+   * Play professional bass note with full synthesis parameters
+   * @param {number} frequency - Note frequency in Hz
+   * @param {number} duration - Note duration in seconds
+   * @param {number} velocity - Velocity 0-1
+   * @param {object} params - Bass synthesis parameters
+   *   - osc1Level: Oscillator 1 level (0-1)
+   *   - osc2Level: Oscillator 2 level (0-1)
+   *   - detune: Oscillator 2 detune in cents (0-50)
+   *   - cutoff: Filter cutoff frequency (50-5000 Hz)
+   *   - resonance: Filter resonance/Q (0-20)
+   *   - envAmount: Envelope modulation amount (0-1)
+   *   - attack: Envelope attack time (0.001-2)
+   *   - decay: Envelope decay time (0.01-2)
+   *   - sustain: Envelope sustain level (0-1)
+   *   - release: Envelope release time (0.01-3)
+   *   - distortion: Distortion amount (0-100)
+   *   - chorus: Chorus amount (0-100)
+   *   - compression: Compression amount (0-100)
+   */
+  playBassNote(frequency, duration = 1.0, velocity = 0.8, params = {}) {
+    this.sendCommand('playBassNote', { 
+      frequency, 
+      duration, 
+      velocity,
+      // Default parameters
+      osc1Level: params.osc1Level !== undefined ? params.osc1Level : 0.8,
+      osc2Level: params.osc2Level !== undefined ? params.osc2Level : 0.6,
+      detune: params.detune !== undefined ? params.detune : 5,
+      cutoff: params.cutoff !== undefined ? params.cutoff : 1000,
+      resonance: params.resonance !== undefined ? params.resonance : 5,
+      envAmount: params.envAmount !== undefined ? params.envAmount : 0.5,
+      attack: params.attack !== undefined ? params.attack : 0.01,
+      decay: params.decay !== undefined ? params.decay : 0.3,
+      sustain: params.sustain !== undefined ? params.sustain : 0.7,
+      release: params.release !== undefined ? params.release : 0.5,
+      distortion: params.distortion !== undefined ? params.distortion : 20,
+      chorus: params.chorus !== undefined ? params.chorus : 30,
+      compression: params.compression !== undefined ? params.compression : 50,
+    });
+  }
+
   /**
    * Stop all notes
    */

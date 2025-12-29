@@ -25,11 +25,12 @@ export default function AnimatedKnob({
   max = 1,
   onChange,
   size = 80,
-  color = COLORS.accentGreen,
+  color = null,
   unit = '',
   decimals = 2,
   steps = null,
 }) {
+  const actualColor = color || COLORS.accentGreen;
   const [currentValue, setCurrentValue] = useState(value);
   const rotation = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(1)).current;
@@ -120,7 +121,7 @@ export default function AnimatedKnob({
   const getValueColor = () => {
     const normalized = (currentValue - min) / (max - min);
     if (normalized < 0.33) return COLORS.accentCyan;
-    if (normalized < 0.66) return color;
+    if (normalized < 0.66) return actualColor;
     return COLORS.accentOrange;
   };
   

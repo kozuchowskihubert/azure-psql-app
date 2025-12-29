@@ -1,44 +1,60 @@
 /**
- * HAOS.fm Main Navigation Structure
- * 6 Main Tabs: CREATOR / STUDIO / INSTRUMENTS / SOUNDS / DOCU / ACCOUNT
- * Mobile DAW Interface
+ * HAOS.fm V3 Navigation Structure
+ * Main Tabs: CREATE / STUDIO / LIBRARY / ACCOUNT
+ * CREATOR Theme - Gold/Silver/Orange Design
+ * Mobile DAW Interface - No Cut-off Icons/Labels
  */
 
+console.log('🧭 MainTabNavigator loading...');
+
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+console.log('🧭 MainTabNavigator about to import screens...');
 
 // Import screen structure
 import CreatorScreen from '../screens/CreatorScreen';
+
+console.log('✅ CreatorScreen imported');
+
 import StudioScreenNew from '../screens/StudioScreenNew';
-import InstrumentsScreen from '../screens/InstrumentsScreen';
-import SoundsScreen from '../screens/SoundsScreen';
-import DocuScreen from '../screens/DocuScreen';
+
+console.log('✅ StudioScreenNew imported');
+
+import LibraryScreen from '../screens/LibraryScreen';
+
+console.log('✅ LibraryScreen imported');
+
 import AccountScreenNew from '../screens/AccountScreenNew';
+
+console.log('✅ AccountScreenNew imported');
+console.log('🎉 MainTabNavigator all screens imported!');
 
 const Tab = createBottomTabNavigator();
 
-// HAOS Color System
+// HAOS V3 CREATOR Color System
 const COLORS = {
-  bgDark: '#050508',
-  bgTab: 'rgba(10, 10, 10, 0.95)',
+  bgDark: '#000000',           // Pure black
+  bgTab: 'rgba(15, 15, 15, 0.98)',
+  gold: '#D4AF37',             // Primary gold
+  goldLight: '#FFD700',
   orange: '#FF6B35',
   orangeLight: '#FF8C5A',
   gray: '#808080',
-  grayDark: '#404040',
-  textPrimary: '#F4E8D8',
-  textSecondary: 'rgba(244, 232, 216, 0.6)',
-  border: 'rgba(255, 107, 53, 0.2)',
+  grayDark: '#505050',
+  textPrimary: '#FFFFFF',
+  textSecondary: 'rgba(255, 255, 255, 0.7)',
+  border: 'rgba(212, 175, 55, 0.3)',
 };
 
-// Monolithic emoji icons (modern style)
+// V3 Optimized Tab Icons (smaller, cleaner)
 const TabIcon = ({ name, color, focused }) => {
   const icons = {
-    Creator: '🎹',
+    Create: '🎹',
     Studio: '🎛️',
-    Instruments: '🎸',
-    Sounds: '🔊',
-    Docu: '📖',
+    Library: '�',
     Account: '👤',
   };
 
@@ -59,7 +75,8 @@ const TabIcon = ({ name, color, focused }) => {
 };
 
 function MainTabNavigator({ route }) {
-  const { initialRoute = 'Creator', persona = 'musician' } = route.params || {};
+  const { initialRoute = 'Create', persona = 'musician' } = route.params || {};
+  const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
@@ -72,35 +89,37 @@ function MainTabNavigator({ route }) {
         tabBarStyle: {
           backgroundColor: COLORS.bgTab,
           borderTopColor: COLORS.border,
-          borderTopWidth: 1,
-          height: 80,
-          paddingBottom: 20,
-          paddingTop: 10,
-          shadowColor: COLORS.orange,
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 10,
-          elevation: 10,
+          borderTopWidth: 1.5,
+          height: 80 + insets.bottom, // Increased height for better spacing
+          paddingBottom: insets.bottom + 8, // More padding at bottom
+          paddingTop: 12, // More padding at top
+          shadowColor: COLORS.gold,
+          shadowOffset: { width: 0, height: -3 },
+          shadowOpacity: 0.15,
+          shadowRadius: 12,
+          elevation: 15,
         },
-        tabBarActiveTintColor: COLORS.orange,
+        tabBarActiveTintColor: COLORS.gold,
         tabBarInactiveTintColor: COLORS.gray,
         tabBarLabelStyle: {
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: '700',
-          letterSpacing: 0.5,
-          marginTop: 4,
+          letterSpacing: 1,
+          marginTop: 6, // More space between icon and label
+          marginBottom: 2,
         },
         tabBarItemStyle: {
-          paddingVertical: 8,
+          paddingVertical: 4,
+          minHeight: 70, // Ensure minimum height for each tab item
         },
       })}
     >
       <Tab.Screen
-        name="Creator"
+        name="Create"
         component={CreatorScreen}
         options={{
-          tabBarLabel: 'CREATOR',
-          title: 'HAOS CREATOR',
+          tabBarLabel: 'CREATE',
+          title: 'HAOS CREATE',
         }}
       />
       <Tab.Screen
@@ -112,27 +131,11 @@ function MainTabNavigator({ route }) {
         }}
       />
       <Tab.Screen
-        name="Instruments"
-        component={InstrumentsScreen}
+        name="Library"
+        component={LibraryScreen}
         options={{
-          tabBarLabel: 'INSTRUMENTS',
-          title: 'INSTRUMENTS',
-        }}
-      />
-      <Tab.Screen
-        name="Sounds"
-        component={SoundsScreen}
-        options={{
-          tabBarLabel: 'SOUNDS',
-          title: 'SOUND LIBRARY',
-        }}
-      />
-      <Tab.Screen
-        name="Docu"
-        component={DocuScreen}
-        options={{
-          tabBarLabel: 'DOCU',
-          title: 'DOCUMENTATION',
+          tabBarLabel: 'LIBRARY',
+          title: 'LIBRARY',
         }}
       />
       <Tab.Screen
@@ -152,25 +155,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    paddingVertical: 4,
+    paddingVertical: 6,
+    minHeight: 32, // Ensure icon has enough space
   },
   iconContainerFocused: {
-    transform: [{ scale: 1.1 }],
+    transform: [{ scale: 1.15 }],
   },
   icon: {
-    fontSize: 26,
+    fontSize: 22, // Reduced from 26px - fits better
   },
   focusIndicator: {
     position: 'absolute',
-    bottom: -8,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: COLORS.orange,
-    shadowColor: COLORS.orange,
+    bottom: -4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#D4AF37', // COLORS.gold
+    shadowColor: '#D4AF37', // COLORS.gold
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
+    shadowOpacity: 0.9,
+    shadowRadius: 6,
   },
 });
 

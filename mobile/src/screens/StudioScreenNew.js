@@ -1,904 +1,802 @@
 /**
- * HAOS.fm Studio Screen - REFACTORED
- * Mixer + Effects Interface for Recording & Mixing
- * Based on haos-studio.html and studio.html design
- * Date: December 28, 2025
+ * HAOS.fm STUDIO Screen V3
+ * CREATOR Theme - with WebAudio Engine
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  ScrollView,
   TouchableOpacity,
+  ScrollView,
+  StyleSheet,
   Dimensions,
+  StatusBar,
+  Image,
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
-import { COLORS, GRADIENTS } from '../styles/colors';
-import { TYPOGRAPHY } from '../styles/typography';
-import CircuitBoardBackground from '../components/CircuitBoardBackground';
+import pythonAudioEngine from '../services/PythonAudioEngine';
+import { Audio } from 'expo-av';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-// Effects Library
-const EFFECTS = [
-  { id: 'reverb', name: 'REVERB', emoji: '🌊', color: COLORS.cyan, active: false },
-  { id: 'delay', name: 'DELAY', emoji: '🔁', color: COLORS.purple, active: false },
-  { id: 'compress', name: 'COMPRESS', emoji: '📦', color: COLORS.orange, active: false },
-  { id: 'eq', name: 'EQ', emoji: '🎚️', color: COLORS.green, active: false },
-  { id: 'distortion', name: 'DISTORTION', emoji: '⚡', color: COLORS.red, active: false },
-  { id: 'chorus', name: 'CHORUS', emoji: '🎭', color: COLORS.purple, active: false },
-  { id: 'flanger', name: 'FLANGER', emoji: '🌀', color: COLORS.cyan, active: false },
-  { id: 'phaser', name: 'PHASER', emoji: '🔄', color: COLORS.gold, active: false },
-  { id: 'limiter', name: 'LIMITER', emoji: '🛡️', color: COLORS.orange, active: false },
-];
-
-// Track Configurations
-const INITIAL_TRACKS = [
-  { 
-    id: 1, 
-    name: 'VOCALS', 
-    color: COLORS.cyan, 
-    volume: 0.8, 
-    pan: 0, 
-    muted: false, 
-    solo: false, 
-    recording: false,
-    effects: [],
-    waveform: [0.4, 0.7, 0.3, 0.8, 0.5, 0.9, 0.2, 0.6, 0.4, 0.7],
-  },
-  { 
-    id: 2, 
-    name: 'SYNTH', 
-    color: COLORS.orange, 
-    volume: 0.7, 
-    pan: 0, 
-    muted: false, 
-    solo: false, 
-    recording: false,
-    effects: [],
-    waveform: [0.3, 0.5, 0.7, 0.4, 0.6, 0.5, 0.7, 0.3, 0.5, 0.6],
-  },
-  { 
-    id: 3, 
-    name: 'DRUMS', 
-    color: COLORS.purple, 
-    volume: 0.9, 
-    pan: 0, 
-    muted: false, 
-    solo: false, 
-    recording: false,
-    effects: [],
-    waveform: [0.8, 0.9, 0.5, 0.7, 0.8, 0.6, 0.9, 0.7, 0.8, 0.5],
-  },
-  { 
-    id: 4, 
-    name: 'BASS', 
-    color: COLORS.green, 
-    volume: 0.75, 
-    pan: 0, 
-    muted: false, 
-    solo: false, 
-    recording: false,
-    effects: [],
-    waveform: [0.6, 0.7, 0.8, 0.5, 0.6, 0.7, 0.5, 0.8, 0.6, 0.7],
-  },
-];
-
-// Mixer Channel Component
-const MixerChannel = ({ track, onVolumeChange, onPanChange, onMuteToggle, onSoloToggle, onEffectsPress }) => {
-  const [showWaveform, setShowWaveform] = useState(true);
-
-  return (
-    <View style={styles.mixerChannel}>
-      <LinearGradient
-        colors={[COLORS.bgCard, COLORS.bgDark]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.channelGradient}
-      >
-        {/* Channel Border */}
-        <View style={[styles.channelBorder, { borderColor: track.color }]} />
-        
-        {/* Track Header */}
-        <View style={styles.channelHeader}>
-          <View style={[styles.trackIndicator, { backgroundColor: track.color }]} />
-          <Text style={styles.trackName}>{track.name}</Text>
-          <TouchableOpacity onPress={() => setShowWaveform(!showWaveform)}>
-            <Text style={styles.waveformToggle}>{showWaveform ? '📊' : '📈'}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Waveform Visualization */}
-        {showWaveform && (
-          <View style={styles.waveformContainer}>
-            {track.waveform.map((amplitude, index) => (
-              <View 
-                key={index}
-                style={[
-                  styles.waveformBar,
-                  { 
-                    height: amplitude * 40,
-                    backgroundColor: track.muted ? COLORS.grayDark : track.color,
-                  }
-                ]}
-              />
-            ))}
-          </View>
-        )}
-
-        {/* Volume Fader */}
-        <View style={styles.faderContainer}>
-          <Text style={styles.faderLabel}>VOLUME</Text>
-          <View style={styles.faderTrack}>
-            <Slider
-              style={styles.fader}
-              value={track.volume}
-              onValueChange={onVolumeChange}
-              minimumValue={0}
-              maximumValue={1}
-              minimumTrackTintColor={track.color}
-              maximumTrackTintColor={COLORS.grayDark}
-              thumbTintColor={track.color}
-              vertical={true}
-            />
-            <Text style={styles.faderValue}>
-              {Math.round(track.volume * 100)}%
-            </Text>
-          </View>
-        </View>
-
-        {/* dB Meter */}
-        <View style={styles.meterContainer}>
-          <View style={styles.meterTrack}>
-            <View 
-              style={[
-                styles.meterFill,
-                { 
-                  height: `${track.volume * 100}%`,
-                  backgroundColor: track.volume > 0.9 ? COLORS.red : track.volume > 0.7 ? COLORS.orange : COLORS.green,
-                }
-              ]}
-            />
-          </View>
-          <Text style={styles.meterLabel}>
-            {Math.round((track.volume * 12) - 12)}dB
-          </Text>
-        </View>
-
-        {/* Pan Control */}
-        <View style={styles.panContainer}>
-          <Text style={styles.panLabel}>PAN</Text>
-          <Slider
-            style={styles.panSlider}
-            value={track.pan}
-            onValueChange={onPanChange}
-            minimumValue={-1}
-            maximumValue={1}
-            minimumTrackTintColor={COLORS.cyan}
-            maximumTrackTintColor={COLORS.cyan}
-            thumbTintColor={COLORS.textPrimary}
-          />
-          <View style={styles.panValueContainer}>
-            <Text style={styles.panValue}>
-              {track.pan === 0 ? 'C' : track.pan < 0 ? `L${Math.abs(Math.round(track.pan * 100))}` : `R${Math.round(track.pan * 100)}`}
-            </Text>
-          </View>
-        </View>
-
-        {/* Channel Controls */}
-        <View style={styles.channelControls}>
-          <TouchableOpacity
-            onPress={onMuteToggle}
-            style={[
-              styles.controlButton,
-              styles.muteButton,
-              track.muted && styles.controlButtonActive,
-            ]}
-          >
-            <Text style={[styles.controlButtonText, track.muted && styles.controlButtonTextActive]}>M</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={onSoloToggle}
-            style={[
-              styles.controlButton,
-              styles.soloButton,
-              track.solo && styles.controlButtonActive,
-            ]}
-          >
-            <Text style={[styles.controlButtonText, track.solo && styles.controlButtonTextActive]}>S</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={onEffectsPress}
-            style={[
-              styles.controlButton,
-              styles.effectsButton,
-              track.effects.length > 0 && styles.controlButtonActive,
-            ]}
-          >
-            <Text style={[styles.controlButtonText, track.effects.length > 0 && styles.controlButtonTextActive]}>FX</Text>
-            {track.effects.length > 0 && (
-              <View style={styles.effectsBadge}>
-                <Text style={styles.effectsBadgeText}>{track.effects.length}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
-      </LinearGradient>
-    </View>
-  );
+const COLORS = {
+  bgDark: '#000000',
+  bgCard: 'rgba(15, 15, 15, 0.95)',
+  cardDark: 'rgba(10, 10, 10, 0.95)',
+  gold: '#D4AF37',
+  goldLight: '#FFD700',
+  goldDark: '#B8951F',
+  silver: '#C0C0C0',
+  silverLight: '#E8E8E8',
+  silverDark: '#A0A0A0',
+  orange: '#FF6B35',
+  orangeLight: '#FF8C5A',
+  orangeDark: '#E55520',
+  textPrimary: '#FFFFFF',
+  textSecondary: 'rgba(255, 255, 255, 0.7)',
+  textDim: 'rgba(255, 255, 255, 0.4)',
+  border: 'rgba(212, 175, 55, 0.3)',
+  borderActive: 'rgba(212, 175, 55, 0.8)',
 };
 
-// Effect Card Component
-const EffectCard = ({ effect, onToggle }) => (
-  <TouchableOpacity
-    activeOpacity={0.7}
-    onPress={onToggle}
-    style={[styles.effectCard, effect.active && styles.effectCardActive]}
-  >
-    <LinearGradient
-      colors={effect.active ? [effect.color + '40', effect.color + '20'] : [COLORS.bgCard, COLORS.bgDark]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.effectGradient}
-    >
-      <View style={[styles.effectBorder, { borderColor: effect.active ? effect.color : COLORS.borderGray }]} />
-      <Text style={styles.effectEmoji}>{effect.emoji}</Text>
-      <Text style={[styles.effectName, effect.active && { color: effect.color }]}>{effect.name}</Text>
-      {effect.active && (
-        <View style={[styles.effectIndicator, { backgroundColor: effect.color }]} />
-      )}
-    </LinearGradient>
-  </TouchableOpacity>
-);
+const SOUNDS = {
+  synths: [
+    { id: 'arp2600', name: 'ARP 2600', emoji: '🎛️', gradient: ['#D4AF37', '#FFD700'], note: 'C4', freq: 261.63 },
+    { id: 'juno106', name: 'Juno-106', emoji: '🎹', gradient: ['#C0C0C0', '#A0A0A0'], note: 'E4', freq: 329.63 },
+    { id: 'minimoog', name: 'Minimoog', emoji: '🎵', gradient: ['#FF6B35', '#FF8C5A'], note: 'G4', freq: 392.00 },
+    { id: 'tb303', name: 'TB-303', emoji: '💚', gradient: ['#B8960E', '#D4AF37'], note: 'A4', freq: 440.00 },
+  ],
+  drums: [
+    { id: 'kick', name: 'Kick', emoji: '🥁', gradient: ['#FF6B35', '#FF8C5A'], note: 'C2', freq: 65.41 },
+    { id: 'snare', name: 'Snare', emoji: '🪘', gradient: ['#C0C0C0', '#A0A0A0'], note: 'D3', freq: 146.83 },
+    { id: 'hihat', name: 'Hi-Hat', emoji: '🔔', gradient: ['#D4AF37', '#FFD700'], note: 'F#5', freq: 739.99 },
+    { id: 'clap', name: 'Clap', emoji: '👏', gradient: ['#CC5528', '#FF6B35'], note: 'A3', freq: 220.00 },
+  ],
+  bass: [
+    { id: 'bass808', name: '808 Bass', emoji: '🎸', gradient: ['#D4AF37', '#B8960E'], note: 'E1', freq: 41.20 },
+    { id: 'bassReese', name: 'Reese Bass', emoji: '🔊', gradient: ['#C0C0C0', '#A0A0A0'], note: 'A1', freq: 55.00 },
+  ],
+};
 
-export default function StudioScreen({ navigation, route }) {
-  const [tracks, setTracks] = useState(INITIAL_TRACKS);
-  const [masterVolume, setMasterVolume] = useState(0.8);
-  const [effects, setEffects] = useState(EFFECTS);
-  const [selectedTrack, setSelectedTrack] = useState(null);
-  const persona = route?.params?.persona || 'musician';
+const PRESET_PATTERNS = [
+  { 
+    id: 'techno', 
+    name: 'Techno', 
+    bpm: 135, 
+    patterns: {
+      kick:  [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+      snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      hihat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      clap:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    }
+  },
+  { 
+    id: 'hiphop', 
+    name: 'Hip-Hop', 
+    bpm: 90, 
+    patterns: {
+      kick:  [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+      snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      hihat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      clap:  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+    }
+  },
+  { 
+    id: 'house', 
+    name: 'House', 
+    bpm: 125, 
+    patterns: {
+      kick:  [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+      snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      hihat: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+      clap:  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    }
+  },
+  { 
+    id: 'dnb', 
+    name: 'Drum & Bass', 
+    bpm: 170, 
+    patterns: {
+      kick:  [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0],
+      snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      hihat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      clap:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    }
+  },
+];
 
-  // Track Control Handlers
-  const updateTrack = (trackId, updates) => {
-    setTracks(prev => prev.map(track => 
-      track.id === trackId ? { ...track, ...updates } : track
-    ));
-  };
+const StudioScreenNew = ({ navigation }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentStep, setCurrentStep] = useState(-1);
+  const [bpm, setBpm] = useState(120);
+  
+  // Multi-track patterns - separate pattern for each drum sound
+  const [patterns, setPatterns] = useState({
+    kick: Array(16).fill(0),
+    snare: Array(16).fill(0),
+    hihat: Array(16).fill(0),
+    clap: Array(16).fill(0),
+  });
+  
+  const [selectedTrack, setSelectedTrack] = useState('kick'); // Which track is being edited
+  const [selectedSound, setSelectedSound] = useState(SOUNDS.drums[0]);
+  const [soundCategory, setSoundCategory] = useState('drums');
+  const [showPresets, setShowPresets] = useState(false);
+  
+  const stepAnims = useRef(Array(16).fill(0).map(() => new Animated.Value(0))).current;
+  const playbackInterval = useRef(null);
+  const soundRef = useRef(null);
 
-  const handleVolumeChange = (trackId, volume) => {
-    updateTrack(trackId, { volume });
-  };
-
-  const handlePanChange = (trackId, pan) => {
-    updateTrack(trackId, { pan });
-  };
-
-  const handleMuteToggle = (trackId) => {
-    const track = tracks.find(t => t.id === trackId);
-    updateTrack(trackId, { muted: !track.muted });
-  };
-
-  const handleSoloToggle = (trackId) => {
-    const track = tracks.find(t => t.id === trackId);
-    updateTrack(trackId, { solo: !track.solo });
-  };
-
-  const handleEffectsPress = (trackId) => {
-    setSelectedTrack(trackId);
-    // TODO: Open effects modal
-  };
-
-  const handleEffectToggle = (effectId) => {
-    setEffects(prev => prev.map(effect =>
-      effect.id === effectId ? { ...effect, active: !effect.active } : effect
-    ));
-  };
-
-  const handleAddTrack = () => {
-    const newTrack = {
-      id: tracks.length + 1,
-      name: `TRACK ${tracks.length + 1}`,
-      color: COLORS.orange,
-      volume: 0.7,
-      pan: 0,
-      muted: false,
-      solo: false,
-      recording: false,
-      effects: [],
-      waveform: Array.from({ length: 10 }, () => Math.random()),
+  useEffect(() => {
+    // Configure audio mode
+    Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: false,
+      shouldDuckAndroid: true,
+    });
+    
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+      }
     };
-    setTracks([...tracks, newTrack]);
+  }, []);
+
+  useEffect(() => {
+    // Initialize Python audio engine on mount
+    pythonAudioEngine.initialize().then(() => {
+      console.log('✅ Studio audio engine ready (Python Backend)');
+    });
+    
+    return () => {
+      pythonAudioEngine.cleanup();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isPlaying) {
+      startSequencer();
+    } else {
+      stopSequencer();
+    }
+    
+    return () => {
+      if (playbackInterval.current) {
+        clearInterval(playbackInterval.current);
+      }
+    };
+  }, [isPlaying, bpm]);
+
+  const startSequencer = () => {
+    const stepDuration = (60 / bpm) * 250;
+    let step = 0;
+    
+    playbackInterval.current = setInterval(() => {
+      setCurrentStep(step);
+      
+      // Animate step without blocking
+      Animated.sequence([
+        Animated.timing(stepAnims[step], {
+          toValue: 1,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(stepAnims[step], {
+          toValue: 0,
+          duration: stepDuration - 50,
+          useNativeDriver: true,
+        }),
+      ]).start();
+      
+      // Add velocity variations for more natural feel
+      // Steps 1, 5, 9, 13 get accent (higher velocity)
+      const isAccent = step % 4 === 0;
+      const velocity = isAccent ? 1.0 : 0.75;
+      
+      // Play all active tracks at this step using PythonAudioEngine
+      if (patterns.kick[step] === 1) {
+        pythonAudioEngine.playKick(velocity).catch(() => {});
+      }
+      if (patterns.snare[step] === 1) {
+        pythonAudioEngine.playSnare(velocity).catch(() => {});
+      }
+      if (patterns.hihat[step] === 1) {
+        const isOpen = step % 2 === 1 && Math.random() > 0.7;
+        pythonAudioEngine.playHiHat(velocity * 0.9, isOpen).catch(() => {});
+      }
+      if (patterns.clap[step] === 1) {
+        pythonAudioEngine.playClap(velocity).catch(() => {});
+      }
+      
+      step = (step + 1) % 16;
+    }, stepDuration);
+  };
+
+  const stopSequencer = () => {
+    if (playbackInterval.current) {
+      clearInterval(playbackInterval.current);
+      playbackInterval.current = null;
+    }
+    setCurrentStep(-1);
+  };
+
+  // Helper: MIDI note to frequency
+  const midiToFrequency = (note) => 440 * Math.pow(2, (note - 69) / 12);
+
+  const playSound = async (step) => {
+    // Light haptic feedback for manual triggering only
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    try {
+      const soundId = selectedSound.id;
+      const velocity = 0.9; // Higher velocity for manual triggers
+      
+      // DRUMS - TR-808 style via PythonAudioEngine
+      if (soundCategory === 'drums') {
+        switch (soundId) {
+          case 'kick':
+            pythonAudioEngine.playKick(velocity).catch(() => {});
+            break;
+          case 'snare':
+            await pythonAudioEngine.playSnare(velocity);
+            break;
+          case 'hihat':
+            await pythonAudioEngine.playHiHat(velocity);
+            break;
+          case 'clap':
+            await pythonAudioEngine.playClap(velocity);
+            break;
+        }
+      }
+      
+      // SYNTHS - Classic synthesizers via PythonAudioEngine
+      else if (soundCategory === 'synths') {
+        const note = 48; // C3
+        const frequency = midiToFrequency(note);
+        const duration = 0.25;
+        
+        switch (soundId) {
+          case 'arp2600':
+            await pythonAudioEngine.playARP2600(frequency, duration, velocity, 0.02);
+            break;
+          case 'juno106':
+            await pythonAudioEngine.playJuno106(frequency, duration, velocity);
+            break;
+          case 'minimoog':
+            await pythonAudioEngine.playMinimoog(frequency, duration, velocity);
+            break;
+          case 'tb303':
+            await pythonAudioEngine.playTB303(frequency, duration, velocity, false, false, null, 'sawtooth');
+            break;
+        }
+      }
+      
+      // BASS - via PythonAudioEngine
+      else if (soundCategory === 'bass') {
+        const note = 36; // C2 - low bass note
+        const frequency = midiToFrequency(note);
+        const duration = 0.25;
+        
+        switch (soundId) {
+          case 'bass808':
+            await pythonAudioEngine.playBass808(frequency, duration, velocity);
+            break;
+          case 'bassReese':
+            await pythonAudioEngine.playReeseBass(frequency, duration, velocity);
+            break;
+        }
+      }
+      
+      console.log('🎵 ' + selectedSound.name + ' - Step ' + (step + 1));
+    } catch (error) {
+      console.log('Audio error:', error);
+    }
+  };
+
+  const toggleStep = (index) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setPatterns(prev => {
+      const newPatterns = {
+        kick: [...prev.kick],
+        snare: [...prev.snare],
+        hihat: [...prev.hihat],
+        clap: [...prev.clap],
+      };
+      newPatterns[selectedTrack][index] = newPatterns[selectedTrack][index] === 1 ? 0 : 1;
+      return newPatterns;
+    });
+  };
+
+  const togglePlayback = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    setIsPlaying(!isPlaying);
+  };
+
+  const clearPattern = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setPatterns({
+      kick: Array(16).fill(0),
+      snare: Array(16).fill(0),
+      hihat: Array(16).fill(0),
+      clap: Array(16).fill(0),
+    });
+    setIsPlaying(false);
+  };
+
+  const loadPreset = (preset) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setPatterns(preset.patterns);
+    setBpm(preset.bpm);
+    setShowPresets(false);
+  };
+
+  const selectSound = (sound, category) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSelectedSound(sound);
+    setSoundCategory(category);
   };
 
   return (
     <View style={styles.container}>
-      {/* Circuit Board Background */}
-      <CircuitBoardBackground density="low" animated={true} />
+      <StatusBar barStyle="light-content" />
       
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.logoContainer}>
-          <Text style={styles.logo}>HAOS</Text>
-          <Text style={styles.logoDot}>.fm</Text>
+        <Text style={styles.logo}>HAOS</Text>
+        <Text style={styles.logoDot}>.fm</Text>
+        <View style={{ flex: 1 }} />
+        <View style={styles.headerRight}>
+          <Text style={styles.headerTitle}>STUDIO V3</Text>
+          <Text style={styles.headerSubtitle}>Visual Preview</Text>
         </View>
-        <Text style={styles.headerTitle}>STUDIO</Text>
-        <TouchableOpacity style={styles.settingsButton}>
-          <Text style={styles.settingsIcon}>⚙️</Text>
-        </TouchableOpacity>
       </View>
 
-      {/* Master Section */}
-      <View style={styles.masterSection}>
-        <View style={styles.masterHeader}>
-          <Text style={styles.masterTitle}>🎛️ MASTER BUS</Text>
-          <Text style={styles.masterValue}>{Math.round(masterVolume * 100)}%</Text>
-        </View>
-        <Slider
-          style={styles.masterSlider}
-          value={masterVolume}
-          onValueChange={setMasterVolume}
-          minimumValue={0}
-          maximumValue={1}
-          minimumTrackTintColor={COLORS.orange}
-          maximumTrackTintColor={COLORS.grayDark}
-          thumbTintColor={COLORS.orange}
-        />
+      {/* Info Banner */}
+      <View style={styles.infoBanner}>
+        <Text style={styles.infoIcon}>🎵</Text>
+        <Text style={styles.infoText}>
+          Audio synthesis coming soon! For now, enjoy the sequencer with haptic feedback. 
+          Tap steps to create patterns, press PLAY to see visual playback.
+        </Text>
       </View>
 
-      <ScrollView 
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Mixer Channels */}
-        <View style={styles.mixerSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>🎚️ MIXER</Text>
-            <TouchableOpacity onPress={handleAddTrack} style={styles.addButton}>
-              <Text style={styles.addButtonText}>+ ADD TRACK</Text>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {/* BPM Control */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>⏱️ Tempo</Text>
+          <View style={styles.bpmContainer}>
+            <TouchableOpacity style={styles.bpmButton} onPress={() => setBpm(Math.max(60, bpm - 5))}>
+              <Text style={styles.bpmButtonText}>-</Text>
+            </TouchableOpacity>
+            
+            <LinearGradient colors={['#D4AF37', '#FFD700']} style={styles.bpmDisplay}>
+              <Text style={styles.bpmValue}>{bpm}</Text>
+              <Text style={styles.bpmLabel}>BPM</Text>
+            </LinearGradient>
+            
+            <TouchableOpacity style={styles.bpmButton} onPress={() => setBpm(Math.min(200, bpm + 5))}>
+              <Text style={styles.bpmButtonText}>+</Text>
             </TouchableOpacity>
           </View>
-
-          <ScrollView 
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.channelsContainer}
-          >
-            {tracks.map(track => (
-              <MixerChannel
-                key={track.id}
-                track={track}
-                onVolumeChange={(volume) => handleVolumeChange(track.id, volume)}
-                onPanChange={(pan) => handlePanChange(track.id, pan)}
-                onMuteToggle={() => handleMuteToggle(track.id)}
-                onSoloToggle={() => handleSoloToggle(track.id)}
-                onEffectsPress={() => handleEffectsPress(track.id)}
-              />
-            ))}
-          </ScrollView>
         </View>
 
-        {/* Effects Rack */}
-        <View style={styles.effectsSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>✨ EFFECTS RACK</Text>
-            <Text style={styles.sectionSubtitle}>
-              {effects.filter(e => e.active).length} active
-            </Text>
-          </View>
-
-          <View style={styles.effectsGrid}>
-            {effects.map(effect => (
-              <EffectCard
-                key={effect.id}
-                effect={effect}
-                onToggle={() => handleEffectToggle(effect.id)}
-              />
-            ))}
-          </View>
-        </View>
-
-        {/* Waveform Analyzer */}
-        <View style={styles.analyzerSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>📊 WAVEFORM ANALYZER</Text>
-          </View>
-
-          <View style={styles.analyzerContainer}>
-            <LinearGradient
-              colors={[COLORS.bgCard, COLORS.bgDark]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              style={styles.analyzerGradient}
-            >
-              <View style={styles.waveformDisplay}>
-                {/* Master Waveform */}
-                {Array.from({ length: 50 }).map((_, index) => {
-                  const amplitude = Math.sin(index * 0.2) * 0.5 + 0.5;
-                  return (
-                    <View 
-                      key={index}
-                      style={[
-                        styles.analyzerBar,
-                        { 
-                          height: amplitude * 80,
-                          backgroundColor: amplitude > 0.7 ? COLORS.red : amplitude > 0.5 ? COLORS.orange : COLORS.green,
-                        }
-                      ]}
-                    />
-                  );
-                })}
-              </View>
-              
-              {/* Peak Indicator */}
-              <View style={styles.peakIndicator}>
-                <Text style={styles.peakLabel}>PEAK:</Text>
-                <Text style={[styles.peakValue, { color: masterVolume > 0.9 ? COLORS.red : COLORS.green }]}>
-                  {Math.round((masterVolume * 12) - 12)}dB
+        {/* Sound Selection */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🎵 Sound</Text>
+          <View style={styles.categoryTabs}>
+            {['drums', 'synths', 'bass'].map((cat) => (
+              <TouchableOpacity
+                key={cat}
+                style={[styles.categoryTab, soundCategory === cat && styles.categoryTabActive]}
+                onPress={() => setSoundCategory(cat)}
+              >
+                <Text style={[styles.categoryTabText, soundCategory === cat && styles.categoryTabTextActive]}>
+                  {cat.toUpperCase()}
                 </Text>
-              </View>
-            </LinearGradient>
+              </TouchableOpacity>
+            ))}
+          </View>
+          
+          <View style={styles.soundGrid}>
+            {SOUNDS[soundCategory].map((sound) => (
+              <TouchableOpacity
+                key={sound.id}
+                style={[styles.soundCard, selectedSound.id === sound.id && styles.soundCardActive]}
+                onPress={() => selectSound(sound, soundCategory)}
+              >
+                <LinearGradient colors={sound.gradient} style={styles.soundCardGradient}>
+                  <Text style={styles.soundEmoji}>{sound.emoji}</Text>
+                  <Text style={styles.soundName}>{sound.name}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
-        {/* Quick Actions */}
-        <View style={styles.actionsSection}>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Creator')}
-          >
-            <LinearGradient
-              colors={GRADIENTS.primaryButton}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.actionGradient}
-            >
-              <Text style={styles.actionIcon}>🎹</Text>
-              <Text style={styles.actionText}>OPEN CREATOR</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Instruments')}
-          >
-            <LinearGradient
-              colors={GRADIENTS.secondaryButton}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.actionGradient}
-            >
-              <Text style={styles.actionIcon}>🎸</Text>
-              <Text style={styles.actionText}>INSTRUMENTS</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+        {/* Track Selector */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🥁 Track</Text>
+          <View style={styles.trackSelector}>
+            {['kick', 'snare', 'hihat', 'clap'].map((track) => (
+              <TouchableOpacity
+                key={track}
+                style={[styles.trackButton, selectedTrack === track && styles.trackButtonActive]}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setSelectedTrack(track);
+                }}
+              >
+                <Text style={[styles.trackButtonText, selectedTrack === track && styles.trackButtonTextActive]}>
+                  {track.toUpperCase()}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
-        {/* Info Panel */}
-        <View style={styles.infoPanel}>
-          <Text style={styles.infoIcon}>💡</Text>
-          <Text style={styles.infoText}>
-            Adjust track volumes, pan, and apply effects. Use M (mute), S (solo), and FX buttons for each track.
-          </Text>
+        {/* 16-Step Sequencer */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🎹 Pattern ({selectedTrack.toUpperCase()})</Text>
+          <View style={styles.sequencer}>
+            {(patterns[selectedTrack] || Array(16).fill(0)).map((active, index) => {
+              const isCurrentStep = currentStep === index;
+              const stepScale = stepAnims[index].interpolate({ inputRange: [0, 1], outputRange: [1, 1.15] });
+              
+              return (
+                <Animated.View key={index} style={[styles.stepWrapper, { transform: [{ scale: stepScale }] }]}>
+                  <TouchableOpacity
+                    style={[styles.step, active === 1 && styles.stepActive, isCurrentStep && styles.stepCurrent]}
+                    onPress={() => toggleStep(index)}
+                  >
+                    <Text style={styles.stepNumber}>{index + 1}</Text>
+                    {active === 1 && <View style={styles.stepIndicator} />}
+                  </TouchableOpacity>
+                </Animated.View>
+              );
+            })}
+          </View>
         </View>
+
+        {/* Transport Controls */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🎚️ Transport</Text>
+          <View style={styles.transport}>
+            <TouchableOpacity style={styles.transportBtnClear} onPress={clearPattern}>
+              <Text style={styles.transportBtnText}>CLEAR</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.transportBtnPlay} onPress={togglePlayback}>
+              <LinearGradient
+                colors={isPlaying ? ['#FF6B35', '#FF8C5A'] : ['#D4AF37', '#FFD700']}
+                style={styles.transportBtnGradient}
+              >
+                <Text style={styles.transportBtnTextLarge}>{isPlaying ? '⏸' : '▶️'}</Text>
+                <Text style={styles.transportBtnLabel}>{isPlaying ? 'PAUSE' : 'PLAY'}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.transportBtnClear} onPress={() => setShowPresets(!showPresets)}>
+              <Text style={styles.transportBtnText}>PRESETS</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Presets */}
+        {showPresets && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>📁 Pattern Presets</Text>
+            {PRESET_PATTERNS.map((preset) => (
+              <TouchableOpacity key={preset.id} style={styles.presetCard} onPress={() => loadPreset(preset)}>
+                <LinearGradient colors={['rgba(15, 15, 15, 0.95)', '#000000']} style={styles.presetGradient}>
+                  <Text style={styles.presetName}>{preset.name}</Text>
+                  <Text style={styles.presetBpm}>{preset.bpm} BPM</Text>
+                  <View style={styles.presetPattern}>
+                    {preset.patterns.kick.map((step, i) => (
+                      <View key={i} style={[styles.presetStep, step === 1 && styles.presetStepActive]} />
+                    ))}
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        <View style={{ height: 40 }} />
       </ScrollView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgDark,
+    backgroundColor: '#000000',
   },
-  // Header
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
+    borderBottomColor: 'rgba(212, 175, 55, 0.3)',
   },
   logo: {
-    ...TYPOGRAPHY.h2,
-    color: COLORS.textPrimary,
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   logoDot: {
-    ...TYPOGRAPHY.h2,
-    color: COLORS.orange,
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FF6B35',
   },
   headerTitle: {
-    ...TYPOGRAPHY.h2,
-    color: COLORS.textPrimary,
-  },
-  settingsButton: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  settingsIcon: {
-    fontSize: 24,
-  },
-  // Master Section
-  masterSection: {
-    padding: 20,
-    backgroundColor: COLORS.bgCard,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  masterHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  masterTitle: {
-    ...TYPOGRAPHY.h3,
-    color: COLORS.textPrimary,
-  },
-  masterValue: {
-    ...TYPOGRAPHY.mono,
-    color: COLORS.orange,
     fontSize: 18,
+    fontWeight: '700',
+    color: '#D4AF37',
+    letterSpacing: 2,
   },
-  masterSlider: {
-    width: '100%',
-    height: 40,
-  },
-  // Scroll View
   scrollView: {
     flex: 1,
   },
-  // Sections
-  mixerSection: {
-    paddingVertical: 20,
-  },
-  effectsSection: {
+  scrollContent: {
     padding: 20,
   },
-  analyzerSection: {
-    padding: 20,
-  },
-  actionsSection: {
-    padding: 20,
-    flexDirection: 'row',
-    gap: 10,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 15,
+  section: {
+    marginBottom: 30,
   },
   sectionTitle: {
-    ...TYPOGRAPHY.h3,
-    color: COLORS.textPrimary,
-  },
-  sectionSubtitle: {
-    ...TYPOGRAPHY.caption,
-    color: COLORS.textSecondary,
-  },
-  addButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: COLORS.orangeTransparent,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.orange,
-  },
-  addButtonText: {
-    ...TYPOGRAPHY.tiny,
-    color: COLORS.orange,
-    fontWeight: 'bold',
-  },
-  // Mixer Channels
-  channelsContainer: {
-    paddingHorizontal: 15,
-  },
-  mixerChannel: {
-    width: 180,
-    marginRight: 15,
-  },
-  channelGradient: {
-    borderRadius: 16,
-    padding: 15,
-    position: 'relative',
-    minHeight: 400,
-  },
-  channelBorder: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: 16,
-    borderWidth: 2,
-  },
-  channelHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  trackIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 8,
-  },
-  trackName: {
-    ...TYPOGRAPHY.bodyBold,
-    color: COLORS.textPrimary,
-    flex: 1,
-  },
-  waveformToggle: {
     fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 16,
+    letterSpacing: 1,
   },
-  // Waveform
-  waveformContainer: {
+  bpmContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 20,
+  },
+  bpmButton: {
+    width: 50,
     height: 50,
-    marginBottom: 15,
-    gap: 2,
-  },
-  waveformBar: {
-    flex: 1,
-    borderRadius: 2,
-    minHeight: 2,
-  },
-  // Fader
-  faderContainer: {
+    borderRadius: 25,
+    backgroundColor: 'rgba(15, 15, 15, 0.95)',
     alignItems: 'center',
-    marginBottom: 15,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
   },
-  faderLabel: {
-    ...TYPOGRAPHY.tiny,
-    color: COLORS.textSecondary,
-    marginBottom: 5,
+  bpmButtonText: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#D4AF37',
   },
-  faderTrack: {
+  bpmDisplay: {
+    width: 120,
+    height: 80,
+    borderRadius: 16,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  fader: {
-    width: 100,
-    height: 150,
-    transform: [{ rotate: '-90deg' }],
+  bpmValue: {
+    fontSize: 36,
+    fontWeight: '700',
+    color: '#000000',
   },
-  faderValue: {
-    ...TYPOGRAPHY.mono,
+  bpmLabel: {
     fontSize: 12,
-    color: COLORS.textPrimary,
-    marginTop: 5,
+    fontWeight: '600',
+    color: 'rgba(0, 0, 0, 0.6)',
+    marginTop: 4,
   },
-  // Meter
-  meterContainer: {
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  meterTrack: {
-    width: 20,
-    height: 100,
-    backgroundColor: COLORS.grayDark,
-    borderRadius: 10,
-    overflow: 'hidden',
-    justifyContent: 'flex-end',
-  },
-  meterFill: {
-    width: '100%',
-    borderRadius: 10,
-  },
-  meterLabel: {
-    ...TYPOGRAPHY.mono,
-    fontSize: 10,
-    color: COLORS.textSecondary,
-    marginTop: 5,
-  },
-  // Pan
-  panContainer: {
-    marginBottom: 15,
-  },
-  panLabel: {
-    ...TYPOGRAPHY.tiny,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  panSlider: {
-    width: '100%',
-    height: 30,
-  },
-  panValueContainer: {
-    alignItems: 'center',
-  },
-  panValue: {
-    ...TYPOGRAPHY.mono,
-    fontSize: 12,
-    color: COLORS.textPrimary,
-  },
-  // Channel Controls
-  channelControls: {
+  categoryTabs: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 5,
+    gap: 12,
+    marginBottom: 16,
   },
-  controlButton: {
+  categoryTab: {
     flex: 1,
-    height: 36,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(15, 15, 15, 0.95)',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.bgDark,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: COLORS.borderGray,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
   },
-  controlButtonActive: {
-    backgroundColor: COLORS.orangeTransparent,
-    borderColor: COLORS.orange,
+  categoryTabActive: {
+    backgroundColor: '#D4AF37',
+    borderColor: '#FFD700',
   },
-  controlButtonText: {
-    ...TYPOGRAPHY.label,
+  categoryTabText: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    fontWeight: '700',
+    color: 'rgba(255, 255, 255, 0.7)',
+    letterSpacing: 1,
   },
-  controlButtonTextActive: {
-    color: COLORS.orange,
+  categoryTabTextActive: {
+    color: '#000000',
   },
-  muteButton: {},
-  soloButton: {},
-  effectsButton: {
-    position: 'relative',
-  },
-  effectsBadge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: COLORS.orange,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  effectsBadgeText: {
-    ...TYPOGRAPHY.tiny,
-    fontSize: 10,
-    color: COLORS.bgDark,
-    fontWeight: 'bold',
-  },
-  // Effects Grid
-  effectsGrid: {
+  soundGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 12,
   },
-  effectCard: {
-    width: (width - 60) / 3,
-  },
-  effectGradient: {
-    borderRadius: 12,
-    padding: 12,
-    alignItems: 'center',
-    position: 'relative',
-    minHeight: 100,
-  },
-  effectBorder: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: 12,
+  soundCard: {
+    width: (width - 64) / 2,
+    height: 100,
+    borderRadius: 16,
+    overflow: 'hidden',
     borderWidth: 2,
+    borderColor: 'transparent',
   },
-  effectCardActive: {},
-  effectEmoji: {
+  soundCardActive: {
+    borderColor: '#D4AF37',
+  },
+  soundCardGradient: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  soundEmoji: {
     fontSize: 32,
     marginBottom: 8,
   },
-  effectName: {
-    ...TYPOGRAPHY.label,
-    fontSize: 10,
-    color: COLORS.textPrimary,
+  soundName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#000000',
     textAlign: 'center',
   },
-  effectIndicator: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
+  sequencer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  stepWrapper: {
+    width: (width - 88) / 4,
+  },
+  step: {
+    height: 70,
+    borderRadius: 12,
+    backgroundColor: 'rgba(15, 15, 15, 0.95)',
+    borderWidth: 2,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepActive: {
+    backgroundColor: '#D4AF37',
+    borderColor: '#FFD700',
+  },
+  stepCurrent: {
+    borderColor: '#FF6B35',
+    borderWidth: 3,
+  },
+  stepNumber: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  stepIndicator: {
     width: 8,
     height: 8,
     borderRadius: 4,
+    backgroundColor: '#000000',
+    marginTop: 4,
   },
-  // Analyzer
-  analyzerContainer: {
-    marginHorizontal: 20,
+  transport: {
+    flexDirection: 'row',
+    gap: 12,
   },
-  analyzerGradient: {
+  transportBtnClear: {
+    flex: 1,
+    height: 60,
     borderRadius: 16,
-    padding: 20,
-    borderWidth: 2,
-    borderColor: COLORS.border,
-  },
-  waveformDisplay: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 100,
-    gap: 2,
-  },
-  analyzerBar: {
-    flex: 1,
-    borderRadius: 2,
-    minHeight: 2,
-  },
-  peakIndicator: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 15,
-    gap: 8,
-  },
-  peakLabel: {
-    ...TYPOGRAPHY.caption,
-    color: COLORS.textSecondary,
-  },
-  peakValue: {
-    ...TYPOGRAPHY.mono,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  // Actions
-  actionButton: {
-    flex: 1,
-  },
-  actionGradient: {
-    flexDirection: 'row',
+    backgroundColor: 'rgba(15, 15, 15, 0.95)',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 15,
-    borderRadius: 12,
-    gap: 8,
-  },
-  actionIcon: {
-    fontSize: 20,
-  },
-  actionText: {
-    ...TYPOGRAPHY.button,
-    fontSize: 14,
-    color: COLORS.textPrimary,
-  },
-  // Info Panel
-  infoPanel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    marginHorizontal: 20,
-    marginBottom: 20,
-    backgroundColor: COLORS.bgCard,
-    borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
   },
-  infoIcon: {
-    fontSize: 20,
-    marginRight: 10,
+  transportBtnPlay: {
+    flex: 2,
+    height: 60,
+    borderRadius: 16,
+    overflow: 'hidden',
   },
-  infoText: {
-    ...TYPOGRAPHY.caption,
-    color: COLORS.textSecondary,
+  transportBtnGradient: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  transportBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: 'rgba(255, 255, 255, 0.7)',
+    letterSpacing: 1,
+  },
+  transportBtnTextLarge: {
+    fontSize: 28,
+  },
+  transportBtnLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#000000',
+    marginTop: 4,
+    letterSpacing: 1,
+  },
+  presetCard: {
+    height: 100,
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+  },
+  presetGradient: {
+    flex: 1,
+    padding: 16,
+    justifyContent: 'space-between',
+  },
+  presetName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  presetBpm: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#D4AF37',
+  },
+  presetPattern: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  presetStep: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(212, 175, 55, 0.3)',
+  },
+  presetStepActive: {
+    backgroundColor: '#D4AF37',
+  },
+  // Track Selector
+  trackSelector: {
+    flexDirection: 'row',
+    gap: 8,
+    justifyContent: 'space-between',
+  },
+  trackButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(10, 10, 10, 0.95)', // COLORS.cardDark
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    alignItems: 'center',
+  },
+  trackButtonActive: {
+    backgroundColor: '#B8960E',
+    borderColor: '#D4AF37',
+  },
+  trackButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  trackButtonTextActive: {
+    color: '#D4AF37',
   },
 });
+
+export default StudioScreenNew;

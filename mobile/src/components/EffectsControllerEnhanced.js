@@ -37,7 +37,7 @@ const sliderStyles = StyleSheet.create({
   },
   track: {
     height: 4,
-    backgroundColor: COLORS.border,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', // COLORS.border
     borderRadius: 2,
     position: 'relative',
   },

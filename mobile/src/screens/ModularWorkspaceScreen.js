@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Slider from '@react-native-community/slider';
 import * as Haptics from 'expo-haptics';
-import Knob from '../components/Knob';
 import ADSREnvelope from '../components/ADSREnvelope';
 import Keyboard from '../components/Keyboard';
 import audioEngine from '../services/audioEngine';
@@ -148,15 +148,19 @@ export default function ModularWorkspaceScreen({ route }) {
             ))}
           </View>
 
-          <View style={styles.knobRow}>
-            <Knob
-              label="Level"
+          <View style={styles.controlRow}>
+            <Text style={styles.controlLabel}>Level</Text>
+            <Slider
+              style={styles.slider}
               value={osc1Level}
-              onChange={setOsc1Level}
-              min={0}
-              max={1}
-              size={80}
+              onValueChange={setOsc1Level}
+              minimumValue={0}
+              maximumValue={1}
+              minimumTrackTintColor="#00ff94"
+              maximumTrackTintColor="#333"
+              thumbTintColor="#00ff94"
             />
+            <Text style={styles.controlValue}>{osc1Level.toFixed(2)}</Text>
           </View>
         </View>
 
@@ -189,23 +193,34 @@ export default function ModularWorkspaceScreen({ route }) {
             ))}
           </View>
 
-          <View style={styles.knobRow}>
-            <Knob
-              label="Detune"
+          <View style={styles.controlRow}>
+            <Text style={styles.controlLabel}>Detune</Text>
+            <Slider
+              style={styles.slider}
               value={osc2Detune}
-              onChange={setOsc2Detune}
-              min={-50}
-              max={50}
-              size={80}
+              onValueChange={setOsc2Detune}
+              minimumValue={-50}
+              maximumValue={50}
+              minimumTrackTintColor="#00D9FF"
+              maximumTrackTintColor="#333"
+              thumbTintColor="#00D9FF"
             />
-            <Knob
-              label="Level"
+            <Text style={styles.controlValue}>{Math.round(osc2Detune)}¢</Text>
+          </View>
+          
+          <View style={styles.controlRow}>
+            <Text style={styles.controlLabel}>Level</Text>
+            <Slider
+              style={styles.slider}
               value={osc2Level}
-              onChange={setOsc2Level}
-              min={0}
-              max={1}
-              size={80}
+              onValueChange={setOsc2Level}
+              minimumValue={0}
+              maximumValue={1}
+              minimumTrackTintColor="#00D9FF"
+              maximumTrackTintColor="#333"
+              thumbTintColor="#00D9FF"
             />
+            <Text style={styles.controlValue}>{osc2Level.toFixed(2)}</Text>
           </View>
         </View>
 
@@ -238,23 +253,34 @@ export default function ModularWorkspaceScreen({ route }) {
             ))}
           </View>
 
-          <View style={styles.knobRow}>
-            <Knob
-              label="Cutoff"
+          <View style={styles.controlRow}>
+            <Text style={styles.controlLabel}>Cutoff</Text>
+            <Slider
+              style={styles.slider}
               value={filterFrequency}
-              onChange={setFilterFrequency}
-              min={20}
-              max={20000}
-              size={80}
+              onValueChange={setFilterFrequency}
+              minimumValue={20}
+              maximumValue={20000}
+              minimumTrackTintColor="#FF6B35"
+              maximumTrackTintColor="#333"
+              thumbTintColor="#FF6B35"
             />
-            <Knob
-              label="Resonance"
+            <Text style={styles.controlValue}>{Math.round(filterFrequency)} Hz</Text>
+          </View>
+          
+          <View style={styles.controlRow}>
+            <Text style={styles.controlLabel}>Resonance</Text>
+            <Slider
+              style={styles.slider}
               value={filterQ}
-              onChange={setFilterQ}
-              min={0.1}
-              max={20}
-              size={80}
+              onValueChange={setFilterQ}
+              minimumValue={0.1}
+              maximumValue={20}
+              minimumTrackTintColor="#FF6B35"
+              maximumTrackTintColor="#333"
+              thumbTintColor="#FF6B35"
             />
+            <Text style={styles.controlValue}>{filterQ.toFixed(1)}</Text>
           </View>
         </View>
 
@@ -270,15 +296,19 @@ export default function ModularWorkspaceScreen({ route }) {
         {/* Master Volume */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>MASTER</Text>
-          <View style={styles.knobRow}>
-            <Knob
-              label="Volume"
+          <View style={styles.controlRow}>
+            <Text style={styles.controlLabel}>Volume</Text>
+            <Slider
+              style={styles.slider}
               value={volume}
-              onChange={setVolume}
-              min={0}
-              max={1}
-              size={100}
+              onValueChange={setVolume}
+              minimumValue={0}
+              maximumValue={1}
+              minimumTrackTintColor="#9D4EDD"
+              maximumTrackTintColor="#333"
+              thumbTintColor="#9D4EDD"
             />
+            <Text style={styles.controlValue}>{Math.round(volume * 100)}%</Text>
           </View>
         </View>
 
@@ -386,6 +416,31 @@ const styles = StyleSheet.create({
   },
   filterTextActive: {
     color: '#0a0a0a',
+  },
+  controlRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 12,
+  },
+  controlLabel: {
+    color: '#00ff94',
+    fontSize: 12,
+    fontWeight: '600',
+    width: 70,
+    textTransform: 'uppercase',
+  },
+  slider: {
+    flex: 1,
+    height: 40,
+  },
+  controlValue: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '600',
+    width: 60,
+    textAlign: 'right',
+    fontFamily: 'Menlo',
   },
   knobRow: {
     flexDirection: 'row',

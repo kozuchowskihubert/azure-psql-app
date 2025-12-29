@@ -53,7 +53,7 @@ const SYNTHS = [
     name: 'MINIMOOG',
     description: 'The king of bass and lead sounds',
     icon: '🔊',
-    gradient: [COLORS.orange, '#FFAA00'],
+    gradient: ['#FF6B35', '#FFAA00'],
     features: ['Monophonic', '3 OSC', 'Ladder Filter', 'Glide'],
     specs: '3 VCOs • Moog Filter • ADSR',
     screen: 'ModularSynth',
@@ -266,7 +266,7 @@ export default function SynthsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgDark,
+    backgroundColor: '#000000',
   },
   header: {
     paddingTop: 60,
@@ -296,14 +296,14 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 32,
     fontWeight: '900',
-    color: COLORS.textPrimary,
+    color: '#FFFFFF',
     letterSpacing: 2,
     marginBottom: 5,
   },
   headerSubtitle: {
     fontFamily: 'System',
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     letterSpacing: 1,
   },
   scrollView: {
@@ -357,14 +357,14 @@ const styles = StyleSheet.create({
   synthDescription: {
     fontFamily: 'System',
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     marginBottom: 10,
     lineHeight: 20,
   },
   synthSpecs: {
     fontFamily: 'Courier',
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     marginBottom: 12,
     letterSpacing: 0.5,
   },

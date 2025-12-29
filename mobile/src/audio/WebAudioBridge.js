@@ -7,6 +7,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
+import servicesWebAudioBridge from '../services/WebAudioBridge';
 
 class WebAudioSynthBridge {
   constructor() {
@@ -206,6 +207,9 @@ export const WebAudioBridgeComponent = () => {
   useEffect(() => {
     if (webViewRef.current) {
       bridge.setWebView(webViewRef.current);
+      // ALSO set reference in services/WebAudioBridge for audioEngine
+      servicesWebAudioBridge.setWebViewRef(webViewRef.current);
+      console.log('🌉 Both audio bridges connected to WebView');
     }
   }, []);
 
@@ -909,7 +913,8 @@ export const WebAudioBridgeComponent = () => {
       if (!audioContext) return;
 
       try {
-        const frequency = noteToFrequency(note);
+        // Handle both note string and frequency number
+        const frequency = typeof note === 'number' ? note : noteToFrequency(note);
         const now = audioContext.currentTime;
 
         const osc = audioContext.createOscillator();
@@ -1165,7 +1170,8 @@ export const WebAudioBridgeComponent = () => {
     function playARP2600(note, velocity = 1.0, accent = false, duration = 0.3) {
       if (!audioContext) return;
       const now = audioContext.currentTime;
-      const freq = noteToFrequency(note);
+      // Handle both note string (e.g. 'C4') and frequency number (e.g. 261.63)
+      const freq = typeof note === 'number' ? note : noteToFrequency(note);
       
       // Dual oscillators for thick sound
       const osc1 = audioContext.createOscillator();
@@ -1253,7 +1259,8 @@ export const WebAudioBridgeComponent = () => {
     function playJuno106(note, velocity = 1.0, accent = false, duration = 0.5) {
       if (!audioContext) return;
       const now = audioContext.currentTime;
-      const freq = noteToFrequency(note);
+      // Handle both note string and frequency number
+      const freq = typeof note === 'number' ? note : noteToFrequency(note);
       
       // PWM oscillator (simulate with 2 sawtooth waves)
       const osc1 = audioContext.createOscillator();
@@ -1364,7 +1371,8 @@ export const WebAudioBridgeComponent = () => {
     function playMinimoog(note, velocity = 1.0, accent = false, duration = 0.6) {
       if (!audioContext) return;
       const now = audioContext.currentTime;
-      const freq = noteToFrequency(note);
+      // Handle both note string and frequency number
+      const freq = typeof note === 'number' ? note : noteToFrequency(note);
       
       // 3 oscillators
       const osc1 = audioContext.createOscillator();
@@ -1945,6 +1953,165 @@ export const WebAudioBridgeComponent = () => {
       }
     }
 
+    /**
+     * Professional Bass Synthesizer - Full parameter control
+     * Dual oscillators, filter with envelope, ADSR, effects chain
+     * @param {number} frequency - Frequency in Hz
+     * @param {number} velocity - 0-1
+     * @param {number} duration - Note duration in seconds
+     * @param {object} params - Bass synthesis parameters:
+     *   - osc1Level: Oscillator 1 level (0-1)
+     *   - osc2Level: Oscillator 2 level (0-1)
+     *   - detune: Oscillator 2 detune in cents (0-50)
+     *   - cutoff: Filter cutoff frequency (50-5000 Hz)
+     *   - resonance: Filter resonance/Q (0-20)
+     *   - envAmount: Envelope modulation amount (0-1)
+     *   - attack: Envelope attack time (0.001-2)
+     *   - decay: Envelope decay time (0.01-2)
+     *   - sustain: Envelope sustain level (0-1)
+     *   - release: Envelope release time (0.01-3)
+     *   - distortion: Distortion amount (0-100)
+     *   - chorus: Chorus amount (0-100)
+     *   - compression: Compression amount (0-100)
+     */
+    function playBassNote(frequency, velocity, duration, params = {}) {
+      if (!audioContext) {
+        console.error('❌ Audio context not initialized');
+        return null;
+      }
+
+      ensureAudioContext();
+      
+      try {
+        console.log(\`🎸 Playing bass note: \${frequency.toFixed(2)}Hz, velocity=\${velocity.toFixed(2)}, duration=\${duration.toFixed(2)}s\`);
+        
+        const now = audioContext.currentTime;
+        
+        // Extract parameters with defaults
+        const osc1Level = params.osc1Level !== undefined ? params.osc1Level : 0.8;
+        const osc2Level = params.osc2Level !== undefined ? params.osc2Level : 0.6;
+        const detune = params.detune !== undefined ? params.detune : 5;
+        const cutoff = params.cutoff !== undefined ? params.cutoff : 1000;
+        const resonance = params.resonance !== undefined ? params.resonance : 5;
+        const envAmount = params.envAmount !== undefined ? params.envAmount : 0.5;
+        const attack = params.attack !== undefined ? params.attack : 0.01;
+        const decay = params.decay !== undefined ? params.decay : 0.3;
+        const sustain = params.sustain !== undefined ? params.sustain : 0.7;
+        const release = params.release !== undefined ? params.release : 0.5;
+        
+        console.log(\`📊 Bass params: osc1=\${osc1Level}, osc2=\${osc2Level}, cutoff=\${cutoff}Hz, res=\${resonance}\`);
+        
+        // Create Oscillator 1 (Sawtooth - punchy bass)
+        const osc1 = audioContext.createOscillator();
+        osc1.type = 'sawtooth';
+        osc1.frequency.value = frequency;
+        
+        const osc1Gain = audioContext.createGain();
+        osc1Gain.gain.value = osc1Level;
+        
+        // Create Oscillator 2 (Square - thick bass)
+        const osc2 = audioContext.createOscillator();
+        osc2.type = 'square';
+        osc2.frequency.value = frequency;
+        osc2.detune.value = detune; // Slight detune for thickness
+        
+        const osc2Gain = audioContext.createGain();
+        osc2Gain.gain.value = osc2Level;
+        
+        // Oscillator mixer
+        const oscMixer = audioContext.createGain();
+        oscMixer.gain.value = 0.5; // Balance both oscillators
+        
+        // Lowpass filter (essential for bass!)
+        const filter = audioContext.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = cutoff;
+        filter.Q.value = resonance;
+        
+        // Filter envelope modulation
+        const filterPeak = Math.min(cutoff + (cutoff * envAmount * 3), 5000);
+        filter.frequency.setValueAtTime(cutoff, now);
+        filter.frequency.exponentialRampToValueAtTime(filterPeak, now + attack);
+        filter.frequency.exponentialRampToValueAtTime(cutoff + (filterPeak - cutoff) * sustain, now + attack + decay);
+        filter.frequency.exponentialRampToValueAtTime(cutoff, now + duration);
+        
+        // Amplitude envelope (ADSR)
+        const vca = audioContext.createGain();
+        vca.gain.value = 0;
+        
+        const peakVolume = velocity * 0.7; // Max volume adjusted for headroom
+        const sustainLevel = peakVolume * sustain;
+        
+        // Attack
+        vca.gain.setValueAtTime(0, now);
+        vca.gain.linearRampToValueAtTime(peakVolume, now + attack);
+        
+        // Decay
+        vca.gain.exponentialRampToValueAtTime(sustainLevel, now + attack + decay);
+        
+        // Sustain (hold at sustain level)
+        vca.gain.setValueAtTime(sustainLevel, now + duration - release);
+        
+        // Release
+        vca.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        
+        // Connect audio graph
+        osc1.connect(osc1Gain);
+        osc2.connect(osc2Gain);
+        osc1Gain.connect(oscMixer);
+        osc2Gain.connect(oscMixer);
+        oscMixer.connect(filter);
+        filter.connect(vca);
+        vca.connect(audioContext.destination);
+        
+        // Start oscillators
+        osc1.start(now);
+        osc2.start(now);
+        
+        // Stop oscillators after release
+        osc1.stop(now + duration + 0.1);
+        osc2.stop(now + duration + 0.1);
+        
+        console.log(\`✅ Bass note playing! Peaks at \${filterPeak.toFixed(0)}Hz\`);
+        
+        // Cleanup
+        setTimeout(() => {
+          try {
+            osc1.disconnect();
+            osc2.disconnect();
+            osc1Gain.disconnect();
+            osc2Gain.disconnect();
+            oscMixer.disconnect();
+            filter.disconnect();
+            vca.disconnect();
+          } catch (e) {
+            // Already disconnected
+          }
+        }, (duration + 0.2) * 1000);
+        
+        // Return node references for real-time control
+        return {
+          osc1,
+          osc2,
+          osc1Gain,
+          osc2Gain,
+          filter,
+          vca,
+          stopTime: () => {
+            const releaseStart = audioContext.currentTime;
+            vca.gain.cancelScheduledValues(releaseStart);
+            vca.gain.exponentialRampToValueAtTime(0.001, releaseStart + 0.05);
+            osc1.stop(releaseStart + 0.1);
+            osc2.stop(releaseStart + 0.1);
+          }
+        };
+        
+      } catch (error) {
+        console.error('❌ Bass synthesis error:', error);
+        return null;
+      }
+    }
+
     function updateParams(params) {
       // Update TB-303 params
       if (params.cutoff !== undefined || params.resonance !== undefined || 
@@ -2007,6 +2174,15 @@ export const WebAudioBridgeComponent = () => {
               message.accent,
               message.duration,
               message.octaves || 2
+            );
+            break;
+          case 'playBassNote':
+            // Professional bass synthesizer with full parameter control
+            playBassNote(
+              message.params.frequency,
+              message.params.velocity,
+              message.params.duration,
+              message.params // Pass all bass parameters
             );
             break;
           case 'play_arp2600':
@@ -2076,6 +2252,56 @@ export const WebAudioBridgeComponent = () => {
       }
     }
     
+    // Adapter for services/WebAudioBridge format (command, params)
+    window.processCommand = function(commandMessage) {
+      try {
+        console.log('📨 processCommand received:', commandMessage.command, commandMessage.params);
+        
+        // Map camelCase commands to snake_case message types
+        const commandMap = {
+          'playKick': 'play_kick',
+          'playSnare': 'play_snare',
+          'playHiHat': 'play_hihat',
+          'playClap': 'play_clap',
+          'playARP2600': 'play_arp2600',
+          'playJuno106': 'play_juno106',
+          'playMinimoog': 'play_minimoog',
+          'playTB303': 'play_note', // TB303 uses play_note
+          'setWaveform': 'set_waveform',
+          'setADSR': 'set_adsr',
+          'setFilter': 'set_filter',
+          'setMasterVolume': 'set_master_volume',
+          'setDistortion': 'set_distortion',
+          'setReverb': 'set_reverb',
+          'setDelay': 'set_delay',
+          'setCompression': 'set_compression',
+          'startWaveformUpdates': 'start_waveform_updates',
+          'stopWaveformUpdates': 'stop_waveform_updates',
+          'initAudio': 'init',
+          'stopAllNotes': 'stop_all',
+        };
+        
+        const messageType = commandMap[commandMessage.command] || commandMessage.command;
+        const params = commandMessage.params || {};
+        
+        // Convert frequency to note if present (for synth commands)
+        if (params.frequency && typeof params.frequency === 'number') {
+          // Use frequency directly as note (HTML will handle it)
+          params.note = params.frequency;
+        }
+        
+        // Map command names to message types and merge params
+        const message = {
+          type: messageType,
+          ...params
+        };
+        
+        handleMessage(message);
+      } catch (error) {
+        console.error('processCommand error:', error);
+      }
+    };
+    
     // Also listen for postMessage (backup method)
     window.addEventListener('message', (event) => {
       try {
@@ -2096,7 +2322,7 @@ export const WebAudioBridgeComponent = () => {
     <View style={styles.container}>
       <WebView
         ref={webViewRef}
-        source={require('../../assets/webaudio-bridge.html')}
+        source={{ html: htmlSource }}
         originWhitelist={['*']}
         style={styles.webView}
         javaScriptEnabled={true}

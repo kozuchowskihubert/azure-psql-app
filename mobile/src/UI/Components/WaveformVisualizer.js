@@ -17,10 +17,11 @@ export default function WaveformVisualizer({
   amplitude = 0.8,
   width: customWidth = width - 40,
   height = 120,
-  color = COLORS.accentGreen,
+  color = null,
   showGrid = true,
   animated = true,
 }) {
+  const actualColor = color || COLORS.accentGreen;
   const [waveData, setWaveData] = useState([]);
   const animatedPhase = useRef(new Animated.Value(0)).current;
   const [phase, setPhase] = useState(0);
@@ -118,8 +119,8 @@ export default function WaveformVisualizer({
       <Svg width={customWidth} height={height}>
         <Defs>
           <SvgGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <Stop offset="0%" stopColor={color} stopOpacity="0.8" />
-            <Stop offset="100%" stopColor={color} stopOpacity="0.3" />
+            <Stop offset="0%" stopColor={actualColor} stopOpacity="0.8" />
+            <Stop offset="100%" stopColor={actualColor} stopOpacity="0.3" />
           </SvgGradient>
         </Defs>
         

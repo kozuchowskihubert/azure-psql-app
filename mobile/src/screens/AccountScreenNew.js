@@ -46,14 +46,14 @@ export default function AccountScreenNew({ navigation }) {
       ADVENTURER: '🚀',
     };
     const colors = {
-      MUSICIAN: COLORS.cyan,
-      PRODUCER: COLORS.purple,
-      ADVENTURER: COLORS.gold,
+      MUSICIAN: '#00D9FF',
+      PRODUCER: '#B24BF3',
+      ADVENTURER: '#D4AF37',
     };
     return {
       name: persona,
       icon: icons[persona] || '🚀',
-      color: colors[persona] || COLORS.gold,
+      color: colors[persona] || '#D4AF37',
     };
   };
 
@@ -155,7 +155,7 @@ export default function AccountScreenNew({ navigation }) {
                 </Text>
               </View>
               {user?.subscription_tier !== 'free' && (
-                <View style={[styles.statusBadge, { backgroundColor: COLORS.green }]}>
+                <View style={[styles.statusBadge, { backgroundColor: '#00ff94' }]}>
                   <Text style={styles.statusBadgeText}>ACTIVE</Text>
                 </View>
               )}
@@ -199,7 +199,7 @@ export default function AccountScreenNew({ navigation }) {
               <Switch
                 value={audioSettings.highQuality}
                 onValueChange={(val) => setAudioSettings({ ...audioSettings, highQuality: val })}
-                trackColor={{ false: COLORS.secondary, true: COLORS.primary }}
+                trackColor={{ false: '#808080', true: '#FF6B35' }}
                 thumbColor="#fff"
               />
             </View>
@@ -212,7 +212,7 @@ export default function AccountScreenNew({ navigation }) {
               <Switch
                 value={audioSettings.lowLatency}
                 onValueChange={(val) => setAudioSettings({ ...audioSettings, lowLatency: val })}
-                trackColor={{ false: COLORS.secondary, true: COLORS.primary }}
+                trackColor={{ false: '#808080', true: '#FF6B35' }}
                 thumbColor="#fff"
               />
             </View>
@@ -225,7 +225,7 @@ export default function AccountScreenNew({ navigation }) {
               <Switch
                 value={audioSettings.backgroundAudio}
                 onValueChange={(val) => setAudioSettings({ ...audioSettings, backgroundAudio: val })}
-                trackColor={{ false: COLORS.secondary, true: COLORS.primary }}
+                trackColor={{ false: '#808080', true: '#FF6B35' }}
                 thumbColor="#fff"
               />
             </View>
@@ -244,7 +244,7 @@ export default function AccountScreenNew({ navigation }) {
               <Switch
                 value={appSettings.notifications}
                 onValueChange={(val) => setAppSettings({ ...appSettings, notifications: val })}
-                trackColor={{ false: COLORS.secondary, true: COLORS.primary }}
+                trackColor={{ false: '#808080', true: '#FF6B35' }}
                 thumbColor="#fff"
               />
             </View>
@@ -257,7 +257,7 @@ export default function AccountScreenNew({ navigation }) {
               <Switch
                 value={appSettings.autoSave}
                 onValueChange={(val) => setAppSettings({ ...appSettings, autoSave: val })}
-                trackColor={{ false: COLORS.secondary, true: COLORS.primary }}
+                trackColor={{ false: '#808080', true: '#FF6B35' }}
                 thumbColor="#fff"
               />
             </View>
@@ -317,7 +317,7 @@ export default function AccountScreenNew({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#050508', // '#050508'
   },
   scrollView: {
     flex: 1,
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 36,
     fontWeight: '900',
-    color: COLORS.primary,
+    color: '#FF6B35', // '#FF6B35'
     letterSpacing: 2,
     textShadowColor: 'rgba(255, 107, 53, 0.5)',
     textShadowOffset: { width: 0, height: 0 },
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.secondary,
+    color: '#808080', // '#808080'
     letterSpacing: 2,
     marginTop: 4,
   },
@@ -354,17 +354,17 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: '#FF6B35', // '#FF6B35'
     letterSpacing: 1,
     marginBottom: 12,
   },
   card: {
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: 'rgba(20, 20, 25, 0.85)', // 'rgba(20, 20, 25, 0.85)'
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
     padding: 20,
-    shadowColor: COLORS.primary,
+    shadowColor: '#FF6B35', // '#FF6B35'
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -387,12 +387,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
-    borderColor: COLORS.background,
+    borderColor: '#050508', // '#050508'
   },
   avatarText: {
     fontSize: 28,
     fontWeight: '900',
-    color: COLORS.background,
+    color: '#050508', // '#050508'
   },
   personaBadge: {
     position: 'absolute',
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: COLORS.background,
+    borderColor: '#050508', // '#050508'
   },
   personaIcon: {
     fontSize: 16,
@@ -416,13 +416,13 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: '#F4E8D8',
     marginBottom: 4,
   },
   profileEmail: {
     fontFamily: 'System',
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     marginBottom: 8,
   },
   personaTag: {
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   changePersonaButton: {
     backgroundColor: 'rgba(255, 107, 53, 0.1)',
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: '#FF6B35',
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: '#FF6B35',
   },
 
   // Statistics
@@ -466,13 +466,13 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 24,
     fontWeight: '900',
-    color: COLORS.primary,
+    color: '#FF6B35',
     marginBottom: 4,
   },
   statLabel: {
     fontFamily: 'System',
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
   },
 
@@ -487,13 +487,13 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: '#F4E8D8',
     marginBottom: 4,
   },
   subscriptionSubtitle: {
     fontFamily: 'System',
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -504,15 +504,15 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.background,
+    color: '#050508',
   },
   upgradeButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#FF6B35',
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
     marginBottom: 16,
-    shadowColor: COLORS.primary,
+    shadowColor: '#FF6B35',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 8,
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.background,
+    color: '#050508',
   },
   featuresList: {
     gap: 8,
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
   featureItem: {
     fontFamily: 'System',
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     lineHeight: 20,
   },
 
@@ -550,13 +550,13 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.text,
+    color: '#F4E8D8',
     marginBottom: 2,
   },
   settingDescription: {
     fontFamily: 'System',
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   menuItem: {
     flexDirection: 'row',
@@ -570,17 +570,17 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     fontSize: 15,
     fontWeight: '500',
-    color: COLORS.text,
+    color: '#F4E8D8',
   },
   menuValue: {
     fontFamily: 'System',
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   menuArrow: {
     fontFamily: 'System',
     fontSize: 18,
-    color: COLORS.primary,
+    color: '#FF6B35',
   },
 
   // Version
@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
   versionText: {
     fontFamily: 'System',
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     lineHeight: 16,
   },
 
