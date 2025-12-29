@@ -7,7 +7,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Animated, Dimensions } from 'react-native';
 import Svg, { Path, Line, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
-import { COLORS } from '../../styles/HAOSDesignSystem';
+
+// Local color constants to avoid initialization timing issues
+const COLORS = {
+  accentGreen: '#39FF14',
+  border: '#2a2a2a',
+  surfaceDark: '#0f0f0f',
+};
 
 const { width } = Dimensions.get('window');
 

@@ -18,7 +18,25 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Slider from '@react-native-community/slider';
-import { COLORS } from '../styles/HAOSDesignSystem';
+
+// Local color constants to avoid initialization timing issues
+const COLORS = {
+  accentGreen: '#39FF14',
+  accentCyan: '#00D9FF',
+  accentOrange: '#FF6B35',
+  accentPurple: '#A855F7',
+  accentGold: '#FFD700',
+  accentRed: '#FF3366',
+  surface: '#1a1a1a',
+  surfaceLight: '#242424',
+  surfaceDark: '#0f0f0f',
+  border: '#2a2a2a',
+  background: '#0a0a0a',
+  textPrimary: '#ffffff',
+  textSecondary: '#F4E8D8',
+  textTertiary: '#6B6B6B',
+};
+
 import {
   wavetableEngine,
   bassArpEngine,

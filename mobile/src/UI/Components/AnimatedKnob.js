@@ -14,7 +14,19 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS } from '../../styles/HAOSDesignSystem';
+
+// Inline colors to avoid module initialization issues
+const KNOB_COLORS = {
+  accentGreen: '#39FF14',
+  accentCyan: '#00D9FF',
+  accentOrange: '#FF6B35',
+  background: '#0a0a0a',
+  surface: '#1a1a1a',
+  surfaceLight: '#242424',
+  surfaceDark: '#0f0f0f',
+  textSecondary: '#F4E8D8',
+  textTertiary: '#6B6B6B',
+};
 
 const { width } = Dimensions.get('window');
 
@@ -30,7 +42,7 @@ export default function AnimatedKnob({
   decimals = 2,
   steps = null,
 }) {
-  const actualColor = color || COLORS.accentGreen;
+  const actualColor = color || KNOB_COLORS.accentGreen;
   const [currentValue, setCurrentValue] = useState(value);
   const rotation = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(1)).current;
@@ -120,9 +132,9 @@ export default function AnimatedKnob({
   // Get color based on value range
   const getValueColor = () => {
     const normalized = (currentValue - min) / (max - min);
-    if (normalized < 0.33) return COLORS.accentCyan;
+    if (normalized < 0.33) return KNOB_COLORS.accentCyan;
     if (normalized < 0.66) return actualColor;
-    return COLORS.accentOrange;
+    return KNOB_COLORS.accentOrange;
   };
   
   const displayValue = currentValue.toFixed(decimals) + unit;
@@ -152,7 +164,7 @@ export default function AnimatedKnob({
         {...panResponder.panHandlers}
       >
         <LinearGradient
-          colors={[COLORS.surfaceLight, COLORS.surface, COLORS.surfaceDark]}
+          colors={[KNOB_COLORS.surfaceLight, KNOB_COLORS.surface, KNOB_COLORS.surfaceDark]}
           style={styles.knobGradient}
         >
           {/* Outer ring */}
@@ -202,7 +214,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.textSecondary,
+    color: KNOB_COLORS.textSecondary,
     letterSpacing: 1,
     marginBottom: 8,
   },
@@ -217,7 +229,7 @@ const styles = StyleSheet.create({
     borderRadius: 1000,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.accentGreen,
+    shadowColor: KNOB_COLORS.accentGreen,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -234,7 +246,7 @@ const styles = StyleSheet.create({
     width: '60%',
     height: '60%',
     borderRadius: 1000,
-    backgroundColor: COLORS.background,
+    backgroundColor: KNOB_COLORS.background,
     justifyContent: 'flex-start',
     alignItems: 'center',
     paddingTop: 5,
@@ -260,7 +272,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   valueContainer: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: KNOB_COLORS.surface,
     borderRadius: 8,
     borderWidth: 1,
     paddingHorizontal: 12,
@@ -281,7 +293,7 @@ const styles = StyleSheet.create({
   },
   rangeLabel: {
     fontSize: 9,
-    color: COLORS.textTertiary,
+    color: KNOB_COLORS.textTertiary,
     fontFamily: 'monospace',
   },
 });

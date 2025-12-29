@@ -14,8 +14,24 @@ import {
   Dimensions,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
-import { COLORS } from '../../styles/HAOSDesignSystem';
 import { modulationMatrix } from '../../AudioEngine';
+
+// Local color constants to avoid initialization timing issues
+const COLORS = {
+  accentGreen: '#39FF14',
+  accentCyan: '#00D9FF',
+  accentPurple: '#A855F7',
+  accentOrange: '#FF6B35',
+  accentGold: '#FFD700',
+  accentRed: '#FF3366',
+  surface: '#1a1a1a',
+  surfaceLight: '#242424',
+  border: '#2a2a2a',
+  background: '#0a0a0a',
+  textPrimary: '#ffffff',
+  textSecondary: '#F4E8D8',
+  textTertiary: '#6B6B6B',
+};
 
 const { width } = Dimensions.get('window');
 
