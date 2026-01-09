@@ -18,7 +18,7 @@ import { WebView } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
 import Knob from '../components/Knob';
 import minimoogBridge from '../synths/MinimoogBridge';
-import webAudioBridge from '../services/WebAudioBridge';
+import toneAudioEngine from '../services/WebAudioBridge';
 import Oscilloscope from '../components/Oscilloscope';
 import UniversalSequencer from '../components/UniversalSequencer';
 import EuclideanSequencer from '../sequencer/EuclideanSequencer';
@@ -132,34 +132,22 @@ const MinimoogScreen = ({ navigation }) => {
 
   const initializeSynth = async () => {
     try {
-      await minimoogBridge.init();
-      console.log('✅ Minimoog initialized');
-      
-      // Resume audio context on mount (required for mobile)
-      setTimeout(() => {
-        if (webAudioBridge && typeof webAudioBridge.resumeAudio === 'function') {
-          webAudioBridge.resumeAudio();
-          console.log('🔊 Attempting to resume audio context...');
-        }
-      }, 500);
+      // Initialize Tone.js audio engine
+      const result = await toneAudioEngine.initialize();
+      if (result.success) {
+        console.log('✅ Minimoog (Tone.js) initialized');
+        console.log('   Latency:', result.latency.toFixed(1), 'ms');
+      }
     } catch (error) {
       console.error('❌ Minimoog init failed:', error);
     }
   };
 
   const playNote = async (note, freq) => {
-    // Resume audio on first interaction (iOS requirement)
-    if (webAudioBridge && !webAudioBridge.isReady) {
-      console.log('🔊 First interaction - resuming audio...');
-      if (typeof webAudioBridge.resumeAudio === 'function') {
-        webAudioBridge.resumeAudio();
-      }
-    }
-    
     setActiveNotes(prev => new Set([...prev, note]));
     
-    // Play note through bridge with proper options
-    minimoogBridge.playNote(note, { velocity: 1.0, duration: 3.0 });
+    // Play note with ToneAudioEngine
+    toneAudioEngine.playMinimoog(freq, 3.0, 1.0);
     console.log(`🎹 Playing Minimoog: ${note} @ ${freq.toFixed(2)}Hz`);
   };
 
@@ -294,23 +282,7 @@ const MinimoogScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Hidden WebView for audio-engine.html - DISABLED FOR LAYOUT FIX
-      <WebView
-        ref={(ref) => {
-          if (ref && !webAudioBridge.isReady) {
-            webAudioBridge.setWebViewRef(ref);
-          }
-        }}
-        source={require('../../assets/audio-engine.html')}
-        style={{ width: 1, height: 1, opacity: 0, position: 'absolute', top: -1000, left: -1000, pointerEvents: 'none' }}
-        onMessage={(event) => webAudioBridge.onMessage(event)}
-        onLoad={() => webAudioBridge.initAudio()}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        mediaPlaybackRequiresUserAction={false}
-        allowsInlineMediaPlayback={true}
-      />
-      */}
+      {/* Tone.js audio - no WebView needed! */}
 
       {/* Header */}
       <LinearGradient

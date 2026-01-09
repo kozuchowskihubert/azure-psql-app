@@ -16,9 +16,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import Slider from '@react-native-community/slider';
 import { usePiano } from '../hooks/useAudio';
-import pythonAudioEngine from '../services/PythonAudioEngine';
-import advancedAudioEngine from '../audio/AdvancedAudioEngine';
-import webAudioBridge from '../services/WebAudioBridge';
+import toneAudioEngine from '../services/ToneAudioEngine';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -87,17 +85,15 @@ const PianoScreen = ({ navigation }) => {
   });
   
   useEffect(() => {
-    // Initialize audio engine
-    const initAudio = async () => {
-      try {
-        await advancedAudioEngine.init();
-        console.log('✅ Piano audio engine initialized');
-      } catch (error) {
-        console.error('❌ Piano audio engine init error:', error);
+    // Initialize Tone.js audio engine
+    toneAudioEngine.initialize().then(result => {
+      if (result.success) {
+        console.log('✅ Piano audio engine initialized (Tone.js)');
+        console.log('   Latency:', result.latency.toFixed(1), 'ms');
+      } else {
+        console.error('❌ Piano audio engine init error:', result.error);
       }
-    };
-    
-    initAudio();
+    });
     
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -129,37 +125,35 @@ const PianoScreen = ({ navigation }) => {
       try {
         switch (synthMode) {
           case 'arp2600':
-            await pythonAudioEngine.playARP2600(frequency, duration, vel, detune / 1000);
+            toneAudioEngine.playARP2600(frequency, duration, vel, detune / 1000);
             break;
           case 'juno106':
-            await pythonAudioEngine.playJuno106(frequency, duration, vel, detune / 1000);
+            toneAudioEngine.playJuno106(frequency, duration, vel);
             break;
           case 'minimoog':
-            await pythonAudioEngine.playMinimoog(frequency, duration, vel, detune / 1000);
+            toneAudioEngine.playMinimoog(frequency, duration, vel);
             break;
           case 'tb303':
-            await pythonAudioEngine.playTB303(frequency, duration, vel);
+            toneAudioEngine.playTB303(frequency, duration, vel);
             break;
         }
       } catch (error) {
         console.error('Synth playback error:', error);
       }
     } else {
-      // Use piano audio with velocity via WebAudioBridge
-      console.log(`🎹 Piano mode: ${pianoType}, calling WebAudioBridge...`);
+      // Use piano audio with velocity via ToneAudioEngine
+      console.log(`🎹 Piano mode: ${pianoType}, calling ToneAudioEngine...`);
       try {
         const frequency = getNoteFrequency(note, finalOctave);
         const pianoVelocity = finalVelocity / 127; // Convert 0-127 to 0-1
         const pianoDuration = sustain ? 2.0 : 0.5;
         
-        // Use WebAudioBridge for actual audio playback
-        webAudioBridge.playPiano(
-          frequency,
-          pianoDuration,
+        // Use ToneAudioEngine for actual audio playback
+        toneAudioEngine.playPiano(
+          noteKey,  // Use note name instead of frequency
           pianoVelocity,
           pianoType,
-          reverb / 100,
-          brightness / 100
+          pianoDuration
         );
         
         console.log(`✅ Piano played: ${noteKey} at ${frequency.toFixed(1)}Hz`);

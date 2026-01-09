@@ -22,7 +22,7 @@ import { Audio } from 'expo-av';
 import Bass2DVisualizer from '../components/Bass2DVisualizer';
 import HAOSHeader from '../components/HAOSHeader';
 import InstrumentControl from '../components/InstrumentControl';
-import pythonAudioEngine from '../services/PythonAudioEngine';
+import toneAudioEngine from '../services/ToneAudioEngine';
 import { HAOS_COLORS, HAOS_GRADIENTS } from '../styles/HAOSTheme';
 import { INSTRUMENT_COLORS, PRESET_STYLES, CONTROL_TYPES } from '../styles/InstrumentTheme';
 
@@ -326,25 +326,25 @@ export default function BassStudioScreen({ navigation }) {
       visualizerRef.current.triggerBassNote(frequency, velocity);
     }
     
-    // Use pythonAudioEngine dedicated bass methods
+    // Use ToneAudioEngine dedicated bass methods
     try {
       switch (activePreset) {
         case 'sub':
         case 'funk':
         case '808':
         case 'dnb':
-          await pythonAudioEngine.playBass808(frequency, duration, velocity);
+          toneAudioEngine.playBass808(frequency, duration, velocity);
           break;
         case 'reese':
         case 'growl':
         case 'wobble':
-          await pythonAudioEngine.playReeseBass(frequency, duration, velocity);
+          toneAudioEngine.playReeseBass(frequency, duration, velocity);
           break;
         case 'acid':
-          await pythonAudioEngine.playTB303(frequency, duration, velocity);
+          toneAudioEngine.playTB303(frequency, duration, velocity);
           break;
         default:
-          await pythonAudioEngine.playBass808(frequency, duration, velocity);
+          toneAudioEngine.playBass808(frequency, duration, velocity);
       }
     } catch (error) {
       console.error('❌ Error playing bass:', error);
