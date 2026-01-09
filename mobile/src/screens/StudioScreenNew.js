@@ -20,6 +20,7 @@ import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
 import toneAudioEngine from '../services/ToneAudioEngine';
 import { Audio } from 'expo-av';
+import { INSTRUMENT_CARD_COLORS } from '../themes/InstrumentThemes';
 
 const { width } = Dimensions.get('window');
 
@@ -45,20 +46,20 @@ const COLORS = {
 
 const SOUNDS = {
   synths: [
-    { id: 'arp2600', name: 'ARP 2600', emoji: '🎛️', gradient: ['#D4AF37', '#FFD700'], note: 'C4', freq: 261.63 },
-    { id: 'juno106', name: 'Juno-106', emoji: '🎹', gradient: ['#C0C0C0', '#A0A0A0'], note: 'E4', freq: 329.63 },
-    { id: 'minimoog', name: 'Minimoog', emoji: '🎵', gradient: ['#FF6B35', '#FF8C5A'], note: 'G4', freq: 392.00 },
-    { id: 'tb303', name: 'TB-303', emoji: '💚', gradient: ['#B8960E', '#D4AF37'], note: 'A4', freq: 440.00 },
+    { id: 'arp2600', name: 'ARP 2600', emoji: '🎛️', gradient: INSTRUMENT_CARD_COLORS.arp2600, note: 'C4', freq: 261.63 },
+    { id: 'juno106', name: 'Juno-106', emoji: '🎹', gradient: INSTRUMENT_CARD_COLORS.juno106, note: 'E4', freq: 329.63 },
+    { id: 'minimoog', name: 'Minimoog', emoji: '🎵', gradient: INSTRUMENT_CARD_COLORS.minimoog, note: 'G4', freq: 392.00 },
+    { id: 'tb303', name: 'TB-303', emoji: '💚', gradient: INSTRUMENT_CARD_COLORS.tb303, note: 'A4', freq: 440.00 },
   ],
   drums: [
-    { id: 'kick', name: 'Kick', emoji: '🥁', gradient: ['#FF6B35', '#FF8C5A'], note: 'C2', freq: 65.41 },
-    { id: 'snare', name: 'Snare', emoji: '🪘', gradient: ['#C0C0C0', '#A0A0A0'], note: 'D3', freq: 146.83 },
-    { id: 'hihat', name: 'Hi-Hat', emoji: '🔔', gradient: ['#D4AF37', '#FFD700'], note: 'F#5', freq: 739.99 },
-    { id: 'clap', name: 'Clap', emoji: '👏', gradient: ['#CC5528', '#FF6B35'], note: 'A3', freq: 220.00 },
+    { id: 'kick', name: 'Kick', emoji: '🥁', gradient: INSTRUMENT_CARD_COLORS.kick, note: 'C2', freq: 65.41 },
+    { id: 'snare', name: 'Snare', emoji: '🪘', gradient: INSTRUMENT_CARD_COLORS.snare, note: 'D3', freq: 146.83 },
+    { id: 'hihat', name: 'Hi-Hat', emoji: '🔔', gradient: INSTRUMENT_CARD_COLORS.hihat, note: 'F#5', freq: 739.99 },
+    { id: 'clap', name: 'Clap', emoji: '👏', gradient: INSTRUMENT_CARD_COLORS.clap, note: 'A3', freq: 220.00 },
   ],
   bass: [
-    { id: 'bass808', name: '808 Bass', emoji: '🎸', gradient: ['#D4AF37', '#B8960E'], note: 'E1', freq: 41.20 },
-    { id: 'bassReese', name: 'Reese Bass', emoji: '🔊', gradient: ['#C0C0C0', '#A0A0A0'], note: 'A1', freq: 55.00 },
+    { id: 'bass808', name: '808 Bass', emoji: '🎸', gradient: INSTRUMENT_CARD_COLORS.bass808, note: 'E1', freq: 41.20 },
+    { id: 'bassReese', name: 'Reese Bass', emoji: '🔊', gradient: INSTRUMENT_CARD_COLORS.bassReese, note: 'A1', freq: 55.00 },
   ],
 };
 
