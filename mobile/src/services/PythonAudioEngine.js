@@ -13,117 +13,141 @@ import * as Haptics from 'expo-haptics';
 // ============================================
 // BUNDLED SAMPLES LIBRARY
 // ============================================
+// SAMPLE LOADING - Commented out for EAS build compatibility
+// Samples will be loaded dynamically at runtime instead of at build time
+// ============================================
 
 // KICKS - 12 variations with different envelopes, drives, reverbs
+const KICK_SAMPLES = {};
+/*
 const KICK_SAMPLES = {
   // Classic 808 variations
-  '808_soft': require('../../assets/sounds/drums/kicks/kick_808_soft.wav'),
-  '808_hard': require('../../assets/sounds/drums/kicks/kick_808_hard.wav'),
-  '808_long': require('../../assets/sounds/drums/kicks/kick_808_long.wav'),
-  '808_short': require('../../assets/sounds/drums/kicks/kick_808_short.wav'),
+  '808_soft': require('@assets/sounds/drums/kicks/kick_808_soft.wav'),
+  '808_hard': require('@assets/sounds/drums/kicks/kick_808_hard.wav'),
+  '808_long': require('@assets/sounds/drums/kicks/kick_808_long.wav'),
+  '808_short': require('@assets/sounds/drums/kicks/kick_808_short.wav'),
   // 909 variations
-  '909_punchy': require('../../assets/sounds/drums/kicks/kick_909_punchy.wav'),
-  '909_tight': require('../../assets/sounds/drums/kicks/kick_909_tight.wav'),
+  '909_punchy': require('@assets/sounds/drums/kicks/kick_909_punchy.wav'),
+  '909_tight': require('@assets/sounds/drums/kicks/kick_909_tight.wav'),
   // Sub bass kicks
-  'sub_deep': require('../../assets/sounds/drums/kicks/kick_sub_deep.wav'),
-  'sub_rumble': require('../../assets/sounds/drums/kicks/kick_sub_rumble.wav'),
+  'sub_deep': require('@assets/sounds/drums/kicks/kick_sub_deep.wav'),
+  'sub_rumble': require('@assets/sounds/drums/kicks/kick_sub_rumble.wav'),
   // Distorted/driven kicks
-  'distorted_heavy': require('../../assets/sounds/drums/kicks/kick_distorted_heavy.wav'),
-  'distorted_gritty': require('../../assets/sounds/drums/kicks/kick_distorted_gritty.wav'),
+  'distorted_heavy': require('@assets/sounds/drums/kicks/kick_distorted_heavy.wav'),
+  'distorted_gritty': require('@assets/sounds/drums/kicks/kick_distorted_gritty.wav'),
   // Reverb kicks
-  'reverb_hall': require('../../assets/sounds/drums/kicks/kick_reverb_hall.wav'),
-  'reverb_room': require('../../assets/sounds/drums/kicks/kick_reverb_room.wav'),
+  'reverb_hall': require('@assets/sounds/drums/kicks/kick_reverb_hall.wav'),
+  'reverb_room': require('@assets/sounds/drums/kicks/kick_reverb_room.wav'),
 };
+*/
 
 // SNARES - 8 variations
+const SNARE_SAMPLES = {};
+/*
 const SNARE_SAMPLES = {
-  '808_tight': require('../../assets/sounds/drums/snares/snare_808_tight.wav'),
-  '808_fat': require('../../assets/sounds/drums/snares/snare_808_fat.wav'),
-  '808_bright': require('../../assets/sounds/drums/snares/snare_808_bright.wav'),
-  '909_punchy': require('../../assets/sounds/drums/snares/snare_909_punchy.wav'),
-  '909_long': require('../../assets/sounds/drums/snares/snare_909_long.wav'),
-  'clap_layer': require('../../assets/sounds/drums/snares/snare_clap_layer.wav'),
-  'clap_tight': require('../../assets/sounds/drums/snares/snare_clap_tight.wav'),
-  'rimshot': require('../../assets/sounds/drums/snares/snare_rimshot.wav'),
+  '808_tight': require('@assets/sounds/drums/snares/snare_808_tight.wav'),
+  '808_fat': require('@assets/sounds/drums/snares/snare_808_fat.wav'),
+  '808_bright': require('@assets/sounds/drums/snares/snare_808_bright.wav'),
+  '909_punchy': require('@assets/sounds/drums/snares/snare_909_punchy.wav'),
+  '909_long': require('@assets/sounds/drums/snares/snare_909_long.wav'),
+  'clap_layer': require('@assets/sounds/drums/snares/snare_clap_layer.wav'),
+  'clap_tight': require('@assets/sounds/drums/snares/snare_clap_tight.wav'),
+  'rimshot': require('@assets/sounds/drums/snares/snare_rimshot.wav'),
 };
+*/
 
 // HI-HATS - White noise based, 8 variations
+const HIHAT_SAMPLES = {};
+/*
 const HIHAT_SAMPLES = {
-  'closed_tight': require('../../assets/sounds/drums/hihats/hihat_closed_tight.wav'),
-  'closed_medium': require('../../assets/sounds/drums/hihats/hihat_closed_medium.wav'),
-  'closed_soft': require('../../assets/sounds/drums/hihats/hihat_closed_soft.wav'),
-  'open_short': require('../../assets/sounds/drums/hihats/hihat_open_short.wav'),
-  'open_long': require('../../assets/sounds/drums/hihats/hihat_open_long.wav'),
-  'pedal': require('../../assets/sounds/drums/hihats/hihat_pedal.wav'),
-  'sizzle': require('../../assets/sounds/drums/hihats/hihat_sizzle.wav'),
-  'sizzle_long': require('../../assets/sounds/drums/hihats/hihat_sizzle_long.wav'),
+  'closed_tight': require('@assets/sounds/drums/hihats/hihat_closed_tight.wav'),
+  'closed_medium': require('@assets/sounds/drums/hihats/hihat_closed_medium.wav'),
+  'closed_soft': require('@assets/sounds/drums/hihats/hihat_closed_soft.wav'),
+  'open_short': require('@assets/sounds/drums/hihats/hihat_open_short.wav'),
+  'open_long': require('@assets/sounds/drums/hihats/hihat_open_long.wav'),
+  'pedal': require('@assets/sounds/drums/hihats/hihat_pedal.wav'),
+  'sizzle': require('@assets/sounds/drums/hihats/hihat_sizzle.wav'),
+  'sizzle_long': require('@assets/sounds/drums/hihats/hihat_sizzle_long.wav'),
 };
+*/
 
 // BASS - 10 variations including arpeggios
+const BASS_SAMPLES = {};
+/*
 const BASS_SAMPLES = {
-  'sub_C1': require('../../assets/sounds/bass/bass_sub_C1.wav'),
-  'sub_E1': require('../../assets/sounds/bass/bass_sub_E1.wav'),
-  'sub_G1': require('../../assets/sounds/bass/bass_sub_G1.wav'),
-  'growl_low': require('../../assets/sounds/bass/bass_growl_low.wav'),
-  'growl_mid': require('../../assets/sounds/bass/bass_growl_mid.wav'),
-  'acid_C2': require('../../assets/sounds/bass/bass_acid_C2.wav'),
-  'acid_E2': require('../../assets/sounds/bass/bass_acid_E2.wav'),
-  'acid_G2': require('../../assets/sounds/bass/bass_acid_G2.wav'),
-  'arpeggio_120bpm': require('../../assets/sounds/bass/bass_arpeggio_120bpm.wav'),
-  'arpeggio_140bpm': require('../../assets/sounds/bass/bass_arpeggio_140bpm.wav'),
+  'sub_C1': require('@assets/sounds/bass/bass_sub_C1.wav'),
+  'sub_E1': require('@assets/sounds/bass/bass_sub_E1.wav'),
+  'sub_G1': require('@assets/sounds/bass/bass_sub_G1.wav'),
+  'growl_low': require('@assets/sounds/bass/bass_growl_low.wav'),
+  'growl_mid': require('@assets/sounds/bass/bass_growl_mid.wav'),
+  'acid_C2': require('@assets/sounds/bass/bass_acid_C2.wav'),
+  'acid_E2': require('@assets/sounds/bass/bass_acid_E2.wav'),
+  'acid_G2': require('@assets/sounds/bass/bass_acid_G2.wav'),
+  'arpeggio_120bpm': require('@assets/sounds/bass/bass_arpeggio_120bpm.wav'),
+  'arpeggio_140bpm': require('@assets/sounds/bass/bass_arpeggio_140bpm.wav'),
 };
+*/
 
 // SYNTHS - 8 variations
+const SYNTH_SAMPLES = {};
+/*
 const SYNTH_SAMPLES = {
-  'pad_A3': require('../../assets/sounds/synths/synth_pad_A3.wav'),
-  'pad_C4': require('../../assets/sounds/synths/synth_pad_C4.wav'),
-  'pad_E4': require('../../assets/sounds/synths/synth_pad_E4.wav'),
-  'lead_A4': require('../../assets/sounds/synths/synth_lead_A4.wav'),
-  'lead_C5': require('../../assets/sounds/synths/synth_lead_C5.wav'),
-  'stab_Am': require('../../assets/sounds/synths/synth_stab_Am.wav'),
-  'stab_C': require('../../assets/sounds/synths/synth_stab_C.wav'),
-  'stab_F': require('../../assets/sounds/synths/synth_stab_F.wav'),
+  'pad_A3': require('@assets/sounds/synths/synth_pad_A3.wav'),
+  'pad_C4': require('@assets/sounds/synths/synth_pad_C4.wav'),
+  'pad_E4': require('@assets/sounds/synths/synth_pad_E4.wav'),
+  'lead_A4': require('@assets/sounds/synths/synth_lead_A4.wav'),
+  'lead_C5': require('@assets/sounds/synths/synth_lead_C5.wav'),
+  'stab_Am': require('@assets/sounds/synths/synth_stab_Am.wav'),
+  'stab_C': require('@assets/sounds/synths/synth_stab_C.wav'),
+  'stab_F': require('@assets/sounds/synths/synth_stab_F.wav'),
 };
+*/
 
 // FX - 4 variations
+const FX_SAMPLES = {};
+/*
 const FX_SAMPLES = {
-  'riser_4bar': require('../../assets/sounds/fx/fx_riser_4bar.wav'),
-  'riser_8bar': require('../../assets/sounds/fx/fx_riser_8bar.wav'),
-  'impact_short': require('../../assets/sounds/fx/fx_impact_short.wav'),
-  'impact_long': require('../../assets/sounds/fx/fx_impact_long.wav'),
+  'riser_4bar': require('@assets/sounds/fx/fx_riser_4bar.wav'),
+  'riser_8bar': require('@assets/sounds/fx/fx_riser_8bar.wav'),
+  'impact_short': require('@assets/sounds/fx/fx_impact_short.wav'),
+  'impact_long': require('@assets/sounds/fx/fx_impact_long.wav'),
 };
+*/
 
 // Legacy drum samples (backward compatibility)
+const DRUM_SAMPLES = {};
+/*
 const DRUM_SAMPLES = {
   // Kicks (map to new samples)
-  kick_808: require('../../assets/sounds/drums/kick_808.wav'),
-  kick_808_punchy: require('../../assets/sounds/drums/kick_808_punchy.wav'),
-  kick_909: require('../../assets/sounds/drums/kick_909.wav'),
-  kick_deep: require('../../assets/sounds/drums/kick_deep.wav'),
+  kick_808: require('@assets/sounds/drums/kick_808.wav'),
+  kick_808_punchy: require('@assets/sounds/drums/kick_808_punchy.wav'),
+  kick_909: require('@assets/sounds/drums/kick_909.wav'),
+  kick_deep: require('@assets/sounds/drums/kick_deep.wav'),
   // Snares
-  snare_808: require('../../assets/sounds/drums/snare_808.wav'),
-  snare_909: require('../../assets/sounds/drums/snare_909.wav'),
-  snare_clicky: require('../../assets/sounds/drums/snare_clicky.wav'),
+  snare_808: require('@assets/sounds/drums/snare_808.wav'),
+  snare_909: require('@assets/sounds/drums/snare_909.wav'),
+  snare_clicky: require('@assets/sounds/drums/snare_clicky.wav'),
   // Hi-Hats
-  hihat_closed: require('../../assets/sounds/drums/hihat_closed.wav'),
-  hihat_open: require('../../assets/sounds/drums/hihat_open.wav'),
-  hihat_pedal: require('../../assets/sounds/drums/hihat_pedal.wav'),
+  hihat_closed: require('@assets/sounds/drums/hihat_closed.wav'),
+  hihat_open: require('@assets/sounds/drums/hihat_open.wav'),
+  hihat_pedal: require('@assets/sounds/drums/hihat_pedal.wav'),
   // Cymbals
-  ride: require('../../assets/sounds/drums/ride.wav'),
-  crash: require('../../assets/sounds/drums/crash.wav'),
+  ride: require('@assets/sounds/drums/ride.wav'),
+  crash: require('@assets/sounds/drums/crash.wav'),
   // Claps & Snaps
-  clap: require('../../assets/sounds/drums/clap.wav'),
-  snap: require('../../assets/sounds/drums/snap.wav'),
+  clap: require('@assets/sounds/drums/clap.wav'),
+  snap: require('@assets/sounds/drums/snap.wav'),
   // Toms
-  tom_low: require('../../assets/sounds/drums/tom_low.wav'),
-  tom_mid: require('../../assets/sounds/drums/tom_mid.wav'),
-  tom_high: require('../../assets/sounds/drums/tom_high.wav'),
+  tom_low: require('@assets/sounds/drums/tom_low.wav'),
+  tom_mid: require('@assets/sounds/drums/tom_mid.wav'),
+  tom_high: require('@assets/sounds/drums/tom_high.wav'),
   // Percussion
-  rimshot: require('../../assets/sounds/drums/rimshot.wav'),
-  cowbell: require('../../assets/sounds/drums/cowbell.wav'),
-  clave: require('../../assets/sounds/drums/clave.wav'),
-  shaker: require('../../assets/sounds/drums/shaker.wav'),
+  rimshot: require('@assets/sounds/drums/rimshot.wav'),
+  cowbell: require('@assets/sounds/drums/cowbell.wav'),
+  clave: require('@assets/sounds/drums/clave.wav'),
+  shaker: require('@assets/sounds/drums/shaker.wav'),
 };
+*/
 
 // Combined sample library for easy access
 const ALL_SAMPLES = {
