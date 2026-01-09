@@ -534,6 +534,89 @@
     // ========================================
     
     /**
+     * Piano - Grand/Rhodes/Upright with harmonics
+     * Multiple oscillators to simulate piano harmonics
+     */
+    function playPiano(params = {}) {
+      initAudio();
+      
+      const frequency = params.frequency || 440;
+      const duration = params.duration || 0.5;
+      const velocity = params.velocity || 1.0;
+      const pianoType = params.pianoType || 'grand';
+      const reverb = params.reverb !== undefined ? params.reverb : 0.3;
+      const brightness = params.brightness !== undefined ? params.brightness : 0.5;
+      
+      const now = audioContext.currentTime;
+      
+      // Piano characteristics per type
+      const pianoSettings = {
+        grand: { harmonics: [1, 2, 3, 4, 5], attack: 0.003, decay: 0.15, sustain: 0.3, release: 0.4, brightnessBoost: 1.2 },
+        rhodes: { harmonics: [1, 2, 3, 5, 6], attack: 0.001, decay: 0.08, sustain: 0.6, release: 0.25, brightnessBoost: 0.9 },
+        upright: { harmonics: [1, 2, 3, 4], attack: 0.005, decay: 0.12, sustain: 0.4, release: 0.35, brightnessBoost: 1.0 },
+      };
+      
+      const settings = pianoSettings[pianoType] || pianoSettings.grand;
+      
+      // Create multiple oscillators for harmonics
+      const oscillators = [];
+      const gains = [];
+      
+      settings.harmonics.forEach((harmonic, index) => {
+        const osc = audioContext.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = frequency * harmonic;
+        
+        const gain = audioContext.createGain();
+        // Decay harmonic volume with index (fundamental loudest)
+        const harmonicVolume = velocity * Math.pow(0.5, index) * settings.brightnessBoost * brightness;
+        gain.gain.value = harmonicVolume;
+        
+        osc.connect(gain);
+        oscillators.push(osc);
+        gains.push(gain);
+      });
+      
+      // Master piano gain with ADSR
+      const pianoGain = audioContext.createGain();
+      const sustainLevel = settings.sustain * velocity;
+      
+      pianoGain.gain.setValueAtTime(0, now);
+      pianoGain.gain.linearRampToValueAtTime(velocity, now + settings.attack);
+      pianoGain.gain.exponentialRampToValueAtTime(Math.max(sustainLevel, 0.01), now + settings.attack + settings.decay);
+      pianoGain.gain.setValueAtTime(Math.max(sustainLevel, 0.01), now + duration - settings.release);
+      pianoGain.gain.exponentialRampToValueAtTime(0.01, now + duration + settings.release);
+      
+      // Connect harmonics to master piano gain
+      gains.forEach(gain => gain.connect(pianoGain));
+      
+      // Apply reverb if enabled
+      if (reverb > 0.1) {
+        const reverbWet = audioContext.createGain();
+        const reverbDry = audioContext.createGain();
+        reverbWet.gain.value = reverb;
+        reverbDry.gain.value = 1 - reverb * 0.5;
+        
+        pianoGain.connect(reverbWet);
+        pianoGain.connect(reverbDry);
+        reverbWet.connect(convolver);
+        reverbWet.connect(filterNode);
+        reverbDry.connect(filterNode);
+      } else {
+        pianoGain.connect(filterNode);
+      }
+      
+      // Start oscillators
+      oscillators.forEach(osc => {
+        osc.start(now);
+        osc.stop(now + duration + settings.release);
+      });
+      
+      console.log(`🎹 Piano ${pianoType}:`, { frequency, duration, velocity });
+      sendMessage('soundPlayed', { sound: 'piano', type: pianoType, frequency, duration });
+    }
+    
+    /**
      * ARP 2600 - Semi-modular 3-oscillator synth
      * Features: Dual VCO + LFO, 24dB ladder filter, ring mod capability
      */
@@ -1153,6 +1236,9 @@
             break;
           case 'playSynthNote':
             playSynthNote(params);
+            break;
+          case 'playPiano':
+            playPiano(params);
             break;
           case 'playARP2600':
             playARP2600(params);
