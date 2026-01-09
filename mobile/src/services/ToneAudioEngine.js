@@ -162,15 +162,9 @@ class ToneAudioEngine {
    */
   initSynths() {
     // ARP 2600 - Fat analog sound
-    this.synths.arp2600 = new Tone.PolySynth(Tone.MonoSynth, {
+    this.synths.arp2600 = new Tone.PolySynth(Tone.Synth, {
       oscillator: {
         type: 'sawtooth',
-      },
-      filter: {
-        type: 'lowpass',
-        frequency: 2000,
-        rolloff: -24,
-        Q: 5,
       },
       envelope: {
         attack: 0.005,
@@ -178,25 +172,12 @@ class ToneAudioEngine {
         sustain: 0.4,
         release: 0.8,
       },
-      filterEnvelope: {
-        attack: 0.01,
-        decay: 0.2,
-        sustain: 0.5,
-        release: 0.8,
-        baseFrequency: 200,
-        octaves: 4,
-      },
     }).connect(this.effects.compressor);
     
     // Juno-106 - Warm chorus sound
     this.synths.juno106 = new Tone.PolySynth(Tone.Synth, {
       oscillator: {
         type: 'sawtooth',
-      },
-      filter: {
-        type: 'lowpass',
-        frequency: 1500,
-        rolloff: -12,
       },
       envelope: {
         attack: 0.02,
@@ -207,15 +188,9 @@ class ToneAudioEngine {
     }).connect(this.effects.compressor);
     
     // Minimoog - Deep bass synth
-    this.synths.minimoog = new Tone.MonoSynth({
+    this.synths.minimoog = new Tone.Synth({
       oscillator: {
         type: 'sawtooth',
-      },
-      filter: {
-        type: 'lowpass',
-        frequency: 800,
-        rolloff: -24,
-        Q: 10,
       },
       envelope: {
         attack: 0.01,
@@ -223,40 +198,18 @@ class ToneAudioEngine {
         sustain: 0.6,
         release: 0.5,
       },
-      filterEnvelope: {
-        attack: 0.02,
-        decay: 0.3,
-        sustain: 0.3,
-        release: 0.5,
-        baseFrequency: 100,
-        octaves: 3,
-      },
     }).connect(this.effects.compressor);
     
     // TB-303 - Acid bass
-    this.synths.tb303 = new Tone.MonoSynth({
+    this.synths.tb303 = new Tone.Synth({
       oscillator: {
         type: 'sawtooth',
-      },
-      filter: {
-        type: 'lowpass',
-        frequency: 1000,
-        rolloff: -24,
-        Q: 15,
       },
       envelope: {
         attack: 0.001,
         decay: 0.1,
         sustain: 0.0,
         release: 0.1,
-      },
-      filterEnvelope: {
-        attack: 0.001,
-        decay: 0.15,
-        sustain: 0.0,
-        release: 0.1,
-        baseFrequency: 200,
-        octaves: 5,
       },
     }).connect(this.effects.compressor);
     
@@ -276,29 +229,15 @@ class ToneAudioEngine {
     }).connect(this.effects.compressor);
     
     // Reese Bass
-    this.synths.reeseBass = new Tone.PolySynth(Tone.MonoSynth, {
+    this.synths.reeseBass = new Tone.PolySynth(Tone.Synth, {
       oscillator: {
         type: 'sawtooth',
-      },
-      filter: {
-        type: 'lowpass',
-        frequency: 600,
-        rolloff: -24,
-        Q: 8,
       },
       envelope: {
         attack: 0.02,
         decay: 0.2,
         sustain: 0.7,
         release: 0.5,
-      },
-      filterEnvelope: {
-        attack: 0.05,
-        decay: 0.3,
-        sustain: 0.4,
-        release: 0.5,
-        baseFrequency: 100,
-        octaves: 2,
       },
     }).connect(this.effects.compressor);
     
