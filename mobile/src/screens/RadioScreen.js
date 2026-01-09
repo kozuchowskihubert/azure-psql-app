@@ -15,6 +15,7 @@ import {
   Dimensions,
   StatusBar,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -243,7 +244,7 @@ const RadioScreen = ({ navigation }) => {
       // Check if channel has tracks
       if (!channel.tracks || channel.tracks.length === 0) {
         console.warn(`No tracks available for ${channel.name}`);
-        alert(`${channel.name} channel has no tracks yet. Please add tracks to this channel.`);
+        Alert.alert('No Tracks', `${channel.name} channel has no tracks yet. Please add tracks to this channel.`);
         setIsLoading(false);
         return;
       }
@@ -260,7 +261,7 @@ const RadioScreen = ({ navigation }) => {
       
       if (!track || !track.url) {
         console.error('Invalid track data:', track);
-        alert('Error loading track. Please try again.');
+        Alert.alert('Error', 'Error loading track. Please try again.');
         setIsLoading(false);
         return;
       }
@@ -285,7 +286,7 @@ const RadioScreen = ({ navigation }) => {
       setIsLoading(false);
     } catch (error) {
       console.error('Error playing channel:', error);
-      alert(`Failed to play ${channel.name}. ${error.message}`);
+      Alert.alert('Playback Error', `Failed to play ${channel.name}. ${error.message}`);
       setIsLoading(false);
       setIsPlaying(false);
     }

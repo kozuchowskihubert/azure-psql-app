@@ -15,6 +15,7 @@ import {
   PanResponder,
   StatusBar,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -465,13 +466,13 @@ export default function BassStudioScreen({ navigation }) {
   const handleExportWAV = () => {
     // TODO: Implement WAV export
     console.log('💾 Export WAV - Coming soon!');
-    alert('WAV export coming soon!');
+    Alert.alert('Export WAV', 'WAV export coming soon!');
   };
 
   const handleExportMIDI = () => {
     // TODO: Implement MIDI export
     console.log('💾 Export MIDI - Coming soon!');
-    alert('MIDI export coming soon!');
+    Alert.alert('Export MIDI', 'MIDI export coming soon!');
   };
 
   // Fetch radio channels from Azure Blob Storage
@@ -564,13 +565,13 @@ export default function BassStudioScreen({ navigation }) {
   const handleSavePreset = () => {
     // TODO: Implement preset saving
     console.log('💾 Save preset - Coming soon!');
-    alert('Save preset feature coming soon!');
+    Alert.alert('Save Preset', 'Save preset feature coming soon!');
   };
 
   const handleLoadPreset = () => {
     // TODO: Implement preset loading
     console.log('📂 Load preset - Coming soon!');
-    alert('Load preset feature coming soon!');
+    Alert.alert('Load Preset', 'Load preset feature coming soon!');
   };
 
   return (

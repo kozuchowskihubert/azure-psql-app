@@ -14,6 +14,7 @@ import {
   Dimensions,
   StatusBar,
   Image,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -163,7 +164,7 @@ const CreatorScreen = ({ navigation }) => {
     if (instrument.route) {
       navigation.navigate(instrument.route);
     } else {
-      alert(`${instrument.name} coming soon!`);
+      Alert.alert('Coming Soon', `${instrument.name} coming soon!`);
     }
   };
 

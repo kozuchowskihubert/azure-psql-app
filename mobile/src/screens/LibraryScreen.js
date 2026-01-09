@@ -19,6 +19,7 @@ import {
   StatusBar,
   Image,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
@@ -233,13 +234,13 @@ const LibraryScreen = ({ navigation }) => {
   const handleSamplePress = (pack) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     // TODO: Navigate to sample pack screen
-    alert(`${pack.name} - Coming Soon!`);
+    Alert.alert('Coming Soon', `${pack.name} - Coming Soon!`);
   };
 
   const handleProjectPress = (project) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     // TODO: Load project in Studio
-    alert(`Loading ${project.name}...`);
+    Alert.alert('Loading Project', `Loading ${project.name}...`);
   };
 
   return (
