@@ -557,6 +557,13 @@
       const sustain = params.sustain !== undefined ? params.sustain : 0.7;
       const release = params.release !== undefined ? params.release : 0.3;
       
+      // LFO parameters (NEW!)
+      const lfoRate = params.lfoRate !== undefined ? params.lfoRate : 5; // Hz
+      const lfoDepth = params.lfoDepth !== undefined ? params.lfoDepth : 0.5; // 0-1
+      const lfoToPitch = params.lfoToPitch !== undefined ? params.lfoToPitch : true; // Pitch modulation
+      const lfoToFilter = params.lfoToFilter !== undefined ? params.lfoToFilter : false; // Filter modulation
+      const lfoToAmp = params.lfoToAmp !== undefined ? params.lfoToAmp : false; // Amplitude modulation (tremolo)
+      
       const now = audioContext.currentTime;
       
       // VCO 1 (Sawtooth - bright)
@@ -576,17 +583,38 @@
       vco3.type = 'sine';
       vco3.frequency.value = frequency * Math.pow(2, osc3Detune / 12); // Semitones to frequency ratio
       
-      // LFO for vibrato
+      // LFO for modulation (NEW: configurable rate and depth!)
       const lfo = audioContext.createOscillator();
       lfo.type = 'sine';
-      lfo.frequency.value = 5; // 5Hz vibrato
+      lfo.frequency.value = lfoRate; // User-controllable rate
       
+      // LFO Gain for depth control
       const lfoGain = audioContext.createGain();
-      lfoGain.gain.value = 10; // Vibrato depth
+      lfoGain.gain.value = lfoDepth * 20; // Vibrato depth (scaled)
       
       lfo.connect(lfoGain);
-      lfoGain.connect(vco1.frequency);
-      lfoGain.connect(vco2.frequency);
+      
+      // Connect LFO to pitch (vibrato) if enabled
+      if (lfoToPitch) {
+        lfoGain.connect(vco1.frequency);
+        lfoGain.connect(vco2.frequency);
+      }
+      
+      // NEW: LFO → Filter modulation (filter sweep/wobble)
+      const lfoFilterGain = audioContext.createGain();
+      if (lfoToFilter) {
+        lfoFilterGain.gain.value = lfoDepth * filterCutoff * 0.3; // Modulate ±30% of cutoff
+        lfo.connect(lfoFilterGain);
+        lfoFilterGain.connect(arpFilter.frequency);
+      }
+      
+      // NEW: LFO → Amplitude modulation (tremolo)
+      const lfoAmpGain = audioContext.createGain();
+      if (lfoToAmp) {
+        lfoAmpGain.gain.value = lfoDepth * 0.3; // Modulate ±30% of amplitude
+        lfo.connect(lfoAmpGain);
+        lfoAmpGain.connect(vca.gain);
+      }
       
       // Mixer with UI-controlled levels
       const vco1Gain = audioContext.createGain();

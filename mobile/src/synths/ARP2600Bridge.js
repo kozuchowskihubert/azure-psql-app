@@ -125,7 +125,7 @@ class ARP2600Bridge {
     console.log(`🎹 ARP 2600: ${note} (${frequency.toFixed(2)}Hz) velocity=${velocity}, accent=${accent}`, 
       `envelope: A=${envelope.attack}s D=${envelope.decay}s S=${envelope.sustain} R=${envelope.release}s`);
 
-    // Play using WebAudioBridge with ALL current parameters
+    // Play using WebAudioBridge with ALL current parameters INCLUDING LFO
     if (webAudioBridge.isReady) {
       webAudioBridge.playARP2600(
         frequency,
@@ -143,6 +143,12 @@ class ARP2600Bridge {
           decay: envelope.decay,
           sustain: envelope.sustain,
           release: envelope.release,
+          // ✨ NEW: LFO modulation parameters
+          lfoRate: this.params.modulation.lfoRate,
+          lfoDepth: this.params.modulation.lfoDepth,
+          lfoToPitch: this.params.routing.lfo.to.includes('fm1') || this.params.routing.lfo.to.includes('fm2'),
+          lfoToFilter: this.params.routing.lfo.to.includes('vcf-cv'),
+          lfoToAmp: this.params.routing.lfo.to.includes('vca-cv'),
         }
       );
     } else {
@@ -292,16 +298,20 @@ class ARP2600Bridge {
           break;
         case 'lfo-fm1':
           this.params.routing.lfoToFM1 = true;
+          this.params.routing.lfo.to.push('fm1');
           console.log('🌀 ARP2600: LFO → VCO1 FM');
           break;
         case 'lfo-fm2':
           this.params.routing.lfoToFM2 = true;
+          this.params.routing.lfo.to.push('fm2');
           console.log('🌀 ARP2600: LFO → VCO2 FM');
           break;
         case 'lfo-vcf-cv':
+          this.params.routing.lfo.to.push('vcf-cv');
           console.log('🌀 ARP2600: LFO → VCF CV (filter sweep)');
           break;
         case 'lfo-vca-cv':
+          this.params.routing.lfo.to.push('vca-cv');
           console.log('🌀 ARP2600: LFO → VCA CV (tremolo)');
           break;
         case 'adsr-vca':
