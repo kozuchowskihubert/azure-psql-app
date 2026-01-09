@@ -9,8 +9,21 @@ import {
   Animated,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
-import { COLORS } from '../styles/HAOSDesignSystem';
+import * as SafeColors from '../styles/SafeColors';
 import bridge from '../audio/WebAudioBridge';
+
+// Map SafeColors to COLORS object for compatibility
+const COLORS = {
+  background: SafeColors.BACKGROUND,
+  surface: SafeColors.SURFACE,
+  textPrimary: SafeColors.TEXT_PRIMARY,
+  textSecondary: SafeColors.TEXT_SECONDARY,
+  primary: SafeColors.PRIMARY,
+  secondary: SafeColors.GOLD,
+  accent: SafeColors.ORANGE,
+  border: SafeColors.BORDER,
+  active: SafeColors.SUCCESS,
+};
 
 export default function HomeScreen({ navigation }) {
   const { user } = useAuth();

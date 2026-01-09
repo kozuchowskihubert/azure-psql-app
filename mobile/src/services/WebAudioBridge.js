@@ -12,12 +12,14 @@
 
 class WebAudioBridge {
   constructor() {
+    console.log('🌉 WebAudioBridge constructor START');
     this.webViewRef = null;
     this.messageHandlers = new Map();
     this.isReady = false;
     this.commandQueue = [];
     
     console.log('🌉 WebAudioBridge initialized');
+    console.log('🌉 WebAudioBridge: this object keys:', Object.keys(this));
   }
   
   /**
@@ -129,6 +131,19 @@ class WebAudioBridge {
   }
   
   /**
+   * Resume audio context (required for iOS/mobile after user interaction)
+   */
+  resumeAudio() {
+    console.log('🔊 WebAudioBridge: Sending resume_audio command');
+    this.sendCommand('resume_audio');
+    // Set ready immediately after resume attempt (audio context will be ready)
+    setTimeout(() => {
+      this.isReady = true;
+      console.log('🔊 WebAudioBridge: Marked as ready after resume');
+    }, 100);
+  }
+  
+  /**
    * Set master volume (0-1)
    */
   setMasterVolume(volume) {
@@ -222,6 +237,19 @@ class WebAudioBridge {
    */
   playJuno106(frequency, duration = 0.5, velocity = 1.0, chorus = true) {
     this.sendCommand('playJuno106', { frequency, duration, velocity, chorus });
+  }
+  
+  /**
+   * Play Piano note (Grand, Rhodes, Upright)
+   * @param {number} frequency - Note frequency in Hz
+   * @param {number} duration - Note duration in seconds
+   * @param {number} velocity - Velocity 0-1
+   * @param {string} pianoType - 'grand', 'rhodes', or 'upright'
+   * @param {number} reverb - Reverb amount 0-1
+   * @param {number} brightness - Brightness 0-1
+   */
+  playPiano(frequency, duration = 0.5, velocity = 1.0, pianoType = 'grand', reverb = 0.3, brightness = 0.5) {
+    this.sendCommand('playPiano', { frequency, duration, velocity, pianoType, reverb, brightness });
   }
   
   /**
@@ -451,7 +479,9 @@ class WebAudioBridge {
   }
 }
 
+console.log('🌉 WebAudioBridge.js: About to create singleton instance');
 // Singleton instance
 const webAudioBridge = new WebAudioBridge();
+console.log('🌉 WebAudioBridge.js: Singleton created successfully');
 
 export default webAudioBridge;

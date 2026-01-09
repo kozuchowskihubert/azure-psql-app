@@ -144,8 +144,11 @@ class PythonAudioEngine {
     this.isInitialized = false;
     this.soundCache = new Map();
     this.loadedSamples = {}; // Pre-loaded Audio.Sound objects for instant playback
+    this.soundPool = {}; // Pool of sound instances for polyphonic playback
+    this.poolIndexes = {}; // Round-robin indexes for each pool
     this.currentSounds = [];
     this.maxCachedSounds = 50; // Increased for larger library
+    this.maxSoundPoolSize = 4; // Maximum concurrent instances per sound (reduced for stability)
     
     // Sample categories for easy access
     this.sampleLibrary = ALL_SAMPLES;
@@ -227,10 +230,13 @@ class PythonAudioEngine {
   }
 
   /**
-   * Preload bundled drum samples for instant playback (no network latency!)
+   * Preload bundled samples for instant playback (no network latency!)
    */
   async preloadDrumSamples() {
-    const essentialSamples = [
+    console.log('📦 Loading essential samples...');
+    
+    // Essential drums
+    const drumSamples = [
       'kick_808',
       'kick_808_punchy',
       'snare_808',
@@ -242,39 +248,73 @@ class PythonAudioEngine {
       'cowbell',
     ];
 
-    for (const sampleName of essentialSamples) {
+    // Essential synths
+    const synthSamples = [
+      { name: 'lead_A4', category: SYNTH_SAMPLES },
+      { name: 'lead_C5', category: SYNTH_SAMPLES },
+      { name: 'pad_C4', category: SYNTH_SAMPLES },
+      { name: 'pad_A3', category: SYNTH_SAMPLES },
+    ];
+
+    // Essential bass
+    const bassSamples = [
+      { name: 'sub_C1', category: BASS_SAMPLES },
+      { name: 'acid_C2', category: BASS_SAMPLES },
+      { name: 'growl_low', category: BASS_SAMPLES },
+    ];
+
+    // Load drums
+    for (const sampleName of drumSamples) {
       try {
         const sample = DRUM_SAMPLES[sampleName];
         if (sample) {
           const { sound } = await Audio.Sound.createAsync(sample, { shouldPlay: false });
           this.loadedSamples[sampleName] = sound;
-          console.log(`  ✅ Loaded: ${sampleName}`);
+          console.log(`  ✅ Drum: ${sampleName}`);
         }
       } catch (error) {
         console.warn(`  ⚠️ Failed to load ${sampleName}:`, error.message);
       }
     }
+
+    // Load synths
+    for (const { name, category } of synthSamples) {
+      try {
+        const sample = category[name];
+        if (sample) {
+          const { sound } = await Audio.Sound.createAsync(sample, { shouldPlay: false });
+          this.loadedSamples[name] = sound;
+          console.log(`  ✅ Synth: ${name}`);
+        }
+      } catch (error) {
+        console.warn(`  ⚠️ Failed to load ${name}:`, error.message);
+      }
+    }
+
+    // Load bass
+    for (const { name, category } of bassSamples) {
+      try {
+        const sample = category[name];
+        if (sample) {
+          const { sound } = await Audio.Sound.createAsync(sample, { shouldPlay: false });
+          this.loadedSamples[name] = sound;
+          console.log(`  ✅ Bass: ${name}`);
+        }
+      } catch (error) {
+        console.warn(`  ⚠️ Failed to load ${name}:`, error.message);
+      }
+    }
     
-    console.log(`🥁 Loaded ${Object.keys(this.loadedSamples).length} drum samples`);
+    console.log(`🎵 Loaded ${Object.keys(this.loadedSamples).length} samples total`);
   }
 
   /**
-   * Play a bundled sample (instant, no network latency)
+   * Play a bundled sample with polyphonic support using round-robin pool
    * @param {string} sampleName - Name of the sample
    * @param {object} category - Sample category object (KICK_SAMPLES, SNARE_SAMPLES, etc.)
    */
   async playSample(sampleName, category = DRUM_SAMPLES) {
     try {
-      const cacheKey = `${sampleName}_${Object.keys(category)[0] || 'default'}`;
-      
-      // If sample is preloaded, replay it
-      if (this.loadedSamples[cacheKey]) {
-        const sound = this.loadedSamples[cacheKey];
-        await sound.setPositionAsync(0);
-        await sound.playAsync();
-        return sound;
-      }
-      
       // Try to find sample in provided category first
       let sample = category[sampleName];
       
@@ -285,23 +325,40 @@ class PythonAudioEngine {
       
       if (!sample) {
         console.warn(`⚠️ Unknown sample: ${sampleName}`);
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         return null;
       }
       
-      const { sound } = await Audio.Sound.createAsync(sample, { shouldPlay: true });
+      // Initialize sound pool for this sample if it doesn't exist
+      if (!this.soundPool[sampleName]) {
+        this.soundPool[sampleName] = [];
+        this.poolIndexes[sampleName] = 0;
+      }
       
-      // Auto-unload after playback
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.didJustFinish) {
-          sound.unloadAsync();
-        }
-      });
+      // If pool is empty or not full yet, create a new sound
+      if (this.soundPool[sampleName].length < this.maxSoundPoolSize) {
+        const { sound: newSound } = await Audio.Sound.createAsync(sample);
+        this.soundPool[sampleName].push(newSound);
+      }
+      
+      // Use round-robin to pick next sound (simple and fast)
+      const currentIndex = this.poolIndexes[sampleName];
+      const sound = this.soundPool[sampleName][currentIndex];
+      
+      // Move to next index for next call
+      this.poolIndexes[sampleName] = (currentIndex + 1) % this.soundPool[sampleName].length;
+      
+      // Play the sound (will stop and restart if already playing)
+      try {
+        await sound.stopAsync();
+        await sound.playAsync();
+      } catch (e) {
+        // If stop fails, just try to play
+        await sound.playAsync();
+      }
       
       return sound;
     } catch (error) {
-      console.warn(`⚠️ Playback error for ${sampleName}:`, error.message);
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      console.error(`❌ Playback error for ${sampleName}:`, error);
       return null;
     }
   }
@@ -568,154 +625,45 @@ class PythonAudioEngine {
    * Play ARP 2600 Synth
    */
   async playARP2600(frequency, duration = 0.5, velocity = 1.0, detune = 0.02) {
-    const params = {
-      frequency,
-      duration,
-      velocity,
-      detune,
-      attack: this.arp2600Params.attack,
-      decay: this.arp2600Params.decay,
-      sustain: this.arp2600Params.sustain,
-      release: this.arp2600Params.release,
-      filter_cutoff: this.arp2600Params.filter_cutoff,
-      filter_resonance: this.arp2600Params.filter_resonance,
-    };
-    
-    return this.playFromBackend(
-      '/api/audio/play-synth',
-      params,
-      Haptics.ImpactFeedbackStyle.Light
-    );
+    // Use local synth lead sample for instant playback
+    return this.playSample('lead_A4', SYNTH_SAMPLES);
   }
 
   /**
-   * Play Juno-106 (uses ARP 2600 engine with different settings)
+   * Play Juno-106 (uses local synth pad sample)
    */
   async playJuno106(frequency, duration = 0.5, velocity = 1.0, detune = 0.01) {
-    console.log('🎹 Juno-106 - ' + frequency + ' Hz');
-    
-    const params = {
-      frequency,
-      duration,
-      velocity,
-      detune,
-      attack: 0.02,
-      decay: 0.2,
-      sustain: 0.6,
-      release: 0.3,
-      filter_cutoff: 3000.0,
-      filter_resonance: 0.8,
-    };
-    
-    return this.playFromBackend(
-      '/api/audio/play-synth',
-      params,
-      Haptics.ImpactFeedbackStyle.Light
-    );
+    // Use local synth pad sample for warm analog sound
+    return this.playSample('pad_C4', SYNTH_SAMPLES);
   }
 
   /**
-   * Play Minimoog (uses ARP 2600 engine with different settings)
+   * Play Minimoog (uses local synth lead sample)
    */
   async playMinimoog(frequency, duration = 0.5, velocity = 1.0, detune = 0.03) {
-    console.log('🎵 Minimoog - ' + frequency + ' Hz');
-    
-    const params = {
-      frequency,
-      duration,
-      velocity,
-      detune,
-      attack: 0.005,
-      decay: 0.15,
-      sustain: 0.8,
-      release: 0.1,
-      filter_cutoff: 1500.0,
-      filter_resonance: 1.5,
-    };
-    
-    return this.playFromBackend(
-      '/api/audio/play-synth',
-      params,
-      Haptics.ImpactFeedbackStyle.Light
-    );
+    // Use local synth lead sample for fat analog lead
+    return this.playSample('lead_C5', SYNTH_SAMPLES);
   }
 
   /**
-   * Play TB-303 Bass (uses ARP 2600 engine with bass settings)
+   * Play TB-303 Bass (uses local acid bass sample)
    */
   async playTB303(frequency, duration = 0.25, velocity = 1.0, accent = false, slide = false, envelope = null, waveform = 'sawtooth') {
-    console.log('💚 TB-303 - ' + frequency + ' Hz');
-    
-    const params = {
-      frequency,
-      duration,
-      velocity: accent ? velocity * 1.5 : velocity,
-      detune: 0.0,
-      attack: slide ? 0.05 : 0.005,
-      decay: 0.05,
-      sustain: 0.5,
-      release: 0.05,
-      filter_cutoff: accent ? 3000.0 : 1200.0,
-      filter_resonance: 2.0,
-    };
-    
-    return this.playFromBackend(
-      '/api/audio/play-synth',
-      params,
-      Haptics.ImpactFeedbackStyle.Light
-    );
+    return this.playSample('acid_C2', BASS_SAMPLES);
   }
 
   /**
-   * Play 808 Bass (uses synth engine with bass settings)
+   * Play 808 Bass (uses local sub bass sample)
    */
   async playBass808(frequency, duration = 0.5, velocity = 1.0) {
-    console.log('🎸 808 Bass - ' + frequency + ' Hz');
-    
-    const params = {
-      frequency,
-      duration,
-      velocity,
-      detune: 0.0,
-      attack: 0.01,
-      decay: 0.3,
-      sustain: 0.3,
-      release: 0.1,
-      filter_cutoff: 800.0,
-      filter_resonance: 1.2,
-    };
-    
-    return this.playFromBackend(
-      '/api/audio/play-synth',
-      params,
-      Haptics.ImpactFeedbackStyle.Medium
-    );
+    return this.playSample('sub_C1', BASS_SAMPLES);
   }
 
   /**
-   * Play Reese Bass (uses synth engine with heavy detune)
+   * Play Reese Bass (uses local growl bass sample)
    */
   async playReeseBass(frequency, duration = 0.5, velocity = 1.0) {
-    console.log('🔊 Reese Bass - ' + frequency + ' Hz');
-    
-    const params = {
-      frequency,
-      duration,
-      velocity,
-      detune: 0.08, // Heavy detune for Reese character
-      attack: 0.02,
-      decay: 0.2,
-      sustain: 0.7,
-      release: 0.2,
-      filter_cutoff: 600.0,
-      filter_resonance: 1.8,
-    };
-    
-    return this.playFromBackend(
-      '/api/audio/play-synth',
-      params,
-      Haptics.ImpactFeedbackStyle.Medium
-    );
+    return this.playSample('growl_low', BASS_SAMPLES);
   }
 
   /**
@@ -906,6 +854,18 @@ class PythonAudioEngine {
       await this.cleanupSound(soundObj);
     }
     this.currentSounds = [];
+    
+    // Clean up sound pool
+    for (const sampleName in this.soundPool) {
+      for (const sound of this.soundPool[sampleName]) {
+        try {
+          await sound.unloadAsync();
+        } catch (e) {
+          console.warn('Failed to unload sound:', e.message);
+        }
+      }
+    }
+    this.soundPool = {};
     
     // Clear cache
     this.soundCache.clear();

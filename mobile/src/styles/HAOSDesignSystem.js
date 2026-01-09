@@ -2,11 +2,17 @@
  * HAOS.fm Mobile Design System
  * Central styling constants for consistent UI/UX
  * Based on web DAW Studio interface
+ * 
+ * IMPORTANT: This module must be loaded atomically
+ * All constants are defined first, then exported
  */
 
-console.log('🎨 HAOSDesignSystem loading...');
+console.log('🎨🎨🎨 HAOSDesignSystem: FILE TOP (immediate execution)');
+console.log('🎨 HAOSDesignSystem: START loading...');
 
-// Color Palette
+// ============================================
+// CORE COLOR PALETTE - Foundation for all styles
+// ============================================
 export const COLORS = {
   // Primary (Orange Theme from Web)
   primary: '#FF6B35',        // HAOS Groove Orange (main accent)
@@ -57,9 +63,11 @@ export const COLORS = {
   shadowDark: '#000000',
 };
 
-console.log('✅ COLORS exported:', !!COLORS, 'Keys:', Object.keys(COLORS).length);
+console.log('✅ COLORS exported, keys:', Object.keys(COLORS).length);
 
-// Typography
+// ============================================
+// TYPOGRAPHY - Font system
+// ============================================
 export const TYPOGRAPHY = {
   // Font Families (HAOS Brand Fonts)
   fontFamily: {
@@ -111,7 +119,9 @@ export const TYPOGRAPHY = {
 
 console.log('✅ TYPOGRAPHY exported');
 
-// Spacing System (8px base)
+// ============================================
+// SPACING SYSTEM
+// ============================================
 export const SPACING = {
   xs: 4,
   sm: 8,

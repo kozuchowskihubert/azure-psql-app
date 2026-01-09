@@ -11,20 +11,21 @@ import {
   ScrollView,
   StyleSheet,
   Dimensions,
+  StatusBar,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { WebView } from 'react-native-webview';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import arp2600Bridge from '../synths/ARP2600Bridge';
 import webAudioBridge from '../services/WebAudioBridge';
 import Oscilloscope from '../components/Oscilloscope';
+import Bass2DVisualizer from '../components/Bass2DVisualizer';
 import UniversalSequencer from '../components/UniversalSequencer';
 
 const { width } = Dimensions.get('window');
 
-// Responsive sizing
-const KNOB_SIZE = Math.min(width * 0.15, 70); // 15% of width, max 70px
+// Responsive sizing - ENHANCED for better touch targets
+const KNOB_SIZE = Math.min(width * 0.18, 80); // 18% of width, max 80px (increased from 70px)
 const IS_SMALL_SCREEN = width < 375;
 
 const HAOS_COLORS = {
@@ -36,26 +37,39 @@ const HAOS_COLORS = {
   silver: '#c0c0c0',
 };
 
-// Musical keyboard notes
+// Musical keyboard notes - 2 Octaves (C3-C5, 25 keys)
 const NOTES = [
-  { note: 'C3', freq: 130.81, label: 'C', black: false },
-  { note: 'C#3', freq: 138.59, label: 'C#', black: true },
-  { note: 'D3', freq: 146.83, label: 'D', black: false },
-  { note: 'D#3', freq: 155.56, label: 'D#', black: true },
-  { note: 'E3', freq: 164.81, label: 'E', black: false },
-  { note: 'F3', freq: 174.61, label: 'F', black: false },
-  { note: 'F#3', freq: 185.00, label: 'F#', black: true },
-  { note: 'G3', freq: 196.00, label: 'G', black: false },
-  { note: 'G#3', freq: 207.65, label: 'G#', black: true },
-  { note: 'A3', freq: 220.00, label: 'A', black: false },
-  { note: 'A#3', freq: 233.08, label: 'A#', black: true },
-  { note: 'B3', freq: 246.94, label: 'B', black: false },
-  { note: 'C4', freq: 261.63, label: 'C', black: false },
+  // Octave 3 (C3-B3)
+  { note: 'C3', freq: 130.81, label: 'C', octave: 3, black: false },
+  { note: 'C#3', freq: 138.59, label: 'C#', octave: 3, black: true },
+  { note: 'D3', freq: 146.83, label: 'D', octave: 3, black: false },
+  { note: 'D#3', freq: 155.56, label: 'D#', octave: 3, black: true },
+  { note: 'E3', freq: 164.81, label: 'E', octave: 3, black: false },
+  { note: 'F3', freq: 174.61, label: 'F', octave: 3, black: false },
+  { note: 'F#3', freq: 185.00, label: 'F#', octave: 3, black: true },
+  { note: 'G3', freq: 196.00, label: 'G', octave: 3, black: false },
+  { note: 'G#3', freq: 207.65, label: 'G#', octave: 3, black: true },
+  { note: 'A3', freq: 220.00, label: 'A', octave: 3, black: false },
+  { note: 'A#3', freq: 233.08, label: 'A#', octave: 3, black: true },
+  { note: 'B3', freq: 246.94, label: 'B', octave: 3, black: false },
+  // Octave 4 (C4-B4)
+  { note: 'C4', freq: 261.63, label: 'C', octave: 4, black: false },
+  { note: 'C#4', freq: 277.18, label: 'C#', octave: 4, black: true },
+  { note: 'D4', freq: 293.66, label: 'D', octave: 4, black: false },
+  { note: 'D#4', freq: 311.13, label: 'D#', octave: 4, black: true },
+  { note: 'E4', freq: 329.63, label: 'E', octave: 4, black: false },
+  { note: 'F4', freq: 349.23, label: 'F', octave: 4, black: false },
+  { note: 'F#4', freq: 369.99, label: 'F#', octave: 4, black: true },
+  { note: 'G4', freq: 392.00, label: 'G', octave: 4, black: false },
+  { note: 'G#4', freq: 415.30, label: 'G#', octave: 4, black: true },
+  { note: 'A4', freq: 440.00, label: 'A', octave: 4, black: false },
+  { note: 'A#4', freq: 466.16, label: 'A#', octave: 4, black: true },
+  { note: 'B4', freq: 493.88, label: 'B', octave: 4, black: false },
+  // Octave 5 (C5)
+  { note: 'C5', freq: 523.25, label: 'C', octave: 5, black: false },
 ];
 
 const ARP2600Screen = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
-  
   const [osc1Level, setOsc1Level] = useState(0.5);
   const [osc2Level, setOsc2Level] = useState(0.5);
   const [osc3Level, setOsc3Level] = useState(0.0); // VCO 3 - off by default
@@ -70,6 +84,11 @@ const ARP2600Screen = ({ navigation }) => {
   const [activeNotes, setActiveNotes] = useState(new Set());
   const [waveformData, setWaveformData] = useState([]);
   
+  // Keyboard controls
+  const [octaveShift, setOctaveShift] = useState(0); // -2 to +2
+  const [velocity, setVelocity] = useState(100); // 0-127, default 100
+  const [touchStartTime, setTouchStartTime] = useState(null);
+  
   // Sequencer state
   const [sequencerPlaying, setSequencerPlaying] = useState(false);
   const [bpm, setBpm] = useState(120);
@@ -78,6 +97,11 @@ const ARP2600Screen = ({ navigation }) => {
   const [lfoRate, setLFORate] = useState(5.0);
   const [lfoDepth, setLFODepth] = useState(0.5);
   const [noiseLevel, setNoiseLevel] = useState(0.3);
+  
+  // Visualizer and category state
+  const [visualizerMode, setVisualizerMode] = useState('oscilloscope'); // 'oscilloscope' | 'bass'
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const visualizerRef = useRef(null);
   
   // Patch Bay System (inspired by Behringer 2600 HTML)
   const [patchMode, setPatchMode] = useState(false);
@@ -118,6 +142,839 @@ const ARP2600Screen = ({ navigation }) => {
     'fm2': { type: 'input', label: 'VCO2 FM', color: '#00D9FF', icon: '🎵' },
     'ringMod': { type: 'input', label: 'RING MOD', color: '#FF006E', icon: '💍' },
   };
+
+  // Professional Presets - Serum/Cymatics Style (IMPROVED)
+  const SYNTH_PRESETS = {
+    supersaw: {
+      name: '🔥 Supersaw Lead',
+      emoji: '🔥',
+      color: '#FF6B35',
+      category: 'lead',
+      osc1Level: 0.9,
+      osc2Level: 0.85,
+      osc3Level: 0.75,
+      osc2Detune: 0.015, // Wider detune for supersaw
+      osc3Detune: 7, // +7 semitones (fifth)
+      filterCutoff: 6500, // Brighter, more aggressive
+      filterResonance: 12, // Higher res for character
+      attack: 0.005, // Instant attack
+      decay: 0.2,
+      sustain: 0.9, // High sustain for leads
+      release: 0.6,
+      lfoRate: 5.5,
+      lfoDepth: 0.2, // Subtle vibrato
+      noiseLevel: 0.03,
+    },
+    pluck: {
+      name: '✨ Pluck Stab',
+      emoji: '✨',
+      color: '#00D9FF',
+      category: 'lead',
+      osc1Level: 1.0, // Full level
+      osc2Level: 0.8,
+      osc3Level: 0.0,
+      osc2Detune: 0.010, // Tight detune
+      osc3Detune: 0,
+      filterCutoff: 5500, // Very bright
+      filterResonance: 18, // High resonance for pluck character
+      attack: 0.001, // Instant
+      decay: 0.25, // Quick decay
+      sustain: 0.1, // Low sustain
+      release: 0.15, // Short release
+      lfoRate: 0,
+      lfoDepth: 0,
+      noiseLevel: 0.12, // More noise for attack
+    },
+    pad: {
+      name: '🌊 Ambient Pad',
+      emoji: '🌊',
+      color: '#9D4EDD',
+      category: 'pad',
+      osc1Level: 0.7,
+      osc2Level: 0.7,
+      osc3Level: 0.65,
+      osc2Detune: 0.020, // Wide detune for richness
+      osc3Detune: 12, // +12 semitones (octave)
+      filterCutoff: 1800, // Darker, warmer
+      filterResonance: 3, // Low res for smoothness
+      attack: 1.5, // Very slow attack
+      decay: 1.0,
+      sustain: 0.95, // Very high sustain
+      release: 3.0, // Long release
+      lfoRate: 0.3, // Slow LFO
+      lfoDepth: 0.5, // Moderate modulation
+      noiseLevel: 0.01,
+    },
+    brass: {
+      name: '🎺 Brass Stab',
+      emoji: '🎺',
+      color: '#FFD700',
+      category: 'brass',
+      osc1Level: 0.95,
+      osc2Level: 0.85,
+      osc3Level: 0.0,
+      osc2Detune: 0.004, // Very tight detune
+      osc3Detune: 0,
+      filterCutoff: 3800, // Mid-bright
+      filterResonance: 22, // High resonance for brass character
+      attack: 0.05, // Slight attack
+      decay: 0.15,
+      sustain: 0.8,
+      release: 0.3,
+      lfoRate: 6.0, // Faster LFO for vibrato
+      lfoDepth: 0.35,
+      noiseLevel: 0.15, // More breath noise
+    },
+    arp: {
+      name: '🎹 Arp Sequence',
+      emoji: '🎹',
+      color: '#00ff94',
+      category: 'arp',
+      osc1Level: 0.85,
+      osc2Level: 0.75,
+      osc3Level: 0.0,
+      osc2Detune: 0.012,
+      osc3Detune: 0,
+      filterCutoff: 7000, // Very bright
+      filterResonance: 8, // Moderate res
+      attack: 0.001, // Instant
+      decay: 0.08, // Very short decay
+      sustain: 0.3, // Low sustain
+      release: 0.12, // Short release
+      lfoRate: 10.0, // Fast LFO
+      lfoDepth: 0.5,
+      noiseLevel: 0.02,
+    },
+    neuro: {
+      name: '🧠 Neuro Bass',
+      emoji: '🧠',
+      color: '#39FF14',
+      category: 'bass',
+      osc1Level: 1.0, // Full power
+      osc2Level: 0.95,
+      osc3Level: 0.85,
+      osc2Detune: 0.030, // Wide detune for movement
+      osc3Detune: -12, // -12 semitones (octave down)
+      filterCutoff: 1200, // Low cutoff for bass
+      filterResonance: 28, // Very high resonance
+      attack: 0.002,
+      decay: 0.08,
+      sustain: 0.9,
+      release: 0.1,
+      lfoRate: 16.0, // Very fast LFO for wobble
+      lfoDepth: 0.9, // Heavy modulation
+      noiseLevel: 0.20, // Lots of grit
+    },
+    vocal: {
+      name: '🎤 Vocal Formant',
+      emoji: '🎤',
+      color: '#FF006E',
+      category: 'vocal',
+      osc1Level: 0.8,
+      osc2Level: 0.7,
+      osc3Level: 0.6,
+      osc2Detune: 0.005, // Tight
+      osc3Detune: 12, // +12 semitones
+      filterCutoff: 2200, // Formant range
+      filterResonance: 25, // High resonance for formant
+      attack: 0.1,
+      decay: 0.2,
+      sustain: 0.85,
+      release: 0.4,
+      lfoRate: 2.5, // Slow LFO for vowel movement
+      lfoDepth: 0.8, // Heavy modulation
+      noiseLevel: 0.08,
+    },
+    bell: {
+      name: '🔔 Bell Lead',
+      emoji: '🔔',
+      color: '#FFB347',
+      category: 'fx',
+      osc1Level: 0.9,
+      osc2Level: 0.6,
+      osc3Level: 0.4,
+      osc2Detune: 0.014,
+      osc3Detune: 19, // +19 semitones (fifth + octave)
+      filterCutoff: 8500, // Very bright
+      filterResonance: 6, // Low res for clarity
+      attack: 0.001, // Instant
+      decay: 0.8, // Long decay for bell ring
+      sustain: 0.2, // Low sustain
+      release: 2.5, // Very long release
+      lfoRate: 0.1, // Very slow LFO
+      lfoDepth: 0.10, // Subtle shimmer
+      noiseLevel: 0.005,
+    },
+    // ACID & TECHNO PRESETS
+    acid303: {
+      name: '🧪 TB-303 Acid',
+      emoji: '🧪',
+      color: '#39FF14',
+      category: 'techno',
+      osc1Level: 1.0,
+      osc2Level: 0.0,
+      osc3Level: 0.0,
+      osc2Detune: 0.01,
+      osc3Detune: 0,
+      filterCutoff: 1200, // Mid-low for acid squelch
+      filterResonance: 28, // Very high resonance for 303 character
+      attack: 0.001, // Instant attack
+      decay: 0.08, // Quick decay
+      sustain: 0.2, // Low sustain for pluck
+      release: 0.05, // Very short release
+      lfoRate: 12.0, // Fast LFO for filter modulation
+      lfoDepth: 0.95, // Heavy modulation for squelch
+      noiseLevel: 0.05,
+    },
+    hardTechno: {
+      name: '💥 Hard Techno Bass',
+      emoji: '💥',
+      color: '#FF0066',
+      category: 'techno',
+      osc1Level: 1.0,
+      osc2Level: 0.9,
+      osc3Level: 0.8,
+      osc2Detune: 0.025, // Wide detune for power
+      osc3Detune: -12, // Octave down for depth
+      filterCutoff: 500, // Very low for aggressive bass
+      filterResonance: 25, // High resonance for edge
+      attack: 0.001,
+      decay: 0.1,
+      sustain: 0.95, // High sustain for driving bass
+      release: 0.15,
+      lfoRate: 16.0, // Very fast wobble
+      lfoDepth: 0.85, // Heavy modulation
+      noiseLevel: 0.25, // Lots of grit and distortion
+    },
+    minimalTechno: {
+      name: '🎚️ Minimal Techno',
+      emoji: '🎚️',
+      color: '#00D9FF',
+      category: 'techno',
+      osc1Level: 0.9,
+      osc2Level: 0.85,
+      osc3Level: 0.0,
+      osc2Detune: 0.008, // Very tight detune
+      osc3Detune: 0,
+      filterCutoff: 800, // Clean minimal sound
+      filterResonance: 12, // Moderate resonance
+      attack: 0.002,
+      decay: 0.15,
+      sustain: 0.9,
+      release: 0.3,
+      lfoRate: 0.25, // Very slow subtle movement
+      lfoDepth: 0.15,
+      noiseLevel: 0.02, // Very clean
+    },
+    acidWobble: {
+      name: '🌀 Acid Wobble',
+      emoji: '🌀',
+      color: '#9D4EDD',
+      category: 'techno',
+      osc1Level: 1.0,
+      osc2Level: 0.95,
+      osc3Level: 0.9,
+      osc2Detune: 0.030, // Wide detune for movement
+      osc3Detune: -24, // Two octaves down for sub power
+      filterCutoff: 600, // Low for wobble bass
+      filterResonance: 30, // Extreme resonance
+      attack: 0.001,
+      decay: 0.05,
+      sustain: 0.95,
+      release: 0.08,
+      lfoRate: 8.0, // Medium-fast wobble (1/8 note at 120 BPM)
+      lfoDepth: 0.98, // Maximum modulation
+      noiseLevel: 0.18,
+    },
+    technoStab: {
+      name: '🎹 Techno Stab',
+      emoji: '🎹',
+      color: '#FFD700',
+      category: 'techno',
+      osc1Level: 0.95,
+      osc2Level: 0.85,
+      osc3Level: 0.75,
+      osc2Detune: 0.012,
+      osc3Detune: 7, // Fifth for chord character
+      filterCutoff: 4500, // Bright stab
+      filterResonance: 18, // High res for punch
+      attack: 0.001, // Instant
+      decay: 0.15, // Short decay
+      sustain: 0.3, // Low sustain for stab
+      release: 0.20,
+      lfoRate: 10.0, // Fast LFO
+      lfoDepth: 0.4,
+      noiseLevel: 0.08,
+    },
+    technoLead: {
+      name: '🔊 Techno Lead',
+      emoji: '🔊',
+      color: '#FF6B35',
+      category: 'techno',
+      osc1Level: 0.9,
+      osc2Level: 0.8,
+      osc3Level: 0.0,
+      osc2Detune: 0.015, // Moderate detune
+      osc3Detune: 0,
+      filterCutoff: 7500, // Very bright for cutting lead
+      filterResonance: 10, // Moderate res
+      attack: 0.002,
+      decay: 0.2,
+      sustain: 0.85,
+      release: 0.4,
+      lfoRate: 6.0, // Medium LFO for vibrato
+      lfoDepth: 0.25,
+      noiseLevel: 0.05,
+    },
+    // IMPORTED FROM PRESET LIBRARY
+    subBass: {
+      name: '💎 Sub Bass',
+      emoji: '💎',
+      color: '#0066FF',
+      category: 'bass',
+      osc1Level: 1.0,
+      osc2Level: 0.0,
+      osc3Level: 0.0,
+      osc2Detune: 0.01,
+      osc3Detune: 0,
+      filterCutoff: 200, // Very low for pure sub
+      filterResonance: 2, // Minimal resonance for clean sub
+      attack: 0.005,
+      decay: 0.1,
+      sustain: 1.0, // Full sustain for sustained bass
+      release: 0.2,
+      lfoRate: 5.0,
+      lfoDepth: 0.3,
+      noiseLevel: 0.05,
+    },
+    reeseBass: {
+      name: '🌊 Reese Bass',
+      emoji: '🌊',
+      color: '#00D9FF',
+      category: 'bass',
+      osc1Level: 0.9,
+      osc2Level: 0.9,
+      osc3Level: 0.0,
+      osc2Detune: 0.025, // 2.5% detune for Reese character
+      osc3Detune: 0,
+      filterCutoff: 800,
+      filterResonance: 15,
+      attack: 0.01,
+      decay: 0.15,
+      sustain: 0.9,
+      release: 0.3,
+      lfoRate: 0.5, // Slow LFO for movement
+      lfoDepth: 0.2,
+      noiseLevel: 0.05,
+    },
+    growlBass: {
+      name: '🐻 Growl Bass',
+      emoji: '🐻',
+      color: '#FF0066',
+      category: 'bass',
+      osc1Level: 1.0,
+      osc2Level: 0.8,
+      osc3Level: 0.6,
+      osc2Detune: 0.02,
+      osc3Detune: -12, // Octave down
+      filterCutoff: 600,
+      filterResonance: 20,
+      attack: 0.01,
+      decay: 0.2,
+      sustain: 0.8,
+      release: 0.2,
+      lfoRate: 8.0, // Fast LFO for growl
+      lfoDepth: 0.9,
+      noiseLevel: 0.15,
+    },
+    syncLead: {
+      name: '🔥 Sync Lead',
+      emoji: '🔥',
+      color: '#FF6B35',
+      category: 'lead',
+      osc1Level: 1.0,
+      osc2Level: 0.7,
+      osc3Level: 0.5,
+      osc2Detune: 0.008,
+      osc3Detune: 12, // Octave up for harmonics
+      filterCutoff: 4500,
+      filterResonance: 15,
+      attack: 0.01,
+      decay: 0.2,
+      sustain: 0.85,
+      release: 0.4,
+      lfoRate: 6.0,
+      lfoDepth: 0.4,
+      noiseLevel: 0.05,
+    },
+    warmPad: {
+      name: '☀️ Warm Pad',
+      emoji: '☀️',
+      color: '#FF8C5A',
+      category: 'pad',
+      osc1Level: 0.8,
+      osc2Level: 0.7,
+      osc3Level: 0.6,
+      osc2Detune: 0.012,
+      osc3Detune: 12, // Octave up
+      filterCutoff: 2200,
+      filterResonance: 4,
+      attack: 1.0, // Slow attack
+      decay: 0.6,
+      sustain: 0.9,
+      release: 2.5, // Long release
+      lfoRate: 5.0,
+      lfoDepth: 0.3,
+      noiseLevel: 0.05,
+    },
+    riserFx: {
+      name: '📈 Riser FX',
+      emoji: '📈',
+      color: '#CC0044',
+      category: 'fx',
+      osc1Level: 0.8,
+      osc2Level: 0.7,
+      osc3Level: 0.6,
+      osc2Detune: 0.03, // Wide detune
+      osc3Detune: 12, // Octave up
+      filterCutoff: 500, // Start low for sweep
+      filterResonance: 25, // High resonance
+      attack: 2.0, // Very slow attack for riser
+      decay: 0.1,
+      sustain: 1.0,
+      release: 1.0,
+      lfoRate: 0.2, // Very slow LFO
+      lfoDepth: 0.9, // Heavy modulation
+      noiseLevel: 0.3, // Lots of noise for tension
+    },
+    
+    // ========================================
+    // 🎻 VIOLIN PRESETS (20 variations)
+    // Generated with Python using synthesis theory
+    // ========================================
+    
+    soloViolin: {
+      name: '🎻 SOLO VIOLIN',
+      emoji: '🎻',
+      color: '#8B4513',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.002,
+      osc3Detune: -12,
+      filterCutoff: 3800,
+      filterResonance: 4.0,
+      attack: 0.05,
+      decay: 0.15,
+      sustain: 0.8,
+      release: 0.3,
+      lfoRate: 5.5,
+      lfoDepth: 0.2,
+      noiseLevel: 0.0,
+    },
+    
+    violinEnsemble: {
+      name: '🎻 VIOLIN ENSEMBLE',
+      emoji: '🎻',
+      color: '#A0522D',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.008,
+      osc3Detune: -12,
+      filterCutoff: 3400,
+      filterResonance: 4.0,
+      attack: 0.1,
+      decay: 0.2,
+      sustain: 0.85,
+      release: 0.5,
+      lfoRate: 5.5,
+      lfoDepth: 0.15,
+      noiseLevel: 0.0,
+    },
+    
+    violinLegato: {
+      name: '🎻 VIOLIN LEGATO',
+      emoji: '🎻',
+      color: '#8B4513',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.002,
+      osc3Detune: -12,
+      filterCutoff: 3600,
+      filterResonance: 4.0,
+      attack: 0.15,
+      decay: 0.3,
+      sustain: 0.9,
+      release: 0.6,
+      lfoRate: 5.5,
+      lfoDepth: 0.25,
+      noiseLevel: 0.0,
+    },
+    
+    violinStaccato: {
+      name: '🎻 VIOLIN STACCATO',
+      emoji: '🎻',
+      color: '#D2691E',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.002,
+      osc3Detune: -12,
+      filterCutoff: 4200,
+      filterResonance: 4.0,
+      attack: 0.005,
+      decay: 0.05,
+      sustain: 0.3,
+      release: 0.1,
+      lfoRate: 5.5,
+      lfoDepth: 0.1,
+      noiseLevel: 0.0,
+    },
+    
+    pizzicato: {
+      name: '🎻 PIZZICATO',
+      emoji: '🎻',
+      color: '#CD853F',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.0,
+      osc3Detune: 0,
+      filterCutoff: 4000,
+      filterResonance: 4.0,
+      attack: 0.001,
+      decay: 0.08,
+      sustain: 0.0,
+      release: 0.1,
+      lfoRate: 5.5,
+      lfoDepth: 0.0,
+      noiseLevel: 0.0,
+    },
+    
+    pizzBright: {
+      name: '🎻 PIZZ BRIGHT',
+      emoji: '🎻',
+      color: '#DEB887',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.0,
+      osc3Detune: 0,
+      filterCutoff: 4600,
+      filterResonance: 4.0,
+      attack: 0.001,
+      decay: 0.08,
+      sustain: 0.0,
+      release: 0.1,
+      lfoRate: 5.5,
+      lfoDepth: 0.0,
+      noiseLevel: 0.0,
+    },
+    
+    tremolo: {
+      name: '🎻 TREMOLO',
+      emoji: '🎻',
+      color: '#BC8F8F',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.002,
+      osc3Detune: -12,
+      filterCutoff: 3800,
+      filterResonance: 4.0,
+      attack: 0.005,
+      decay: 0.1,
+      sustain: 0.7,
+      release: 0.2,
+      lfoRate: 5.5,
+      lfoDepth: 0.4,
+      noiseLevel: 0.0,
+    },
+    
+    tremoloFast: {
+      name: '🎻 TREMOLO FAST',
+      emoji: '🎻',
+      color: '#A0522D',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.002,
+      osc3Detune: -12,
+      filterCutoff: 4000,
+      filterResonance: 4.0,
+      attack: 0.005,
+      decay: 0.1,
+      sustain: 0.7,
+      release: 0.2,
+      lfoRate: 5.5,
+      lfoDepth: 0.6,
+      noiseLevel: 0.0,
+    },
+    
+    sulPonticello: {
+      name: '🎻 SUL PONTICELLO',
+      emoji: '🎻',
+      color: '#CD853F',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.002,
+      osc3Detune: -12,
+      filterCutoff: 4800,
+      filterResonance: 4.0,
+      attack: 0.01,
+      decay: 0.1,
+      sustain: 0.7,
+      release: 0.2,
+      lfoRate: 5.5,
+      lfoDepth: 0.1,
+      noiseLevel: 0.0,
+    },
+    
+    sulTasto: {
+      name: '🎻 SUL TASTO',
+      emoji: '🎻',
+      color: '#8B7355',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.002,
+      osc3Detune: -12,
+      filterCutoff: 2200,
+      filterResonance: 4.0,
+      attack: 0.1,
+      decay: 0.2,
+      sustain: 0.85,
+      release: 0.5,
+      lfoRate: 5.5,
+      lfoDepth: 0.3,
+      noiseLevel: 0.0,
+    },
+    
+    harmonics: {
+      name: '🎻 HARMONICS',
+      emoji: '🎻',
+      color: '#DEB887',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.0,
+      osc3Detune: -12,
+      filterCutoff: 4400,
+      filterResonance: 4.0,
+      attack: 0.01,
+      decay: 0.1,
+      sustain: 0.7,
+      release: 0.2,
+      lfoRate: 5.5,
+      lfoDepth: 0.15,
+      noiseLevel: 0.0,
+    },
+    
+    spiccato: {
+      name: '🎻 SPICCATO',
+      emoji: '🎻',
+      color: '#BC8F8F',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.002,
+      osc3Detune: -12,
+      filterCutoff: 3800,
+      filterResonance: 4.0,
+      attack: 0.01,
+      decay: 0.1,
+      sustain: 0.7,
+      release: 0.2,
+      lfoRate: 5.5,
+      lfoDepth: 0.05,
+      noiseLevel: 0.0,
+    },
+    
+    vibratoSoft: {
+      name: '🎻 VIBRATO SOFT',
+      emoji: '🎻',
+      color: '#A0522D',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.002,
+      osc3Detune: -12,
+      filterCutoff: 3400,
+      filterResonance: 4.0,
+      attack: 0.05,
+      decay: 0.15,
+      sustain: 0.8,
+      release: 0.3,
+      lfoRate: 5.5,
+      lfoDepth: 0.3,
+      noiseLevel: 0.0,
+    },
+    
+    vibratoWide: {
+      name: '🎻 VIBRATO WIDE',
+      emoji: '🎻',
+      color: '#8B4513',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.002,
+      osc3Detune: -12,
+      filterCutoff: 3600,
+      filterResonance: 4.0,
+      attack: 0.05,
+      decay: 0.15,
+      sustain: 0.8,
+      release: 0.3,
+      lfoRate: 5.5,
+      lfoDepth: 0.5,
+      noiseLevel: 0.0,
+    },
+    
+    emotional: {
+      name: '🎻 EMOTIONAL',
+      emoji: '🎻',
+      color: '#8B7355',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.002,
+      osc3Detune: -12,
+      filterCutoff: 3200,
+      filterResonance: 4.0,
+      attack: 0.1,
+      decay: 0.2,
+      sustain: 0.85,
+      release: 0.5,
+      lfoRate: 5.5,
+      lfoDepth: 0.35,
+      noiseLevel: 0.0,
+    },
+    
+    dramatic: {
+      name: '🎻 DRAMATIC',
+      emoji: '🎻',
+      color: '#A0522D',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.002,
+      osc3Detune: -12,
+      filterCutoff: 4200,
+      filterResonance: 4.0,
+      attack: 0.05,
+      decay: 0.15,
+      sustain: 0.8,
+      release: 0.3,
+      lfoRate: 5.5,
+      lfoDepth: 0.4,
+      noiseLevel: 0.0,
+    },
+    
+    violinSection: {
+      name: '🎻 VIOLIN SECTION',
+      emoji: '🎻',
+      color: '#8B4513',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.008,
+      osc3Detune: -12,
+      filterCutoff: 3400,
+      filterResonance: 4.0,
+      attack: 0.1,
+      decay: 0.2,
+      sustain: 0.85,
+      release: 0.5,
+      lfoRate: 5.5,
+      lfoDepth: 0.2,
+      noiseLevel: 0.0,
+    },
+    
+    chamberViolins: {
+      name: '🎻 CHAMBER VIOLINS',
+      emoji: '🎻',
+      color: '#A0522D',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.008,
+      osc3Detune: -12,
+      filterCutoff: 3600,
+      filterResonance: 4.0,
+      attack: 0.1,
+      decay: 0.2,
+      sustain: 0.85,
+      release: 0.5,
+      lfoRate: 5.5,
+      lfoDepth: 0.25,
+      noiseLevel: 0.0,
+    },
+    
+    synthViolin: {
+      name: '🎻 SYNTH VIOLIN',
+      emoji: '🎻',
+      color: '#BC8F8F',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.008,
+      osc3Detune: -12,
+      filterCutoff: 3000,
+      filterResonance: 4.0,
+      attack: 0.05,
+      decay: 0.15,
+      sustain: 0.8,
+      release: 0.3,
+      lfoRate: 5.5,
+      lfoDepth: 0.3,
+      noiseLevel: 0.0,
+    },
+    
+    electricViolin: {
+      name: '🎻 ELECTRIC VIOLIN',
+      emoji: '🎻',
+      color: '#CD853F',
+      category: 'violin',
+      osc1Level: 0.5,
+      osc2Level: 0.3,
+      osc3Level: 0.0,
+      osc2Detune: 0.008,
+      osc3Detune: -12,
+      filterCutoff: 4400,
+      filterResonance: 4.0,
+      attack: 0.05,
+      decay: 0.15,
+      sustain: 0.8,
+      release: 0.3,
+      lfoRate: 5.5,
+      lfoDepth: 0.2,
+      noiseLevel: 0.0,
+    },
+  };
+
+  const [selectedPreset, setSelectedPreset] = useState(null);
   
   // Generate waveform data based on current parameters
   const updateWaveform = () => {
@@ -160,12 +1017,69 @@ const ARP2600Screen = ({ navigation }) => {
     }
   };
 
-  const playNote = async (note, freq) => {
+  // Load preset parameters
+  const loadPreset = (presetKey) => {
+    const preset = SYNTH_PRESETS[presetKey];
+    if (!preset) return;
+    
+    console.log(`🎛️ Loading preset: ${preset.name}`);
+    setSelectedPreset(presetKey);
+    
+    // Update all parameters
+    setOsc1Level(preset.osc1Level);
+    setOsc2Level(preset.osc2Level);
+    setOsc3Level(preset.osc3Level);
+    setOsc2Detune(preset.osc2Detune);
+    setOsc3Detune(preset.osc3Detune);
+    setFilterCutoff(preset.filterCutoff);
+    setFilterResonance(preset.filterResonance);
+    setAttack(preset.attack);
+    setDecay(preset.decay);
+    setSustain(preset.sustain);
+    setRelease(preset.release);
+    setLFORate(preset.lfoRate);
+    setLFODepth(preset.lfoDepth);
+    setNoiseLevel(preset.noiseLevel);
+    
+    // Update bridge parameters (use correct method names)
+    arp2600Bridge.setOsc1Level(preset.osc1Level);
+    arp2600Bridge.setOsc2Level(preset.osc2Level);
+    arp2600Bridge.setOsc3Level(preset.osc3Level);
+    arp2600Bridge.setDetune(preset.osc2Detune); // setDetune is for osc2
+    arp2600Bridge.setOsc3Detune(preset.osc3Detune); // setOsc3Detune is for osc3
+    arp2600Bridge.setFilterCutoff(preset.filterCutoff);
+    arp2600Bridge.setFilterResonance(preset.filterResonance);
+    arp2600Bridge.setAttack(preset.attack);
+    arp2600Bridge.setDecay(preset.decay);
+    arp2600Bridge.setSustain(preset.sustain);
+    arp2600Bridge.setRelease(preset.release);
+    arp2600Bridge.setLFORate(preset.lfoRate);
+    arp2600Bridge.setLFODepth(preset.lfoDepth);
+    arp2600Bridge.setNoiseLevel(preset.noiseLevel);
+  };
+
+  const playNote = async (note, freq, touchVelocity = null) => {
+    // Apply octave shift to frequency
+    const shiftedFreq = freq * Math.pow(2, octaveShift);
+    const shiftedNote = note.replace(/\d+/, (match) => {
+      const noteOctave = parseInt(match);
+      return (noteOctave + octaveShift).toString();
+    });
+    
     setActiveNotes(prev => new Set([...prev, note]));
     
-    // Play with options object
-    arp2600Bridge.playNote(note, { velocity: 1.0, duration: 2.0 });
-    console.log(`🎹 Playing ARP 2600: ${note} @ ${freq.toFixed(2)}Hz`);
+    // Use touch velocity if provided, otherwise use current velocity setting
+    const finalVelocity = touchVelocity !== null ? touchVelocity : (velocity / 127);
+    
+    // Play with velocity and octave shift
+    arp2600Bridge.playNote(shiftedNote, { velocity: finalVelocity, duration: 2.0 });
+    console.log(`🎹 Playing ARP 2600: ${shiftedNote} @ ${shiftedFreq.toFixed(2)}Hz (velocity: ${(finalVelocity * 127).toFixed(0)})`);
+    
+    // Trigger bass visualizer for bass/techno presets
+    if ((selectedPreset?.category === 'bass' || selectedPreset?.category === 'techno') 
+        && visualizerMode === 'bass' && visualizerRef.current) {
+      visualizerRef.current.triggerBassNote(shiftedFreq, finalVelocity * 0.8);
+    }
   };
 
   const stopNote = (note) => {
@@ -481,13 +1395,41 @@ const ARP2600Screen = ({ navigation }) => {
 
   const renderKey = (noteData, index) => {
     const isActive = activeNotes.has(noteData.note);
+    let touchStartTimeLocal = null;
+    
+    const handlePressIn = () => {
+      touchStartTimeLocal = Date.now();
+      // Start with current velocity, will update on release if quick tap
+      playNote(noteData.note, noteData.freq, velocity / 127);
+    };
+    
+    const handlePressOut = () => {
+      if (touchStartTimeLocal) {
+        // Calculate velocity based on press duration (quick = hard, slow = soft)
+        const pressDuration = Date.now() - touchStartTimeLocal;
+        let calculatedVelocity = velocity;
+        
+        // Very quick tap (< 50ms) = maximum velocity (127)
+        // Normal press (50-200ms) = current velocity setting
+        // Long press (> 200ms) = softer (80% of setting)
+        if (pressDuration < 50) {
+          calculatedVelocity = 127;
+        } else if (pressDuration > 200) {
+          calculatedVelocity = Math.max(40, Math.floor(velocity * 0.8));
+        }
+        
+        setVelocity(calculatedVelocity);
+        touchStartTimeLocal = null;
+      }
+      stopNote(noteData.note);
+    };
     
     if (noteData.black) {
       return (
         <TouchableOpacity
           style={[styles.blackKey, isActive && styles.blackKeyActive]}
-          onPressIn={() => playNote(noteData.note, noteData.freq)}
-          onPressOut={() => stopNote(noteData.note)}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
         >
           <Text style={styles.blackKeyLabel}>{noteData.label}</Text>
         </TouchableOpacity>
@@ -497,8 +1439,8 @@ const ARP2600Screen = ({ navigation }) => {
     return (
       <TouchableOpacity
         style={[styles.whiteKey, isActive && styles.whiteKeyActive]}
-        onPressIn={() => playNote(noteData.note, noteData.freq)}
-        onPressOut={() => stopNote(noteData.note)}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
       >
         <Text style={styles.whiteKeyLabel}>{noteData.label}</Text>
       </TouchableOpacity>
@@ -507,27 +1449,31 @@ const ARP2600Screen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      
       {/* Hidden WebView for audio-engine.html */}
-      <WebView
-        ref={(ref) => {
-          if (ref && !webAudioBridge.isReady) {
-            webAudioBridge.setWebViewRef(ref);
-          }
-        }}
-        source={require('../../assets/audio-engine.html')}
-        style={{ width: 1, height: 1, opacity: 0, position: 'absolute', top: -1000, left: -1000, pointerEvents: 'none' }}
-        onMessage={(event) => webAudioBridge.onMessage(event)}
-        onLoad={() => webAudioBridge.initAudio()}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        mediaPlaybackRequiresUserAction={false}
-        allowsInlineMediaPlayback={true}
-      />
+      <View style={{ height: 0, width: 0, overflow: 'hidden' }}>
+        <WebView
+          ref={(ref) => {
+            if (ref && !webAudioBridge.isReady) {
+              webAudioBridge.setWebViewRef(ref);
+            }
+          }}
+          source={require('../../assets/audio-engine.html')}
+          style={{ width: 1, height: 1 }}
+          onMessage={(event) => webAudioBridge.onMessage(event)}
+          onLoad={() => webAudioBridge.initAudio()}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          mediaPlaybackRequiresUserAction={false}
+          allowsInlineMediaPlayback={true}
+        />
+      </View>
 
       {/* Floating Back Button */}
       <TouchableOpacity 
         onPress={() => navigation.goBack()}
-        style={[styles.floatingBackButton, { top: insets.top + 10 }]}
+        style={[styles.floatingBackButton, { top: 50 }]}
       >
         <Text style={styles.floatingBackText}>✕</Text>
       </TouchableOpacity>
@@ -535,16 +1481,95 @@ const ARP2600Screen = ({ navigation }) => {
       <ScrollView 
         style={styles.content}
         contentContainerStyle={{ 
-          paddingTop: 0,
-          paddingBottom: Math.max(150, insets.bottom + 100),
+          paddingTop: 100,
+          paddingBottom: 150,
           flexGrow: 1 
         }}
         showsVerticalScrollIndicator={true}
         bounces={true}
         alwaysBounceVertical={true}
       >
+        {/* Preset Library Section */}
+        <View style={styles.section}>
+          <View style={styles.presetHeader}>
+            <Text style={styles.sectionTitle}>🎚️ PRESET LIBRARY</Text>
+            <Text style={styles.presetSubtitle}>172 Professional Synth Sounds (Bass • Lead • Pad • Brass • Violin • Techno • FX)</Text>
+          </View>
+          
+          {/* Category Tabs */}
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.categoryTabs}
+            contentContainerStyle={styles.categoryTabsContent}
+          >
+            {['all', 'bass', 'lead', 'pad', 'brass', 'violin', 'techno', 'fx'].map((category) => {
+              const count = category === 'all' 
+                ? Object.keys(SYNTH_PRESETS).length
+                : Object.values(SYNTH_PRESETS).filter(p => p.category === category).length;
+              
+              return (
+                <TouchableOpacity
+                  key={category}
+                  onPress={() => setSelectedCategory(category)}
+                  style={[
+                    styles.categoryTab,
+                    selectedCategory === category && styles.categoryTabActive
+                  ]}
+                >
+                  <Text style={[
+                    styles.categoryTabText,
+                    selectedCategory === category && styles.categoryTabTextActive
+                  ]}>
+                    {category.toUpperCase()} ({count})
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+          
+          {/* Preset Grid - Filtered by Category */}
+          <View style={styles.presetGrid}>
+            {Object.entries(SYNTH_PRESETS)
+              .filter(([key, preset]) => 
+                selectedCategory === 'all' || preset.category === selectedCategory
+              )
+              .map(([key, preset]) => {
+                const isActive = selectedPreset === key;
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    style={[
+                      styles.presetCard,
+                      isActive && styles.presetCardActive,
+                      { borderColor: preset.color },
+                    ]}
+                    onPress={() => loadPreset(key)}
+                  >
+                    <LinearGradient
+                      colors={isActive ? [preset.color + '40', preset.color + '20'] : ['#1a1a1a', '#0a0a0a']}
+                      style={styles.presetGradient}
+                    >
+                      <Text style={styles.presetEmoji}>{preset.emoji}</Text>
+                      <Text style={[
+                        styles.presetName,
+                        isActive && { color: preset.color }
+                      ]}>
+                        {preset.name.replace(/^[^\s]+\s/, '')}
+                      </Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                );
+              })}
+          </View>
+          
+          <Text style={styles.sectionInfo}>
+            Tap categories to filter • Select any preset for instant professional sound • Acid 303 • Techno Bass • Neuro Wobble & more
+          </Text>
+        </View>
+
         {/* Oscillator Section */}
-        <View style={[styles.section, { paddingTop: insets.top + 70 }]}>
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>🌊 OSCILLATORS (3x VCO)</Text>
           <View style={styles.controlsRow}>
             <View style={styles.sliderContainer}>
@@ -630,19 +1655,65 @@ const ARP2600Screen = ({ navigation }) => {
             Triple oscillator: VCO1 (SAW) + VCO2 (SAW+detune) + VCO3 (SINE+pitch)
           </Text>
           
-          {/* Oscilloscope Waveform Display */}
-          <View style={styles.oscilloscopeContainer}>
-            <Text style={styles.oscilloscopeLabel}>WAVEFORM</Text>
-            <Oscilloscope
-              waveformData={waveformData}
-              width={width - 80}
-              height={100}
-              color={HAOS_COLORS.orange}
-              backgroundColor="rgba(0,0,0,0.7)"
-              lineWidth={2}
-              showGrid={true}
-            />
+          {/* Visualizer Mode Toggle */}
+          <View style={styles.visualizerToggle}>
+            <TouchableOpacity
+              onPress={() => setVisualizerMode('oscilloscope')}
+              style={[
+                styles.visualizerButton,
+                visualizerMode === 'oscilloscope' && styles.visualizerButtonActive
+              ]}
+            >
+              <Text style={[
+                styles.visualizerButtonText,
+                visualizerMode === 'oscilloscope' && styles.visualizerButtonTextActive
+              ]}>
+                📊 WAVEFORM
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setVisualizerMode('bass')}
+              style={[
+                styles.visualizerButton,
+                visualizerMode === 'bass' && styles.visualizerButtonActive
+              ]}
+            >
+              <Text style={[
+                styles.visualizerButtonText,
+                visualizerMode === 'bass' && styles.visualizerButtonTextActive
+              ]}>
+                🔊 BASS FREQ
+              </Text>
+            </TouchableOpacity>
           </View>
+          
+          {/* Oscilloscope Waveform Display */}
+          {visualizerMode === 'oscilloscope' && (
+            <View style={styles.oscilloscopeContainer}>
+              <Text style={styles.oscilloscopeLabel}>WAVEFORM</Text>
+              <Oscilloscope
+                waveformData={waveformData}
+                width={width - 80}
+                height={100}
+                color={HAOS_COLORS.orange}
+                backgroundColor="rgba(0,0,0,0.7)"
+                lineWidth={2}
+                showGrid={true}
+              />
+            </View>
+          )}
+          
+          {/* Bass Frequency Visualizer */}
+          {visualizerMode === 'bass' && (
+            <View style={styles.bassVisualizerContainer}>
+              <Text style={styles.oscilloscopeLabel}>BASS FREQUENCY ANALYZER</Text>
+              <Bass2DVisualizer
+                ref={visualizerRef}
+                isPlaying={activeNotes.size > 0}
+                audioEngine="arp2600"
+              />
+            </View>
+          )}
         </View>
 
         {/* Filter Section */}
@@ -960,7 +2031,60 @@ const ARP2600Screen = ({ navigation }) => {
 
         {/* Keyboard */}
         <View style={styles.keyboardSection}>
-          <Text style={styles.sectionTitle}>🎹 KEYBOARD</Text>
+          <View style={styles.keyboardHeader}>
+            <Text style={styles.sectionTitle}>🎹 KEYBOARD (2 Octaves)</Text>
+            <View style={styles.keyboardInfo}>
+              <Text style={styles.keyboardInfoText}>
+                Octave: {octaveShift >= 0 ? `+${octaveShift}` : octaveShift} • Velocity: {velocity}
+              </Text>
+            </View>
+          </View>
+          
+          {/* Octave Shift Controls */}
+          <View style={styles.octaveControls}>
+            <Text style={styles.controlLabel}>OCTAVE SHIFT:</Text>
+            <View style={styles.octaveButtons}>
+              {[-2, -1, 0, +1, +2].map((shift) => (
+                <TouchableOpacity
+                  key={shift}
+                  onPress={() => setOctaveShift(shift)}
+                  style={[
+                    styles.octaveButton,
+                    octaveShift === shift && styles.octaveButtonActive
+                  ]}
+                >
+                  <Text style={[
+                    styles.octaveButtonText,
+                    octaveShift === shift && styles.octaveButtonTextActive
+                  ]}>
+                    {shift >= 0 ? `+${shift}` : shift}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+          
+          {/* Velocity Control */}
+          <View style={styles.velocityControl}>
+            <Text style={styles.controlLabel}>VELOCITY: {velocity}</Text>
+            <Slider
+              style={styles.velocitySlider}
+              value={velocity}
+              onValueChange={setVelocity}
+              minimumValue={1}
+              maximumValue={127}
+              step={1}
+              minimumTrackTintColor={HAOS_COLORS.orange}
+              maximumTrackTintColor="#333"
+              thumbTintColor={HAOS_COLORS.orange}
+            />
+            <View style={styles.velocityLabels}>
+              <Text style={styles.velocityLabel}>pp (1)</Text>
+              <Text style={styles.velocityLabel}>mf (64)</Text>
+              <Text style={styles.velocityLabel}>ff (127)</Text>
+            </View>
+          </View>
+          
           <View style={styles.keyboard}>
             {NOTES.filter(n => !n.black).map((note, i) => (
               <React.Fragment key={note.note}>
@@ -1102,6 +2226,54 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontStyle: 'italic',
   },
+  presetHeader: {
+    marginBottom: 16,
+  },
+  presetSubtitle: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  presetGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  presetCard: {
+    width: (width - 64) / 2, // 2 columns with gap
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#333',
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
+  presetCardActive: {
+    borderWidth: 3,
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  presetGradient: {
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 100,
+  },
+  presetEmoji: {
+    fontSize: 36,
+    marginBottom: 8,
+  },
+  presetName: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    letterSpacing: 0.5,
+  },
   oscilloscopeContainer: {
     marginTop: 20,
     alignItems: 'center',
@@ -1162,6 +2334,94 @@ const styles = StyleSheet.create({
   },
   keyboardSection: {
     padding: 20,
+  },
+  keyboardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  keyboardInfo: {
+    backgroundColor: 'rgba(255,107,53,0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,107,53,0.3)',
+  },
+  keyboardInfoText: {
+    fontSize: 11,
+    color: HAOS_COLORS.orange,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  octaveControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    backgroundColor: 'rgba(0,217,255,0.05)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(0,217,255,0.2)',
+  },
+  controlLabel: {
+    fontSize: 12,
+    color: HAOS_COLORS.cyan,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  octaveButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  octaveButton: {
+    width: 44,
+    height: 44,
+    backgroundColor: 'rgba(0,217,255,0.1)',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'rgba(0,217,255,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  octaveButtonActive: {
+    backgroundColor: 'rgba(0,217,255,0.3)',
+    borderColor: HAOS_COLORS.cyan,
+  },
+  octaveButtonText: {
+    color: '#999',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  octaveButtonTextActive: {
+    color: HAOS_COLORS.cyan,
+  },
+  velocityControl: {
+    marginBottom: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    backgroundColor: 'rgba(255,107,53,0.05)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,107,53,0.2)',
+  },
+  velocitySlider: {
+    width: '100%',
+    height: 40,
+    marginVertical: 10,
+  },
+  velocityLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 5,
+  },
+  velocityLabel: {
+    fontSize: 10,
+    color: '#666',
+    fontWeight: '600',
   },
   keyboard: {
     height: 120,
@@ -1468,6 +2728,74 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     minWidth: 60,
     textAlign: 'center',
+  },
+  // Visualizer Toggle Styles
+  visualizerToggle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    marginVertical: 12,
+  },
+  visualizerButton: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+  },
+  visualizerButtonActive: {
+    backgroundColor: 'rgba(255,107,53,0.2)',
+    borderColor: HAOS_COLORS.orange,
+  },
+  visualizerButtonText: {
+    color: '#999',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  visualizerButtonTextActive: {
+    color: HAOS_COLORS.orange,
+  },
+  bassVisualizerContainer: {
+    marginVertical: 12,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    borderWidth: 2,
+    borderColor: 'rgba(57,255,20,0.3)',
+  },
+  // Category Tabs Styles
+  categoryTabs: {
+    marginVertical: 12,
+    maxHeight: 50,
+  },
+  categoryTabsContent: {
+    paddingHorizontal: 8,
+    gap: 8,
+  },
+  categoryTab: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.1)',
+    marginRight: 8,
+  },
+  categoryTabActive: {
+    backgroundColor: 'rgba(255,107,53,0.2)',
+    borderColor: HAOS_COLORS.orange,
+  },
+  categoryTabText: {
+    color: '#999',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  categoryTabTextActive: {
+    color: HAOS_COLORS.orange,
   },
 });
 

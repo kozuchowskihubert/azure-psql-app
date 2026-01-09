@@ -2643,12 +2643,27 @@
                 <p style="color: var(--text-secondary); margin-bottom: 10px; font-size: 0.9em;">
                     🎹 Select Instrument Sound:
                 </p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
                     <button class="btn btn-secondary" onclick="setChordInstrument('enhanced')" id="inst-enhanced" style="padding: 8px 12px; font-size: 0.85em; background: linear-gradient(135deg, var(--accent-gold), var(--accent-secondary));">
                         ⚙️ Enhanced
                     </button>
                     <button class="btn btn-secondary" onclick="setChordInstrument('piano')" id="inst-piano" style="padding: 8px 12px; font-size: 0.85em;">
                         🎹 Piano
+                    </button>
+                    <button class="btn btn-secondary" onclick="setChordInstrument('violin')" id="inst-violin" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎻 Violin
+                    </button>
+                    <button class="btn btn-secondary" onclick="setChordInstrument('guitar')" id="inst-guitar" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎸 Guitar
+                    </button>
+                    <button class="btn btn-secondary" onclick="setChordInstrument('synth')" id="inst-synth" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎛️ Synth
+                    </button>
+                    <button class="btn btn-secondary" onclick="setChordInstrument('trumpet')" id="inst-trumpet" style="padding: 8px 12px; font-size: 0.85em;">
+                        🎺 Trumpet
+                    </button>
+                    <button class="btn btn-secondary" onclick="setChordInstrument('harmonica')" id="inst-harmonica" style="padding: 8px 12px; font-size: 0.85em;">
+                        🪗 Harmonica
                     </button>
                     <button class="btn btn-secondary" onclick="setChordInstrument('bells')" id="inst-bells" style="padding: 8px 12px; font-size: 0.85em;">
                         🔔 Bells
@@ -2657,10 +2672,10 @@
                         🌊 Pad
                     </button>
                     <button class="btn btn-secondary" onclick="setChordInstrument('pluck')" id="inst-pluck" style="padding: 8px 12px; font-size: 0.85em;">
-                        🎸 Pluck
+                        � Pluck
                     </button>
                     <button class="btn btn-secondary" onclick="setChordInstrument('brass')" id="inst-brass" style="padding: 8px 12px; font-size: 0.85em;">
-                        🎺 Brass
+                        📯 Brass
                     </button>
                     <button class="btn btn-secondary" onclick="setChordInstrument('lead')" id="inst-lead" style="padding: 8px 12px; font-size: 0.85em;">
                         ⚡ Lead
@@ -3188,6 +3203,118 @@
                                 <input type="checkbox" id="inst_melody" style="margin-right: 10px;">
                                 <span>🎹 Melody</span>
                             </label>
+                        </div>
+                    </div>
+
+                    <!-- MELODIC INSTRUMENTS SECTION -->
+                    <div style="margin-top: 25px; padding: 20px; background: linear-gradient(135deg, rgba(8, 217, 214, 0.1), rgba(255, 46, 99, 0.1)); border: 2px solid var(--accent-cyan); border-radius: 10px;">
+                        <h4 style="color: var(--accent-cyan); margin-bottom: 15px; font-size: 1.1em;">
+                            🎼 Melodic Instruments & Sequencer
+                        </h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85em; margin-bottom: 15px;">
+                            Add melodic elements to your beat with synthesized instruments. Each instrument has unique presets and modulation options.
+                        </p>
+
+                        <!-- Instrument Selection Tabs -->
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.9em; margin-bottom: 10px;">
+                                🎹 Select Melodic Instrument:
+                            </label>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
+                                <button class="btn btn-secondary" onclick="selectMelodicInstrument('piano')" id="mel-piano" style="padding: 10px; font-size: 0.85em;">
+                                    🎹 Piano
+                                </button>
+                                <button class="btn btn-secondary" onclick="selectMelodicInstrument('violin')" id="mel-violin" style="padding: 10px; font-size: 0.85em;">
+                                    🎻 Violin
+                                </button>
+                                <button class="btn btn-secondary" onclick="selectMelodicInstrument('guitar')" id="mel-guitar" style="padding: 10px; font-size: 0.85em;">
+                                    🎸 Guitar
+                                </button>
+                                <button class="btn btn-secondary" onclick="selectMelodicInstrument('synth')" id="mel-synth" style="padding: 10px; font-size: 0.85em;">
+                                    🎛️ Synth
+                                </button>
+                                <button class="btn btn-secondary" onclick="selectMelodicInstrument('trumpet')" id="mel-trumpet" style="padding: 10px; font-size: 0.85em;">
+                                    🎺 Trumpet
+                                </button>
+                                <button class="btn btn-secondary" onclick="selectMelodicInstrument('harmonica')" id="mel-harmonica" style="padding: 10px; font-size: 0.85em;">
+                                    🪗 Harmonica
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Instrument Presets -->
+                        <div id="instrumentPresets" style="margin-bottom: 20px; padding: 15px; background: var(--bg-tertiary); border-radius: 8px;">
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.9em; margin-bottom: 10px;">
+                                🎨 Presets & Sound Design:
+                            </label>
+                            <div id="presetButtons" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;">
+                                <!-- Presets will be dynamically loaded here -->
+                                <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.9em;">
+                                    Select an instrument to see presets
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modulation Controls -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                            <!-- Filter Envelope -->
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    🎛️ Filter Cutoff: <span id="melFilterValue" style="color: var(--accent-cyan);">2000 Hz</span>
+                                </label>
+                                <input type="range" id="melFilterCutoff" min="100" max="8000" value="2000" 
+                                       oninput="updateMelodicFilter()"
+                                       style="width: 100%;">
+                            </div>
+
+                            <!-- Vibrato/LFO -->
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    🌊 Vibrato Depth: <span id="melVibratoValue" style="color: var(--accent-cyan);">0%</span>
+                                </label>
+                                <input type="range" id="melVibrato" min="0" max="100" value="0" 
+                                       oninput="updateMelodicVibrato()"
+                                       style="width: 100%;">
+                            </div>
+
+                            <!-- Attack -->
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    ⚡ Attack: <span id="melAttackValue" style="color: var(--accent-cyan);">0.01s</span>
+                                </label>
+                                <input type="range" id="melAttack" min="0.001" max="2" step="0.001" value="0.01" 
+                                       oninput="updateMelodicAttack()"
+                                       style="width: 100%;">
+                            </div>
+
+                            <!-- Release -->
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 0.85em; margin-bottom: 5px;">
+                                    📉 Release: <span id="melReleaseValue" style="color: var(--accent-cyan);">0.5s</span>
+                                </label>
+                                <input type="range" id="melRelease" min="0.01" max="3" step="0.01" value="0.5" 
+                                       oninput="updateMelodicRelease()"
+                                       style="width: 100%;">
+                            </div>
+                        </div>
+
+                        <!-- Test Notes -->
+                        <div style="text-align: center; padding: 15px; background: var(--bg-secondary); border-radius: 8px;">
+                            <label style="display: block; color: var(--text-secondary); font-size: 0.9em; margin-bottom: 10px;">
+                                🎹 Test Notes:
+                            </label>
+                            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                                <button class="btn btn-secondary" onclick="playMelodicNote('C4')" style="padding: 10px 15px;">C</button>
+                                <button class="btn btn-secondary" onclick="playMelodicNote('D4')" style="padding: 10px 15px;">D</button>
+                                <button class="btn btn-secondary" onclick="playMelodicNote('E4')" style="padding: 10px 15px;">E</button>
+                                <button class="btn btn-secondary" onclick="playMelodicNote('F4')" style="padding: 10px 15px;">F</button>
+                                <button class="btn btn-secondary" onclick="playMelodicNote('G4')" style="padding: 10px 15px;">G</button>
+                                <button class="btn btn-secondary" onclick="playMelodicNote('A4')" style="padding: 10px 15px;">A</button>
+                                <button class="btn btn-secondary" onclick="playMelodicNote('B4')" style="padding: 10px 15px;">B</button>
+                                <button class="btn" onclick="playMelodicChord(['C4', 'E4', 'G4'])" style="padding: 10px 20px;">
+                                    🎹 C Chord
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -4492,6 +4619,21 @@ Pads:                200-800 Hz  [Atmosphere]
             switch(instrument) {
                 case 'piano':
                     playPianoChordDest(ctx, frequencies, startTime, velocity, destination);
+                    break;
+                case 'violin':
+                    playViolinChordDest(ctx, frequencies, startTime, velocity, destination);
+                    break;
+                case 'guitar':
+                    playGuitarChordDest(ctx, frequencies, startTime, velocity, destination);
+                    break;
+                case 'synth':
+                    playSynthChordDest(ctx, frequencies, startTime, velocity, destination);
+                    break;
+                case 'trumpet':
+                    playTrumpetChordDest(ctx, frequencies, startTime, velocity, destination);
+                    break;
+                case 'harmonica':
+                    playHarmonicaChordDest(ctx, frequencies, startTime, velocity, destination);
                     break;
                 case 'bells':
                     playBellsChordDest(ctx, frequencies, startTime, velocity, destination);
@@ -8622,6 +8764,448 @@ Cmd+Y     - Redo change
             loadTrapRecordingsList();
             showToast('✓ Saved: ' + e.detail.name, 'success');
         });
+
+        // ============================================
+        // MELODIC INSTRUMENTS SYSTEM
+        // ============================================
+        
+        let currentMelodicInstrument = 'piano';
+        let melodicSettings = {
+            filterCutoff: 2000,
+            vibrato: 0,
+            attack: 0.01,
+            release: 0.5,
+            currentPreset: 'default'
+        };
+
+        // Instrument presets database
+        const instrumentPresets = {
+            piano: [
+                { name: 'Classic Grand', icon: '🎹', settings: { filterCutoff: 3000, attack: 0.01, release: 1.2 } },
+                { name: 'Bright Piano', icon: '✨', settings: { filterCutoff: 5000, attack: 0.005, release: 0.8 } },
+                { name: 'Mellow Keys', icon: '🌙', settings: { filterCutoff: 1500, attack: 0.05, release: 1.5 } },
+                { name: 'Electric Piano', icon: '⚡', settings: { filterCutoff: 2500, attack: 0.02, release: 0.6, vibrato: 10 } }
+            ],
+            violin: [
+                { name: 'Classical', icon: '🎻', settings: { filterCutoff: 3500, attack: 0.3, release: 0.4, vibrato: 20 } },
+                { name: 'Dark Viola', icon: '🌑', settings: { filterCutoff: 1800, attack: 0.5, release: 0.6, vibrato: 15 } },
+                { name: 'Ethereal', icon: '✨', settings: { filterCutoff: 4500, attack: 0.8, release: 1.5, vibrato: 30 } },
+                { name: 'Aggressive', icon: '🔥', settings: { filterCutoff: 5000, attack: 0.1, release: 0.3, vibrato: 5 } }
+            ],
+            guitar: [
+                { name: 'Acoustic', icon: '🎸', settings: { filterCutoff: 3000, attack: 0.01, release: 2.0 } },
+                { name: 'Electric Clean', icon: '⚡', settings: { filterCutoff: 4000, attack: 0.005, release: 1.0 } },
+                { name: 'Distorted', icon: '🔥', settings: { filterCutoff: 2500, attack: 0.01, release: 0.5 } },
+                { name: 'Palm Muted', icon: '🤚', settings: { filterCutoff: 1200, attack: 0.001, release: 0.2 } }
+            ],
+            synth: [
+                { name: 'Supersaw', icon: '🌊', settings: { filterCutoff: 3500, attack: 0.05, release: 0.8, vibrato: 5 } },
+                { name: 'Pluck Lead', icon: '⚡', settings: { filterCutoff: 5000, attack: 0.001, release: 0.3 } },
+                { name: 'Warm Pad', icon: '🌅', settings: { filterCutoff: 2000, attack: 1.0, release: 2.0, vibrato: 15 } },
+                { name: 'Arp Lead', icon: '🎯', settings: { filterCutoff: 4500, attack: 0.01, release: 0.2 } }
+            ],
+            trumpet: [
+                { name: 'Bright Brass', icon: '🎺', settings: { filterCutoff: 3000, attack: 0.08, release: 0.4, vibrato: 10 } },
+                { name: 'Muted', icon: '🔇', settings: { filterCutoff: 1500, attack: 0.05, release: 0.3, vibrato: 5 } },
+                { name: 'Jazz', icon: '🎷', settings: { filterCutoff: 2500, attack: 0.1, release: 0.5, vibrato: 20 } },
+                { name: 'Orchestral', icon: '🎭', settings: { filterCutoff: 3500, attack: 0.15, release: 0.8, vibrato: 15 } }
+            ],
+            harmonica: [
+                { name: 'Blues Harp', icon: '🪗', settings: { filterCutoff: 2500, attack: 0.02, release: 0.4, vibrato: 25 } },
+                { name: 'Tremolo', icon: '🌊', settings: { filterCutoff: 3000, attack: 0.03, release: 0.6, vibrato: 40 } },
+                { name: 'Chromatic', icon: '🎨', settings: { filterCutoff: 3500, attack: 0.01, release: 0.3, vibrato: 10 } },
+                { name: 'Country', icon: '🤠', settings: { filterCutoff: 2800, attack: 0.02, release: 0.5, vibrato: 30 } }
+            ]
+        };
+
+        function selectMelodicInstrument(instrument) {
+            currentMelodicInstrument = instrument;
+            
+            // Update button styles
+            document.querySelectorAll('[id^="mel-"]').forEach(btn => {
+                btn.style.background = 'linear-gradient(135deg, var(--accent-secondary), #06b8b5)';
+                btn.style.border = '1px solid var(--border)';
+            });
+            document.getElementById(`mel-${instrument}`).style.background = 
+                'linear-gradient(135deg, var(--accent-gold), #ffd700)';
+            document.getElementById(`mel-${instrument}`).style.border = '2px solid var(--accent-gold)';
+            
+            // Load presets for this instrument
+            loadInstrumentPresets(instrument);
+            
+            showToast(`✓ Selected: ${instrument.charAt(0).toUpperCase() + instrument.slice(1)}`, 'success');
+        }
+
+        function loadInstrumentPresets(instrument) {
+            const presetsContainer = document.getElementById('presetButtons');
+            const presets = instrumentPresets[instrument] || [];
+            
+            presetsContainer.innerHTML = presets.map((preset, idx) => `
+                <button class="btn btn-secondary" onclick="applyMelodicPreset('${instrument}', ${idx})" 
+                        style="padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                    <span style="font-size: 1.5em;">${preset.icon}</span>
+                    <span style="font-size: 0.85em;">${preset.name}</span>
+                </button>
+            `).join('');
+        }
+
+        function applyMelodicPreset(instrument, presetIndex) {
+            const preset = instrumentPresets[instrument][presetIndex];
+            if (!preset) return;
+            
+            // Apply preset settings
+            melodicSettings = { ...melodicSettings, ...preset.settings, currentPreset: preset.name };
+            
+            // Update UI controls
+            document.getElementById('melFilterCutoff').value = preset.settings.filterCutoff || 2000;
+            document.getElementById('melVibrato').value = preset.settings.vibrato || 0;
+            document.getElementById('melAttack').value = preset.settings.attack || 0.01;
+            document.getElementById('melRelease').value = preset.settings.release || 0.5;
+            
+            // Update displays
+            updateMelodicFilter();
+            updateMelodicVibrato();
+            updateMelodicAttack();
+            updateMelodicRelease();
+            
+            showToast(`🎨 Loaded: ${preset.name}`, 'success');
+        }
+
+        function updateMelodicFilter() {
+            const value = document.getElementById('melFilterCutoff').value;
+            melodicSettings.filterCutoff = parseFloat(value);
+            document.getElementById('melFilterValue').textContent = value + ' Hz';
+        }
+
+        function updateMelodicVibrato() {
+            const value = document.getElementById('melVibrato').value;
+            melodicSettings.vibrato = parseFloat(value);
+            document.getElementById('melVibratoValue').textContent = value + '%';
+        }
+
+        function updateMelodicAttack() {
+            const value = document.getElementById('melAttack').value;
+            melodicSettings.attack = parseFloat(value);
+            document.getElementById('melAttackValue').textContent = value + 's';
+        }
+
+        function updateMelodicRelease() {
+            const value = document.getElementById('melRelease').value;
+            melodicSettings.release = parseFloat(value);
+            document.getElementById('melReleaseValue').textContent = value + 's';
+        }
+
+        function playMelodicNote(note) {
+            initAudio();
+            const freq = noteToFrequency(note);
+            const ctx = audioContext;
+            const now = ctx.currentTime;
+            
+            // Route to correct instrument function
+            switch(currentMelodicInstrument) {
+                case 'piano':
+                    playPianoNote(ctx, freq, now, 0.3, ctx.destination);
+                    break;
+                case 'violin':
+                    playViolinNote(ctx, freq, now, 0.25, ctx.destination);
+                    break;
+                case 'guitar':
+                    playGuitarNote(ctx, freq, now, 0.3, ctx.destination);
+                    break;
+                case 'synth':
+                    playSynthNote(ctx, freq, now, 0.25, ctx.destination);
+                    break;
+                case 'trumpet':
+                    playTrumpetNote(ctx, freq, now, 0.3, ctx.destination);
+                    break;
+                case 'harmonica':
+                    playHarmonicaNote(ctx, freq, now, 0.25, ctx.destination);
+                    break;
+            }
+        }
+
+        function playMelodicChord(notes) {
+            notes.forEach((note, index) => {
+                setTimeout(() => playMelodicNote(note), index * 10);
+            });
+        }
+
+        function noteToFrequency(note) {
+            const notes = {
+                'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23,
+                'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+                'C5': 523.25, 'D5': 587.33, 'E5': 659.25
+            };
+            return notes[note] || 440;
+        }
+
+        // ============================================
+        // INSTRUMENT SYNTHESIS FUNCTIONS
+        // ============================================
+
+        function playViolinNote(ctx, freq, startTime, velocity, destination) {
+            const settings = melodicSettings;
+            
+            // Oscillators for string-like sound
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            
+            osc1.type = 'sawtooth';
+            osc2.type = 'sawtooth';
+            osc1.frequency.setValueAtTime(freq, startTime);
+            osc2.frequency.setValueAtTime(freq * 1.002, startTime); // Slight detune
+            
+            // Vibrato LFO
+            if (settings.vibrato > 0) {
+                const lfo = ctx.createOscillator();
+                const lfoGain = ctx.createGain();
+                lfo.frequency.setValueAtTime(5, startTime);
+                lfoGain.gain.setValueAtTime(freq * (settings.vibrato / 100) * 0.02, startTime);
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc1.frequency);
+                lfoGain.connect(osc2.frequency);
+                lfo.start(startTime);
+                lfo.stop(startTime + settings.attack + settings.release);
+            }
+            
+            // Filter
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(settings.filterCutoff, startTime);
+            filter.Q.setValueAtTime(5, startTime);
+            
+            // Gain envelope
+            const gain = ctx.createGain();
+            
+            osc1.connect(filter);
+            osc2.connect(filter);
+            filter.connect(gain);
+            gain.connect(destination);
+            
+            // Envelope
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(velocity, startTime + settings.attack);
+            gain.gain.linearRampToValueAtTime(velocity * 0.7, startTime + settings.attack + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + settings.attack + settings.release);
+            
+            // Filter envelope
+            filter.frequency.linearRampToValueAtTime(settings.filterCutoff * 0.7, startTime + settings.attack + settings.release * 0.5);
+            
+            const stopTime = startTime + settings.attack + settings.release;
+            osc1.start(startTime);
+            osc2.start(startTime);
+            osc1.stop(stopTime);
+            osc2.stop(stopTime);
+        }
+
+        function playGuitarNote(ctx, freq, startTime, velocity, destination) {
+            const settings = melodicSettings;
+            
+            // Multiple harmonics for guitar-like sound
+            const oscillators = [];
+            const harmonics = [1, 2, 3, 4, 5];
+            const amplitudes = [1.0, 0.5, 0.3, 0.15, 0.08];
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(settings.filterCutoff, startTime);
+            filter.Q.setValueAtTime(2, startTime);
+            
+            const masterGain = ctx.createGain();
+            filter.connect(masterGain);
+            masterGain.connect(destination);
+            
+            harmonics.forEach((harmonic, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = i < 2 ? 'triangle' : 'sine';
+                osc.frequency.setValueAtTime(freq * harmonic, startTime);
+                
+                osc.connect(gain);
+                gain.connect(filter);
+                
+                const amp = velocity * amplitudes[i];
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(amp, startTime + settings.attack);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + settings.attack + settings.release);
+                
+                osc.start(startTime);
+                osc.stop(startTime + settings.attack + settings.release);
+                oscillators.push(osc);
+            });
+            
+            // Master envelope
+            masterGain.gain.setValueAtTime(1, startTime);
+            
+            // Filter envelope (pluck effect)
+            filter.frequency.exponentialRampToValueAtTime(settings.filterCutoff * 0.3, startTime + settings.release * 0.8);
+        }
+
+        function playSynthNote(ctx, freq, startTime, velocity, destination) {
+            const settings = melodicSettings;
+            
+            // Supersaw-style synth
+            const numVoices = 3;
+            const detune = [-7, 0, 7];
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(settings.filterCutoff, startTime);
+            filter.Q.setValueAtTime(3, startTime);
+            
+            const masterGain = ctx.createGain();
+            filter.connect(masterGain);
+            masterGain.connect(destination);
+            
+            for (let i = 0; i < numVoices; i++) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(freq, startTime);
+                osc.detune.setValueAtTime(detune[i], startTime);
+                
+                osc.connect(gain);
+                gain.connect(filter);
+                
+                gain.gain.setValueAtTime(velocity / numVoices, startTime);
+                
+                osc.start(startTime);
+                osc.stop(startTime + settings.attack + settings.release);
+            }
+            
+            // Envelope
+            masterGain.gain.setValueAtTime(0, startTime);
+            masterGain.gain.linearRampToValueAtTime(1, startTime + settings.attack);
+            masterGain.gain.linearRampToValueAtTime(0.7, startTime + settings.attack + 0.05);
+            masterGain.gain.exponentialRampToValueAtTime(0.01, startTime + settings.attack + settings.release);
+            
+            // Filter envelope
+            filter.frequency.linearRampToValueAtTime(settings.filterCutoff * 1.5, startTime + settings.attack);
+            filter.frequency.exponentialRampToValueAtTime(settings.filterCutoff * 0.5, startTime + settings.attack + settings.release);
+        }
+
+        function playTrumpetNote(ctx, freq, startTime, velocity, destination) {
+            const settings = melodicSettings;
+            
+            // Brass-like sound with harmonics
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const osc3 = ctx.createOscillator();
+            
+            osc1.type = 'sawtooth';
+            osc2.type = 'square';
+            osc3.type = 'triangle';
+            
+            osc1.frequency.setValueAtTime(freq, startTime);
+            osc2.frequency.setValueAtTime(freq * 2, startTime);
+            osc3.frequency.setValueAtTime(freq * 0.5, startTime);
+            
+            // Vibrato
+            if (settings.vibrato > 0) {
+                const lfo = ctx.createOscillator();
+                const lfoGain = ctx.createGain();
+                lfo.frequency.setValueAtTime(4, startTime);
+                lfoGain.gain.setValueAtTime(freq * (settings.vibrato / 100) * 0.015, startTime);
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc1.frequency);
+                lfoGain.connect(osc2.frequency);
+                lfo.start(startTime);
+                lfo.stop(startTime + settings.attack + settings.release);
+            }
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(settings.filterCutoff, startTime);
+            filter.Q.setValueAtTime(4, startTime);
+            
+            const gain1 = ctx.createGain();
+            const gain2 = ctx.createGain();
+            const gain3 = ctx.createGain();
+            const masterGain = ctx.createGain();
+            
+            osc1.connect(gain1);
+            osc2.connect(gain2);
+            osc3.connect(gain3);
+            gain1.connect(filter);
+            gain2.connect(filter);
+            gain3.connect(filter);
+            filter.connect(masterGain);
+            masterGain.connect(destination);
+            
+            gain1.gain.setValueAtTime(0.7, startTime);
+            gain2.gain.setValueAtTime(0.2, startTime);
+            gain3.gain.setValueAtTime(0.1, startTime);
+            
+            // Envelope
+            masterGain.gain.setValueAtTime(0, startTime);
+            masterGain.gain.linearRampToValueAtTime(velocity, startTime + settings.attack);
+            masterGain.gain.linearRampToValueAtTime(velocity * 0.85, startTime + settings.attack + 0.1);
+            masterGain.gain.exponentialRampToValueAtTime(0.01, startTime + settings.attack + settings.release);
+            
+            const stopTime = startTime + settings.attack + settings.release;
+            osc1.start(startTime);
+            osc2.start(startTime);
+            osc3.start(startTime);
+            osc1.stop(stopTime);
+            osc2.stop(stopTime);
+            osc3.stop(stopTime);
+        }
+
+        function playHarmonicaNote(ctx, freq, startTime, velocity, destination) {
+            const settings = melodicSettings;
+            
+            // Reed-like sound
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            
+            osc1.type = 'square';
+            osc2.type = 'sawtooth';
+            osc1.frequency.setValueAtTime(freq, startTime);
+            osc2.frequency.setValueAtTime(freq * 1.005, startTime);
+            
+            // Strong vibrato
+            const lfo = ctx.createOscillator();
+            const lfoGain = ctx.createGain();
+            lfo.frequency.setValueAtTime(6, startTime);
+            lfoGain.gain.setValueAtTime(freq * (settings.vibrato / 100) * 0.03, startTime);
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc1.frequency);
+            lfoGain.connect(osc2.frequency);
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(settings.filterCutoff, startTime);
+            filter.Q.setValueAtTime(3, startTime);
+            
+            const gain = ctx.createGain();
+            
+            osc1.connect(filter);
+            osc2.connect(filter);
+            filter.connect(gain);
+            gain.connect(destination);
+            
+            // Envelope
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(velocity, startTime + settings.attack);
+            gain.gain.linearRampToValueAtTime(velocity * 0.8, startTime + settings.attack + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + settings.attack + settings.release);
+            
+            const stopTime = startTime + settings.attack + settings.release;
+            lfo.start(startTime);
+            osc1.start(startTime);
+            osc2.start(startTime);
+            lfo.stop(stopTime);
+            osc1.stop(stopTime);
+            osc2.stop(stopTime);
+        }
+
+        // Initialize with piano selected
+        if (document.getElementById('mel-piano')) {
+            selectMelodicInstrument('piano');
+        }
+
     </script>
 
     <!-- Theme Manager Script -->

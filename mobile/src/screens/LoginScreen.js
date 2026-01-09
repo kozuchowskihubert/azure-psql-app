@@ -12,7 +12,34 @@ import {
   ImageBackground,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
-import { COLORS, TYPO, SPACING, RADIUS } from '../styles/HAOSDesignSystem';
+import * as SafeColors from '../styles/SafeColors';
+
+// Safe color mapping to avoid module initialization errors
+const COLORS = {
+  background: SafeColors.BACKGROUND,
+  surface: SafeColors.SURFACE,
+  textPrimary: SafeColors.TEXT_PRIMARY,
+  textSecondary: SafeColors.TEXT_SECONDARY,
+  primary: SafeColors.PRIMARY,
+  border: SafeColors.BORDER,
+  error: SafeColors.ERROR,
+};
+
+const TYPO = {
+  heading: { fontSize: 28, fontWeight: '700' },
+  subheading: { fontSize: 16, fontWeight: '400' },
+  body: { fontSize: 14, fontWeight: '400' },
+};
+
+const SPACING = {
+  xs: SafeColors.SPACING_XS,
+  sm: SafeColors.SPACING_SM,
+  md: SafeColors.SPACING_MD,
+  lg: SafeColors.SPACING_LG,
+  xl: SafeColors.SPACING_XL,
+};
+
+const RADIUS = { sm: 4, md: 8, lg: 12 };
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');

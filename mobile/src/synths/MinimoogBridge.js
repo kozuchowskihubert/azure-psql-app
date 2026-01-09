@@ -26,15 +26,21 @@ class MinimoogBridge {
     };
   }
 
-  // Convert note name to frequency
+  // Convert note name to frequency (handles both string notes like "C3" and MIDI numbers)
   noteToFrequency(note) {
+    // If note is already a number (MIDI note), convert directly to frequency
+    if (typeof note === 'number') {
+      return 440 * Math.pow(2, (note - 69) / 12);
+    }
+    
+    // If note is a string, parse it
     const noteMap = {
       'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
       'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
     };
     
     const match = note.match(/^([A-G]#?)(\d)$/);
-    if (!match) return 440;
+    if (!match) return 440; // Default to A4
     
     const [, noteName, octaveStr] = match;
     const octave = parseInt(octaveStr);

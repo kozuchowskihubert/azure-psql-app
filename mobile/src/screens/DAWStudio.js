@@ -26,6 +26,28 @@ const COLORS = {
   orange: '#FF6B35',
 };
 
+// Local typography styles to avoid initialization timing issues
+const TYPO = {
+  label: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 1,
+  },
+  body: {
+    fontSize: 14,
+    fontWeight: '400',
+  },
+  heading: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  mono: {
+    fontFamily: 'Courier New',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+};
+
 const { width, height } = Dimensions.get('window');
 
 const VIEWS = [

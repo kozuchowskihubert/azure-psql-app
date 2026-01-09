@@ -14,17 +14,36 @@ import {
   Dimensions,
   PanResponder,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
+import { Audio } from 'expo-av';
 import Bass2DVisualizer from '../components/Bass2DVisualizer';
 import HAOSHeader from '../components/HAOSHeader';
 import InstrumentControl from '../components/InstrumentControl';
-import webAudioBridge from '../services/WebAudioBridge';
+import pythonAudioEngine from '../services/PythonAudioEngine';
 import { HAOS_COLORS, HAOS_GRADIENTS } from '../styles/HAOSTheme';
 import { INSTRUMENT_COLORS, PRESET_STYLES, CONTROL_TYPES } from '../styles/InstrumentTheme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+// API Configuration
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://haos.fm/api';
+
+// Use unified instrument colors
+const BASS_COLORS = INSTRUMENT_COLORS.bass;
+
+// Map COLORS to HAOS_COLORS for consistency (defined at module level for StyleSheet)
+const COLORS = {
+  gold: HAOS_COLORS.gold,
+  accentGreen: BASS_COLORS.primary,
+  accentGreenGlow: BASS_COLORS.secondary,
+  textSecondary: HAOS_COLORS.textSecondary,
+  bgDark: HAOS_COLORS.bgDark,
+  borderSubtle: HAOS_COLORS.borderLight,
+  borderGlow: BASS_COLORS.primary,
+};
 
 // Presets matching web version - parameters for professional bass synthesis
 const PRESET_PARAMS = {
@@ -158,6 +177,52 @@ const PRESET_PARAMS = {
   },
 };
 
+// Default notes for each bass preset (note name, frequency in Hz, MIDI number)
+const PRESET_DEFAULT_NOTES = {
+  sub: { note: 'E1', freq: 41.20, midi: 28 },      // Deep sub bass
+  reese: { note: 'C1', freq: 32.70, midi: 24 },    // Low Reese wobble
+  acid: { note: 'A1', freq: 55.00, midi: 33 },     // TB-303 classic note
+  funk: { note: 'E1', freq: 41.20, midi: 28 },     // Funky slap bass
+  growl: { note: 'G1', freq: 49.00, midi: 31 },    // Growling wobble
+  '808': { note: 'C1', freq: 32.70, midi: 24 },    // 808 kick-bass
+  wobble: { note: 'D1', freq: 36.71, midi: 26 },   // Dubstep wobble
+  dnb: { note: 'C1', freq: 32.70, midi: 24 },      // DnB sub bass
+};
+
+// Bass pattern presets with melodic sequences (16 steps)
+const BASS_PATTERNS = {
+  techno: {
+    name: 'Techno Bass',
+    pattern: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+    melody: [36, 0, 0, 0, 36, 0, 0, 0, 43, 0, 0, 0, 41, 0, 0, 0], // C1, G1, F1
+  },
+  house: {
+    name: 'House Bass',
+    pattern: [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    melody: [36, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 43, 0, 0, 0], // C1, F1, G1
+  },
+  funk: {
+    name: 'Funk Bass',
+    pattern: [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+    melody: [28, 0, 31, 0, 0, 0, 33, 0, 28, 0, 0, 0, 31, 0, 33, 0], // E1, G1, A1
+  },
+  dnb: {
+    name: 'DnB Bass',
+    pattern: [1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
+    melody: [24, 0, 0, 31, 0, 0, 0, 0, 24, 0, 0, 29, 0, 0, 0, 0], // C1, G1, F1
+  },
+  acid: {
+    name: 'Acid Bass',
+    pattern: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+    melody: [33, 0, 36, 0, 38, 0, 41, 0, 43, 0, 41, 0, 38, 0, 36, 0], // A1-G1 slide
+  },
+  wobble: {
+    name: 'Wobble Bass',
+    pattern: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+    melody: [26, 0, 0, 0, 29, 0, 0, 0, 26, 0, 0, 0, 24, 0, 0, 0], // D1, F1, C1
+  },
+};
+
 // Presets using unified theme
 const PRESETS = [
   { id: 'sub', name: 'Sub Bass', emoji: PRESET_STYLES.sub.emoji, color: PRESET_STYLES.sub.gradient },
@@ -171,9 +236,6 @@ const PRESETS = [
 ];
 
 export default function BassStudioScreen({ navigation }) {
-  // Use unified instrument colors
-  const BASS_COLORS = INSTRUMENT_COLORS.bass;
-  
   const [activePreset, setActivePreset] = useState('sub');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -198,12 +260,35 @@ export default function BassStudioScreen({ navigation }) {
     compression: 50,
   });
 
+  // Sequencer state
+  const [bpm, setBpm] = useState(120);
+  const [bassPattern, setBassPattern] = useState([1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]);
+  const [bassMelody, setBassMelody] = useState([36, 0, 0, 0, 36, 0, 0, 0, 36, 0, 0, 0, 36, 0, 0, 0]); // C1
+  const [currentStep, setCurrentStep] = useState(-1);
+  const sequencerInterval = useRef(null);
+  const isPlayingRef = useRef(false);
+
+  // Radio state for demo tracks
+  const [radioSound, setRadioSound] = useState(null);
+  const [isPlayingRadio, setIsPlayingRadio] = useState(false);
+  const [radioChannels, setRadioChannels] = useState([]);
+  const [loadingRadio, setLoadingRadio] = useState(false);
+  const [currentRadioTrack, setCurrentRadioTrack] = useState(null);
+
   useEffect(() => {
     console.log('🎸 BassStudioScreen mounted, WebAudioBridge ready');
     // WebAudioBridge is always ready, no initialization needed
+    fetchRadioChannels();
     
     return () => {
       console.log('🎸 BassStudioScreen unmounting, stopping all voices...');
+      
+      // Stop sequencer
+      if (sequencerInterval.current) {
+        clearTimeout(sequencerInterval.current);
+        sequencerInterval.current = null;
+      }
+      
       // Stop all active voices
       activeVoices.current.forEach(voice => {
         if (voice && voice.stopTime) {
@@ -235,17 +320,35 @@ export default function BassStudioScreen({ navigation }) {
     }
   };
   
-  const playBassNote = (frequency, velocity = 0.8, duration = 1.0) => {
-    console.log(`🎵 Playing bass note: ${frequency.toFixed(2)}Hz, velocity=${velocity}, duration=${duration}s`);
-    console.log(`📊 Current params:`, params);
-    
+  const playBassNote = async (frequency, velocity = 0.8, duration = 1.0) => {
     // Trigger visualizer animation
     if (visualizerRef.current) {
       visualizerRef.current.triggerBassNote(frequency, velocity);
     }
     
-    // Use WebAudioBridge to play bass note with current parameters
-    webAudioBridge.playBassNote(frequency, duration, velocity, params);
+    // Use pythonAudioEngine dedicated bass methods
+    try {
+      switch (activePreset) {
+        case 'sub':
+        case 'funk':
+        case '808':
+        case 'dnb':
+          await pythonAudioEngine.playBass808(frequency, duration, velocity);
+          break;
+        case 'reese':
+        case 'growl':
+        case 'wobble':
+          await pythonAudioEngine.playReeseBass(frequency, duration, velocity);
+          break;
+        case 'acid':
+          await pythonAudioEngine.playTB303(frequency, duration, velocity);
+          break;
+        default:
+          await pythonAudioEngine.playBass808(frequency, duration, velocity);
+      }
+    } catch (error) {
+      console.error('❌ Error playing bass:', error);
+    }
   };
 
   const handleKnobChange = (param, value) => {
@@ -253,51 +356,104 @@ export default function BassStudioScreen({ navigation }) {
     // Parameters will be used in next note play
   };
 
+  // Convert MIDI note number to frequency (A4 = 440Hz)
+  const midiToFreq = (midi) => {
+    return 440 * Math.pow(2, (midi - 69) / 12);
+  };
+
+  // Load bass pattern preset
+  const loadBassPattern = (patternName) => {
+    const pattern = BASS_PATTERNS[patternName];
+    if (pattern) {
+      setBassPattern(pattern.pattern);
+      setBassMelody(pattern.melody);
+      console.log(`🎸 Loaded bass pattern: ${pattern.name}`);
+    }
+  };
+
+  // Toggle step in pattern
+  const toggleStep = (stepIndex) => {
+    const newPattern = [...bassPattern];
+    newPattern[stepIndex] = newPattern[stepIndex] === 1 ? 0 : 1;
+    setBassPattern(newPattern);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  // Change note for a step
+  const changeNote = (stepIndex, midiNote) => {
+    const newMelody = [...bassMelody];
+    newMelody[stepIndex] = midiNote;
+    setBassMelody(newMelody);
+  };
+
   const handlePlay = () => {
     if (isPlaying) {
-      // Stop playing
-      activeVoices.current.forEach(voice => {
-        if (voice && voice.stopTime) {
-          voice.stopTime();
-        }
-      });
-      activeVoices.current = [];
+      // Stop sequencer
+      if (sequencerInterval.current) {
+        clearTimeout(sequencerInterval.current);
+        sequencerInterval.current = null;
+      }
+      isPlayingRef.current = false;
       setIsPlaying(false);
+      setCurrentStep(-1);
     } else {
-      // Start playing demo pattern
+      // Start sequencer
+      isPlayingRef.current = true;
       setIsPlaying(true);
-      playDemoPattern();
+      setCurrentStep(0);
+      startSequencer();
     }
   };
   
-  const playDemoPattern = () => {
-    // Play bass notes in a pattern: E1, E1, G1, E1, D1, E1, G1, A1
-    const notes = [41.2, 41.2, 49.0, 41.2, 36.7, 41.2, 49.0, 55.0];
-    let noteIndex = 0;
+  const startSequencer = () => {
+    const stepDuration = (60 / bpm) * 250; // Quarter note in ms (16th notes)
+    let startTime = Date.now();
+    let currentStepIndex = 0;
 
-    const playNextNote = () => {
-      if (!isPlaying) return;
+    const tick = () => {
+      if (!isPlayingRef.current) return;
 
-      const frequency = notes[noteIndex];
-      playBassNote(frequency, 0.8, 0.5);
+      const step = currentStepIndex;
+      setCurrentStep(step);
 
-      noteIndex = (noteIndex + 1) % notes.length;
-      
-      // Schedule next note
-      setTimeout(playNextNote, 500);
+      // Play bass note if pattern active at this step
+      if (bassPattern[step] === 1 && bassMelody[step] > 0) {
+        const midiNote = bassMelody[step];
+        const frequency = midiToFreq(midiNote);
+        playBassNote(frequency, 0.8, 0.4);
+      }
+
+      currentStepIndex = (currentStepIndex + 1) % bassPattern.length;
+
+      // Drift compensation
+      const expectedTime = startTime + (currentStepIndex * stepDuration);
+      const drift = Date.now() - expectedTime;
+      const correctedDelay = Math.max(0, stepDuration - drift);
+
+      sequencerInterval.current = setTimeout(tick, correctedDelay);
     };
 
-    playNextNote();
+    tick();
   };
 
   const handleStop = () => {
+    // Stop sequencer
+    if (sequencerInterval.current) {
+      clearTimeout(sequencerInterval.current);
+      sequencerInterval.current = null;
+    }
+    
+    // Stop all voices
     activeVoices.current.forEach(voice => {
       if (voice && voice.stopTime) {
         voice.stopTime();
       }
     });
     activeVoices.current = [];
+    
+    isPlayingRef.current = false;
     setIsPlaying(false);
+    setCurrentStep(-1);
   };
 
   const handleRecord = () => {
@@ -316,6 +472,93 @@ export default function BassStudioScreen({ navigation }) {
     // TODO: Implement MIDI export
     console.log('💾 Export MIDI - Coming soon!');
     alert('MIDI export coming soon!');
+  };
+
+  // Fetch radio channels from Azure Blob Storage
+  const fetchRadioChannels = async () => {
+    try {
+      setLoadingRadio(true);
+      const response = await fetch(`${API_BASE_URL}/radio/channels`);
+      const data = await response.json();
+      
+      if (data.success && data.channels) {
+        setRadioChannels(data.channels);
+        console.log(`✅ Bass Studio: Loaded ${data.channels.length} radio channels`);
+      }
+    } catch (error) {
+      console.error('Error fetching radio channels:', error);
+    } finally {
+      setLoadingRadio(false);
+    }
+  };
+
+  // Play radio track from blob storage
+  const playRadioTrack = async (channel, trackIndex = 0) => {
+    try {
+      // Stop sequencer if playing
+      if (isPlaying) {
+        stopSequencer();
+      }
+
+      // Stop current track if playing
+      if (radioSound) {
+        await radioSound.unloadAsync();
+        setRadioSound(null);
+      }
+
+      const track = channel.tracks[trackIndex];
+      if (!track) {
+        console.warn('No track found at index', trackIndex);
+        return;
+      }
+
+      setLoadingRadio(true);
+      setCurrentRadioTrack({ channel, trackIndex, track });
+
+      // Get track URL from API
+      const response = await fetch(`${API_BASE_URL}/radio/track/${track.id}`);
+      const data = await response.json();
+
+      if (!data.success || !data.url) {
+        console.error('Failed to get track URL');
+        return;
+      }
+
+      console.log(`🎵 Bass Studio: Playing ${track.title} from ${channel.name}`);
+
+      // Load and play audio
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        { uri: data.url },
+        { shouldPlay: true, volume: 0.8 },
+        (status) => {
+          if (status.didJustFinish) {
+            // Auto-play next track
+            const nextIndex = (trackIndex + 1) % channel.tracks.length;
+            playRadioTrack(channel, nextIndex);
+          }
+        }
+      );
+
+      setRadioSound(newSound);
+      setIsPlayingRadio(true);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch (error) {
+      console.error('Error playing radio track:', error);
+    } finally {
+      setLoadingRadio(false);
+    }
+  };
+
+  // Stop radio playback
+  const stopRadio = async () => {
+    if (radioSound) {
+      await radioSound.stopAsync();
+      await radioSound.unloadAsync();
+      setRadioSound(null);
+    }
+    setIsPlayingRadio(false);
+    setCurrentRadioTrack(null);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
   const handleSavePreset = () => {
@@ -604,6 +847,80 @@ export default function BassStudioScreen({ navigation }) {
           </View>
         </View>
 
+        {/* Sequencer Panel */}
+        <View style={styles.panel}>
+          <View style={styles.panelHeader}>
+            <View style={styles.panelIcon}>
+              <Text style={styles.panelIconText}>🎛️</Text>
+            </View>
+            <Text style={styles.panelTitle}>BASS SEQUENCER</Text>
+          </View>
+          
+          {/* BPM Control */}
+          <View style={styles.bpmControl}>
+            <Text style={styles.bpmLabel}>BPM: {bpm}</Text>
+            <View style={styles.bpmButtons}>
+              <TouchableOpacity
+                style={styles.bpmButton}
+                onPress={() => setBpm(Math.max(60, bpm - 5))}
+              >
+                <Text style={styles.bpmButtonText}>-</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bpmButton}
+                onPress={() => setBpm(Math.min(200, bpm + 5))}
+              >
+                <Text style={styles.bpmButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Pattern Presets */}
+          <View style={styles.patternPresets}>
+            {Object.keys(BASS_PATTERNS).map((patternKey) => {
+              const pattern = BASS_PATTERNS[patternKey];
+              return (
+                <TouchableOpacity
+                  key={patternKey}
+                  style={styles.patternPresetButton}
+                  onPress={() => loadBassPattern(patternKey)}
+                >
+                  <Text style={styles.patternPresetText}>{pattern.name}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* 16-Step Grid */}
+          <View style={styles.sequencerGrid}>
+            {bassPattern.map((active, index) => {
+              const midiNote = bassMelody[index];
+              const isCurrentStep = currentStep === index;
+              
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.stepButton,
+                    active === 1 && styles.stepButtonActive,
+                    isCurrentStep && styles.stepButtonCurrent,
+                  ]}
+                  onPress={() => toggleStep(index)}
+                  onLongPress={() => {
+                    // TODO: Open note picker for this step
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  }}
+                >
+                  <Text style={styles.stepNumber}>{index + 1}</Text>
+                  {active === 1 && midiNote > 0 && (
+                    <Text style={styles.stepNote}>{midiNote}</Text>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
         {/* Transport Controls */}
         <View style={styles.transportPanel}>
           <TouchableOpacity
@@ -624,6 +941,63 @@ export default function BassStudioScreen({ navigation }) {
           >
             <Text style={styles.transportButtonText}>⏺</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Radio Demo Tracks Panel */}
+        <View style={styles.panel}>
+          <View style={styles.panelHeader}>
+            <View style={styles.panelIcon}>
+              <Text style={styles.panelIconText}>📻</Text>
+            </View>
+            <Text style={styles.panelTitle}>DEMO TRACKS</Text>
+          </View>
+
+          {loadingRadio && (
+            <ActivityIndicator size="large" color={BASS_COLORS.primary} style={{ marginVertical: 20 }} />
+          )}
+
+          {currentRadioTrack && (
+            <View style={styles.nowPlayingBass}>
+              <LinearGradient
+                colors={[BASS_COLORS.primary + '40', BASS_COLORS.primary + '20']}
+                style={styles.nowPlayingGradient}
+              >
+                <Text style={styles.nowPlayingTitle}>NOW PLAYING</Text>
+                <Text style={styles.nowPlayingTrack}>{currentRadioTrack.track.title}</Text>
+                <Text style={styles.nowPlayingChannel}>{currentRadioTrack.channel.name}</Text>
+                <TouchableOpacity style={styles.stopRadioButton} onPress={stopRadio}>
+                  <Text style={styles.stopRadioButtonText}>⏹ STOP</Text>
+                </TouchableOpacity>
+              </LinearGradient>
+            </View>
+          )}
+
+          <View style={styles.radioChannels}>
+            {radioChannels.map(channel => (
+              <TouchableOpacity
+                key={channel.id}
+                style={[
+                  styles.radioChannelCard,
+                  currentRadioTrack?.channel.id === channel.id && styles.radioChannelActive,
+                ]}
+                onPress={() => playRadioTrack(channel, 0)}
+              >
+                <Text style={styles.radioChannelIcon}>{channel.icon || '🎵'}</Text>
+                <Text style={styles.radioChannelName}>{channel.name}</Text>
+                <Text style={styles.radioChannelCount}>{channel.trackCount || 0} tracks</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {radioChannels.length === 0 && !loadingRadio && (
+            <Text style={styles.emptyRadioMessage}>
+              No demo tracks available. Upload tracks to Azure Blob Storage.
+            </Text>
+          )}
+
+          <Text style={styles.panelInfo}>
+            Stream professional bass tracks from Azure • Auto-play next track
+          </Text>
         </View>
 
         {/* Export Panel */}
@@ -856,6 +1230,187 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontFamily: 'monospace',
     fontSize: 12,
+  },
+  // Sequencer styles
+  bpmControl: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+    paddingHorizontal: 10,
+  },
+  bpmLabel: {
+    color: COLORS.gold,
+    fontFamily: 'monospace',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  bpmButtons: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  bpmButton: {
+    backgroundColor: 'rgba(57, 255, 20, 0.2)',
+    borderWidth: 1,
+    borderColor: COLORS.accentGreen,
+    borderRadius: 8,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bpmButtonText: {
+    color: COLORS.accentGreen,
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  patternPresets: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 15,
+  },
+  patternPresetButton: {
+    backgroundColor: 'rgba(57, 255, 20, 0.15)',
+    borderWidth: 1,
+    borderColor: COLORS.accentGreen,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  patternPresetText: {
+    color: COLORS.accentGreen,
+    fontFamily: 'monospace',
+    fontSize: 11,
+  },
+  sequencerGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    justifyContent: 'space-between',
+  },
+  stepButton: {
+    width: '22%',
+    aspectRatio: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 2,
+    borderColor: COLORS.borderSubtle,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stepButtonActive: {
+    backgroundColor: 'rgba(57, 255, 20, 0.3)',
+    borderColor: COLORS.accentGreen,
+    borderWidth: 2,
+  },
+  stepButtonCurrent: {
+    borderColor: COLORS.gold,
+    borderWidth: 3,
+    shadowColor: COLORS.gold,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  stepNumber: {
+    color: COLORS.textSecondary,
+    fontFamily: 'monospace',
+    fontSize: 10,
+  },
+  stepNote: {
+    color: COLORS.accentGreen,
+    fontFamily: 'monospace',
+    fontSize: 9,
+    marginTop: 2,
+  },
+  nowPlayingBass: {
+    marginVertical: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  nowPlayingGradient: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  nowPlayingTitle: {
+    fontSize: 11,
+    color: BASS_COLORS.primary,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginBottom: 8,
+  },
+  nowPlayingTrack: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  nowPlayingChannel: {
+    fontSize: 13,
+    color: '#aaa',
+    marginBottom: 12,
+  },
+  stopRadioButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(255,0,0,0.2)',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'rgba(255,0,0,0.4)',
+  },
+  stopRadioButtonText: {
+    color: '#ff0000',
+    fontSize: 14,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  radioChannels: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  radioChannelCard: {
+    width: (SCREEN_WIDTH - 80) / 3, // 3 columns
+    backgroundColor: HAOS_COLORS.bgCard,
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: HAOS_COLORS.borderLight,
+  },
+  radioChannelActive: {
+    borderColor: BASS_COLORS.primary,
+    backgroundColor: BASS_COLORS.primary + '20',
+  },
+  radioChannelIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  radioChannelName: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  radioChannelCount: {
+    fontSize: 10,
+    color: '#888',
+  },
+  emptyRadioMessage: {
+    fontSize: 13,
+    color: '#888',
+    textAlign: 'center',
+    fontStyle: 'italic',
+    padding: 20,
+  },
+  panelInfo: {
+    fontSize: 12,
+    color: HAOS_COLORS.textSecondary,
+    textAlign: 'center',
+    marginTop: 12,
+    fontStyle: 'italic',
   },
 });
 

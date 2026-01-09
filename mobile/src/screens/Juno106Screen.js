@@ -16,11 +16,17 @@ import {
 import Slider from '@react-native-community/slider';
 import { WebView } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
+import Knob from '../components/Knob';
 import juno106Bridge from '../synths/Juno106Bridge';
 import webAudioBridge from '../services/WebAudioBridge';
 import Oscilloscope from '../components/Oscilloscope';
 import UniversalSequencer from '../components/UniversalSequencer';
 import PianoRollSequencer from '../sequencer/PianoRollSequencer';
+import { 
+  JUNO106_PRESETS, 
+  getJuno106PresetsByCategory, 
+  getJuno106Categories 
+} from '../data/synthPresets';
 
 const { width } = Dimensions.get('window');
 
@@ -33,6 +39,8 @@ const HAOS_COLORS = {
   metal: '#1a1a1a',
   silver: '#c0c0c0',
 };
+
+const KNOB_SIZE = 80;
 
 // Musical keyboard notes
 const NOTES = [
@@ -65,6 +73,11 @@ const Juno106Screen = ({ navigation }) => {
   // Sequencer state
   const [sequencerPlaying, setSequencerPlaying] = useState(false);
   const [bpm, setBpm] = useState(120);
+  
+  // Preset state
+  const [selectedPreset, setSelectedPreset] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const categories = getJuno106Categories();
   
   // Animation for chorus effect
   const chorusAnim = useRef(new Animated.Value(0)).current;
@@ -116,18 +129,32 @@ const Juno106Screen = ({ navigation }) => {
     try {
       await juno106Bridge.init();
       console.log('✅ Juno-106 initialized');
+      
+      // Resume audio context on mount (required for mobile)
+      setTimeout(() => {
+        if (webAudioBridge && typeof webAudioBridge.resumeAudio === 'function') {
+          webAudioBridge.resumeAudio();
+          console.log('🔊 Attempting to resume audio context...');
+        }
+      }, 500);
     } catch (error) {
       console.error('❌ Juno-106 init failed:', error);
     }
   };
 
   const playNote = async (note, freq) => {
-    await nativeAudioContext.resume();
+    // Resume audio on first interaction (iOS requirement)
+    if (webAudioBridge && !webAudioBridge.isReady) {
+      console.log('🔊 First interaction - resuming audio...');
+      if (typeof webAudioBridge.resumeAudio === 'function') {
+        webAudioBridge.resumeAudio();
+      }
+    }
     
     setActiveNotes(prev => new Set([...prev, note]));
     
-    // Parameters are already stored in bridge, just play the note
-    juno106Bridge.playNote(note, 1.0, 2.0);
+    // Play note with proper options object
+    juno106Bridge.playNote(note, { velocity: 1.0, duration: 2.0 });
     console.log(`🎹 Playing Juno-106: ${note} @ ${freq.toFixed(2)}Hz`);
   };
 
@@ -142,7 +169,7 @@ const Juno106Screen = ({ navigation }) => {
   // Sequencer note handler
   const handleSequencerNote = (midiNote) => {
     const frequency = 440 * Math.pow(2, (midiNote - 69) / 12);
-    juno106Bridge.playNote(midiNote, 1.0, 0.25);
+    juno106Bridge.playNote(midiNote, { velocity: 1.0, duration: 0.25 });
     console.log(`🎵 Juno-106 Sequencer: MIDI ${midiNote} @ ${frequency.toFixed(2)}Hz`);
   };
 
@@ -186,6 +213,33 @@ const Juno106Screen = ({ navigation }) => {
     const releaseTime = value * 5; // Knob 0-1, time 0-5s
     setRelease(releaseTime);
     juno106Bridge.setRelease(releaseTime);
+  };
+
+  // Load preset function
+  const loadPreset = (presetId) => {
+    const preset = JUNO106_PRESETS[presetId];
+    if (!preset) return;
+    
+    // Update all state
+    setFilterCutoff(preset.filterCutoff);
+    setFilterResonance(preset.filterResonance);
+    setChorusDepth(preset.chorusDepth);
+    setAttack(preset.attack);
+    setDecay(preset.decay);
+    setSustain(preset.sustain);
+    setRelease(preset.release);
+    setSelectedPreset(presetId);
+    
+    // Update bridge
+    juno106Bridge.setCutoff(preset.filterCutoff);
+    juno106Bridge.setResonance(preset.filterResonance);
+    juno106Bridge.setChorusDepth(preset.chorusDepth);
+    juno106Bridge.setAttack(preset.attack);
+    juno106Bridge.setDecay(preset.decay);
+    juno106Bridge.setSustain(preset.sustain);
+    juno106Bridge.setRelease(preset.release);
+    
+    console.log(`✨ Loaded Juno-106 preset: ${preset.name}`);
   };
 
   const renderKey = (noteData, index) => {
@@ -258,9 +312,16 @@ const Juno106Screen = ({ navigation }) => {
       <ScrollView style={styles.content}>
         {/* Chorus Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🌀 CHORUS</Text>
+          <LinearGradient
+            colors={['rgba(157,78,221,0.15)', 'rgba(157,78,221,0.05)']}
+            style={styles.sectionHeader}
+          >
+            <Text style={styles.sectionTitle}>🌀 CHORUS</Text>
+            <Text style={styles.sectionSubtitle}>DCO ENSEMBLE EFFECT</Text>
+          </LinearGradient>
+          
           <View style={styles.controlsRow}>
-            <View style={styles.knobContainer}>
+            <View style={styles.enhancedKnobContainer}>
               <Knob
                 value={chorusDepth * 200}
                 onChange={handleChorusDepthChange}
@@ -268,7 +329,10 @@ const Juno106Screen = ({ navigation }) => {
                 color={HAOS_COLORS.purple}
                 size={KNOB_SIZE}
               />
-              <Text style={styles.knobValue}>{(chorusDepth * 1000).toFixed(1)}¢</Text>
+              <View style={styles.parameterDisplay}>
+                <Text style={styles.parameterValue}>{(chorusDepth * 1000).toFixed(1)}¢</Text>
+                <Text style={styles.parameterLabel}>CENTS DETUNE</Text>
+              </View>
             </View>
           </View>
           <Text style={styles.sectionInfo}>
@@ -322,9 +386,16 @@ const Juno106Screen = ({ navigation }) => {
 
         {/* Filter Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🎛️ FILTER (VCF)</Text>
+          <LinearGradient
+            colors={['rgba(255,0,110,0.15)', 'rgba(255,0,110,0.05)']}
+            style={styles.sectionHeader}
+          >
+            <Text style={styles.sectionTitle}>🎛️ FILTER (VCF)</Text>
+            <Text style={styles.sectionSubtitle}>VOLTAGE CONTROLLED FILTER</Text>
+          </LinearGradient>
+          
           <View style={styles.controlsRow}>
-            <View style={styles.knobContainer}>
+            <View style={styles.enhancedKnobContainer}>
               <Knob
                 value={filterCutoff / 5000}
                 onChange={handleFilterCutoffChange}
@@ -332,10 +403,13 @@ const Juno106Screen = ({ navigation }) => {
                 color={HAOS_COLORS.pink}
                 size={KNOB_SIZE}
               />
-              <Text style={styles.knobValue}>{filterCutoff.toFixed(0)} Hz</Text>
+              <View style={styles.parameterDisplay}>
+                <Text style={styles.parameterValue}>{filterCutoff.toFixed(0)} Hz</Text>
+                <Text style={styles.parameterLabel}>FREQUENCY</Text>
+              </View>
             </View>
             
-            <View style={styles.knobContainer}>
+            <View style={styles.enhancedKnobContainer}>
               <Knob
                 value={filterResonance / 10}
                 onChange={handleFilterResonanceChange}
@@ -343,7 +417,10 @@ const Juno106Screen = ({ navigation }) => {
                 color={HAOS_COLORS.pink}
                 size={KNOB_SIZE}
               />
-              <Text style={styles.knobValue}>Q: {filterResonance.toFixed(1)}</Text>
+              <View style={styles.parameterDisplay}>
+                <Text style={styles.parameterValue}>Q={filterResonance.toFixed(1)}</Text>
+                <Text style={styles.parameterLabel}>EMPHASIS</Text>
+              </View>
             </View>
           </View>
           <Text style={styles.sectionInfo}>
@@ -370,9 +447,16 @@ const Juno106Screen = ({ navigation }) => {
 
         {/* Envelope Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📈 ENVELOPE (VCA)</Text>
+          <LinearGradient
+            colors={['rgba(0,217,255,0.15)', 'rgba(0,217,255,0.05)']}
+            style={styles.sectionHeader}
+          >
+            <Text style={styles.sectionTitle}>📈 ENVELOPE (VCA)</Text>
+            <Text style={styles.sectionSubtitle}>ADSR CONTOUR GENERATOR</Text>
+          </LinearGradient>
+          
           <View style={styles.controlsRow}>
-            <View style={styles.knobContainer}>
+            <View style={styles.enhancedKnobContainer}>
               <Knob
                 value={attack / 2}
                 onChange={handleAttackChange}
@@ -380,10 +464,13 @@ const Juno106Screen = ({ navigation }) => {
                 color={HAOS_COLORS.cyan}
                 size={60}
               />
-              <Text style={styles.knobValue}>{(attack * 1000).toFixed(0)}ms</Text>
+              <View style={styles.parameterDisplay}>
+                <Text style={styles.parameterValue}>{(attack * 1000).toFixed(0)} ms</Text>
+                <Text style={styles.parameterLabel}>ATTACK</Text>
+              </View>
             </View>
             
-            <View style={styles.knobContainer}>
+            <View style={styles.enhancedKnobContainer}>
               <Knob
                 value={decay / 2}
                 onChange={handleDecayChange}
@@ -391,10 +478,13 @@ const Juno106Screen = ({ navigation }) => {
                 color={HAOS_COLORS.cyan}
                 size={60}
               />
-              <Text style={styles.knobValue}>{(decay * 1000).toFixed(0)}ms</Text>
+              <View style={styles.parameterDisplay}>
+                <Text style={styles.parameterValue}>{(decay * 1000).toFixed(0)} ms</Text>
+                <Text style={styles.parameterLabel}>DECAY</Text>
+              </View>
             </View>
             
-            <View style={styles.knobContainer}>
+            <View style={styles.enhancedKnobContainer}>
               <Knob
                 value={sustain}
                 onChange={handleSustainChange}
@@ -402,10 +492,13 @@ const Juno106Screen = ({ navigation }) => {
                 color={HAOS_COLORS.cyan}
                 size={60}
               />
-              <Text style={styles.knobValue}>{(sustain * 100).toFixed(0)}%</Text>
+              <View style={styles.parameterDisplay}>
+                <Text style={styles.parameterValue}>{(sustain * 100).toFixed(0)}%</Text>
+                <Text style={styles.parameterLabel}>LEVEL</Text>
+              </View>
             </View>
             
-            <View style={styles.knobContainer}>
+            <View style={styles.enhancedKnobContainer}>
               <Knob
                 value={release / 5}
                 onChange={handleReleaseChange}
@@ -413,9 +506,76 @@ const Juno106Screen = ({ navigation }) => {
                 color={HAOS_COLORS.cyan}
                 size={60}
               />
-              <Text style={styles.knobValue}>{(release * 1000).toFixed(0)}ms</Text>
+              <View style={styles.parameterDisplay}>
+                <Text style={styles.parameterValue}>{(release * 1000).toFixed(0)} ms</Text>
+                <Text style={styles.parameterLabel}>RELEASE</Text>
+              </View>
             </View>
           </View>
+        </View>
+
+        {/* Preset Browser */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🎨 PRESETS</Text>
+          
+          {/* Category Tabs */}
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.categoryTabs}
+          >
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category}
+                onPress={() => setSelectedCategory(category)}
+                style={[
+                  styles.categoryTab,
+                  selectedCategory === category && styles.categoryTabActive
+                ]}
+              >
+                <Text style={[
+                  styles.categoryTabText,
+                  selectedCategory === category && styles.categoryTabTextActive
+                ]}>
+                  {category.toUpperCase()}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          
+          {/* Preset Grid */}
+          <View style={styles.presetGrid}>
+            {getJuno106PresetsByCategory(selectedCategory).map((presetId) => {
+              const preset = JUNO106_PRESETS[presetId];
+              return (
+                <TouchableOpacity
+                  key={presetId}
+                  onPress={() => loadPreset(presetId)}
+                  style={styles.presetCardWrapper}
+                >
+                  <LinearGradient
+                    colors={preset.gradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={[
+                      styles.presetCard,
+                      selectedPreset === presetId && styles.presetCardActive
+                    ]}
+                  >
+                    <Text style={styles.presetEmoji}>{preset.emoji}</Text>
+                    <Text style={styles.presetName}>{preset.name}</Text>
+                    <Text style={styles.presetDescription} numberOfLines={2}>
+                      {preset.description}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          
+          <Text style={styles.sectionInfo}>
+            Tap a preset to instantly load professional sounds • {getJuno106PresetsByCategory(selectedCategory).length} presets
+          </Text>
         </View>
 
         {/* Piano Roll Sequencer */}
@@ -665,6 +825,54 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 8,
   },
+  enhancedKnobContainer: {
+    alignItems: 'center',
+    marginVertical: 8,
+    padding: 12,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(157,78,221,0.3)',
+    minWidth: 110,
+  },
+  parameterDisplay: {
+    marginTop: 8,
+    alignItems: 'center',
+    backgroundColor: 'rgba(157,78,221,0.1)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(157,78,221,0.4)',
+    minWidth: 90,
+  },
+  parameterValue: {
+    fontSize: 16,
+    color: HAOS_COLORS.cyan,
+    fontWeight: 'bold',
+    fontFamily: 'monospace',
+    letterSpacing: 1,
+  },
+  parameterLabel: {
+    fontSize: 9,
+    color: HAOS_COLORS.silver,
+    marginTop: 2,
+    fontFamily: 'monospace',
+    letterSpacing: 0.5,
+  },
+  sectionHeader: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  sectionSubtitle: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.6)',
+    marginTop: 4,
+    fontFamily: 'monospace',
+    letterSpacing: 1,
+  },
   knobValue: {
     fontSize: 12,
     color: HAOS_COLORS.cyan,
@@ -736,6 +944,77 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: HAOS_COLORS.silver,
     textAlign: 'center',
+  },
+  // Preset Browser Styles
+  categoryTabs: {
+    marginBottom: 16,
+  },
+  categoryTab: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginRight: 10,
+    borderRadius: 20,
+    backgroundColor: 'rgba(157,78,221,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(157,78,221,0.3)',
+  },
+  categoryTabActive: {
+    backgroundColor: HAOS_COLORS.purple,
+    borderColor: HAOS_COLORS.purple,
+  },
+  categoryTabText: {
+    fontSize: 12,
+    color: HAOS_COLORS.purple,
+    fontWeight: '600',
+    letterSpacing: 1,
+  },
+  categoryTabTextActive: {
+    color: '#fff',
+  },
+  presetGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  presetCardWrapper: {
+    width: '48%',
+    marginBottom: 12,
+  },
+  presetCard: {
+    padding: 16,
+    borderRadius: 12,
+    minHeight: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  presetCardActive: {
+    borderColor: '#fff',
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  presetEmoji: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  presetName: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 4,
+    letterSpacing: 0.5,
+  },
+  presetDescription: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.8)',
+    textAlign: 'center',
+    lineHeight: 14,
   },
 });
 

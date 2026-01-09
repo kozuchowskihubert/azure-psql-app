@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import InstrumentControl from '../components/InstrumentControl';
 import { HAOS_COLORS } from '../styles/HAOSTheme';
 import { INSTRUMENT_COLORS, CONTROL_TYPES } from '../styles/InstrumentTheme';
+import pythonAudioEngine from '../services/PythonAudioEngine';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -27,8 +28,17 @@ const ARTICULATIONS = [
   { id: 'tremolo', name: 'TREMOLO', color: INSTRUMENT_COLORS.violin.secondary, icon: '💫', description: 'Rapid bow movement' },
 ];
 
+// Professional Synth Modes for Violin
+const SYNTH_MODES = [
+  { id: 'arp2600', name: 'ARP 2600', color: '#FF6B35', icon: '🔥', description: 'Modular synth lead' },
+  { id: 'juno106', name: 'JUNO-106', color: '#00ff94', icon: '🌊', description: 'Warm analog chorus' },
+  { id: 'minimoog', name: 'MINIMOOG', color: '#FFD700', icon: '⚡', description: 'Fat analog bass' },
+  { id: 'tb303', name: 'TB-303', color: '#39FF14', icon: '🧪', description: 'Acid bassline' },
+];
+
 const ViolinScreen = ({ navigation }) => {
   const [articulation, setArticulation] = useState('sustain');
+  const [synthMode, setSynthMode] = useState(null); // null = violin, or synth ID
   const [ensembleMode, setEnsembleMode] = useState(false);
   
   // Main controls
@@ -77,6 +87,37 @@ const ViolinScreen = ({ navigation }) => {
     }
   }, [vibratoRate, vibratoDepth]);
   
+  // Play synth note function
+  const playSynthNote = async (noteIndex) => {
+    if (!synthMode) return;
+    
+    // Violin range: G3 (55) to E7 (88) in MIDI
+    const baseNote = 55; // G3
+    const midiNote = baseNote + noteIndex;
+    const frequency = 440 * Math.pow(2, (midiNote - 69) / 12);
+    const duration = articulation === 'staccato' ? 0.2 : (articulation === 'pizzicato' ? 0.4 : 1.0);
+    const vel = expression / 100;
+    
+    try {
+      switch (synthMode) {
+        case 'arp2600':
+          await pythonAudioEngine.playARP2600(frequency, duration, vel, vibratoDepth / 1000);
+          break;
+        case 'juno106':
+          await pythonAudioEngine.playJuno106(frequency, duration, vel, vibratoDepth / 1000);
+          break;
+        case 'minimoog':
+          await pythonAudioEngine.playMinimoog(frequency, duration, vel, vibratoDepth / 1000);
+          break;
+        case 'tb303':
+          await pythonAudioEngine.playTB303(frequency, duration, vel);
+          break;
+      }
+    } catch (error) {
+      console.error('Synth playback error:', error);
+    }
+  };
+  
   const currentArticulation = ARTICULATIONS.find(a => a.id === articulation);
   
   return (
@@ -119,20 +160,56 @@ const ViolinScreen = ({ navigation }) => {
               key={art.id}
               style={[
                 styles.articulationButton,
-                articulation === art.id && styles.articulationButtonActive,
+                articulation === art.id && !synthMode && styles.articulationButtonActive,
                 { borderColor: art.color }
               ]}
-              onPress={() => setArticulation(art.id)}
+              onPress={() => {
+                setArticulation(art.id);
+                setSynthMode(null); // Disable synth mode
+              }}
             >
               <Text style={styles.articulationIcon}>{art.icon}</Text>
               <View style={styles.articulationInfo}>
                 <Text style={[
                   styles.articulationName,
-                  articulation === art.id && { color: art.color }
+                  articulation === art.id && !synthMode && { color: art.color }
                 ]}>
                   {art.name}
                 </Text>
                 <Text style={styles.articulationDescription}>{art.description}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Synth Mode Selector */}
+        <View style={styles.articulationSelector}>
+          <View style={styles.synthHeader}>
+            <Text style={styles.sectionTitle}>
+              <Text style={{ color: CONTROL_TYPES.oscillator.color }}>{CONTROL_TYPES.oscillator.emoji}</Text>
+              {' '}SYNTHESIS MODE
+            </Text>
+            <Text style={styles.synthSubtitle}>Play with legendary synthesizers</Text>
+          </View>
+          {SYNTH_MODES.map(synth => (
+            <TouchableOpacity
+              key={synth.id}
+              style={[
+                styles.articulationButton,
+                synthMode === synth.id && styles.articulationButtonActive,
+                { borderColor: synth.color }
+              ]}
+              onPress={() => setSynthMode(synth.id)}
+            >
+              <Text style={styles.articulationIcon}>{synth.icon}</Text>
+              <View style={styles.articulationInfo}>
+                <Text style={[
+                  styles.articulationName,
+                  synthMode === synth.id && { color: synth.color }
+                ]}>
+                  {synth.name}
+                </Text>
+                <Text style={styles.articulationDescription}>{synth.description}</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -275,6 +352,39 @@ const ViolinScreen = ({ navigation }) => {
             </LinearGradient>
           )}
         </View>
+
+        {/* Play Demo Button */}
+        <View style={styles.playSection}>
+          <Text style={styles.sectionTitle}>🎵 PLAY DEMO</Text>
+          <TouchableOpacity
+            style={styles.playButton}
+            onPress={() => {
+              if (synthMode) {
+                // Play synth note - middle of violin range (D5)
+                playSynthNote(18); // D5
+              } else {
+                // Play violin sample - TODO: integrate actual violin samples
+                console.log(`🎻 Playing ${articulation} articulation`);
+                // For now, use a synth as fallback
+                const freq = 587.33; // D5
+                pythonAudioEngine.playJuno106(freq, 1.0, expression / 100, vibratoDepth / 1000);
+              }
+            }}
+          >
+            <LinearGradient
+              colors={synthMode ? [SYNTH_MODES.find(s => s.id === synthMode)?.color + '40', SYNTH_MODES.find(s => s.id === synthMode)?.color + '20'] : [INSTRUMENT_COLORS.violin.primary + '40', INSTRUMENT_COLORS.violin.primary + '20']}
+              style={styles.playButtonGradient}
+            >
+              <Text style={styles.playButtonIcon}>▶</Text>
+              <Text style={styles.playButtonText}>
+                {synthMode ? `PLAY ${SYNTH_MODES.find(s => s.id === synthMode)?.name}` : `PLAY ${articulation.toUpperCase()}`}
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <Text style={styles.playInfo}>
+            Tap to hear a demo note (D5) • {synthMode ? 'Synth mode active' : 'Violin articulation active'}
+          </Text>
+        </View>
         
         {/* Playing Technique Info */}
         <View style={styles.infoSection}>
@@ -404,6 +514,15 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: 15,
   },
+  synthHeader: {
+    marginBottom: 15,
+  },
+  synthSubtitle: {
+    fontSize: 12,
+    color: '#888',
+    fontStyle: 'italic',
+    marginTop: 4,
+  },
   ensembleSection: {
     margin: 20,
   },
@@ -446,6 +565,36 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: INSTRUMENT_COLORS.violin.primary,
+  },
+  playSection: {
+    padding: 20,
+  },
+  playButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginVertical: 15,
+  },
+  playButtonGradient: {
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playButtonIcon: {
+    fontSize: 40,
+    color: '#fff',
+    marginBottom: 8,
+  },
+  playButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  playInfo: {
+    fontSize: 12,
+    color: '#888',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
   infoSection: {
     margin: 20,

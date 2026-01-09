@@ -16,11 +16,17 @@ import {
 import Slider from '@react-native-community/slider';
 import { WebView } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
+import Knob from '../components/Knob';
 import minimoogBridge from '../synths/MinimoogBridge';
 import webAudioBridge from '../services/WebAudioBridge';
 import Oscilloscope from '../components/Oscilloscope';
 import UniversalSequencer from '../components/UniversalSequencer';
 import EuclideanSequencer from '../sequencer/EuclideanSequencer';
+import { 
+  MINIMOOG_PRESETS, 
+  getMinimoogPresetsByCategory, 
+  getMinimoogCategories 
+} from '../data/synthPresets';
 
 const { width } = Dimensions.get('window');
 
@@ -34,6 +40,8 @@ const HAOS_COLORS = {
   silver: '#c0c0c0',
   wood: '#8B4513',
 };
+
+const KNOB_SIZE = 80;
 
 // Musical keyboard notes (lower range for bass)
 const NOTES = [
@@ -68,6 +76,11 @@ const MinimoogScreen = ({ navigation }) => {
   // Sequencer state
   const [sequencerPlaying, setSequencerPlaying] = useState(false);
   const [bpm, setBpm] = useState(120);
+  
+  // Preset state
+  const [selectedPreset, setSelectedPreset] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const categories = getMinimoogCategories();
   
   // Filter ladder animation (4 poles)
   const filterPoleAnims = useRef([
@@ -121,17 +134,31 @@ const MinimoogScreen = ({ navigation }) => {
     try {
       await minimoogBridge.init();
       console.log('✅ Minimoog initialized');
+      
+      // Resume audio context on mount (required for mobile)
+      setTimeout(() => {
+        if (webAudioBridge && typeof webAudioBridge.resumeAudio === 'function') {
+          webAudioBridge.resumeAudio();
+          console.log('🔊 Attempting to resume audio context...');
+        }
+      }, 500);
     } catch (error) {
       console.error('❌ Minimoog init failed:', error);
     }
   };
 
   const playNote = async (note, freq) => {
-    await nativeAudioContext.resume();
+    // Resume audio on first interaction (iOS requirement)
+    if (webAudioBridge && !webAudioBridge.isReady) {
+      console.log('🔊 First interaction - resuming audio...');
+      if (typeof webAudioBridge.resumeAudio === 'function') {
+        webAudioBridge.resumeAudio();
+      }
+    }
     
     setActiveNotes(prev => new Set([...prev, note]));
     
-    // Parameters already stored in bridge - just play
+    // Play note through bridge with proper options
     minimoogBridge.playNote(note, { velocity: 1.0, duration: 3.0 });
     console.log(`🎹 Playing Minimoog: ${note} @ ${freq.toFixed(2)}Hz`);
   };
@@ -206,6 +233,37 @@ const MinimoogScreen = ({ navigation }) => {
     minimoogBridge.setRelease(release);
   };
 
+  // Load preset function
+  const loadPreset = (presetId) => {
+    const preset = MINIMOOG_PRESETS[presetId];
+    if (!preset) return;
+    
+    // Update all state
+    setOsc1Level(preset.osc1Level);
+    setOsc2Level(preset.osc2Level);
+    setOsc3Level(preset.osc3Level);
+    setFilterCutoff(preset.filterCutoff);
+    setFilterResonance(preset.filterResonance);
+    setAttack(preset.attack);
+    setDecay(preset.decay);
+    setSustain(preset.sustain);
+    setRelease(preset.release);
+    setSelectedPreset(presetId);
+    
+    // Update bridge
+    minimoogBridge.setOsc1Level(preset.osc1Level);
+    minimoogBridge.setOsc2Level(preset.osc2Level);
+    minimoogBridge.setOsc3Level(preset.osc3Level);
+    minimoogBridge.setCutoff(preset.filterCutoff);
+    minimoogBridge.setResonance(preset.filterResonance);
+    minimoogBridge.setAttack(preset.attack);
+    minimoogBridge.setDecay(preset.decay);
+    minimoogBridge.setSustain(preset.sustain);
+    minimoogBridge.setRelease(preset.release);
+    
+    console.log(`✨ Loaded Minimoog preset: ${preset.name}`);
+  };
+
   const renderKey = (noteData, index) => {
     const isActive = activeNotes.has(noteData.note);
     
@@ -276,9 +334,16 @@ const MinimoogScreen = ({ navigation }) => {
       <ScrollView style={styles.content}>
         {/* Oscillator Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🌊 OSCILLATOR BANK</Text>
+          <LinearGradient
+            colors={['rgba(0,102,255,0.15)', 'rgba(0,102,255,0.05)']}
+            style={styles.sectionHeader}
+          >
+            <Text style={styles.sectionTitle}>🌊 OSCILLATOR BANK</Text>
+            <Text style={styles.sectionSubtitle}>3-VCO ANALOG SYNTHESIS</Text>
+          </LinearGradient>
+          
           <View style={styles.controlsRow}>
-            <View style={styles.knobContainer}>
+            <View style={styles.enhancedKnobContainer}>
               <Knob
                 value={osc1Level}
                 min={0}
@@ -290,13 +355,16 @@ const MinimoogScreen = ({ navigation }) => {
                   minimoogBridge.setOsc1Level(val);
                 }}
                 label="OSC 1"
-                color={HAOS_COLORS.blue}
+                color={HAOS_COLORS.red}
                 size={KNOB_SIZE}
               />
-              <Text style={styles.oscLabel}>Sawtooth</Text>
+              <View style={styles.parameterDisplay}>
+                <Text style={styles.parameterValue}>{(osc1Level * 100).toFixed(0)}%</Text>
+                <Text style={styles.parameterLabel}>SAWTOOTH</Text>
+              </View>
             </View>
             
-            <View style={styles.knobContainer}>
+            <View style={styles.enhancedKnobContainer}>
               <Knob
                 value={osc2Level}
                 min={0}
@@ -308,13 +376,16 @@ const MinimoogScreen = ({ navigation }) => {
                   minimoogBridge.setOsc2Level(val);
                 }}
                 label="OSC 2"
-                color={HAOS_COLORS.blue}
+                color={HAOS_COLORS.cyan}
                 size={KNOB_SIZE}
               />
-              <Text style={styles.oscLabel}>Square -1oct</Text>
+              <View style={styles.parameterDisplay}>
+                <Text style={styles.parameterValue}>{(osc2Level * 100).toFixed(0)}%</Text>
+                <Text style={styles.parameterLabel}>SQUARE -1OCT</Text>
+              </View>
             </View>
             
-            <View style={styles.knobContainer}>
+            <View style={styles.enhancedKnobContainer}>
               <Knob
                 value={osc3Level}
                 min={0}
@@ -326,10 +397,13 @@ const MinimoogScreen = ({ navigation }) => {
                   minimoogBridge.setOsc3Level(val);
                 }}
                 label="OSC 3"
-                color={HAOS_COLORS.blue}
+                color={HAOS_COLORS.green}
                 size={KNOB_SIZE}
               />
-              <Text style={styles.oscLabel}>Triangle -2oct</Text>
+              <View style={styles.parameterDisplay}>
+                <Text style={styles.parameterValue}>{(osc3Level * 100).toFixed(0)}%</Text>
+                <Text style={styles.parameterLabel}>TRIANGLE -2OCT</Text>
+              </View>
             </View>
           </View>
           <Text style={styles.sectionInfo}>
@@ -381,9 +455,16 @@ const MinimoogScreen = ({ navigation }) => {
 
         {/* Filter Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🎛️ MOOG FILTER</Text>
+          <LinearGradient
+            colors={['rgba(255,0,51,0.15)', 'rgba(255,0,51,0.05)']}
+            style={styles.sectionHeader}
+          >
+            <Text style={styles.sectionTitle}>🎛️ MOOG FILTER</Text>
+            <Text style={styles.sectionSubtitle}>24dB/OCTAVE LADDER</Text>
+          </LinearGradient>
+          
           <View style={styles.controlsRow}>
-            <View style={styles.knobContainer}>
+            <View style={styles.enhancedKnobContainer}>
               <Knob
                 value={filterCutoff}
                 min={20}
@@ -396,11 +477,15 @@ const MinimoogScreen = ({ navigation }) => {
                 }}
                 label="CUTOFF"
                 color={HAOS_COLORS.red}
-                size={85}
+                size={90}
               />
+              <View style={styles.parameterDisplay}>
+                <Text style={styles.parameterValue}>{filterCutoff.toFixed(0)} Hz</Text>
+                <Text style={styles.parameterLabel}>FREQUENCY</Text>
+              </View>
             </View>
             
-            <View style={styles.knobContainer}>
+            <View style={styles.enhancedKnobContainer}>
               <Knob
                 value={filterResonance}
                 min={0}
@@ -413,12 +498,16 @@ const MinimoogScreen = ({ navigation }) => {
                 }}
                 label="RESONANCE"
                 color={HAOS_COLORS.red}
-                size={85}
+                size={90}
               />
+              <View style={styles.parameterDisplay}>
+                <Text style={styles.parameterValue}>Q={filterResonance.toFixed(1)}</Text>
+                <Text style={styles.parameterLabel}>EMPHASIS</Text>
+              </View>
             </View>
           </View>
           <Text style={styles.sectionInfo}>
-            Legendary 24dB/octave ladder filter with Moog character (Q=8)
+            Legendary 24dB/octave ladder filter with Moog character
           </Text>
           
           {/* Filter Ladder Visualization */}
@@ -522,6 +611,70 @@ const MinimoogScreen = ({ navigation }) => {
               />
             </View>
           </View>
+        </View>
+
+        {/* Preset Browser */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🎨 PRESETS</Text>
+          
+          {/* Category Tabs */}
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.categoryTabs}
+          >
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category}
+                onPress={() => setSelectedCategory(category)}
+                style={[
+                  styles.categoryTab,
+                  selectedCategory === category && styles.categoryTabActive
+                ]}
+              >
+                <Text style={[
+                  styles.categoryTabText,
+                  selectedCategory === category && styles.categoryTabTextActive
+                ]}>
+                  {category.toUpperCase()}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          
+          {/* Preset Grid */}
+          <View style={styles.presetGrid}>
+            {getMinimoogPresetsByCategory(selectedCategory).map((presetId) => {
+              const preset = MINIMOOG_PRESETS[presetId];
+              return (
+                <TouchableOpacity
+                  key={presetId}
+                  onPress={() => loadPreset(presetId)}
+                  style={styles.presetCardWrapper}
+                >
+                  <LinearGradient
+                    colors={preset.gradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={[
+                      styles.presetCard,
+                      selectedPreset === presetId && styles.presetCardActive
+                    ]}
+                  >
+                    <Text style={styles.presetEmoji}>{preset.emoji}</Text>
+                    <Text style={styles.presetName}>{preset.name}</Text>
+                    <Text style={styles.presetDescription} numberOfLines={2}>
+                      {preset.description}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          
+          <Text style={styles.sectionInfo}>
+            Tap a preset to instantly load legendary Moog sounds • {getMinimoogPresetsByCategory(selectedCategory).length} presets
+          </Text>
         </View>
 
         {/* Euclidean Rhythm Sequencer */}
@@ -790,6 +943,54 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 8,
   },
+  enhancedKnobContainer: {
+    alignItems: 'center',
+    marginVertical: 8,
+    padding: 12,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0,102,255,0.3)',
+    minWidth: 110,
+  },
+  parameterDisplay: {
+    marginTop: 8,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,102,255,0.1)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0,102,255,0.4)',
+    minWidth: 90,
+  },
+  parameterValue: {
+    fontSize: 16,
+    color: HAOS_COLORS.cyan,
+    fontWeight: 'bold',
+    fontFamily: 'monospace',
+    letterSpacing: 1,
+  },
+  parameterLabel: {
+    fontSize: 9,
+    color: HAOS_COLORS.silver,
+    marginTop: 2,
+    fontFamily: 'monospace',
+    letterSpacing: 0.5,
+  },
+  sectionHeader: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  sectionSubtitle: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.6)',
+    marginTop: 4,
+    fontFamily: 'monospace',
+    letterSpacing: 1,
+  },
   knobValue: {
     fontSize: 12,
     color: HAOS_COLORS.cyan,
@@ -911,6 +1112,77 @@ const styles = StyleSheet.create({
     color: HAOS_COLORS.cyan,
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  // Preset Browser Styles
+  categoryTabs: {
+    marginBottom: 16,
+  },
+  categoryTab: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginRight: 10,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,102,255,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(0,102,255,0.3)',
+  },
+  categoryTabActive: {
+    backgroundColor: HAOS_COLORS.blue,
+    borderColor: HAOS_COLORS.blue,
+  },
+  categoryTabText: {
+    fontSize: 12,
+    color: HAOS_COLORS.blue,
+    fontWeight: '600',
+    letterSpacing: 1,
+  },
+  categoryTabTextActive: {
+    color: '#fff',
+  },
+  presetGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  presetCardWrapper: {
+    width: '48%',
+    marginBottom: 12,
+  },
+  presetCard: {
+    padding: 16,
+    borderRadius: 12,
+    minHeight: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  presetCardActive: {
+    borderColor: '#fff',
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  presetEmoji: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  presetName: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 4,
+    letterSpacing: 0.5,
+  },
+  presetDescription: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.8)',
+    textAlign: 'center',
+    lineHeight: 14,
   },
 });
 

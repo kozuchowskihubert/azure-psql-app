@@ -252,8 +252,11 @@ export const useDMX = () => {
 export const usePiano = (params) => {
   const { pianoType, volume, reverb, brightness, sustain, velocity, attack, release, detune } = params;
   
-  const playNote = (note, octave) => {
-    advancedAudioEngine.playPianoNote(note, octave, velocity, {
+  const playNote = (note, octave, noteVelocity = null) => {
+    // Use provided velocity or fall back to params velocity
+    const finalVelocity = noteVelocity !== null ? noteVelocity : velocity;
+    
+    advancedAudioEngine.playPianoNote(note, octave, finalVelocity, {
       pianoType,
       reverb,
       brightness,

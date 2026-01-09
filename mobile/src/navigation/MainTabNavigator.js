@@ -1,6 +1,13 @@
 /**
  * HAOS.fm V3 Navigation Structure
- * Main Tabs: CREATE / STUDIO / LIBRARY / ACCOUNT
+ * Main Tabs: CREATE /// V3 Optimized Tab Icons (smaller, cleaner)
+const TabIcon = ({ name, color, focused }) => {
+  const icons = {
+    Create: '🎹',
+    Studio: '�️',
+    Library: '📚',
+    Account: '👤',
+  };/ LIBRARY / ACCOUNT
  * CREATE tab includes nested Stack Navigator for all instruments
  */
 
@@ -21,17 +28,26 @@ import LibraryScreen from '../screens/LibraryScreen';
 import AccountScreenNew from '../screens/AccountScreenNew';
 
 // Instrument Screens (nested inside Create tab)
-import ARP2600Screen from '../screens/ARP2600Screen';
+import ARP2600Screen from '../screens/ARP2600ScreenCompact';
 import ViolinScreen from '../screens/ViolinScreen';
+import PianoScreen from '../screens/PianoScreen';
 import BassStudioScreen from '../screens/BassStudioScreen';
 import BeatMakerScreen from '../screens/BeatMakerScreen';
-import DAWStudio from '../screens/DAWStudio';
+// TEMPORARILY DISABLED - DAWStudio still has COLORS issue
+// import DAWStudio from '../screens/DAWStudio';
 import TR808Screen from '../screens/TR808Screen';
 import TR909Screen from '../screens/TR909Screen';
 import Juno106Screen from '../screens/Juno106Screen';
 import MinimoogScreen from '../screens/MinimoogScreen';
 import TB303Screen from '../screens/TB303Screen';
 import ModularSynthScreen from '../screens/ModularSynthScreen';
+import PatternStudioScreen from '../screens/PatternStudioScreen';
+import SampleBrowserScreen from '../screens/SampleBrowserScreen';
+import HipHopStudioScreen from '../screens/HipHopStudioScreen';
+import GenreStudioSelectScreen from '../screens/GenreStudioSelectScreen';
+import GenreStudioScreen from '../screens/GenreStudioScreen';
+// DAW Studio temporarily disabled
+// import DAWStudioScreen from '../screens/DAWStudioScreen';
 
 console.log('✅ All screens imported');
 
@@ -108,7 +124,7 @@ function CreateStackNavigator() {
       <CreateStack.Screen 
         name="ARP2600Complete" 
         component={ARP2600Screen}
-        options={{ title: 'ARP 2600', headerShown: true }}
+        options={{ title: 'ARP 2600', headerShown: false }}
       />
       <CreateStack.Screen 
         name="Juno106" 
@@ -130,6 +146,31 @@ function CreateStackNavigator() {
         component={ModularSynthScreen}
         options={{ title: 'MODULAR', headerShown: true }}
       />
+      <CreateStack.Screen 
+        name="PatternStudio" 
+        component={PatternStudioScreen}
+        options={{ title: 'PATTERN STUDIO', headerShown: false }}
+      />
+      <CreateStack.Screen 
+        name="SampleBrowser" 
+        component={SampleBrowserScreen}
+        options={{ title: 'SAMPLE BROWSER', headerShown: false }}
+      />
+      <CreateStack.Screen 
+        name="HipHopStudio" 
+        component={HipHopStudioScreen}
+        options={{ title: 'HIP-HOP STUDIO', headerShown: false }}
+      />
+      <CreateStack.Screen 
+        name="GenreStudioSelect" 
+        component={GenreStudioSelectScreen}
+        options={{ title: 'GENRE STUDIOS', headerShown: false }}
+      />
+      <CreateStack.Screen 
+        name="GenreStudio" 
+        component={GenreStudioScreen}
+        options={{ title: 'GENRE STUDIO', headerShown: false }}
+      />
       
       {/* INSTRUMENTS */}
       <CreateStack.Screen 
@@ -139,7 +180,7 @@ function CreateStackNavigator() {
       />
       <CreateStack.Screen 
         name="Piano" 
-        component={ViolinScreen}
+        component={PianoScreen}
         options={{ title: 'PIANO', headerShown: true }}
       />
       
@@ -167,12 +208,13 @@ function CreateStackNavigator() {
         options={{ title: 'BASS STUDIO', headerShown: true }}
       />
       
-      {/* PRODUCTION */}
+      {/* PRODUCTION - TEMPORARILY DISABLED DUE TO COLORS ERROR
       <CreateStack.Screen 
         name="DAWStudio" 
         component={DAWStudio}
         options={{ title: 'DAW STUDIO', headerShown: true }}
       />
+      */}
     </CreateStack.Navigator>
   );
 }

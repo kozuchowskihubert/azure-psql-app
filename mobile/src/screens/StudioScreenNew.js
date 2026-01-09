@@ -66,45 +66,88 @@ const PRESET_PATTERNS = [
   { 
     id: 'techno', 
     name: 'Techno', 
-    bpm: 135, 
+    bpm: 135,
+    swing: 0.15, // 15% swing for groove
     patterns: {
-      kick:  [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
-      snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-      hihat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-      clap:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      // Drums
+      kick:    [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+      snare:   [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      hihat:   [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      clap:    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      // Synths - Classic acid techno leads with melodic notes
+      arp2600: [1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+      tb303:   [1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0],
+      // Bass - Deep 808 sub bass
+      bass808: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+    },
+    // Melodic note sequences (MIDI note numbers)
+    melodies: {
+      arp2600: [48, 0, 0, 52, 0, 0, 55, 0, 48, 0, 0, 0, 60, 0, 55, 0], // C3, E3, G3, C4, G3
+      tb303:   [36, 0, 41, 0, 36, 0, 0, 43, 36, 0, 48, 0, 0, 41, 0, 0], // Acid bassline
+      bass808: [36, 0, 0, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 0], // C2, F2
     }
   },
   { 
     id: 'hiphop', 
     name: 'Hip-Hop', 
-    bpm: 90, 
+    bpm: 90,
+    swing: 0.33, // 33% swing for classic boom bap feel
     patterns: {
-      kick:  [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-      snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-      hihat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      clap:  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+      // Drums - Boom bap style
+      kick:      [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+      snare:     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      hihat:     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      clap:      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+      // Bass - 808 sub with swing
+      bass808:   [1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+      // Synth - Juno pads
+      juno106:   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    },
+    melodies: {
+      bass808: [36, 0, 0, 38, 0, 0, 0, 0, 36, 0, 0, 0, 0, 0, 39, 0], // C2, D2, Eb2
+      juno106: [48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // C3 pad
     }
   },
   { 
     id: 'house', 
     name: 'House', 
-    bpm: 125, 
+    bpm: 125,
+    swing: 0.08, // 8% subtle swing
     patterns: {
-      kick:  [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
-      snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-      hihat: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-      clap:  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      // Drums - Four on the floor
+      kick:      [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+      snare:     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      hihat:     [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+      clap:      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      // Bass - Deep house bass
+      bassReese: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+      // Synth - Juno stabs
+      juno106:   [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    },
+    melodies: {
+      bassReese: [36, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 41, 0, 0, 0], // C2, G2, F2
+      juno106:   [0, 0, 0, 0, 60, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0], // C4, E4 stabs
     }
   },
   { 
     id: 'dnb', 
     name: 'Drum & Bass', 
-    bpm: 170, 
+    bpm: 170,
+    swing: 0.05, // 5% minimal swing for tight breakbeat
     patterns: {
-      kick:  [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0],
-      snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-      hihat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      clap:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      // Drums - Complex breakbeat
+      kick:      [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0],
+      snare:     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      hihat:     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      clap:      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      // Bass - Reese bass wobbles
+      bassReese: [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0],
+      // Synth - Minimoog stabs
+      minimoog:  [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    },
+    melodies: {
+      bassReese: [24, 0, 0, 0, 29, 0, 26, 0, 24, 0, 0, 31, 0, 27, 0, 0], // Low C1 reese wobbles
+      minimoog:  [0, 0, 0, 67, 0, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0], // G4, C5 stabs
     }
   },
 ];
@@ -113,6 +156,7 @@ const StudioScreenNew = ({ navigation }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
   const [bpm, setBpm] = useState(120);
+  const [swing, setSwing] = useState(0); // 0-0.5 swing amount
   
   // Multi-track patterns - drums, synths, and bass
   const [patterns, setPatterns] = useState({
@@ -129,6 +173,16 @@ const StudioScreenNew = ({ navigation }) => {
     // Bass
     bass808: Array(16).fill(0),
     bassReese: Array(16).fill(0),
+  });
+  
+  // Melodic note sequences (MIDI note numbers, 0 = rest)
+  const [melodies, setMelodies] = useState({
+    arp2600: Array(16).fill(48), // Default C3
+    juno106: Array(16).fill(48),
+    minimoog: Array(16).fill(48),
+    tb303: Array(16).fill(36), // Default C2
+    bass808: Array(16).fill(36),
+    bassReese: Array(16).fill(24), // Default C1
   });
   
   const [selectedTrack, setSelectedTrack] = useState('kick'); // Which track is being edited
@@ -175,19 +229,26 @@ const StudioScreenNew = ({ navigation }) => {
     
     return () => {
       if (playbackInterval.current) {
-        clearInterval(playbackInterval.current);
+        clearTimeout(playbackInterval.current); // Changed from clearInterval to clearTimeout
       }
     };
   }, [isPlaying, bpm]);
 
   const startSequencer = () => {
-    const stepDuration = (60 / bpm) * 250;
-    let step = 0;
+    const stepDuration = (60 / bpm) * 250; // milliseconds per 16th note
+    const startTime = Date.now();
+    let currentStepIndex = 0;
     
-    playbackInterval.current = setInterval(() => {
+    const scheduleNextStep = () => {
+      const step = currentStepIndex % 16;
+      const expectedTime = startTime + (currentStepIndex * stepDuration);
+      const now = Date.now();
+      const drift = now - expectedTime;
+      
+      // Update UI step indicator
       setCurrentStep(step);
       
-      // Animate step without blocking
+      // Animate step (non-blocking)
       Animated.sequence([
         Animated.timing(stepAnims[step], {
           toValue: 1,
@@ -206,20 +267,23 @@ const StudioScreenNew = ({ navigation }) => {
       const isAccent = step % 4 === 0;
       const velocity = isAccent ? 1.0 : 0.75;
       
-      // Play all active tracks at this step using PythonAudioEngine
+      // Play all active tracks at this step in parallel (non-blocking)
+      // All promises run simultaneously without waiting
+      const playPromises = [];
+      
       // DRUMS
-      if (patterns.kick[step] === 1) {
-        pythonAudioEngine.playKick(velocity).catch(() => {});
+      if (patterns?.kick && patterns.kick[step] === 1) {
+        playPromises.push(pythonAudioEngine.playKick(velocity).catch(() => {}));
       }
-      if (patterns.snare[step] === 1) {
-        pythonAudioEngine.playSnare(velocity).catch(() => {});
+      if (patterns?.snare && patterns.snare[step] === 1) {
+        playPromises.push(pythonAudioEngine.playSnare(velocity).catch(() => {}));
       }
-      if (patterns.hihat[step] === 1) {
+      if (patterns?.hihat && patterns.hihat[step] === 1) {
         const isOpen = step % 2 === 1 && Math.random() > 0.7;
-        pythonAudioEngine.playHiHat(velocity * 0.9, isOpen).catch(() => {});
+        playPromises.push(pythonAudioEngine.playHiHat(velocity * 0.9, isOpen).catch(() => {}));
       }
-      if (patterns.clap[step] === 1) {
-        pythonAudioEngine.playClap(velocity).catch(() => {});
+      if (patterns?.clap && patterns.clap[step] === 1) {
+        playPromises.push(pythonAudioEngine.playClap(velocity).catch(() => {}));
       }
       
       // SYNTHS - C3 note, short duration
@@ -227,17 +291,17 @@ const StudioScreenNew = ({ navigation }) => {
       const synthFreq = 440 * Math.pow(2, (synthNote - 69) / 12);
       const synthDur = 0.2;
       
-      if (patterns.arp2600[step] === 1) {
-        pythonAudioEngine.playARP2600(synthFreq, synthDur, velocity, 0.02).catch(() => {});
+      if (patterns?.arp2600 && patterns.arp2600[step] === 1) {
+        playPromises.push(pythonAudioEngine.playARP2600(synthFreq, synthDur, velocity, 0.02).catch(() => {}));
       }
-      if (patterns.juno106[step] === 1) {
-        pythonAudioEngine.playJuno106(synthFreq, synthDur, velocity).catch(() => {});
+      if (patterns?.juno106 && patterns.juno106[step] === 1) {
+        playPromises.push(pythonAudioEngine.playJuno106(synthFreq, synthDur, velocity).catch(() => {}));
       }
-      if (patterns.minimoog[step] === 1) {
-        pythonAudioEngine.playMinimoog(synthFreq, synthDur, velocity).catch(() => {});
+      if (patterns?.minimoog && patterns.minimoog[step] === 1) {
+        playPromises.push(pythonAudioEngine.playMinimoog(synthFreq, synthDur, velocity).catch(() => {}));
       }
-      if (patterns.tb303[step] === 1) {
-        pythonAudioEngine.playTB303(synthFreq, synthDur, velocity, false, false, null, 'sawtooth').catch(() => {});
+      if (patterns?.tb303 && patterns.tb303[step] === 1) {
+        playPromises.push(pythonAudioEngine.playTB303(synthFreq, synthDur, velocity, false, false, null, 'sawtooth').catch(() => {}));
       }
       
       // BASS - Low C (C2)
@@ -245,20 +309,31 @@ const StudioScreenNew = ({ navigation }) => {
       const bassFreq = 440 * Math.pow(2, (bassNote - 69) / 12);
       const bassDur = 0.25;
       
-      if (patterns.bass808[step] === 1) {
-        pythonAudioEngine.playBass808(bassFreq, bassDur, velocity).catch(() => {});
+      if (patterns?.bass808 && patterns.bass808[step] === 1) {
+        playPromises.push(pythonAudioEngine.playBass808(bassFreq, bassDur, velocity).catch(() => {}));
       }
-      if (patterns.bassReese[step] === 1) {
-        pythonAudioEngine.playReeseBass(bassFreq, bassDur, velocity).catch(() => {});
+      if (patterns?.bassReese && patterns.bassReese[step] === 1) {
+        playPromises.push(pythonAudioEngine.playReeseBass(bassFreq, bassDur, velocity).catch(() => {}));
       }
       
-      step = (step + 1) % 16;
-    }, stepDuration);
+      // Don't wait for audio to finish - let them play in parallel
+      Promise.all(playPromises).catch(() => {});
+      
+      // Schedule next step with drift compensation
+      currentStepIndex++;
+      const nextStepTime = stepDuration - drift;
+      const correctedDelay = Math.max(10, nextStepTime); // Minimum 10ms
+      
+      playbackInterval.current = setTimeout(scheduleNextStep, correctedDelay);
+    };
+    
+    // Start the sequencer
+    scheduleNextStep();
   };
 
   const stopSequencer = () => {
     if (playbackInterval.current) {
-      clearInterval(playbackInterval.current);
+      clearTimeout(playbackInterval.current); // Changed from clearInterval to clearTimeout
       playbackInterval.current = null;
     }
     setCurrentStep(-1);
@@ -375,7 +450,25 @@ const StudioScreenNew = ({ navigation }) => {
 
   const loadPreset = (preset) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setPatterns(preset.patterns);
+    // Merge preset patterns with existing structure to preserve synth/bass tracks
+    setPatterns(prev => ({
+      ...prev,
+      ...preset.patterns,
+    }));
+    
+    // Load melodies if available
+    if (preset.melodies) {
+      setMelodies(prev => ({
+        ...prev,
+        ...preset.melodies,
+      }));
+    }
+    
+    // Load swing amount
+    if (preset.swing !== undefined) {
+      setSwing(preset.swing);
+    }
+    
     setBpm(preset.bpm);
     setShowPresets(false);
   };

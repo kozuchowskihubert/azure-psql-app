@@ -964,6 +964,105 @@ export const WebAudioBridgeComponent = () => {
       }
     }
 
+    /**
+     * Piano Synthesizer
+     * Simulates piano sound using multiple harmonics and envelopes
+     */
+    function playPiano(frequency, velocity = 1.0, duration = 0.5, pianoType = 'grand', reverb = 0.3, brightness = 0.5) {
+      ensureAudioContext();
+      if (!audioContext) return;
+      const now = audioContext.currentTime;
+      
+      console.log(\`🎹 Web Audio: Playing Piano \${pianoType} at \${frequency}Hz, vel=\${velocity.toFixed(2)}\`);
+      
+      // Piano characteristics based on type
+      const pianoSettings = {
+        grand: { harmonics: [1, 2, 3, 4, 5], attack: 0.003, decay: 0.15, sustain: 0.3, release: 0.4, brightness: 1.2 },
+        rhodes: { harmonics: [1, 2, 3, 4, 6, 8], attack: 0.005, decay: 0.2, sustain: 0.5, release: 0.6, brightness: 1.5 },
+        upright: { harmonics: [1, 2, 3, 4], attack: 0.005, decay: 0.1, sustain: 0.25, release: 0.3, brightness: 0.9 }
+      };
+      
+      const settings = pianoSettings[pianoType] || pianoSettings.grand;
+      
+      // Master gain for this note
+      const masterGain = audioContext.createGain();
+      masterGain.gain.setValueAtTime(0, now);
+      masterGain.gain.linearRampToValueAtTime(velocity * 0.3, now + settings.attack);
+      masterGain.gain.exponentialRampToValueAtTime(velocity * settings.sustain, now + settings.attack + settings.decay);
+      
+      // Release after duration
+      const releaseTime = now + duration;
+      masterGain.gain.setValueAtTime(velocity * settings.sustain, releaseTime);
+      masterGain.gain.exponentialRampToValueAtTime(0.001, releaseTime + settings.release);
+      
+      // Create harmonics (multiple oscillators for richer sound)
+      const oscillators = [];
+      settings.harmonics.forEach((harmonic, index) => {
+        const osc = audioContext.createOscillator();
+        osc.type = pianoType === 'rhodes' ? 'sine' : 'triangle';
+        osc.frequency.value = frequency * harmonic;
+        
+        // Harmonic gain (higher harmonics are quieter)
+        const harmonicGain = audioContext.createGain();
+        const harmonicLevel = Math.pow(0.5, index) * (brightness * settings.brightness);
+        harmonicGain.gain.value = harmonicLevel;
+        
+        osc.connect(harmonicGain);
+        harmonicGain.connect(masterGain);
+        oscillators.push({ osc, gain: harmonicGain });
+      });
+      
+      // Optional: Add slight detuning for stereo width (Rhodes effect)
+      if (pianoType === 'rhodes') {
+        const detuneOsc = audioContext.createOscillator();
+        detuneOsc.type = 'sine';
+        detuneOsc.frequency.value = frequency;
+        detuneOsc.detune.value = 5; // 5 cents detune
+        
+        const detuneGain = audioContext.createGain();
+        detuneGain.gain.value = velocity * 0.15;
+        
+        detuneOsc.connect(detuneGain);
+        detuneGain.connect(masterGain);
+        oscillators.push({ osc: detuneOsc, gain: detuneGain });
+      }
+      
+      // Simple reverb simulation with delay
+      if (reverb > 0.1) {
+        const delay = audioContext.createDelay(1.0);
+        delay.delayTime.value = 0.03 + (reverb * 0.05);
+        
+        const delayGain = audioContext.createGain();
+        delayGain.gain.value = reverb * 0.3;
+        
+        masterGain.connect(delay);
+        delay.connect(delayGain);
+        delayGain.connect(masterGain.context.destination);
+      }
+      
+      // Connect to destination
+      masterGain.connect(audioContext.destination);
+      
+      // Start all oscillators
+      oscillators.forEach(({ osc }) => {
+        osc.start(now);
+        osc.stop(releaseTime + settings.release + 0.1);
+      });
+      
+      // Cleanup
+      setTimeout(() => {
+        try {
+          oscillators.forEach(({ osc, gain }) => {
+            osc.disconnect();
+            gain.disconnect();
+          });
+          masterGain.disconnect();
+        } catch(e) {
+          console.warn('Cleanup error:', e);
+        }
+      }, (duration + settings.release + 0.2) * 1000);
+    }
+
     function playKick808(velocity = 1.0) {
       ensureAudioContext();
       if (!audioContext) return;
@@ -2219,6 +2318,10 @@ export const WebAudioBridgeComponent = () => {
             console.log('📩 WebView received play_clap message, velocity=' + (message.velocity || 1.0));
             playClap808(message.velocity || 1.0);
             break;
+          case 'play_piano':
+            console.log('📩 WebView received play_piano message, freq=' + message.frequency);
+            playPiano(message.frequency, message.velocity, message.duration, message.pianoType, message.reverb, message.brightness);
+            break;
           case 'update_params':
             updateParams(message.params);
             break;
@@ -2256,6 +2359,7 @@ export const WebAudioBridgeComponent = () => {
     window.processCommand = function(commandMessage) {
       try {
         console.log('📨 processCommand received:', commandMessage.command, commandMessage.params);
+        console.log('📨 processCommand commandMessage type:', typeof commandMessage, 'keys:', Object.keys(commandMessage));
         
         // Map camelCase commands to snake_case message types
         const commandMap = {
@@ -2263,6 +2367,7 @@ export const WebAudioBridgeComponent = () => {
           'playSnare': 'play_snare',
           'playHiHat': 'play_hihat',
           'playClap': 'play_clap',
+          'playPiano': 'play_piano',
           'playARP2600': 'play_arp2600',
           'playJuno106': 'play_juno106',
           'playMinimoog': 'play_minimoog',
@@ -2296,6 +2401,7 @@ export const WebAudioBridgeComponent = () => {
           ...params
         };
         
+        console.log('📨 Calling handleMessage with:', message);
         handleMessage(message);
       } catch (error) {
         console.error('processCommand error:', error);
