@@ -18,7 +18,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
-import webAudioBridge from '../services/WebAudioBridge';
+import toneAudioEngine from '../services/ToneAudioEngine';
 import { Audio } from 'expo-av';
 
 const { width } = Dimensions.get('window');
@@ -210,11 +210,19 @@ const StudioScreenNew = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    // WebAudioBridge is already initialized globally
-    console.log('✅ Studio using WebAudioBridge (audio-engine.html)');
+    // Initialize Tone.js audio engine
+    toneAudioEngine.initialize().then((result) => {
+      if (result.success) {
+        console.log('✅ Studio using ToneAudioEngine');
+        console.log('   Latency:', result.latency.toFixed(1), 'ms');
+        console.log('   Sample Rate:', result.sampleRate, 'Hz');
+      } else {
+        console.error('❌ Failed to initialize ToneAudioEngine:', result.error);
+      }
+    });
     
     return () => {
-      // Cleanup not needed for WebAudioBridge
+      // Cleanup handled by engine singleton
     };
   }, []);
 
@@ -271,17 +279,17 @@ const StudioScreenNew = ({ navigation }) => {
       
       // DRUMS
       if (patterns?.kick && patterns.kick[step] === 1) {
-        playPromises.push(webAudioBridge.playKick(velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playKick(velocity).catch(() => {}));
       }
       if (patterns?.snare && patterns.snare[step] === 1) {
-        playPromises.push(webAudioBridge.playSnare(velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playSnare(velocity).catch(() => {}));
       }
       if (patterns?.hihat && patterns.hihat[step] === 1) {
         const isOpen = step % 2 === 1 && Math.random() > 0.7;
-        playPromises.push(webAudioBridge.playHiHat(velocity * 0.9, isOpen).catch(() => {}));
+        playPromises.push(toneAudioEngine.playHiHat(velocity * 0.9, isOpen).catch(() => {}));
       }
       if (patterns?.clap && patterns.clap[step] === 1) {
-        playPromises.push(webAudioBridge.playClap(velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playClap(velocity).catch(() => {}));
       }
       
       // SYNTHS - C3 note, short duration
@@ -290,16 +298,16 @@ const StudioScreenNew = ({ navigation }) => {
       const synthDur = 0.2;
       
       if (patterns?.arp2600 && patterns.arp2600[step] === 1) {
-        playPromises.push(webAudioBridge.playARP2600(synthFreq, synthDur, velocity, 0.02).catch(() => {}));
+        playPromises.push(toneAudioEngine.playARP2600(synthFreq, synthDur, velocity, 0.02).catch(() => {}));
       }
       if (patterns?.juno106 && patterns.juno106[step] === 1) {
-        playPromises.push(webAudioBridge.playJuno106(synthFreq, synthDur, velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playJuno106(synthFreq, synthDur, velocity).catch(() => {}));
       }
       if (patterns?.minimoog && patterns.minimoog[step] === 1) {
-        playPromises.push(webAudioBridge.playMinimoog(synthFreq, synthDur, velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playMinimoog(synthFreq, synthDur, velocity).catch(() => {}));
       }
       if (patterns?.tb303 && patterns.tb303[step] === 1) {
-        playPromises.push(webAudioBridge.playTB303(synthFreq, synthDur, velocity, false, false, null, 'sawtooth').catch(() => {}));
+        playPromises.push(toneAudioEngine.playTB303(synthFreq, synthDur, velocity, false, false, null, 'sawtooth').catch(() => {}));
       }
       
       // BASS - Low C (C2)
@@ -308,10 +316,10 @@ const StudioScreenNew = ({ navigation }) => {
       const bassDur = 0.25;
       
       if (patterns?.bass808 && patterns.bass808[step] === 1) {
-        playPromises.push(webAudioBridge.playBass808(bassFreq, bassDur, velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playBass808(bassFreq, bassDur, velocity).catch(() => {}));
       }
       if (patterns?.bassReese && patterns.bassReese[step] === 1) {
-        playPromises.push(webAudioBridge.playReeseBass(bassFreq, bassDur, velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playReeseBass(bassFreq, bassDur, velocity).catch(() => {}));
       }
       
       // Don't wait for audio to finish - let them play in parallel
@@ -352,16 +360,16 @@ const StudioScreenNew = ({ navigation }) => {
       if (soundCategory === 'drums') {
         switch (soundId) {
           case 'kick':
-            webAudioBridge.playKick(velocity).catch(() => {});
+            toneAudioEngine.playKick(velocity).catch(() => {});
             break;
           case 'snare':
-            await webAudioBridge.playSnare(velocity);
+            await toneAudioEngine.playSnare(velocity);
             break;
           case 'hihat':
-            await webAudioBridge.playHiHat(velocity);
+            await toneAudioEngine.playHiHat(velocity);
             break;
           case 'clap':
-            await webAudioBridge.playClap(velocity);
+            await toneAudioEngine.playClap(velocity);
             break;
         }
       }
@@ -374,16 +382,16 @@ const StudioScreenNew = ({ navigation }) => {
         
         switch (soundId) {
           case 'arp2600':
-            await webAudioBridge.playARP2600(frequency, duration, velocity, 0.02);
+            await toneAudioEngine.playARP2600(frequency, duration, velocity, 0.02);
             break;
           case 'juno106':
-            await webAudioBridge.playJuno106(frequency, duration, velocity);
+            await toneAudioEngine.playJuno106(frequency, duration, velocity);
             break;
           case 'minimoog':
-            await webAudioBridge.playMinimoog(frequency, duration, velocity);
+            await toneAudioEngine.playMinimoog(frequency, duration, velocity);
             break;
           case 'tb303':
-            await webAudioBridge.playTB303(frequency, duration, velocity, false, false, null, 'sawtooth');
+            await toneAudioEngine.playTB303(frequency, duration, velocity, false, false, null, 'sawtooth');
             break;
         }
       }
@@ -396,10 +404,10 @@ const StudioScreenNew = ({ navigation }) => {
         
         switch (soundId) {
           case 'bass808':
-            await webAudioBridge.playBass808(frequency, duration, velocity);
+            await toneAudioEngine.playBass808(frequency, duration, velocity);
             break;
           case 'bassReese':
-            await webAudioBridge.playReeseBass(frequency, duration, velocity);
+            await toneAudioEngine.playReeseBass(frequency, duration, velocity);
             break;
         }
       }
