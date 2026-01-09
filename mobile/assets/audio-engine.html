@@ -499,6 +499,160 @@
       sendMessage('soundPlayed', { sound: 'bass', frequency, duration });
     }
     
+    /**
+     * Bass Slide - TB-303 style portamento slide
+     * Supports pitch bend, vibrato, and sub-oscillator
+     */
+    function playBassSlide(params = {}) {
+      initAudio();
+      
+      const note = params.note || 'C2';
+      const frequency = noteToFrequency(note);
+      const duration = params.duration || 0.5;
+      const velocity = params.velocity || 1.0;
+      const slide = params.slide || 0.1;
+      const pitchBend = params.pitchBend || 0;
+      const vibrato = params.vibrato || 0;
+      const subOsc = params.subOsc || false;
+      
+      const now = audioContext.currentTime;
+      
+      // Main oscillator
+      const osc = audioContext.createOscillator();
+      osc.type = 'sawtooth';
+      
+      // Start frequency (with pitch bend)
+      const startFreq = frequency * Math.pow(2, pitchBend / 12);
+      osc.frequency.setValueAtTime(startFreq * 0.5, now);
+      
+      // Slide to target frequency
+      if (slide > 0.001) {
+        osc.frequency.exponentialRampToValueAtTime(startFreq, now + slide);
+      } else {
+        osc.frequency.setValueAtTime(startFreq, now);
+      }
+      
+      // Add vibrato if enabled
+      if (vibrato > 0.01) {
+        const vibratoLFO = audioContext.createOscillator();
+        const vibratoGain = audioContext.createGain();
+        vibratoLFO.frequency.value = 6; // 6 Hz vibrato
+        vibratoGain.gain.value = startFreq * vibrato * 0.02; // Vibrato depth
+        vibratoLFO.connect(vibratoGain);
+        vibratoGain.connect(osc.frequency);
+        vibratoLFO.start(now);
+        vibratoLFO.stop(now + duration);
+      }
+      
+      // Sub-oscillator (one octave below)
+      let subOscNode = null;
+      let subGain = null;
+      if (subOsc) {
+        subOscNode = audioContext.createOscillator();
+        subOscNode.type = 'sine';
+        subOscNode.frequency.value = startFreq * 0.5;
+        subGain = audioContext.createGain();
+        subGain.gain.value = velocity * 0.3;
+        subOscNode.connect(subGain);
+      }
+      
+      // Envelope
+      const gain = audioContext.createGain();
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(velocity * 0.6, now + 0.005);
+      gain.gain.exponentialRampToValueAtTime(velocity * 0.4, now + 0.1);
+      gain.gain.setValueAtTime(velocity * 0.4, now + duration - 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+      
+      osc.connect(gain);
+      if (subOsc) {
+        subGain.connect(gain);
+      }
+      gain.connect(filterNode);
+      
+      osc.start(now);
+      osc.stop(now + duration);
+      if (subOsc) {
+        subOscNode.start(now);
+        subOscNode.stop(now + duration);
+      }
+      
+      console.log('🎸 Bass Slide:', { note, frequency, slide, pitchBend, vibrato, subOsc });
+      sendMessage('soundPlayed', { sound: 'bass_slide', note, frequency });
+    }
+    
+    /**
+     * Bass Stack - Multiple octave stacked bass notes
+     * Creates fat bass by layering multiple octaves
+     */
+    function playBassStack(params = {}) {
+      initAudio();
+      
+      const note = params.note || 'C1';
+      const baseFrequency = noteToFrequency(note);
+      const duration = params.duration || 1.0;
+      const velocity = params.velocity || 1.0;
+      const octaves = Math.min(Math.max(params.octaves || 2, 1), 3);
+      
+      const now = audioContext.currentTime;
+      
+      const oscillators = [];
+      const gains = [];
+      
+      // Create stacked oscillators
+      for (let i = 0; i < octaves; i++) {
+        const osc = audioContext.createOscillator();
+        const oscGain = audioContext.createGain();
+        
+        osc.type = i === 0 ? 'sine' : 'sawtooth'; // Sub is sine, upper are sawtooth
+        osc.frequency.value = baseFrequency * Math.pow(2, i);
+        
+        // Volume decreases with octave
+        const octaveVolume = velocity * Math.pow(0.6, i);
+        oscGain.gain.value = octaveVolume;
+        
+        osc.connect(oscGain);
+        oscillators.push(osc);
+        gains.push(oscGain);
+      }
+      
+      // Master envelope
+      const masterGain = audioContext.createGain();
+      masterGain.gain.setValueAtTime(0, now);
+      masterGain.gain.linearRampToValueAtTime(0.7, now + 0.01);
+      masterGain.gain.exponentialRampToValueAtTime(0.5, now + 0.2);
+      masterGain.gain.setValueAtTime(0.5, now + duration - 0.1);
+      masterGain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+      
+      gains.forEach(g => g.connect(masterGain));
+      masterGain.connect(filterNode);
+      
+      oscillators.forEach(osc => {
+        osc.start(now);
+        osc.stop(now + duration);
+      });
+      
+      console.log('💥 Bass Stack:', { note, baseFrequency, octaves });
+      sendMessage('soundPlayed', { sound: 'bass_stack', note, octaves });
+    }
+    
+    /**
+     * Helper: Convert note name to frequency
+     */
+    function noteToFrequency(note) {
+      const notes = { 'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3, 'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8, 'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11 };
+      const match = note.match(/^([A-Ga-g][#b]?)(-?\d+)$/);
+      if (!match) return 440; // Default to A4
+      const noteName = match[1].toUpperCase();
+      const octave = parseInt(match[2]);
+      const noteIndex = notes[noteName];
+      if (noteIndex === undefined) return 440;
+      const a4Index = 49; // A4 is the 49th key on piano
+      const keyNumber = (octave + 1) * 12 + noteIndex;
+      const halfStepsFromA4 = keyNumber - a4Index;
+      return 440 * Math.pow(2, halfStepsFromA4 / 12);
+    }
+    
     function playSynthNote(params = {}) {
       initAudio();
       
@@ -1233,6 +1387,14 @@
             break;
           case 'playBass':
             playBass(params);
+            break;
+          case 'playBassSlide':
+          case 'play_bass_slide':
+            playBassSlide(params);
+            break;
+          case 'playBassStack':
+          case 'play_bass_stack':
+            playBassStack(params);
             break;
           case 'playSynthNote':
             playSynthNote(params);
