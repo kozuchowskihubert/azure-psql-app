@@ -248,91 +248,103 @@ class ToneAudioEngine {
    * Initialize drum synths
    */
   initDrums() {
-    // Kick drum
-    this.drums.kick = new Tone.MembraneSynth({
-      pitchDecay: 0.05,
-      octaves: 8,
-      oscillator: {
-        type: 'sine',
-      },
-      envelope: {
-        attack: 0.001,
-        decay: 0.3,
-        sustain: 0.0,
-        release: 0.2,
-      },
-    }).connect(this.effects.compressor);
-    
-    // Snare drum
-    this.drums.snare = new Tone.NoiseSynth({
-      noise: {
-        type: 'white',
-      },
-      envelope: {
-        attack: 0.001,
-        decay: 0.15,
-        sustain: 0.0,
-        release: 0.1,
-      },
-    }).connect(this.effects.compressor);
-    
-    // Hi-hat
-    this.drums.hihat = new Tone.MetalSynth({
-      frequency: 200,
-      envelope: {
-        attack: 0.001,
-        decay: 0.1,
-        release: 0.01,
-      },
-      harmonicity: 5.1,
-      modulationIndex: 32,
-      resonance: 4000,
-      octaves: 1.5,
-    }).connect(this.effects.compressor);
-    
-    // Clap
-    this.drums.clap = new Tone.NoiseSynth({
-      noise: {
-        type: 'white',
-      },
-      envelope: {
-        attack: 0.001,
-        decay: 0.05,
-        sustain: 0.0,
-        release: 0.03,
-      },
-    }).connect(this.effects.compressor);
-    
-    // Tom
-    this.drums.tom = new Tone.MembraneSynth({
-      pitchDecay: 0.05,
-      octaves: 6,
-      oscillator: {
-        type: 'sine',
-      },
-      envelope: {
-        attack: 0.001,
-        decay: 0.2,
-        sustain: 0.0,
-        release: 0.15,
-      },
-    }).connect(this.effects.compressor);
-    
-    // Cymbal
-    this.drums.cymbal = new Tone.MetalSynth({
-      frequency: 150,
-      envelope: {
-        attack: 0.001,
-        decay: 0.6,
-        release: 0.3,
-      },
-      harmonicity: 3.1,
-      modulationIndex: 16,
-      resonance: 3000,
-      octaves: 2,
-    }).connect(this.effects.compressor);
-    
-    console.log('✅ Drum synths initialized (6 drums)');
+    try {
+      // Kick drum
+      this.drums.kick = new Tone.MembraneSynth({
+        pitchDecay: 0.05,
+        octaves: 8,
+        oscillator: {
+          type: 'sine',
+        },
+        envelope: {
+          attack: 0.001,
+          decay: 0.3,
+          sustain: 0.0,
+          release: 0.2,
+        },
+      }).connect(this.effects.compressor);
+      
+      // Snare drum
+      this.drums.snare = new Tone.NoiseSynth({
+        noise: {
+          type: 'white',
+        },
+        envelope: {
+          attack: 0.001,
+          decay: 0.15,
+          sustain: 0.0,
+          release: 0.1,
+        },
+      }).connect(this.effects.compressor);
+      
+      // Hi-hat - Simplified configuration
+      this.drums.hihat = new Tone.MetalSynth({
+        frequency: 200,
+        envelope: {
+          attack: 0.001,
+          decay: 0.1,
+          release: 0.01,
+        },
+        harmonicity: 5.1,
+        modulationIndex: 32,
+        resonance: 4000,
+        octaves: 1.5,
+      }).connect(this.effects.compressor);
+      
+      // Clap
+      this.drums.clap = new Tone.NoiseSynth({
+        noise: {
+          type: 'white',
+        },
+        envelope: {
+          attack: 0.001,
+          decay: 0.05,
+          sustain: 0.0,
+          release: 0.03,
+        },
+      }).connect(this.effects.compressor);
+      
+      // Tom
+      this.drums.tom = new Tone.MembraneSynth({
+        pitchDecay: 0.05,
+        octaves: 6,
+        oscillator: {
+          type: 'sine',
+        },
+        envelope: {
+          attack: 0.001,
+          decay: 0.2,
+          sustain: 0.0,
+          release: 0.15,
+        },
+      }).connect(this.effects.compressor);
+      
+      // Cymbal
+      this.drums.cymbal = new Tone.MetalSynth({
+        frequency: 150,
+        envelope: {
+          attack: 0.001,
+          decay: 0.6,
+          release: 0.3,
+        },
+        harmonicity: 3.1,
+        modulationIndex: 16,
+        resonance: 3000,
+        octaves: 2,
+      }).connect(this.effects.compressor);
+      
+      console.log('✅ Drum synths initialized (6 drums)');
+    } catch (error) {
+      console.error('❌ Drum synth initialization error:', error);
+      // Fallback: create simple noise synths for all drums
+      this.drums.kick = new Tone.MembraneSynth().connect(this.effects.compressor);
+      this.drums.snare = new Tone.NoiseSynth().connect(this.effects.compressor);
+      this.drums.hihat = new Tone.NoiseSynth().connect(this.effects.compressor);
+      this.drums.clap = new Tone.NoiseSynth().connect(this.effects.compressor);
+      this.drums.tom = new Tone.MembraneSynth().connect(this.effects.compressor);
+      this.drums.cymbal = new Tone.NoiseSynth().connect(this.effects.compressor);
+      console.log('⚠️ Using fallback drum synths');
+    }
   }
 
   /**
