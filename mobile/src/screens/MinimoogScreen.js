@@ -18,7 +18,7 @@ import { WebView } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
 import Knob from '../components/Knob';
 import minimoogBridge from '../synths/MinimoogBridge';
-import toneAudioEngine from '../services/WebAudioBridge';
+import toneAudioEngine from '../services/ToneAudioEngine';
 import Oscilloscope from '../components/Oscilloscope';
 import UniversalSequencer from '../components/UniversalSequencer';
 import EuclideanSequencer from '../sequencer/EuclideanSequencer';
