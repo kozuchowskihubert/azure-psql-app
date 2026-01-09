@@ -18,7 +18,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
-import pythonAudioEngine from '../services/PythonAudioEngine';
+import webAudioBridge from '../services/WebAudioBridge';
 import { Audio } from 'expo-av';
 
 const { width } = Dimensions.get('window');
@@ -210,13 +210,11 @@ const StudioScreenNew = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    // Initialize Python audio engine on mount
-    pythonAudioEngine.initialize().then(() => {
-      console.log('✅ Studio audio engine ready (Python Backend)');
-    });
+    // WebAudioBridge is already initialized globally
+    console.log('✅ Studio using WebAudioBridge (audio-engine.html)');
     
     return () => {
-      pythonAudioEngine.cleanup();
+      // Cleanup not needed for WebAudioBridge
     };
   }, []);
 
@@ -273,17 +271,17 @@ const StudioScreenNew = ({ navigation }) => {
       
       // DRUMS
       if (patterns?.kick && patterns.kick[step] === 1) {
-        playPromises.push(pythonAudioEngine.playKick(velocity).catch(() => {}));
+        playPromises.push(webAudioBridge.playKick(velocity).catch(() => {}));
       }
       if (patterns?.snare && patterns.snare[step] === 1) {
-        playPromises.push(pythonAudioEngine.playSnare(velocity).catch(() => {}));
+        playPromises.push(webAudioBridge.playSnare(velocity).catch(() => {}));
       }
       if (patterns?.hihat && patterns.hihat[step] === 1) {
         const isOpen = step % 2 === 1 && Math.random() > 0.7;
-        playPromises.push(pythonAudioEngine.playHiHat(velocity * 0.9, isOpen).catch(() => {}));
+        playPromises.push(webAudioBridge.playHiHat(velocity * 0.9, isOpen).catch(() => {}));
       }
       if (patterns?.clap && patterns.clap[step] === 1) {
-        playPromises.push(pythonAudioEngine.playClap(velocity).catch(() => {}));
+        playPromises.push(webAudioBridge.playClap(velocity).catch(() => {}));
       }
       
       // SYNTHS - C3 note, short duration
@@ -292,16 +290,16 @@ const StudioScreenNew = ({ navigation }) => {
       const synthDur = 0.2;
       
       if (patterns?.arp2600 && patterns.arp2600[step] === 1) {
-        playPromises.push(pythonAudioEngine.playARP2600(synthFreq, synthDur, velocity, 0.02).catch(() => {}));
+        playPromises.push(webAudioBridge.playARP2600(synthFreq, synthDur, velocity, 0.02).catch(() => {}));
       }
       if (patterns?.juno106 && patterns.juno106[step] === 1) {
-        playPromises.push(pythonAudioEngine.playJuno106(synthFreq, synthDur, velocity).catch(() => {}));
+        playPromises.push(webAudioBridge.playJuno106(synthFreq, synthDur, velocity).catch(() => {}));
       }
       if (patterns?.minimoog && patterns.minimoog[step] === 1) {
-        playPromises.push(pythonAudioEngine.playMinimoog(synthFreq, synthDur, velocity).catch(() => {}));
+        playPromises.push(webAudioBridge.playMinimoog(synthFreq, synthDur, velocity).catch(() => {}));
       }
       if (patterns?.tb303 && patterns.tb303[step] === 1) {
-        playPromises.push(pythonAudioEngine.playTB303(synthFreq, synthDur, velocity, false, false, null, 'sawtooth').catch(() => {}));
+        playPromises.push(webAudioBridge.playTB303(synthFreq, synthDur, velocity, false, false, null, 'sawtooth').catch(() => {}));
       }
       
       // BASS - Low C (C2)
@@ -310,10 +308,10 @@ const StudioScreenNew = ({ navigation }) => {
       const bassDur = 0.25;
       
       if (patterns?.bass808 && patterns.bass808[step] === 1) {
-        playPromises.push(pythonAudioEngine.playBass808(bassFreq, bassDur, velocity).catch(() => {}));
+        playPromises.push(webAudioBridge.playBass808(bassFreq, bassDur, velocity).catch(() => {}));
       }
       if (patterns?.bassReese && patterns.bassReese[step] === 1) {
-        playPromises.push(pythonAudioEngine.playReeseBass(bassFreq, bassDur, velocity).catch(() => {}));
+        playPromises.push(webAudioBridge.playReeseBass(bassFreq, bassDur, velocity).catch(() => {}));
       }
       
       // Don't wait for audio to finish - let them play in parallel
@@ -354,16 +352,16 @@ const StudioScreenNew = ({ navigation }) => {
       if (soundCategory === 'drums') {
         switch (soundId) {
           case 'kick':
-            pythonAudioEngine.playKick(velocity).catch(() => {});
+            webAudioBridge.playKick(velocity).catch(() => {});
             break;
           case 'snare':
-            await pythonAudioEngine.playSnare(velocity);
+            await webAudioBridge.playSnare(velocity);
             break;
           case 'hihat':
-            await pythonAudioEngine.playHiHat(velocity);
+            await webAudioBridge.playHiHat(velocity);
             break;
           case 'clap':
-            await pythonAudioEngine.playClap(velocity);
+            await webAudioBridge.playClap(velocity);
             break;
         }
       }
@@ -376,16 +374,16 @@ const StudioScreenNew = ({ navigation }) => {
         
         switch (soundId) {
           case 'arp2600':
-            await pythonAudioEngine.playARP2600(frequency, duration, velocity, 0.02);
+            await webAudioBridge.playARP2600(frequency, duration, velocity, 0.02);
             break;
           case 'juno106':
-            await pythonAudioEngine.playJuno106(frequency, duration, velocity);
+            await webAudioBridge.playJuno106(frequency, duration, velocity);
             break;
           case 'minimoog':
-            await pythonAudioEngine.playMinimoog(frequency, duration, velocity);
+            await webAudioBridge.playMinimoog(frequency, duration, velocity);
             break;
           case 'tb303':
-            await pythonAudioEngine.playTB303(frequency, duration, velocity, false, false, null, 'sawtooth');
+            await webAudioBridge.playTB303(frequency, duration, velocity, false, false, null, 'sawtooth');
             break;
         }
       }
@@ -398,10 +396,10 @@ const StudioScreenNew = ({ navigation }) => {
         
         switch (soundId) {
           case 'bass808':
-            await pythonAudioEngine.playBass808(frequency, duration, velocity);
+            await webAudioBridge.playBass808(frequency, duration, velocity);
             break;
           case 'bassReese':
-            await pythonAudioEngine.playReeseBass(frequency, duration, velocity);
+            await webAudioBridge.playReeseBass(frequency, duration, velocity);
             break;
         }
       }
