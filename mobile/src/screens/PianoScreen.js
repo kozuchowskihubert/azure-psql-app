@@ -17,6 +17,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Slider from '@react-native-community/slider';
 import { usePiano } from '../hooks/useAudio';
 import toneAudioEngine from '../services/ToneAudioEngine';
+import AnimatedKnob from '../components/AnimatedKnob';
+import RetroPanel from '../components/RetroPanel';
+import { getInstrumentTheme } from '../themes/InstrumentThemes';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -70,6 +73,11 @@ const PianoScreen = ({ navigation }) => {
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [activeNotes, setActiveNotes] = useState([]);
+  
+  // Get theme based on current mode
+  const currentTheme = synthMode 
+    ? getInstrumentTheme(synthMode) 
+    : getInstrumentTheme('piano');
   
   // Audio hook integration
   const { playNote: playAudioNote } = usePiano({
@@ -338,58 +346,44 @@ const PianoScreen = ({ navigation }) => {
           </TouchableOpacity>
         </LinearGradient>
         
-        {/* Expression */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>EXPRESSION</Text>
-          
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>ATTACK</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={100}
-              value={attack}
-              onChange={setAttack}
-              minimumTrackTintColor="#fff"
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor="#fff"
+        {/* Expression with AnimatedKnobs */}
+        <RetroPanel title="EXPRESSION" theme={currentTheme} style={{ marginTop: 16 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', flexWrap: 'wrap' }}>
+            <AnimatedKnob
+              value={attack / 100}
+              onValueChange={(val) => setAttack(val * 100)}
+              label="ATTACK"
+              min={0}
+              max={100}
+              unit="ms"
+              size={70}
+              theme={currentTheme}
+              showLEDRing={true}
             />
-            <Text style={styles.controlValue}>{Math.round(attack)}</Text>
-          </View>
-          
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>RELEASE</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={100}
-              value={release}
-              onChange={setRelease}
-              minimumTrackTintColor="#fff"
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor="#fff"
+            <AnimatedKnob
+              value={release / 100}
+              onValueChange={(val) => setRelease(val * 100)}
+              label="RELEASE"
+              min={0}
+              max={100}
+              unit="ms"
+              size={70}
+              theme={currentTheme}
+              showLEDRing={true}
             />
-            <Text style={styles.controlValue}>{Math.round(release)}</Text>
-          </View>
-          
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>DETUNE</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={-50}
-              maximumValue={50}
-              step={1}
-              value={detune}
-              onChange={setDetune}
-              minimumTrackTintColor="#fff"
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor="#fff"
+            <AnimatedKnob
+              value={(detune + 50) / 100}
+              onValueChange={(val) => setDetune((val * 100) - 50)}
+              label="DETUNE"
+              min={-50}
+              max={50}
+              unit="¢"
+              size={70}
+              theme={currentTheme}
+              showLEDRing={true}
             />
-            <Text style={styles.controlValue}>
-              {detune > 0 ? '+' : ''}{detune}¢
-            </Text>
           </View>
-        </View>
+        </RetroPanel>
         
         {/* Octave Shift Controls */}
         <View style={styles.octaveShiftSection}>
