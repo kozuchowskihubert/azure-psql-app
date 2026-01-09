@@ -29,6 +29,23 @@ const AnimatedKnob = ({
   const lastAngle = useRef(0);
   const isDragging = useRef(false);
 
+  // Safe theme access with defaults
+  const safeTheme = {
+    colors: theme?.colors || {
+      primary: '#00D9FF',
+      accent: '#FF6B35',
+      glow: 'rgba(0, 217, 255, 0.3)',
+      text: '#FFFFFF',
+      background: '#0a0a0a',
+    },
+    gradients: theme?.gradients || {
+      button: ['#FF8C5A', '#FF6B35'],
+    },
+    animations: theme?.animations || {
+      glow: { duration: 2000 },
+    },
+  };
+
   // Convert value (0-1) to rotation angle (-135° to +135° = 270° range)
   const valueToAngle = (val) => {
     return -135 + (val * 270);
@@ -61,12 +78,12 @@ const AnimatedKnob = ({
       Animated.sequence([
         Animated.timing(glowOpacity, {
           toValue: 1,
-          duration: theme?.animations?.glow?.duration || 2000,
+          duration: safeTheme.animations.glow.duration,
           useNativeDriver: true,
         }),
         Animated.timing(glowOpacity, {
           toValue: 0.5,
-          duration: theme?.animations?.glow?.duration || 2000,
+          duration: safeTheme.animations.glow.duration,
           useNativeDriver: true,
         }),
       ])
@@ -157,7 +174,7 @@ const AnimatedKnob = ({
       
       const isActive = i <= activeCount;
       const ledColor = isActive 
-        ? theme?.colors?.primary || '#00D9FF'
+        ? safeTheme.colors.primary
         : 'rgba(255, 255, 255, 0.2)';
       
       leds.push(
@@ -183,7 +200,7 @@ const AnimatedKnob = ({
     return (
       <Path
         d={`M ${size / 2} ${size / 2 - 5} L ${size / 2} ${size / 2 - pointerLength}`}
-        stroke={theme?.colors?.accent || '#FF6B35'}
+        stroke={safeTheme.colors.accent}
         strokeWidth={pointerWidth}
         strokeLinecap="round"
       />
@@ -194,7 +211,7 @@ const AnimatedKnob = ({
     <View style={styles.container}>
       {/* Label */}
       {label && (
-        <Text style={[styles.label, { color: theme?.colors?.text || '#FFF' }]}>
+        <Text style={[styles.label, { color: safeTheme.colors.text }]}>
           {label}
         </Text>
       )}
@@ -210,7 +227,7 @@ const AnimatedKnob = ({
               height: size + 20,
               borderRadius: (size + 20) / 2,
               opacity: glowOpacity,
-              backgroundColor: theme?.colors?.glow || 'rgba(0, 217, 255, 0.3)',
+              backgroundColor: safeTheme.colors.glow,
             },
           ]}
         />
@@ -242,16 +259,16 @@ const AnimatedKnob = ({
           ]}
         >
           <LinearGradient
-            colors={theme?.gradients?.button || ['#FF8C5A', '#FF6B35']}
+            colors={safeTheme.gradients.button}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.knobGradient, {
-              shadowColor: theme?.colors?.primary || '#FF6B35',
+              shadowColor: safeTheme.colors.primary,
             }]}
           >
             {/* Center dot */}
             <View style={[styles.centerDot, {
-              backgroundColor: theme?.colors?.background || '#0a0a0a',
+              backgroundColor: safeTheme.colors.background,
             }]} />
             
             {/* Pointer line */}
@@ -264,7 +281,7 @@ const AnimatedKnob = ({
 
       {/* Value display */}
       <View style={styles.valueContainer}>
-        <Text style={[styles.value, { color: theme?.colors?.primary || '#00D9FF' }]}>
+        <Text style={[styles.value, { color: safeTheme.colors.primary }]}>
           {displayValue}
           {unit && <Text style={styles.unit}>{unit}</Text>}
         </Text>
