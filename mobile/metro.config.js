@@ -15,6 +15,12 @@ config.resolver.assetExts.push(
   'ogg',
 );
 
+// Configure extraNodeModules to support @assets alias
+config.resolver.extraNodeModules = {
+  '@assets': path.resolve(projectRoot, 'assets'),
+  '@': path.resolve(projectRoot, 'src'),
+};
+
 // Configure watchFolders to include the project root
 config.watchFolders = [projectRoot];
 
