@@ -1,0 +1,138 @@
+# Fastlane Configuration for HAOS.fm
+
+default_platform(:ios)
+
+platform :ios do
+  
+  # Configuration
+  app_identifier = "fm.haos.mobile"
+  apple_id = "hubertkozuchowski@gmail.com"
+  team_id = "TTQ8652SJH"
+  
+  before_all do
+    ensure_git_status_clean unless ENV['SKIP_GIT_CHECK']
+  end
+
+  # Lane: Build and upload to TestFlight
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    # Increment build number
+    increment_build_number(
+      xcodeproj: "ios/HAOSfm.xcodeproj",
+      build_number: latest_testflight_build_number(
+        app_identifier: app_identifier,
+        username: apple_id,
+        team_id: team_id
+      ) + 1
+    )
+    
+    # Build app
+    gym(
+      scheme: "HAOSfm",
+      workspace: "ios/HAOSfm.xcworkspace",
+      export_method: "app-store",
+      clean: true,
+      output_directory: "./build",
+      output_name: "HAOSfm.ipa",
+      export_options: {
+        provisioningProfiles: {
+          app_identifier => "match AppStore #{app_identifier}"
+        }
+      }
+    )
+    
+    # Upload to TestFlight
+    upload_to_testflight(
+      apple_id: apple_id,
+      team_id: team_id,
+      skip_waiting_for_build_processing: true,
+      changelog: "Bug fixes and improvements"
+    )
+    
+    # Notify
+    notification(
+      title: "HAOS.fm Build Complete! 🎉",
+      message: "App uploaded to TestFlight successfully"
+    )
+  end
+
+  # Lane: Just build (no upload)
+  desc "Build only (no upload)"
+  lane :build do
+    gym(
+      scheme: "HAOSfm",
+      workspace: "ios/HAOSfm.xcworkspace",
+      export_method: "app-store",
+      clean: true,
+      output_directory: "./build",
+      output_name: "HAOSfm.ipa"
+    )
+  end
+
+  # Lane: Quick development build
+  desc "Quick development build"
+  lane :dev do
+    gym(
+      scheme: "HAOSfm",
+      workspace: "ios/HAOSfm.xcworkspace",
+      export_method: "development",
+      clean: false,
+      output_directory: "./build",
+      output_name: "HAOSfm-dev.ipa"
+    )
+  end
+
+  # Lane: Screenshots for App Store
+  desc "Generate screenshots"
+  lane :screenshots do
+    snapshot
+  end
+
+  # Lane: Submit to App Store
+  desc "Submit to App Store for review"
+  lane :release do
+    deliver(
+      submit_for_review: true,
+      automatic_release: false,
+      force: true,
+      skip_metadata: false,
+      skip_screenshots: false,
+      precheck_include_in_app_purchases: false
+    )
+  end
+
+  # Error handling
+  error do |lane, exception|
+    notification(
+      title: "Build Failed ❌",
+      message: exception.message
+    )
+  end
+
+end
+
+platform :android do
+  
+  desc "Build and upload to Google Play (Internal Testing)"
+  lane :beta do
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      project_dir: "android/"
+    )
+    
+    upload_to_play_store(
+      track: "internal",
+      aab: "android/app/build/outputs/bundle/release/app-release.aab",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+    
+    notification(
+      title: "HAOS.fm Android Build Complete! 🤖",
+      message: "App uploaded to Google Play Internal Testing"
+    )
+  end
+
+end
