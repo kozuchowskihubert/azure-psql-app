@@ -28,7 +28,7 @@ import LibraryScreen from '../screens/LibraryScreen';
 import AccountScreenNew from '../screens/AccountScreenNew';
 
 // Instrument Screens (nested inside Create tab)
-import ARP2600Screen from '../screens/ARP2600ScreenCompact';
+import ARP2600Screen from '../screens/ARP2600Screen';
 import ViolinScreen from '../screens/ViolinScreen';
 import PianoScreen from '../screens/PianoScreen';
 import BassStudioScreen from '../screens/BassStudioScreen';
