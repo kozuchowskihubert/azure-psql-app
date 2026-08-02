@@ -1,0 +1,182 @@
+# Windows release pipeline for the HAOS plugin suite.
+#
+#   build-hub  - HAOS Hub (desktop/): VST3 + standalone "HAOS Hub.exe"
+#   build-fx   - the 9 HAOS-FX plugins (private repo, cloned via deploy key)
+#   package    - Inno Setup installer + portable zip -> artifacts + release windows-v1
+#
+# Content payload (presets/art/FX assets) comes from release tag content-v1
+# on this repo (HAOS-Content-Windows.zip -> HAOS\...).
+
+name: windows-suite
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "ci/windows-suite" ]
+
+jobs:
+  build-hub:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure (MSVC x64)
+        run: cmake -B build-hub -S desktop -G "Visual Studio 17 2022" -A x64 -DHAOS_COPY_PLUGIN_AFTER_BUILD=OFF
+
+      - name: Build HAOSHub_VST3 + HAOSHub_Standalone
+        run: cmake --build build-hub --config Release --target HAOSHub_VST3 HAOSHub_Standalone --parallel 4
+
+      - name: Stage
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Force -Path stage-hub\VST3 | Out-Null
+          Copy-Item -Recurse "build-hub\HAOSHub_artefacts\Release\VST3\HAOS Hub.vst3" stage-hub\VST3\
+          Copy-Item "build-hub\HAOSHub_artefacts\Release\Standalone\HAOS Hub.exe" stage-hub\
+          Get-ChildItem -Recurse stage-hub | ForEach-Object { $_.FullName }
+
+      - name: Upload hub artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hub-win64
+          path: stage-hub
+          if-no-files-found: error
+
+  build-fx:
+    runs-on: windows-latest
+    steps:
+      - name: Load HAOS-FX deploy key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.FX_DEPLOY_KEY }}
+
+      - name: Clone HAOS-FX
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.ssh" | Out-Null
+          ssh-keyscan github.com 2>$null | Out-File -Append -Encoding ascii "$env:USERPROFILE\.ssh\known_hosts"
+          git clone --depth 1 git@github.com:kozuchowskihubert/HAOS-FX.git
+          git -C HAOS-FX log --oneline -1
+
+      - name: Configure (MSVC x64)
+        run: cmake -B build-fx -S HAOS-FX -G "Visual Studio 17 2022" -A x64 -DHAOS_COPY_PLUGIN_AFTER_BUILD=OFF
+
+      - name: Build the 9 FX VST3s
+        run: >-
+          cmake --build build-fx --config Release --parallel 4 --target
+          HaosComp_VST3 HaosLimiter_VST3 HaosEQ_VST3 HaosSat_VST3 HaosGate_VST3
+          HaosVerb_VST3 HaosEcho_VST3 HaosWidth_VST3 HaosClipper_VST3
+
+      - name: Stage
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Force -Path stage-fx\VST3 | Out-Null
+          $bundles = Get-ChildItem build-fx -Directory -Filter "*_artefacts" | ForEach-Object {
+            $v = Join-Path $_.FullName "Release\VST3"
+            if (Test-Path $v) { Get-ChildItem $v -Directory -Filter "*.vst3" }
+          }
+          if ($bundles.Count -ne 9) {
+            $bundles | ForEach-Object { $_.FullName }
+            throw "expected 9 .vst3 bundles, found $($bundles.Count)"
+          }
+          $bundles | ForEach-Object { Copy-Item -Recurse $_.FullName stage-fx\VST3\ }
+          Get-ChildItem stage-fx\VST3 | ForEach-Object { $_.Name }
+
+      - name: Upload fx artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fx-win64
+          path: stage-fx
+          if-no-files-found: error
+
+  package:
+    runs-on: windows-latest
+    needs: [build-hub, build-fx]
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download hub artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hub-win64
+          path: stage/hub
+
+      - name: Download fx artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fx-win64
+          path: stage/fx
+
+      - name: Download content payload (content-v1)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          gh release download content-v1 -R kozuchowskihubert/azure-psql-app -p HAOS-Content-Windows.zip
+          7z x HAOS-Content-Windows.zip -ocontent-extract | Out-Null
+          if (-not (Test-Path "content-extract\HAOS")) { throw "content payload has no HAOS\ root" }
+
+      - name: Assemble install layout
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Force -Path stage\install\Plugins\VST3, stage\install\App, stage\install\Content | Out-Null
+          Copy-Item -Recurse stage\fx\VST3\* stage\install\Plugins\VST3\
+          Copy-Item -Recurse "stage\hub\VST3\HAOS Hub.vst3" stage\install\Plugins\VST3\
+          Copy-Item "stage\hub\HAOS Hub.exe" stage\install\App\
+          Copy-Item -Recurse content-extract\HAOS stage\install\Content\HAOS
+          Get-ChildItem stage\install\Plugins\VST3 | ForEach-Object { $_.Name }
+
+      - name: Build installer (Inno Setup)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          choco install innosetup -y --no-progress
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DStageDir="$PWD\stage\install" /O"$PWD\out" desktop\installer\haos-suite.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed ($LASTEXITCODE)" }
+          Get-Item out\HAOS-Suite-Setup.exe | ForEach-Object { "{0}  {1:N0} bytes" -f $_.Name, $_.Length }
+
+      - name: Build portable zip
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Force -Path portable | Out-Null
+          Copy-Item -Recurse stage\install\Plugins portable\Plugins
+          Copy-Item "stage\install\App\HAOS Hub.exe" portable\
+          Copy-Item -Recurse stage\install\Content portable\Content
+          Copy-Item desktop\installer\README-portable.txt portable\README.txt
+          7z a -tzip "out\HAOS-Suite-Windows-portable.zip" ".\portable\*" | Out-Null
+          Get-Item out\HAOS-Suite-Windows-portable.zip | ForEach-Object { "{0}  {1:N0} bytes" -f $_.Name, $_.Length }
+
+      - name: Upload suite artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: haos-suite-windows
+          path: |
+            out/HAOS-Suite-Setup.exe
+            out/HAOS-Suite-Windows-portable.zip
+          if-no-files-found: error
+
+      - name: Create/update release windows-v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          gh release view windows-v1 *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create windows-v1 --target $env:GITHUB_SHA `
+              --title "HAOS Suite for Windows" `
+              --notes "Windows build of the HAOS suite: 9 HAOS-FX VST3 plugins + HAOS Hub (VST3 + standalone), as an Inno Setup installer and a portable zip. Built by the windows-suite workflow."
+            if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
+          }
+          gh release upload windows-v1 out\HAOS-Suite-Setup.exe out\HAOS-Suite-Windows-portable.zip --clobber
+          if ($LASTEXITCODE -ne 0) { throw "gh release upload failed" }
+          gh release view windows-v1 --json assets --jq '.assets[] | "\(.name)  \(.size) bytes"'

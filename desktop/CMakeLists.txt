@@ -8,6 +8,10 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum macOS")
 
 # --- Pull JUCE (reuse the checkout the other HAOS plugins already fetched) ---
 # Disk is very tight on this machine, so never re-clone JUCE when a copy exists.
+# CI (Windows) passes -DHAOS_COPY_PLUGIN_AFTER_BUILD=OFF: the runner must not
+# copy plugins into system folders. Default ON preserves the local mac workflow.
+option(HAOS_COPY_PLUGIN_AFTER_BUILD "Copy plugins into the system plugin folders after each build" ON)
+
 include(FetchContent)
 foreach(_haos_juce
         "$ENV{HOME}/Projects/RubikChord/build/_deps/juce-src"
@@ -34,7 +38,7 @@ juce_add_plugin(HAOSHub
     NEEDS_MIDI_OUTPUT         FALSE
     IS_MIDI_EFFECT            FALSE
     EDITOR_WANTS_KEYBOARD_FOCUS TRUE
-    COPY_PLUGIN_AFTER_BUILD   TRUE
+    COPY_PLUGIN_AFTER_BUILD   ${HAOS_COPY_PLUGIN_AFTER_BUILD}
     PLUGIN_MANUFACTURER_CODE  Haos
     PLUGIN_CODE               Hub1
     FORMATS                   VST3 Standalone
