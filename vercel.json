@@ -6,11 +6,42 @@
       "use": "@vercel/node",
       "config": {
         "maxLambdaSize": "50mb",
-        "includeFiles": ["app/**", "infra/**"]
+        "includeFiles": [
+          "app/**",
+          "infra/**"
+        ]
       }
     }
   ],
   "routes": [
+    {
+      "src": "/suite",
+      "dest": "https://haosfm.vercel.app/suite"
+    },
+    {
+      "src": "/suite/(.*)",
+      "dest": "https://haosfm.vercel.app/suite/$1"
+    },
+    {
+      "src": "/_next/(.*)",
+      "dest": "https://haosfm.vercel.app/_next/$1"
+    },
+    {
+      "src": "/paczki",
+      "dest": "https://haosfm.vercel.app/paczki"
+    },
+    {
+      "src": "/paczki/(.*)",
+      "dest": "https://haosfm.vercel.app/paczki/$1"
+    },
+    {
+      "src": "/laboratorium",
+      "dest": "https://haosfm.vercel.app/laboratorium"
+    },
+    {
+      "src": "/manifest",
+      "dest": "https://haosfm.vercel.app/manifest"
+    },
     {
       "src": "/(.*)",
       "dest": "/api/index.js"
