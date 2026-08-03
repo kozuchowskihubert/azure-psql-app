@@ -17,7 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import InstrumentControl from '../components/InstrumentControl';
 import { HAOS_COLORS } from '../styles/HAOSTheme';
 import { INSTRUMENT_COLORS, CONTROL_TYPES } from '../styles/InstrumentTheme';
-import pythonAudioEngine from '../services/PythonAudioEngine';
+import toneAudioEngine from '../services/ToneAudioEngine';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -101,16 +101,16 @@ const ViolinScreen = ({ navigation }) => {
     try {
       switch (synthMode) {
         case 'arp2600':
-          await pythonAudioEngine.playARP2600(frequency, duration, vel, vibratoDepth / 1000);
+          toneAudioEngine.playARP2600(frequency, duration, vel, vibratoDepth / 1000);
           break;
         case 'juno106':
-          await pythonAudioEngine.playJuno106(frequency, duration, vel, vibratoDepth / 1000);
+          toneAudioEngine.playJuno106(frequency, duration, vel);
           break;
         case 'minimoog':
-          await pythonAudioEngine.playMinimoog(frequency, duration, vel, vibratoDepth / 1000);
+          toneAudioEngine.playMinimoog(frequency, duration, vel);
           break;
         case 'tb303':
-          await pythonAudioEngine.playTB303(frequency, duration, vel);
+          toneAudioEngine.playTB303(frequency, duration, vel);
           break;
       }
     } catch (error) {
@@ -367,7 +367,7 @@ const ViolinScreen = ({ navigation }) => {
                 console.log(`🎻 Playing ${articulation} articulation`);
                 // For now, use a synth as fallback
                 const freq = 587.33; // D5
-                pythonAudioEngine.playJuno106(freq, 1.0, expression / 100, vibratoDepth / 1000);
+                toneAudioEngine.playJuno106(freq, 1.0, expression / 100);
               }
             }}
           >

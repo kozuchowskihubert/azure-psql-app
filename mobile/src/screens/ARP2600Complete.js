@@ -34,7 +34,7 @@ import {
 
 // Audio Bridge
 import arp2600Bridge from '../synths/ARP2600Bridge';
-import webAudioBridge from '../services/WebAudioBridge';
+import toneAudioEngine from '../services/ToneAudioEngine';
 import { HAOS_COLORS, HAOS_GRADIENTS } from '../styles/HAOSTheme';
 import PRESET_PATCHES from '../data/arp2600-presets.json';
 

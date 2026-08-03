@@ -18,8 +18,9 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
-import pythonAudioEngine from '../services/PythonAudioEngine';
+import toneAudioEngine from '../services/ToneAudioEngine';
 import { Audio } from 'expo-av';
+import { INSTRUMENT_CARD_COLORS } from '../themes/InstrumentThemes';
 
 const { width } = Dimensions.get('window');
 
@@ -45,20 +46,20 @@ const COLORS = {
 
 const SOUNDS = {
   synths: [
-    { id: 'arp2600', name: 'ARP 2600', emoji: '🎛️', gradient: ['#D4AF37', '#FFD700'], note: 'C4', freq: 261.63 },
-    { id: 'juno106', name: 'Juno-106', emoji: '🎹', gradient: ['#C0C0C0', '#A0A0A0'], note: 'E4', freq: 329.63 },
-    { id: 'minimoog', name: 'Minimoog', emoji: '🎵', gradient: ['#FF6B35', '#FF8C5A'], note: 'G4', freq: 392.00 },
-    { id: 'tb303', name: 'TB-303', emoji: '💚', gradient: ['#B8960E', '#D4AF37'], note: 'A4', freq: 440.00 },
+    { id: 'arp2600', name: 'ARP 2600', emoji: '🎛️', gradient: INSTRUMENT_CARD_COLORS.arp2600, note: 'C4', freq: 261.63 },
+    { id: 'juno106', name: 'Juno-106', emoji: '🎹', gradient: INSTRUMENT_CARD_COLORS.juno106, note: 'E4', freq: 329.63 },
+    { id: 'minimoog', name: 'Minimoog', emoji: '🎵', gradient: INSTRUMENT_CARD_COLORS.minimoog, note: 'G4', freq: 392.00 },
+    { id: 'tb303', name: 'TB-303', emoji: '💚', gradient: INSTRUMENT_CARD_COLORS.tb303, note: 'A4', freq: 440.00 },
   ],
   drums: [
-    { id: 'kick', name: 'Kick', emoji: '🥁', gradient: ['#FF6B35', '#FF8C5A'], note: 'C2', freq: 65.41 },
-    { id: 'snare', name: 'Snare', emoji: '🪘', gradient: ['#C0C0C0', '#A0A0A0'], note: 'D3', freq: 146.83 },
-    { id: 'hihat', name: 'Hi-Hat', emoji: '🔔', gradient: ['#D4AF37', '#FFD700'], note: 'F#5', freq: 739.99 },
-    { id: 'clap', name: 'Clap', emoji: '👏', gradient: ['#CC5528', '#FF6B35'], note: 'A3', freq: 220.00 },
+    { id: 'kick', name: 'Kick', emoji: '🥁', gradient: INSTRUMENT_CARD_COLORS.kick, note: 'C2', freq: 65.41 },
+    { id: 'snare', name: 'Snare', emoji: '🪘', gradient: INSTRUMENT_CARD_COLORS.snare, note: 'D3', freq: 146.83 },
+    { id: 'hihat', name: 'Hi-Hat', emoji: '🔔', gradient: INSTRUMENT_CARD_COLORS.hihat, note: 'F#5', freq: 739.99 },
+    { id: 'clap', name: 'Clap', emoji: '👏', gradient: INSTRUMENT_CARD_COLORS.clap, note: 'A3', freq: 220.00 },
   ],
   bass: [
-    { id: 'bass808', name: '808 Bass', emoji: '🎸', gradient: ['#D4AF37', '#B8960E'], note: 'E1', freq: 41.20 },
-    { id: 'bassReese', name: 'Reese Bass', emoji: '🔊', gradient: ['#C0C0C0', '#A0A0A0'], note: 'A1', freq: 55.00 },
+    { id: 'bass808', name: '808 Bass', emoji: '🎸', gradient: INSTRUMENT_CARD_COLORS.bass808, note: 'E1', freq: 41.20 },
+    { id: 'bassReese', name: 'Reese Bass', emoji: '🔊', gradient: INSTRUMENT_CARD_COLORS.bassReese, note: 'A1', freq: 55.00 },
   ],
 };
 
@@ -210,13 +211,19 @@ const StudioScreenNew = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    // Initialize Python audio engine on mount
-    pythonAudioEngine.initialize().then(() => {
-      console.log('✅ Studio audio engine ready (Python Backend)');
+    // Initialize Tone.js audio engine
+    toneAudioEngine.initialize().then((result) => {
+      if (result.success) {
+        console.log('✅ Studio using ToneAudioEngine');
+        console.log('   Latency:', result.latency.toFixed(1), 'ms');
+        console.log('   Sample Rate:', result.sampleRate, 'Hz');
+      } else {
+        console.error('❌ Failed to initialize ToneAudioEngine:', result.error);
+      }
     });
     
     return () => {
-      pythonAudioEngine.cleanup();
+      // Cleanup handled by engine singleton
     };
   }, []);
 
@@ -273,17 +280,17 @@ const StudioScreenNew = ({ navigation }) => {
       
       // DRUMS
       if (patterns?.kick && patterns.kick[step] === 1) {
-        playPromises.push(pythonAudioEngine.playKick(velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playKick(velocity).catch(() => {}));
       }
       if (patterns?.snare && patterns.snare[step] === 1) {
-        playPromises.push(pythonAudioEngine.playSnare(velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playSnare(velocity).catch(() => {}));
       }
       if (patterns?.hihat && patterns.hihat[step] === 1) {
         const isOpen = step % 2 === 1 && Math.random() > 0.7;
-        playPromises.push(pythonAudioEngine.playHiHat(velocity * 0.9, isOpen).catch(() => {}));
+        playPromises.push(toneAudioEngine.playHiHat(velocity * 0.9, isOpen).catch(() => {}));
       }
       if (patterns?.clap && patterns.clap[step] === 1) {
-        playPromises.push(pythonAudioEngine.playClap(velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playClap(velocity).catch(() => {}));
       }
       
       // SYNTHS - C3 note, short duration
@@ -292,16 +299,16 @@ const StudioScreenNew = ({ navigation }) => {
       const synthDur = 0.2;
       
       if (patterns?.arp2600 && patterns.arp2600[step] === 1) {
-        playPromises.push(pythonAudioEngine.playARP2600(synthFreq, synthDur, velocity, 0.02).catch(() => {}));
+        playPromises.push(toneAudioEngine.playARP2600(synthFreq, synthDur, velocity, 0.02).catch(() => {}));
       }
       if (patterns?.juno106 && patterns.juno106[step] === 1) {
-        playPromises.push(pythonAudioEngine.playJuno106(synthFreq, synthDur, velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playJuno106(synthFreq, synthDur, velocity).catch(() => {}));
       }
       if (patterns?.minimoog && patterns.minimoog[step] === 1) {
-        playPromises.push(pythonAudioEngine.playMinimoog(synthFreq, synthDur, velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playMinimoog(synthFreq, synthDur, velocity).catch(() => {}));
       }
       if (patterns?.tb303 && patterns.tb303[step] === 1) {
-        playPromises.push(pythonAudioEngine.playTB303(synthFreq, synthDur, velocity, false, false, null, 'sawtooth').catch(() => {}));
+        playPromises.push(toneAudioEngine.playTB303(synthFreq, synthDur, velocity, false, false, null, 'sawtooth').catch(() => {}));
       }
       
       // BASS - Low C (C2)
@@ -310,10 +317,10 @@ const StudioScreenNew = ({ navigation }) => {
       const bassDur = 0.25;
       
       if (patterns?.bass808 && patterns.bass808[step] === 1) {
-        playPromises.push(pythonAudioEngine.playBass808(bassFreq, bassDur, velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playBass808(bassFreq, bassDur, velocity).catch(() => {}));
       }
       if (patterns?.bassReese && patterns.bassReese[step] === 1) {
-        playPromises.push(pythonAudioEngine.playReeseBass(bassFreq, bassDur, velocity).catch(() => {}));
+        playPromises.push(toneAudioEngine.playReeseBass(bassFreq, bassDur, velocity).catch(() => {}));
       }
       
       // Don't wait for audio to finish - let them play in parallel
@@ -354,16 +361,16 @@ const StudioScreenNew = ({ navigation }) => {
       if (soundCategory === 'drums') {
         switch (soundId) {
           case 'kick':
-            pythonAudioEngine.playKick(velocity).catch(() => {});
+            toneAudioEngine.playKick(velocity).catch(() => {});
             break;
           case 'snare':
-            await pythonAudioEngine.playSnare(velocity);
+            await toneAudioEngine.playSnare(velocity);
             break;
           case 'hihat':
-            await pythonAudioEngine.playHiHat(velocity);
+            await toneAudioEngine.playHiHat(velocity);
             break;
           case 'clap':
-            await pythonAudioEngine.playClap(velocity);
+            await toneAudioEngine.playClap(velocity);
             break;
         }
       }
@@ -376,16 +383,16 @@ const StudioScreenNew = ({ navigation }) => {
         
         switch (soundId) {
           case 'arp2600':
-            await pythonAudioEngine.playARP2600(frequency, duration, velocity, 0.02);
+            await toneAudioEngine.playARP2600(frequency, duration, velocity, 0.02);
             break;
           case 'juno106':
-            await pythonAudioEngine.playJuno106(frequency, duration, velocity);
+            await toneAudioEngine.playJuno106(frequency, duration, velocity);
             break;
           case 'minimoog':
-            await pythonAudioEngine.playMinimoog(frequency, duration, velocity);
+            await toneAudioEngine.playMinimoog(frequency, duration, velocity);
             break;
           case 'tb303':
-            await pythonAudioEngine.playTB303(frequency, duration, velocity, false, false, null, 'sawtooth');
+            await toneAudioEngine.playTB303(frequency, duration, velocity, false, false, null, 'sawtooth');
             break;
         }
       }
@@ -398,10 +405,10 @@ const StudioScreenNew = ({ navigation }) => {
         
         switch (soundId) {
           case 'bass808':
-            await pythonAudioEngine.playBass808(frequency, duration, velocity);
+            await toneAudioEngine.playBass808(frequency, duration, velocity);
             break;
           case 'bassReese':
-            await pythonAudioEngine.playReeseBass(frequency, duration, velocity);
+            await toneAudioEngine.playReeseBass(frequency, duration, velocity);
             break;
         }
       }

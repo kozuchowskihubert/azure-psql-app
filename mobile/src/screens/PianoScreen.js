@@ -16,9 +16,10 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import Slider from '@react-native-community/slider';
 import { usePiano } from '../hooks/useAudio';
-import pythonAudioEngine from '../services/PythonAudioEngine';
-import advancedAudioEngine from '../audio/AdvancedAudioEngine';
-import webAudioBridge from '../services/WebAudioBridge';
+import toneAudioEngine from '../services/ToneAudioEngine';
+import AnimatedKnob from '../components/AnimatedKnob';
+import RetroPanel from '../components/RetroPanel';
+import { getInstrumentTheme } from '../themes/InstrumentThemes';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -73,6 +74,11 @@ const PianoScreen = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [activeNotes, setActiveNotes] = useState([]);
   
+  // Get theme based on current mode
+  const currentTheme = synthMode 
+    ? getInstrumentTheme(synthMode) 
+    : getInstrumentTheme('piano');
+  
   // Audio hook integration
   const { playNote: playAudioNote } = usePiano({
     pianoType,
@@ -87,17 +93,15 @@ const PianoScreen = ({ navigation }) => {
   });
   
   useEffect(() => {
-    // Initialize audio engine
-    const initAudio = async () => {
-      try {
-        await advancedAudioEngine.init();
-        console.log('✅ Piano audio engine initialized');
-      } catch (error) {
-        console.error('❌ Piano audio engine init error:', error);
+    // Initialize Tone.js audio engine
+    toneAudioEngine.initialize().then(result => {
+      if (result.success) {
+        console.log('✅ Piano audio engine initialized (Tone.js)');
+        console.log('   Latency:', result.latency.toFixed(1), 'ms');
+      } else {
+        console.error('❌ Piano audio engine init error:', result.error);
       }
-    };
-    
-    initAudio();
+    });
     
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -129,37 +133,35 @@ const PianoScreen = ({ navigation }) => {
       try {
         switch (synthMode) {
           case 'arp2600':
-            await pythonAudioEngine.playARP2600(frequency, duration, vel, detune / 1000);
+            toneAudioEngine.playARP2600(frequency, duration, vel, detune / 1000);
             break;
           case 'juno106':
-            await pythonAudioEngine.playJuno106(frequency, duration, vel, detune / 1000);
+            toneAudioEngine.playJuno106(frequency, duration, vel);
             break;
           case 'minimoog':
-            await pythonAudioEngine.playMinimoog(frequency, duration, vel, detune / 1000);
+            toneAudioEngine.playMinimoog(frequency, duration, vel);
             break;
           case 'tb303':
-            await pythonAudioEngine.playTB303(frequency, duration, vel);
+            toneAudioEngine.playTB303(frequency, duration, vel);
             break;
         }
       } catch (error) {
         console.error('Synth playback error:', error);
       }
     } else {
-      // Use piano audio with velocity via WebAudioBridge
-      console.log(`🎹 Piano mode: ${pianoType}, calling WebAudioBridge...`);
+      // Use piano audio with velocity via ToneAudioEngine
+      console.log(`🎹 Piano mode: ${pianoType}, calling ToneAudioEngine...`);
       try {
         const frequency = getNoteFrequency(note, finalOctave);
         const pianoVelocity = finalVelocity / 127; // Convert 0-127 to 0-1
         const pianoDuration = sustain ? 2.0 : 0.5;
         
-        // Use WebAudioBridge for actual audio playback
-        webAudioBridge.playPiano(
-          frequency,
-          pianoDuration,
+        // Use ToneAudioEngine for actual audio playback
+        toneAudioEngine.playPiano(
+          noteKey,  // Use note name instead of frequency
           pianoVelocity,
           pianoType,
-          reverb / 100,
-          brightness / 100
+          pianoDuration
         );
         
         console.log(`✅ Piano played: ${noteKey} at ${frequency.toFixed(1)}Hz`);
@@ -344,58 +346,44 @@ const PianoScreen = ({ navigation }) => {
           </TouchableOpacity>
         </LinearGradient>
         
-        {/* Expression */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>EXPRESSION</Text>
-          
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>ATTACK</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={100}
-              value={attack}
-              onChange={setAttack}
-              minimumTrackTintColor="#fff"
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor="#fff"
+        {/* Expression with AnimatedKnobs */}
+        <RetroPanel title="EXPRESSION" theme={currentTheme} style={{ marginTop: 16 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', flexWrap: 'wrap' }}>
+            <AnimatedKnob
+              value={attack / 100}
+              onValueChange={(val) => setAttack(val * 100)}
+              label="ATTACK"
+              min={0}
+              max={100}
+              unit="ms"
+              size={70}
+              theme={currentTheme}
+              showLEDRing={true}
             />
-            <Text style={styles.controlValue}>{Math.round(attack)}</Text>
-          </View>
-          
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>RELEASE</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={100}
-              value={release}
-              onChange={setRelease}
-              minimumTrackTintColor="#fff"
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor="#fff"
+            <AnimatedKnob
+              value={release / 100}
+              onValueChange={(val) => setRelease(val * 100)}
+              label="RELEASE"
+              min={0}
+              max={100}
+              unit="ms"
+              size={70}
+              theme={currentTheme}
+              showLEDRing={true}
             />
-            <Text style={styles.controlValue}>{Math.round(release)}</Text>
-          </View>
-          
-          <View style={styles.controlRow}>
-            <Text style={styles.controlLabel}>DETUNE</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={-50}
-              maximumValue={50}
-              step={1}
-              value={detune}
-              onChange={setDetune}
-              minimumTrackTintColor="#fff"
-              maximumTrackTintColor={HAOS_COLORS.mediumGray}
-              thumbTintColor="#fff"
+            <AnimatedKnob
+              value={(detune + 50) / 100}
+              onValueChange={(val) => setDetune((val * 100) - 50)}
+              label="DETUNE"
+              min={-50}
+              max={50}
+              unit="¢"
+              size={70}
+              theme={currentTheme}
+              showLEDRing={true}
             />
-            <Text style={styles.controlValue}>
-              {detune > 0 ? '+' : ''}{detune}¢
-            </Text>
           </View>
-        </View>
+        </RetroPanel>
         
         {/* Octave Shift Controls */}
         <View style={styles.octaveShiftSection}>

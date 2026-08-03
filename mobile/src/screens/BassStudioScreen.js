@@ -15,6 +15,7 @@ import {
   PanResponder,
   StatusBar,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -22,7 +23,10 @@ import { Audio } from 'expo-av';
 import Bass2DVisualizer from '../components/Bass2DVisualizer';
 import HAOSHeader from '../components/HAOSHeader';
 import InstrumentControl from '../components/InstrumentControl';
-import pythonAudioEngine from '../services/PythonAudioEngine';
+import AnimatedKnob from '../components/AnimatedKnob';
+import RetroPanel from '../components/RetroPanel';
+import { getInstrumentTheme } from '../themes/InstrumentThemes';
+import toneAudioEngine from '../services/ToneAudioEngine';
 import { HAOS_COLORS, HAOS_GRADIENTS } from '../styles/HAOSTheme';
 import { INSTRUMENT_COLORS, PRESET_STYLES, CONTROL_TYPES } from '../styles/InstrumentTheme';
 
@@ -275,6 +279,9 @@ export default function BassStudioScreen({ navigation }) {
   const [loadingRadio, setLoadingRadio] = useState(false);
   const [currentRadioTrack, setCurrentRadioTrack] = useState(null);
 
+  // Get Bass theme from InstrumentThemes
+  const bassTheme = getInstrumentTheme('bass');
+
   useEffect(() => {
     console.log('🎸 BassStudioScreen mounted, WebAudioBridge ready');
     // WebAudioBridge is always ready, no initialization needed
@@ -326,25 +333,25 @@ export default function BassStudioScreen({ navigation }) {
       visualizerRef.current.triggerBassNote(frequency, velocity);
     }
     
-    // Use pythonAudioEngine dedicated bass methods
+    // Use ToneAudioEngine dedicated bass methods
     try {
       switch (activePreset) {
         case 'sub':
         case 'funk':
         case '808':
         case 'dnb':
-          await pythonAudioEngine.playBass808(frequency, duration, velocity);
+          toneAudioEngine.playBass808(frequency, duration, velocity);
           break;
         case 'reese':
         case 'growl':
         case 'wobble':
-          await pythonAudioEngine.playReeseBass(frequency, duration, velocity);
+          toneAudioEngine.playReeseBass(frequency, duration, velocity);
           break;
         case 'acid':
-          await pythonAudioEngine.playTB303(frequency, duration, velocity);
+          toneAudioEngine.playTB303(frequency, duration, velocity);
           break;
         default:
-          await pythonAudioEngine.playBass808(frequency, duration, velocity);
+          toneAudioEngine.playBass808(frequency, duration, velocity);
       }
     } catch (error) {
       console.error('❌ Error playing bass:', error);
@@ -465,13 +472,13 @@ export default function BassStudioScreen({ navigation }) {
   const handleExportWAV = () => {
     // TODO: Implement WAV export
     console.log('💾 Export WAV - Coming soon!');
-    alert('WAV export coming soon!');
+    Alert.alert('Export WAV', 'WAV export coming soon!');
   };
 
   const handleExportMIDI = () => {
     // TODO: Implement MIDI export
     console.log('💾 Export MIDI - Coming soon!');
-    alert('MIDI export coming soon!');
+    Alert.alert('Export MIDI', 'MIDI export coming soon!');
   };
 
   // Fetch radio channels from Azure Blob Storage
@@ -564,13 +571,13 @@ export default function BassStudioScreen({ navigation }) {
   const handleSavePreset = () => {
     // TODO: Implement preset saving
     console.log('💾 Save preset - Coming soon!');
-    alert('Save preset feature coming soon!');
+    Alert.alert('Save Preset', 'Save preset feature coming soon!');
   };
 
   const handleLoadPreset = () => {
     // TODO: Implement preset loading
     console.log('📂 Load preset - Coming soon!');
-    alert('Load preset feature coming soon!');
+    Alert.alert('Load Preset', 'Load preset feature coming soon!');
   };
 
   return (
@@ -664,188 +671,168 @@ export default function BassStudioScreen({ navigation }) {
         </View>
 
         {/* Oscillators Panel */}
-        <View style={styles.panel}>
-          <View style={styles.panelHeader}>
-            <View style={styles.panelIcon}>
-              <Text style={styles.panelIconText}>{CONTROL_TYPES.oscillator.emoji}</Text>
-            </View>
-            <Text style={[styles.panelTitle, { color: CONTROL_TYPES.oscillator.color }]}>
-              {CONTROL_TYPES.oscillator.label}
-            </Text>
-          </View>
+        <RetroPanel title="OSCILLATORS" theme={bassTheme}>
           <View style={styles.knobRow}>
-            <InstrumentControl
-              label="OSC 1 Level"
+            <AnimatedKnob
+              label="OSC 1"
               value={params.osc1Level}
-              min={0}
-              max={1}
-              step={0.01}
-              color={BASS_COLORS.primary}
               onValueChange={(value) => handleKnobChange('osc1Level', value)}
-            />
-            <InstrumentControl
-              label="OSC 2 Level"
-              value={params.osc2Level}
               min={0}
               max={1}
-              step={0.01}
-              color={BASS_COLORS.primary}
-              onValueChange={(value) => handleKnobChange('osc2Level', value)}
+              unit="%"
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
             />
-            <InstrumentControl
-              label="Detune"
-              value={params.detune}
+            <AnimatedKnob
+              label="OSC 2"
+              value={params.osc2Level}
+              onValueChange={(value) => handleKnobChange('osc2Level', value)}
+              min={0}
+              max={1}
+              unit="%"
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
+            />
+            <AnimatedKnob
+              label="DETUNE"
+              value={params.detune / 50}
+              onValueChange={(value) => handleKnobChange('detune', value * 50)}
               min={0}
               max={50}
-              step={1}
               unit=" Hz"
-              color={BASS_COLORS.secondary}
-              onValueChange={(value) => handleKnobChange('detune', value)}
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
             />
           </View>
-        </View>
+        </RetroPanel>
 
         {/* Filter Panel */}
-        <View style={styles.panel}>
-          <View style={styles.panelHeader}>
-            <View style={styles.panelIcon}>
-              <Text style={styles.panelIconText}>{CONTROL_TYPES.filter.emoji}</Text>
-            </View>
-            <Text style={[styles.panelTitle, { color: CONTROL_TYPES.filter.color }]}>
-              {CONTROL_TYPES.filter.label}
-            </Text>
-          </View>
+        <RetroPanel title="FILTER" theme={bassTheme}>
           <View style={styles.knobRow}>
-            <InstrumentControl
-              label="Cutoff"
-              value={params.cutoff}
+            <AnimatedKnob
+              label="CUTOFF"
+              value={params.cutoff / 20000}
+              onValueChange={(value) => handleKnobChange('cutoff', value * 20000)}
               min={20}
               max={20000}
-              step={10}
               unit=" Hz"
-              color={CONTROL_TYPES.filter.color}
-              onValueChange={(value) => handleKnobChange('cutoff', value)}
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
             />
-            <InstrumentControl
-              label="Resonance"
-              value={params.resonance}
+            <AnimatedKnob
+              label="RESONANCE"
+              value={params.resonance / 20}
+              onValueChange={(value) => handleKnobChange('resonance', value * 20)}
               min={0}
               max={20}
-              step={0.1}
-              color={CONTROL_TYPES.filter.color}
-              onValueChange={(value) => handleKnobChange('resonance', value)}
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
             />
-            <InstrumentControl
-              label="Env Amount"
+            <AnimatedKnob
+              label="ENV AMT"
               value={params.envAmount}
+              onValueChange={(value) => handleKnobChange('envAmount', value)}
               min={0}
               max={1}
-              step={0.01}
-              color={CONTROL_TYPES.filter.color}
-              onValueChange={(value) => handleKnobChange('envAmount', value)}
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
             />
           </View>
-        </View>
+        </RetroPanel>
 
         {/* ADSR Envelope Panel */}
-        <View style={styles.panel}>
-          <View style={styles.panelHeader}>
-            <View style={styles.panelIcon}>
-              <Text style={styles.panelIconText}>{CONTROL_TYPES.envelope.emoji}</Text>
-            </View>
-            <Text style={[styles.panelTitle, { color: CONTROL_TYPES.envelope.color }]}>
-              {CONTROL_TYPES.envelope.label} (ADSR)
-            </Text>
-          </View>
+        <RetroPanel title="ENVELOPE (ADSR)" theme={bassTheme}>
           <View style={styles.knobRow}>
-            <InstrumentControl
-              label="Attack"
-              value={params.attack}
+            <AnimatedKnob
+              label="ATTACK"
+              value={params.attack / 2}
+              onValueChange={(value) => handleKnobChange('attack', value * 2)}
               min={0.001}
               max={2}
-              step={0.001}
               unit="s"
-              color={CONTROL_TYPES.envelope.color}
-              formatValue={(v) => v.toFixed(3)}
-              onValueChange={(value) => handleKnobChange('attack', value)}
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
             />
-            <InstrumentControl
-              label="Decay"
-              value={params.decay}
+            <AnimatedKnob
+              label="DECAY"
+              value={params.decay / 2}
+              onValueChange={(value) => handleKnobChange('decay', value * 2)}
               min={0.001}
               max={2}
-              step={0.001}
               unit="s"
-              color={CONTROL_TYPES.envelope.color}
-              formatValue={(v) => v.toFixed(3)}
-              onValueChange={(value) => handleKnobChange('decay', value)}
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
             />
-            <InstrumentControl
-              label="Sustain"
+            <AnimatedKnob
+              label="SUSTAIN"
               value={params.sustain}
+              onValueChange={(value) => handleKnobChange('sustain', value)}
               min={0}
               max={1}
-              step={0.01}
-              color={CONTROL_TYPES.envelope.color}
-              onValueChange={(value) => handleKnobChange('sustain', value)}
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
             />
-            <InstrumentControl
-              label="Release"
-              value={params.release}
+            <AnimatedKnob
+              label="RELEASE"
+              value={params.release / 5}
+              onValueChange={(value) => handleKnobChange('release', value * 5)}
               min={0.001}
               max={5}
-              step={0.001}
               unit="s"
-              color={CONTROL_TYPES.envelope.color}
-              formatValue={(v) => v.toFixed(3)}
-              onValueChange={(value) => handleKnobChange('release', value)}
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
             />
           </View>
-        </View>
+        </RetroPanel>
 
         {/* Effects Panel */}
-        <View style={styles.panel}>
-          <View style={styles.panelHeader}>
-            <View style={styles.panelIcon}>
-              <Text style={styles.panelIconText}>{CONTROL_TYPES.effects.emoji}</Text>
-            </View>
-            <Text style={[styles.panelTitle, { color: CONTROL_TYPES.effects.color }]}>
-              {CONTROL_TYPES.effects.label}
-            </Text>
-          </View>
+        <RetroPanel title="EFFECTS" theme={bassTheme}>
           <View style={styles.knobRow}>
-            <InstrumentControl
-              label="Distortion"
-              value={params.distortion}
+            <AnimatedKnob
+              label="DISTORTION"
+              value={params.distortion / 100}
+              onValueChange={(value) => handleKnobChange('distortion', value * 100)}
               min={0}
               max={100}
-              step={1}
               unit="%"
-              color={CONTROL_TYPES.effects.color}
-              onValueChange={(value) => handleKnobChange('distortion', value)}
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
             />
-            <InstrumentControl
-              label="Chorus"
-              value={params.chorus}
+            <AnimatedKnob
+              label="CHORUS"
+              value={params.chorus / 100}
+              onValueChange={(value) => handleKnobChange('chorus', value * 100)}
               min={0}
               max={100}
-              step={1}
               unit="%"
-              color={CONTROL_TYPES.effects.color}
-              onValueChange={(value) => handleKnobChange('chorus', value)}
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
             />
-            <InstrumentControl
-              label="Compression"
-              value={params.compression}
+            <AnimatedKnob
+              label="COMPRESS"
+              value={params.compression / 100}
+              onValueChange={(value) => handleKnobChange('compression', value * 100)}
               min={0}
               max={100}
-              step={1}
               unit="%"
-              color={CONTROL_TYPES.effects.color}
-              onValueChange={(value) => handleKnobChange('compression', value)}
+              size={70}
+              theme={bassTheme}
+              showLEDRing={true}
             />
           </View>
-        </View>
+        </RetroPanel>
 
         {/* Sequencer Panel */}
         <View style={styles.panel}>

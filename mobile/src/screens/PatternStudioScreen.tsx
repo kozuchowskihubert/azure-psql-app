@@ -13,6 +13,7 @@ import {
   TextInput,
   Dimensions,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { presetLibrary } from '../services/PresetLibraryManager';
@@ -89,7 +90,7 @@ export default function PatternStudioScreen() {
       setIsPlaying(true);
     } catch (error: any) {
       console.error('Failed to play pattern:', error);
-      alert(`⚠️ Audio Not Available\n\n${error.message || 'Audio playback is currently being configured.'}\n\nThe Pattern Studio UI is complete, but audio requires static asset mapping due to Metro bundler limitations.`);
+      Alert.alert('⚠️ Audio Not Available', `${error.message || 'Audio playback is currently being configured.'}\n\nThe Pattern Studio UI is complete, but audio requires static asset mapping due to Metro bundler limitations.`);
     }
   };
 
@@ -108,7 +109,7 @@ export default function PatternStudioScreen() {
     try {
       const slot = mixerLayers.length;
       if (slot >= 4) {
-        alert('Mixer is full (4 layers max)');
+        Alert.alert('Mixer Full', 'Mixer is full (4 layers max)');
         return;
       }
 

@@ -3,6 +3,7 @@
  * Professional bass synthesizer with dual oscillators, filter, ADSR, and effects
  */
 
+import { Alert } from 'react-native';
 import nativeAudioContext from './NativeAudioContext';
 
 // Bass presets matching web version
@@ -451,43 +452,32 @@ export default class BassAudioEngine {
     console.log('Exporting WAV...');
     // TODO: Implement WAV export
     // This would require capturing audio output and encoding to WAV format
-    alert('WAV export coming soon!');
+    Alert.alert('Export WAV', 'WAV export coming soon!');
   }
 
   exportMIDI() {
     console.log('Exporting MIDI...');
     
     if (this.recordingBuffer.length === 0) {
-      alert('No recording to export. Start recording first!');
+      Alert.alert('No Recording', 'No recording to export. Start recording first!');
       return;
     }
 
     // TODO: Implement MIDI file generation
     // This would create a standard MIDI file from the recording buffer
-    alert(`MIDI export coming soon! ${this.recordingBuffer.length} notes recorded.`);
+    Alert.alert('Export MIDI', `MIDI export coming soon! ${this.recordingBuffer.length} notes recorded.`);
   }
 
   savePreset(customParams) {
-    const presetName = prompt('Enter preset name:');
-    if (!presetName) return;
-
-    // Save to local storage
-    try {
-      const savedPresets = JSON.parse(localStorage.getItem('bassPresets') || '{}');
-      savedPresets[presetName] = { ...customParams, name: presetName };
-      localStorage.setItem('bassPresets', JSON.stringify(savedPresets));
-      console.log(`Preset saved: ${presetName}`);
-      alert(`Preset "${presetName}" saved successfully!`);
-    } catch (error) {
-      console.error('Error saving preset:', error);
-      alert('Failed to save preset');
-    }
+    // Note: prompt() doesn't exist in React Native, would need TextInput
+    // TODO: Implement proper preset saving with React Native AsyncStorage
+    Alert.alert('Save Preset', 'Preset saving will be implemented with proper UI');
   }
 
   loadPresetFromFile() {
     // TODO: Implement preset loading from file picker
     console.log('Load preset from file');
-    alert('Load preset feature coming soon!');
+    Alert.alert('Load Preset', 'Load preset feature coming soon!');
   }
 
   cleanup() {

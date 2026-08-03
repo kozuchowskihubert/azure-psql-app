@@ -592,3 +592,10 @@ const FACTORY_PRESETS = {
 if (typeof window !== 'undefined') {
     window.FACTORY_PRESETS = FACTORY_PRESETS;
 }
+
+// Node/CommonJS — patchController requires this file server-side. Without the
+// export the require() yields {}, so every /api/patches/:instrument response
+// silently drops its factory presets.
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = FACTORY_PRESETS;
+}

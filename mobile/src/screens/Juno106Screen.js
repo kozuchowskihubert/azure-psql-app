@@ -18,7 +18,7 @@ import { WebView } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
 import Knob from '../components/Knob';
 import juno106Bridge from '../synths/Juno106Bridge';
-import webAudioBridge from '../services/WebAudioBridge';
+import toneAudioEngine from '../services/ToneAudioEngine';
 import Oscilloscope from '../components/Oscilloscope';
 import UniversalSequencer from '../components/UniversalSequencer';
 import PianoRollSequencer from '../sequencer/PianoRollSequencer';
@@ -127,34 +127,22 @@ const Juno106Screen = ({ navigation }) => {
 
   const initializeSynth = async () => {
     try {
-      await juno106Bridge.init();
-      console.log('✅ Juno-106 initialized');
-      
-      // Resume audio context on mount (required for mobile)
-      setTimeout(() => {
-        if (webAudioBridge && typeof webAudioBridge.resumeAudio === 'function') {
-          webAudioBridge.resumeAudio();
-          console.log('🔊 Attempting to resume audio context...');
-        }
-      }, 500);
+      // Initialize Tone.js audio engine
+      const result = await toneAudioEngine.initialize();
+      if (result.success) {
+        console.log('✅ Juno-106 (Tone.js) initialized');
+        console.log('   Latency:', result.latency.toFixed(1), 'ms');
+      }
     } catch (error) {
       console.error('❌ Juno-106 init failed:', error);
     }
   };
 
   const playNote = async (note, freq) => {
-    // Resume audio on first interaction (iOS requirement)
-    if (webAudioBridge && !webAudioBridge.isReady) {
-      console.log('🔊 First interaction - resuming audio...');
-      if (typeof webAudioBridge.resumeAudio === 'function') {
-        webAudioBridge.resumeAudio();
-      }
-    }
-    
     setActiveNotes(prev => new Set([...prev, note]));
     
-    // Play note with proper options object
-    juno106Bridge.playNote(note, { velocity: 1.0, duration: 2.0 });
+    // Play note with ToneAudioEngine
+    toneAudioEngine.playJuno106(freq, 2.0, 1.0);
     console.log(`🎹 Playing Juno-106: ${note} @ ${freq.toFixed(2)}Hz`);
   };
 
@@ -272,23 +260,7 @@ const Juno106Screen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Hidden WebView for audio-engine.html - DISABLED FOR LAYOUT FIX
-      <WebView
-        ref={(ref) => {
-          if (ref && !webAudioBridge.isReady) {
-            webAudioBridge.setWebViewRef(ref);
-          }
-        }}
-        source={require('../../assets/audio-engine.html')}
-        style={{ width: 1, height: 1, opacity: 0, position: 'absolute', top: -1000, left: -1000, pointerEvents: 'none' }}
-        onMessage={(event) => webAudioBridge.onMessage(event)}
-        onLoad={() => webAudioBridge.initAudio()}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        mediaPlaybackRequiresUserAction={false}
-        allowsInlineMediaPlayback={true}
-      />
-      */}
+      {/* Tone.js audio - no WebView needed! */}
 
       {/* Header */}
       <LinearGradient
